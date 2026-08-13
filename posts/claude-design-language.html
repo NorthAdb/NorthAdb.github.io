@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>拆解 Claude 官网的设计语言 — NorthAdb 的博客</title>
+<meta name="description" content="从色彩、字体、纹理到留白，逐层拆解 Claude 官网的设计系统。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23D97757'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%231C100A' font-family='Georgia' font-weight='bold'>N</text></svg>">
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<div class="orb orb-a"></div>
+<div class="orb orb-b"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../index.html">首页</a></li>
+        <li><a href="../index.html#posts">文章</a></li>
+        <li><a href="../about.html">关于</a></li>
+        <li><a href="https://github.com/NorthAdb" target="_blank" rel="noopener" class="nav-cta">GitHub ↗</a></li>
+      </ul>
+    </nav>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <article>
+    <header class="wrap post-hero">
+      <div class="crumbs">
+        <a href="../index.html">首页</a><span class="sep-c">/</span><span>设计</span>
+      </div>
+      <h1>拆解 Claude 官网的设计语言</h1>
+      <div class="post-meta">
+        <time datetime="2025-07-18">2025 年 7 月 18 日</time>
+        <span class="sep"></span>
+        <span>阅读约 7 分钟</span>
+      </div>
+    </header>
+
+    <div class="wrap prose">
+      <p>在过去很长一段时间里，AI 产品的界面总是逃不开两种命运：要么是聊天框加按钮的「功能面板」，要么是霓虹渐变堆满的「赛博朋克」。直到 Claude 出现，它提供了一个完全不同的答案——<strong>一家 AI 公司的官网，居然可以像一本装帧考究的书</strong>。</p>
+
+      <p>这篇文章想拆开看看：Claude 官网（以及整个 Anthropic 的品牌）到底做对了什么？而我们——包括我这个博客——又能从中学到什么？</p>
+
+      <h2>一、色彩：把克制做到极致</h2>
+
+      <p>打开 claude.ai，你的眼睛首先接触到的是一大片近黑底色。这不是纯黑 <code>#000000</code>，而是一种带暖调的深色——官方称之为「Cream」体系下的暗色变体，介于 <code>#0F0F0F</code> 与 <code>#1A1918</code> 之间。</p>
+
+      <p>它选了一个极为克制的强调色：<strong>珊瑚橙（Coral）</strong>，大约 <code>#D97757</code>。这个颜色妙在哪里？</p>
+
+      <ul>
+        <li>它有温度——不像蓝紫色那么「科技」，也不像正红色那么有攻击性</li>
+        <li>它与近黑底色形成恰到好处的对比，不刺眼，但足够醒目</li>
+        <li>它让人想起日落、陶土、篝火——一种「有机」的质感，暗合 Anthropic「AI 应更人性化」的主张</li>
+      </ul>
+
+      <p>整个品牌色板里，珊瑚橙几乎只用于「需要被注意」的地方：主按钮、链接、logo 点缀。其余全部让位给黑白灰。用最少的颜色，说最清楚的话。</p>
+
+      <h2>二、字体：衬线体回归</h2>
+
+      <p>Claude 官网最显著的特征，是标题使用了衬线字体（Copernicus）——带衬线的笔画在近黑背景上展开，像烫金的铅字。正文则使用无衬线的 Styrene 字体，保证长文阅读的舒适。</p>
+
+      <p>这种「衬线标题 + 无衬线正文」的搭配在今天的科技界几乎是异类。大多数产品为了「现代感」清一色使用无衬线，结果就是千篇一律的「硅谷模板」。Claude 反其道而行，用衬线体传达三个信息：</p>
+
+      <ol>
+        <li><strong>文化感</strong>——文字是思想的载体，衬线体天然带书卷气</li>
+        <li><strong>辨识度</strong>——在一众无衬线的竞品中一眼可辨</li>
+        <li><strong>时间感</strong>——它提醒你，这家公司相信「深思熟虑」的价值</li>
+      </ol>
+
+      <p>顺带一提，本博客的标题字体同样采用了衬线栈（Georgia → 宋体），正是出于同样的考量。</p>
+
+      <h2>三、纹理：看不见的细节</h2>
+
+      <p>如果你仔细看 Claude 的页面背景，会发现它并不是纯色，而是铺着一层极淡的点状网格。这种纹理有多淡？淡到大多数用户根本不会注意到——但它恰恰是「高级感」的来源。</p>
+
+      <p>纯色背景是「平面」，带纹理的背景是「纸面」。人的视觉系统对微妙的材质差异极其敏感：</p>
+
+      <blockquote>细节不会让你尖叫「哇」，但它的缺失会让你嘀咕「哪里不对」。</blockquote>
+
+      <p>实现这种纹理只需要几行 CSS：</p>
+
+      <pre><code>body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(
+    rgba(255, 255, 255, 0.05) 1px,
+    transparent 1px
+  );
+  background-size: 26px 26px;
+  z-index: -1;
+}</code></pre>
+
+      <p>成本几乎为零，质感立竿见影。</p>
+
+      <h2>四、留白：让内容呼吸</h2>
+
+      <p>Claude 官网的信息密度极低。大标题和正文之间有巨大的空隙，卡片与卡片之间保持克制的间距，导航栏简单到只有几个词。这看起来「浪费」，其实是深思熟虑：</p>
+
+      <ul>
+        <li>AI 产品的用户正在处理复杂的认知任务，界面应当减少干扰</li>
+        <li>留白让核心信息（对话、代码、文字）成为唯一的主角</li>
+        <li>高级感 = 自信。敢于留白，说明内容本身足够有分量</li>
+      </ul>
+
+      <p>对比那些把按钮、弹窗、横幅塞满首屏的产品，Claude 的选择是一种宣言：<strong>我们相信用户是来工作的，不是来逛商场的</strong>。</p>
+
+      <h2>五、我们学到了什么</h2>
+
+      <p>这套设计语言对我的博客改版产生了直接影响，总结成三条可迁移的原则：</p>
+
+      <ol>
+        <li><strong>先定调色板，再写样式</strong>——把背景、文字、强调色三个变量定义成 CSS 自定义属性，全局的一致性就有了锚点</li>
+        <li><strong>克制地使用强调色</strong>——珊瑚橙只出现在交互点和视觉锚点上，用量 <code>≤5%</code></li>
+        <li><strong>纹理与留白是免费的奢侈品</strong>——几行 CSS 的点阵、足够的 padding，比任何花哨组件都更能塑造气质</li>
+      </ol>
+
+      <p>好的设计从来不是「加」出来的，而是「减」出来的。Claude 官网告诉我们：当一家公司足够相信自己的产品，它的界面就会安静下来。</p>
+
+      <p>而这，大概也是我想让这个博客成为的样子。</p>
+    </div>
+
+    <footer class="wrap post-foot">
+      <div class="tags">
+        <span class="tag">设计</span>
+        <span class="tag">Claude</span>
+        <span class="tag">CSS</span>
+      </div>
+      <a href="mailto:1328704940@qq.com" style="font-size:13.5px;color:#b0aca2;">💬 给我写信</a>
+    </footer>
+  </article>
+
+  <nav class="wrap post-nav">
+    <a class="prev" href="hello-world.html">
+      <span class="dir">← 上一篇</span>
+      <span class="t">新博客，开工 —— 你好，世界</span>
+    </a>
+    <a class="next" href="github-pages-guide.html">
+      <span class="dir">下一篇 →</span>
+      <span class="t">零基础把静态网页部署到 GitHub Pages</span>
+    </a>
+  </nav>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb 的博客</span>
+    </div>
+    <p>© 2025 NorthAdb · 用 Claude 风格，记录我的世界</p>
+    <div class="f-links">
+      <a href="../index.html">首页</a>
+      <a href="../about.html">关于</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</footer>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../js/main.js"></script>
+</body>
+</html>

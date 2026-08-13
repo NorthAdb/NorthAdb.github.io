@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>新博客，开工 —— 你好，世界 — NorthAdb 的博客</title>
+<meta name="description" content="换了新的博客主题，聊聊这次改版背后的想法。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23D97757'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%231C100A' font-family='Georgia' font-weight='bold'>N</text></svg>">
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<div class="orb orb-a"></div>
+<div class="orb orb-b"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../index.html">首页</a></li>
+        <li><a href="../index.html#posts">文章</a></li>
+        <li><a href="../about.html">关于</a></li>
+        <li><a href="https://github.com/NorthAdb" target="_blank" rel="noopener" class="nav-cta">GitHub ↗</a></li>
+      </ul>
+    </nav>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <article>
+    <header class="wrap post-hero">
+      <div class="crumbs">
+        <a href="../index.html">首页</a><span class="sep-c">/</span><span>随笔</span>
+      </div>
+      <h1>新博客，开工 —— 你好，世界</h1>
+      <div class="post-meta">
+        <time datetime="2025-07-20">2025 年 7 月 20 日</time>
+        <span class="sep"></span>
+        <span>阅读约 4 分钟</span>
+      </div>
+    </header>
+
+    <div class="wrap prose">
+      <p>你好，世界。这已经是我的博客第 N 次重新开张了——但这一次，感觉不太一样。</p>
+
+      <p>过去几年，这个域名一直跑着一套经典的 Jekyll 主题博客，留下了不少技术笔记。它们很好，只是……越来越不像「现在的我」。于是趁着假期，我决定彻底重写：<strong>纯静态、零依赖、暗色主题</strong>，向 Claude 官网的设计语言致敬。</p>
+
+      <h2>为什么是 Claude 风格</h2>
+
+      <p>第一次打开 claude.ai 的时候，我被它的界面击中了：近黑的底色上浮着一层若有若无的点状纹理，珊瑚橙的强调色像夜里的一盏灯，衬线体标题不急不缓地讲着话。它和我用过的所有「工具型」产品都不一样——<strong>它把克制做成了美</strong>。</p>
+
+      <p>我想让我的博客也有这种气质：不喧哗，但耐看；没有花哨的动效，但每个细节都经得起打量。于是我提取了这套设计语言的核心元素：</p>
+
+      <ul>
+        <li><strong>色彩</strong>：近黑背景 <code>#0F0E0C</code>，象牙白文字，珊瑚橙 <code>#D97757</code> 点缀</li>
+        <li><strong>字体</strong>：衬线体做标题，无衬线体做正文，对比产生节奏</li>
+        <li><strong>纹理</strong>：点状网格铺底，营造「纸感」与层次</li>
+        <li><strong>留白</strong>：宁可空，不要挤——让内容自己呼吸</li>
+      </ul>
+
+      <h2>为什么是纯静态</h2>
+
+      <p>博客的本质是文字。我不想为了一个博客维护一套构建链、一堆依赖、一个数据库。所以最终方案极其朴素：</p>
+
+      <pre><code>blog/
+├── index.html      # 首页
+├── about.html      # 关于页
+├── posts/          # 文章（每篇一个 HTML）
+├── css/style.css   # 全部样式
+└── js/main.js      # 一点交互</code></pre>
+
+      <p>没有框架，没有构建步骤，没有 Node 依赖。写完直接扔给 GitHub Pages，免费托管、全球 CDN、自动 HTTPS。也许未来内容多了会引入更优雅的方案，但此刻，简单就是最大的正确。</p>
+
+      <h2>这个博客会写什么</h2>
+
+      <blockquote>只有能讲清楚的东西，才算真正学会。</blockquote>
+
+      <p>接下来的内容大概会围绕三个主题：</p>
+
+      <ol>
+        <li><strong>前端与工程</strong>——性能优化、工程化实践、踩坑记录</li>
+        <li><strong>设计与审美</strong>——拆解优秀产品的设计语言（比如我下一篇要写的 Claude 设计解析）</li>
+        <li><strong>AI 与工作流</strong>——AI 工具如何改变我们写代码的方式</li>
+      </ol>
+
+      <h2>写在最后</h2>
+
+      <p>博客这东西，写给自己看是记录，写给世界看是分享。我不敢说这里的内容对谁有用，但如果你恰好路过、恰好读到、恰好觉得有点意思——那这页面就没白加载。</p>
+
+      <p>那么，开工吧。🎉</p>
+    </div>
+
+    <footer class="wrap post-foot">
+      <div class="tags">
+        <span class="tag">随笔</span>
+        <span class="tag">博客</span>
+        <span class="tag">设计</span>
+      </div>
+      <a href="mailto:1328704940@qq.com" style="font-size:13.5px;color:#b0aca2;">💬 给我写信</a>
+    </footer>
+  </article>
+
+  <nav class="wrap post-nav">
+    <a class="prev" href="github-pages-guide.html">
+      <span class="dir">← 上一篇</span>
+      <span class="t">零基础把静态网页部署到 GitHub Pages</span>
+    </a>
+    <a class="next" href="claude-design-language.html">
+      <span class="dir">下一篇 →</span>
+      <span class="t">拆解 Claude 官网的设计语言</span>
+    </a>
+  </nav>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb 的博客</span>
+    </div>
+    <p>© 2025 NorthAdb · 用 Claude 风格，记录我的世界</p>
+    <div class="f-links">
+      <a href="../index.html">首页</a>
+      <a href="../about.html">关于</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</footer>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../js/main.js"></script>
+</body>
+</html>

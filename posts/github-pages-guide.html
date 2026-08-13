@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>零基础把静态网页部署到 GitHub Pages — NorthAdb 的博客</title>
+<meta name="description" content="免费、免服务器、全球 CDN。手把手教你用 GitHub Pages 部署个人博客。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23D97757'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%231C100A' font-family='Georgia' font-weight='bold'>N</text></svg>">
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<div class="orb orb-a"></div>
+<div class="orb orb-b"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../index.html">首页</a></li>
+        <li><a href="../index.html#posts">文章</a></li>
+        <li><a href="../about.html">关于</a></li>
+        <li><a href="https://github.com/NorthAdb" target="_blank" rel="noopener" class="nav-cta">GitHub ↗</a></li>
+      </ul>
+    </nav>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <article>
+    <header class="wrap post-hero">
+      <div class="crumbs">
+        <a href="../index.html">首页</a><span class="sep-c">/</span><span>教程</span>
+      </div>
+      <h1>零基础把静态网页部署到 GitHub Pages</h1>
+      <div class="post-meta">
+        <time datetime="2025-07-15">2025 年 7 月 15 日</time>
+        <span class="sep"></span>
+        <span>阅读约 6 分钟</span>
+      </div>
+    </header>
+
+    <div class="wrap prose">
+      <p>你写好了人生第一个网页，然后呢？部署到哪儿？买服务器太贵，搭环境太麻烦——<strong>GitHub Pages 就是为这个场景而生的</strong>：免费、无需服务器、自带全球 CDN 和 HTTPS，堪称个人博客与静态站点的最佳起点。你正在读的这个博客，就是跑在 GitHub Pages 上的。</p>
+
+      <p>这篇文章完整记录整个流程，跟着做即可。</p>
+
+      <h2>准备工作</h2>
+
+      <ul>
+        <li>一个 GitHub 账号（没有的话先注册）</li>
+        <li>本地安装 Git（<code>git --version</code> 验证）</li>
+        <li>一个纯静态站点（HTML/CSS/JS，无后端）</li>
+      </ul>
+
+      <h2>第一步：创建仓库</h2>
+
+      <p>有两种玩法，取决于你想要的网址：</p>
+
+      <table style="width:100%;border-collapse:collapse;margin:1.5em 0;font-size:14.5px;">
+        <tr style="border-bottom:1px solid #2a2824;">
+          <td style="padding:10px 12px;color:#f0ede6;"><strong>个人主页</strong></td>
+          <td style="padding:10px 12px;color:#b0aca2;">仓库名必须为 <code>&lt;用户名&gt;.github.io</code>，站点地址是 <code>https://&lt;用户名&gt;.github.io</code></td>
+        </tr>
+        <tr>
+          <td style="padding:10px 12px;color:#f0ede6;"><strong>项目页面</strong></td>
+          <td style="padding:10px 12px;color:#b0aca2;">任意仓库名，站点地址是 <code>https://&lt;用户名&gt;.github.io/&lt;仓库名&gt;/</code></td>
+        </tr>
+      </table>
+
+      <p>个人博客建议用第一种：一个仓库就是一个站点，网址干净好记。</p>
+
+      <h2>第二步：推送代码</h2>
+
+      <p>在本地站点目录里初始化 git 并推送：</p>
+
+      <pre><code># 初始化仓库
+git init
+git add .
+git commit -m "feat: 我的第一个静态站点"
+
+# 关联远程仓库（替换成你的仓库地址）
+git branch -M main
+git remote add origin https://github.com/&lt;用户名&gt;/&lt;用户名&gt;.github.io.git
+git push -u origin main</code></pre>
+
+      <p>推送失败？大概率是认证问题。两个解决办法：</p>
+
+      <ol>
+        <li>用 <strong>HTTPS + Personal Access Token</strong>：在 GitHub 生成 token（勾选 <code>repo</code> 权限），推送时用户名填你的 GitHub 账号，密码填 token</li>
+        <li>用 <strong>SSH</strong>：<code>ssh-keygen</code> 生成密钥 → 添加到 GitHub Settings → SSH keys，然后把远程地址换成 <code>git@github.com:&lt;用户名&gt;/&lt;仓库&gt;.git</code></li>
+      </ol>
+
+      <h2>第三步：启用 Pages</h2>
+
+      <p>代码推上去之后，打开仓库页面：</p>
+
+      <ol>
+        <li>进入 <strong>Settings → Pages</strong></li>
+        <li>在 <strong>Build and deployment</strong> 里把 Source 选为 <strong>Deploy from a branch</strong></li>
+        <li>Branch 选择 <code>main</code>（或 <code>master</code>），目录选 <code>/ (root)</code></li>
+        <li>点击 Save，等待一两分钟，站点就上线了</li>
+      </ol>
+
+      <p>也可以完全用命令行完成：</p>
+
+      <pre><code>gh api -X POST repos/&lt;用户名&gt;/&lt;仓库名&gt;/pages \
+  -f "source[branch]=main" -f "source[path]=/"</code></pre>
+
+      <p>启用后访问 <code>https://&lt;用户名&gt;.github.io</code> 即可看到你的站点。</p>
+
+      <h2>两个容易踩的坑</h2>
+
+      <h3>坑一：.nojekyll 文件</h3>
+
+      <p>GitHub Pages 默认会用 Jekyll 处理站点，如果你的文件里有 <code>_</code> 开头的目录（比如 <code>_posts</code>），会被 Jekyll 吞掉。纯静态站点请务必在根目录放一个空的 <code>.nojekyll</code> 文件，明确告诉 Pages「别碰我的文件」：</p>
+
+      <pre><code># Windows 下创建
+New-Item .nojekyll
+# 或 Linux/macOS
+touch .nojekyll</code></pre>
+
+      <h3>坑二：相对路径</h3>
+
+      <p>如果站点部署在子路径（项目页面），<code>&lt;link href="/css/style.css"&gt;</code> 这种根路径写法会 404。全部改用<strong>相对路径</strong>：<code>css/style.css</code>、<code>../css/style.css</code>。这也是为什么我的文章页样式都写成 <code>../css/style.css</code>。</p>
+
+      <p class="kbd-box">💡 小提示：上文 <code>link</code> 标签中的根路径写法是被转义后展示的示例，请勿照抄到真实页面里。</p>
+
+      <h2>进阶：绑定自定义域名</h2>
+
+      <p><code>.github.io</code> 用腻了？可以绑定自己的域名：</p>
+
+      <ol>
+        <li>在仓库根目录添加 <code>CNAME</code> 文件，内容写你的域名（如 <code>blog.example.com</code>）</li>
+        <li>在域名服务商处添加一条 <strong>CNAME 记录</strong>，指向 <code>&lt;用户名&gt;.github.io</code></li>
+        <li>Pages 设置页会自动识别 CNAME 并签发 HTTPS 证书</li>
+      </ol>
+
+      <p>整个过程大概 10 分钟，证书自动续期，完全免费。</p>
+
+      <h2>总结</h2>
+
+      <p>把静态站点部署到 GitHub Pages 的完整链路是：<strong>写代码 → git push → Settings 里点两下</strong>。从此以后，每次更新内容只需要 <code>git push</code>，其他什么都不用管。</p>
+
+      <blockquote>互联网的尽头是静态托管——只要你的内容不需要服务器，就永远不用操心运维。</blockquote>
+
+      <p>现在，去部署你的第一个站点吧。这个博客的每一页，都是这样跑起来的。</p>
+    </div>
+
+    <footer class="wrap post-foot">
+      <div class="tags">
+        <span class="tag">教程</span>
+        <span class="tag">GitHub Pages</span>
+        <span class="tag">部署</span>
+      </div>
+      <a href="mailto:1328704940@qq.com" style="font-size:13.5px;color:#b0aca2;">💬 给我写信</a>
+    </footer>
+  </article>
+
+  <nav class="wrap post-nav">
+    <a class="prev" href="claude-design-language.html">
+      <span class="dir">← 上一篇</span>
+      <span class="t">拆解 Claude 官网的设计语言</span>
+    </a>
+    <a class="next" href="hello-world.html">
+      <span class="dir">下一篇 →</span>
+      <span class="t">新博客，开工 —— 你好，世界</span>
+    </a>
+  </nav>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb 的博客</span>
+    </div>
+    <p>© 2025 NorthAdb · 用 Claude 风格，记录我的世界</p>
+    <div class="f-links">
+      <a href="../index.html">首页</a>
+      <a href="../about.html">关于</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</footer>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../js/main.js"></script>
+</body>
+</html>

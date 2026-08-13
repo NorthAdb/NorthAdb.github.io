@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NorthAdb 的博客 — 记录代码与思考</title>
+<meta name="description" content="NorthAdb 的个人博客：关于前端、编程与 AI 的思考与记录。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23D97757'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%231C100A' font-family='Georgia' font-weight='bold'>N</text></svg>">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="orb orb-a"></div>
+<div class="orb orb-b"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html" class="active">首页</a></li>
+        <li><a href="index.html#posts">文章</a></li>
+        <li><a href="about.html">关于</a></li>
+        <li><a href="https://github.com/NorthAdb" target="_blank" rel="noopener" class="nav-cta">GitHub ↗</a></li>
+      </ul>
+    </nav>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <!-- ============ HERO ============ -->
+  <section class="hero wrap">
+    <div class="hero-kicker"><span class="dot"></span> Personal Blog</div>
+    <h1>你好，我是 <em>NorthAdb</em>，<br>在这里记录代码与思考。</h1>
+    <p class="sub">
+      一个关于前端开发、编程语言与 AI 的个人博客。
+      没有华丽的辞藻，只有真实的实践笔记 —— 写给自己，也写给路过的你。
+    </p>
+    <div class="hero-actions">
+      <a href="#posts" class="btn btn-primary">阅读最新文章 ↓</a>
+      <a href="about.html" class="btn btn-ghost">了解更多</a>
+    </div>
+  </section>
+
+  <!-- ============ POSTS ============ -->
+  <section class="wrap" id="posts" style="padding-bottom: 20px;">
+    <div class="sec-head reveal">
+      <h2>最新文章</h2>
+      <a class="more" href="#posts">更多 →</a>
+    </div>
+
+    <div class="posts">
+
+      <article class="post-card reveal">
+        <div class="post-meta">
+          <time datetime="2025-07-20">2025.07.20</time>
+          <span class="sep"></span>
+          <span class="tag">随笔</span>
+        </div>
+        <h3><a href="posts/hello-world.html">新博客，开工 —— 你好，世界</a></h3>
+        <p class="excerpt">换了新的博客主题，把旧的 Jekyll 站点换成了一套全新的、向 Claude 官网致敬的暗色设计。聊聊为什么这样做，以及这次改版背后的想法。</p>
+        <a class="readmore" href="posts/hello-world.html">阅读全文 <span class="arrow">→</span></a>
+      </article>
+
+      <article class="post-card reveal">
+        <div class="post-meta">
+          <time datetime="2025-07-18">2025.07.18</time>
+          <span class="sep"></span>
+          <span class="tag">设计</span>
+        </div>
+        <h3><a href="posts/claude-design-language.html">拆解 Claude 官网的设计语言</a></h3>
+        <p class="excerpt">近黑底色、珊瑚橙点缀、衬线大标题、点状网格纹理……Claude 的界面为什么让人过目不忘？从色彩、字体到留白，逐层拆解这套设计系统。</p>
+        <a class="readmore" href="posts/claude-design-language.html">阅读全文 <span class="arrow">→</span></a>
+      </article>
+
+      <article class="post-card reveal">
+        <div class="post-meta">
+          <time datetime="2025-07-15">2025.07.15</time>
+          <span class="sep"></span>
+          <span class="tag">教程</span>
+        </div>
+        <h3><a href="posts/github-pages-guide.html">零基础把静态网页部署到 GitHub Pages</a></h3>
+        <p class="excerpt">免费、免服务器、全球 CDN——GitHub Pages 是最适合个人博客的托管方案。从创建仓库、推送代码到启用 Pages，手把手带你走完全程。</p>
+        <a class="readmore" href="posts/github-pages-guide.html">阅读全文 <span class="arrow">→</span></a>
+      </article>
+
+      <article class="post-card reveal">
+        <div class="post-meta">
+          <time datetime="2025-07-10">2025.07.10</time>
+          <span class="sep"></span>
+          <span class="tag">AI</span>
+        </div>
+        <h3><a href="posts/ai-coding-workflow.html">当我用 AI 写代码时，我在想什么</a></h3>
+        <p class="excerpt">从「让 AI 帮我生成代码」到「和 AI 结对编程」，一年多的实践让我重新理解了人与工具的关系。分享我的真实工作流与踩过的坑。</p>
+        <a class="readmore" href="posts/ai-coding-workflow.html">阅读全文 <span class="arrow">→</span></a>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ============ ABOUT STRIP ============ -->
+  <section class="wrap">
+    <div class="about-strip reveal">
+      <div class="about-avatar">N</div>
+      <div>
+        <h3>关于 NorthAdb</h3>
+        <p>一名热爱前端与编程语言的学习者。白天写业务代码，晚上折腾开源项目。相信好的工具能改变人的思维方式，也相信「写下来」是最好的学习方式。</p>
+        <div class="links">
+          <a href="about.html">关于我 →</a>
+          <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub ↗</a>
+          <a href="mailto:1328704940@qq.com">Email ↗</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb 的博客</span>
+    </div>
+    <p>© 2025 NorthAdb · 用 Claude 风格，记录我的世界</p>
+    <div class="f-links">
+      <a href="index.html">首页</a>
+      <a href="about.html">关于</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</footer>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="js/main.js"></script>
+</body>
+</html>

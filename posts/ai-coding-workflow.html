@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>当我用 AI 写代码时，我在想什么 — NorthAdb 的博客</title>
+<meta name="description" content="从「让 AI 帮我生成代码」到「和 AI 结对编程」，分享真实的 AI 编程工作流与踩过的坑。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23D97757'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%231C100A' font-family='Georgia' font-weight='bold'>N</text></svg>">
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<div class="orb orb-a"></div>
+<div class="orb orb-b"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../index.html">首页</a></li>
+        <li><a href="../index.html#posts">文章</a></li>
+        <li><a href="../about.html">关于</a></li>
+        <li><a href="https://github.com/NorthAdb" target="_blank" rel="noopener" class="nav-cta">GitHub ↗</a></li>
+      </ul>
+    </nav>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <article>
+    <header class="wrap post-hero">
+      <div class="crumbs">
+        <a href="../index.html">首页</a><span class="sep-c">/</span><span>AI</span>
+      </div>
+      <h1>当我用 AI 写代码时，我在想什么</h1>
+      <div class="post-meta">
+        <time datetime="2025-07-10">2025 年 7 月 10 日</time>
+        <span class="sep"></span>
+        <span>阅读约 8 分钟</span>
+      </div>
+    </header>
+
+    <div class="wrap prose">
+      <p>2025 年还在讨论「AI 会不会取代程序员」已经没有意义了。更有意思的问题是：<strong>一个认真对待自己职业的程序员，现在应该怎么用 AI？</strong></p>
+
+      <p>过去一年多，我几乎每天都在和 AI 结对编程——这个博客的每一行代码都是和 AI 一起写的。我想诚实地分享我的工作流、我的收获，以及我踩过的坑。</p>
+
+      <h2>一、从「复制粘贴」到「结对编程」</h2>
+
+      <p>大多数人对 AI 编程的初体验是：遇到问题，复制报错，粘贴给 AI，拿到答案，粘贴回来。这确实能解决问题，但这是最浅层的用法——<strong>它把你变成了 AI 的搬运工</strong>。</p>
+
+      <p>真正的转变发生在我不再问「这段代码怎么写」，而是开始问「这个问题怎么拆」之后。AI 最强的不是写代码，而是作为一面「思维的镜子」：</p>
+
+      <blockquote>AI 的产出质量，上限取决于你描述问题的精度。</blockquote>
+
+      <p>同样是写一个分页组件：</p>
+
+      <ul>
+        <li><strong>低质量提问</strong>：「帮我写个分页组件」→ 得到一段泛泛的样板代码</li>
+        <li><strong>高质量提问</strong>：「数据量约 10 万条，前端分页还是后端分页？用户跳页的预期延迟是多少？是否需要保留滚动位置？」→ 得到一份有取舍的、带注释的方案</li>
+      </ul>
+
+      <p>看出区别了吗？后者其实是<strong>你自己在思考</strong>，AI 只是帮你把思考落成代码。用 AI 的过程，本质上是练习「把模糊变清晰」的能力。</p>
+
+      <h2>二、我的真实工作流</h2>
+
+      <p>目前我最顺手的模式是这样的：</p>
+
+      <ol>
+        <li><strong>先写设计，再写代码</strong>——把需求、边界条件、技术选型写成一页纸的说明，喂给 AI 作为上下文。这比在对话框里来回拉扯十轮高效得多</li>
+        <li><strong>小步提交，AI 评审</strong>——每完成一个功能就提交一次，然后让 AI 以「代码评审」的视角看 diff，找边界 bug、提性能建议</li>
+        <li><strong>让 AI 写测试</strong>——先写测试再写实现（TDD），AI 对「给定输入输出」这类任务完成度非常高，能帮我快速搭起安全网</li>
+        <li><strong>脏活累活全丢给它</strong>——正则表达式、脚手架、重复的 CRUD、把 A 格式转成 B 格式……这些「高确定性的体力活」是 AI 的甜区，也是人类时间最不该花的地方</li>
+      </ol>
+
+      <p>这套流程跑下来，我每天真正「动手写代码」的时间其实变少了，但「思考架构」的时间变多了。而这恰好是我觉得程序员最该花时间的地方。</p>
+
+      <h2>三、AI 写代码的五个坑</h2>
+
+      <h3>坑一：自信地胡说</h3>
+
+      <p>AI 会在不存在的 API、编造的库版本上侃侃而谈，语法完美、语义全错。解法只有一个：<strong>所有 AI 给的代码，默认先怀疑，再验证</strong>。编译、测试、跑一遍，永远比信任它的语气可靠。</p>
+
+      <h3>坑二：上下文越长，越容易跑偏</h3>
+
+      <p>把 2000 行代码一股脑塞给 AI，它会「忘记」开头。正确姿势是给最小可复现片段 + 精确的问题描述，让 AI 聚焦。</p>
+
+      <h3>坑三：代码质量被悄悄拉低</h3>
+
+      <p>AI 生成的代码往往「能跑但平庸」：命名随意、缺少边界处理、没有注释。如果你不 review 就直接合入，代码库会在三个月内退化成「谁都能写，没人能改」的状态。<strong>Review 永远是人的责任</strong>。</p>
+
+      <h3>坑四：安全漏洞</h3>
+
+      <p>AI 对安全敏感度有限：可能生成 SQL 注入的写法、硬编码的密钥、不校验的输入。凡是涉及用户输入、鉴权、支付的代码，必须人工逐行审查。</p>
+
+      <h3>坑五：让你停止思考</h3>
+
+      <p>这是最隐蔽的坑。当 AI 什么都能答，人会倾向于不再深究「为什么」。长此以往，你会失去调试时那种「顺着因果链摸到根因」的能力。我的对策：<strong>每周至少留一天，关掉所有 AI 补全，纯手工写代码</strong>——像练字一样，保持手感。</p>
+
+      <h2>四、一些更远的思考</h2>
+
+      <p>有个说法我很认同：AI 不会取代程序员，但<strong>会用 AI 的程序员会取代不会用的</strong>。工具变革从来不是第一次：汇编取代机器码，高级语言取代汇编，IDE 取代命令行调试——每一次，抱怨的人被淘汰，拥抱的人变得更强。</p>
+
+      <p>但真正重要的不是「会不会用」，而是「用它来做什么」。AI 把「写代码」的门槛降到前所未有的低，那么程序员的价值就越来越集中在：<strong>判断做什么值得做、设计系统如何优雅地组合、对质量与安全负责</strong>。</p>
+
+      <p>换句话说，我们正在从「代码的书写者」变成「意图的工程师」。这听起来有点宏大，但落到每天的工作里，其实就是我在本文开头说的那句话：</p>
+
+      <blockquote>AI 不会替你想清楚问题——它只会帮你把想清楚的问题，做得更快。</blockquote>
+
+      <h2>写在最后</h2>
+
+      <p>这篇文章本身，也是我和 AI 协作的产物：我给出提纲和观点，AI 帮忙组织语言、补充细节，我再逐段校对修改。你看，连写作这件事，边界也在模糊。</p>
+
+      <p>但有一件事永远不会变：<strong>观点是我的，责任是我的，选择也是我的</strong>。工具再锋利，握刀的手还是自己的。</p>
+    </div>
+
+    <footer class="wrap post-foot">
+      <div class="tags">
+        <span class="tag">AI</span>
+        <span class="tag">编程</span>
+        <span class="tag">工作流</span>
+      </div>
+      <a href="mailto:1328704940@qq.com" style="font-size:13.5px;color:#b0aca2;">💬 给我写信</a>
+    </footer>
+  </article>
+
+  <nav class="wrap post-nav">
+    <a class="prev" href="github-pages-guide.html">
+      <span class="dir">← 上一篇</span>
+      <span class="t">零基础把静态网页部署到 GitHub Pages</span>
+    </a>
+    <a class="next" href="claude-design-language.html">
+      <span class="dir">下一篇 →</span>
+      <span class="t">拆解 Claude 官网的设计语言</span>
+    </a>
+  </nav>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb 的博客</span>
+    </div>
+    <p>© 2025 NorthAdb · 用 Claude 风格，记录我的世界</p>
+    <div class="f-links">
+      <a href="../index.html">首页</a>
+      <a href="../about.html">关于</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</footer>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../js/main.js"></script>
+</body>
+</html>
