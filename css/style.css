@@ -311,6 +311,8 @@ main { min-height: calc(100vh - var(--nav-h) - 160px); }
 .about-strip .links a { font-size: 14px; color: var(--accent-strong); transition: opacity 0.18s; }
 .about-strip .links a:hover { opacity: 0.75; }
 
+#learn .about-strip { margin-top: 8px; margin-bottom: 56px; }
+
 /* ================= POST PAGE ================= */
 .post-hero { padding: 72px 0 30px; max-width: 760px; }
 .post-hero .crumbs { font-size: 13.5px; color: var(--text-faint); margin-bottom: 26px; }
