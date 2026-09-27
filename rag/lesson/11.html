@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>结构化 RAG 扫盲：RAPTOR / GraphRAG / LightRAG — NorthAdb</title>
+<meta name="description" content="树与图分别解决什么；为什么手册语料不适合 GraphRAG；源码阅读入口；v4：扁平 RAG、多跳、聚类、社区检测在首次出现处展开。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23D97757'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%231C100A' font-family='Georgia' font-weight='bold'>N</text></svg>">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../course.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="orb orb-a"></div>
+<div class="orb orb-b"></div>
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html">首页</a></li>
+        <li><a href="../../index.html#posts">文章</a></li>
+        <li><a href="../../learn.html">课件</a></li>
+        <li><a href="../index.html" class="active">RAG</a></li>
+        <li><a href="../../about.html">关于</a></li>
+        <li><a href="https://github.com/NorthAdb" target="_blank" rel="noopener" class="nav-cta">GitHub ↗</a></li>
+      </ul>
+    </nav>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+<main>
+  <article>
+    <header class="wrap post-hero">
+      <div class="crumbs">
+        <a href="../../index.html">首页</a><span class="sep-c">/</span>
+        <a href="../index.html">RAG</a><span class="sep-c">/</span>
+        <span>第 11 节</span>
+      </div>
+      <h1>结构化 RAG 扫盲：RAPTOR / GraphRAG / LightRAG</h1>
+      <div class="post-meta"><span>第 11 节</span><span class="sep"></span><span>约 35 分钟</span><span class="sep"></span><a href="../quiz.html?lesson=11">本节自测</a></div><p class="lead">树与图分别解决什么；为什么手册语料不适合 GraphRAG；源码阅读入口；v4：扁平 RAG、多跳、聚类、社区检测在首次出现处展开。</p>
+    </header>
+    <div class="wrap prose wide"><blockquote>
+<p><strong>本节任务</strong>：建立&quot;问题类型 → 数据结构&quot;的选型直觉：树/图各自解决哪类
+扁平 RAG 答不好的问题，以及<strong>什么时候不该用它们</strong>。本节是扫盲课——
+理解&quot;解决什么问题、代价是什么&quot;，不在本课程从零复现论文系统。</p>
+</blockquote>
+<p><strong>课程地图上的位置</strong>：视野扩展。上一节 <a href="10.html">10 PC 与评测</a>；下一节
+<a href="12.html">12 框架对照</a>。</p>
+<h2>11.1 为什么扁平 RAG 会遇到天花板</h2>
+<p><strong>扁平 RAG</strong> 把每篇文档切成块，块和块之间没有&quot;谁包含谁、谁指向谁&quot;。
+检索就是在这一摊块里找相似。前面 10 节的优化（清洗、切分、Hybrid、Rerank、装填）
+都在提高&quot;找到相关块&quot;的能力。</p>
+<p>有三类问题，相关块找到了也答不好：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>问题类型</th>
+<th>例子</th>
+<th>扁平 RAG 为什么吃力</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>层级/全局</td>
+<td>&quot;从 SIMD 总体讲到具体指令集演进&quot;</td>
+<td>答案散在 5 篇以上，没有任何单块覆盖全貌</td>
+</tr>
+<tr>
+<td>多跳关系</td>
+<td>&quot;Jim Keller 和 Apple 是怎么连起来的&quot;</td>
+<td>要沿着关系走好几步，单块里没有这条链</td>
+</tr>
+<tr>
+<td>汇总统计</td>
+<td>&quot;这套资料的主要主题有哪些&quot;</td>
+<td>需要看过全库再概括，相似检索做的是&quot;找附近&quot;</td>
+</tr>
+</tbody>
+</table></div>
+<p>三个方案，三种结构，各自对应一类问题。它们是并列的工具，不存在&quot;图比树高级&quot;。</p>
+<p><strong>跳（hop）<strong>是沿一条关系走一步。A 和 B 有直接关系，是一跳；还要经过 B 才能到 C，
+是两跳。需要走多步才叫</strong>多跳</strong>。扁平检索一次只能捡到和问题在词面或语义上接近的块，
+接不上中间那一站。</p>
+<pre><code class="language-text">RAPTOR      树   → 按抽象层级组织：chunk → 聚类 → 摘要 → 再聚类 → 根
+GraphRAG    图   → 按实体关系组织：Entity / Relation / Community / 摘要
+LightRAG    图+向量 → 轻量版：图检索与向量检索协同，成本大幅降低
+</code></pre>
+<h2>11.2 RAPTOR（树）</h2>
+<p><strong>RAPTOR</strong>（Recursive Abstractive Processing for Tree-Organized Retrieval）
+按抽象层级把语料收成一棵树：底下是原文块，往上每一层都是更粗的摘要。</p>
+<pre><code class="language-text">        总体摘要（根）
+       /          \
+   主题A摘要      主题B摘要      ← 聚类 + LLM 摘要，逐层向上
+   /  |  \        /  |  \
+  C1 C2  C3      C4 C5  C6      ← 原始 chunk（叶子）
+</code></pre>
+<ul>
+<li><strong>聚类（clustering）</strong>：按向量远近把块分成若干簇，人不给类别名。
+同一簇里的块彼此接近，被当成&quot;在讲邻近的事&quot;。每一簇调用一次 LLM 写成摘要，
+摘要自己再变成节点，继续聚类，直到这一层节点很少或到达深度上限。
+建树的费用因此是每层每簇一次摘要调用。</li>
+<li><strong>叶子</strong>是树上不再往下分的节点，这里就是原始 chunk。根是最顶上那一份总体摘要。</li>
+<li>检索有两种走法。**collapsed tree（拉平的树）**把每一层的节点——叶子和各层摘要——
+放进同一个向量索引，谁离问题近就取谁。<strong>层级遍历</strong>先在上层摘要里定位&quot;大概在哪一枝&quot;，
+再只钻进那一枝的子节点。前者实现简单，后者在树上很大时少看无关的枝。</li>
+<li>适合<strong>章节型长文档</strong>的层级导航和全局总结。本课程的 CPU 语料
+（SIMD → AVX → AVX-512）就是这种由总到分的结构。</li>
+<li>摘要可能<strong>幻觉</strong>（第 8 节：模型写出资料里没有的句子）。这句摘要一旦入库，
+检索会把它当成证据交出来。评树方案时要能分清命中的是叶子还是摘要节点。</li>
+</ul>
+<h2>11.3 GraphRAG（图）</h2>
+<pre><code class="language-text">Documents → 实体抽取 → 关系抽取 → 知识图 → 社区检测 → 社区摘要
+                                          ↓
+              Local 查询（实体邻居）/ Global 查询（社区摘要）
+</code></pre>
+<p>图上的四种对象：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>对象</th>
+<th>是什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Entity（实体）</strong></td>
+<td>可以被指称的对象：人、公司、产品、架构</td>
+</tr>
+<tr>
+<td><strong>Relationship（关系）</strong></td>
+<td>两个实体之间的一条边，例如&quot;创立&quot;&quot;主导&quot;</td>
+</tr>
+<tr>
+<td><strong>Claim（断言）</strong></td>
+<td>带出处的一句事实。比关系更细，两条断言可以互相矛盾</td>
+</tr>
+<tr>
+<td><strong>Community（社区）</strong></td>
+<td>图上一团彼此连得很密、和团外连得稀的节点</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>社区检测</strong>自动找出这些团，人不指定&quot;这是半导体公司圈&quot;。
+GraphRAG 用的是 Leiden 这一类图聚类：反复把连得紧的节点留在同一组、把跨组的边切开。
+每个社区再写一篇摘要。全局问题读的是这些摘要，而不是把全库的块塞进上下文。
+这是它能回答&quot;这批资料主要在讲什么&quot;的本钱，也是建库贵的主要来源：
+全库都要做 LLM 抽取，每个社区还要再摘要一次。</p>
+<p>两种查询：</p>
+<ul>
+<li><strong>Local（局部）</strong>：从问题里认出的实体出发，读它的邻居和相关原文。
+适合&quot;某人和某公司是什么关系&quot;。</li>
+<li><strong>Global（全局）</strong>：先读社区摘要，再汇总。适合看全库主题。</li>
+</ul>
+<p>适合实体关系丰富的语料（人物、公司、产品）。CPU 手册里的实体多是指令和寄存器，
+彼此的关系浅，图上的边帮不上忙。这只能说明这批语料不吃图，不能据此否定图方法。
+换一批关系密的语料再评。</p>
+<p>本课程准备了对照语料 <code>data/graph_corpus/</code>（12 篇人物/公司/架构短文：
+Intel、AMD、Gordon Moore、Jerry Sanders、Jim Keller、Zen、Apple Silicon…），
+里面的关系链（桑德斯与诺伊斯同出仙童 → 分别创立 AMD/Intel → 交叉授权 →
+AMD64 → x86-64）足够演示&quot;多跳&quot;。索引版本 <code>graph_flat500</code>
+（<code>data/graph_corpus</code> 由 <code>build_index(corpus=&quot;graph&quot;)</code> 入库，
+meta <code>corpus=graph</code> 隔离——第 9 节的机制）。</p>
+<h2>11.4 LightRAG（轻量图）</h2>
+<p>Microsoft 的 GraphRAG 把社区摘要做到很全，建库因此很贵。
+<strong>LightRAG</strong> 留下实体和关系的抽取，以及那张图，砍掉按层级生成的社区摘要。
+查询时让图检索和向量检索一起干活，Local / Global 两类问题仍能问
+（全局问题改由关系描述和向量兜底，不再靠社区摘要）。
+贵的是<strong>建图</strong>（每篇文档都要调用 LLM 抽取），查询本身只是在已经建好的结构上走。
+LightRAG 的取舍是：结构少建一点，查询时多用向量补上。</p>
+<h2>11.5 如何运行：亲手体感&quot;扁平检索在关系题上吃力&quot;</h2>
+<pre><code class="language-bash"># 1) 确认图谱语料已入库（graph_flat500）
+python -c &quot;
+from playground.db import q
+print(q(\&quot;SELECT strategy, count(*) FROM rg_chunks WHERE meta @&gt; '{\\\&quot;corpus\\\&quot;:\\\&quot;graph\\\&quot;}'::jsonb GROUP BY strategy\&quot;))
+&quot;
+
+# 2) 终端跑一道多跳题（扁平 Hybrid，注意 Top-5 里没有'答案所在文档'）
+python -c &quot;
+from playground.rag import RAGPipeline, PipelineOptions
+t = RAGPipeline(PipelineOptions(retriever='hybrid', corpus='graph',
+                                strategy='graph_flat500', generate=False)).retrieve('AMD 的 Zen 架构是谁主导的？')
+print([h.doc_id for h in t.fused[:5]])
+&quot;
+
+# 3) 对照：第 14 节的图引导检索（python -m scripts.toy_graph --query 同一题）
+</code></pre>
+<p>预期：纯向量 Top-3 全是 zen 相关文档（因为问题里就带 &quot;Zen&quot;），而答案
+（吉姆·凯勒）在 jim-keller 文档里——词面和语义都够不着。第 14 节的
+图路会正面解决这题。</p>
+<h2>11.6 选型判断（把第 12 节的卡片提前看一眼）</h2>
+<pre><code class="language-text">局部事实/符号/语义          → 扁平 Hybrid（+Rerank）足够
+命中要准、生成要完整        → + Parent-Child
+章节长文档的全局/层级题    → 考虑 RAPTOR（摘要树）
+实体关系/多跳、语料自带图  → 考虑 GraphRAG / LightRAG
+</code></pre>
+<p><strong>不要问&quot;谁最好&quot;</strong>——同一批数据上 GraphRAG 不如 Hybrid，只说明这批数据
+不需要图结构。先跑通扁平方案 + 金标评测，有数据、有对照，再决定要不要上树/图。</p>
+<h2>11.7 本地源码阅读入口（已克隆到 refs/）</h2>
+<p><strong>两条带行号的导读路线（推荐从这里开始）：<a href="../reading/lightrag.html">LightRAG 导读</a> ·
+<a href="../reading/raptor.html">RAPTOR 导读</a></strong>——四站式路线，每站都有&quot;看什么、对照课程哪里&quot;，
+读完的检验标准是四条可验证的命题。</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>项目</th>
+<th>路径</th>
+<th>先读什么</th>
+<th>已有笔记</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LightRAG</td>
+<td><code>refs/LightRAG/lightrag/</code></td>
+<td><code>prompt.py:56</code> 抽取 Prompt、<code>operate.py:4657</code> kg_query</td>
+<td><a href="../notes/lightrag.html">LightRAG 一页总结</a></td>
+</tr>
+<tr>
+<td>RAPTOR</td>
+<td><code>refs/raptor/raptor/</code></td>
+<td><code>cluster_tree_builder.py:87-101</code> 递归终止</td>
+<td><a href="../notes/raptor.html">RAPTOR 一页总结</a></td>
+</tr>
+<tr>
+<td>RAGFlow</td>
+<td>——（设计对照）</td>
+<td>知识库模板/分段方式</td>
+<td><code>docs/03-RAGFlow设计对照.md</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>阅读任务（做完第 12 节的 LlamaIndex 对照后回头做）：</p>
+<ol>
+<li>在 LightRAG 源码里找到&quot;实体抽取的 Prompt&quot;和&quot;图 + 向量混合检索&quot;的位置；</li>
+<li>在 RAPTOR 源码里找到&quot;聚类摘要的递归终止条件&quot;；</li>
+<li>各写一页笔记：问题 / 方法 / 代价 / 不做什么（计划书 16.1 的格式）。</li>
+</ol>
+<h2>11.8 注意事项</h2>
+<ul>
+<li>树和图的构建成本随语料规模增长：每篇文档、每一簇都要调用 LLM。
+文档数量翻 100 倍，抽取和摘要的费用大约也翻 100 倍。16 篇可以玩，1600 篇要先算预算。
+这种&quot;费用和文档数成比例&quot;常写成 <strong>O(语料规模)</strong>：大 O 表示增长的量级，
+这里忽略常数因子，只强调它跟着语料一起变大，而不是只在用户提问时才付钱。</li>
+<li>树和图换了一种失真。树的摘要会丢掉细节，也会写进原文没有的句子。
+图把一段话收成<strong>三元组</strong>（主体、关系、客体三条一组的原子事实，第 14 节会抽），
+时间和语气就留在了原文档里。这里的三元组和第 13 节的&quot;评估三元组&quot;
+（Faithfulness、Answer Relevance、Context Relevance 三个分数）不是同一个词。
+两种结构都要和扁平方案在同一套金标上对照，单独的一个分数说明不了它们值不值得上。</li>
+<li>本课程的图语料（graph_corpus）是为实验写的短文。关系链是设计出来的，
+这样&quot;图多找回的那几篇&quot;才能归因到图，而不是归因到两批语料本来就不一样
+（与第 2 节 make_dirty 的对照方法相同）。</li>
+</ul>
+<h2>11.9 动手练习</h2>
+<ol>
+<li>跑 11.5 的三步，把&quot;扁平检索答不了&quot;的现场截图存档（第 14 节对照用）；</li>
+<li>用 meta_filter 切到 graph 语料问&quot;谁是 Zen 的主导者&quot;，观察 flat 检索
+在图语料上的表现——为第 14 节的图路对比建立基线；</li>
+<li>读 <code>docs/01</code> 或 <code>docs/02</code> 任一份源码笔记，补一条你自己的发现；</li>
+<li>思考：LLM Wiki（&quot;把资料编译成可持续维护的知识层&quot;，入口见
+<code>RAG与LLM Wiki：原理、架构与开源实现.md</code> 第 6 节起）与 RAPTOR 都在
+&quot;向上摘要&quot;，它们解决的问题是同一类吗？</li>
+</ol>
+</div>
+  </article>
+  <nav class="wrap post-nav"><a class="prev" href="10.html"><span class="dir">← 上一篇</span><span class="t">Parent-Child 与评测体系</span></a><a class="next" href="12.html"><span class="dir">下一篇 →</span><span class="t">框架对照与选型总结</span></a></nav>
+</main>
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb 的博客</span>
+    </div>
+    <p>© <span data-year>2026</span> NorthAdb · RAG 课为静态讲义</p>
+    <div class="f-links">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</footer>
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+<script src="../../js/main.js"></script>
+</body>
+</html>

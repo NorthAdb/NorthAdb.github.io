@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>高级范式案例：Self-RAG / CRAG / Agentic RAG — NorthAdb</title>
+<meta name="description" content="三个范式三句话；CRAG 纠正循环可运行版（rerank 分数当评估器）；控制流地图；v4：控制流、微调 token、空带与标定在首次出现处展开。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23D97757'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%231C100A' font-family='Georgia' font-weight='bold'>N</text></svg>">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../course.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="orb orb-a"></div>
+<div class="orb orb-b"></div>
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html">首页</a></li>
+        <li><a href="../../index.html#posts">文章</a></li>
+        <li><a href="../../learn.html">课件</a></li>
+        <li><a href="../index.html" class="active">RAG</a></li>
+        <li><a href="../../about.html">关于</a></li>
+        <li><a href="https://github.com/NorthAdb" target="_blank" rel="noopener" class="nav-cta">GitHub ↗</a></li>
+      </ul>
+    </nav>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+<main>
+  <article>
+    <header class="wrap post-hero">
+      <div class="crumbs">
+        <a href="../../index.html">首页</a><span class="sep-c">/</span>
+        <a href="../index.html">RAG</a><span class="sep-c">/</span>
+        <span>第 16 节</span>
+      </div>
+      <h1>高级范式案例：Self-RAG / CRAG / Agentic RAG</h1>
+      <div class="post-meta"><span>第 16 节</span><span class="sep"></span><span>约 40 分钟</span><span class="sep"></span><a href="../quiz.html?lesson=16">本节自测</a></div><p class="lead">三个范式三句话；CRAG 纠正循环可运行版（rerank 分数当评估器）；控制流地图；v4：控制流、微调 token、空带与标定在首次出现处展开。</p>
+    </header>
+    <div class="wrap prose wide"><blockquote>
+<p><strong>本节任务</strong>：给三个范式各自一个 30 秒电梯陈述，并把 CRAG 做成可运行的
+极简版亲手跑一遍。读完你应该能在&quot;检索不可靠&quot;的场景里一眼认出该上哪层
+控制流。上一节 <a href="15.html">15 查询构造</a>；下一节 <a href="17.html">17 个人知识库</a>。</p>
+</blockquote>
+<p><strong>课程地图上的位置</strong>：v2 加厚篇收尾。所有范式共同点：在<strong>单次流水线外面
+加了一层控制流</strong>——这正是前面 15 节&quot;无条件流水线&quot;之后的自然一步。</p>
+<h2>16.1 三个范式，三句话</h2>
+<p><strong>范式</strong>在这里指一种控制流的形状，不是又一个检索算法。
+<strong>控制流</strong>是&quot;下一步做哪件事，取决于上一步的结果&quot;。
+第 1 到 15 节的流水线是固定顺序：改写、检索、融合、生成，每一步都会发生。
+本节的三个名字都在这条直线外面加了判断。</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>范式</th>
+<th>一句话</th>
+<th>解决什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Self-RAG</strong></td>
+<td>模型自己决定要不要检索、检索结果能不能用、要不要重写</td>
+<td>把&quot;何时检索&quot;放进生成过程</td>
+</tr>
+<tr>
+<td><strong>CRAG</strong></td>
+<td>先给检索质量打分，不合格就纠正：再检索、换问法，或拒答</td>
+<td>检索经常不可靠时，给系统一个刹车</td>
+</tr>
+<tr>
+<td><strong>Agentic RAG</strong></td>
+<td>检索是 Agent 手里的一个工具，多步&quot;检索、判断、再检索、综合&quot;</td>
+<td>一次 Top-K 装不下的多跳问题</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Self-RAG</strong> 的原版要<strong>微调</strong>：改模型的参数，让它学会在生成中途吐出几个特殊 token。
+<strong>ISREL</strong> 表示&quot;刚检索到的这段和问题相关吗&quot;，<strong>ISSUP</strong> 表示&quot;这段能不能支撑我正要写的这句话&quot;。
+token 在这里是模型词表里的一个符号，不是第 5 节分词得到的词。
+本课程没有微调。用 Prompt 让模型先评价证据再回答，是它的近似；
+第 8 节的系统约束加上第 13 节的 Faithfulness，是生成结束之后再评的版本。</p>
+<p><strong>CRAG</strong>（Corrective RAG，纠正式 RAG）把判断放在检索之后：证据差就不要直接拿去生成。</p>
+<p><strong>Agent</strong> 在这里指一个循环：模型说&quot;调用某个工具、参数是这些&quot;，程序真的去执行，
+把结果送回，模型再决定下一步。<strong>工具</strong>就是它能调用的函数，例如 <code>retrieve(query)</code>。
+<strong>回边</strong>是这个循环里从&quot;判断&quot;回到&quot;再检索&quot;的那一条，相对的是一条直线走到生成就结束。
+多跳（第 11 节：沿关系走多步）常常要这种回边，因为第一轮检索还看不到链的下一站。</p>
+<p>三者的差别是判断放在哪：Self-RAG 放在生成模型里面，CRAG 放在一次检索之后，
+Agentic 放在整个循环外面，可以转许多圈。</p>
+<h2>16.2 CRAG 极简版：代码走读（scripts/demo_crag.py，92 行）</h2>
+<pre><code class="language-text">问题 → 第一轮检索（Hybrid+Rerank）
+         ↓
+   rerank 分数 ≥ 0.35？──是──→ 直接生成
+         ↓否
+   纠正动作：multi-query 重检索（本地版&quot;扩大搜索&quot;）
+         ↓
+   分数回升？──是──→ 用纠正后的证据生成
+         ↓否
+   拒答（CRAG 原版是回退到 Web 搜索；本地知识库场景=承认不知道）
+</code></pre>
+<p>四个函数，每个都有行号可查：</p>
+<pre><code class="language-python">LOW_SCORE = 0.35                        # :20 评估阈值（rerank 分数）
+
+def retrieve_and_score(question, rewrite):        # :28 一轮检索+评估
+    opts = PipelineOptions(retriever=&quot;hybrid&quot;, use_rerank=True,
+                           rewrite=&quot;multi_query&quot; if rewrite else &quot;none&quot;)
+    t = RAGPipeline(opts).retrieve(question)      # :31 复用第 1-10 节的全部积木
+    ctx = build_context(t.reranked)               # :32 复用第 8 节装填
+    return t, ctx, t.reranked[0].score if t.reranked else 0.0   # :33 top1 分 = 评估器
+
+def crag_answer(question):                        # :44 三段控制流
+    # ---- 第一轮（:48-54）
+    t1, ctx1, s1 = retrieve_and_score(question, rewrite=False)
+    if s1 &gt;= LOW_SCORE:
+        trace[&quot;decision&quot;] = f&quot;top={s1:.2f} ≥ {LOW_SCORE} → 证据可信，直接生成&quot;
+        trace[&quot;answer&quot;] = answer_with_context(question, ctx1.text)
+        return trace
+    # ---- 纠正轮（:57-67）
+    mqs = query_rewrite.multi_query(question, 3)  # :57 第 8 节的 multi_query 当&quot;扩大搜索&quot;
+    t2, ctx2, s2 = retrieve_and_score(question, rewrite=True)
+    if s2 &gt;= LOW_SCORE and s2 &gt; s1:               # :64 两个条件：够好 且 比第一轮好
+        trace[&quot;decision&quot;] = f&quot;纠正有效：{s1:.2f} → {s2:.2f}&quot;
+        ...
+    # ---- 仍不可信：拒答（:70-74）
+    trace[&quot;decision&quot;] = &quot;纠正后仍低 → 证据不足，拒答&quot;
+    trace[&quot;answer&quot;] = &quot;资料中没有相关信息，无法回答这个问题。&quot;
+</code></pre>
+<p><strong>评估器</strong>就是给&quot;这批证据够不够好&quot;打一个数的部件。
+本节用第 7 节 reranker 的第一名分数，没有另训一个模型。
+<code>:64</code> 的 <code>s2 &gt; s1</code> 要求纠正之后必须比第一轮更高。
+只要求&quot;过了 0.35&quot;时，第二轮可能更吵、却刚刚过线，这叫<strong>负纠正</strong>：动作做了，证据更差。</p>
+<p><code>trace[&quot;steps&quot;]</code> 把每轮的分数、命中文档、决策全部记录（<code>:49-50, 58-62</code>）——
+控制流越复杂，可观测越重要（本节 16.5 的地图就是这个思想）。</p>
+<h2>16.3 本机真实运行</h2>
+<pre><code class="language-bash">python -m scripts.demo_crag       # 3 道题，每题 1-2 轮检索（会调 LLM）
+</code></pre>
+<pre><code class="language-text">Q: AVX2 新增了哪些招牌特性？      第一轮 top=0.994 → 直接生成 ✅
+Q: 为什么需要多级缓存？           第一轮 top=0.909 → 直接生成 ✅
+Q: Intel 18A 工艺的量产时间？     第一轮 top=0.00 → 触发纠正
+    multi-query: ['Intel 18A 工艺 量产时间', 'Intel 18A 制程 何时大规模生产', ...]
+    纠正后 top=0.00 → 仍低 → 拒答：&quot;资料中没有相关信息，无法回答这个问题。&quot; ✅
+</code></pre>
+<p>三个观察：</p>
+<ol>
+<li><strong>评估器为什么用 rerank 分，不用余弦相似度。</strong> 余弦相似度是第 4 节的那个分数：
+没有真答案时，库里&quot;最不坏&quot;的一块仍然会得到 0.5 上下。reranker 对&quot;真不相关&quot;
+会给到 0.00 附近，刹车才踩得下去。</li>
+<li><strong>纠正要有次数上限。</strong> 论文里的 CRAG 循环一两轮就停。本实现固定最多两轮，
+否则每一轮都是一次召回加一次精排，费用随圈数涨。</li>
+<li><strong>扩大搜索</strong>在只有本地库时，就是 multi-query 或换一个检索器。
+原版 CRAG 不合格时会去调 Web 搜索。本地知识库没有外网可搜，最后一档是拒答。</li>
+</ol>
+<p>阈值 0.35 来自分数的分布，不是一个通用常数。第 7 节里，可回答题的 top1 大多在 0.9 以上，
+完全不相关在 0.0 几。中间一大段几乎没有样本，这段空隙叫<strong>空带</strong>。
+阈值放在空带里，两侧的题不容易被切错。换一个 reranker，分布会搬地方，
+0.35 就要重做<strong>标定</strong>：拿金标里的可回答题跑一遍，看 top1 实际落在哪，再把阈值放进新的空带。
+KB 用的是同一个数（<code>kb/config.py:25</code>），并用真实查询对过这个分布。</p>
+<h2>16.4 Self-RAG 与 Agentic RAG：本节只扫到能对上零件</h2>
+<p>16.1 已经定义过微调和那两个 token。这里只补&quot;为什么不在本课程把论文复现出来&quot;：</p>
+<ul>
+<li>Self-RAG 的原版要训练出那些特殊 token。用 Prompt 近似的部分，第 8 节和第 13 节已经有了。
+再复现训练，学到的仍是&quot;生成过程中插入判断&quot;，零件不会变多。</li>
+<li>Agentic RAG 的最小形态，是一个会调用 <code>retrieve(query, filter)</code> 的循环。
+<code>PipelineOptions</code> 就是这个工具的参数表：检索器、是否重排、strategy、meta_filter 都在上面。
+要新学的是<strong>何时停</strong>：循环上限、费用预算、同一查询不要重复。
+LangGraph、LlamaIndex Workflows 这些框架把循环画成一张图，节点是步骤，边是&quot;接下来去哪&quot;。
+图上的概念没有超出 16.5 的那张控制流地图。</li>
+</ul>
+<h2>16.5 与既有课程的连接（本课程的&quot;控制流地图&quot;）</h2>
+<pre><code class="language-text">第 6 节  RRF 融合          = 无控制流的合并
+第 8 节  查询改写          = 固定的一次前置变换
+第 14 节 查询路由          = 单次分派
+本节    CRAG              = 检索后的一次条件分支
+        Agentic           = 完整循环（分支 + 回边）
+</code></pre>
+<p>控制流越复杂，<strong>可观测性越重要</strong>——本课程坚持每步 Trace，就是为了在加控制流时
+还能看清每一步为什么发生。</p>
+<h2>16.6 如何运行</h2>
+<pre><code class="language-bash"># CRAG 三道题演示（会调 LLM；改 LOW_SCORE 后重跑看决策变化）
+python -m scripts.demo_crag
+
+# 终端里把阈值当旋钮：0.8（宁可多纠正）vs 0.2（几乎不纠正）
+python -c &quot;
+import scripts.demo_crag as dc
+dc.LOW_SCORE = 0.8
+print(dc.crag_answer('为什么需要多级缓存？')['decision'])
+&quot;
+</code></pre>
+<p>产品化落地：KB 的聊天已内置同款循环（<code>kb/chat.py:85</code> 的 <code>retrieve_kb</code>，
+<code>crag=True</code> 时启用），每轮步骤落库并在前端&quot;检索过程&quot;面板展示——
+<code>/kb</code> 页勾选&quot;检索纠错 (CRAG)&quot;即可体验，无需跑命令。</p>
+<h2>16.7 注意事项</h2>
+<ul>
+<li>CRAG 的纠正动作<strong>不一定提升质量</strong>：multi-query 换了检索词，也可能把噪声
+检索进来——<code>:64</code> 的 <code>s2 &gt; s1</code> 就是防&quot;负纠正&quot;的，删掉它试试会发生什么；</li>
+<li>评估器的阈值要按当前 reranker <strong>重新标定</strong>（16.3）：换模型之后，0.35 可能整段偏高或偏低。
+做法是拿金标可回答题看一遍 top1 的分布，再把阈值放进空带；</li>
+<li>Self-RAG/Agentic 的&quot;要不要检索&quot;决策在闲聊场景比知识库场景更重要——
+知识库几乎每题都该检索，所以本课程没有实现它；做通用助手时再加；</li>
+<li>每次纠正都是<strong>成倍的成本</strong>（再一轮召回+精排，可能再加一次 LLM 改写）——
+上限、预算、超时三样至少要在代码里出现一样。</li>
+</ul>
+<h2>16.8 动手练习</h2>
+<ol>
+<li>跑 <code>python -m scripts.demo_crag</code>，把 <code>:20</code> 的阈值调成 0.8 和 0.2，看三道题
+的决策各变成什么（体会阈值=召回与风险的旋钮）；</li>
+<li>把纠正动作从 multi-query 换成&quot;Parent-Child 重检索&quot;（<code>:57</code> 改成调用
+<code>parent_child_search</code>），观察纠正成功率变化；</li>
+<li>对比两个 CRAG 实现：本节的 <code>demo_crag.py</code>（纠正 = multi-query 重检索）
+与 <code>kb/chat.py::retrieve_kb</code> 的 CRAG（纠正 = LLM 扩展查询 + 合并候选重精排）
+——列出两处纠正动作的差异与各自的适用场景；</li>
+<li>设计题：给我们的 Playground 加&quot;Agentic 模式&quot;，工具列表
+<code>[retrieve_dense, retrieve_bm25, retrieve_graph(第14节), reject]</code>，
+循环上限 3 次——先在纸上画控制流，再决定要不要写代码。</li>
+</ol>
+</div>
+  </article>
+  <nav class="wrap post-nav"><a class="prev" href="15.html"><span class="dir">← 上一篇</span><span class="t">查询构造与结构化数据（v2 加厚）</span></a><a class="next" href="17.html"><span class="dir">下一篇 →</span><span class="t">从实验台到产品：个人知识库系统</span></a></nav>
+</main>
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb 的博客</span>
+    </div>
+    <p>© <span data-year>2026</span> NorthAdb · RAG 课为静态讲义</p>
+    <div class="f-links">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</footer>
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+<script src="../../js/main.js"></script>
+</body>
+</html>

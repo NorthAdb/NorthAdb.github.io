@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>本机才能跑的部分 — NorthAdb</title>
+<meta name="description" content="Playground、知识库与评测需在本机启动。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23D97757'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%231C100A' font-family='Georgia' font-weight='bold'>N</text></svg>">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="course.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="orb orb-a"></div>
+<div class="orb orb-b"></div>
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../index.html">首页</a></li>
+        <li><a href="../index.html#posts">文章</a></li>
+        <li><a href="../learn.html">课件</a></li>
+        <li><a href="index.html" class="active">RAG</a></li>
+        <li><a href="../about.html">关于</a></li>
+        <li><a href="https://github.com/NorthAdb" target="_blank" rel="noopener" class="nav-cta">GitHub ↗</a></li>
+      </ul>
+    </nav>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+<main>
+  <article>
+    <header class="wrap post-hero">
+      <div class="crumbs">
+        <a href="../index.html">首页</a><span class="sep-c">/</span>
+        <a href="index.html">RAG</a><span class="sep-c">/</span>
+        <span>本机功能</span>
+      </div>
+      <h1>本机才能跑的部分</h1>
+      <p class="lead">静态页能读完的部分在课表里。这里只保留必须有进程才能跑的入口。</p>
+    </header>
+    <div class="wrap prose wide">
+<p>下面三块是课程网站里真正会算东西的页面。它们在请求进来之后要查 PostgreSQL、算向量、有时还要调用对话模型。GitHub Pages 只分发文件，做不到这些，所以这里不放一个打不开的按钮，只写本机怎么进。</p>
+<h2 id="playground" class="local-anchor">Playground</h2>
+<p>任选检索方案提一个问题，页面展开每一路命中、RRF 融合、Rerank、Context 装填和引用。启动课程服务后打开 <code>/playground</code>。</p>
+<h2 id="kb" class="local-anchor">个人知识库</h2>
+<p>上传 md/txt/pdf/docx，多轮对话，回答带编号引用。对应第 17 节。启动后打开 <code>/kb</code>。检索测试台在 <code>/kbtest</code>，只跑检索、不写对话。</p>
+<h2 id="eval" class="local-anchor">快速评测</h2>
+<p>五个检索方案对同一套金标题跑 Recall / MRR。启动后打开 <code>/eval</code>。实验报告正文已经在这个板块的「实验报告」里，不依赖这次现场重跑。</p>
+<h2>本机启动</h2>
+<pre><code>python -m scripts.init_db
+python -m scripts.make_dirty
+python -m scripts.build_index
+python -m course.app</code></pre>
+<p>服务起来后浏览器打开 <code>http://127.0.0.1:8000</code>。前提是本机 PostgreSQL 与 pgvector 已就绪，嵌入与对话的密钥按 <code>playground/config.py</code> 配置。密钥不要放进 Pages 仓库。</p>
+</div>
+  </article>
+  
+</main>
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb 的博客</span>
+    </div>
+    <p>© <span data-year>2026</span> NorthAdb · RAG 课为静态讲义</p>
+    <div class="f-links">
+      <a href="../index.html">首页</a>
+      <a href="../learn.html">课件</a>
+      <a href="index.html">RAG</a>
+      <a href="../about.html">关于</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</footer>
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+<script src="../js/main.js"></script>
+</body>
+</html>

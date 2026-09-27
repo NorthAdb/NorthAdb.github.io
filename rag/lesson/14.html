@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>极简 GraphRAG：三元组抽取与多跳检索 — NorthAdb</title>
+<meta name="description" content="152 条三元组的抽取→邻接表→一跳扩展→图引导检索；“谁主导 Zen”决定性对比；查询路由；v4：三元组、邻接表、一跳在首次出现处展开。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23D97757'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%231C100A' font-family='Georgia' font-weight='bold'>N</text></svg>">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../course.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="orb orb-a"></div>
+<div class="orb orb-b"></div>
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html">首页</a></li>
+        <li><a href="../../index.html#posts">文章</a></li>
+        <li><a href="../../learn.html">课件</a></li>
+        <li><a href="../index.html" class="active">RAG</a></li>
+        <li><a href="../../about.html">关于</a></li>
+        <li><a href="https://github.com/NorthAdb" target="_blank" rel="noopener" class="nav-cta">GitHub ↗</a></li>
+      </ul>
+    </nav>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+<main>
+  <article>
+    <header class="wrap post-hero">
+      <div class="crumbs">
+        <a href="../../index.html">首页</a><span class="sep-c">/</span>
+        <a href="../index.html">RAG</a><span class="sep-c">/</span>
+        <span>第 14 节</span>
+      </div>
+      <h1>极简 GraphRAG：三元组抽取与多跳检索</h1>
+      <div class="post-meta"><span>第 14 节</span><span class="sep"></span><span>约 45 分钟</span><span class="sep"></span><a href="../quiz.html?lesson=14">本节自测</a></div><p class="lead">152 条三元组的抽取→邻接表→一跳扩展→图引导检索；“谁主导 Zen”决定性对比；查询路由；v4：三元组、邻接表、一跳在首次出现处展开。</p>
+    </header>
+    <div class="wrap prose wide"><blockquote>
+<p><strong>本节任务</strong>：亲手跑通&quot;三元组抽取 → 邻接表 → 实体一跳 → 图引导检索&quot;全链路
+（<code>scripts/toy_graph.py</code>，140 行），并用&quot;谁主导 Zen&quot;一题亲眼看到图检索
+赢过纯向量的现场。上一节 <a href="13.html">13 评测进阶</a>；下一节
+<a href="15.html">15 查询构造</a>。</p>
+</blockquote>
+<p><strong>课程地图上的位置</strong>：v2 加厚篇第二站，把第 11 节的扫盲落到 140 行可运行代码。
+计划书授权的上限：&quot;用 LLM 抽少量三元组，存邻接表，手写实体→一跳邻居→检索&quot;——
+目的：理解图检索的查询形态，不是复现社区检测。</p>
+<h2>14.1 四步流水线</h2>
+<p>先把这条流水线里的四个词定下来。后面的代码只是它们的一种写法。</p>
+<p><strong>三元组</strong>是一条原子事实，拆成三格：<strong>主体</strong>（subject，键 <code>s</code>）、<strong>关系</strong>（relation，键 <code>r</code>）、
+<strong>客体</strong>（object，键 <code>o</code>）。&quot;吉姆·凯勒是 A4 的主架构师&quot;收成
+<code>{&quot;s&quot;: &quot;吉姆·凯勒&quot;, &quot;r&quot;: &quot;主架构师&quot;, &quot;o&quot;: &quot;A4&quot;}</code>。
+它是图上的一条边。和第 13 节那三个评测分数同名不同物。</p>
+<p><strong>邻接表</strong>是一个字典：键是实体，值是&quot;从这里出发能走到的边&quot;的列表。
+问&quot;和 AMD 直接相连的有谁&quot;就是查 <code>adj[&quot;AMD&quot;]</code>，不用把 152 条三元组扫一遍。</p>
+<p><strong>无向</strong>：同一条边从两端都能查到。代码把一条三元组同时挂进 <code>adj[s]</code> 和 <code>adj[o]</code>
+（<code>:66-67</code>）。有向图只挂一端。&quot;A 创立 B&quot;若无向，从 B 也能走回 A；
+有些关系（&quot;A 继承 B&quot;）倒着走是错的，14.7 会再提。</p>
+<p><strong>一跳</strong>：从问题里认出的实体出发，只沿边走一步，收集邻居和这条边所在的文档。
+<strong>多跳</strong>是到了邻居再继续走。本玩具只做一跳。问题里已经写着中间那个实体时，
+一跳就够到达答案；中间实体没出现在问题里，一跳到不了。</p>
+<pre><code class="language-text">① 抽取：LLM 从每篇短文抽三元组（结构化输出）
+      {&quot;s&quot;: &quot;吉姆·凯勒&quot;, &quot;r&quot;: &quot;主架构师&quot;, &quot;o&quot;: &quot;A4&quot;, &quot;doc&quot;: &quot;apple-silicon&quot;}
+② 存储：实体 → [边] 的邻接表（triples.json，无向：s/o 两端都可走）
+③ 图召回：问题里识别实体 → 取一跳邻居 → 邻居的来源文档
+④ 生成：只在&quot;实体来源文档&quot;里检索 + 带引用回答
+</code></pre>
+<p>①就是<strong>格式化生成</strong>（第 15 节会分成三个段位）：模型不回答问题，
+只产出程序下一步能执行的 JSON。<code>doc</code> 记下这条边是从哪篇短文抽出来的，后面才能回到原文。</p>
+<h2>14.2 代码走读（scripts/toy_graph.py）</h2>
+<h3>14.2.1 抽取 Prompt 与容错（toy_graph.py:27-59）</h3>
+<pre><code class="language-python">EXTRACT_PROMPT = &quot;&quot;&quot;从下面的短文中抽取实体关系三元组。要求：
+- 只抽文中明确陈述的关系；每条格式 {{&quot;s&quot;: 主体, &quot;r&quot;: 关系(2-6字), &quot;o&quot;: 客体}}
+- 实体用文中原名（公司/人名/架构/指令集）
+- 输出 JSON 数组，不要解释：
+
+短文（doc_id={doc_id}）：
+{text}
+
+三元组：&quot;&quot;&quot;                                   # :27-35
+
+def extract_triples(force=False):             # :39
+    if TRIPLES_PATH.exists() and not force:   # :40 抽取结果落盘，重跑不花钱
+        return json.loads(...)
+    for d in load_graph():
+        text = d.text[:1800]                  # :46 短文足够；控制 token
+        out = llm.chat(EXTRACT_PROMPT.format(doc_id=d.doc_id, text=text), max_tokens=800)
+        m = re.search(r&quot;\[.*\]&quot;, out, re.S)   # :48 截取第一个 JSON 数组（容错）
+        for t in json.loads(m.group(0)):
+            if all(k in t for k in (&quot;s&quot;, &quot;r&quot;, &quot;o&quot;)):    # :53 字段校验（不信任 LLM）
+                t[&quot;doc&quot;] = t.get(&quot;doc&quot;, d.doc_id)
+                triples.append(t)
+</code></pre>
+<p>Prompt 里的三条军规对应三个真实风险：</p>
+<ul>
+<li>&quot;只抽明确陈述的关系&quot;——只要文中写了的边。模型若用自己的世界知识补一条，
+这条边没有 <code>doc</code> 可以回去核对；</li>
+<li>&quot;实体用文中原名&quot;——<strong>命名要一致，图才能并到一起</strong>。一边抽成 &quot;Intel&quot;、一边抽成
+&quot;英特尔&quot;，邻接表里就是两个谁也不连谁的点，叫<strong>孤岛</strong>；</li>
+<li>模板里的 <code>{{&quot;s&quot;: ...}}</code> 双花括号是 <code>.format()</code> 的转义（第 13 节 13.2.1）。
+写成单花括号时，Python 会把它当成占位符，立刻 KeyError。</li>
+</ul>
+<h3>14.2.2 邻接表与图召回（toy_graph.py:63-89）</h3>
+<pre><code class="language-python">def build_adjacency(triples):                 # :63
+    for t in triples:
+        adj.setdefault(t[&quot;s&quot;], []).append(t)
+        adj.setdefault(t[&quot;o&quot;], []).append(t)  # :67 无向：s/o 两端都能走
+
+def find_entities(question, adj):             # :72
+    return [e for e in adj if e in question]  # :73 实体识别 = 子串匹配（玩具的诚实之处）
+
+def graph_recall(question, adj, max_docs=6):  # :76
+    ents = find_entities(question, adj)
+    for e in ents:
+        for t in adj.get(e, []):
+            edges.append(f&quot;{t['s']} --{t['r']}--&gt; {t['o']}  [{t['doc']}]&quot;)   # :82
+            if t[&quot;doc&quot;] not in docs:
+                docs.append(t[&quot;doc&quot;])         # :84-85 邻居的来源文档 = 图召回结果
+            other = t[&quot;o&quot;] if t[&quot;s&quot;] == e else t[&quot;s&quot;]
+            edges.append(f&quot;    一跳邻居：{other}&quot;)                    # :87-88
+    return docs[:max_docs], edges[:12]
+</code></pre>
+<p><code>:73</code> 的识别方式是<strong>子串匹配</strong>：实体名作为连续的一串字，出现在问题里就算认出。
+没有模糊匹配，也没有同义词。&quot;Intel&quot; 和 &quot;英特尔&quot; 对不上就是漏检。
+图路能走到哪里，上限先被这一步卡住。生产系统通常另做一次 LLM 调用，
+先从问题里抽出关键词再去对实体（LightRAG 的做法，见 <code>docs/01</code>）。</p>
+<h3>14.2.3 对比实验的主循环（toy_graph.py:109-135）</h3>
+<pre><code class="language-python">docs, edges = graph_recall(q, adj)            # :111 图召回
+base = dense_search(qv, 4, &quot;graph_flat500&quot;, {&quot;corpus&quot;: &quot;graph&quot;})   # :118 基线：纯向量
+guided = [h for h in base if h.doc_id in set(docs)][:4]            # :121 图引导 =
+#        ↑ 注意：不是&quot;只搜图文档&quot;，而是&quot;向量结果 ∩ 图召回文档&quot;——
+#          图负责缩小范围（过滤），向量负责排序——两路各干各的活
+ctx = &quot;\n\n&quot;.join(f&quot;[{i+1}] （{h.doc_id} ...）&quot; ...)               # :129 复用第 8 节引用格式
+</code></pre>
+<p><code>:121</code> 的设计呼应第 9 节：<strong>过滤是检索的一部分</strong>。图召回文档集合就是一个
+&quot;运行时才知道的 meta_filter&quot;。</p>
+<h2>14.3 如何运行</h2>
+<pre><code class="language-bash"># 首次：抽取 152 条三元组、131 个实体（调 LLM，约 1 分钟），存 data/graph_corpus/triples.json
+python -m scripts.toy_graph
+
+# 只查询（不重新抽取）
+python -m scripts.toy_graph --query &quot;GlobalFoundries 和 AMD 是什么关系？&quot;
+
+# 强制重新抽取（改了 EXTRACT_PROMPT 之后）
+python -m scripts.toy_graph --force
+</code></pre>
+<h2>14.4 真实运行结果</h2>
+<p>三道问题的对比（图引导 = 只在实体来源文档内检索）：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>问题</th>
+<th>纯向量 Top-3</th>
+<th>图引导 Top-3</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>吉姆·凯勒和苹果公司怎么连起来的？</td>
+<td>apple-silicon, zen, jim-keller</td>
+<td>同</td>
+<td>都对；但<strong>图路给出了证据链</strong>：凯勒 --主架构师--&gt; A4 [apple-silicon]</td>
+</tr>
+<tr>
+<td>桑德斯和摩尔有什么共同经历？</td>
+<td>jerry-sanders, gordon-moore, andy-grove</td>
+<td>同</td>
+<td>答对，且模型<strong>主动指出资料内部表述矛盾</strong>（第 8 节引用纪律的回报）</td>
+</tr>
+<tr>
+<td><strong>AMD 的 Zen 架构是谁主导的？</strong></td>
+<td>zen, zen, zen ❌</td>
+<td><strong>jim-keller</strong> ✅</td>
+<td><strong>决定性对比</strong>：&quot;谁主导&quot;匹配不到答案所在文档；图路沿 AMD→Zen→凯勒 的边直接锁定</td>
+</tr>
+</tbody>
+</table></div>
+<p>第三行就是图检索的价值现场：问题与答案所在的文档，在词面和语义上都离得远，
+关系图却把它们连着。代码并没有沿边走两步。问题里已经出现 &quot;Zen&quot;，
+<code>find_entities</code> 把它认成起点，一跳邻居就是凯勒。叙述里的
+&quot;AMD → Zen → 凯勒&quot; 是图上的故事；查询实际用到的是其中已经写在问题里的那一站。</p>
+<p>12 篇文档时纯向量也常常够用。图的增益要等答案分散、关系链更长、
+而且中间实体没有写在问题里的语料上才会拉开。那时候一跳不够，才需要多跳。</p>
+<h2>14.5 与 LightRAG 的对照（配合 docs/01 笔记阅读）</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th></th>
+<th>我们的玩具</th>
+<th>LightRAG</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>抽取</td>
+<td>s/r/o 三元组</td>
+<td>实体带名字、类型、描述；关系带关键词和描述。抽取有速率限制，实体名会做规范化</td>
+</tr>
+<tr>
+<td>图层</td>
+<td>邻接表，只走一跳</td>
+<td>实体层回答局部问题（local），关系层回答更全局的问题（global）。两个词的定义在第 11 节 11.3</td>
+</tr>
+<tr>
+<td>查询</td>
+<td>实体名的子串匹配</td>
+<td>LLM 先抽查询关键词，再对实体和关系，然后融合</td>
+</tr>
+<tr>
+<td>缺什么</td>
+<td>没有把同一实体的不同说法合并，没有多跳，没有社区</td>
+<td>没有社区摘要。这是它比 GraphRAG 轻的那一刀（第 11 节 11.4）</td>
+</tr>
+</tbody>
+</table></div>
+<h2>14.6 查询路由：先判断&quot;这题该走哪条路&quot;</h2>
+<p><strong>查询路由</strong>是在检索之前先选路：这道题交给 BM25、向量，还是图。
+all-in-rag 第九章的&quot;智能查询路由&quot;在本课程里就是三层心智模型的调度。</p>
+<pre><code class="language-text">问题含明确符号/型号        → BM25 为主
+语义改写/局部事实          → 向量为主 + Hybrid
+&quot;谁/什么关系/怎么连起来&quot;   → 图路优先（本节）
+全局总结/主题归纳          → 树/摘要层（RAPTOR，本课程外）
+</code></pre>
+<p>最简单的路由器是<strong>实体词典加规则</strong>：词典就是邻接表的键，问题里出现了这些名字，
+就走图。复杂一点则让 LLM 做分类。路由器要可观测：每道题记下走了哪条路、为什么。
+Playground 的 Trace 就是让人先充当这个路由器，看清每一路的行为，再决定要不要自动化。</p>
+<h2>14.7 注意事项</h2>
+<ul>
+<li><code>triples.json</code> 是<strong>抽取结果的缓存</strong>：改了 <code>EXTRACT_PROMPT</code> 必须加 <code>--force</code>，
+否则永远在用旧图（<code>toy_graph.py:40-41</code> 的短路逻辑）；</li>
+<li>邻接表无向（<code>:67</code>）对本语料正确（&quot;凯勒主导 Zen&quot;=&quot;Zen 被凯勒主导&quot;），但
+有方向语义的关系（&quot;A 继承 B&quot;）无向会引出错误的一跳——扩展前先想清楚；</li>
+<li>抽取的 <code>text[:1800]</code>（<code>:46</code>）截断对短文安全，对长文档会<strong>静默丢失后半篇的
+关系</strong>——生产实现要按节分批抽取再合并；</li>
+<li>三元组丢失上下文：&quot;凯勒 --主架构师--&gt; A4&quot;没有时间线（他后来去了 Intel）——
+图路给出证据链后，仍要回到原文档核对（<code>:82</code> 的 <code>[doc]</code> 溯源就是为了这一步）。</li>
+</ul>
+<h2>14.8 动手练习</h2>
+<ol>
+<li><code>python -m scripts.toy_graph --query &quot;GlobalFoundries 和 AMD 是什么关系？&quot;</code>，
+追踪边是怎么把两篇文档连起来的；</li>
+<li>给 <code>EXTRACT_PROMPT</code>（<code>toy_graph.py:27</code>）加一条&quot;跳过年份/地点类实体&quot;，
+<code>--force</code> 重新抽取，对比三元组数量与查询质量变化；</li>
+<li>把 <code>graph_recall</code> 的 <code>max_docs</code> 从 6 调到 2，看&quot;谁主导 Zen&quot;还能不能答对
+——体会过滤宽严的取舍；</li>
+<li>思考：若语料换成 16 篇 CPU 章节手册，这个玩具图会变成什么样？
+（答案：实体是指令/寄存器，关系浅——计划书预言过&quot;手册语料不适合图方法&quot;。）</li>
+</ol>
+</div>
+  </article>
+  <nav class="wrap post-nav"><a class="prev" href="13.html"><span class="dir">← 上一篇</span><span class="t">评测进阶：LLM-as-judge 与指标保护（v2 加厚）</span></a><a class="next" href="15.html"><span class="dir">下一篇 →</span><span class="t">查询构造与结构化数据（v2 加厚）</span></a></nav>
+</main>
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb 的博客</span>
+    </div>
+    <p>© <span data-year>2026</span> NorthAdb · RAG 课为静态讲义</p>
+    <div class="f-links">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</footer>
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+<script src="../../js/main.js"></script>
+</body>
+</html>

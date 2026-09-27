@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reranker：召回与精排的分工 — NorthAdb</title>
+<meta name="description" content="Cross-Encoder vs 双塔；rerank 救不了没召回的题；v2：ColBERT 晚交互、LLM 重排光谱；v3：reranker 训练数据与 hard negatives。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23D97757'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%231C100A' font-family='Georgia' font-weight='bold'>N</text></svg>">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../course.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="orb orb-a"></div>
+<div class="orb orb-b"></div>
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html">首页</a></li>
+        <li><a href="../../index.html#posts">文章</a></li>
+        <li><a href="../../learn.html">课件</a></li>
+        <li><a href="../index.html" class="active">RAG</a></li>
+        <li><a href="../../about.html">关于</a></li>
+        <li><a href="https://github.com/NorthAdb" target="_blank" rel="noopener" class="nav-cta">GitHub ↗</a></li>
+      </ul>
+    </nav>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+<main>
+  <article>
+    <header class="wrap post-hero">
+      <div class="crumbs">
+        <a href="../../index.html">首页</a><span class="sep-c">/</span>
+        <a href="../index.html">RAG</a><span class="sep-c">/</span>
+        <span>第 07 节</span>
+      </div>
+      <h1>Reranker：召回与精排的分工</h1>
+      <div class="post-meta"><span>第 07 节</span><span class="sep"></span><span>约 30 分钟</span><span class="sep"></span><a href="../quiz.html?lesson=07">本节自测</a></div><p class="lead">Cross-Encoder vs 双塔；rerank 救不了没召回的题；v2：ColBERT 晚交互、LLM 重排光谱；v3：reranker 训练数据与 hard negatives。</p>
+    </header>
+    <div class="wrap prose wide"><blockquote>
+<p><strong>本节任务</strong>：能说清双塔与 Cross-Encoder 的成本/精度交换，知道 rerank 分数
+为什么是全课程&quot;最可信的相关性信号&quot;（第 13 节 judge、第 16 节 CRAG、KB 的
+拒答阈值都建在它上面）。</p>
+</blockquote>
+<p><strong>课程地图上的位置</strong>：Layer 2 最后一站。上一节 <a href="06.html">06 RRF</a>；下一节
+<a href="08.html">08 查询改写与装填</a>。输入是融合后的候选（≤30 个 <code>Hit</code>），输出是
+重排后的同一些 <code>Hit</code>（score 换成了 rerank 相关性分）。</p>
+<h2>7.1 双塔 vs 交叉编码器</h2>
+<pre><code class="language-text">双塔（第 4 节）        Query → [Enc] → v_q ┐
+                      Doc   → [Enc] → v_d ┴→ cos(v_q, v_d)   ← 独立编码，可离线
+Cross-Encoder（本节）  [CLS] Query [SEP] Doc → [Enc] → score  ← 拼一起进模型
+</code></pre>
+<p>Cross-Encoder 让 Query 的每个 token 与 Doc 的每个 token <strong>在注意力层直接交互</strong>，
+所以相关性判断准得多。代价：每个 (Query, Doc) 对都要过一次模型——
+<strong>离线预计算不可能了</strong>，只能用在&quot;候选已经很少&quot;的精排阶段。</p>
+<pre><code class="language-text">Retriever（双塔/BM25）→ 高 Recall：从全库捞出 30 个候选，宁可错杀不可放过
+Reranker（Cross-Enc） → 高 Precision：30 → 5，把真正相关的顶到前排
+</code></pre>
+<p>两个词对照着记：<strong>Recall（召回率）</strong>＝该拿回来的有没有都拿回来；
+<strong>Precision（精确率）</strong>＝拿回来的里面有多少真是对的。检索层（第 4-6 节）
+追求 Recall，精排（本节）追求 Precision——分工不同，不冲突。</p>
+<h2>7.2 代码走读（playground/retrieve/reranker.py，107 行）</h2>
+<h3>7.2.1 在线版：SiliconFlowReranker（reranker.py:22-53）</h3>
+<pre><code class="language-python">class SiliconFlowReranker:
+    name = config.RERANK_MODEL                    # :22 &quot;BAAI/bge-reranker-v2-m3&quot;
+
+    def rerank(self, query, candidates, top_k=config.TOP_K):
+        if not candidates:
+            return []                              # :34 空候选直接返回
+        docs = [c.content for c in candidates]     # :36 只送正文
+        r = self._client.post(_SILICONFLOW_RERANK_URL,     # :38 /v1/rerank
+              json={&quot;model&quot;: self.name, &quot;query&quot;: query,
+                    &quot;documents&quot;: docs, &quot;top_k&quot;: top_k})
+        results = r.json()[&quot;results&quot;]              # :42 [{index, relevance_score}]
+        for r_i, item in enumerate(results):
+            h = candidates[item[&quot;index&quot;]]          # :44 按 index 找回原 Hit
+            out.append(Hit(..., score=float(item[&quot;relevance_score&quot;]),
+                           source=&quot;rerank&quot;, rank_in_stage=r_i))
+</code></pre>
+<p>要点：</p>
+<ul>
+<li>一次 HTTP 调用带 query + 30 个候选，返回<strong>每条</strong>的相关性分数——注意与
+embedding API 的区别：它是 (query, doc) 对级别的打分，所以候选多时贵；</li>
+<li>返回的 Hit 保留原文档信息、只换分数与名次（<code>:46-52</code>），<code>source=&quot;rerank&quot;</code>
+让下游（装填、展示、评估器）能区分这列分数的语义；</li>
+<li>rerank 分数是<strong>未经校准的相关性概率</strong>：强相关常见 0.9+，完全不相关接近 0——
+这个&quot;两极分化&quot;的形态正是它当评估器的资本（见 7.4 与第 16 节）。</li>
+</ul>
+<h3>7.2.2 降级版：LexicalReranker（reranker.py:56-89）</h3>
+<pre><code class="language-python">def rerank(self, query, candidates, top_k=config.TOP_K):
+    qtok = set(tokenize(query))                    # :67 复用第 5 节的分词器
+    for h in candidates:
+        dtok = tokenize(h.content)
+        cover   = len(qtok &amp; set(dtok)) / max(len(qtok), 1)   # :75 覆盖率：query 词命中比例
+        density = len(qtok &amp; set(dtok)) / len(set(dtok))      # :76 密度：块内命中占比
+        scored.append((0.7 * cover + 0.3 * density, h))       # :77 固定权重合成
+</code></pre>
+<p>与 BM25 的区别在于它是&quot;Query 对单个候选的匹配度&quot;，不再考虑 IDF 全局统计——
+作为离线降级够用，也直观展示 rerank 位置该干什么。注意 <code>:77</code> 的 0.7/0.3 是
+拍脑袋定的：这正好说明降级路径的定位是&quot;保可用&quot;，不是&quot;保最优&quot;。</p>
+<p>探活与选择在 <code>get_reranker()</code>（<code>reranker.py:92-106</code>）：用一条真实调用探活
+（构造一个 probe Hit 打一次 rerank API），失败则降级并打警告。</p>
+<h2>7.3 如何运行</h2>
+<pre><code class="language-bash"># 终端直连 reranker（一个候选也要一次调用，注意成本）
+python -c &quot;
+from playground.retrieve.reranker import get_reranker
+from playground.retrieve.vector_store import Hit
+rk = get_reranker()
+cands = [Hit(doc_id='d1', chunk_id='d1::0', strategy='s', chunk_index=0,
+             content='AVX-512 使用 512 位 ZMM 寄存器', section_path='', score=0),
+         Hit(doc_id='d2', chunk_id='d2::0', strategy='s', chunk_index=0,
+             content='cache line 为 64 字节', section_path='', score=0)]
+for h in rk.rerank('AVX-512 寄存器多宽？', cands, top_k=2):
+    print(h.source, round(h.score, 4), h.content[:30])
+&quot;
+
+# rerank 相关单测/降级验证
+python -m pytest tests/ -q
+</code></pre>
+<h2>7.4 实验 1 的诚实结论</h2>
+<p>来自 <code>python -m scripts.run_eval</code> 第 1 组（exp1_retrievers，文档级指标）：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>方案</th>
+<th>MRR@5</th>
+<th>noise@5</th>
+<th>评测总耗时（23 题）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hybrid(RRF)</td>
+<td>0.928</td>
+<td>0.557</td>
+<td>~0.1s</td>
+</tr>
+<tr>
+<td>Hybrid+Rerank</td>
+<td>0.928</td>
+<td>0.557</td>
+<td>~13.3s</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>在文档级指标上 rerank 没有改变数字</strong>——为什么？两个原因：</p>
+<ol>
+<li>语料只有 16 篇，RRF 的 Top-1 已经基本正确，没有&quot;排错了&quot;可修；</li>
+<li>文档级 MRR 天然饱和（第 10 节会讲指标设计）。</li>
+</ol>
+<p>但这<strong>不是</strong>&quot;rerank 没用&quot;的证据。看一次真实的逐题对比（flat500x80，
+问题：&quot;SSE4.2 新增的字符串处理指令集缩写是什么？&quot;）：</p>
+<pre><code class="language-text">RRF 融合后：                     Rerank 后：
+1. sse      0.0328               1. sse          0.9985  ← SSE4.2 权威段
+2. sse      0.0323               2. sse          0.9808  ← 实用记忆点
+3. sse      0.0313               3. cpu-faq      0.9790  ← Q2（相关但间接）
+4. cpu-faq  0.0313  ← FAQ 提前    4. simd-compare 0.5500
+5. sse      0.0303               5. sse          0.4606
+</code></pre>
+<p>RRF 把 cpu-faq 的 FAQ 段顶到第 4（它词面密度高），Cross-Encoder 则把
+<strong>真正定义 STTNI 的段落</strong>抬到第 1，并给出 0.9985 这种&quot;几乎肯定相关&quot;的分数。
+<strong>排序质量肉眼可见地变好，只是本题恰好没有因此改变命中文档。</strong></p>
+<p>什么时候 rerank 是刚需：候选池更杂（多来源、脏数据）、语料上万块、
+Top-K 名额昂贵（K 小、上下文预算紧）。计划书说得很对：<strong>Reranker 救不了
+&quot;金标根本没进候选&quot;</strong>——那是召回/切分/清洗的问题，加 rerank 只是烧钱。</p>
+<h2>7.5 重排分数作为评估器（贯穿后面三节课的伏笔）</h2>
+<p>rerank 分数的三个下游，理解了它们就理解了&quot;精排不只是排序&quot;：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>下游</th>
+<th>位置</th>
+<th>用法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>拒答评估器</td>
+<td>第 16 节 <code>demo_crag.py:20</code>（<code>LOW_SCORE = 0.35</code>）</td>
+<td>top1 &lt; 0.35 → 触发纠正/拒答</td>
+</tr>
+<tr>
+<td>KB 拒答阈值</td>
+<td><code>kb/config.py:25</code>（<code>KB_LOW_SCORE_REFUSAL=0.35</code>）+ <code>kb/chat.py</code> 拒答判定</td>
+<td>阈值实测证据：可回答题 top1 多在 0.9+，含糊题 0.1-0.3，分界清晰</td>
+</tr>
+<tr>
+<td>上下文压缩</td>
+<td>第 7 节加厚</td>
+<td>低分块先压缩再装填，省预算</td>
+</tr>
+</tbody>
+</table></div>
+<h2>7.6 成本账</h2>
+<pre><code class="language-text">每题多 ~0.5s（30 候选一次 API 调用）
+本课程 23 道可回答题 × 1 次 rerank ≈ 13s（实验 1 的 +Rerank 行）
+生产：QPS × 0.5s × 单价——所以很多系统先跑 RRF，只在低置信度时才 rerank
+</code></pre>
+<h2>7.7 注意事项</h2>
+<ul>
+<li>rerank API 有<strong>单请求文档数上限</strong>：候选太多要分批打分再合并（本课程 30 候选
+一次过，OK；几百候选先粗筛）；</li>
+<li>rerank 分数<strong>跨查询不可比</strong>（每题的分数分布不同），只能用于题内排序与阈值；</li>
+<li><strong>排序 ≠ 召回</strong>：rerank 只能在&quot;已召回的候选&quot;里重排。指标没变先查是不是
+没召回（第 10 节诊断清单第 4 步），别急着调 rerank。</li>
+</ul>
+<h2>7.8 加厚（v2）：重排器的完整光谱</h2>
+<blockquote>
+<p>对标 all-in-rag 第四章&quot;检索进阶：重排序&quot;。双塔 vs Cross-Encoder 之外，
+完整的重排光谱还有三档：</p>
+</blockquote>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>方案</th>
+<th>Query-Doc 交互</th>
+<th>成本</th>
+<th>适用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>双塔嵌入（第 4 节）</td>
+<td>无（独立编码）</td>
+<td>最低（可离线）</td>
+<td>全库召回</td>
+</tr>
+<tr>
+<td><strong>ColBERT / 晚交互</strong></td>
+<td>token 级（每个 token 存多向量，MaxSim 匹配）</td>
+<td>中（多倍存储，检索快）</td>
+<td>要双塔的速度 + 更细的匹配度</td>
+</tr>
+<tr>
+<td>Cross-Encoder（本节主力）</td>
+<td>全交互</td>
+<td>高（每候选一次前向）</td>
+<td>候选 ≤ 50 的精排</td>
+</tr>
+<tr>
+<td><strong>LLM 重排</strong></td>
+<td>全交互（Prompt 里让 LLM 列表比较/打分）</td>
+<td>最高</td>
+<td>候选极少 + 需要理由时（可解释！）</td>
+</tr>
+</tbody>
+</table></div>
+<p>两个工程提醒：</p>
+<ol>
+<li><strong>LLM 重排是&quot;可解释的重排&quot;</strong>：让 LLM 输出&quot;每条相关度 + 一句理由&quot;，缺点是慢、
+贵、位置偏差（偏爱排在前面的）——只适合 ≤10 条的最终裁决；</li>
+<li><strong>Context Compression（上下文压缩）是重排的姊妹</strong>：检索后用小模型/LLM 把每块
+压成只与问题相关的句子再进 Context。我们的 <code>noise@5 ≈ 0.55</code> 说明有一半内容
+是凑数的——压缩的收益空间实测存在，最省钱的实现是第 13 节的 judge Prompt
+顺手标出无关块。</li>
+</ol>
+<h2>7.9 动手练习</h2>
+<ol>
+<li>Playground 问&quot;SSE4.2 新增的字符串处理指令集缩写是什么&quot;，勾选/取消 Rerank，
+对比两份 Top-5 名单与分数形态（余弦/RRF 的分数挤在一起，rerank 分数拉开差距）；</li>
+<li>勾选 Rerank 后看耗时条——哪一步涨了？</li>
+<li>用 7.3 的终端示例亲手打一次 rerank API，观察&quot;强相关 vs 无关&quot;的分数差距
+——这就是 7.5 所有下游应用的物理基础；</li>
+<li>思考：如果你只有 1000 块语料、Top-K=10，值得为 rerank 付 0.5s/题吗？
+什么时候答案会变成&quot;值得&quot;？</li>
+</ol>
+<h2>7.10 加厚（v3）：Reranker 是怎么练出来的——hard negatives</h2>
+<p>bge-reranker 这类 Cross-Encoder 不是&quot;设计&quot;出来的，是在成对的标注数据上<strong>微调</strong>
+出来的。训练数据长这样：<code>(查询, 正例文档, 负例文档)</code>——正例是真回答了问题的块，
+负例是&quot;看起来相关但不回答&quot;的块。数据的灵魂在<strong>负例的选法</strong>：</p>
+<ul>
+<li><strong>随机负例</strong>：从语料里随便抽个不相关块——太容易了。模型只学会&quot;词面不同 =
+负例&quot;，这种题不需要精排能力；</li>
+<li><strong>hard negatives（难负例）</strong>：挑<strong>BM25/Dense 排得很靠前、但并不回答问题</strong>的块
+当负例。查询&quot;AVX-512&quot;时，&quot;AVX&quot;的块就是天然难负例：词面几乎一样，答案完全
+不同——模型必须学会看语义细节才能排除它，这正是精排的本职。</li>
+</ul>
+<p>与课程的两处连接：</p>
+<ol>
+<li>金标的 <code>near_confusion</code> 题型（第 1 节 1.5）就是给检索系统的&quot;难负例考卷&quot;——
+第 5 节实验里 BM25 在这类题上翻车（recall 0.75），正因为它只会词面；</li>
+<li>训练流水线是本课程管线的倒影：<strong>先用粗检索（第 4-6 节）从海量数据里捞出
+&quot;高分但不正确&quot;的候选当难负例，再训练精排模型学会排除它们</strong>——粗排与精排
+的分工，在训练数据生成阶段就已注定。这也解释了 7.1 的&quot;宁可错杀不可放过&quot;：
+粗排的错误形态（捞多了）恰好是精排训练数据的采集器。</li>
+</ol>
+</div>
+  </article>
+  <nav class="wrap post-nav"><a class="prev" href="06.html"><span class="dir">← 上一篇</span><span class="t">Hybrid 融合：RRF 与量纲绑架</span></a><a class="next" href="08.html"><span class="dir">下一篇 →</span><span class="t">查询改写与 Context 装填</span></a></nav>
+</main>
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb 的博客</span>
+    </div>
+    <p>© <span data-year>2026</span> NorthAdb · RAG 课为静态讲义</p>
+    <div class="f-links">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</footer>
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+<script src="../../js/main.js"></script>
+</body>
+</html>

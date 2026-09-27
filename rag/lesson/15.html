@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>查询构造与结构化数据：NL→过滤器、Text2SQL 思路、表格文本化 — NorthAdb</title>
+<meta name="description" content="NL→元数据过滤器（白名单校验/安全退化）；Text2SQL 三条铁律；表格文本化三层方案；v4：DML/DDL、schema、EXPLAIN 在首次出现处展开。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23D97757'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%231C100A' font-family='Georgia' font-weight='bold'>N</text></svg>">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../course.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="orb orb-a"></div>
+<div class="orb orb-b"></div>
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html">首页</a></li>
+        <li><a href="../../index.html#posts">文章</a></li>
+        <li><a href="../../learn.html">课件</a></li>
+        <li><a href="../index.html" class="active">RAG</a></li>
+        <li><a href="../../about.html">关于</a></li>
+        <li><a href="https://github.com/NorthAdb" target="_blank" rel="noopener" class="nav-cta">GitHub ↗</a></li>
+      </ul>
+    </nav>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+<main>
+  <article>
+    <header class="wrap post-hero">
+      <div class="crumbs">
+        <a href="../../index.html">首页</a><span class="sep-c">/</span>
+        <a href="../index.html">RAG</a><span class="sep-c">/</span>
+        <span>第 15 节</span>
+      </div>
+      <h1>查询构造与结构化数据：NL→过滤器、Text2SQL 思路、表格文本化</h1>
+      <div class="post-meta"><span>第 15 节</span><span class="sep"></span><span>约 40 分钟</span><span class="sep"></span><a href="../quiz.html?lesson=15">本节自测</a></div><p class="lead">NL→元数据过滤器（白名单校验/安全退化）；Text2SQL 三条铁律；表格文本化三层方案；v4：DML/DDL、schema、EXPLAIN 在首次出现处展开。</p>
+    </header>
+    <div class="wrap prose wide"><blockquote>
+<p><strong>本节任务</strong>：掌握&quot;让 LLM 生成查询而不是生成答案&quot;的完整方法链：
+自然语言→元数据过滤器（动手）、Text2SQL 三条铁律（认知）、表格文本化三层方案（设计）。
+上一节 <a href="14.html">14 极简 GraphRAG</a>；下一节 <a href="16.html">16 高级范式</a>。</p>
+</blockquote>
+<p><strong>课程地图上的位置</strong>：v2 加厚篇第三站。它把第 9 节的 <code>meta_filter</code>（手工指定）
+升级成&quot;LLM 自动生成&quot;，与第 14 节的图召回一起构成&quot;查询理解层&quot;的两只手。</p>
+<h2>15.1 查询构造：过滤是检索的一部分，LLM 是过滤器生成器</h2>
+<p><strong>NL</strong>（natural language，自然语言）就是用户写下的那句话。
+<strong>查询构造</strong>把这句话翻译成程序能执行的结构，翻译的结果是过滤器或 SQL，不是答案。</p>
+<pre><code class="language-text">用户问题 ──LLM──→ {&quot;doc_ids&quot;: [&quot;avx512&quot;]}   ← 严格 JSON，白名单校验
+                        ↓
+        检索：过滤发生在向量检索之内（SQL WHERE），演示代码里先做成检索后筛选
+</code></pre>
+<p><strong>白名单</strong>（第 9 节 9.7）是事先定死的合法值集合。这里的合法值是语料里真实存在的 doc_id。
+不在名单上的字符串会被丢掉。</p>
+<p><code>scripts/demo_query_construction.py</code>（74 行）的三段代码就是全部：</p>
+<h3>15.1.1 Prompt：把选择空间塞给 LLM（demo_query_construction.py:25-32）</h3>
+<pre><code class="language-python">FILTER_PROMPT = &quot;&quot;&quot;你是查询构造器。把用户问题翻译成检索过滤条件（JSON），规则：
+- 只在问题明确指向某些主题/文档时才填 doc_ids；泛化问题输出 {{&quot;doc_ids&quot;: []}}
+- doc_ids 只能从列表里选：{docs}
+- 输出严格 JSON，不要解释。
+
+问题：{question}
+
+过滤条件：&quot;&quot;&quot;
+</code></pre>
+<p>第二条规则是把白名单写进 Prompt：模型从第一眼就只看见合法的 doc_id。
+校验仍然要做。Prompt 是提示，代码里的名单才是闸门。两道都便宜，漏一道，
+编造的 doc_id 就会进检索。</p>
+<h3>15.1.2 校验：不信任，要验证（demo_query_construction.py:35-44）</h3>
+<pre><code class="language-python">def construct_filter(question: str) -&gt; dict:
+    out = get_llm().chat(FILTER_PROMPT.format(...), max_tokens=120)
+    m = re.search(r&quot;\{.*\}&quot;, out, re.S)              # :38 容错截取（同 judge._parse_json）
+    try:
+        f = json.loads(m.group(0)) if m else {}
+    except json.JSONDecodeError:
+        f = {}                                       # :42 解析失败 = 空过滤器
+    valid = [d for d in f.get(&quot;doc_ids&quot;, []) if d in DOC_LIST]   # :43 白名单校验！
+    return {&quot;doc_ids&quot;: valid}
+</code></pre>
+<p><code>:43</code> 这一行是全节的题眼：<strong>LLM 输出进入程序之前，必须过校验层</strong>。
+就算 Prompt 里已经给了白名单，代码仍然再验一遍——两道闸都便宜，漏一道都贵。</p>
+<h3>15.1.3 应用：过滤作为检索的前置（demo_query_construction.py:47-61）</h3>
+<pre><code class="language-python">plain = dense_search(qv, 5, &quot;flat500x80&quot;, {&quot;corpus&quot;: &quot;main&quot;})
+filtered = plain if not flt[&quot;doc_ids&quot;] \
+    else [h for h in plain if h.doc_id in set(flt[&quot;doc_ids&quot;])][:5]
+</code></pre>
+<p>注意这里的过滤是<strong>检索后筛选</strong>（演示用，从 plain 里筛），而第 9 节的
+<code>meta_filter</code> 是<strong>检索中过滤</strong>（SQL WHERE）。生产实现应该走后者——
+Demo 选择前者是为了让你能并排打印&quot;无过滤 vs 过滤&quot;的对照。这个差别
+务必分清（见 15.5 注意事项第 2 条）。</p>
+<h2>15.2 三道题实测</h2>
+<pre><code class="language-bash">python -m scripts.demo_query_construction
+</code></pre>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>问题</th>
+<th>LLM 构造的过滤器</th>
+<th>无过滤 Top-5</th>
+<th>过滤后 Top-5</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AVX-512 的掩码寄存器有几个？</td>
+<td><code>[&quot;avx512&quot;]</code></td>
+<td>avx512×4, simd-overview</td>
+<td>avx512×4</td>
+</tr>
+<tr>
+<td>缓存和分支预测分别在哪个环节起作用？</td>
+<td><code>[&quot;cache-basics&quot;,&quot;branch-prediction&quot;]</code></td>
+<td>perf-methodology 混入 ×2</td>
+<td>两篇正主 + branch</td>
+</tr>
+<tr>
+<td>CPU 性能优化的主要手段？</td>
+<td><code>[]</code>（空）</td>
+<td>5 篇合理</td>
+<td>等于没过滤（<strong>安全退化</strong>）</td>
+</tr>
+</tbody>
+</table></div>
+<p>三个设计要点：</p>
+<ol>
+<li><strong>白名单校验</strong>：LLM 输出的 doc_id 必须存在于语料列表，否则丢弃——
+结构化输出的第一条军规：<strong>不信任，要校验</strong>；</li>
+<li><strong>空过滤器 = 安全退化</strong>：泛化问题构造不出过滤，就退回全局检索，
+不为了&quot;一定要滤一点&quot;而硬造一个范围。<code>:53-54</code> 是 Python 的<strong>条件表达式</strong>
+<code>a if 条件 else b</code>：有 doc_ids 就筛，名单为空就用原来的 <code>plain</code>；</li>
+<li><strong>过滤提升的是候选集纯度</strong>：第 3 行那种全局题，过滤没有额外信息。
+所以要先路由（第 14 节 14.6），判断这题需要不需要过滤。</li>
+</ol>
+<h2>15.3 Text2SQL：同一个思想的重量级形态</h2>
+<p><strong>Text2SQL</strong> 是让模型把问题翻译成 SQL。和过滤器生成是同一件事，
+目标语言从 JSON 换成了 SQL（all-in-rag 第 4 章第 3 节的讲法）：</p>
+<pre><code class="language-text">问题：&quot;上季度销售额最高的产品是什么？&quot;
+  ↓ LLM
+SELECT product, SUM(amount) FROM orders WHERE quarter='Q3' GROUP BY product ORDER BY 1 LIMIT 1;
+</code></pre>
+<p>例子里的 SQL 词，和本课程检索用到的 <code>WHERE</code> / <code>LIMIT</code> 属于同一门语言：
+<code>SUM</code> 是求和，<code>GROUP BY</code> 是按某一列分组之后再聚合，<code>ORDER BY 1</code> 是按第 1 列排序。</p>
+<p>生产上的三条铁律（本课程没有实现 Text2SQL，但这三个词会反复出现）：</p>
+<ul>
+<li><strong>只读</strong>。生成的 SQL 先过一层检查，再交给一个只有读权限的数据库账号。
+<strong>DML</strong>（Data Manipulation Language，数据操作语句）会改行：<code>INSERT</code>、<code>UPDATE</code>、<code>DELETE</code>。
+<strong>DDL</strong>（Data Definition Language，数据定义语句）会改表：<code>CREATE</code>、<code>DROP</code>、<code>ALTER</code>。
+模型若吐出 <code>DROP TABLE</code>，照单执行就能删表。检查层拒绝这些关键字；
+<strong>只读角色</strong>是数据库账号的权限，这个账号只能 <code>SELECT</code>。检查层漏了，数据库自己仍会拒绝写入。</li>
+<li><strong>白名单 schema</strong>。这里的 <strong>schema</strong> 指有哪些表、哪些列、列是什么类型。
+Prompt 里只描述允许查询的那几张表和几行示例，不把全库的表名交给模型。
+它和第 9 节 jsonb 那种&quot;自由字段&quot;不是一个词，也不是 15.6 的 <strong>JSON Schema</strong>
+（一份机器可读的说明书，规定 JSON 必须有哪些键、值是什么类型）。</li>
+<li><strong>先 <code>EXPLAIN</code> 再执行</strong>。<code>EXPLAIN</code> 让数据库打印执行计划：会不会全表扫描、估出多少行，
+并不真正跑这条查询（第 9 节 9.1.3 用它看 GIN 有没有被用上）。
+计划看起来会扫全表，就不要执行。</li>
+</ul>
+<p>对应本课程：<code>meta_filter</code> 的 JSON 是一份很小的查询。
+<code>construct_filter</code> 的 <code>:43</code> 白名单，相当于 SQL 里只允许出现的表名和列名。
+三条铁律里，&quot;只读&quot;对 JSON 过滤器天然成立，因为这份 JSON 表达不了 <code>DELETE</code>；
+&quot;白名单&quot;已经做了；&quot;EXPLAIN&quot;对应把构造出的过滤器先打印出来，人看过再检索。</p>
+<h2>15.4 结构化数据进知识库：表格 → 文本化</h2>
+<p>问题（笔记第 32 节）：&quot;把每一行当一个 chunk&quot;是错误思路。可落地的三层方案：</p>
+<pre><code class="language-text">① 行文本化：每行渲染成一句自然语言（&quot;客户 A 于 2025 购买 P1，金额 100&quot;）
+   → 可被语义检索，但丢失聚合视角
+② 段落/主题聚合：按某列分组渲染（&quot;P1 在 2025 共售出 N 件…&quot;）
+   → 第 2 节&quot;100 个案例→统计摘要&quot;思想的最小实现
+③ 摘要节点：整表/分组的统计结论单独成块（如&quot;72% 工单发生在高并发&quot;）
+   → 检索&quot;总体情况&quot;类问题时命中
+</code></pre>
+<p>我们的架构已经支持：表格文本化后的块照常走 <code>rg_chunks</code> + strategy 版本化；
+摘要节点给个独立 strategy（如 <code>table_summary</code>），用 <code>meta_filter</code> 控制走哪层——
+这就是 all-in-rag 3.5&quot;结构化索引（多表格递归检索）&quot;的手工版。</p>
+<p>顺带一提：KB 系统（第 17 节）的 docx 解析（<code>kb/parser.py</code> 的 <code>_parse_docx</code>）
+已经把<strong>表格按行拼成 <code>a | b | c</code> 文本</strong>抽出来了——那是行文本化的现成实现，
+只是渲染成了 Markdown 表格语法而非自然语言句。</p>
+<h2>15.5 注意事项</h2>
+<ul>
+<li>白名单 <code>DOC_LIST</code>（<code>:20-23</code>）是<strong>硬编码的语料清单</strong>：换语料必须同步改——
+生产上应该从 <code>rg_documents</code> 查出来再填进 Prompt；</li>
+<li>演示版是&quot;检索后筛选&quot;，生产版应该是&quot;检索中过滤&quot;（SQL WHERE / meta_filter）：
+两者在 HNSW 下的行为不同（先过滤再近邻搜索可能候选不足，见第 9 节 9.1 的坑）；</li>
+<li>LLM 偶尔会<strong>编造白名单外的 doc_id</strong>（即使 Prompt 说了只能从列表选）——
+这不是 Prompt 写得不好，是 LLM 的本性，所以 <code>:43</code> 的校验不能省；</li>
+<li>Text2SQL 的&quot;先 EXPLAIN&quot;在过滤器场景的等价物：把构造出的过滤器<strong>打印给用户
+确认</strong>，而不是默默生效——尤其是过滤结果为空时（空结果 ≠ 没有答案，
+可能是过滤器太严）。</li>
+</ul>
+<h2>15.6 格式化生成的三个段位（本课程全部出现过）</h2>
+<pre><code class="language-text">① 输出严格 JSON     → 三元组抽取（第 14 节）、过滤器生成（本节）
+② 输出带约束的自然语言 → 引用 [n] + 拒答规则（第 8 节系统 Prompt）
+③ 输出可执行查询     → Text2SQL（本节，只读铁律）
+</code></pre>
+<p>共同点：模型的输出进入程序之前，要过一层校验。
+JSON 用 <code>json.loads</code> 加上白名单；若要更严，可以用 <strong>JSON Schema</strong> 规定键和类型
+（15.3 已和数据库 schema 区分开）。SQL 则做只读检查。
+第 12 节说过评测框架不替你做评测接线；校验同样不在框架里，它是你自己的代码。</p>
+<h2>15.7 动手练习</h2>
+<ol>
+<li>跑 <code>python -m scripts.demo_query_construction</code>，自己出 3 道题看过滤器生成的
+边界情况（故意写错文档名、混合两个主题、只用代词）；</li>
+<li>把 <code>FILTER_PROMPT</code> 的白名单（<code>:27</code>）砍半，看 LLM 会不会&quot;编造&quot;列表外的
+doc_id（会被 <code>:43</code> 校验拦下——这就是为什么校验不能省）；</li>
+<li>把 <code>run()</code> 的过滤改成走 <code>meta_filter={&quot;corpus&quot;:&quot;main&quot;, &quot;doc_ids&quot;:[...]}</code> 的
+真检索中过滤——注意 <code>doc_ids</code> 不是 <code>rg_chunks.meta</code> 的字段，你要么把它
+写进 meta（重建索引），要么在 SQL 外层包一层（想一想为什么 KB 的
+<code>dense_search</code> 没有做 doc 级过滤，以及加一个有多难）；</li>
+<li>思考：第 9 节的 <code>meta_filter</code> + 本节的过滤器生成 + 第 14 节的路由，
+三者拼起来是什么？（答：一个&quot;文本到过滤器&quot;的完整查询理解层。）</li>
+</ol>
+</div>
+  </article>
+  <nav class="wrap post-nav"><a class="prev" href="14.html"><span class="dir">← 上一篇</span><span class="t">极简 GraphRAG：三元组抽取与多跳检索（v2 加厚）</span></a><a class="next" href="16.html"><span class="dir">下一篇 →</span><span class="t">高级范式案例：Self-RAG / CRAG / Agentic RAG（v2 加厚）</span></a></nav>
+</main>
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb 的博客</span>
+    </div>
+    <p>© <span data-year>2026</span> NorthAdb · RAG 课为静态讲义</p>
+    <div class="f-links">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</footer>
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+<script src="../../js/main.js"></script>
+</body>
+</html>

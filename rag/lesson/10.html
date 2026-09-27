@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parent-Child 与评测体系 — NorthAdb</title>
+<meta name="description" content="小块检索大块生成；auto-merging；Recall/MRR/噪声率/拒答率；失败诊断清单；v4：回表、IN、HitRate 与 nDCG 在首次出现处展开。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23D97757'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%231C100A' font-family='Georgia' font-weight='bold'>N</text></svg>">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../course.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="orb orb-a"></div>
+<div class="orb orb-b"></div>
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html">首页</a></li>
+        <li><a href="../../index.html#posts">文章</a></li>
+        <li><a href="../../learn.html">课件</a></li>
+        <li><a href="../index.html" class="active">RAG</a></li>
+        <li><a href="../../about.html">关于</a></li>
+        <li><a href="https://github.com/NorthAdb" target="_blank" rel="noopener" class="nav-cta">GitHub ↗</a></li>
+      </ul>
+    </nav>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+<main>
+  <article>
+    <header class="wrap post-hero">
+      <div class="crumbs">
+        <a href="../../index.html">首页</a><span class="sep-c">/</span>
+        <a href="../index.html">RAG</a><span class="sep-c">/</span>
+        <span>第 10 节</span>
+      </div>
+      <h1>Parent-Child 与评测体系</h1>
+      <div class="post-meta"><span>第 10 节</span><span class="sep"></span><span>约 45 分钟</span><span class="sep"></span><a href="../quiz.html?lesson=10">本节自测</a></div><p class="lead">小块检索大块生成；auto-merging；Recall/MRR/噪声率/拒答率；失败诊断清单；v4：回表、IN、HitRate 与 nDCG 在首次出现处展开。</p>
+    </header>
+    <div class="wrap prose wide"><blockquote>
+<p><strong>本节任务</strong>：两个半场——前半场理解&quot;检索单元与生成单元可以不是同一块&quot;
+（Parent-Child），后半场掌握四个指标的定义与一张 8 步排障清单。读完你应该
+能独立诊断&quot;RAG 答错了&quot;到底坏在哪一层。</p>
+</blockquote>
+<p><strong>课程地图上的位置</strong>：Layer 2 的收口 + Eval 的正式登场。上一节
+<a href="09.html">09 知识库工程</a>；下一节 <a href="11.html">11 结构化 RAG 扫盲</a>。</p>
+<h2>10.1 Parent-Child：拆开&quot;又要短又要长&quot;的矛盾</h2>
+<pre><code class="language-text">矛盾：块要&quot;短&quot;才好精确命中（信号集中）
+      块要&quot;长&quot;才够 LLM 理解（上下文完整）
+
+解法：检索单元 ≠ 生成单元
+      子块 child（~200 字）→ 索引与检索
+      父块 parent（整节）  → 命中后回表，送进 Context
+</code></pre>
+<p>数据侧的支撑在第 3、9 节已经埋好：<code>chunker.parent_child_chunks()</code>
+（<code>chunker.py:120-144</code>）切子块并返回 <code>{parent_id: 整节文本}</code>；
+父块存 <code>rg_parents</code> 表（<code>scripts/init_db.py:29-35</code>，<code>parent_id = doc_id::sec&lt;i&gt;</code>）。</p>
+<h3>10.1.1 代码走读（playground/retrieve/parent_child.py，92 行）</h3>
+<p>完整通路 <code>parent_child_search</code>（<code>parent_child.py:73-91</code>）——子块召回方式
+可以任选 dense / bm25 / hybrid（<code>:79-90</code>），然后交给出厂改编：</p>
+<pre><code class="language-python">def expand_to_parents(children, strategy_suffix=&quot;&quot;, auto_merge_boost=True):   # :29
+    per_parent: dict[str, list[Hit]] = {}
+    for h in children:
+        pid = h.parent_id or h.chunk_id          # :40 没有父块id的块自认父块
+        per_parent.setdefault(pid, []).append(h) # :41 按父块分组
+
+    parents = _load_parents(list(per_parent.keys()))     # :43 一次 IN 查询回表
+    for pid, hits in per_parent.items():
+        best = max(hits, key=lambda h: h.score)          # :46 组内取最高分子块
+        n_hits = len(hits)
+        boost = 1.0 / (config.RRF_K + 1) * (n_hits - 1) if auto_merge_boost else 0.0   # :48
+        content, section = parents[pid] if pid in parents else (best.content, ...)   # :50-51
+        out.append(Hit(..., content=content,             # ← 整节文本，生成单元变大
+                       score=round(best.score + boost, 5),
+                       meta={&quot;child_hits&quot;: n_hits}))     # :64 命中数进 meta（可观测）
+</code></pre>
+<p><strong>回表</strong>：子块行上只有约 200 字和一只 <code>parent_id</code>，整节正文在 <code>rg_parents</code>。
+检索先给子块打分，再拿 <code>parent_id</code> 去父表把整节读出来，送给模型的 <code>content</code>
+换成这份长文本（<code>:50-51</code>）。&quot;回&quot;指的是：主查询已经结束，按键再查一次相关表。
+检索看小块，生成读大块，差别就在这一次替换。</p>
+<p><strong><code>IN</code></strong>：<code>WHERE parent_id IN (%s, %s, ...)</code>（<code>parent_child.py:22-24</code>）表示
+&quot;值落在这份名单里&quot;。一次取回全部命中的父块。占位符个数随名单变化，
+所以用 <code>&quot;,&quot;.join</code> 现拼 <code>%s</code>，值仍走参数，不写进 SQL 字符串
+（第 9 节的参数化查询）。</p>
+<p><strong><code>RRF_K</code></strong> 是第 6 节 RRF 的平滑常数，钉在 60（<code>config.py:63</code>）。
+某一路检索排第 1 时，贡献是 <code>1/(RRF_K+1)</code> ≈ 0.0164。
+<code>:48</code> 的 <strong>auto-merging 加分</strong>用的就是这个步长：同一父块下每多命中一个子块，
+加上一路&quot;排第 1&quot;那么多的分。只命中一个子块时 <code>(n_hits - 1)</code> 为 0，不加分。
+加分和 RRF 分数量纲相同，多命中一节会明显往前挪。
+意思是：两个不同子块都落到同一节，答案多半横跨这一节，父块该往前排。
+分组本身已经把同一父块收成一条（<code>:40-46</code>）；加分只改这条的名次。</p>
+<p>本课程是&quot;只要命中就回表&quot;。LlamaIndex 的 AutoMergingRetriever 多一档判断：
+同一父块命中的子块不够多时，仍然返回子块，够多才换成父块。
+<code>:48</code> 借了它的信号，没有借它的门槛。</p>
+<p>编排层怎么接入：<code>PipelineOptions.parent_child=True</code> 时，<code>rag.py:172-173</code>
+在融合之后、精排之前执行 <code>expand_to_parents(fused)</code>。</p>
+<h3>10.1.2 三个变体：命中之后，上下文往外扩多少</h3>
+<p>三者做的是同一类事：先用小片段命中，再把更多原文送去生成。差别是扩多大、何时扩。</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>名字</th>
+<th>检索单元</th>
+<th>命中后送去生成的文本</th>
+<th>LlamaIndex 里的类</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Sentence Window（句子窗口）</strong></td>
+<td>一句</td>
+<td>这句前后各若干句，叫一个窗口</td>
+<td><code>SentenceWindowNodeParser</code></td>
+</tr>
+<tr>
+<td><strong>Parent-Child（本节）</strong></td>
+<td>~200 字子块</td>
+<td>只要命中，就换成整节父块</td>
+<td>层级节点（父节点另存）</td>
+</tr>
+<tr>
+<td><strong>Auto-merging（自动合并）</strong></td>
+<td>子块</td>
+<td>同一父块的子块命中够多，才换成父块；不够就留子块</td>
+<td><code>AutoMergingRetriever</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>第 12 节的映射表只对照到 Node 自带父子链接，这三个类名记在这里。</p>
+<h2>10.2 实验 5 结果</h2>
+<p>来自 <code>python -m scripts.run_eval</code> 第 5 组（exp5_parent_child）：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>方案</th>
+<th>Recall@5</th>
+<th>MRR@5</th>
+<th>noise@5</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Flat 500 + Rerank</td>
+<td>1.00</td>
+<td><strong>0.928</strong></td>
+<td>0.557</td>
+</tr>
+<tr>
+<td>Parent-Child 200</td>
+<td>0.957</td>
+<td>0.895</td>
+<td>0.714*</td>
+</tr>
+<tr>
+<td>Parent-Child + Rerank</td>
+<td>0.957</td>
+<td>0.895</td>
+<td>0.714*</td>
+</tr>
+</tbody>
+</table></div>
+<p>（口径：30 题金标中的 23 道可回答题，文档级指标。）</p>
+<p><strong>怎么读这张表——先说反直觉的部分：文档级指标上 PC 没有赢。</strong></p>
+<ul>
+<li>Flat+Rerank 在这套小语料上已接近满分（1.00 / 0.928），PC 没有可追赶的空间；
+&quot;子块召回 → 合并回父块&quot;多了一步，个别题反而掉出 Top-5（0.957）。<strong>这不是
+&quot;Parent-Child 没用&quot;</strong>，而是文档级指标量不出它的收益（下一条）；</li>
+<li>*noise@5 偏高是<strong>指标口径问题</strong>：父块是整节文本，主题比 500 字块杂，
+&quot;不含答案关键词&quot;的比例天然高——与 Flat 方案不可直接比较（exp5 报告的
+口径说明）。PC 的优势本来就不在&quot;块干不干净&quot;，而在 <strong>Context 完整性</strong>
+（生成单元是整节）：做 10.6 练习 1 那道跨小节题，对比两种方案
+&quot;最终进 Context&quot;的块内容，差异肉眼可见；</li>
+<li><strong>一个重要的历史注脚</strong>：v1 口径（20 题时代）这张表曾显示 PC&quot;Recall 补满、
+MRR 全场最优&quot;；换到 30 题口径后排名反转。同一份代码、同一套语料，
+<strong>换一套金标结论就会变</strong>——这是&quot;先金标、后改进&quot;与&quot;注明口径&quot;两条纪律
+最好的一次教训。</li>
+</ul>
+<p><strong>与 RAPTOR 的关系</strong>：Parent-Child 先让你理解&quot;检索单元与生成单元可以不是
+同一块&quot;，RAPTOR 是在这之上再加一层&quot;摘要节点也是检索单元&quot;。先 PC 后 RAPTOR，
+概念坡度平缓。</p>
+<h2>10.3 评测体系：代码走读（playground/eval/evaluate.py，201 行）</h2>
+<h3>10.3.1 数据结构：Question 与 CaseResult</h3>
+<pre><code class="language-python">class Question:                     # :21-35，金标集一题的内存形态
+    id / type / question            # type ∈ fact/symbol/semantic/.../unanswerable
+    gold_docs: list[str]            # 命中哪几篇算对（文档级）
+    gold_keywords: list[str]        # 块级关键词（kw_hit / noise 用）
+    answerable: bool                # False = 不可回答题，只考察拒答
+
+class CaseResult:                   # :44-52，一次评测的原始记录
+    hit_rank: int | None            # 第一个 gold doc 命中的名次（1-based），未命中 None
+    top_contents / refusal / answer
+</code></pre>
+<h3>10.3.2 两个入口：检索层 vs 完整链路</h3>
+<p><code>case_retrieval</code>（<code>:55-66</code>）只跑检索（<code>generate=False</code> 时 <code>hit_rank</code> 从
+<code>trace.fused</code> 里数文档名次）；<code>case_full</code>（<code>:69-80</code>）跑完整链路，
+<code>hit_rank</code> 从<strong>引用列表</strong>里数（<code>:74-77</code>）——注意口径差异：完整链路的&quot;命中&quot;
+是&quot;答案引用了金标文档&quot;，更严格也更接近用户视角。</p>
+<h3>10.3.3 指标本体</h3>
+<p>先把表头里的词定下来，再看每一列量什么。</p>
+<p><strong><code>@K</code></strong>：只考察排在最前的 K 条。<code>@5</code> 就是 Top-5，第 6 名及以后这道题里当作没出现。</p>
+<p><strong>1-based</strong>：名次从 1 起算，第一名的 <code>hit_rank</code> 是 1。倒数排名要做除法，
+从 0 起算会在第一名上除以零。</p>
+<p><strong>文档级</strong>：金标标在文档上。<code>gold_docs</code> 是 doc_id 列表。Top-K 里出现该文档的
+任意一块，这道题算命中。切分方式变了，金标不用重标——这是第 1 节就冻住的约定。</p>
+<p><strong>块级</strong>：看块的正文里有没有 <code>gold_keywords</code>。用来区分&quot;捞到了那篇文档&quot;
+和&quot;捞到的那一块就是答案所在&quot;。</p>
+<p><strong>Recall@K</strong> 在检索文献里一般是&quot;相关文档被捞回的比例&quot;。多个相关文档时，
+捞回 1 篇和捞回全部不是同一个分数。本课程的实现（<code>:83-92</code>）更窄：
+一道可回答题，Top-K 里有任一 gold doc 就记 1，否则记 0，再对题目取平均。
+这个算法的名字是 <strong>HitRate@K</strong>（有没有命中）。金标多为一篇文档时，两者数值一样，
+所以表头沿用了 Recall。10.7 把两个名字拆开。</p>
+<p><strong>MRR</strong>（Mean Reciprocal Rank，平均倒数排名）：每道题取第一个命中的名次
+<code>rank</code>，贡献 <code>1/rank</code>；K 以内没有命中则贡献 0；再对题目取平均。
+第 1 名得 1，第 2 名得 0.5，第 5 名得 0.2。它专门惩罚&quot;捞到了，但排得很后&quot;。</p>
+<p><strong>kw_hit@K</strong>：Top-K 的正文里，至少一块包含任一金标关键词，这道题记 1。</p>
+<p><strong>noise@K</strong>：在写了关键词的那些题上，Top-K 里&quot;一块关键词都不含&quot;的块占多少比例，
+再对题取平均。0 表示每块都沾到关键词，1 表示全是凑数。</p>
+<p><strong>拒答率</strong>：只统计 <code>answerable=False</code> 的题。模型给出拒答（<code>refusal=True</code>）算对。
+这些题没有 gold_docs，若放进 Recall，分母和分子都没有意义，所以 <code>:87-88</code> 把它们跳过。</p>
+<p>四个指标各自回答一个问题（实现行号标注；Recall 这一列的实现其实是 HitRate，见上文）：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>指标</th>
+<th>回答什么</th>
+<th>实现</th>
+<th>什么时候看</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Recall@K</strong></td>
+<td>金标文档进没进 Top-K（文档级）</td>
+<td><code>_recall_mrr</code> :83-92 前半</td>
+<td>召回问题：根本没捞到</td>
+</tr>
+<tr>
+<td><strong>MRR@K</strong></td>
+<td>第一个命中排第几</td>
+<td><code>_recall_mrr</code> :90 <code>1/hit_rank</code></td>
+<td>排序问题：捞到了但靠后</td>
+</tr>
+<tr>
+<td><strong>kw_hit@K</strong></td>
+<td>Top-K 里有没有块真含答案关键词（块级）</td>
+<td><code>_kw_recall</code> :95-111</td>
+<td>&quot;捞到的是不是答案本身&quot;</td>
+</tr>
+<tr>
+<td><strong>noise@K</strong></td>
+<td>Top-K 里几块是凑数的（1 - 关键词命中率）</td>
+<td><code>_noise_at_k</code> :114-132</td>
+<td>Rerank/融合的质量</td>
+</tr>
+<tr>
+<td><strong>拒答率</strong></td>
+<td>不可回答题是否正确拒答</td>
+<td><code>run_eval</code> :180-182</td>
+<td>生成层诚实度</td>
+</tr>
+</tbody>
+</table></div>
+<p><code>run_eval</code>（<code>:135-194</code>）把它们组装成多方案报告：K ∈ {3,5,10}（<code>:153</code>）、
+按题型分组统计（<code>:167-177</code>）、结果同时落 <code>.md</code>（人读）与 <code>.json</code>（机器读，
+<code>save_report</code> :197-200）。</p>
+<blockquote>
+<p>[!TIP]
+16 篇文档的小语料上，文档级指标很快饱和（R@5 普遍 0.95+）。
+<strong>区分方案好坏要靠块级指标</strong>（kw_hit / noise）和逐题 Trace 对比。
+语料变大后文档级指标自然拉开——这是&quot;指标要配数据规模&quot;的实例。</p>
+</blockquote>
+<h3>10.3.4 失败诊断清单（按顺序查，不要跳步）</h3>
+<pre><code class="language-text">1. 源文件脏/切错章/索引过期？        → 清洗与 checksum（第 2、9 节）
+2. Chunk 切碎了关键句/一坨多主题？    → 切分策略与大小（第 3 节）
+3. 符号题只走了向量？                → Hybrid（第 5-6 节）
+4. 金标根本不在候选里？              → 召回问题：改召回，加改写（第 8 节）
+5. 在候选里但排到后面？              → 融合/精排问题（第 6-7 节）
+6. 进了 Top-K 但没进 Context？       → 预算/去重/装填（第 8 节）
+7. 进了 Context 但答案仍编造？       → Prompt 约束/引用（第 8 节）
+8. 资料确实没有？                    → 应拒答，别改检索器（第 8 节）
+</code></pre>
+<p>分层对应：1-2 是 Layer 1（知识工程），3-5 是 Layer 2（检索工程），
+6-8 是 Layer 3（上下文工程）——三层心智模型直接落地成排障顺序。</p>
+<h2>10.4 如何运行</h2>
+<pre><code class="language-bash"># 全部 6 组方案的完整评测（写 experiments/）
+python -m scripts.run_eval
+
+# 单方案、单题的终端诊断（改 q 和 options 即可变成你的排障工具）
+# near_confusion（近义混淆）：题面里的词好几篇文档都像，正确答案只在其中一篇。
+# 第 5 节用它看 BM25 能不能靠精确词面把混淆文档压下去。
+python -c &quot;
+from playground.eval.evaluate import load_questions, case_retrieval
+from playground.rag import PipelineOptions
+qs = [q for q in load_questions() if q.type == 'near_confusion']
+for q in qs:
+    r = case_retrieval(q, PipelineOptions(retriever='bm25'))
+    print(q.id, q.question[:20], '→ hit_rank:', r.hit_rank)
+&quot;
+
+# 网站版：/eval 页点&quot;运行快速评测&quot;（同 run_eval 的 5 方案子集，浏览器里看表）
+python -m course.app
+</code></pre>
+<h2>10.5 注意事项</h2>
+<ul>
+<li><code>kw_hit</code>/<code>noise</code> 依赖 <code>gold_keywords</code> 的质量：关键词选得太宽（如 &quot;cache&quot;）
+会高估，太窄（如 &quot;STTNI&quot;）会低估——写金标时要自查一遍关键词是否真的出现在
+gold_doc 的正文里；</li>
+<li>不可回答题的&quot;正确&quot;只有一种形态：<code>refusal=True</code>。任何&quot;看起来很努力&quot;的
+错误答案都是 0 分（<code>:180-182</code> 数的就是这个）；</li>
+<li>对比两个方案时，<strong>strategy 与题目口径必须完全相同</strong>——实验报告的表头里
+写 strategy 就是为了这个。</li>
+</ul>
+<h2>10.6 动手练习</h2>
+<ol>
+<li>Playground 开 Parent-Child + pc_child200，问跨小节题&quot;从缓存层次和 SIMD
+寄存器宽度解释为什么带宽是瓶颈&quot;，看 Trace 里&quot;最终进 Context&quot;的块
+是不是整节文本（与 flat500x80 对比）；再对比 <code>meta.child_hits</code>——
+命中 ≥2 的父块就是 auto-merging 加过分的那批；</li>
+<li>打开 <code>/eval</code> 页运行快速评测，对着表格逐列解释每个数字在量什么；</li>
+<li>用 10.4 的终端诊断脚本，分别用 <code>dense</code> / <code>bm25</code> / <code>hybrid</code> 跑 near_confusion
+题型，验证第 5 节&quot;BM25 的死穴&quot;结论；</li>
+<li>给金标集加一道你自己的题（编辑 questions.json），跑
+<code>python -m scripts.run_eval</code>，看看各方案对它的表现。</li>
+</ol>
+<h2>10.7 加厚（v3）：指标家族延伸——MRR 之外的排名指标</h2>
+<p>本节的 Recall/MRR 用&quot;文档级金标 + 第一个命中&quot;就够用。金标变得更富（多个相关
+文档、相关性分强弱）时，指标也要跟着升级：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>指标</th>
+<th>回答什么</th>
+<th>何时用它</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HitRate@K</td>
+<td>前 K 里有没有命中（宽松版 Recall）</td>
+<td>只关心&quot;有没有&quot;，不关心名次</td>
+</tr>
+<tr>
+<td>Recall@K</td>
+<td>相关文档被捞回的比例（多个相关文档时按比例算）</td>
+<td>相关文档不止一个</td>
+</tr>
+<tr>
+<td>MRR@K</td>
+<td>第一个命中的名次倒数</td>
+<td>单一正确答案的事实/符号题（本课程主力）</td>
+</tr>
+<tr>
+<td>MAP</td>
+<td>所有相关文档的平均精度的均值</td>
+<td>多个相关文档且同等重要</td>
+</tr>
+<tr>
+<td><strong>nDCG</strong></td>
+<td>分级相关性 × 位置折损（排越后贡献越小）</td>
+<td>相关性有强弱之分（&quot;权威定义段&quot; vs &quot;顺带提过&quot;）</td>
+</tr>
+</tbody>
+</table></div>
+<p>四个名字里，HitRate 和&quot;多个相关文档时的 Recall&quot;在 10.3.3 已经分开。
+剩下两个要看到公式才不会和 MRR 混成&quot;都是看名次&quot;。</p>
+<p><strong>MAP</strong>（Mean Average Precision，平均精度均值）照顾&quot;相关文档不止一篇，
+而且每一篇排得靠不靠前&quot;。对一道题，沿着名次往下走，每遇到一篇相关文档，
+记下此时的精度：到这一名为止，相关篇数 ÷ 当前名次。这些精度再平均，得到这道题的 AP。
+MAP 是所有题的 AP 再平均。只看第一个命中的 MRR，第二篇相关文档排在第 2 还是第 9
+都不再影响分数；MAP 会把后面那几篇也算进去。</p>
+<p><strong>nDCG</strong>（normalized Discounted Cumulative Gain，归一化折损累计增益）还允许多个
+相关等级，例如 0 无关、1 顺带提到、2 就是答案段。计算分四步：</p>
+<ol>
+<li><strong>增益（gain）</strong>：这一名文档的相关性等级；</li>
+<li><strong>折损（discount）</strong>：名次越后，增益要除得越多。常用除数是 <code>log2(名次+1)</code>。
+第 1 名的除数是 <code>log2(2)=1</code>，第 3 名是 <code>log2(4)=2</code>，所以同样强的文档排在第 3，
+贡献大约是排在第 1 的一半；</li>
+<li><strong>DCG</strong>：把折损之后的增益加总；</li>
+<li><strong>IDCG</strong>：把这道题的相关文档按理想顺序重排后的 DCG，也就是这道题的理论上限。
+<strong>nDCG = DCG / IDCG</strong>，落在 0 到 1。漏掉相关文档，或把强相关排到后面，都会让它变小。
+不相关文档的增益是 0，排到哪里都不加分。</li>
+</ol>
+<p>本课程的金标没有等级，只有&quot;是不是这篇文档&quot;和&quot;块里有没有关键词&quot;。
+kw_hit 看有没有沾到答案，MRR 看第一命中的名次，两件事分开报。
+等金标写出等级，再换成 nDCG，比较的仍是同一批检索结果。</p>
+<p>最后再连一次第 13 节：这些<strong>排名指标管检索层</strong>；生成层的 Faithfulness/AR/CR
+没有金标可比，只能靠 LLM-as-judge 做相对比较——两套工具各管半场，别互相替代。</p>
+</div>
+  </article>
+  <nav class="wrap post-nav"><a class="prev" href="09.html"><span class="dir">← 上一篇</span><span class="t">知识库工程：元数据、去重与增量更新</span></a><a class="next" href="11.html"><span class="dir">下一篇 →</span><span class="t">结构化 RAG 扫盲：RAPTOR / GraphRAG / LightRAG</span></a></nav>
+</main>
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb 的博客</span>
+    </div>
+    <p>© <span data-year>2026</span> NorthAdb · RAG 课为静态讲义</p>
+    <div class="f-links">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</footer>
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+<script src="../../js/main.js"></script>
+</body>
+</html>

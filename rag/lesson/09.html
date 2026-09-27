@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>知识库工程：元数据、去重与增量更新 — NorthAdb</title>
+<meta name="description" content="元数据过滤、strategy 版本、checksum 与增量更新；v3：字段设计清单；v4：jsonb、GIN、@&gt;、upsert、事务在首次出现处展开。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23D97757'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%231C100A' font-family='Georgia' font-weight='bold'>N</text></svg>">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../course.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="orb orb-a"></div>
+<div class="orb orb-b"></div>
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html">首页</a></li>
+        <li><a href="../../index.html#posts">文章</a></li>
+        <li><a href="../../learn.html">课件</a></li>
+        <li><a href="../index.html" class="active">RAG</a></li>
+        <li><a href="../../about.html">关于</a></li>
+        <li><a href="https://github.com/NorthAdb" target="_blank" rel="noopener" class="nav-cta">GitHub ↗</a></li>
+      </ul>
+    </nav>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+<main>
+  <article>
+    <header class="wrap post-hero">
+      <div class="crumbs">
+        <a href="../../index.html">首页</a><span class="sep-c">/</span>
+        <a href="../index.html">RAG</a><span class="sep-c">/</span>
+        <span>第 09 节</span>
+      </div>
+      <h1>知识库工程：元数据、去重与增量更新</h1>
+      <div class="post-meta"><span>第 09 节</span><span class="sep"></span><span>约 45 分钟</span><span class="sep"></span><a href="../quiz.html?lesson=09">本节自测</a></div><p class="lead">元数据过滤、strategy 版本、checksum 与增量更新；v3：字段设计清单；v4：jsonb、GIN、@&gt;、upsert、事务在首次出现处展开。</p>
+    </header>
+    <div class="wrap prose wide"><blockquote>
+<p><strong>本节任务</strong>：视角从&quot;检索算法&quot;切换到&quot;知识库是一套需要维护的系统&quot;——
+掌握元数据过滤、strategy 版本管理、checksum 一致性检测这三件生产必备，
+并理解为什么 KB 系统（第 17 节）的入库设计几乎逐条来自本节。
+jsonb、GIN、<code>@&gt;</code>、upsert、事务这些词，在本节第一次出现时展开讲完。</p>
+</blockquote>
+<p><strong>课程地图上的位置</strong>：Layer 1 的工程收口。上一节 <a href="08.html">08 改写与装填</a>；
+下一节 <a href="10.html">10 Parent-Child 与评测</a>。</p>
+<h2>9.1 元数据过滤：检索的一部分，不是附属字段</h2>
+<p>**元数据（metadata，本课程列名 <code>meta</code>）**是贴在数据上的标签，描述&quot;这条记录是什么&quot;，
+本身不是被检索的正文。一篇切片的正文在 <code>content</code> 里；&quot;它来自哪套语料、哪篇文档、
+哪一节&quot;这类标签才是元数据。过滤要回答的是：&quot;这次只准在哪些标签里找？&quot;</p>
+<p>本课程把块上的标签收进 <code>rg_chunks.meta</code>（建表 <code>scripts/init_db.py:48</code>）。
+文档表 <code>rg_documents</code> 上也有同名列（<code>:24</code>），职责不同：文档那列记整篇的属性，
+块那列跟每一刀切片走，检索 SQL 滤的是块。</p>
+<h3>9.1.1 jsonb：存进 PostgreSQL 的 JSON</h3>
+<p><strong>JSON</strong>（JavaScript Object Notation）是一种文本格式，用来写结构化数据。
+一个对象用花括号，里面是 <code>&quot;键&quot;: 值</code>，值可以是字符串、数字、布尔、空、
+再套一层对象或数组。本课程写进块上的典型样子：</p>
+<pre><code class="language-json">{&quot;corpus&quot;: &quot;main&quot;}
+</code></pre>
+<p>键是 <code>corpus</code>（语料标签），值是字符串 <code>&quot;main&quot;</code>。多加字段就是多一对：
+<code>{&quot;corpus&quot;: &quot;main&quot;, &quot;lang&quot;: &quot;zh&quot;}</code>。</p>
+<p>PostgreSQL 有两种列类型都能装这段文本：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>类型</th>
+<th>库里实际怎么存</th>
+<th>适合做什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>json</code></td>
+<td>原样保留你输入的文本（空格、键的顺序都在）</td>
+<td>要一字不差地存档、再原样吐出</td>
+</tr>
+<tr>
+<td><strong><code>jsonb</code></strong></td>
+<td>入库时就解析成二进制结构：重复键合并、键会重排、去掉无意义空白</td>
+<td>要按键查询、要建索引——本课程用的就是它</td>
+</tr>
+</tbody>
+</table></div>
+<p><code>b</code> 是 binary。付出的代价是写入时多一次解析，换来的是读和过滤不用每次重新解析文本。
+<code>NOT NULL DEFAULT '{}'</code>（<code>init_db.py:48</code>）的意思是：这一列不许是空值（<code>NULL</code>，
+&quot;什么都没有&quot;），没写的时候数据库填一个空对象 <code>{}</code>。空对象是合法的 jsonb，
+和 <code>NULL</code> 不是一回事——前者是&quot;有一个对象，里面零个键&quot;。</p>
+<p>jsonb 不保证键的书写顺序。别把&quot;第一个键是 corpus&quot;写进任何逻辑，要按键名取。</p>
+<h3>9.1.2 <code>@&gt;</code>：包含，以及 <code>::</code> 类型转换</h3>
+<p>检索 SQL 里的过滤子句（<code>playground/retrieve/vector_store.py:40-41</code>）：</p>
+<pre><code class="language-sql">AND meta @&gt; %s::jsonb
+</code></pre>
+<p>三个符号拆开：</p>
+<p><strong><code>%s</code> 是占位符。</strong> 本课程用 psycopg 连数据库。SQL 文本里写 <code>%s</code>，真正的值
+由驱动另路送进去（<code>vector_store.py:45</code> 把 Python 字典 <code>json.dumps</code> 成字符串再传入）。
+这叫<strong>参数化查询</strong>：值不会被拼进 SQL 字符串。过滤条件来自调用方时，
+就靠这个避免把用户输入变成 SQL。</p>
+<p><strong><code>::jsonb</code> 是类型转换（cast）。</strong> PostgreSQL 用 <code>值::类型</code> 把左边转成右边的类型。
+占位符传进来的是文本，<code>::jsonb</code> 告诉数据库&quot;按 jsonb 来理解这段文本&quot;。
+转换失败（不是合法 JSON）会直接报错，不会静默当成普通字符串比较。</p>
+<p><strong><code>@&gt;</code> 是包含操作符（containment）。</strong> <code>左边 @&gt; 右边</code> 为真，当且仅当右边出现的
+每一个键值，左边都有，且值相等。左边可以多出别的键。</p>
+<pre><code class="language-text">{&quot;corpus&quot;:&quot;main&quot;,&quot;lang&quot;:&quot;zh&quot;}  @&gt;  {&quot;corpus&quot;:&quot;main&quot;}     → 真（多出来的 lang 不影响）
+{&quot;corpus&quot;:&quot;main&quot;}              @&gt;  {&quot;corpus&quot;:&quot;main&quot;,&quot;lang&quot;:&quot;zh&quot;}  → 假（右边要求的 lang 左边没有）
+{&quot;corpus&quot;:&quot;dirty&quot;}             @&gt;  {&quot;corpus&quot;:&quot;main&quot;}     → 假（键在，值不同）
+</code></pre>
+<p>所以 <code>meta @&gt; '{&quot;corpus&quot;:&quot;main&quot;}'</code> 问的是：这块的标签里是否含有 corpus=main。
+整列还可以带着别的键。以后往 meta 里加 <code>lang</code>，旧的 corpus 过滤仍然成立——
+这是 9.5 第一条注意事项的来源。</p>
+<p>同一家族里，本节会碰到、以后也躲不开的几个操作符：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>写法</th>
+<th>含义</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@&gt;</code></td>
+<td>左边包含右边</td>
+<td>上面三行</td>
+</tr>
+<tr>
+<td><code>&lt;@</code></td>
+<td>左边被右边包含，即 <code>@&gt;</code> 的反向</td>
+<td><code>'{&quot;a&quot;:1}'::jsonb &lt;@ '{&quot;a&quot;:1,&quot;b&quot;:2}'</code> 为真</td>
+</tr>
+<tr>
+<td><code>?</code></td>
+<td>左边这个对象有没有某个<strong>键</strong>（不看值）</td>
+<td><code>meta ? 'corpus'</code></td>
+</tr>
+<tr>
+<td><code>-&gt;</code></td>
+<td>按键取出子值，结果仍是 jsonb</td>
+<td><code>meta-&gt;'corpus'</code> 得到 <code>&quot;main&quot;</code>（带 JSON 引号的 jsonb 字符串）</td>
+</tr>
+<tr>
+<td><code>-&gt;&gt;</code></td>
+<td>按键取出子值，结果变成普通 text</td>
+<td><code>meta-&gt;&gt;'corpus'</code> 得到 <code>main</code>，可以拿去和别的文本列比较</td>
+</tr>
+</tbody>
+</table></div>
+<p>本课程的检索只用 <code>@&gt;</code>。选它是因为&quot;多个条件同时满足&quot;可以自然地写成一个对象：
+<code>{&quot;corpus&quot;:&quot;main&quot;,&quot;lang&quot;:&quot;zh&quot;}</code> 表示两键都要匹配。</p>
+<p>可以不碰表、只验证操作符。预期打印一行 <code>(True, False, False)</code>：</p>
+<pre><code class="language-bash">python -c &quot;
+from playground.db import q
+print(q('''
+SELECT
+  '{\&quot;corpus\&quot;:\&quot;main\&quot;,\&quot;lang\&quot;:\&quot;zh\&quot;}'::jsonb @&gt; '{\&quot;corpus\&quot;:\&quot;main\&quot;}'::jsonb,
+  '{\&quot;corpus\&quot;:\&quot;main\&quot;}'::jsonb @&gt; '{\&quot;corpus\&quot;:\&quot;main\&quot;,\&quot;lang\&quot;:\&quot;zh\&quot;}'::jsonb,
+  '{\&quot;corpus\&quot;:\&quot;dirty\&quot;}'::jsonb @&gt; '{\&quot;corpus\&quot;:\&quot;main\&quot;}'::jsonb
+'''))
+&quot;
+</code></pre>
+<h3>9.1.3 GIN 索引：给&quot;里面含不含这个标签&quot;用的</h3>
+<p>**索引（index）**是数据库另存的一份查找结构。没有它，<code>WHERE</code> 得把表逐行读完
+（顺序扫描，sequential scan）再决定留谁；有它，先在索引里定位，再回表取那几行。
+索引让读变快，代价是多占磁盘，并且每次写入都要连带维护。</p>
+<p><code>rg_chunks</code> 上有三份索引（<code>init_db.py:53-58</code>），服务的问题完全不同：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>索引</th>
+<th>建在哪</th>
+<th>类型</th>
+<th>回答的问题</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>rg_chunks_hnsw</code></td>
+<td><code>embedding</code></td>
+<td>HNSW（第 4 节的向量近邻图）</td>
+<td>哪个向量离查询最近</td>
+</tr>
+<tr>
+<td><code>rg_chunks_strategy_idx</code></td>
+<td><code>strategy</code></td>
+<td><strong>B-tree</strong></td>
+<td><code>strategy = 'flat500x80'</code> 这类等值</td>
+</tr>
+<tr>
+<td><code>rg_chunks_doc_idx</code></td>
+<td><code>(doc_id, strategy)</code></td>
+<td><strong>B-tree</strong></td>
+<td>某文档在某版本下的块</td>
+</tr>
+<tr>
+<td><code>rg_chunks_meta_gin</code></td>
+<td><code>meta</code></td>
+<td><strong>GIN</strong></td>
+<td>meta 里是否包含给定的键值</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>B-tree</strong>（平衡树，balanced tree）是 PostgreSQL 不写 <code>USING</code> 时的默认索引。
+它把标量值排好序，等值（<code>=</code>）和范围（<code>&lt;</code>、<code>&gt;</code>）都走它。<code>strategy</code> 是普通文本，
+一个块一个值，B-tree 正合适。<code>CREATE INDEX ... ON rg_chunks (strategy)</code>
+（<code>:56</code>）没有写 <code>USING</code>，所以就是 B-tree。</p>
+<p><strong>GIN</strong>（Generalized Inverted Index，通用倒排索引）解决的是另一种列：
+<strong>一个格子里装着很多元素</strong>。jsonb 的一个对象有多个键值，数组有多个成员，
+全文检索的 <code>tsvector</code>（第 5 节 5.9 提过）有多个词。B-tree 只能把&quot;整格&quot;当成
+一个整体来排序，回答不了&quot;这格里面有没有 corpus=main&quot;。</p>
+<p>倒排的直觉就是书后面的索引：正文是&quot;页 → 页上有哪些词&quot;，索引翻过来做成
+&quot;词 → 哪些页出现过它&quot;。查一个词，直接拿到页码列表，不用逐页翻。
+GIN 对 jsonb 做的是同一件事：把对象拆成若干条&quot;路径 + 值&quot;，每条指向拥有它的那些行。
+<code>@&gt;</code> 就是拿你给的键值去这份倒排表里取交集。</p>
+<p>建索引那一行（<code>init_db.py:58</code>）：</p>
+<pre><code class="language-sql">CREATE INDEX IF NOT EXISTS rg_chunks_meta_gin
+    ON rg_chunks USING gin (meta jsonb_path_ops);
+</code></pre>
+<p><code>USING gin</code> 指定索引方法。括号里的 <code>jsonb_path_ops</code> 是<strong>操作符类
+（operator class）</strong>：同一套 GIN，可以按不同规则拆 jsonb，决定&quot;倒排表里
+每一条到底记什么、以及哪些操作符能用上这份索引&quot;。两个常用选择：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>操作符类</th>
+<th>倒排表里记什么</th>
+<th>能加速的操作符</th>
+<th>体积</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>jsonb_ops</code>（不写时的默认）</td>
+<td>每个键、每个值分开记</td>
+<td><code>@&gt;</code>，以及&quot;键在不在&quot;的 <code>?</code></td>
+<td>较大</td>
+</tr>
+<tr>
+<td><strong><code>jsonb_path_ops</code>（本课程）</strong></td>
+<td>整条&quot;路径→值&quot;合成一条记录</td>
+<td><strong>只有 <code>@&gt;</code></strong></td>
+<td>明显更小</td>
+</tr>
+</tbody>
+</table></div>
+<p>本课程检索只写 <code>@&gt;</code>，所以用 <code>jsonb_path_ops</code>：索引更小，包含查询更贴这个操作符。
+代价要记住——以后如果写成 <code>meta ? 'owner'</code>（只问有没有这个键），
+<strong>这份索引帮不上</strong>，得另建一个 <code>jsonb_ops</code> 的 GIN，或改写成带值的 <code>@&gt;</code>。</p>
+<p>还有一句实话：索引建了，不代表每一条 SQL 都会用它。优化器（planner，数据库里
+决定&quot;这条 SQL 怎么执行&quot;的组件）会估代价。本课程几百块的表上，它经常觉得
+顺序扫描更便宜，GIN 先闲着。块数到了十万、百万，<code>@&gt;</code> 才会稳定地走
+<code>rg_chunks_meta_gin</code>。第 4 节练习里那句&quot;候选集极小时 GIN 反而多余&quot;，说的就是这件事。
+想看它实际选了哪条路，在 SQL 前加 <code>EXPLAIN</code>（只打印计划，不执行业务逻辑）。</p>
+<h3>9.1.4 过滤参数怎么流进来</h3>
+<p>**语料（corpus）**是一批用途相同的文档，外加一个来源标签。本课程有
+main（主语料）、dirty（脏数据对照）、graph（图谱短文）、mineru、kb。
+它们的块可以住在同一张 <code>rg_chunks</code> 里，靠 meta 里的 <code>corpus</code> 隔开，
+检索时互不可见。</p>
+<p><code>dense_search</code> 的形参 <code>meta_filter</code>（<code>vector_store.py:31-33</code>）是一个字典，
+例如 <code>{&quot;corpus&quot;: &quot;graph&quot;}</code>。函数里做了两件容易看漏的事：</p>
+<pre><code class="language-python">flt = (meta_filter or {}).copy()
+flt.setdefault(&quot;corpus&quot;, &quot;main&quot;)
+</code></pre>
+<ul>
+<li><strong><code>copy()</code></strong> 复制出一份新字典。后面要改的是这份副本，调用者手里的原字典保持原样，
+同一份过滤条件还能传给下一次检索。</li>
+<li><strong><code>setdefault(键, 默认值)</code></strong> 是字典方法：键已经存在就保持原值，不存在才写入。
+于是调用方没提 corpus 时，补上 <code>&quot;main&quot;</code>；调用方明确给了 <code>&quot;graph&quot;</code> 时，不会被盖掉。
+<strong>corpus 过滤默认是开的。</strong> 这就是各语料互不干扰的机制。</li>
+</ul>
+<p>调用入口在 <code>PipelineOptions</code>（<code>playground/rag.py:41</code> 的 <code>meta_filter</code> 字段，
+<code>:38</code> 的 <code>corpus</code> 字段）。<code>retrieve()</code> 里（<code>rag.py:138-139</code>）的规则是：
+<code>meta_filter</code> 为 <code>None</code> 时，Dense 用 <code>{&quot;corpus&quot;: o.corpus}</code>；你传了字典，Dense 就用你这份，
+里面可以同时有多个键。</p>
+<p>两条路径的入口并不相同。Dense 读 <code>meta_filter</code>；BM25 的参数是单独的 <code>corpus</code> 字符串
+（<code>rag.py:144</code> 把 <code>o.corpus</code> 传进 <code>bm25_search</code>）。只改 <code>meta_filter</code>、不改 <code>corpus</code> 时，
+Dense 去了 graph，BM25 仍停在默认的 main，Hybrid 会把两套语料的命中揉在一起。
+要&quot;只搜图谱&quot;，两个都指向 graph：</p>
+<pre><code class="language-python">from playground.rag import RAGPipeline, PipelineOptions
+t = RAGPipeline(PipelineOptions(
+    retriever=&quot;hybrid&quot;,
+    corpus=&quot;graph&quot;,                     # BM25 用这个字符串
+    meta_filter={&quot;corpus&quot;: &quot;graph&quot;},   # Dense 用这份 jsonb 过滤
+)).answer(&quot;Intel 和 AMD 是怎么产生联系的？&quot;)
+print(t.final_hits[0].doc_id)
+</code></pre>
+<p>还有一处默认值叠在更里面：<code>dense_search</code> 对拿到的字典执行
+<code>setdefault(&quot;corpus&quot;, &quot;main&quot;)</code>。你传了 <code>meta_filter={&quot;lang&quot;: &quot;zh&quot;}</code> 这种不含 corpus 的字典时，
+Dense 仍会补上 <code>corpus=main</code>，补的是字面量 <code>&quot;main&quot;</code>，不会去读 <code>PipelineOptions.corpus</code>。</p>
+<p><strong>BM25</strong>（第 5 节的词面打分）一侧同一条纪律：<code>_build</code> 的 WHERE 里同样是
+<code>meta @&gt;</code>（<code>bm25.py:44</code>）。它和向量检索的差别在缓存。</p>
+<p><strong><code>lru_cache</code></strong> 来自 Python 标准库 <code>functools</code>（<code>bm25.py:38</code>）。它以装饰器的形式写在函数上方：
+装饰器是包住函数的一层额外行为，函数本身的代码不用改。这里额外做的事是按参数记住返回值。
+同样的参数再来，直接交回上次的结果，
+不再查库、不再重建内存里的倒排表。<code>maxsize=8</code> 表示最多留 8 份。
+LRU（Least Recently Used，最近最少使用）是满了以后的淘汰规则：丢掉最久没被问到的那份。
+这里的参数是 <code>(strategy, corpus)</code>，所以&quot;换一套索引版本或换一个语料&quot;会另算一份，
+&quot;同一套再搜一次&quot;则命中缓存。</p>
+<p>缓存的另一面：库里的块已经更新，内存里的 BM25 还是旧的。KB 入库和删除之后
+会调用 <code>cache_clear()</code> 清掉它（<code>kb/store.py:173-176</code>）。课程实验如果绕过这条路径
+直接改表，BM25 会继续搜旧结果，直到进程重启或手动 <code>cache_clear()</code>。</p>
+<h3>9.1.5 为什么过滤必须写在 SQL 的 WHERE 里</h3>
+<p><strong>WHERE</strong> 是 SQL 里写筛选条件的子句。<strong>LIMIT</strong> 是&quot;最多返回几行&quot;。
+<strong>Top-K</strong> 就是只要排在最前面的 K 条，本课程用 <code>LIMIT</code> 表达。</p>
+<p>问&quot;AVX 和 AVX-512 在掩码上的区别&quot;时，如果范围先限定在文档 <code>avx</code> 与 <code>avx512</code>，
+近义干扰会直接消失。本课程写进 SQL 的是 <code>meta @&gt;</code>：候选集在打分之前就按标签缩小。
+<code>doc_id</code> 也可以同样写进 WHERE，时机相同——都在排序取 Top-K 之前。</p>
+<p>两条路要分开：</p>
+<pre><code class="language-text">检索中过滤：WHERE meta @&gt; ...     没通过的行不进入排序，也不进入返回结果
+检索后丢弃：先取出 Top-K，再在 Python 里 if 掉标签不对的
+</code></pre>
+<p>检索后丢弃的问题是：名额已经按&quot;未过滤的全库&quot;发出去了。10 个名额里 8 个属于别的语料，
+你扔掉它们，手里只剩 2 条，而本语料里本来排第 11 的那条永远没有机会。
+过滤写进 WHERE 之后，<code>LIMIT</code> 数的就是过滤之后的名额。</p>
+<p>权限标签同理，9.7 会再讲：先查出来再扔掉，不该看的内容已经进了日志和缓存。</p>
+<h3>9.1.6 HNSW 先取近邻、再过滤</h3>
+<p><strong>HNSW</strong> 是第 4 节的向量索引：一张多层近邻图，查询沿着边跳，不用和全库每个向量都算一遍。
+<strong><code>ef_search</code></strong> 是查询时手里握着的候选个数（默认 40，第 4 节 4.2.5）。
+和元数据过滤叠在一起时，pgvector 的实际次序是：</p>
+<pre><code class="language-text">1. 在 HNSW 上先找出大约 ef_search 个最近的向量
+2. 再对这批候选套 WHERE（strategy、meta @&gt;）
+3. 剩下的才按 LIMIT 返回
+</code></pre>
+<p>过滤很严时，40 个近邻里可能只有 2 个 <code>corpus=graph</code>。你要 10 条，它只交回 2 条。
+库里并不是没有，是图搜索在凑满 <code>ef_search</code> 之后就停了，后面那些&quot;稍远但标签合格&quot;的块
+没被看到。</p>
+<p>pgvector 0.8 为此加了 <strong><code>hnsw.iterative_scan</code></strong>（迭代扫描）：一轮过滤之后数量不够，
+就继续沿图往下找，直到够数或到达上限。它是会话级参数，和 <code>ef_search</code> 一样要 <code>SET</code>：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>取值</th>
+<th>行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>off</code></td>
+<td>默认。搜完一轮就停，条件严时结果会缺</td>
+</tr>
+<tr>
+<td><code>strict_order</code></td>
+<td>继续找，返回顺序仍严格按距离</td>
+</tr>
+<tr>
+<td><code>relaxed_order</code></td>
+<td>继续找，允许结果顺序不严格按距离，换更快的扫描</td>
+</tr>
+</tbody>
+</table></div>
+<p><code>relaxed_order</code> 就是本课程环境说明里点名的那个值（<code>D:\PostgreSQL\README.md</code> 第 9 节；
+第 4 节 4.6 也提过）。本课程语料小，<code>ef_search</code> 覆盖得住，坑不显现；
+生产上过滤一严就必须知道有这个开关。</p>
+<h2>9.2 索引版本管理：strategy 是第一公民</h2>
+<h3>9.2.1 strategy：一套索引的名字</h3>
+<p>**strategy（索引版本）**是一个普通文本列（<code>init_db.py:40</code>），给&quot;同一批文档、
+某一种清洗 + 切分 + 向量化方法&quot;起的名字。文档还是那些文档，切法一变，
+块的边界和向量都变了，所以必须另存一套，不能覆盖旧的——否则第 3 节的消融
+无法并排比较。</p>
+<p>命名规则在 <code>playground/ingest/ingest.py:56-57</code>：
+<code>strategy = f&quot;flat{chunk_size}x{overlap}&quot;</code>，例如 <code>flat500x80</code> 表示固定长度、
+块大小 500、重叠 80。Parent-Child 版本手动传 <code>pc_child200</code>；脏语料是 <code>dirty500x80</code>。
+目前库里共存 9 个版本（Playground 首页表格实时可见）。</p>
+<p>它是<strong>约定，不是数据库约束</strong>。列类型只是 <code>text</code>，你写成 <code>test1</code> 也能插入。
+约束（constraint）是数据库强制的规则，违反就拒绝写入；约定只活在人和代码的默契里。
+乱起名能跑，但&quot;看名字就知道切分参数&quot;这条约定就破了。</p>
+<p>同一条检索 SQL 里，<code>strategy = %s</code> 走 B-tree（9.1.3），<code>meta @&gt;</code> 走 GIN。
+两道门都过，行才进候选。</p>
+<h3>9.2.2 <code>build_index()</code> 的四步，以及每步的词</h3>
+<p>写入顺序在 <code>ingest.py:84-127</code>。</p>
+<p><strong>第 1 步，删掉该 strategy 的全部旧块</strong>（<code>:84-86</code>）：</p>
+<pre><code class="language-python">exec(f&quot;DELETE FROM {config.TABLE_PREFIX}_chunks WHERE strategy = %s&quot;, (strategy,))
+</code></pre>
+<p>这一步是为了清除<strong>孤儿向量</strong>。这里的&quot;孤儿&quot;指：源文本已经换了切法或换了内容，
+旧的块行还留在表里，它的 <code>embedding</code> 仍会被 HNSW 和 BM25 搜到。
+典型来源是文档变短了。旧版有 <code>chunk_index = 0..12</code>，新版只剩 <code>0..8</code>。
+若只插入新行、不先删除，9 到 12 这四块没有对应的新正文，却继续参与检索。
+半新半旧比&quot;全部是旧的&quot;更危险——金标对不上时，你分不清是模型退步了还是索引脏了。</p>
+<p><strong>第 2 步，upsert 文档</strong>（<code>:88</code> 调用 <code>_write_documents</code>，<code>:18-30</code>）。</p>
+<p><strong>upsert</strong> 是 update + insert 的合成说法：有这条就更新，没有就插入。
+PostgreSQL 没有一个叫 <code>UPSERT</code> 的关键字，写法是 <code>INSERT ... ON CONFLICT DO UPDATE</code>：</p>
+<pre><code class="language-sql">INSERT INTO rg_documents (doc_id, source, title, checksum, corpus, meta)
+VALUES (%s, %s, %s, %s, %s, %s)
+ON CONFLICT (doc_id) DO UPDATE
+   SET source = EXCLUDED.source, title = EXCLUDED.title,
+       checksum = EXCLUDED.checksum, ...
+</code></pre>
+<ul>
+<li>**主键（PRIMARY KEY）**是能唯一指出一行的列。<code>doc_id</code> 是文档表的主键
+（<code>init_db.py:19</code>），两行不许同号。</li>
+<li><strong><code>ON CONFLICT (doc_id)</code></strong> 说的是：如果即将插入的 <code>doc_id</code> 和已有行冲突
+（主键不允许重复），不要报错中止，改走后面的更新。</li>
+<li><strong><code>EXCLUDED</code></strong> 是 PostgreSQL 给&quot;这次没插进去的那行&quot;起的表名。
+<code>EXCLUDED.checksum</code> 就是你 VALUES 里准备写入的新指纹；等号左边的 <code>checksum</code>
+是表里已有的那列。</li>
+</ul>
+<p>**checksum（校验和）**在这里是内容指纹：由全文算出来的一小段固定长度字符串，
+用来发现&quot;源文件改了，索引还是旧的&quot;。计算在 <code>loader.py:40</code>：</p>
+<pre><code class="language-python">hashlib.sha256(text.encode(&quot;utf-8&quot;)).hexdigest()[:16]
+</code></pre>
+<p>**哈希（hash）**把任意长度的字节变成固定长度的指纹。改一个字，指纹整个换掉
+（这种&quot;输入微变、输出全变&quot;叫雪崩）。它是单向的：从指纹推不回原文，
+也不是加密——没有密钥，谁都可以对同一段文本算出同一个值。</p>
+<p><strong>SHA-256</strong> 是一种哈希算法，输出 256 位，写成十六进制是 64 个字符。
+<code>hexdigest()[:16]</code> 只留前 16 个字符（64 位）。对&quot;文件有没有被改过&quot;这件事，
+16 个十六进制字符在个人知识库的规模上足够：两篇不同文档碰巧得到同一指纹的概率
+可以忽略。它用来发现意外修改和漏重建。<code>hexdigest()</code> 就是把那 256 位印成十六进制字符串。</p>
+<p>指纹变了，<code>ON CONFLICT</code> 那条更新会把 <code>updated_at</code> 刷成 <code>now()</code>
+（<code>ingest.py:27</code>）。<code>now()</code> 是数据库函数，取当前时间。于是&quot;源文件变了&quot;
+可以事后查出来，而不必重读磁盘。KB 的&quot;同名重传、checksum 相同就跳过&quot;
+（<code>kb/ingest.py:53-58</code>）是同一思想：指纹没变就不要重新向量化，省掉一次嵌入 API。</p>
+<p><strong>第 3 步，Parent-Child 才写父块</strong>（<code>:89-99</code>），并修正 <code>section_path</code>（<code>:100-107</code>）。</p>
+<p><strong>Parent-Child</strong>（第 10 节的正式内容，这里先混个脸熟）：短的子块用来被搜到，
+命中后再取出它所属的整节长文本送给模型。父块存在 <code>rg_parents</code>，
+<code>parent_id</code> 形如 <code>doc_id::sec3</code>。只有 strategy 名字以 <code>pc_child</code> 开头时，
+<code>ingest.py:70</code> 才会走上这条分支；<code>flat500x80</code> 没有父块。</p>
+<p><strong><code>section_path</code></strong> 是标题链，例如 <code>CPU 概述 &gt; 缓存</code>（第 3 节切分时生成）。
+它存在块上，供命中列表显示&quot;这段话出自哪一节&quot;。父块插入时先写了空字符串，
+随后用一条 <code>UPDATE ... FROM</code> 从子块把标题链抄回去。</p>
+<p><strong>第 4 步，插入新块和向量</strong>（<code>:109-127</code>）。冲突处理这次是 <code>DO NOTHING</code>：</p>
+<pre><code class="language-sql">ON CONFLICT (doc_id, strategy, chunk_index) DO NOTHING
+</code></pre>
+<p><strong><code>UNIQUE (doc_id, strategy, chunk_index)</code></strong>（<code>init_db.py:50</code>）是一条唯一约束：
+这三列的组合不许出现第二行。于是&quot;同一文档、同一索引版本、同一个序号&quot;只有一块。
+<code>chunk_id</code>（第 3 节见过）就是这三列用 <code>::</code> 拼出来的字符串，例如 <code>avx::flat500x80::3</code>。</p>
+<p><code>DO NOTHING</code> 和上面的 <code>DO UPDATE</code> 是同一语法的另一支：撞上唯一约束时跳过这一行，
+不更新、不报错。在第 1 步已经把该 strategy 删干净的前提下，正常运行不该发生冲突。
+<code>DO NOTHING</code> 不会改写已存在的旧块，所以去孤儿仍然靠第 1 步的 <code>DELETE</code>；
+省略删除的话，变短文档多出来的旧序号会原样留下。</p>
+<p>对应的删除工具是 <code>drop_strategy()</code>（<code>ingest.py:141-144</code>）：按名字一次删净一个版本的块。
+<strong>不要手动 <code>DELETE</code> 掉其中一部分块。</strong> 删一半再插一半，就是上面说的半新半旧。</p>
+<p>块通过**外键（foreign key）**指向文档：<code>chunks.doc_id REFERENCES rg_documents(doc_id)</code>
+（<code>init_db.py:39</code>）。外键要求这一列的值必须在被引用的表里真实存在，
+禁止出现&quot;块指向一篇已经没有的文档&quot;。后面的 <strong><code>ON DELETE CASCADE</code>（级联删除）</strong>
+表示：文档行被删时，数据库自动删掉引用它的块和父块，不留悬空指针。
+KB 的 <code>delete_document</code> 先按 <code>doc_id</code> 删块、再删文档，最后清 BM25 缓存
+（<code>kb/store.py:106-108</code>）。就算只删文档行，级联也会把块带走。</p>
+<h2>9.3 增量更新 vs 全量整理</h2>
+<pre><code class="language-text">增量更新：只处理变化了的那几篇（本章的 upsert；别的文档不动）
+          快、便宜，适合日常吸收新文件
+全量整理：定期把全库再走一遍（去重、冲突检测、换切分参数后整套重建）
+          慢、贵，能看见&quot;长期堆出来的冗余和互相矛盾&quot;
+</code></pre>
+<p><strong>增量</strong>的单位是&quot;变化的文档&quot;。一篇文档改了一个段落，
+本课程的做法仍是按 <code>doc_id</code> 重切、重嵌入这一篇的全部分块——切分边界会连带移动。
+<strong>overlap</strong>（第 3 节）是相邻块互相重叠的那一段字；只换中间一块，前后块带着的重叠
+会对不上新正文。
+<strong>全量</strong>的单位是&quot;一套 strategy 或整个库&quot;：所有文档重新清洗、重新切、重新嵌入。</p>
+<p>现实系统两者一起用：<strong>日常增量 + 定期全量</strong>。本课程的 <code>build_index</code> 在语义上
+是&quot;按 strategy 全量重建&quot;（先删该版本的全部块，再整批插入）。语料只有几十篇，
+这比逐篇判断谁变了更简单，也更不容易留下孤儿。</p>
+<p>十万文档就不能每次都这样：一次重建的嵌入费用和时间都线性涨。
+KB 的 <code>reindex_document</code>（<code>kb/ingest.py:106-115</code>）是按篇增量的雏形——
+只读那一篇的磁盘原件，只替换那一篇在 KB strategy 下的块
+（<code>kb/store.py:70-75</code> 的 DELETE 带了 <code>doc_id</code> 和 <code>strategy</code> 两个条件）。
+别的文档的向量不动。</p>
+<h2>9.4 去重的三个层次（与第 2 节呼应）</h2>
+<p>同一段话出现两次，检索会把它当成两份证据。去重要分清发生在哪一层：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>层次</th>
+<th>时机</th>
+<th>方法</th>
+<th>已实现于</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>文本级</td>
+<td>清洗时</td>
+<td>相邻的、内容相同的行只留一行；样板句删掉</td>
+<td><code>cleaner.py:43-52</code></td>
+</tr>
+<tr>
+<td>文档级</td>
+<td>清洗时</td>
+<td>整篇 checksum 相同的文档只留第一篇</td>
+<td><code>cleaner.py:63-71</code></td>
+</tr>
+<tr>
+<td>块级</td>
+<td>装填时</td>
+<td>同一个 <code>chunk_id</code> 只留一条</td>
+<td><code>context_builder.py:27-33</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>文本级处理的是&quot;同一篇内部，页眉页脚被复制粘贴了很多次&quot;。
+文档级处理的是&quot;两个文件正文完全一样&quot;（指纹相同，<code>cleaner.py:67</code> 直接跳过）。
+块级发生在检索之后、送给模型之前：Dense 和 BM25 两路都命中了同一块时，
+<code>chunk_id</code> 相同，装填只占一个名额。</p>
+<p>装填层<strong>没有</strong>按父块去重。同一个父节下的两个不同子块，<code>chunk_id</code> 不同，
+两段都会留下。把&quot;多个子块收成一节&quot;是第 10 节 <code>expand_to_parents</code> 的工作，
+不要把它记成 <code>context_builder</code> 已经做了。</p>
+<p>实验 2 里&quot;avx.md 复制了 avx2 的段落&quot;，伤害是这样走的：</p>
+<ul>
+<li><strong>token</strong>：分词之后的一个词（第 5 节）。重复段落让同一个 token 在语料里多出现一次。</li>
+<li><strong>文档频率</strong>：有多少块含有这个 token。重复把这个数抬高了。</li>
+<li><strong>IDF</strong>（逆文档频率，第 5 节）：越少见的词越有区分度。文档频率被抬高之后，
+IDF 变小，这个词在 BM25 里变得&quot;没那么稀奇&quot;，真正相关的那一块排名下滑。</li>
+<li><strong>Top-K 名额</strong>：两块内容一样，却占掉两个席位，别的文档被挤出去。</li>
+</ul>
+<p>装填层按 <code>chunk_id</code> 去重能挡住&quot;同一块从两路检索来了两次&quot;，挡不住&quot;两篇文档里
+各有一块，文本相同但 <code>chunk_id</code> 不同&quot;。后者只有入库前的文档级、文本级去重能去掉。
+所以说：<strong>装填层能止血，入库层才治本。</strong></p>
+<h2>9.5 注意事项</h2>
+<ul>
+<li>
+<p><strong><code>@&gt;</code> 是包含</strong>（9.1.2）。<code>meta @&gt; '{&quot;corpus&quot;:&quot;main&quot;}'</code> 不要求 meta 只有这一个键。
+加新字段不会让旧过滤失效。反过来，过滤对象里多写一个块上没有的键，一行都匹配不上。</p>
+</li>
+<li>
+<p><strong>strategy 是约定不是约束</strong>（9.2.1）。数据库不检查名字是否符合 <code>flat{尺寸}x{重叠}</code>。</p>
+</li>
+<li>
+<p><strong><code>build_index</code> 的先删后插不是一个事务。</strong></p>
+<p><strong>事务（transaction）<strong>是一组 SQL，要么全部生效，要么全部取消。
+开始到结束之间，别人看不到半成品；中途失败则回到开始之前的样子。
+这种&quot;不可只做一半&quot;的性质叫</strong>原子性</strong>。写法是 <code>BEGIN</code> … 若干语句 … <code>COMMIT</code>
+（提交，正式生效）；失败则 <code>ROLLBACK</code>（回滚，全部撤销）。</p>
+<p>本课程的连接是自动提交：<code>playground/db.py:20</code> 的 <code>autocommit=True</code>。
+每一条 <code>exec()</code> 执行完就立刻永久生效，没有包在同一个 <code>BEGIN/COMMIT</code> 里。
+因此第 1 步的 <code>DELETE</code> 一旦返回，旧块就已经没了。若接下来嵌入 API 超时、
+进程被杀掉，这个 strategy 会停在&quot;旧的已删、新的没写完&quot;。
+生产上要把删和插放进同一个事务，失败就回滚，旧索引还在；
+或者像 KB 那样把删除范围收成一篇文档（<code>kb/store.py:70-92</code>）——
+失败时坏掉的是一篇，不是整套版本。KB 这条路径同样是自动提交，
+它缩小的是爆炸半径，并没有变成事务。</p>
+</li>
+<li>
+<p><strong>checksum 只在读文件入库时重算</strong>（<code>loader.py:40</code>）。你改了 <code>data/corpus/</code> 里的
+Markdown，网站不会盯着磁盘。下一次 <code>build_index</code> 或 KB 的重新入库才会比较指纹。
+指纹相同就跳过的逻辑，也只在那次运行里发生。</p>
+</li>
+</ul>
+<h2>9.6 动手练习</h2>
+<ol>
+<li>用 9.1.4 的代码块跑一次&quot;只检索图谱语料&quot;（<code>corpus</code> 和 <code>meta_filter</code> 都是 <code>graph</code>），
+再跑一次两者都改回 <code>main</code>，对比 Top-5 的 <code>doc_id</code>。
+然后跑 9.1.2 的小脚本，确认打印出来的是一行 <code>(True, False, False)</code>——
+这就是&quot;加字段不会破坏旧过滤&quot;的依据。</li>
+<li>手动模拟增量更新：往 <code>data/corpus/</code> 加一篇短文，只重建 <code>flat500x80</code>
+（<code>python -c &quot;from playground.ingest.ingest import build_index; build_index(corpus='main', strategy='flat500x80')&quot;</code>），
+确认旧文档的 <code>chunk_index</code> 还在，新文档出现在同一 strategy 下。
+做完记得：这次是按 strategy <strong>全量</strong>重建（9.3），不是只嵌入了新文件。</li>
+<li>思考：如果一篇文档改了标题但正文没变，checksum 会变吗？该重建吗？
+（答：会变——checksum 算的是全文，标题在全文里。要不要重建取决于标题是否进入
+<code>embed_text</code>。本课程会把当前小节标题加到被向量化的文本前面（<code>chunker.py:106</code>），
+所以该重建。这就是&quot;清洗或切分规则变了，索引版本也要变&quot;的一个具体例子：
+正文没变，送去嵌入的字符串变了，旧向量已经对不上新的 <code>embed_text</code>。）</li>
+</ol>
+<h2>9.7 加厚（v3）：元数据字段设计清单</h2>
+<p>meta 是 jsonb 自由字段（9.1.1）：建表时不必为每个标签加一列，写入什么键都可以。
+自由不等于随便。生产知识库的常用字段按用途分三类——<strong>为过滤、展示、权限而设</strong>：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>用途</th>
+<th>谁在消费</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>corpus（本课程已用）</td>
+<td>隔离不同来源的语料</td>
+<td>检索过滤（9.1 的 <code>meta @&gt;</code>）</td>
+</tr>
+<tr>
+<td>doc_id / chunk_index（已是正式列）</td>
+<td>定位与溯源</td>
+<td>引用卡&quot;查看原文&quot;（第 17 节）</td>
+</tr>
+<tr>
+<td>source_type</td>
+<td>只要某一种来源：md、pdf、网页、聊天记录</td>
+<td>检索过滤</td>
+</tr>
+<tr>
+<td>title / section_path（已用）</td>
+<td>命中展示与引用出处</td>
+<td>Playground 命中列表、citation</td>
+</tr>
+<tr>
+<td>created_at / updated_at</td>
+<td>&quot;只要最近一年&quot;这类时间范围</td>
+<td>检索过滤（条件严时回到 9.1.6 的 HNSW 坑）</td>
+</tr>
+<tr>
+<td>version / doc_status</td>
+<td>只检索生效版本；草稿、作废不进结果</td>
+<td>检索过滤</td>
+</tr>
+<tr>
+<td>permissions / owner</td>
+<td>谁可以看见这条</td>
+<td>检索过滤，必须写在 SQL 的 WHERE 里</td>
+</tr>
+<tr>
+<td>lang</td>
+<td>多语言分流</td>
+<td>检索过滤，以及选哪一种分词器（第 5 节）</td>
+</tr>
+</tbody>
+</table></div>
+<p>三条设计纪律：</p>
+<ol>
+<li><strong>值要规范化。</strong> 日期用同一种写法；状态用<strong>枚举</strong>——事先定好的有限个值，
+例如 <code>draft</code> / <code>active</code> / <code>retired</code>，不要有人写&quot;生效&quot;、有人写&quot;已发布&quot;。
+代码里用<strong>白名单</strong>把非法值挡在写入之前：不在名单上的直接拒绝
+（第 15 节把同一思想用在&quot;模型生成的过滤条件&quot;上）。
+自由文本进了 meta，<code>@&gt;</code> 要求值逐字相等，多一个空格就匹配不上。</li>
+<li><strong>权限是安全边界。</strong> <strong>多租户</strong>指同一个库里住着多个互相不能看见对方数据的使用者
+（租户）。<code>permissions</code> 或 <code>owner</code> 必须出现在 SQL 的 WHERE 里（9.1.5）。
+先检索再在界面上隐藏，内容已经进了日志、BM25 的 <code>lru_cache</code> 和可能的调试输出。</li>
+<li><strong>字段要节制。</strong> 每加一个键，以后所有写入路径都有义务填对它。
+先问&quot;将来哪条查询会按它过滤？&quot;答不上来就不要加。
+展示用的标题更适合放正式列（本课程的 <code>title</code>、<code>section_path</code> 就是列，不是 meta 里的键），
+因为它们几乎每条命中都要读，不需要走 GIN 的包含查询。</li>
+</ol>
+</div>
+  </article>
+  <nav class="wrap post-nav"><a class="prev" href="08.html"><span class="dir">← 上一篇</span><span class="t">查询改写与 Context 装填</span></a><a class="next" href="10.html"><span class="dir">下一篇 →</span><span class="t">Parent-Child 与评测体系</span></a></nav>
+</main>
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb 的博客</span>
+    </div>
+    <p>© <span data-year>2026</span> NorthAdb · RAG 课为静态讲义</p>
+    <div class="f-links">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</footer>
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+<script src="../../js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>实验 8：HNSW ef_search 基准（625 块小语料） — NorthAdb</title>
+<meta name="description" content="实验 8：HNSW ef_search 基准（625 块小语料）">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23D97757'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%231C100A' font-family='Georgia' font-weight='bold'>N</text></svg>">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../course.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="orb orb-a"></div>
+<div class="orb orb-b"></div>
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html">首页</a></li>
+        <li><a href="../../index.html#posts">文章</a></li>
+        <li><a href="../../learn.html">课件</a></li>
+        <li><a href="../index.html" class="active">RAG</a></li>
+        <li><a href="../../about.html">关于</a></li>
+        <li><a href="https://github.com/NorthAdb" target="_blank" rel="noopener" class="nav-cta">GitHub ↗</a></li>
+      </ul>
+    </nav>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+<main>
+  <article>
+    <header class="wrap post-hero">
+      <div class="crumbs">
+        <a href="../../index.html">首页</a><span class="sep-c">/</span>
+        <a href="../index.html">RAG</a><span class="sep-c">/</span>
+        <span>实验</span>
+      </div>
+      <h1>实验 8：HNSW ef_search 基准（625 块小语料）</h1>
+      <div class="post-meta"><span class="tag">RAG</span></div>
+    </header>
+    <div class="wrap prose wide"><p>生成时间：2026-09-13 18:42 · 15 题均值 · “召回”以同表顺序扫描 Top-10 为参照集（衡量的是 ANN 近似误差，不是检索质量）。</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>ef_search</th>
+<th>recall@10（vs 顺序扫描）</th>
+<th>平均延迟 ms</th>
+<th>p95 ms</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10</td>
+<td>1.0</td>
+<td>2.03</td>
+<td>2.65</td>
+</tr>
+<tr>
+<td>20</td>
+<td>1.0</td>
+<td>2.01</td>
+<td>3.29</td>
+</tr>
+<tr>
+<td>40</td>
+<td>1.0</td>
+<td>2.0</td>
+<td>2.77</td>
+</tr>
+<tr>
+<td>80</td>
+<td>1.0</td>
+<td>2.1</td>
+<td>3.38</td>
+</tr>
+<tr>
+<td>200</td>
+<td>1.0</td>
+<td>1.89</td>
+<td>2.04</td>
+</tr>
+<tr>
+<td>400</td>
+<td>1.0</td>
+<td>2.07</td>
+<td>2.98</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>结论模板</strong>：ef_search ↑ → 召回 ↑、延迟 ↑。小语料上顺序扫描也只需几毫秒，
+HNSW 的价值在百万级块；但“ef 是召回-延迟旋钮”的规律与规模无关，生产上按 p95 延迟预算选 ef。
+另注意：过滤条件太严时（meta @&gt; + HNSW）候选可能不足，pgvector 0.8 用
+<code>hnsw.iterative_scan=relaxed_order</code> 缓解（见 D:\PostgreSQL\README.md 第 9 节）。</p>
+</div>
+  </article>
+  <nav class="wrap post-nav"><a class="prev" href="exp7_judge.html"><span class="dir">← 上一篇</span><span class="t">实验 7：LLM-as-judge 生成侧评测（评估三元组）</span></a><a class="next" href="kb_eval.html"><span class="dir">下一篇 →</span><span class="t">KB 自有金标评测（最新一次运行）</span></a></nav>
+</main>
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb 的博客</span>
+    </div>
+    <p>© <span data-year>2026</span> NorthAdb · RAG 课为静态讲义</p>
+    <div class="f-links">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</footer>
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+<script src="../../js/main.js"></script>
+</body>
+</html>

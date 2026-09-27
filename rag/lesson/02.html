@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>原始资料的筛选与清洗 — NorthAdb</title>
+<meta name="description" content="脏数据四宗罪实验：页眉页脚、样板句、断行、文档级重复如何污染检索；v3：真实污染清单与清洗评估四步。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23D97757'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%231C100A' font-family='Georgia' font-weight='bold'>N</text></svg>">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../course.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="orb orb-a"></div>
+<div class="orb orb-b"></div>
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html">首页</a></li>
+        <li><a href="../../index.html#posts">文章</a></li>
+        <li><a href="../../learn.html">课件</a></li>
+        <li><a href="../index.html" class="active">RAG</a></li>
+        <li><a href="../../about.html">关于</a></li>
+        <li><a href="https://github.com/NorthAdb" target="_blank" rel="noopener" class="nav-cta">GitHub ↗</a></li>
+      </ul>
+    </nav>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+<main>
+  <article>
+    <header class="wrap post-hero">
+      <div class="crumbs">
+        <a href="../../index.html">首页</a><span class="sep-c">/</span>
+        <a href="../index.html">RAG</a><span class="sep-c">/</span>
+        <span>第 02 节</span>
+      </div>
+      <h1>原始资料的筛选与清洗</h1>
+      <div class="post-meta"><span>第 02 节</span><span class="sep"></span><span>约 35 分钟</span><span class="sep"></span><a href="../quiz.html?lesson=02">本节自测</a></div><p class="lead">脏数据四宗罪实验：页眉页脚、样板句、断行、文档级重复如何污染检索；v3：真实污染清单与清洗评估四步。</p>
+    </header>
+    <div class="wrap prose wide"><blockquote>
+<p><strong>本节任务</strong>：理解&quot;垃圾进垃圾出&quot;在 RAG 里长什么样，并能自己写出/改造一个
+可开关的清洗器——它是全课性价比最高的优化：不花一分钱 API，只改一个函数。</p>
+</blockquote>
+<p><strong>课程地图上的位置</strong>：Layer 1（知识工程）第一课。上一节 <a href="01.html">01 全景</a>；
+下一节 <a href="03.html">03 切分</a>。清洗的对象是 <code>loader.py:27</code> 产出的 <code>RawDoc</code>（1 篇文件 = 1 个文档，
+<code>doc_id</code> = 文件名，<code>checksum</code> = 内容 sha256 前 16 位——<strong>checksum 可以理解为&quot;内容指纹&quot;</strong>：
+由全文算出的一段短编号，内容一变它就变，后面靠它发现&quot;源文件改了但索引没更新&quot;，
+见 <code>playground/ingest/loader.py:17-26</code>）。</p>
+<h2>2.1 核心原则：存进去 ≠ 可以被可靠利用</h2>
+<pre><code class="language-text">原始文档 → Chunk → Embedding → 向量库      ← 看起来完成了 RAG
+    ↓ 但原始数据里有：
+冗余 / 噪声 / 重复 / 页眉页脚 / 表述不一致 / 缺乏结构
+    ↓ 结果：
+垃圾进，垃圾出。检索层救不回脏数据。
+</code></pre>
+<p>&quot;Context 很大 ≠ 知识已经组织好了&quot;——100 个案例直接塞进去，模型看到的是 100 条
+流水账，而不是&quot;72% 发生在高并发&quot;这种<strong>提炼后的知识</strong>。清洗就是提炼的第一步。</p>
+<h2>2.2 实验设计：故意把语料弄脏</h2>
+<p><code>scripts/make_dirty.py:23</code> 的 <code>dirty_text()</code> 把 16 篇干净语料污染成 <code>data/raw_dirty/</code>，
+模拟真实抓取/导出场景的四类污染（污染模板在 <code>make_dirty.py:18-20</code>）：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>污染类型</th>
+<th>具体做法</th>
+<th>对应真实场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>① 页眉页脚</td>
+<td>每页插入手册页眉、页码、版权行、保密声明</td>
+<td>PDF 解析导出</td>
+</tr>
+<tr>
+<td>② 样板句重复</td>
+<td>同一句免责声明插入每篇 3 次</td>
+<td>网页爬取的公共模板</td>
+</tr>
+<tr>
+<td>③ 断行与符号拆散</td>
+<td>&quot;AVX-512&quot; 被拆成 &quot;AVX-512 -&quot;</td>
+<td>OCR / 复制粘贴</td>
+</tr>
+<tr>
+<td>④ 文档级重复</td>
+<td>把 avx2.md 的 5 个段落复制进 avx.md</td>
+<td>多来源重复收录</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>为什么&quot;故意弄脏&quot;是正规做法？</strong> 因为消融实验需要受控变量：干净/脏两版语料
+除污染外完全相同，指标差异才能归因于污染本身。这比&quot;在网上随手抓点脏数据&quot;科学得多。</p>
+<h2>2.3 清洗器代码逐段走读（playground/ingest/cleaner.py）</h2>
+<p>先看一眼真实效果（本机对 <code>data/raw_dirty/avx.md</code> 跑 <code>clean_text</code> 的前后对比，
+你现在就可以用 2.4 的命令复现）：</p>
+<pre><code class="language-text">清洗前（脏）：
+====== Intel® 64 与 IA-32 架构软件开发者手册 · 卷 1 · 第 180 页 ======   ← 页眉
+版权所有 © 2026 保留所有权利    保密声明：未经许可不得复制本文档内容      ← 版权行
+# AVX：256 位向量与三操作数
+注意：所有性能数据基于实验室环境，实际结果可能因配置不同而有所差异。      ← 样板句（×3）
+## AVX（2011，Sandy Bridge）
+AVX（Advanced Vector Extensions）把 SIMD 寄存器宽度……
+…（文末还有&quot;返回顶部 | 上一页 | 下一页&quot;页脚）
+
+清洗后（净）：页眉、样板句、版权行、页脚全部消失，正文原样保留
+# AVX：256 位向量与三操作数
+## AVX（2011，Sandy Bridge）
+AVX（Advanced Vector Extensions）把 SIMD 寄存器宽度……
+</code></pre>
+<p>清洗器全文只有 71 行，但每个决策都值得讲。先是两类特征的定义
+（<code>cleaner.py:16-27</code>）。<strong>正则</strong>（regex，下段代码的主角）是一种&quot;描述文本模式&quot;
+的小语言：<code>^=+.*=+$</code> 读作&quot;行首若干个 = 、中间任意内容、行尾若干个 =&quot;——
+清洗规则的主要载体就是它：</p>
+<pre><code class="language-python"># 典型页眉页脚 / 版权行（行级特征）——每条是一个正则
+_HEADER_FOOTER_PATTERNS = [
+    re.compile(r&quot;^=+.*=+$&quot;),                          # ===== 页眉线 =====
+    re.compile(r&quot;^.{0,4}\d{1,3}\s*$&quot;),                # 左侧行号 / 页码
+    re.compile(r&quot;版权所有|保留所有权利|All rights reserved&quot;, re.I),
+    re.compile(r&quot;保密声明|未经许可|不得复制&quot;, re.I),
+    re.compile(r&quot;^返回顶部$|^目录$|^上一页|^下一页&quot;),
+    re.compile(r&quot;软件开发者手册.*卷&quot;, re.I),
+    re.compile(r&quot;^\s*[-—–]{3,}\s*$&quot;),                 # 分隔线
+]
+_BOILERPLATE = re.compile(r&quot;注意：所有性能数据基于实验室环境[^。]*。&quot;)   # :27
+</code></pre>
+<p><strong>注意 <code>search</code> 不是 <code>match</code></strong>（<code>cleaner.py:37</code>）：<code>any(p.search(line) ...)</code> 允许
+模式命中行中任意位置——页码行用 <code>^...$</code> 锚自己收紧，宽泛模式（版权词）靠正则
+本身控制误伤。这是&quot;宁可正则写得严，不用宽松匹配兜底&quot;的取舍：误伤正文的清洗
+比漏掉的页眉更危险。</p>
+<p>主函数 <code>clean_text</code>（<code>cleaner.py:30-60</code>）三步，每步独立开关：</p>
+<pre><code class="language-python">def clean_text(text, *, strip_headers=True, dedup_lines=True, normalize=True):
+    # 1) strip_headers（:34-41）：逐行过 _HEADER_FOOTER_PATTERNS，命中即丢；
+    #    再用 _BOILERPLATE.sub(&quot;&quot;, out) 整段删样板句
+    # 2) dedup_lines（:43-52）：相邻重复行只保留一次——
+    #    页眉/导航最常见的重复形态是&quot;连续 N 行一模一样&quot;
+    # 3) normalize（:54-58）：
+    #    \u00a0 → 空格         不换行空格（网页复制常见）
+    #    [ \t]+ → &quot; &quot;          折叠空白
+    #    (\w)-\s*\n(\w) → 拼回  英文断词连字符（&quot;AVX-\n512&quot; → &quot;AVX512&quot;）
+    #    \n{3,} → \n\n         折叠空行
+</code></pre>
+<p>文档级去重是另一个函数（<code>cleaner.py:63-71</code>）——用 <code>checksum</code> 判重，整篇重复只留一份：</p>
+<pre><code class="language-python">def doc_level_dedup(docs):
+    seen, out = set(), []
+    for d in docs:
+        if d.checksum in seen: continue
+        seen.add(d.checksum); out.append(d)
+    return out
+</code></pre>
+<p>注意清洗的<strong>三个层次</strong>（第 9 节会补全这张表）：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>层次</th>
+<th>时机</th>
+<th>对象</th>
+<th>本节实现</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>文本级</td>
+<td>清洗时</td>
+<td>这一页的页眉/断行</td>
+<td><code>clean_text</code></td>
+</tr>
+<tr>
+<td>文档级</td>
+<td>清洗时</td>
+<td>这一整篇是重复的</td>
+<td><code>doc_level_dedup</code></td>
+</tr>
+<tr>
+<td>块级</td>
+<td>装填时</td>
+<td>同一内容被多块收录</td>
+<td>第 9 节</td>
+</tr>
+</tbody>
+</table></div>
+<h2>2.4 如何运行</h2>
+<pre><code class="language-bash"># 重新生成脏语料（覆盖 data/raw_dirty/）
+python -m scripts.make_dirty
+
+# 清洗逻辑单测（改 cleaner 后必跑）
+# 单测 = 预先写好的&quot;自动检查脚本&quot;：改完代码跑一遍，如果行为坏了立刻报警，
+# 不用等你发现检索结果变怪才排查（第 13 节讲怎么写，现在会跑就行）
+python -m pytest tests/test_core.py -q
+
+# 终端里直接看清洗效果（2.3 开头的对比就是它跑出来的）：
+python -c &quot;from pathlib import Path; from playground.ingest.cleaner import clean_text; print(clean_text(Path('data/raw_dirty/avx.md').read_text(encoding='utf-8'))[:400])&quot;
+</code></pre>
+<h2>2.5 实验 2：脏语料到底伤检索有多深</h2>
+<blockquote>
+<p>[!NOTE] 名词速查（本节表格需要，正式讲解在后面的课程）
+对刚学完清洗的你来说，下面这张结果表里有四个&quot;还没讲到&quot;的名词。
+先混个脸熟，每个都标注了正式登场的节号——现在只需要记住最后一行的读法：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>名词</th>
+<th>一句话解释</th>
+<th>正式登场</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Dense（稠密/向量检索）</strong></td>
+<td>把问题和文档都变成向量，比&quot;意思像不像&quot;</td>
+<td>第 4 节</td>
+</tr>
+<tr>
+<td><strong>BM25（稀疏/关键词检索）</strong></td>
+<td>数关键词对没对上，看&quot;字面对得上吗&quot;</td>
+<td>第 5 节</td>
+</tr>
+<tr>
+<td><strong>Hybrid（混合检索）</strong></td>
+<td>上面两路都跑，把结果融合起来</td>
+<td>第 6 节</td>
+</tr>
+<tr>
+<td><strong>MRR@5</strong></td>
+<td>&quot;正确答案排第几&quot;的指标：第 1 名 1 分、第 2 名 0.5 分、第 5 名 0.2 分，没进前 5 记 0，对全部题目取平均（第 1 节 1.5 的指标速查有手算例子）</td>
+<td>第 10 节</td>
+</tr>
+</tbody>
+</table></div>
+<p>读表口诀：<strong>MRR 越接近 1 越好</strong>；Dense / BM25 / Hybrid 是三种不同的检索方式，
+各自在干净、脏两套语料上跑同一批题。</p>
+</blockquote>
+<h3>2.5.1 这个实验是怎么做出来的</h3>
+<p>不需要信任何人的转述——整个实验在你本机四步复现，每一步都用到了已学内容：</p>
+<pre><code class="language-bash"># ① 生成脏语料：2.2 的四类污染写入 data/raw_dirty/（make_dirty.py 的 dirty_text）
+python -m scripts.make_dirty
+
+# ② 建索引：build_index 会建全部 7 套索引，本实验用到其中两套——
+#    干净语料 flat500x80 与脏语料 dirty500x80，切分参数完全相同（500x80），
+#    唯一变量是&quot;脏不脏&quot;——单变量对照
+#    （两个词提前解释：strategy = 索引版本名，一个名字对应一套索引，第 9 节正式讲；
+#      切分 = 把长文档切成一块块短文本当检索单元，&quot;500x80&quot;即每块约 500 字、
+#      相邻块重叠 80 字——切分本身是下一节的主角）
+python -m scripts.build_index
+
+# ③ 跑评测：把第 1 节冻住的金标题，在每个方案 × 每套语料上各跑一遍，
+#    算出指标并写报告（run_eval.py 的第 2 组就是本实验）
+python -m scripts.run_eval        # → experiments/exp2_cleaning.md + .json
+
+# ④ 或者直接在网站上读：/experiments/exp2_cleaning（重跑后数字会刷新）
+</code></pre>
+<p>评测的题目就是 1.5 节那套金标（23 道可回答题参与指标计算，7 道不可回答题不参与）。
+<strong>&quot;实验 2&quot;这个名字的由来</strong>：<code>run_eval.py</code> 按顺序跑 6 组实验，清洗对照排在第 2 组，
+所以报告叫 <code>exp2_cleaning</code>——第 3 节的切分消融、第 6 节的融合对比等都出自同一
+命令的不同组。</p>
+<h3>2.5.2 结果与解读</h3>
+<p>完整报告见 <a href="../experiments/exp2_cleaning.html">exp2_cleaning</a>：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>方案</th>
+<th>MRR@5（干净）</th>
+<th>MRR@5（脏）</th>
+<th>变化</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dense</td>
+<td>0.880</td>
+<td>0.859</td>
+<td>-0.021（相对鲁棒）</td>
+</tr>
+<tr>
+<td><strong>BM25</strong></td>
+<td><strong>0.808</strong></td>
+<td><strong>0.748</strong></td>
+<td><strong>-0.060（污染最重）</strong></td>
+</tr>
+<tr>
+<td>Hybrid</td>
+<td>0.928</td>
+<td>0.899</td>
+<td>-0.029</td>
+</tr>
+</tbody>
+</table></div>
+<p>（口径：30 题金标中的 23 道可回答题；两套语料切分参数同为 500x80；
+<code>python -m scripts.run_eval</code> 可复现。）</p>
+<p><strong>大白话版结论</strong>：靠&quot;意思像不像&quot;吃饭的 Dense 对脏数据相对宽容——页眉和样板句
+虽然碍事，但它们的意思跟问题差得远，向量空间里挤不进最前排；靠&quot;关键词对不对得上&quot;
+吃饭的 BM25 伤得最重——因为页眉、样板句都是<strong>在每篇文档里重复出现的文字</strong>，
+它们直接把&quot;哪些词重要&quot;的统计带偏了。</p>
+<p><strong>为什么 BM25 伤得最重？</strong> 三个机制，每个都能从 2.3 的代码对上（第一次读抓住
+&quot;重复出现的文字害了词频统计&quot;这个直觉即可；第 5 节讲完 BM25 后回来重读一遍
+会全部通透）。先认识主角 <strong>IDF</strong>（Inverse Document Frequency，逆文档频率）：
+给每个词算的&quot;稀缺度&quot;分——<strong>含这个词的文档越少，它越值钱</strong>。&quot;的、手册&quot;这类
+到处出现的词 IDF 趋近 0（没什么区分度），&quot;STTNI&quot;这种生僻词 IDF 极高
+（一锤定音）。BM25 的得分里，IDF 就是&quot;这个词该信多少&quot;的权重（第 5 节逐项拆）：</p>
+<ol>
+<li><strong>IDF 污染</strong>：页眉&quot;Intel® 64 与 IA-32 架构软件开发者手册&quot;出现在每篇文档
+（<code>make_dirty.py:18</code> 的 HEADER 模板），这些高频词的文档频率被抬高 → IDF 被
+拉低，真正有区分度的术语被淹没。BM25 的 IDF 是全库统计（<code>bm25.py:39-51</code>
+建索引时算好），所以脏一行，全库统计都变形；</li>
+<li><strong>样板句霸榜</strong>：重复 3 次的免责声明（<code>make_dirty.py:19</code> BOILER）在含&quot;性能&quot;
+字样的查询里疯狂得分，占掉 Top-K 名额；</li>
+<li><strong>断词失配</strong>：查询里的 <code>AVX-512</code> 匹配不上被拆成 <code>AVX-512 -</code> 的正文——
+BM25 是精确 token 匹配（<code>bm25.py:29-33</code> 的 tokenize 决定了匹配粒度），
+Dense 对这种扰动反而宽容（子词语义还在）。</li>
+</ol>
+<p><strong>结论：清洗是性价比最高的优化。</strong> 而且 Dense 相对鲁棒这件事提醒我们：
+不同检索器对脏数据的敏感度不同——评估清洗效果时要分别测，别只看一路。</p>
+<h2>2.6 筛选的另一面：不是所有资料都值得入库</h2>
+<p>清洗解决&quot;已有的资料脏&quot;，<strong>筛选</strong>解决&quot;根本不该进来的资料&quot;：</p>
+<ul>
+<li>过时版本（同一文档的 v1 和 v2 只留 v2，否则两个版本互相打架）；</li>
+<li>与业务无关的抓取噪声（导航、广告、cookie 声明）；</li>
+<li>无法解析的损坏文件（与其留下乱码块，不如记录后跳过）。</li>
+</ul>
+<p>判据一句话：<strong>入库前问&quot;这个块将来会被某道问题需要吗？&quot;</strong></p>
+<h2>2.7 注意事项</h2>
+<ul>
+<li>清洗规则变了 = 老索引全部作废，必须换新 strategy 重建（第 3、9 节展开）；</li>
+<li>正则清洗是<strong>领域特定</strong>的：本课程的模板针对 Intel 手册风格文档；换一批语料，
+第一步是重新收集&quot;这批文档的页眉页脚长什么样&quot;，而不是直接复用模式列表；</li>
+<li><code>doc_level_dedup</code> 只对<strong>整篇完全相同</strong>（checksum 相同）去重——两篇 90% 相同
+但有一段不同的文档它管不着，那要靠块级去重（第 9 节）。</li>
+</ul>
+<h2>2.8 加厚（v2）：MinerU 桌面端实战——PDF 进知识库的完整闭环</h2>
+<blockquote>
+<p>前面处理的是 Markdown 语料；真实资料大量是 PDF。MinerU 桌面版
+（D:\mineru\MinerU.exe）解析 PDF 后把结果放在
+<code>C:\Users\1\mineru\&lt;原文件名&gt;-&lt;uuid&gt;\full.md</code>（含标题层级、表格、图片）。</p>
+</blockquote>
+<h3>三步闭环（本机已跑通）</h3>
+<pre><code class="language-bash"># ① 桌面端：拖入 PDF → 解析（已做 12 份，含一本 Agent 教程的各章）
+# ② 桥接：扫描解析结果 → 清洗 → 切分 → 嵌入入库
+python -m scripts.ingest_mineru
+#    OK strategy=mineru500x80  docs=12 chunks=1336 embedded=1336 in 39.29s
+# ③ 检索：Playground 把&quot;语料&quot;切到 mineru、&quot;索引版本&quot;切到 mineru500x80
+</code></pre>
+<p>桥接脚本 <code>scripts/ingest_mineru.py:31</code> 的 <code>discover_outputs()</code> 递归扫描
+<code>~/mineru</code> 下每个解析目录，挑出 full.md 落到 <code>data/mineru_corpus/</code>（<code>:28</code>
+的 <code>DEST</code>），然后复用 <code>ingest.build_index(corpus=&quot;mineru&quot;)</code>——<strong>第 2、3 节的
+全部管线原样复用，只是换了语料来源</strong>，这就是 loader 抽象（<code>load_dir</code>）的回报。</p>
+<p>实测提问&quot;什么是上下文工程？它和提示词工程有什么关系？&quot;——Top-3 命中
+《第_2_章_上下文工程》，答案带引用、内容准确（rerank 1.8s + LLM 2.3s）。</p>
+<h3>与主语料的关系：隔离，不是混合</h3>
+<p>mineru 语料的 corpus 标签是独立的 &quot;mineru&quot;，检索时 <code>meta @&gt; {&quot;corpus&quot;:&quot;mineru&quot;}</code>
+（meta 就是 0.3 名词速查里的&quot;元数据&quot;——每块附带的标签；<code>@&gt;</code> 是 PostgreSQL 的
+&quot;包含&quot;操作符，意思是&quot;meta 里含这个标签才入选&quot;，第 9 节展开）
+发生在向量检索之前——<strong>主语料的金标评测完全不受影响</strong>。想混合检索？把 corpus
+过滤去掉即可（第 9 节的过滤思想：过滤是检索的一部分，也是隔离的开关）。</p>
+<h3>桌面版 vs CLI 版的取舍</h3>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th></th>
+<th>桌面版（已装）</th>
+<th>pip 版（pip install mineru）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>用法</td>
+<td>GUI 拖拽解析</td>
+<td>命令行 mineru -p xxx.pdf -o out/</td>
+</tr>
+<tr>
+<td>自动化</td>
+<td>手动触发，结果目录固定可扫</td>
+<td>可脚本化、可挂进 ingest 任务队列</td>
+</tr>
+<tr>
+<td>本课程接入</td>
+<td><code>ingest_mineru.py</code> 扫描输出目录</td>
+<td>直接改输出路径参数</td>
+</tr>
+</tbody>
+</table></div>
+<p>两者产物格式相同（full.md + content_list.json + images）。<strong>先桌面版用起来，
+想全自动了再装 CLI 版</strong>——桥接脚本不用改，换个输入目录就行。</p>
+<h2>2.9 动手练习</h2>
+<p>练习会用到两个<strong>操作层面</strong>的词，第 0 节 0.3 的名词速查里见过一句话解释，
+这里结合 Playground 的界面说清楚（正式讲解在第 9 节）：</p>
+<ul>
+<li><strong>strategy（索引版本）</strong>：同一批文档按一套&quot;清洗 + 切分&quot;参数建成的一套索引。
+Playground 左侧有『索引版本 strategy』下拉框，选项名自带参数含义——
+<code>dirty500x80</code> = <strong>脏语料</strong> + 每块约 500 字 + 相邻块重叠 80 字；</li>
+<li><strong>语料（corpus）</strong>：文档的来源标签，是<strong>另一个独立开关</strong>——左侧『语料』下拉框
+控制&quot;检索哪批文档&quot;。<strong>看脏语料必须两处一起切</strong>：strategy 选 <code>dirty500x80</code>
+（选哪套索引）+ 语料选 <code>dirty</code>（选哪批文档）；只切 strategy 不切语料，
+会因为&quot;索引里的块都带着 dirty 标签、过滤条件却是 main&quot;而一条都检不出来
+——这个&quot;两个开关各管各的&quot;的现象，第 9 节会正式解释。</li>
+</ul>
+<ol>
+<li>Playground 左侧把『索引版本 strategy』切到 <code>dirty500x80</code>、『语料』切到
+<code>dirty</code>，问&quot;SSE4.2 新增的字符串处理指令集叫什么&quot;，观察右侧 Trace 里
+<strong>BM25 那一路</strong>（每条命中带 source 标记，<code>source=&quot;bm25&quot;</code> 的就是关键词检索
+的结果，名词见 2.5 速查表）里有没有页眉/样板句块；</li>
+<li>切回干净组合对比同一问题：语料 <code>main</code> + strategy <code>flat500x80</code>；</li>
+<li>打开 <code>data/raw_dirty/avx.md</code>，找出被复制的 avx2 段落，思考：重复段落对
+&quot;AVX2 有什么新特性&quot;这类查询的 Top-K 会造成什么？</li>
+<li>给 <code>_HEADER_FOOTER_PATTERNS</code> 加一条你自己的模式（比如 <code>^第\s*\d+\s*页$</code>），
+重跑 <code>python -m scripts.make_dirty &amp;&amp; python -m scripts.build_index</code> 对比——
+注意这等于&quot;清洗规则变了&quot;，所以必须换新 strategy 才能干净对比；</li>
+<li>对比&quot;解析质量&quot;：用桌面端分别解析一个纯文字 PDF 和一个复杂排版 PDF（多栏/图表），
+对比 full.md 的标题层级与表格保真度——解析质量决定第 3 节切分的上限；</li>
+<li>把 mineru_corpus/ 里的某篇跑一遍第 13 节的 LLM-as-judge，看 Faithfulness
+在&quot;真实 PDF 语料&quot;上的表现是否与主语料一致。</li>
+</ol>
+<h2>2.10 加厚（v3）：真实语料的污染清单 + 清洗效果怎么评估</h2>
+<h3>真实世界比&quot;四宗罪&quot;更脏</h3>
+<p>make_dirty 模拟的四类是最低配。真实抓取/导出语料的常见污染，按&quot;检测信号&quot;归档：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>污染</th>
+<th>典型来源</th>
+<th>检测信号</th>
+<th>常见处理</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>页眉页脚/页码</td>
+<td>PDF 解析</td>
+<td>每块开头重复同一句</td>
+<td>行级正则（本节 2.3 的做法）</td>
+</tr>
+<tr>
+<td>导航/菜单/广告</td>
+<td>网页爬取</td>
+<td>短行、链接堆、高频跨文档</td>
+<td>抓取时按结构掐掉，事后正则兜底</td>
+</tr>
+<tr>
+<td>目录页/版权页</td>
+<td>书籍/手册</td>
+<td>大量&quot;…… 12&quot;式行</td>
+<td>按标题匹配整页跳过</td>
+</tr>
+<tr>
+<td>断词/断行</td>
+<td>OCR/复制粘贴</td>
+<td>行尾&quot;- &quot;、句中孤立单字符</td>
+<td>归一化拼回（本节 normalize）</td>
+</tr>
+<tr>
+<td>分栏乱序</td>
+<td>双栏 PDF</td>
+<td>语句跨栏后读不通</td>
+<td>解析阶段处理（MinerU 版面分析，2.8）</td>
+</tr>
+<tr>
+<td>表格散架</td>
+<td>PDF/HTML 表格</td>
+<td>单元格各自成行</td>
+<td>表格文本化（第 15 节 15.4）</td>
+</tr>
+<tr>
+<td>图片残留说明</td>
+<td>图文混排</td>
+<td>&quot;图 3-2 显示&quot;但图不在</td>
+<td>记录后丢弃或占位（多模态是进阶路，4.7）</td>
+</tr>
+<tr>
+<td>样板句/水印</td>
+<td>模板化生成</td>
+<td>高频重复句</td>
+<td>全文 sub 删除（本节 _BOILERPLATE）</td>
+</tr>
+</tbody>
+</table></div>
+<p>经验法则：<strong>拿到新语料的第一天别急着建索引——先抽 10 篇肉眼过一遍，把&quot;重复
+出现的行&quot;收集成清洗规则</strong>。cleaner.py 那张模式列表就是这么长出来的。</p>
+<h3>清洗效果怎么评估（四步体检，从便宜到贵）</h3>
+<p>改了清洗规则，怎么知道&quot;洗好了&quot;而不是&quot;洗伤了&quot;？</p>
+<ol>
+<li><strong>数量体检</strong>（秒级）：对比清洗前后的总字符数/块数——变化幅度异常（比如掉了
+40%）多半是正则误伤正文，回去查规则；</li>
+<li><strong>单测保护</strong>：像 <code>tests/test_core.py</code> 一样，把&quot;页眉必须删、正文必须留&quot;固化成
+断言（方法论第 13 节讲）；</li>
+<li><strong>金标对比</strong>：干净/脏两版跑 <code>python -m scripts.run_eval</code>——本节 2.5 就是
+完整示范；</li>
+<li><strong>抽样人检</strong>：随机抽 20 个清洗后的块肉眼读一遍。自动指标会饱和（第 10 节），
+肉眼才能发现&quot;删了不该删的半句话&quot;这类指标看不出的伤。</li>
+</ol>
+</div>
+  </article>
+  <nav class="wrap post-nav"><a class="prev" href="01.html"><span class="dir">← 上一篇</span><span class="t">RAG 全景复习：三层心智模型</span></a><a class="next" href="03.html"><span class="dir">下一篇 →</span><span class="t">切分 Chunking：检索单元的设计</span></a></nav>
+</main>
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb 的博客</span>
+    </div>
+    <p>© <span data-year>2026</span> NorthAdb · RAG 课为静态讲义</p>
+    <div class="f-links">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</footer>
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+<script src="../../js/main.js"></script>
+</body>
+</html>

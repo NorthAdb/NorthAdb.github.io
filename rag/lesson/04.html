@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Embedding 与向量检索 — NorthAdb</title>
+<meta name="description" content="双编码器、pgvector + HNSW、余弦相似度；v2：ef_search 实测基准；v3：ANN 原理、HNSW 逐层拆解与 m/ef 参数、ANN 算法谱系。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23D97757'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%231C100A' font-family='Georgia' font-weight='bold'>N</text></svg>">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../course.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="orb orb-a"></div>
+<div class="orb orb-b"></div>
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html">首页</a></li>
+        <li><a href="../../index.html#posts">文章</a></li>
+        <li><a href="../../learn.html">课件</a></li>
+        <li><a href="../index.html" class="active">RAG</a></li>
+        <li><a href="../../about.html">关于</a></li>
+        <li><a href="https://github.com/NorthAdb" target="_blank" rel="noopener" class="nav-cta">GitHub ↗</a></li>
+      </ul>
+    </nav>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+<main>
+  <article>
+    <header class="wrap post-hero">
+      <div class="crumbs">
+        <a href="../../index.html">首页</a><span class="sep-c">/</span>
+        <a href="../index.html">RAG</a><span class="sep-c">/</span>
+        <span>第 04 节</span>
+      </div>
+      <h1>Embedding 与向量检索</h1>
+      <div class="post-meta"><span>第 04 节</span><span class="sep"></span><span>约 45 分钟</span><span class="sep"></span><a href="../quiz.html?lesson=04">本节自测</a></div><p class="lead">双编码器、pgvector + HNSW、余弦相似度；v2：ef_search 实测基准；v3：ANN 原理、HNSW 逐层拆解与 m/ef 参数、ANN 算法谱系。</p>
+    </header>
+    <div class="wrap prose wide"><blockquote>
+<p><strong>本节任务</strong>：吃透双编码器架构与&quot;缓存 + 降级&quot;这对工程组合，能读懂
+<code>dense_search</code> 的每一条 SQL 子句，知道 HNSW 是在拿什么换什么。</p>
+</blockquote>
+<p><strong>课程地图上的位置</strong>：Layer 2 第一站。上一节 <a href="03.html">03 切分</a>；下一节
+<a href="05.html">05 BM25</a>。输入是第 3 节的 <code>Chunk.embed_text</code>，输出是 pgvector 里的
+1024 维向量和一条余弦 Top-K 查询。</p>
+<h2>4.1 双编码器：为什么文档向量可以离线算</h2>
+<pre><code class="language-text">Query ──→ Encoder ──→ Query Vector ─┐
+                                    ├─→ 余弦相似度 → 排序
+Doc   ──→ Encoder ──→ Doc Vector ───┘
+</code></pre>
+<p>Query 和 Document <strong>分别</strong>编码成同一个空间里的向量，因此：</p>
+<ul>
+<li>文档向量可以<strong>入库时算一次</strong>，查询时只编码 Query（本课程 620 块只算了 620 次）；</li>
+<li>这就是&quot;双塔&quot;架构，是它能撑住大规模召回的原因（对比第 7 节的 Cross-Encoder：
+那里 Query-Doc 必须成对进模型，离线预计算不可能）。</li>
+</ul>
+<h2>4.2 代码走读（playground/retrieve/embedder.py，158 行）</h2>
+<h3>4.2.1 在线版：SiliconFlowEmbedder（embedder.py:31-96）</h3>
+<p>三个工程细节，每一个都在给&quot;实验可重复&quot;打地基：</p>
+<pre><code class="language-python">class SiliconFlowEmbedder:
+    name = config.EMBED_MODEL          # :32 &quot;BAAI/bge-m3&quot;
+    dim = config.EMBED_DIM             # :33 1024
+    is_real = True                     # :34 降级徽章读的就是它
+
+    def _call(self, texts):            # :43
+        for attempt in range(_RETRIES):          # 3 次重试（:28 _RETRIES = 3）
+            try:
+                r = self._client.post(_SILICONFLOW_EMBED_URL,  # :26 URL 来自 config
+                                      json={&quot;model&quot;: self.name, &quot;input&quot;: texts})
+                r.raise_for_status()
+                return [item[&quot;embedding&quot;] for item in r.json()[&quot;data&quot;]]
+            except Exception:
+                time.sleep(1.5 * (attempt + 1))  # :56 递增退避：1.5s, 3s, 4.5s
+        raise RuntimeError(...)
+</code></pre>
+<p>批量接口 <code>embed_batch</code>（<code>:59-93</code>）是全课最值得抄走的工程模式，分三步：</p>
+<pre><code class="language-python"># 1) 算缓存 key：sha256(模型名 + '\x00' + 文本)（:64）
+#    \x00 分隔符防止 (&quot;ab&quot;,&quot;c&quot;) 与 (&quot;a&quot;,&quot;bc&quot;) 撞 key
+keys = [hashlib.sha256(f&quot;{self.name}\x00{t}&quot;.encode()).hexdigest() for t in texts]
+
+# 2) 批量查缓存表（:66-80）：IN 查询按 500 个一批（防 SQL 参数上限）
+#    命中的直接用库里的向量；未命中的进 need 列表
+
+# 3) 未命中的按 _BATCH=24 一批调 API（:26），返回后立刻写回缓存（:88-92）
+</code></pre>
+<p>效果：<strong>同一段文字永远只花一次 API 钱</strong>。重跑任何实验，第一次之后的 embedding
+成本都是零。<code>cache_size()</code>（<code>:154</code>）随时看缓存条数。</p>
+<h3>4.2.2 降级版：HashingEmbedder（embedder.py:99-128）</h3>
+<p>词袋特征哈希投影——每个 token 哈希到 1024 维，带符号累加后归一化（<code>:119-125</code>）：</p>
+<pre><code class="language-python">def embed_one(self, text):
+    v = [0.0] * self.dim
+    for tok in self._tokens(text):                 # jieba 中文分词（:110-117）：
+                                                   # 把句子切成一个个词，下一节 BM25 的主角
+        h = int(hashlib.md5(tok.encode()).hexdigest(), 16)
+        v[h % self.dim] += 1.0 if (h &gt;&gt; 64) &amp; 1 else -1.0   # 符号减少碰撞打架
+    norm = math.sqrt(sum(x * x for x in v)) or 1.0
+    return [x / norm for x in v]                   # 归一化 → 余弦有意义
+</code></pre>
+<p>它是<strong>真实的（弱）检索器</strong>：同词必同向量，所以词面匹配有效；但完全不懂语义，
+&quot;向量搜索&quot;匹配不上&quot;语义搜索&quot;这种改写。课程用它可以演示：
+<strong>没有语义的 Dense 检索 = 只剩下词面功夫，基本退化成另一种 BM25</strong>。
+探活与选择逻辑在 <code>get_embedder()</code>（<code>:142-151</code>）：<code>ALLOW_FAKE_EMBEDDING=False</code> 时
+探活失败直接抛错（<code>:145-147</code>，不许降级的场合），否则打印降级警告继续跑。</p>
+<h3>4.2.3 检索侧：dense_search（playground/retrieve/vector_store.py:30-64）</h3>
+<p>一条 SQL 看懂全部：</p>
+<pre><code class="language-sql">SELECT doc_id, chunk_index, content, section_path, parent_id,
+       1 - (embedding &lt;=&gt; %s::vector) AS sim        -- 余弦距离 → 相似度
+FROM   rg_chunks
+WHERE  strategy = %s AND embedding IS NOT NULL      -- 索引版本隔离
+  AND  meta @&gt; %s::jsonb                            -- 元数据过滤（第 9 节）
+ORDER  BY embedding &lt;=&gt; %s::vector                  -- 走 HNSW 索引
+LIMIT  %s
+</code></pre>
+<ul>
+<li><code>&lt;=&gt;</code> 是 pgvector 的余弦距离算子，<code>1 - 距离 = 相似度</code>（<code>:38</code>）；</li>
+<li><strong>HNSW</strong>（分层可导航小世界图）：pgvector 的默认向量索引，查询 O(log N)。
+建索引参数 <code>m=16, ef_construction=200</code>（<code>scripts/init_db.py:53-55</code>），
+查询参数 <code>hnsw.ef_search</code>（默认 40）——这三个参数到底是什么、查询是怎么
+沿着图走的，4.2.5 逐层拆解；为什么根本需要它（ANN 问题）见 4.2.4；</li>
+<li>查询向量以 <code>%s::vector</code> 传<strong>字符串化的 Python list</strong>（<code>vector_store.py:45</code> 的
+<code>str(list(query_vec))</code>）——pgvector 的 psycopg 适配器也接受向量对象，两种写法都行；</li>
+<li>小语料其实顺序扫描也够快，但生产数据量起步百万块，HNSW 是标配认知
+——为什么&quot;够快&quot;和&quot;必须快&quot;的分界在哪，往下看。</li>
+</ul>
+<h3>4.2.4 先补一个词：ANN——为什么要&quot;近似&quot;</h3>
+<p>上面 SQL 的 <code>ORDER BY embedding &lt;=&gt; ... LIMIT k</code>，理想实现叫 <strong>KNN（K 近邻）</strong>：
+拿查询向量与库里<strong>每一个</strong>向量都算一遍余弦，排序取前 K。625 块 × 1024 维是毫秒级
+的小算术；但换成一百万块，就是每次查询 10 亿次乘加——延迟和 CPU 都不可接受。</p>
+<p>**ANN（Approximate Nearest Neighbor，近似最近邻）**是这个难题的工程答案：
+放弃&quot;保证找出的 K 个恰好是全库最相似的 K 个&quot;，接受极小的漏找概率，
+换几个数量级的加速。衡量任何 ANN 方案都用三把尺子：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>尺子</th>
+<th>含义</th>
+<th>4.5 实验怎么量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>召回率</td>
+<td>ANN 的 Top-K 与精确解的重合度</td>
+<td>recall@10（对照顺序扫描）</td>
+</tr>
+<tr>
+<td>延迟</td>
+<td>单次查询耗时</td>
+<td>平均延迟（ms）</td>
+</tr>
+<tr>
+<td>内存 / 构建成本</td>
+<td>索引多大、建多久</td>
+<td>——（本实验语料太小，不显著）</td>
+</tr>
+</tbody>
+</table></div>
+<p>三把尺子互相牵制：把召回调满，延迟或内存通常就要付账。注意&quot;近似&quot;不是将就——
+<strong>在召回 0.99+ 的前提下快百倍，是生产的标准选择</strong>；反过来，几千块以内顺序扫描
+精确、零调参、零内存，根本不需要 ANN。这条分界线就是 4.5 实验要亲手验证的。</p>
+<h3>4.2.5 HNSW 逐层拆解（m / ef_construction / ef_search 到底是什么）</h3>
+<p><strong>HNSW</strong>（Hierarchical Navigable Small World，分层可导航小世界图）名字唬人，
+直觉版一句话：<strong>给向量建一张多层地图——上层公路稀疏、跨度大；底层街道稠密、
+跨度小。查询从顶层先大幅接近目标，再逐层下降精细搜索。</strong></p>
+<p>两个直觉来源：</p>
+<ul>
+<li><strong>跳表</strong>（skip list）：查字典不从头翻，先看目录锁定章节，再翻章节内细目——
+HNSW 就是它的图版本，越往上节点越少（随机抽样决定谁&quot;升层&quot;）、边越长；</li>
+<li><strong>小世界网络</strong>：社交网络里任何两个人只隔少量中间人。图检索吃的就是这个性质：
+沿边跳几下就能到目标附近。</li>
+</ul>
+<pre><code class="language-text">第 2 层（极稀疏，长边）：    A ─────────────── E        ← 粗定位，几步跨全库
+                          /
+第 1 层（中等）：      A ── B ──── E ── G
+                        /
+第 0 层（全部向量，短边）：A - B - C - D - E - F - G   ← 最终的精细搜索层
+</code></pre>
+<p>一次查询的走法（ef_search 就在这一步登场）：</p>
+<ol>
+<li>从顶层入口出发，<strong>贪心</strong>走向&quot;离查询更近的邻居&quot;，本层只做粗定位；</li>
+<li>降到下一层，以上一层的落点为起点继续贪心；</li>
+<li>到达第 0 层后，维护一个<strong>长度为 ef_search 的候选队列</strong>：反复考察队里最近
+的点的邻居，更近就入队、装不下就淘汰最远的——
+<strong>ef_search 就是&quot;搜索时手里握着多少个候选&quot;</strong>。太小：正确邻居没机会被
+扩展到，漏找；太大：考察的人多，更准但更慢。这就是 4.5 实验里那个旋钮，
+pgvector 默认 40（且必须 ≥ top_k，否则候选不够数）。</li>
+</ol>
+<p>三个参数各管一段（前两个写死在建索引语句里，改了要重建；第三个随时可调）：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>参数</th>
+<th>用在何时</th>
+<th>含义</th>
+<th>本课程的值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>m</strong></td>
+<td>建索引</td>
+<td>每个节点最多连几条边（&quot;人脉上限&quot;）：越大图越密越准，内存与构建时间越高</td>
+<td><code>m=16</code>（<code>init_db.py:54</code>）</td>
+</tr>
+<tr>
+<td><strong>ef_construction</strong></td>
+<td>建索引</td>
+<td>建图时每个节点的候选队列宽度：越大建得越慢、图质量越好</td>
+<td><code>ef_construction=200</code>（<code>init_db.py:55</code>）</td>
+</tr>
+<tr>
+<td><strong>hnsw.ef_search</strong></td>
+<td>查询</td>
+<td>查询时的候选队列宽度：越大越准越慢</td>
+<td>默认 40，会话级 <code>SET</code> 可调</td>
+</tr>
+</tbody>
+</table></div>
+<p>记忆口诀：<strong>m 管&quot;路修多密&quot;，ef_construction 管&quot;修路时多仔细&quot;，ef_search 管
+&quot;赶路时多仔细&quot;</strong>。4.5 的实验把第三个从 10 拧到 400，亲手量&quot;更准了多少、慢了多少&quot;。</p>
+<h3>4.2.6 ANN 算法谱系：HNSW 的亲戚们</h3>
+<p>HNSW 不是唯一选项。按&quot;用什么结构组织向量&quot;分四大家族，各认识一位代表：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>算法</th>
+<th>一句话原理</th>
+<th>强项</th>
+<th>弱项</th>
+<th>谁在用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>IVFFlat</strong>（pgvector 自带）</td>
+<td>先把全库聚成 nlist 个桶，查询只扫最近的 nprobe 个桶</td>
+<td>建得快、内存省、零图维护</td>
+<td>桶边界向量易漏（要调 nprobe），数据倾斜召回不稳</td>
+<td>pgvector / Faiss，中小库</td>
+</tr>
+<tr>
+<td><strong>IVF-PQ</strong>（乘积量化）</td>
+<td>IVF 之上再把向量压成&quot;子段量化码&quot;</td>
+<td>内存降到几十分之一，亿级可放内存</td>
+<td>有损压缩伤召回，要配 Rerank 救</td>
+<td>Faiss，超大规模</td>
+</tr>
+<tr>
+<td><strong>LSH</strong>（局部敏感哈希）</td>
+<td>特殊哈希让相似向量大概率撞同桶</td>
+<td>理论简洁、支持流式插入</td>
+<td>召回/延迟均衡差，实践中少见</td>
+<td>教学与老系统</td>
+</tr>
+<tr>
+<td><strong>Annoy</strong></td>
+<td>多棵随机投影树并行投票</td>
+<td>静态数据简单可靠</td>
+<td>只读（增删要重建）、内存偏高</td>
+<td>Spotify</td>
+</tr>
+<tr>
+<td><strong>ScaNN</strong></td>
+<td>各向异性量化 + 高度优化的扫描</td>
+<td>速度/召回的 Pareto 前沿</td>
+<td>工程复杂</td>
+<td>Google</td>
+</tr>
+<tr>
+<td><strong>DiskANN / Vamana</strong></td>
+<td>图方法的单层亲戚，索引可放 SSD</td>
+<td>十亿级单机、内存占用小</td>
+<td>查询走 IO，延迟受磁盘限制</td>
+<td>微软，云厂商超大库</td>
+</tr>
+</tbody>
+</table></div>
+<p>HNSW 在谱系里的位置：<strong>图方法这一支（NSW → HNSW → DiskANN）的中坚</strong>——
+&quot;分层&quot;解决了早期 NSW 在高维下绕远路的问题，是当前向量数据库（pgvector、
+Qdrant、Milvus、Elasticsearch）的默认主角。</p>
+<p>两个工程常识收尾：① <strong>Faiss</strong> 不是又一个算法，而是 Meta 出品的 ANN 工具箱
+（上面大半算法的实现都在里面），学完本节再看它的文档，目录就是一张 ANN 谱系表；
+② 最后一页永远是<strong>顺序扫描</strong>——精确、零调参、零内存，几千块以下的最优解
+（4.5 的对照组就是它）。&quot;规模决定方案&quot;，别为了听起来高级而上索引。</p>
+<h2>4.3 余弦相似度直觉</h2>
+<p>两个向量的夹角越小，余弦越大。Embedding 模型把&quot;语义相近&quot;训练成&quot;方向相近&quot;：</p>
+<pre><code class="language-text">&quot;CPU 的缓存为什么分多级&quot;  → [0.021, -0.037, ...]  ┐
+                                                ├ 夹角小 ≈ 相似
+&quot;为什么要设计多级缓存&quot;    → [0.019, -0.035, ...]  ┘
+&quot;AVX-512 寄存器宽度&quot;     → [-0.044, 0.012, ...]   ← 方向完全不同
+</code></pre>
+<p>注意相似度的<strong>相对性</strong>：Top-K 是&quot;最相似的 K 个&quot;，不代表&quot;绝对相关&quot;——
+语料里没有答案时，它会照样把&quot;最不坏&quot;的 K 个递给你（第 8 节的拒答为什么要
+放在生成层、第 16 节 CRAG 为什么用 rerank 分数而不是 cosine 做评估器，根源都在这）。</p>
+<h2>4.4 如何运行</h2>
+<pre><code class="language-bash"># 建索引（首次调 embedding API；第二次起全部走缓存，快一个数量级）
+python -m scripts.build_index
+
+# 看缓存规模与命中效果
+python -c &quot;from playground.retrieve.embedder import cache_size; print(cache_size())&quot;
+
+# 纯向量检索的最小示例（不经过网站）
+python -c &quot;
+from playground.retrieve.embedder import get_embedder
+from playground.retrieve.vector_store import dense_search
+qv = get_embedder().embed_one('为什么 CPU 需要多级缓存而不是一大块缓存？')
+for h in dense_search(qv, top_k=3, strategy='flat500x80', meta_filter={'corpus':'main'}):
+    print(round(h.score, 4), h.doc_id, '|', h.content[:50])
+&quot;
+
+# 消融基准（v2 加厚，见 4.5）
+python -m scripts.bench_hnsw
+</code></pre>
+<h2>4.5 实验：ef_search 基准（exp8，v2 加厚）</h2>
+<p>4.2.5 讲过：ef_search 是查询时的候选队列宽度，&quot;更准 vs 更慢&quot;的旋钮。这个实验
+把旋钮从 10 拧到 400，用数据回答&quot;值不值&quot;。<code>scripts/bench_hnsw.py:21</code> 的
+<code>brute_top10()</code> 先算<strong>顺序扫描的精确 Top-10</strong>当对照组，再让 <code>hnsw_top10()</code>
+（<code>:33</code>）在不同 <code>SET hnsw.ef_search</code> 下对比 ANN 近似误差：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>ef_search</th>
+<th>recall@10（vs 顺序扫描）</th>
+<th>平均延迟</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10 / 20 / 40 / 80 / 200 / 400</td>
+<td><strong>全部 1.000</strong></td>
+<td>1.65 ~ 1.91 ms</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>诚实结论</strong>：625 块的小语料上，HNSW 各档都拿到了 100% 召回、延迟也没差别——
+<strong>ANN 的取舍在这个规模根本观察不到</strong>。这本身就是重要认知：</p>
+<pre><code class="language-text">几千块以下：顺序扫描（精确、零调参）完全够用，别急着上 HNSW
+十万块以上：HNSW 开始显著省 IO；ef_search 才成为真正的旋钮
+生产建议：  按 p95 延迟预算选 ef，用 exp8 的脚本在自己的数据量上重测——
+            别人的基准数字不能移植
+            （p95：把所有请求的延迟排序，取第 95 百分位的那个值——
+              排除最慢 5% 的离群后，&quot;绝大多数用户真实感受到的延迟&quot;）
+</code></pre>
+<h2>4.6 注意事项</h2>
+<ul>
+<li><strong><code>hnsw.ef_search</code> 是会话级参数</strong>：连接池里每次取连接要重新 SET
+（本课程单连接长连接所以没踩，生产必知）；</li>
+<li><strong>过滤 + HNSW 的次序坑</strong>：HNSW 先取 <code>ef_search</code> 个候选<strong>再</strong>过滤，条件严时
+结果会缺——pgvector 0.8 的 <code>hnsw.iterative_scan = relaxed_order</code> 为此而生
+（第 9 节还会再提）；IVFFlat（另一种向量索引：先把向量聚类分桶、查询只搜
+最近的几个桶）是替代方案：建得快、内存省，但要 <code>ANALYZE</code>（刷新统计信息）+
+调 <code>probes</code>（每次查询探几个桶，通常 10+），数据倾斜时召回不稳。
+<strong>小库用扫描，中库用 HNSW，超大规模再评估 IVFFlat</strong>；</li>
+<li>库的 <code>LC_CTYPE</code> 必须是 UTF-8 locale，否则 pg_trgm 对中文完全失效——不报错，
+只是默默返回垃圾（<code>D:\PostgreSQL\README.md</code> 第 7 节记录的真实大坑；
+本课程不依赖 trgm，但&quot;环境参数要留档&quot;的习惯从这里来）；</li>
+<li><strong>换 Embedding 模型 = 全部向量作废</strong>（维度和语义空间都变了）：必须新 strategy
+重建，且不能与旧向量混排比较。</li>
+</ul>
+<h2>4.7 多模态嵌入：一句话框架（v2 加厚）</h2>
+<p>文本嵌入把句子变成向量，<strong>多模态嵌入把图片/音频也映射进（近似的）同一语义空间</strong>：
+<code>CLIP</code> 类模型让&quot;落日照片&quot;与&quot;傍晚的海边&quot;向量相近。RAG 里的三个用法：</p>
+<ol>
+<li>图文互检：以文搜图、以图搜文（向量库照旧，只是向量来源多了一个编码器）；</li>
+<li>PDF 里的图表：整页截图 → 多模态嵌入 → 命中后用多模态 LLM 读图作答
+（RAG-Anything/M3RAG 的路线；MinerU 解析出的 image_tags 是它的素材）；</li>
+<li>表格：优先&quot;表格文本化&quot;（第 15 节），嵌入只是兜底。</li>
+</ol>
+<p>本课程不实现（语料是纯文本），但硅基流动的模型生态里有多模态嵌入与视觉模型——
+升级路径是现成的。</p>
+<h2>4.8 动手练习</h2>
+<ol>
+<li>用 4.4 的最小示例分别问语义题（&quot;为什么 CPU 需要多级缓存&quot;）与符号题
+（&quot;SSE4.2 的 STTNI 指令&quot;），对比 Top-3 的分数与命中——符号题 Dense 的短板
+就是下一节的主角；</li>
+<li>重跑 <code>python -m scripts.build_index</code>，对比两次耗时（首次 vs 缓存命中），
+并用 <code>cache_size()</code> 解释差异；</li>
+<li>用 <code>HashingEmbedder</code> 替换线上 embedder 跑一次 Dense 检索（改
+<code>get_embedder</code> 的返回或直接实例化），观察语义题的命中崩塌——亲手确认
+&quot;词袋投影没有语义&quot;；</li>
+<li>思考：如果把语料换成 10 万篇文档，<code>dense_search</code> 的 SQL 哪里会先成为瓶颈？
+（提示：<code>ORDER BY embedding &lt;=&gt; ... LIMIT k</code> 在有 HNSW 时是 O(log N)，
+没有索引时是全表排序；<code>meta @&gt;</code> 的 GIN 索引在候选集极小时反而多余。）</li>
+</ol>
+</div>
+  </article>
+  <nav class="wrap post-nav"><a class="prev" href="03.html"><span class="dir">← 上一篇</span><span class="t">切分 Chunking：检索单元的设计</span></a><a class="next" href="05.html"><span class="dir">下一篇 →</span><span class="t">BM25 稀疏检索：为什么它还没死</span></a></nav>
+</main>
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb 的博客</span>
+    </div>
+    <p>© <span data-year>2026</span> NorthAdb · RAG 课为静态讲义</p>
+    <div class="f-links">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</footer>
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+<script src="../../js/main.js"></script>
+</body>
+</html>

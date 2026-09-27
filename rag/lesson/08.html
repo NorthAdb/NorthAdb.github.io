@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>查询改写与 Context 装填 — NorthAdb</title>
+<meta name="description" content="Rewrite / Multi-Query / HyDE；token 预算、Lost in the Middle、引用与拒答；v3：改写家族全景与装填预算算账。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23D97757'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%231C100A' font-family='Georgia' font-weight='bold'>N</text></svg>">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../course.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="orb orb-a"></div>
+<div class="orb orb-b"></div>
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html">首页</a></li>
+        <li><a href="../../index.html#posts">文章</a></li>
+        <li><a href="../../learn.html">课件</a></li>
+        <li><a href="../index.html" class="active">RAG</a></li>
+        <li><a href="../../about.html">关于</a></li>
+        <li><a href="https://github.com/NorthAdb" target="_blank" rel="noopener" class="nav-cta">GitHub ↗</a></li>
+      </ul>
+    </nav>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+<main>
+  <article>
+    <header class="wrap post-hero">
+      <div class="crumbs">
+        <a href="../../index.html">首页</a><span class="sep-c">/</span>
+        <a href="../index.html">RAG</a><span class="sep-c">/</span>
+        <span>第 08 节</span>
+      </div>
+      <h1>查询改写与 Context 装填</h1>
+      <div class="post-meta"><span>第 08 节</span><span class="sep"></span><span>约 35 分钟</span><span class="sep"></span><a href="../quiz.html?lesson=08">本节自测</a></div><p class="lead">Rewrite / Multi-Query / HyDE；token 预算、Lost in the Middle、引用与拒答；v3：改写家族全景与装填预算算账。</p>
+    </header>
+    <div class="wrap prose wide"><blockquote>
+<p><strong>本节任务</strong>：掌握检索前（改写）与检索后（装填）两个&quot;分数之外的杠杆&quot;，
+理解 <code>build_context</code> 的预算/去重/排序/引用四件事，以及拒答为什么必须放在
+生成层用 Prompt 约束。</p>
+</blockquote>
+<p><strong>课程地图上的位置</strong>：Layer 3 的主体。上一节 <a href="07.html">07 Rerank</a>；下一节
+<a href="09.html">09 知识库工程</a>。本节横跨流水线的两头：改写在检索<strong>之前</strong>，
+装填与生成在检索<strong>之后</strong>。</p>
+<h2>8.1 查询侧：改的是查询，不是结果</h2>
+<p>三个工具，风险各不相同（<code>playground/retrieve/query_rewrite.py</code>，全文 51 行）：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>方法</th>
+<th>做什么</th>
+<th>救什么题</th>
+<th>风险</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Rewrite</strong>（<code>:15</code>）</td>
+<td>LLM 把口语改写成文档术语</td>
+<td>表述与文档差得远</td>
+<td>改写引入错误术语</td>
+</tr>
+<tr>
+<td><strong>Multi-Query</strong>（<code>:26</code>）</td>
+<td>拆成 3 个角度分别检索，结果 RRF 合并</td>
+<td>一题多问、覆盖面窄</td>
+<td>候选膨胀、慢 3 倍</td>
+</tr>
+<tr>
+<td><strong>HyDE</strong>（<code>:38</code>）</td>
+<td>先让 LLM 写&quot;假设答案&quot;，拿假设答案做向量检索</td>
+<td>语义鸿沟大</td>
+<td>幻觉答案带偏检索</td>
+</tr>
+</tbody>
+</table></div>
+<p>（<strong>幻觉</strong>：模型一本正经地编造不存在的内容——LLM 时代最著名的副作用。
+本课程的拒答约束（8.4）与第 13 节的 Faithfulness 评审，防的都是它。）</p>
+<h3>8.1.1 代码走读：三个函数</h3>
+<p><code>rewrite_query</code>（<code>query_rewrite.py:15-23</code>）——一句澄清式改写：</p>
+<pre><code class="language-python">def rewrite_query(query: str) -&gt; str:
+    llm = get_llm()
+    prompt = (&quot;把用户问题改写成适合知识库检索的查询：补全省略的主语，&quot;
+              &quot;把口语换成文档常用术语，保留原意，不要回答问题，只输出改写后的查询本身。\n&quot;
+              f&quot;用户问题：{query}\n改写后的查询：&quot;)
+    out = llm.chat(prompt, max_tokens=120).strip()
+    return out or query                     # :23 LLM 返回空串 → 退回原查询
+</code></pre>
+<p><code>multi_query</code>（<code>:26-35</code>）——多角度拆解，<strong>注意保底设计</strong>：</p>
+<pre><code class="language-python">def multi_query(query: str, n: int = 3):
+    ...
+    lines = [ln.strip(&quot; -0123456789.\t&quot;) for ln in llm.chat(prompt).splitlines()]
+    out = [ln for ln in lines if ln]
+    return ([query] + out)[: n + 1]     # :35 原始 query 永远排第一参与检索！
+</code></pre>
+<p><code>:35</code> 是全文件的点睛之笔：<strong>改写是增益，不是替代</strong>——LLM 返回的每一行都 strip
+掉列表编号（<code>&quot; -0123456789.\t&quot;</code>），但无论如何，原始查询都在列表头部。
+改写失败时至少退回原路，这正是它比 Rewrite 稳的原因。</p>
+<p><code>hyde_query</code>（<code>:38-50</code>）的 Prompt 值得读一遍：&quot;写一段技术性回答，<strong>不需要准确</strong>，
+只需要像文档里的答案&quot;——HyDE 要的就是文档的<strong>词汇分布</strong>，不是事实。
+代价与收益都源于此：词汇对了召回大涨，事实错了也会把检索带偏。</p>
+<h3>8.1.2 编排层如何用它们（rag.py:119-129）</h3>
+<pre><code class="language-python">queries = [question]
+if o.rewrite == &quot;rewrite&quot;:
+    t.rewritten = query_rewrite.rewrite_query(question); queries = [t.rewritten]
+elif o.rewrite == &quot;multi_query&quot;:
+    queries = query_rewrite.multi_query(question, 3)
+    t.multi_queries = queries[1:]              # Trace 里只记&quot;改写出的&quot;，原始的不重复记
+elif o.rewrite == &quot;hyde&quot;:
+    t.rewritten = query_rewrite.hyde_query(question); queries = [t.rewritten]
+# 之后 :133-144 对每个 query 各跑一遍多路召回，:165-167 用 rrf_fuse 把多组结果再合并
+</code></pre>
+<h2>8.2 实验 4 结果</h2>
+<p>来自 <code>python -m scripts.run_eval</code> 第 4 组（exp4_rewrite）：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>方案</th>
+<th>Recall@5</th>
+<th>MRR@5</th>
+<th>评测总耗时（23 题）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>不改写</td>
+<td>1.00</td>
+<td>0.928</td>
+<td>~0.1s</td>
+</tr>
+<tr>
+<td>Rewrite 单查询</td>
+<td>1.00</td>
+<td><strong>0.935</strong></td>
+<td>~24.6s</td>
+</tr>
+<tr>
+<td>Multi-Query 多路</td>
+<td>1.00</td>
+<td>0.884</td>
+<td>~32.8s</td>
+</tr>
+</tbody>
+</table></div>
+<p>读表：</p>
+<ul>
+<li><strong>Recall 已经饱和</strong>：三种设置都是 1.00——这套金标在 16 篇语料上&quot;捞没捞到&quot;
+不是瓶颈，改写的作用只能体现在名次（MRR）上；</li>
+<li><strong>Rewrite 略升（+0.007）</strong>：口语被改写成文档术语后部分题的名次提前了，
+但幅度不到一道题的分量；</li>
+<li><strong>Multi-Query 略降（-0.044）且最慢</strong>：多角度查询扩大了候选覆盖面，但也引入
+偏离原始意图的检索词，部分正确块被挤出 Top-1——RRF 融合（第 6 节）能缓解
+稀释，消不掉。代价之外还有 3 次 embedding + 1 次 LLM 调用；</li>
+<li>三个读数合起来才是本节的真正结论：<strong>改写是双刃剑，收益与损失都必须实测</strong>。
+在这套小语料上该不该开改写？判断标准不是&quot;有没有用&quot;，而是&quot;这点提升值不值
+250 倍的耗时&quot;。召回不满（Recall &lt; 1）时 Multi-Query 才有翻身机会——
+v1 口径（20 题时代）它就曾把 Recall 从 0.95 补满到 1.00；换口径结论就变，
+这正是第 1 节 1.7 强调&quot;注明口径&quot;的原因；</li>
+<li>HyDE 本课程只作对照（Playground 可选），不作默认——幻觉答案带偏检索的
+案例在长尾语料上很常见。</li>
+</ul>
+<h2>8.3 生成侧：Context 装填的四件事（context_builder.py:27-70）</h2>
+<p>检索到的块不能 <code>&quot;&quot;.join</code> 了事。<code>build_context</code> 显式做四件事，与代码段一一对应：</p>
+<pre><code class="language-python">def build_context(hits, budget_chars=config.CONTEXT_CHAR_BUDGET,   # :26 3200 字符
+                  order=&quot;score&quot;, max_blocks=config.CONTEXT_MAX_BLOCKS):   # 默认 6 块
+    # 1) 去重（:29-35）：多路召回天然重复，同 chunk_id 只留一次
+    # 2) 预算（:37-43）：按分数从高到低收，len(kept) &gt;= max_blocks 或
+    #    used + len(h.content) &gt; budget_chars 即停；没进来的进 dropped（可观测！）
+    # 3) 排序（:45-54）：score | ends | doc 三种策略
+    # 4) 引用（:57-69）：[i] 编号进正文 + citations 列表（doc_id/section/chunk_id/score）
+</code></pre>
+<p>三个装填策略的差别（<code>:46-54</code>）：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>order</th>
+<th>行为</th>
+<th>治什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>score</code></td>
+<td>分高在前</td>
+<td>默认；最朴素</td>
+</tr>
+<tr>
+<td><code>ends</code></td>
+<td>最强的两块放头尾，其余居中</td>
+<td><strong>Lost in the Middle</strong>：LLM 对长 Context 中间注意力弱</td>
+</tr>
+<tr>
+<td><code>doc</code></td>
+<td>同文档证据相邻</td>
+<td>阅读连贯；适合多文档对照题</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>截断策略</strong>：超预算丢谁？本实现&quot;分数低的先丢&quot;（<code>:37-43</code> 按分数排序后收满即停），
+而不是截断中间——因为低分块更可能是噪声。代价是&quot;低分但必要&quot;的块会被丢
+（全局总结题的关键块可能分数不高），<code>dropped</code> 列表就是为了让你能发现这种情况。</p>
+<h2>8.4 引用与拒答（prompt.py + llm.py）</h2>
+<p>系统提示只有三条硬约束（<code>playground/generate/prompt.py:4-8</code>）：</p>
+<pre><code class="language-text">1. 只根据提供的资料回答；资料里没有的，直接说&quot;资料中没有相关信息&quot;，不要编造。
+2. 引用证据时在句末标注编号，如 [1][2]。
+3. 资料互相矛盾时指出来并说明各自出处。
+</code></pre>
+<p>用户侧 Prompt 的拼装在 <code>prompt.py:11-20</code> 的 <code>build_user_prompt</code>：资料块
+（带 [i] 编号与出处头）+ 引用规则 + 问题。LLM 客户端在 <code>llm.py:32-53</code>
+（<code>chat</code>：3 次重试 + 递增退避）与 <code>llm.py:56-88</code>（<code>chat_stream</code>：<strong>SSE 流式</strong>——
+SSE（Server-Sent Events）是服务器向浏览器单向持续推送文本的轻量协议，
+浏览器里表现为&quot;逐字上屏&quot;，<code>/kb</code> 的打字机效果就是它）。答案落地后，<code>rag.py:207</code>
+用特征词（&quot;资料中没有&quot;等）判定 <code>trace.refusal</code>——这也是一个&quot;启发式 + 可观测&quot;的例子。</p>
+<p>实验 6（真实 LLM 生成）的结果：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>方案</th>
+<th>拒答正确</th>
+<th>拒答率</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dense 基线</td>
+<td>5/5</td>
+<td>1.00</td>
+</tr>
+<tr>
+<td>Hybrid+Rerank 完整版</td>
+<td>5/5</td>
+<td>1.00</td>
+</tr>
+</tbody>
+</table></div>
+<p>五道不可回答题（v1 口径；v2 扩到 7 道）全部正确拒答，回答形如：
+&quot;资料中没有相关信息……[1][2] 仅涉及 SSE~AVX-512&quot;。看完整回答见
+<a href="../experiments/exp6_refusal.html">exp6 报告</a>。</p>
+<blockquote>
+<p>[!IMPORTANT]
+<strong>拒答是 RAG 能力的一部分，不是模型胆小。</strong> 检索层的 Top-K 永远会返回
+&quot;最不坏&quot;的 K 个（相似度是相对的，第 4 节 4.3），能不能承认&quot;这些证据不够&quot;，
+必须在生成层用 Prompt 约束 + 评测集里放不可回答题来保证。KB 系统还叠加了
+第二道闸门：rerank 分数过低时<strong>不调用 LLM 直接拒答</strong>（<code>kb/chat.py</code> 的
+<code>stream_answer</code>），省掉一次注定失败的开发。</p>
+</blockquote>
+<h2>8.5 如何运行</h2>
+<pre><code class="language-bash"># 改写三件套的终端实测（会调 LLM，注意耗时）
+python -c &quot;
+from playground.retrieve.query_rewrite import rewrite_query, multi_query, hyde_query
+q = '公司服务器为啥要搞多级缓存？'
+print('rewrite:', rewrite_query(q))
+print('multi:', multi_query(q))
+print('hyde:', hyde_query(q)[:100])
+&quot;
+
+# 装填四件事的终端实测（不调 LLM）
+python -c &quot;
+from playground.rag import RAGPipeline, PipelineOptions
+t = RAGPipeline(PipelineOptions(retriever='hybrid', generate=False)).retrieve('AVX-512 的掩码寄存器')
+from playground.generate.context_builder import build_context
+ctx = build_context(t.fused, order='ends')
+print('used:', len(ctx.used), 'dropped:', len(ctx.dropped))
+print(ctx.text[:200])
+&quot;
+
+# 完整问答（含引用与拒答）
+python -c &quot;
+from playground.rag import RAGPipeline, PipelineOptions
+print(RAGPipeline(PipelineOptions()).answer('AVX-512 的掩码寄存器有几个？').answer)
+&quot;
+</code></pre>
+<h2>8.6 注意事项</h2>
+<ul>
+<li><strong>改写三件套都依赖 LLM</strong>：LLM 降级时 <code>get_llm()</code> 返回 EchoLLM，
+改写质量不可信——生产上应在降级时自动关闭改写（<strong>condense</strong>：KB 系统里
+&quot;把'它和 BM25 有什么区别'这类依赖上下文的追问，改写成不依赖历史的独立
+检索词&quot;的机制，和本节改写同思想、第 17 节正式讲；<code>kb/chat.py:160</code> 的
+<code>condense_question</code> 先查 <code>llm.is_real</code> 就是它的降级保护）；</li>
+<li>预算单位是<strong>字符</strong>不是 token（<code>context_builder.py:26</code>）。<strong>token</strong> 是 LLM
+计长/计费的最小文字单位，约等于一个词或半个词：中文约 1 字 ≈ 1 token，
+英文约 4 字符 ≈ 1 token——换英文语料要重新标定 <code>CONTEXT_CHAR_BUDGET</code>；</li>
+<li><code>dropped</code> 不是垃圾，是<strong>诊断信号</strong>：某题答案引用了编号 [3]，但 [3] 的块在
+dropped 里出现过，说明预算太紧或块太长；</li>
+<li>拒答特征词表（<code>rag.py:23-26</code>）是启发式的：换 Prompt 措辞要同步维护它，
+否则 <code>trace.refusal</code> 失真。</li>
+</ul>
+<h2>8.7 动手练习</h2>
+<ol>
+<li>Playground 问&quot;公司里多少人会用 AVX-512？&quot;（知识库没有此信息，但词面相关），
+开/关&quot;强制引用标注&quot;对比回答——无引用约束时编造倾向是否变大？</li>
+<li>找一道多块证据的题（如 q19 全局题），切换 <code>score</code> vs <code>ends</code> 装填，
+对比答案里引用编号的分布；</li>
+<li>用 8.5 的第二个命令把 <code>order</code> 依次换成 <code>score</code>/<code>ends</code>/<code>doc</code>，对着
+<code>ctx.text</code> 说出三种顺序各自适合什么题；</li>
+<li>思考：为什么&quot;分数低的先丢&quot;比&quot;截断中间&quot;更安全？什么情况下后者反而对？
+（提示：当&quot;必要信息恰好都在分数中部&quot;时，ends 与截中间是同一件事的两面。）</li>
+</ol>
+<h2>8.8 加厚（v3）：改写家族全景与装填预算的算账方法</h2>
+<h3>改写家族全景（讲过的 + 两个邻居）</h3>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>方法</th>
+<th>改什么</th>
+<th>救什么题</th>
+<th>成本</th>
+<th>本课程位置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Rewrite</td>
+<td>一句话改写成文档术语</td>
+<td>口语 vs 术语的鸿沟</td>
+<td>1 次 LLM</td>
+<td>8.1</td>
+</tr>
+<tr>
+<td>Multi-Query</td>
+<td>拆 3 个角度并行检索</td>
+<td>一题多问、覆盖面窄</td>
+<td>1 次 LLM + 3 路检索</td>
+<td>8.1</td>
+</tr>
+<tr>
+<td>HyDE</td>
+<td>先写假设答案再拿它检索</td>
+<td>语义鸿沟极大</td>
+<td>1 次 LLM</td>
+<td>8.1</td>
+</tr>
+<tr>
+<td>Step-Back</td>
+<td>先抽象一层问原理，再问细节</td>
+<td>细节题缺背景</td>
+<td>1 次 LLM</td>
+<td>未实现，思路同族</td>
+</tr>
+<tr>
+<td>子问题分解</td>
+<td>多跳问题拆成 2-3 个独立子问题</td>
+<td>要拼接 A→B→C 的题</td>
+<td>N 次 LLM+检索</td>
+<td>第 14 节图召回是它的&quot;结构化亲戚&quot;</td>
+</tr>
+<tr>
+<td>查询路由</td>
+<td>不改写，只判断该走哪条路</td>
+<td>检索器/路径选型</td>
+<td>1 次轻量判断</td>
+<td>14.6</td>
+</tr>
+</tbody>
+</table></div>
+<p>共同纪律：<strong>改写都在&quot;增益 vs 失真&quot;之间赌，必须过金标</strong>（8.2 是示范）；且都要
+有保底——原始查询永远参与检索（multi_query 的 <code>:35</code>）。</p>
+<h3>装填预算怎么算账</h3>
+<p><code>CONTEXT_CHAR_BUDGET=3200</code> 不是拍脑袋，是一笔账：默认 top_k=5 × 平均块 500 字
+≈ 2500 字符正文 + 引用编号与出处头的开销 ≈ 3200。改任何一项都按这个式子重算：</p>
+<pre><code class="language-text">预算 ≈ top_k × 平均块长 + 头尾开销（编号/出处/指令）
+</code></pre>
+<p>两个推论：① 换了切分尺寸（第 3 节），预算要跟着动——900 字大块配 3200 预算
+只装得下 3 块；② 换英文语料按 4 字符/token 换算（8.6），同样 3200 字符的英文
+信息量大约只有中文的 1/4，预算要放大或块数要下调。</p>
+</div>
+  </article>
+  <nav class="wrap post-nav"><a class="prev" href="07.html"><span class="dir">← 上一篇</span><span class="t">Reranker：召回与精排的分工</span></a><a class="next" href="09.html"><span class="dir">下一篇 →</span><span class="t">知识库工程：元数据、去重与增量更新</span></a></nav>
+</main>
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb 的博客</span>
+    </div>
+    <p>© <span data-year>2026</span> NorthAdb · RAG 课为静态讲义</p>
+    <div class="f-links">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</footer>
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+<script src="../../js/main.js"></script>
+</body>
+</html>

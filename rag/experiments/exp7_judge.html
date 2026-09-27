@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>实验 7：LLM-as-judge 生成侧评测（评估三元组） — NorthAdb</title>
+<meta name="description" content="实验 7：LLM-as-judge 生成侧评测（评估三元组）">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23D97757'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%231C100A' font-family='Georgia' font-weight='bold'>N</text></svg>">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../course.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="orb orb-a"></div>
+<div class="orb orb-b"></div>
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html">首页</a></li>
+        <li><a href="../../index.html#posts">文章</a></li>
+        <li><a href="../../learn.html">课件</a></li>
+        <li><a href="../index.html" class="active">RAG</a></li>
+        <li><a href="../../about.html">关于</a></li>
+        <li><a href="https://github.com/NorthAdb" target="_blank" rel="noopener" class="nav-cta">GitHub ↗</a></li>
+      </ul>
+    </nav>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+<main>
+  <article>
+    <header class="wrap post-hero">
+      <div class="crumbs">
+        <a href="../../index.html">首页</a><span class="sep-c">/</span>
+        <a href="../index.html">RAG</a><span class="sep-c">/</span>
+        <span>实验</span>
+      </div>
+      <h1>实验 7：LLM-as-judge 生成侧评测（评估三元组）</h1>
+      <div class="post-meta"><span class="tag">RAG</span></div>
+    </header>
+    <div class="wrap prose wide"><p>生成时间：2026-09-12 01:08 · 每方案抽样 10 道可回答题 + 5 道不可回答题，DeepSeek 当裁判（三问：Context 相关？答案忠实？切题？）。耗时 105.0s。</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>方案</th>
+<th>Faithfulness</th>
+<th>Answer Relevance</th>
+<th>Context Relevance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dense 基线</td>
+<td>5.0</td>
+<td>3.53</td>
+<td>2.47</td>
+</tr>
+<tr>
+<td>Hybrid+Rerank 完整版</td>
+<td>4.87</td>
+<td>3.6</td>
+<td>2.87</td>
+</tr>
+</tbody>
+</table></div>
+<h2>读法与警告</h2>
+<ul>
+<li><strong>Faithfulness 低 = 幻觉风险</strong>：答案里有资料撑不住的声明；不可回答题应拒答而非硬答；</li>
+<li><strong>Context Relevance 低先查检索</strong>：证据本身不对，别怪生成层；</li>
+<li><strong>LLM 裁判有偏差</strong>（偏宽松、偏长答案）：分数用于方案间相对比较 + 人工抽检对照，
+不能替代金标硬指标（Recall/MRR 是算出来的，judge 是评出来的）。</li>
+</ul>
+<h2>低分案例摘录（faithfulness ≤ 3）</h2>
+<p>（无：全部 ≥ 4 分）</p>
+</div>
+  </article>
+  <nav class="wrap post-nav"><a class="prev" href="exp6_refusal.html"><span class="dir">← 上一篇</span><span class="t">实验 6：不可回答题与拒答（真实 LLM 生成）</span></a><a class="next" href="exp8_hnsw.html"><span class="dir">下一篇 →</span><span class="t">实验 8：HNSW ef_search 基准（625 块小语料）</span></a></nav>
+</main>
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb 的博客</span>
+    </div>
+    <p>© <span data-year>2026</span> NorthAdb · RAG 课为静态讲义</p>
+    <div class="f-links">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</footer>
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+<script src="../../js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BM25 稀疏检索：为什么它还没死 — NorthAdb</title>
+<meta name="description" content="TF-IDF → BM25 公式逐项拆解；jieba 分词；符号题吊打 Dense 的现场；v3：BM25 的工程亲戚（tsvector/BM25F）。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23D97757'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%231C100A' font-family='Georgia' font-weight='bold'>N</text></svg>">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../course.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="orb orb-a"></div>
+<div class="orb orb-b"></div>
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html">首页</a></li>
+        <li><a href="../../index.html#posts">文章</a></li>
+        <li><a href="../../learn.html">课件</a></li>
+        <li><a href="../index.html" class="active">RAG</a></li>
+        <li><a href="../../about.html">关于</a></li>
+        <li><a href="https://github.com/NorthAdb" target="_blank" rel="noopener" class="nav-cta">GitHub ↗</a></li>
+      </ul>
+    </nav>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+<main>
+  <article>
+    <header class="wrap post-hero">
+      <div class="crumbs">
+        <a href="../../index.html">首页</a><span class="sep-c">/</span>
+        <a href="../index.html">RAG</a><span class="sep-c">/</span>
+        <span>第 05 节</span>
+      </div>
+      <h1>BM25 稀疏检索：为什么它还没死</h1>
+      <div class="post-meta"><span>第 05 节</span><span class="sep"></span><span>约 30 分钟</span><span class="sep"></span><a href="../quiz.html?lesson=05">本节自测</a></div><p class="lead">TF-IDF → BM25 公式逐项拆解；jieba 分词；符号题吊打 Dense 的现场；v3：BM25 的工程亲戚（tsvector/BM25F）。</p>
+    </header>
+    <div class="wrap prose wide"><blockquote>
+<p><strong>本节任务</strong>：把 BM25 公式的每一项与代码对上号，理解&quot;分词器是这个实现里
+最重要的决策&quot;，并能解释为什么 2026 年的生产 RAG 依然人手一路 BM25。</p>
+</blockquote>
+<p><strong>课程地图上的位置</strong>：Layer 2 第二站。上一节 <a href="04.html">04 向量检索</a>；下一节
+<a href="06.html">06 RRF 融合</a>——BM25 与 Dense 是融合的两路输入。</p>
+<h2>5.1 从 TF-IDF 到 BM25</h2>
+<p>BM25 的打分公式（<code>playground/retrieve/bm25.py:3-5</code> 的模块注释里也写着）：</p>
+<pre><code class="language-text">score(q, d) = Σ_t  IDF(t) · tf · (k1 + 1) / (tf + k1 · (1 - b + b·|d|/avgdl))
+</code></pre>
+<p>逐项拆开，每一项都在修 TF-IDF 的一个毛病：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>项</th>
+<th>作用</th>
+<th>修的毛病</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IDF(t)</td>
+<td>词在<strong>多少文档</strong>出现过：越罕见越有区分度</td>
+<td>&quot;的、是、和&quot;人人都有，区分度≈0</td>
+</tr>
+<tr>
+<td>tf（分子）</td>
+<td>词在本文档出现越多分越高</td>
+<td>早期 TF 线性放大</td>
+</tr>
+<tr>
+<td>k1≈1.5</td>
+<td><strong>词频饱和</strong>：出现 3 次很重要，30 次不会重要 10 倍</td>
+<td>长文档堆砌关键词刷分</td>
+</tr>
+<tr>
+<td>b≈0.75</td>
+<td><strong>长度归一</strong>：长文档天然词多，把便宜压回去</td>
+<td>长文档霸榜</td>
+</tr>
+</tbody>
+</table></div>
+<p>直觉总结：<strong>BM25 问的是&quot;关键词对不对得上&quot;，Dense 问的是&quot;意思像不像&quot;。</strong></p>
+<h2>5.2 代码走读（playground/retrieve/bm25.py，90 行）</h2>
+<h3>5.2.1 分词器（bm25.py:26-35）——本实现最重要的决策</h3>
+<pre><code class="language-python">_TOK_RE = re.compile(r&quot;[a-zA-Z0-9][a-zA-Z0-9\-_.]*&quot;)     # :26 英文 token 的形状
+
+def tokenize(text):
+    zh_removed = _TOK_RE.sub(&quot; &quot;, text)      # :30 先把英文 token 挖掉
+    tokens = _TOK_RE.findall(text)           # :31 整体切出英文 token
+    tokens += [t for t in jieba.cut(zh_removed)      # :32 剩下的中文给 jieba
+               if re.search(r&quot;[\u4e00-\u9fff]&quot;, t)]  # 只留含汉字的
+    return [t.lower() for t in tokens if t.strip()]  # :35 全部小写归一
+</code></pre>
+<p>这个两段式分词器是<strong>符号题的命脉</strong>：</p>
+<ul>
+<li>若把 <code>AVX-512</code> 按连字符切成 <code>avx</code> + <code>512</code>，查询&quot;AVX-512 寄存器&quot;就会匹配到
+所有含 <code>512</code> 的块（包括&quot;512 KB L2&quot;）——噪声暴增。正则 <code>:26</code> 里的 <code>\-_.</code>
+让 <code>SSE4.2</code>、<code>AVX-512</code>、<code>VPGATHERDD</code> <strong>各自是一个完整 token</strong>；</li>
+<li>中文走 jieba（<code>bm25.py:19</code> 顶部 import），对技术文档够用；生产中文检索常见
+做法是<strong>领域词典 + jieba 自定义词</strong>（<code>jieba.add_word</code>）；</li>
+<li>英文先挖再分的顺序很讲究：如果先 jieba 整句，jieba 会把英文拆成碎片再交回来。</li>
+</ul>
+<p>单测 <code>tests/test_core.py</code> 里专门有 tokenize 的保护用例：改分词器后跑
+<code>python -m pytest tests/test_core.py -q</code>，把 <code>AVX-512</code> 拆开的改动会被当场拦下
+（第 13 节讲这个&quot;指标保护&quot;思路）。</p>
+<h3>5.2.2 索引构建（bm25.py:38-51）</h3>
+<p>BM25 本体直接用 <code>rank_bm25.BM25Okapi</code>（工业标准实现），但<strong>索引构建是手写的</strong>：</p>
+<pre><code class="language-python">@functools.lru_cache(maxsize=8)              # :38 进程内缓存，key=(strategy, corpus)
+def _build(strategy, corpus):
+    rows = q(&quot;&quot;&quot;                              # :41-47 从 rg_chunks 拉块
+        SELECT id, doc_id, chunk_index, content, section_path, parent_id
+        FROM   rg_chunks
+        WHERE  strategy = %s AND meta @&gt; %s::jsonb
+        ORDER  BY doc_id, chunk_index &quot;&quot;&quot;, (strategy, f'{{&quot;corpus&quot;:&quot;{corpus}&quot;}}'))
+    corpus_tokens = [tokenize(r[3]) for r in rows]       # :49 每块分词
+    bm25 = BM25Okapi(corpus_tokens) if corpus_tokens else None   # :50 建倒排
+    return rows, bm25
+</code></pre>
+<p>三个要点：</p>
+<ol>
+<li><strong>BM25 索引在内存里，不在数据库里</strong>——这里的&quot;索引&quot;指<strong>倒排表</strong>：
+&quot;一个词 → 出现在哪些块&quot;的查找表（搜索引擎的经典地基）。每次进程重启后
+第一次检索要重建（本语料毫秒级；生产会换 tsvector 或专用引擎）；</li>
+<li><code>lru_cache</code> 的 key 是 <code>(strategy, corpus)</code>，与向量检索的隔离维度完全一致；</li>
+<li><strong>缓存失效要手动</strong>：入库/删库后必须 <code>bm25._build.cache_clear()</code>——KB 系统
+就是在 <code>kb/store.py:169</code> 的 <code>clear_retrieval_caches()</code> 里做这件事。
+这是&quot;进程内缓存 + 数据库&quot;组合的经典坑：数据库变了，缓存不知道。</li>
+</ol>
+<h3>5.2.3 查询（bm25.py:54-81）</h3>
+<pre><code class="language-python">def bm25_search(query, top_k=config.BM25_TOP_K, strategy=&quot;flat500x80&quot;, corpus=&quot;main&quot;):
+    rows, bm25 = _build(strategy, corpus)
+    if not rows or bm25 is None:
+        return []                                  # 空库直接返回（:58-59）
+    scores = bm25.get_scores(tokenize(query))      # :60 一次算全库分数
+    order = sorted(range(len(rows)), key=lambda i: scores[i],
+                   reverse=True)[:top_k]           # :61 取前 K
+    for r_i, i in enumerate(order):
+        if scores[i] &lt;= 0:                         # :64 零分 = 完全没词面重合，不进结果
+            break
+        hits.append(Hit(..., score=float(scores[i]), source=&quot;bm25&quot;, ...))
+</code></pre>
+<p><code>:64</code> 附近的丢弃条件值得停一下（v3 修正版）：它判断的不是&quot;分数 ≤ 0&quot;而是
+<strong>&quot;词面零重合&quot;</strong>（<code>qtok &amp; set(corpus_tokens[i])</code> 为空才丢弃）。原因是一个真实踩到的
+边界 bug：超小语料里独有词的 IDF 会退化成 0（N=2 篇时 log(1.5/1.5)=0），
+只看分数会把&quot;有词面重合&quot;的有效命中也丢掉——两篇文档的知识库永远检索不到东西。
+这个案例的教训：<strong>用分数大小近似&quot;相关性&quot;时，先检查分数在极端语料规模下的退化行为。</strong>
+对比 Dense：余弦相似度永远 &gt; 0（除非正交），<strong>Dense 没有&quot;零重合&quot;这个概念</strong>，
+这正是两路互补的根源之一。</p>
+<h2>5.3 如何运行</h2>
+<pre><code class="language-bash"># 终端最小示例：BM25 单路检索
+python -c &quot;
+from playground.retrieve.bm25 import bm25_search
+for h in bm25_search('AVX-512 引入年份', strategy='flat500x80', corpus='main', top_k=3):
+    print(round(h.score, 3), h.doc_id, '|', h.content[:50])
+&quot;
+
+# IDF 直觉现场：每个 query token 命中几篇文档（:84 的教学辅助函数）
+python -c &quot;
+from playground.retrieve.bm25 import doc_freq_stats
+print(doc_freq_stats('SSE4.2 字符串处理', strategy='flat500x80', corpus='main'))
+&quot;
+
+# 分词器保护测试
+python -m pytest tests/test_core.py -q -k tokenize
+</code></pre>
+<h2>5.4 实验 1 的分题型数据（Dense vs BM25）</h2>
+<p>同样出自 <code>python -m scripts.run_eval</code> 的第 1 组（exp1_retrievers，报告里的
+&quot;分题型表现&quot;表）：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>题型</th>
+<th>Dense（recall@5 / MRR@5）</th>
+<th>BM25（recall@5 / MRR@5）</th>
+<th>谁赢</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>near_confusion（AVX vs AVX-512）</td>
+<td>1.00 / 1.00</td>
+<td>0.75 / 0.75</td>
+<td><strong>Dense</strong> —— 词面几乎相同的两篇，IDF 分不清</td>
+</tr>
+<tr>
+<td>semantic（语义改写题）</td>
+<td>1.00 / 1.00</td>
+<td>1.00 / 1.00</td>
+<td>平（语料小；大语料上 Dense 优势明显）</td>
+</tr>
+<tr>
+<td>symbol（STTNI、PCMPGTQ…）</td>
+<td>1.00 / 0.75</td>
+<td>1.00 / 0.75</td>
+<td>文档级打平——名次内的差异要靠 Playground 逐题看</td>
+</tr>
+<tr>
+<td>全部 23 道可回答题</td>
+<td>1.00 / <strong>0.880</strong></td>
+<td>0.957 / 0.808</td>
+<td><strong>Dense</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p>（口径：30 题金标中的 23 道可回答题；文档级指标，即&quot;正确答案所在文档进没进
+Top-5、排第几&quot;。）</p>
+<p>三个值得记住的现象：</p>
+<ol>
+<li><strong>BM25 的 MRR 输给 Dense</strong>：它只看词面，命中但排不进最前；</li>
+<li><strong>符号题在文档级打平，不代表两路一样</strong>：BM25 查询里的生僻 token（STTNI）
+IDF 巨大、一锤定音，第一名的分数远比 Dense &quot;自信&quot;。去 Playground 分别用
+Dense/BM25 问&quot;PCMPGTQ 属于哪个扩展&quot;，对比第一名的分数与块内容——
+文档级指标看不出名次内的形态差异，要靠块级分数与逐题 Trace（第 10 节）；</li>
+<li><strong>near_confusion 是 BM25 的死穴</strong>：<code>AVX</code> 与 <code>AVX-512</code> 在词面上互为前缀，
+纯词法模型区分不了&quot;说的是哪一代&quot;，需要语义（或元数据过滤）。</li>
+</ol>
+<h2>5.5 为什么&quot;有了 Embedding&quot;还要 BM25</h2>
+<p>把实验 1 的两个单路放在一起看：</p>
+<pre><code class="language-text">Dense  R@5=1.00  MRR=0.880   ← 语义泛化强，符号题排名飘
+BM25   R@5=0.957 MRR=0.808   ← 符号题一锤定音，语义改写弱
+Hybrid R@5=1.00  MRR=0.928   ← 互补之后的和，稳过任一单路（下一节的主角）
+</code></pre>
+<p>生产场景里 BM25 不可替代的还有两个理由：</p>
+<ul>
+<li><strong>新词免疫</strong>：产品代号、错误码今天刚发明，Dense 模型没见过，BM25 照抓；</li>
+<li><strong>可解释</strong>：BM25 的分项（IDF、tf、长度）都能算给你看，出问题能定位。</li>
+</ul>
+<h2>5.6 注意事项</h2>
+<ul>
+<li><strong>改了分词器 = BM25 索引全部作废</strong>：<code>_build</code> 的 lru_cache 里缓存的是旧分词
+结果，进程要重启，且旧索引是用旧 tokenize 建的——严格说要清缓存重建；</li>
+<li>BM25 内存索引<strong>不跨进程共享</strong>：网站进程与脚本进程各建各的，改库后两边都要
+失效（多进程生产环境要么用共享索引，要么接受重建成本）；</li>
+<li>中文查询先想想分词对不对：<code>doc_freq_stats</code> 是你的放大镜——某词命中 0 篇，
+多半是分词把它切碎了，而不是语料里没有。</li>
+</ul>
+<h2>5.7 加厚（v2）：稀疏检索 vs 稀疏嵌入——术语矩阵</h2>
+<blockquote>
+<p>常见疑问：&quot;有稀疏检索，那稠密检索呢？稀疏嵌入/稠密嵌入涉及吗？&quot;
+先把**任务（检索）<strong>和</strong>表示（嵌入）**分开，再拼成一张矩阵就清楚了。</p>
+</blockquote>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th></th>
+<th>统计派（权重是公式算的）</th>
+<th>学习派（权重是模型训的）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>稠密表示</strong>（每维都有值）</td>
+<td>词袋哈希投影（我们的降级 HashingEmbedder）</td>
+<td><strong>稠密嵌入</strong>：BGE-M3 dense → <strong>稠密检索</strong>（第 4 节）</td>
+</tr>
+<tr>
+<td><strong>稀疏表示</strong>（绝大多数维为 0）</td>
+<td><strong>BM25 / TF-IDF</strong> → 传统<strong>稀疏检索</strong>（本节）</td>
+<td><strong>稀疏嵌入</strong>（learned sparse）：SPLADE、BGE-M3 的 sparse lexical weights</td>
+</tr>
+</tbody>
+</table></div>
+<p>所以：</p>
+<ul>
+<li><strong>稠密检索 / 稠密嵌入</strong>：有，就是第 4 节（&quot;向量检索&quot;是它的通俗叫法）；</li>
+<li><strong>稀疏检索</strong>：有，就是本节的 BM25——但注意它是<strong>统计派</strong>；</li>
+<li><strong>稀疏嵌入</strong>：课程没有专门实现。它指&quot;模型学出来的稀疏表示&quot;（SPLADE 是代表；
+BGE-M3 本身有 Dense / Sparse / Multi-Vector 三种表示——本课程只用了 dense 输出，
+因为硅基流动的 embeddings 接口实测只返回 dense，不含 sparse 权重）。</li>
+</ul>
+<p><strong>学习派稀疏 vs BM25</strong>：learned sparse 能给同义词/变体分权重（&quot;汽车&quot;→&quot;车辆&quot;
+也有非零权重），且不需要人工分词器；代价是要专门训练/加载模型、索引格式特殊。
+课程选 BM25 的三个理由：① 透明可手写（公式 10 行）；② 存储友好（内存倒排表）；
+③ BM25 + dense 经 RRF 融合已覆盖两路主要信号。想亲手玩 learned sparse：
+<code>FlagEmbedding</code> 库本地跑 BGE-M3 可同时输出三种表示——&quot;用 BGE-M3 sparse 权重
+替换 BM25 路、其余不动、金标对比&quot;就是一个标准的单变量消融（留作练习）。</p>
+<h2>5.8 动手练习</h2>
+<ol>
+<li>Playground 用 BM25 模式查&quot;AVX-512 引入年份&quot;，再查&quot;向量计算的指令集有哪些&quot;，
+体会同一检索器在两类问题上的表现差；</li>
+<li>跑 5.3 的 <code>doc_freq_stats</code>，解释为什么 <code>512</code> 这个 token 的文档数远多于
+<code>AVX-512</code>（答：正则保护 + 语料里单独的数字到处出现）；</li>
+<li>思考：如果文档是纯英文技术手册，tokenize 需要改什么？（提示：jieba 那条路
+会空转，但没错；真正要小心的是大小写与复数。）</li>
+</ol>
+<h2>5.9 加厚（v3）：BM25 在工程里的亲戚</h2>
+<p>手写 BM25 是为了懂原理；生产里你大概率用现成实现，各有各的生态位：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>实现</th>
+<th>生态位</th>
+<th>与本课程的对应</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>PostgreSQL tsvector / ts_rank</strong></td>
+<td>同库内全文检索：不引外部引擎，SQL 一条 <code>@@</code> 就有 BM25 式排序（配 GIN 索引，0.7 见过）</td>
+<td>想省掉内存倒排表（5.2.2）时的替代路</td>
+</tr>
+<tr>
+<td><strong>Elasticsearch / OpenSearch</strong></td>
+<td>分布式检索引擎，BM25 是默认评分</td>
+<td>中大型生产的 BM25 标配；运维成本是代价</td>
+</tr>
+<tr>
+<td><strong>BM25F</strong></td>
+<td>字段加权版：标题命中比正文命中值钱，按字段分别算 tf 再合成</td>
+<td>标题前缀（3.2.3）是它的&quot;穷人版&quot;——把标题塞进同一段文本</td>
+</tr>
+<tr>
+<td><strong>覆盖度评分项</strong>（ts_rank_cd / Lucene）</td>
+<td>考虑&quot;命中几种不同的词&quot;</td>
+<td>LexicalReranker 的 cover/density（7.2.2）就是它的朴素版</td>
+</tr>
+<tr>
+<td><strong>查询扩展（RM3 等）</strong></td>
+<td>用首轮命中的高频词扩写查询再检索</td>
+<td>multi_query（第 8 节）的&quot;不调 LLM 的统计版亲戚&quot;</td>
+</tr>
+</tbody>
+</table></div>
+<p>选型一句话：<strong>数据已经在 Postgres 里且规模中等 → 先试 tsvector + pgvector
+同库 Hybrid（少养一套基础设施）；规模大了或分词要求高 → 再上专用引擎</strong>。
+5.2.1 的分词器纪律在任何实现里都成立：换实现 = 换了分词 = 换了实验条件，
+金标要重新对齐。</p>
+</div>
+  </article>
+  <nav class="wrap post-nav"><a class="prev" href="04.html"><span class="dir">← 上一篇</span><span class="t">Embedding 与向量检索</span></a><a class="next" href="06.html"><span class="dir">下一篇 →</span><span class="t">Hybrid 融合：RRF 与量纲绑架</span></a></nav>
+</main>
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb 的博客</span>
+    </div>
+    <p>© <span data-year>2026</span> NorthAdb · RAG 课为静态讲义</p>
+    <div class="f-links">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</footer>
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+<script src="../../js/main.js"></script>
+</body>
+</html>

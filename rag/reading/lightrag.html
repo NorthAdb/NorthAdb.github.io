@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LightRAG 源码导读（refs/LightRAG） — NorthAdb</title>
+<meta name="description" content="LightRAG 源码导读（refs/LightRAG）">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23D97757'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%231C100A' font-family='Georgia' font-weight='bold'>N</text></svg>">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../course.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="orb orb-a"></div>
+<div class="orb orb-b"></div>
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html">首页</a></li>
+        <li><a href="../../index.html#posts">文章</a></li>
+        <li><a href="../../learn.html">课件</a></li>
+        <li><a href="../index.html" class="active">RAG</a></li>
+        <li><a href="../../about.html">关于</a></li>
+        <li><a href="https://github.com/NorthAdb" target="_blank" rel="noopener" class="nav-cta">GitHub ↗</a></li>
+      </ul>
+    </nav>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+<main>
+  <article>
+    <header class="wrap post-hero">
+      <div class="crumbs">
+        <a href="../../index.html">首页</a><span class="sep-c">/</span>
+        <a href="../index.html">RAG</a><span class="sep-c">/</span>
+        <span>导读</span>
+      </div>
+      <h1>LightRAG 源码导读（refs/LightRAG）</h1>
+      <div class="post-meta"><span class="tag">RAG</span></div>
+    </header>
+    <div class="wrap prose wide"><blockquote>
+<p>配套第 11 节的源码阅读任务。本页给一条<strong>带行号的阅读路线</strong>：按顺序读，
+每站都有&quot;看什么、对照课程哪里&quot;。行号对应当前 <code>refs/LightRAG</code> 快照，
+有漂移时用 <code>grep -n &quot;锚点&quot; 文件</code> 重新定位。</p>
+<p>前置阅读：<a href="../notes/lightrag.html">LightRAG 一页总结</a>（一页总结）。
+阅读心态：不是通读 8000 行，而是<strong>验证四个命题</strong>——每站结束问自己&quot;我看到了吗&quot;。</p>
+</blockquote>
+<h2>路线图（预计 60-90 分钟）</h2>
+<pre><code class="language-text">第 1 站  抽取 Prompt        lightrag/prompt.py:56, :175     （对应课程第 14 节）
+第 2 站  抽取的落地与容错    lightrag/operate.py:3943, :711, :775
+第 3 站  查询模式分发       lightrag/base.py:93 → operate.py:4657
+第 4 站  混合检索与重排      lightrag/operate.py:6661 + lightrag/rerank.py
+</code></pre>
+<h2>第 1 站：抽取 Prompt（lightrag/prompt.py:56 起）</h2>
+<p>打开 <code>lightrag/prompt.py</code>，找到 <code>PROMPTS[&quot;entity_extraction_system_prompt&quot;]</code>（<strong>:56</strong>）。
+通读这一段（约 120 行），重点核对本课程第 14 节总结的四条军规在工业实现里的样子：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>课程玩具的军规（toy_graph.py:27-35）</th>
+<th>LightRAG 的工业版</th>
+<th>行号</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>&quot;实体用文中原名&quot;</td>
+<td>要求 <strong>title case + 全程一致命名</strong>（抽取结果要做全局合并去重）</td>
+<td>在 prompt 正文中搜 &quot;consistently&quot;</td>
+</tr>
+<tr>
+<td>无限流</td>
+<td><strong><code>max_total_records</code> / <code>max_entity_records</code> 限流字段</strong> + <code>completion_delimiter</code> 超限即停</td>
+<td>:95, :132</td>
+</tr>
+<tr>
+<td>s/r/o 三元组（无向由邻接表保证）</td>
+<td><strong>&quot;Swapping source and target does not constitute a new relationship&quot;</strong>——无向关系写进 Prompt，合并时省一半去重逻辑</td>
+<td>prompt 正文</td>
+</tr>
+<tr>
+<td>无实体类型/描述</td>
+<td>每个实体带 <code>entity_type</code> + <code>entity_description</code>（第三人称、禁代词）——这是它能&quot;合并同名实体描述&quot;的原料</td>
+<td>prompt 正文</td>
+</tr>
+</tbody>
+</table></div>
+<p>再看 <strong>:175</strong> 的 <code>PROMPTS[&quot;entity_extraction_json_system_prompt&quot;]</code>——同一任务的
+JSON 输出变体，注释明说 &quot;for higher extraction quality&quot;。对比两种输出格式
+（分隔符行 vs JSON）各自好解析在哪里，这就是第 15 节&quot;格式化生成&quot;的工业样本。</p>
+<p><strong>命题 1：工业版抽取 Prompt 的复杂度主要用于&quot;合并友好&quot;而不是&quot;抽得更多&quot;。</strong> 你同意吗？</p>
+<h2>第 2 站：抽取的落地与容错（lightrag/operate.py）</h2>
+<ul>
+<li><strong><code>extract_entities</code>（operate.py:3943）</strong>：抽取主循环。看它如何分块（chunk 分片）、
+如何并发、如何把模型输出喂给上面的 Prompt；</li>
+<li><strong><code>_handle_single_entity_extraction</code>（:711）与 <code>_handle_single_relationship_extraction</code>
+（:775）</strong>：单条记录的解析与容错。对照我们玩具里的
+<code>re.search(r&quot;\[.*\]&quot;, out, re.S)</code> + 字段校验（toy_graph.py:48-55）——
+工业版的容错多了什么？（提示：分隔符行解析、字段缺失跳过、记录级日志。）
+LLM 输出<strong>必然有脏</strong>，容错层永远是你自己的代码——第 15 节 15.6 的共同结论在这里放大。</li>
+</ul>
+<p><strong>命题 2：解析失败的处理策略是&quot;跳过并继续&quot;，不是&quot;重试到成功&quot;。</strong> 为什么这个取舍合理？
+（提示：重试贵且可能反复失败在同一个坏块上；漏一条边对图的伤害是局部的。）</p>
+<h2>第 3 站：查询模式分发（base.py:93 → operate.py:4657）</h2>
+<ul>
+<li><code>lightrag/base.py:93</code>：<code>QueryParam.mode</code> 的五种取值——
+<code>local / global / hybrid / naive / mix</code>（另有 bypass 直通 LLM）；</li>
+<li><code>lightrag/operate.py:4657</code> 的 <strong><code>kg_query</code></strong>：图查询主入口。跟一遍 mode 分发逻辑：</li>
+</ul>
+<pre><code class="language-text">naive  = 纯向量检索 chunk                    ≈ 课程第 4 节 Dense
+local  = query 抽关键词 → 匹配实体 → 邻居 → 关联 chunk   ≈ 课程第 14 节 graph_recall（一跳版）
+global = 匹配关系/社区摘要层                 → 玩具没实现这一层
+hybrid = local + global；mix = naive + 图一起上
+</code></pre>
+<p><strong>命题 3：我们的 <code>graph_recall</code> 是 local 模式的一跳退化版，缺的是 global 层。</strong>
+所以第 14 节&quot;全局主题类问题接不住&quot;的根源在结构缺失，不在参数。</p>
+<h2>第 4 站：混合检索与重排（operate.py:6661 + rerank.py）</h2>
+<ul>
+<li><code>operate.py:6661</code> 的 <code>naive_query</code>：纯向量通路。注意它检索的是 <strong>chunk 表</strong>
+（图抽取并不替代原文 chunk，两者并存）——&quot;图 + 向量&quot;是<strong>融合</strong>不是<strong>替换</strong>，
+对应第 6 节&quot;融合是粗排合并&quot;的思想；</li>
+<li><code>lightrag/rerank.py</code>：查询后的外部 reranker 接口——与课程第 7 节同款组件，
+位置也相同（检索后、生成前）。</li>
+</ul>
+<p><strong>命题 4（结业对照）</strong>：把 LightRAG 的管线画成第 1 节 1.3 那张流水线图——
+你会发现多出来的只有 Layer 1 的&quot;抽实体建图&quot;与 Layer 2 的&quot;图召回一路&quot;，
+其余每一层（清洗/切分/向量/融合/rerank/引用）与我们的 Playground 一一同构。</p>
+<h2>读完之后</h2>
+<ol>
+<li>把四条命题的回答写进 <a href="../notes/lightrag.html">LightRAG 一页总结</a>（追加&quot;验证记录&quot;一节）；</li>
+<li>动手（可选）：给 <code>toy_graph.py</code> 的 <code>EXTRACT_PROMPT</code> 加 <code>entity_type</code> 字段
+（instruction/organization/person），重抽（<code>--force</code>）后观察邻接表变化——
+这就是&quot;描述合并&quot;的第一块砖；</li>
+<li>思考：如果给我们的 KB 系统加第三路&quot;图召回&quot;（第 14 节的 <code>graph_recall</code> 产出
+<code>Hit</code> 列表），<code>rrf_fuse</code> 需要改吗？（第 6 节 6.7 已经给过答案。）</li>
+</ol>
+</div>
+  </article>
+  <nav class="wrap post-nav"><a class="prev" href="../index.html"><span class="dir">← 课表</span><span class="t">全部课程</span></a><a class="next" href="raptor.html"><span class="dir">下一篇 →</span><span class="t">RAPTOR 源码导读（refs/raptor）</span></a></nav>
+</main>
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb 的博客</span>
+    </div>
+    <p>© <span data-year>2026</span> NorthAdb · RAG 课为静态讲义</p>
+    <div class="f-links">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</footer>
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+<script src="../../js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAPTOR 源码导读（refs/raptor） — NorthAdb</title>
+<meta name="description" content="RAPTOR 源码导读（refs/raptor）">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23D97757'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%231C100A' font-family='Georgia' font-weight='bold'>N</text></svg>">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../course.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="orb orb-a"></div>
+<div class="orb orb-b"></div>
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html">首页</a></li>
+        <li><a href="../../index.html#posts">文章</a></li>
+        <li><a href="../../learn.html">课件</a></li>
+        <li><a href="../index.html" class="active">RAG</a></li>
+        <li><a href="../../about.html">关于</a></li>
+        <li><a href="https://github.com/NorthAdb" target="_blank" rel="noopener" class="nav-cta">GitHub ↗</a></li>
+      </ul>
+    </nav>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+<main>
+  <article>
+    <header class="wrap post-hero">
+      <div class="crumbs">
+        <a href="../../index.html">首页</a><span class="sep-c">/</span>
+        <a href="../index.html">RAG</a><span class="sep-c">/</span>
+        <span>导读</span>
+      </div>
+      <h1>RAPTOR 源码导读（refs/raptor）</h1>
+      <div class="post-meta"><span class="tag">RAG</span></div>
+    </header>
+    <div class="wrap prose wide"><blockquote>
+<p>配套第 11 节的源码阅读任务：找到&quot;聚类摘要的递归终止条件&quot;。本页给一条
+<strong>带行号的阅读路线</strong>（约 40-60 分钟）。行号对应当前 <code>refs/raptor</code> 快照，
+有漂移时用 <code>grep -n &quot;锚点&quot; 文件</code> 重新定位。</p>
+<p>前置阅读：<a href="../notes/raptor.html">RAPTOR 一页总结</a>（一页总结）。</p>
+</blockquote>
+<h2>路线图</h2>
+<pre><code class="language-text">第 1 站  树的骨架（抽象类）   raptor/tree_builder.py:260, :297
+第 2 站  递归建树与终止条件    raptor/cluster_tree_builder.py:87-101
+第 3 站  聚类的两道终止闸     raptor/cluster_utils.py:23, :37, :60, :69
+第 4 站  检索：collapsed tree  raptor/tree_retriever.py:158, :252
+</code></pre>
+<h2>第 1 站：树的骨架是抽象类（tree_builder.py:260, :297）</h2>
+<ul>
+<li><code>build_from_text()</code>（<strong>:260</strong>）：入口，三步——
+<code>split_text</code> 切叶子 → <code>multithreaded_create_leaf_nodes</code> 逐块 embedding →
+<code>construct_tree</code> 递归建层；</li>
+<li><strong><code>:297-298</code>：<code>construct_tree</code> 是 <code>@abstractclassmethod</code></strong>——基类只定义骨架，
+&quot;聚类→摘要→建父节点&quot;的真正循环在子类 <code>ClusterTreeBuilder</code>。</li>
+</ul>
+<p>设计启示：RAPTOR 把&quot;树的形状策略&quot;做成可插拔（基类定流程、子类定策略）——
+这也是为什么论文的变体（不同聚类/摘要模型）可以只换配置不换骨架。</p>
+<h2>第 2 站：递归建树与终止条件（cluster_tree_builder.py:87-101）</h2>
+<p>这是本任务的核心答案，逐行读 <code>ClusterTreeBuilder.construct_tree</code>：</p>
+<pre><code class="language-python">for layer in range(self.num_layers):                  # :87 保险 1：最大层数
+    node_list_current_layer = get_node_list(current_level_nodes)
+    if len(node_list_current_layer) &lt;= self.reduction_dimension + 1:   # :96 保险 2
+        self.num_layers = layer                       # :97 记录实际到达的层
+        logging.info(&quot;Stopping Layer construction: ...&quot;)
+        break                                         # :101 递归终止！
+    clusters = self.clustering_algorithm.perform_clustering(...)   # :103 聚类
+    # 每个簇 → summarization_model 生成摘要文本 → create_node 建父节点
+</code></pre>
+<p><code>:96</code> 就是终止条件的主体：<strong>当前层节点数 ≤ 降维维度 + 1 时停止聚类</strong>
+（UMAP 降维到 reduction_dimension 后，样本太少无法有意义地聚类）。
+注意它不是&quot;树高固定&quot;，而是<strong>数据的可聚类性</strong>——这正是论文
+&quot;recursively cluster until a threshold is hit&quot;的工程形态。</p>
+<h2>第 3 站：聚类的两道闸（cluster_utils.py）</h2>
+<ul>
+<li><code>global_cluster_embeddings</code>（<strong>:23</strong>）与 <code>local_cluster_embeddings</code>（<strong>:37</strong>）：
+UMAP 降维的两级（先全局、簇内再降）；</li>
+<li><code>GMM_cluster</code>（<strong>:60</strong>）：高斯混合模型聚类，
+<code>labels = [np.where(prob &gt; threshold)[0] ...]</code>（<strong>:65</strong>）——
+<strong>threshold=0.1 的概率过滤是保险 3</strong>：某点对任何簇的概率都不够高 →
+它不属于任何簇（噪声点不强行分组）；</li>
+<li><code>perform_clustering</code>（<strong>:69</strong>）：开头两道空/小样本短路——保险 4。</li>
+</ul>
+<pre><code class="language-text">递归终止 = 层内节点数 ≤ dim+1（:96）  或  概率阈值过滤后为空（:65）
+        或  样本太少短路（:69）      或  达到 num_layers（:87）
+</code></pre>
+<p>对照第 10 节的 Parent-Child：我们的 <code>rg_parents</code> 是&quot;只有一层的树&quot;
+（叶=chunk，父=小节，无摘要、无聚类）；RAPTOR 把层数推广到 N、把父节点
+从&quot;标题小节&quot;换成&quot;LLM 摘要&quot;。<strong>结构与代码量都变了，但&quot;检索单元 ≠ 生成单元&quot;
+的思想没变。</strong></p>
+<h2>第 4 站：检索（tree_retriever.py:158, :252）</h2>
+<ul>
+<li><code>retrieve_information_collapse_tree</code>（<strong>:158</strong>）：<strong>collapsed tree</strong> 模式——
+把所有层的节点（叶 chunk + 各层摘要）<strong>拉平混在一起</strong>做向量检索，
+命中哪层用哪层。摘要节点与原始 chunk 同台竞争；</li>
+<li><code>retrieve()</code>（<strong>:252</strong>）：统一入口，<code>collapse_tree</code> 参数切换两种模式
+（另一种是自顶向下逐层选 top-k 的 tree traversal）。</li>
+</ul>
+<p>关键认知：<strong>RAPTOR 没有发明新的检索器</strong>——还是余弦相似度，只是把
+&quot;摘要节点&quot;作为一种新的可检索单元放进了同一个向量空间。这就是为什么它
+能无缝复用我们第 4 节的全部机制（docs/02 结尾的&quot;手写玩具版&quot;练习：
+<code>每章 1 次摘要 + 摘要向量入库 + strategy=chapter_summary</code>）。</p>
+<h2>摘要幻觉的评测钩子</h2>
+<p>第 11 节提过：摘要可能幻觉且被当证据检索出来。评测上的落地：
+在金标/引用检查里区分&quot;引用的是叶节点还是摘要节点&quot;（collapsed tree 模式下
+尤其重要——<code>Hit.meta</code> 里应带层级标记）。这正是第 13 节 judge Prompt 可以
+顺手检查的事。</p>
+<h2>读完之后</h2>
+<ol>
+<li>把四道保险的验证过程写进 <a href="../notes/raptor.html">RAPTOR 一页总结</a>
+（追加&quot;验证记录&quot;一节：每个终止条件标注你亲眼看到的行号）；</li>
+<li>动手（可选，计划书授权上限内）：给 KB 语料的每章做一次 LLM 摘要，
+以 <code>strategy=chapter_summary</code> 入库（meta 带 <code>{&quot;node_type&quot;:&quot;summary&quot;}</code>），
+在 Playground 对比全局题（&quot;这套资料的主要主题有哪些&quot;）的命中变化；</li>
+<li>思考：collapsed tree 让摘要节点与 chunk 竞争 Top-K 名额——什么时候这是
+好事（全局题），什么时候是坏事（精确事实题被摘要挤掉）？路由（第 14 节
+14.6）能不能解决？</li>
+</ol>
+</div>
+  </article>
+  <nav class="wrap post-nav"><a class="prev" href="lightrag.html"><span class="dir">← 上一篇</span><span class="t">LightRAG 源码导读（refs/LightRAG）</span></a><a class="next" href="../index.html"><span class="dir">课表 →</span><span class="t">回到目录</span></a></nav>
+</main>
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb 的博客</span>
+    </div>
+    <p>© <span data-year>2026</span> NorthAdb · RAG 课为静态讲义</p>
+    <div class="f-links">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</footer>
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+<script src="../../js/main.js"></script>
+</body>
+</html>

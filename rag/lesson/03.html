@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>切分 Chunking：检索单元的设计 — NorthAdb</title>
+<meta name="description" content="固定长度/段落/标题三种切法；200/500/900 消融；标题前缀的 context-aware 思想；v3：切分策略谱系（fixed→结构→语义→agentic）。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23D97757'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%231C100A' font-family='Georgia' font-weight='bold'>N</text></svg>">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../course.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="orb orb-a"></div>
+<div class="orb orb-b"></div>
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html">首页</a></li>
+        <li><a href="../../index.html#posts">文章</a></li>
+        <li><a href="../../learn.html">课件</a></li>
+        <li><a href="../index.html" class="active">RAG</a></li>
+        <li><a href="../../about.html">关于</a></li>
+        <li><a href="https://github.com/NorthAdb" target="_blank" rel="noopener" class="nav-cta">GitHub ↗</a></li>
+      </ul>
+    </nav>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+<main>
+  <article>
+    <header class="wrap post-hero">
+      <div class="crumbs">
+        <a href="../../index.html">首页</a><span class="sep-c">/</span>
+        <a href="../index.html">RAG</a><span class="sep-c">/</span>
+        <span>第 03 节</span>
+      </div>
+      <h1>切分 Chunking：检索单元的设计</h1>
+      <div class="post-meta"><span>第 03 节</span><span class="sep"></span><span>约 30 分钟</span><span class="sep"></span><a href="../quiz.html?lesson=03">本节自测</a></div><p class="lead">固定长度/段落/标题三种切法；200/500/900 消融；标题前缀的 context-aware 思想；v3：切分策略谱系（fixed→结构→语义→agentic）。</p>
+    </header>
+    <div class="wrap prose wide"><blockquote>
+<p><strong>本节任务</strong>：理解&quot;检索单元&quot;是 RAG 里你自己设计的第一个数据结构，掌握
+段落优先滑窗（<strong>滑窗</strong>：固定大小、一路切下去的切法；&quot;段落优先&quot;指尽量在
+段落边界落刀，3.2.2 展开）+ 标题前缀这对最小组合——后者是&quot;一行代码换回
+<strong>语义</strong>（文字背后的意思）完整性&quot;的全课性价比之王。</p>
+</blockquote>
+<p><strong>课程地图上的位置</strong>：Layer 1 第二课。上一节 <a href="02.html">02 清洗</a>；下一节
+<a href="04.html">04 Embedding</a>。切分的输入是第 2 节清洗后的 <code>RawDoc.text</code>，
+输出是 <code>Chunk</code> 对象列表——<strong>&quot;块&quot;从此成为全课程的通用货币</strong>（第 1 节 1.3 的 <code>Hit</code> 就是它的检索期形态）。</p>
+<h2>3.1 为什么切分是个真问题</h2>
+<p>最朴素的切法是&quot;每 500 字切一次&quot;，但它会切出：</p>
+<pre><code class="language-text">&quot;它在这种情况下性能更好。&quot;      ← 单独看毫无意义的块
+</code></pre>
+<p>这句话的主语（PostgreSQL 的 MVCC / AVX 的降频）在被切掉的上文里。
+Embedding 模型对一个无主语的句子算出的向量，自然匹配不上任何正经问题。</p>
+<p>更好的做法是让块<strong>自带上下文</strong>：标题、章节、父级主题。这就是 Context-aware
+Retrieval 的核心——<strong>回到最底层，修补块本身的可检索性</strong>，而不是往上游堆更炫的
+检索算法。</p>
+<h2>3.2 代码走读（playground/ingest/chunker.py，全文 144 行）</h2>
+<p>三个公开函数，对应三种切法（<code>chunker.py:38,96,120</code>）：</p>
+<pre><code class="language-python">heading_sections(text)    # :38  先按 Markdown 标题层级切成小节（= 父块候选）
+fixed_chunks(...)         # :96  固定长度滑窗：段落优先 → 句子 → 硬切，带 overlap
+parent_child_chunks(...)  # :120 小节内再切 200 字子块（第 10 节的主角）
+</code></pre>
+<h3>3.2.1 标题树：heading_sections（chunker.py:38-66）</h3>
+<pre><code class="language-python">_H_RE = re.compile(r&quot;^(#{1,4})\s+(.*)$&quot;)            # :35 只认 1-4 级标题
+
+def heading_sections(text):
+    stack: list[tuple[int, str]] = []   # [(级别, 标题)]，:41
+    buf: list[str] = []
+    for line in text.splitlines():
+        m = _H_RE.match(line)
+        if m:
+            flush()                     # 遇到新标题：上一小节收工
+            level = len(m.group(1))
+            while stack and stack[-1][0] &gt;= level:
+                stack.pop()             # :59 弹出所有 ≥ 当前级别的祖先
+            stack.append((level, title))
+            buf.append(line)            # 标题行本身归入小节正文（:62）
+        else:
+            buf.append(line)
+    flush()
+</code></pre>
+<p>维护一个<strong>标题栈</strong>，<code>section_path</code> 就是栈里从底到顶的拼接（<code>chunker.py:49</code>
+的 <code>&quot; &gt; &quot;.join</code>）——所以一块的 <code>section_path</code> 长这样：<code>H1标题 &gt; 二级标题 &gt; 三级标题</code>。
+这个字段后面三处要用：第 3.2.3 的标题前缀、Playground 的命中展示、
+<code>rg_parents</code> 的父块定位。</p>
+<h3>3.2.2 滑窗：_split_by_paragraph（chunker.py:69-93）</h3>
+<pre><code class="language-python">def _split_by_paragraph(body, size, overlap):
+    paras = [p.strip() for p in re.split(r&quot;\n\s*\n&quot;, body) if p.strip()]   # :71 段落边界
+    ...
+    while len(p) &gt; size:                     # :77 单段超长 → 按句子切
+        cut = p.rfind(&quot;。&quot;, 0, size)         # :78 在 size 内找最后一个句号
+        cut = cut if cut &gt; size // 2 else size   # 句号太靠前就硬切（避免碎片）
+    ...
+    if cur and len(cur) + len(p) + 1 &gt; size:     # :87 装不下 → 收工当前块
+        pieces.append(cur)
+        cur = cur[-overlap:] if overlap &gt; 0 else &quot;&quot;   # :89 overlap 的实现：
+        #                                            带着上一块尾巴开新块
+</code></pre>
+<p>三个细节值得注意：</p>
+<ol>
+<li><strong>段落优先</strong>：永远先试段落边界（空行分割），只有单段超长才按句子切，
+最后才硬切。语义边界 &gt; 字符边界；</li>
+<li><strong>句号回退有下限</strong>（<code>:79</code>）：<code>cut &gt; size // 2</code> 保证句子切不会切出超短碎片；</li>
+<li><strong>overlap 的实现</strong>（<code>:89</code>）：新块以<strong>上一块的末尾 overlap 个字符</strong>开头——
+缓解&quot;关键句正好跨边界被劈开&quot;。代价是内容重复（Top-K 里两块都有这句话），
+所以 overlap 不是越大越好（第 8 节装填层的去重会再见到它）。</li>
+</ol>
+<h3>3.2.3 标题前缀：embed_text ≠ content（chunker.py:100-114）</h3>
+<p>这是本节最重要的 10 行：</p>
+<pre><code class="language-python">for sec in heading_sections(text):
+    pieces = _split_by_paragraph(sec.content, size, overlap)
+    for piece in pieces:
+        title = sec.section_path.split(&quot; &gt; &quot;)[-1]        # :105 最后一级标题
+        embed_text = f&quot;{title}：{piece}&quot; if title != &quot;（无标题）&quot; else piece
+        chunks.append(Chunk(doc_id=doc_id, chunk_index=idx,
+                            content=piece,        # 交给 LLM 的正文：原文
+                            embed_text=embed_text,     # 被向量化的：带标题
+                            section_path=sec.section_path))
+</code></pre>
+<p><strong>同一个块存两份文本</strong>：<code>embed_text</code>（向量化用）带标题前缀，<code>content</code>（装进
+Context 用）保持原文。效果：&quot;它在这种情况下性能更好&quot;变成
+&quot;<strong>降频争议</strong>：它在这种情况下性能更好&quot;——Embedding 的语义表示立刻完整。
+这就是 Context-aware Chunk 的最小实现：<strong>一行代码，零成本</strong>。
+入库时两列分别写到 <code>rg_chunks.embed_text</code> / <code>rg_chunks.content</code>
+（<code>playground/ingest/ingest.py:113-120</code>），检索 SQL 取的是 content，向量比的是 embed_text。</p>
+<h3>3.2.4 数据类：Section 与 Chunk（chunker.py:19-33）</h3>
+<p><code>Section</code>（小节 = 父块候选）只有 <code>section_path</code> + <code>content</code> 两个字段；
+<code>Chunk</code> 多了 <code>doc_id</code>、<code>chunk_index</code>、<code>embed_text</code>、<code>parent_id</code>。
+<strong><code>chunk_index</code> 是&quot;块在文档内的序号&quot;</strong>，与 doc_id、strategy 一起构成
+<code>chunk_id</code>（第 1 节见过的三段式）——这意味着同一文档的不同索引版本天然可区分。</p>
+<h2>3.3 如何运行</h2>
+<pre><code class="language-bash"># 终端里亲手看三种切法的产出（embed=False 不花钱，只看切分结果）
+python -c &quot;
+from playground.ingest import loader, cleaner, chunker
+doc = loader.load_main()[0]
+doc.text = cleaner.clean_text(doc.text)
+for c in chunker.fixed_chunks(doc.text, doc.doc_id)[:3]:
+    print(c.chunk_index, '|', c.section_path, '|', c.embed_text[:60])
+&quot;
+# 观察：section_path 是完整标题链，embed_text 比开头多了标题前缀
+
+# 切分逻辑的单测（改 chunker 后必跑）
+python -m pytest tests/test_core.py -q -k chunk
+</code></pre>
+<p>切分参数在 <code>config.py:55-58</code>（CHUNK_SIZE=500 / CHUNK_OVERLAP=80 /
+PC_CHILD_SIZE=200 / PC_MIN_PARENT=400）。入库编排见 <code>ingest.py:33-57</code> 的
+<code>build_index()</code>：strategy 命名规则 <code>flat{size}x{overlap}</code>（<code>:56-57</code>）——
+看名字即知参数，第 2 节练习里你在 Playground 切换的 <code>flat500x80</code>/<code>dirty500x80</code>
+就是这么来的（strategy 的正式讲解在第 9 节）；先删旧版再写新块（<code>:84-87</code>），
+防孤儿向量。</p>
+<h2>3.4 实验 3：切分大小消融</h2>
+<p>完整报告见 <a href="../experiments/exp3_chunking.html">exp3_chunking</a>。这个实验同样来自
+第 1 节的 <code>python -m scripts.run_eval</code>（第 3 组）：四种切分参数各自建一套索引
+（<code>flat200x0</code> / <code>flat350x60</code> / <code>flat500x80</code> / <code>flat900x120</code>），在同一批金标题上
+对比。表格里的&quot;块数&quot;是每套索引切出来的块总量（可用 Playground 首页的索引表核对）：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>方案</th>
+<th>块数</th>
+<th>Recall@5</th>
+<th>MRR@5</th>
+<th>noise@5</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>小块 200</td>
+<td>135</td>
+<td>1.00</td>
+<td>0.884</td>
+<td>0.571</td>
+</tr>
+<tr>
+<td>中块 350</td>
+<td>101</td>
+<td>1.00</td>
+<td>0.899</td>
+<td>0.600</td>
+</tr>
+<tr>
+<td>中块 500（默认）</td>
+<td>98</td>
+<td>1.00</td>
+<td><strong>0.928</strong></td>
+<td>0.557</td>
+</tr>
+<tr>
+<td>大块 900</td>
+<td>97</td>
+<td>1.00</td>
+<td><strong>0.928</strong></td>
+<td>0.543</td>
+</tr>
+</tbody>
+</table></div>
+<p>（口径：30 题金标中的 23 道可回答题；Hybrid(RRF) 检索；指标含义见第 1 节 1.5 指标速查。）</p>
+<p><strong>怎么读这张表：</strong></p>
+<ul>
+<li><strong>文档级 Recall@5 三个尺寸全部饱和（1.00）</strong>——16 篇文档的小语料上，正确答案
+所在的文档几乎总能挤进前 5。这不是&quot;切分不重要&quot;，而是<strong>文档级指标在这个数据
+规模上已经失去区分度</strong>（第 10 节会正式讨论&quot;指标要配数据规模&quot;）；</li>
+<li>区分度落在 <strong>MRR</strong> 上：小块 200 最低（0.884）——块数多，同一文档被切成很多
+主题单一的小块，&quot;把正确文档顶到第一名&quot;的力量被分散；500 与 900 并列最高
+（0.928）；</li>
+<li><strong>noise@5 随块变大而下降</strong>（0.571 → 0.543）：大块信息全，就算一块&quot;不直答&quot;，
+也更容易捎带相关内容，凑数比例自然低——但大块也有代价：单块塞多个主题，
+Embedding（把块文字变成向量去匹配，第 4 节）被稀释（v1 口径 20 题时代的同款
+实验曾出现&quot;小块 Recall 最高&quot;的形态，换到 30 题口径后 Recall 全部饱和——
+<strong>结论要跟着口径走</strong>，见第 1 节 1.7）；</li>
+<li>中块 500 在 MRR 与 noise 上都是第一梯队，块数还少——这就是它当默认值的理由。
+但别过度解读：0.928 vs 0.884 的差距在 23 道题上只有一两道题的差别，
+<strong>没有万能尺寸，只有&quot;对这批数据 + 这批问题&quot;的实测最优</strong>。</li>
+</ul>
+<p>另一个重要观察：<strong>同一篇文档的多个块会一起霸占 Top-K</strong>（本语料只有 16 篇，
+一篇 5 个块命中就占满 5 个名额，挤掉其他文档的视角）。解法有两个：
+装填时按文档去重/聚合（第 8 节），或者直接上 Parent-Child + auto-merging（第 10 节）。</p>
+<h2>3.5 注意事项</h2>
+<ul>
+<li><strong>改 <code>config.CHUNK_SIZE</code> 默认值 = 破坏实验可比性</strong>。想试别的尺寸，加新
+strategy（<code>scripts/build_index.py:18</code> 的 main 里加一行 <code>build_index(..., chunk_size=..., overlap=...)</code>），
+旧索引原封不动；</li>
+<li><code>chunker._H_RE</code> 只认 1-4 级标题（<code>:35</code>）——五级以下的深度标题会被当正文；
+<code>heading_sections</code> 也只认 Markdown 的 <code>#</code> 语法，纯文本（如 MinerU 的 txt 产物）
+没有标题层级，整篇就是一个&quot;（无标题）&quot;小节——这就是为什么 PDF 要先过
+MinerU 拿到带层级的 full.md（第 2 节 2.8）；</li>
+<li>标题前缀会<strong>略微改变向量语义</strong>——它让块更&quot;像标题描述的那个话题&quot;。
+如果你的查询习惯是引用原文句式（抄一段原文来搜），前缀反而引入噪声，
+消融方法同第 2 节。</li>
+</ul>
+<h2>3.6 动手练习</h2>
+<ol>
+<li>Playground 问&quot;AVX2 与 AVX-512 在整数运算上的差别&quot;，分别用 <code>flat200x0</code> 和
+<code>flat900x120</code>，看 Dense 命中的块内容有什么不同；</li>
+<li>用 3.3 的命令把一篇文档的块全部打出来，找出一个&quot;如果没有标题前缀就无法
+检索&quot;的块——对照 <code>embed_text</code> 和 <code>content</code> 的差异；</li>
+<li>思考题：为什么 <code>embed_text</code> 与 <code>content</code> 要分开存？如果 Prompt（发给大模型的
+指令文本，第 8 节正式讲）里也想带标题，应该怎么改？（提示：改
+<code>context_builder.build_context</code> 的装填格式，但要重算 token 预算——预算按字符算的，<code>context_builder.py:26</code>。）</li>
+</ol>
+<h2>3.7 加厚（v3）：切分策略谱系——从免费到昂贵</h2>
+<p>本节实现了两种切法（固定滑窗、标题小节 + 滑窗）。完整的方法谱系按成本排一条线，
+越往下越&quot;聪明&quot;、也越贵：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>策略</th>
+<th>做法</th>
+<th>成本</th>
+<th>适用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>固定长度滑窗（本课程 flat）</td>
+<td>每 N 字符一落刀，段落/句子优先</td>
+<td>几乎为零</td>
+<td>通用基线，永远先跑它</td>
+</tr>
+<tr>
+<td>递归分隔（LangChain 默认）</td>
+<td>按&quot;段落→句子→词&quot;逐级找可用的分隔符</td>
+<td>低</td>
+<td>通用；思想与 3.2.2 相同，回退链更全</td>
+</tr>
+<tr>
+<td>结构感知</td>
+<td>按 Markdown 标题 / HTML 标签 / 代码 AST 切</td>
+<td>低</td>
+<td>有清晰结构的文档（3.2.1 的 heading_sections 就是它）</td>
+</tr>
+<tr>
+<td>语义切分</td>
+<td>相邻句各算 embedding，在相似度突变处落刀</td>
+<td>中（每句一次嵌入）</td>
+<td>主题跳跃多的长文（新闻合集、会议纪要）</td>
+</tr>
+<tr>
+<td>LLM 切分（agentic）</td>
+<td>让 LLM 判断&quot;这几段是不是同一件事&quot;并划界</td>
+<td>高（每段一次调用）</td>
+<td>极珍贵的语料；通常不值得</td>
+</tr>
+<tr>
+<td>Late Chunking</td>
+<td>先整篇过嵌入、再按 token 池化切块</td>
+<td>低</td>
+<td>需要块间上下文的场景（长上下文嵌入模型）</td>
+</tr>
+</tbody>
+</table></div>
+<p>三条选型纪律（与第 1 节 1.5 的&quot;先金标后改进&quot;同源）：</p>
+<ol>
+<li><strong>从最便宜的开始</strong>：固定滑窗 + 标题前缀（3.2.3）解决大多数问题；</li>
+<li><strong>升级要有证据</strong>：语义切分贵 N 倍嵌入成本，只有在金标上量出提升才值得——
+方法就是本节 3.4 的消融，把&quot;滑窗&quot;换成&quot;语义切分&quot;再建一个 strategy 对比；</li>
+<li><strong>单位要统一</strong>：本课程按<strong>字符</strong>切，多数框架按 <strong>token</strong> 切——英文语料上
+500 字符 ≈ 125 token，直接移植参数会切出完全不同大小的块（换算表见 8.6）。</li>
+</ol>
+</div>
+  </article>
+  <nav class="wrap post-nav"><a class="prev" href="02.html"><span class="dir">← 上一篇</span><span class="t">原始资料的筛选与清洗</span></a><a class="next" href="04.html"><span class="dir">下一篇 →</span><span class="t">Embedding 与向量检索</span></a></nav>
+</main>
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb 的博客</span>
+    </div>
+    <p>© <span data-year>2026</span> NorthAdb · RAG 课为静态讲义</p>
+    <div class="f-links">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</footer>
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+<script src="../../js/main.js"></script>
+</body>
+</html>

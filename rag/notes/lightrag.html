@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>源码阅读笔记：LightRAG（refs/LightRAG） — NorthAdb</title>
+<meta name="description" content="源码阅读笔记：LightRAG（refs/LightRAG）">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23D97757'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%231C100A' font-family='Georgia' font-weight='bold'>N</text></svg>">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../course.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="orb orb-a"></div>
+<div class="orb orb-b"></div>
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html">首页</a></li>
+        <li><a href="../../index.html#posts">文章</a></li>
+        <li><a href="../../learn.html">课件</a></li>
+        <li><a href="../index.html" class="active">RAG</a></li>
+        <li><a href="../../about.html">关于</a></li>
+        <li><a href="https://github.com/NorthAdb" target="_blank" rel="noopener" class="nav-cta">GitHub ↗</a></li>
+      </ul>
+    </nav>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+<main>
+  <article>
+    <header class="wrap post-hero">
+      <div class="crumbs">
+        <a href="../../index.html">首页</a><span class="sep-c">/</span>
+        <a href="../index.html">RAG</a><span class="sep-c">/</span>
+        <span>笔记</span>
+      </div>
+      <h1>源码阅读笔记：LightRAG（refs/LightRAG）</h1>
+      <div class="post-meta"><span class="tag">RAG</span></div>
+    </header>
+    <div class="wrap prose wide"><blockquote>
+<p>阅读任务（第 11 节布置）：① 找到实体抽取的 Prompt；② 找到“图 + 向量混合检索”的位置。
+阅读日期：2026-09-12 · 版本：main 分支浅克隆</p>
+</blockquote>
+<h2>定位 1：实体抽取 Prompt 在哪里</h2>
+<p><code>lightrag/prompt.py</code> —— 所有抽取相关 Prompt 集中在 <code>PROMPTS</code> 字典：</p>
+<ul>
+<li><code>PROMPTS[&quot;entity_extraction_system_prompt&quot;]</code>（56 行起）：<strong>Knowledge Graph Specialist</strong> 角色，
+分两步——先抽实体（entity_name / entity_type / entity_description），再抽关系
+（source_entity / target_entity / relationship_keywords / relationship_description）；</li>
+<li>有两种输出格式：默认<strong>分隔符行格式</strong>（<code>entity{tuple_delimiter}名称{tuple_delimiter}类型{tuple_delimiter}描述</code>，
+关系行 5 段）与 <code>entity_extraction_json_system_prompt</code>（175 行起，JSON 模式，注释说
+&quot;for higher extraction quality&quot;）；</li>
+<li>细节值得抄：
+<ul>
+<li><strong>命名一致性</strong>：要求“title case + 全程一致命名”，因为抽取结果要做全局合并去重；</li>
+<li><strong>限流字段</strong>：<code>max_total_records</code> / <code>max_entity_records</code> + <code>completion_delimiter</code>——
+控制单次抽取的成本上限，超限立即停；</li>
+<li><strong>无向关系</strong>：“Swapping source and target does not constitute a new relationship”——
+合并时省一半去重逻辑；</li>
+<li>第三人称、禁代词（“本文”“我们”）：保证描述可拼接。</li>
+</ul>
+</li>
+</ul>
+<p><strong>对照我们的玩具实验</strong>（<code>scripts/toy_graph.py</code>）：我们的抽取 Prompt 是它的极简版
+（只有 s/r/o 三元组，没有实体类型、描述、限流、命名规范化）。差异直接对应能力差异：
+LightRAG 能把同一实体在多篇文档的描述<strong>合并成实体节点</strong>，我们做不到——
+这就是“玩具”和“系统”之间的距离。</p>
+<h2>定位 2：图 + 向量混合检索在哪里</h2>
+<ul>
+<li>查询模式在 <code>QueryParam.mode</code>：<code>naive / local / global / hybrid / mix</code>
+（<code>lightrag/base.py</code> 定义、<code>lightrag/operate.py</code> 的查询管线分发）；
+<ul>
+<li><code>naive</code> = 纯向量检索 chunk（等价于我们的 Dense）；</li>
+<li><code>local</code> = 从 query 抽关键词 → 匹配<strong>实体</strong> → 图邻居 → 邻居关联的 chunk；</li>
+<li><code>global</code> = 匹配<strong>关系/社区摘要</strong>层；</li>
+<li><code>hybrid</code> = local + global；<code>mix</code> = naive + 图检索一起上；</li>
+</ul>
+</li>
+<li>检索后的重排在 <code>lightrag/rerank.py</code>（外部 reranker 接口）——和我们第 7 节同款思路。</li>
+</ul>
+<p><strong>对照我们的玩具</strong>：我们的 <code>graph_recall()</code> = local 模式的一跳版（实体子串匹配 →
+邻居 → 来源文档）；没有 global 层（关系/社区摘要），所以“全局主题”类问题接不住——
+这正是计划书说“LightRAG 砍社区摘要换轻量”时丢掉的东西，玩具实验里同样丢了。</p>
+<h2>一页笔记：问题 / 方法 / 代价 / 不做什么</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>项</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>问题</strong></td>
+<td>扁平向量检索接不住实体关系/多跳问题；Microsoft GraphRAG 全家桶（社区检测+分层摘要）太贵</td>
+</tr>
+<tr>
+<td><strong>方法</strong></td>
+<td>抽实体+关系建轻量图；双层检索（实体层=local，关系层=global）；图检索与向量检索结果融合；可选 rerank</td>
+</tr>
+<tr>
+<td><strong>代价</strong></td>
+<td>建库时每 chunk 一次 LLM 抽取（贵）；图存储与增量维护复杂（<code>kg/</code> 下十几种存储后端：neo4j/postgres/milvus/...）；查询时的关键词→实体匹配质量决定上限</td>
+</tr>
+<tr>
+<td><strong>不做什么</strong></td>
+<td>不做社区检测、不做分层社区摘要（GraphRAG 的 global 靠它，LightRAG 靠关系层替代）；不做多跳遍历（默认一跳邻居）；不训练模型</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+  </article>
+  <nav class="wrap post-nav"><a class="prev" href="../index.html"><span class="dir">← 课表</span><span class="t">全部课程</span></a><a class="next" href="raptor.html"><span class="dir">下一篇 →</span><span class="t">源码阅读笔记：RAPTOR（refs/raptor）</span></a></nav>
+</main>
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb 的博客</span>
+    </div>
+    <p>© <span data-year>2026</span> NorthAdb · RAG 课为静态讲义</p>
+    <div class="f-links">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</footer>
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+<script src="../../js/main.js"></script>
+</body>
+</html>

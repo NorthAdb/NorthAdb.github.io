@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>评测进阶：LLM-as-judge 与指标保护 — NorthAdb</title>
+<meta name="description" content="RAG 评估三元组（Faithfulness/AR/CR）实测；judge 的三条纪律；单测守住指标回归；v4：声明、回归、冒烟测试与裁判偏差在首次出现处展开。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23D97757'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%231C100A' font-family='Georgia' font-weight='bold'>N</text></svg>">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../course.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="orb orb-a"></div>
+<div class="orb orb-b"></div>
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html">首页</a></li>
+        <li><a href="../../index.html#posts">文章</a></li>
+        <li><a href="../../learn.html">课件</a></li>
+        <li><a href="../index.html" class="active">RAG</a></li>
+        <li><a href="../../about.html">关于</a></li>
+        <li><a href="https://github.com/NorthAdb" target="_blank" rel="noopener" class="nav-cta">GitHub ↗</a></li>
+      </ul>
+    </nav>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+<main>
+  <article>
+    <header class="wrap post-hero">
+      <div class="crumbs">
+        <a href="../../index.html">首页</a><span class="sep-c">/</span>
+        <a href="../index.html">RAG</a><span class="sep-c">/</span>
+        <span>第 13 节</span>
+      </div>
+      <h1>评测进阶：LLM-as-judge 与指标保护</h1>
+      <div class="post-meta"><span>第 13 节</span><span class="sep"></span><span>约 40 分钟</span><span class="sep"></span><a href="../quiz.html?lesson=13">本节自测</a></div><p class="lead">RAG 评估三元组（Faithfulness/AR/CR）实测；judge 的三条纪律；单测守住指标回归；v4：声明、回归、冒烟测试与裁判偏差在首次出现处展开。</p>
+    </header>
+    <div class="wrap prose wide"><blockquote>
+<p><strong>本节任务</strong>：掌握生成侧的自动评测（RAG 评估三元组）与&quot;指标保护&quot;的
+单测纪律——从此你的每次重构都有安全网。上一节 <a href="12.html">12 框架对照</a>；
+下一节 <a href="14.html">14 极简 GraphRAG</a>。</p>
+</blockquote>
+<p><strong>课程地图上的位置</strong>：v2 加厚篇第一站。第 10 节解决&quot;检索层好不好测&quot;
+（Recall/MRR 有金标），本节解决&quot;<strong>生成侧怎么自动评</strong>&quot;（答案没有标准答案，
+只有好坏程度）。</p>
+<h2>13.1 RAG 评估三元组</h2>
+<p>这里的<strong>三元组</strong>是三个分数，不是第 14 节图上的&quot;主体、关系、客体&quot;。
+三个分数各看生成链路的一段：</p>
+<pre><code class="language-text">Context Relevance   送进 LLM 的证据与问题相关吗？   → 低分先查检索层
+Faithfulness        答案的每个声明有 Context 支撑吗？ → 低分 = 幻觉风险
+Answer Relevance    答案真的在回答问题吗？          → 低分 = 答非所问/拒答失败
+</code></pre>
+<p><strong>声明</strong>是答案里可以单独判断对错的一句话。Faithfulness 逐句问：这句话能在资料里找到依据吗。
+<strong>幻觉</strong>（第 8 节）是模型写出资料里没有的内容。Faithfulness 低，就是这种句子变多了。</p>
+<p>后面行文里的缩写：<strong>CR</strong> = Context Relevance，<strong>F</strong> = Faithfulness，<strong>AR</strong> = Answer Relevance。</p>
+<p>三层心智模型直接对上：CR 查 Layer 2（检索），F 查 Layer 3 的生成约束，AR 看整次回答有没有对准问题。
+三者可以各自变坏。检索好、答案却编造，是 F 低而 CR 高。证据够、却答非所问，是 AR 低而 CR 高。
+所以三个都要测。合成一个总分之后，看不出坏在哪一层。</p>
+<h2>13.2 代码走读（playground/eval/judge.py，122 行）</h2>
+<h3>13.2.1 三个裁判 Prompt（judge.py:19-45）</h3>
+<p>每个 Prompt 都是同构的五段式：角色设定（&quot;你是严格的评审&quot;）→ 输入材料 →
+<strong>分档定义</strong>（&quot;完全支撑=5，大部分=4，明显无依据=2，多数无依据=1&quot;）→
+只输出 JSON 的格式约束 → 变量插值。Faithfulness 的完整版（<code>judge.py:19-28</code>）：</p>
+<pre><code class="language-python">FAITHFULNESS_PROMPT = &quot;&quot;&quot;你是严格的评审。根据【资料】判断【回答】是否完全由资料支撑。
+
+资料：
+{context}
+
+回答：
+{answer}
+
+规则：找出回答中&quot;资料不能支撑的声明&quot;。完全支撑=5，大部分支撑=4，
+有明显无依据声明=2，多数内容无依据=1。
+只输出 JSON：{{&quot;score&quot;: 1-5, &quot;unsupported&quot;: [&quot;无支撑声明1&quot;, &quot;...&quot;]}}&quot;&quot;&quot;
+</code></pre>
+<p>两个细节：</p>
+<ul>
+<li><code>{{&quot;score&quot;: ...}}</code> 双花括号是 <strong><code>.format()</code> 的转义</strong>。<code>str.format</code> 把单花括号里的名字当成占位符，
+到时候用参数替换。JSON 示例本身也有花括号，若不写成 <code>{{</code> <code>}}</code>，Python 会去找一个叫
+<code>&quot;score&quot;</code> 的参数，找不到就抛 <strong>KeyError</strong>（按键取值失败）。第 14 节的抽取 Prompt 是同一写法。</li>
+<li>Faithfulness 额外要 <code>&quot;unsupported&quot;</code> 列表：裁判必须列出它认为没有依据的那些声明。
+人工抽检时对着这份清单核对，而不是只看一个 1 到 5 的数字。</li>
+</ul>
+<h3>13.2.2 容错解析与单题评审（judge.py:48-85）</h3>
+<pre><code class="language-python">def _parse_json(text):                          # :48
+    m = re.search(r&quot;\{.*\}&quot;, text, re.S)        # :50 从 LLM 输出里截第一个 {...}
+    try:
+        return json.loads(m.group(0)) if m else {}
+    except json.JSONDecodeError:
+        return {}                                # 解析失败 = 返回空，不炸流程
+</code></pre>
+<p><strong><code>re.S</code></strong> 是正则的 <code>DOTALL</code> 标志：让 <code>.</code> 也能匹配换行。模型吐出的 JSON 经常跨行，
+没有这个标志，<code>\{.*\}</code> 会在第一行就停，括号对不齐。
+<strong><code>json.loads</code></strong> 把 JSON 文本变成 Python 的字典或列表。文本不合法时抛 <code>JSONDecodeError</code>，
+这里接住并返回空字典，后面的聚合把它当成&quot;这项没有分数&quot;。</p>
+<pre><code class="language-python">def judge_case(question, context, answer, llm=None):    # :59
+    # 三次独立调用，各自 try/except——
+    # 任一裁判挂了只影响自己那一项分数（:65-84），不会整条记录报废
+    out = {&quot;faithfulness&quot;: None, &quot;answer_relevance&quot;: None,
+           &quot;context_relevance&quot;: None, &quot;unsupported&quot;: []}
+</code></pre>
+<p><code>:48-56</code> 的 <code>_parse_json</code> 就是&quot;格式化生成必须过校验层&quot;（第 15 节的共同结论）
+的评测版。<code>:62</code> 分数初值是 <code>None</code> 而不是 <code>0</code>。<code>None</code> 表示这项没评出来；
+<code>0</code> 会变成一个极差的分数。聚合时 <code>:104-106</code> 的 <code>avg</code> 只统计真正的数字，
+没评上的项不拉低平均。</p>
+<h3>13.2.3 抽样与聚合（judge.py:88-115）</h3>
+<p><code>judge_schemes</code> 对每个方案抽 10 道可回答题 + 5 道不可回答题（<code>:91-92</code>），
+完整链路跑一遍（<code>:98</code> 的 <code>RAGPipeline_answer</code> 包装了 <code>Pipeline.answer</code>，
+<code>:118-121</code>）再逐条评审。<strong>抽样</strong>是只评一部分题：每题 3 次裁判调用，
+15 题 × 2 方案大约 90 次 DeepSeek 调用，约 3 分钟。
+样本小，绝对分数会抖，所以 13.4 只拿来比较两个方案谁高谁低。</p>
+<h2>13.3 如何运行</h2>
+<pre><code class="language-bash">python -m scripts.run_judge      # 约 3 分钟，结果进 experiments/exp7_judge.md + .json
+</code></pre>
+<p>运行器 <code>scripts/run_judge.py:16</code> 的 <code>main()</code> 固定对比两个方案
+（Dense 基线 vs Hybrid+Rerank 完整版）。想换方案：改 main 里的
+schemes 字典即可，judge 本身不感知方案。</p>
+<h2>13.4 实验 7 结果（本机真实运行）</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>方案</th>
+<th>Faithfulness</th>
+<th>Answer Relevance</th>
+<th>Context Relevance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dense 基线</td>
+<td><strong>5.00</strong></td>
+<td>3.53</td>
+<td>2.47</td>
+</tr>
+<tr>
+<td>Hybrid+Rerank 完整版</td>
+<td>4.87</td>
+<td>3.60</td>
+<td>2.87</td>
+</tr>
+</tbody>
+</table></div>
+<p>三个诚实的读数（这份报告最有价值的部分是&quot;怎么解读&quot;）：</p>
+<ol>
+<li><strong>Faithfulness ≈ 5</strong>：引用+拒答约束（第 8 节）在起作用——答案基本没有
+无支撑声明；</li>
+<li><strong>Context Relevance 只有 2.5-2.9</strong>：裁判被问&quot;证据里相关部分占比&quot;，而我们
+每题送 5-6 块、往往只有 1-2 块直答——<strong>与第 10 节 noise@5≈0.55 完全互相
+印证</strong>。两个独立方法指向同一个事实：Top-K 有一半名额是&quot;凑数的&quot;，这正是
+Rerank 与压缩（第 7 节 7.8）的价值空间；</li>
+<li><strong>Answer Relevance 3.5-3.6 偏低</strong>：人工抽查发现主要是<strong>裁判对拒答不友好</strong>——
+不可回答题的正确回答&quot;资料中没有相关信息&quot;被判&quot;没有回答问题&quot;。
+教训：<strong>judge Prompt 要把&quot;正确拒答&quot;定义为满分情形</strong>，或者对不可回答题
+单独评审&quot;是否正确拒绝&quot;。</li>
+</ol>
+<blockquote>
+<p>[!IMPORTANT]
+LLM 裁判的三条纪律：① 只做<strong>方案间相对比较</strong>，绝对分数无意义；② 必须配合
+人工抽检校准；③ <strong>不能替代金标硬指标</strong>——Recall/MRR 是从金标算出来的，
+judge 分数是&quot;另一个 LLM 的观感&quot;。</p>
+</blockquote>
+<h2>13.5 指标保护：34 个单测守住回归</h2>
+<p><strong>回归</strong>指一次改动把原先正确的行为又弄坏了。评测可以重跑，但人不会每次改完
+<code>tokenize</code> 都记得再跑全套金标。单测把&quot;这个函数现在必须仍然算出这个数&quot;写死，
+回归会在 <code>pytest</code> 亮红时被看见。<strong>pytest</strong> 是测试运行器，收集 <code>test_</code> 开头的函数并执行。</p>
+<p><code>tests/</code> 现在三个文件：</p>
+<pre><code class="language-text">tests/test_core.py       纯函数测试（不碰数据库/网络）
+  · chunker：标题路径、embed_text 标题前缀、Parent-Child 关联
+  · cleaner：页眉页脚过滤、样板句移除
+  · bm25.tokenize：SSE4.2 / AVX-512 / VPGATHERDD 必须整体成词（符号题命脉）
+  · rrf_fuse：手算分值断言（1/61+1/62）
+  · raw_weighted_fuse：量纲绑架的可复现证明（断言 junk 必然登顶）
+  · 评测指标：Recall/MRR/noise 的手算校验
+tests/test_db_smoke.py   rag_test 库冒烟：建表→假向量入库→Dense/BM25 检索→清理
+tests/test_kb.py         KB 系统：解析器 / doc_id 命名 / 拒答 / 会话级联
+                         / CRAG 纯函数 / 粘贴建文档生命周期
+</code></pre>
+<p><strong>冒烟测试</strong>不证明每个边界都对，只证明这条链路通电了能跑通：建表、写入、检索、清理。
+库没启动或 SQL 写错，它会比金标评测更早失败。</p>
+<p>运行：</p>
+<pre><code class="language-bash">python -m pytest tests/ -q        # → 34 passed
+python -m pytest tests/test_core.py -q -k fuse   # 只跑融合相关的保护用例
+</code></pre>
+<p>它们的由来也是教学素材：第一次运行就抓出 3 个问题——<code>norm_weighted_fuse</code>
+单元素列表除零的<strong>真 bug</strong>（<code>hybrid.py:89-90</code> 的保护就是那时加的）、RRF 输出
+round(·,5) 的舍入断言、标题小节的行为理解偏差。<strong>测试的价值在第一次运行就兑现了。</strong></p>
+<blockquote>
+<p>[!NOTE]
+测试库隔离的坑（真实踩过）：<code>test_db_smoke.py</code> 用环境变量切 rag_test 库，
+但 pytest 按文件名顺序收集时 <code>test_core.py</code> 可能先 import 过 config——
+环境变量就晚了。正确做法是 import 后直接改 <code>config.DB_DSN</code> 属性。
+连接是<strong>懒建立</strong>的：<code>get_conn</code> 第一次被调用才真正去连数据库
+（<code>playground/db.py:17-21</code>）。改属性发生在这次调用之前，连上的就是测试库。
+若 import 的那一刻就已经连上，再改环境变量也来不及。这个修复写进了两个测试文件头注。</p>
+</blockquote>
+<h2>13.6 动手练习</h2>
+<ol>
+<li>把 judge 的三个 Prompt 里的&quot;严格&quot;改成&quot;宽松&quot;，看分数漂移多少——体会裁判偏差；</li>
+<li>故意在 <code>bm25.tokenize</code> 里把 <code>avx-512</code> 按连字符拆开，跑 pytest 看哪个用例拦截它；</li>
+<li>给不可回答题写一个专用 judge Prompt（满分=正确拒答），重跑对比 AR 分数
+（13.4 第 3 条的落地）。</li>
+</ol>
+<h2>13.7 加厚（v3）：LLM 裁判的已知偏差与对策</h2>
+<p>LLM 当裁判有一组被反复记录的系统性偏差——认识它们，才知道 13.4 那三条纪律
+为什么长那样：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>偏差</th>
+<th>表现</th>
+<th>对策</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>位置偏差</strong></td>
+<td>两份答案并排比较时，偏爱写在前面的那份</td>
+<td><strong>成对评测</strong>：交换左右顺序再评一次，两次分数取平均</td>
+</tr>
+<tr>
+<td><strong>长度偏差</strong></td>
+<td>偏爱更长、面面俱到的回答</td>
+<td>Prompt 写明&quot;简洁且准确优于冗长&quot;，再抽样核对</td>
+</tr>
+<tr>
+<td><strong>自负偏差</strong></td>
+<td>偏爱和自己同一家族模型的文风</td>
+<td>裁判模型与被评模型用不同来源</td>
+</tr>
+<tr>
+<td><strong>严格度漂移</strong></td>
+<td>同一份 Prompt，这一批打得松、下一批打得紧</td>
+<td>temperature=0（第 0 节：采样随机度；0 表示尽量不随机）；对比的方案放在同一次批里跑完</td>
+</tr>
+<tr>
+<td><strong>拒答不友好</strong></td>
+<td>正确拒答被判成&quot;没回答问题&quot;</td>
+<td>把&quot;正确拒答&quot;写进满分定义（13.4 第 3 条的根因）</td>
+</tr>
+</tbody>
+</table></div>
+<p>对照 13.4 的实测：AR 3.5-3.6 偏低的主因就是最后一行；Faithfulness 拿到 5.0
+则受益于&quot;unsupported 清单&quot;——<strong>要求裁判给出可检查的依据，是压制所有偏差的
+通用手段</strong>（有依据的分数才能被人工抽检纠正）。</p>
+<p>judge 的定位因此更清楚：它是<strong>便宜、可扩展的相对比较器</strong>，不是真理——
+金标硬指标（第 10 节）+ LLM 裁判 + 人工抽检，三角组合才是完整评测。</p>
+</div>
+  </article>
+  <nav class="wrap post-nav"><a class="prev" href="12.html"><span class="dir">← 上一篇</span><span class="t">框架对照与选型总结</span></a><a class="next" href="14.html"><span class="dir">下一篇 →</span><span class="t">极简 GraphRAG：三元组抽取与多跳检索（v2 加厚）</span></a></nav>
+</main>
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb 的博客</span>
+    </div>
+    <p>© <span data-year>2026</span> NorthAdb · RAG 课为静态讲义</p>
+    <div class="f-links">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</footer>
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+<script src="../../js/main.js"></script>
+</body>
+</html>

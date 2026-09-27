@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>实验 2：原始资料清洗的价值（干净 vs 脏语料） — NorthAdb</title>
+<meta name="description" content="实验 2：原始资料清洗的价值（干净 vs 脏语料）">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23D97757'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%231C100A' font-family='Georgia' font-weight='bold'>N</text></svg>">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../course.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="orb orb-a"></div>
+<div class="orb orb-b"></div>
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html">首页</a></li>
+        <li><a href="../../index.html#posts">文章</a></li>
+        <li><a href="../../learn.html">课件</a></li>
+        <li><a href="../index.html" class="active">RAG</a></li>
+        <li><a href="../../about.html">关于</a></li>
+        <li><a href="https://github.com/NorthAdb" target="_blank" rel="noopener" class="nav-cta">GitHub ↗</a></li>
+      </ul>
+    </nav>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+<main>
+  <article>
+    <header class="wrap post-hero">
+      <div class="crumbs">
+        <a href="../../index.html">首页</a><span class="sep-c">/</span>
+        <a href="../index.html">RAG</a><span class="sep-c">/</span>
+        <span>实验</span>
+      </div>
+      <h1>实验 2：原始资料清洗的价值（干净 vs 脏语料）</h1>
+      <div class="post-meta"><span class="tag">RAG</span></div>
+    </header>
+    <div class="wrap prose wide"><p>生成时间：2026-09-12 20:58（本机真实运行）</p>
+<p>脏语料 = 干净语料 + 页眉页脚 + 重复样板句 + 断行符号拆散 + 文档间段落复制（同一切分参数）。</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>方案</th>
+<th>recall@5</th>
+<th>mrr@5</th>
+<th>noise@5</th>
+<th>kw_hit@3</th>
+<th>kw_hit@5</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>干净语料-Dense</td>
+<td>1.0</td>
+<td>0.88</td>
+<td>0.571</td>
+<td>1.0</td>
+<td>1.0</td>
+</tr>
+<tr>
+<td>脏语料-Dense</td>
+<td>1.0</td>
+<td>0.859</td>
+<td>0.557</td>
+<td>1.0</td>
+<td>1.0</td>
+</tr>
+<tr>
+<td>干净语料-BM25</td>
+<td>0.957</td>
+<td>0.808</td>
+<td>0.614</td>
+<td>0.929</td>
+<td>1.0</td>
+</tr>
+<tr>
+<td>脏语料-BM25</td>
+<td>0.957</td>
+<td>0.748</td>
+<td>0.614</td>
+<td>1.0</td>
+<td>1.0</td>
+</tr>
+<tr>
+<td>干净语料-Hybrid</td>
+<td>1.0</td>
+<td>0.928</td>
+<td>0.557</td>
+<td>1.0</td>
+<td>1.0</td>
+</tr>
+<tr>
+<td>脏语料-Hybrid</td>
+<td>1.0</td>
+<td>0.899</td>
+<td>0.557</td>
+<td>1.0</td>
+<td>1.0</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>预期现象</strong>：BM25 受污染最重（页眉页脚成为高频词污染 IDF，重复段落霸榜）；Dense 对脏数据相对鲁棒但也会被无关内容稀释 top-k 名额。清洗是性价比最高的优化。</p>
+</div>
+  </article>
+  <nav class="wrap post-nav"><a class="prev" href="exp1_retrievers.html"><span class="dir">← 上一篇</span><span class="t">实验 1：检索器对比（Dense / BM25 / Hybrid）</span></a><a class="next" href="exp3_chunking.html"><span class="dir">下一篇 →</span><span class="t">实验 3：切分大小消融（200 / 500 / 900 字符）</span></a></nav>
+</main>
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb 的博客</span>
+    </div>
+    <p>© <span data-year>2026</span> NorthAdb · RAG 课为静态讲义</p>
+    <div class="f-links">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</footer>
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+<script src="../../js/main.js"></script>
+</body>
+</html>

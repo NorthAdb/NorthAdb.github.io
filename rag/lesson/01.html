@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAG 全景复习：三层心智模型 — NorthAdb</title>
+<meta name="description" content="知识工程 / 检索工程 / 上下文工程；为什么 RAG 不是“向量数据库技术”；v3：长上下文之辩等三个高频质疑。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23D97757'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%231C100A' font-family='Georgia' font-weight='bold'>N</text></svg>">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../course.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="orb orb-a"></div>
+<div class="orb orb-b"></div>
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html">首页</a></li>
+        <li><a href="../../index.html#posts">文章</a></li>
+        <li><a href="../../learn.html">课件</a></li>
+        <li><a href="../index.html" class="active">RAG</a></li>
+        <li><a href="../../about.html">关于</a></li>
+        <li><a href="https://github.com/NorthAdb" target="_blank" rel="noopener" class="nav-cta">GitHub ↗</a></li>
+      </ul>
+    </nav>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+<main>
+  <article>
+    <header class="wrap post-hero">
+      <div class="crumbs">
+        <a href="../../index.html">首页</a><span class="sep-c">/</span>
+        <a href="../index.html">RAG</a><span class="sep-c">/</span>
+        <span>第 01 节</span>
+      </div>
+      <h1>RAG 全景复习：三层心智模型</h1>
+      <div class="post-meta"><span>第 01 节</span><span class="sep"></span><span>约 20 分钟</span><span class="sep"></span><a href="../quiz.html?lesson=01">本节自测</a></div><p class="lead">知识工程 / 检索工程 / 上下文工程；为什么 RAG 不是“向量数据库技术”；v3：长上下文之辩等三个高频质疑。</p>
+    </header>
+    <div class="wrap prose wide"><blockquote>
+<p><strong>本节任务</strong>：建立一张&quot;三层地图&quot;，让此后每节课的每个模块都能挂到你脑中的固定位置——
+以后遇到 RAG 问题，第一反应应该是&quot;这是哪一层的问题&quot;，而不是&quot;换哪个模型&quot;。</p>
+</blockquote>
+<p><strong>课程地图上的位置</strong>：上一节 <a href="00.html">00 导览</a>；下一节 <a href="02.html">02 清洗</a>（三层中的 Layer 1 从这里开始）。</p>
+<h2>1.1 一句话定义</h2>
+<blockquote>
+<p><strong>RAG = 在生成之前，把外部知识检索进 Context，再让 LLM 基于增强后的上下文回答。</strong></p>
+</blockquote>
+<p>普通 LLM 应用的知识固化在参数里（训练即定局），RAG 的知识在<strong>外部</strong>（可增删改查），
+模型参数一个都不动。这是它与几个近亲的本质区别：</p>
+<pre><code class="language-text">Fine-tuning  → 知识&quot;学进去&quot;（改参数，成本高，适合改行为/风格）
+RAG          → 知识&quot;拿给模型看&quot;（改外部库，成本低，适合改事实/文档）
+Tool Calling → 能力&quot;调用起来&quot;（API/计算器/搜索）
+Memory       → 信息&quot;存下来以后再找&quot;（对话历史、偏好）
+</code></pre>
+<p>判断口径：<strong>要改&quot;模型知道什么&quot;用 RAG；要改&quot;模型怎么说话&quot;才考虑 Fine-tuning。</strong></p>
+<h2>1.2 三层心智模型（现代 RAG 的骨架）</h2>
+<pre><code class="language-text">┌─────────────────────────────────────────────────────────┐
+│ Layer 1  Knowledge Engineering      知识怎么组织？        │
+│          清洗 / 解析 / Chunk / 摘要 / 实体关系 / 增量更新    │
+├─────────────────────────────────────────────────────────┤
+│ Layer 2  Retrieval Engineering      需要时怎么找到？       │
+│          Dense + BM25 + RRF + Rerank + Metadata Filter    │
+├─────────────────────────────────────────────────────────┤
+│ Layer 3  Context / Agent Engineering 找到后怎么用好？      │
+│          预算装填 / 排序 / 引用 / 拒答 / 查询改写 / Agent    │
+└─────────────────────────────────────────────────────────┘
+                    全部串起来 → Eval（评测不是装饰，是地基）
+</code></pre>
+<p>把课程内容挂上去：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>层</th>
+<th>课程</th>
+<th>常见病症（用来反查层）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Layer 1</td>
+<td>第 2（清洗）、3（切分）、9（元数据/版本）、11（树/图）</td>
+<td>检索回来的块本身是脏的、碎的、错的章</td>
+</tr>
+<tr>
+<td>Layer 2</td>
+<td>第 4（向量）、5（BM25）、6（融合）、7（精排）</td>
+<td>该命中的没进候选，或进了但排名靠后</td>
+</tr>
+<tr>
+<td>Layer 3</td>
+<td>第 8（改写/装填/引用/拒答）、16（控制流范式）</td>
+<td>候选都对，答案却跑偏、编造、丢引用</td>
+</tr>
+<tr>
+<td>Eval</td>
+<td>第 10、13 节</td>
+<td>——它不解决问题，它告诉你哪层有问题</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>诊断问题时先定位是哪一层出的问题</strong>，不要一上来就换模型。第 10 节会把这张表
+细化成 8 步排障清单。</p>
+<h2>1.3 本课程的流水线（每一站对应的代码与行号）</h2>
+<p>下面是数据从磁盘到答案的完整路径，右侧是首次出现的课程。<strong>每一站的输入输出
+都是同一种形状</strong>——这一点是全课最重要的设计：</p>
+<pre><code class="language-text">data/corpus/*.md
+   ↓ loader.py:27        load_dir()：1 篇 = 1 个 Document（doc_id = 文件名）   ← 第 2 节
+   ↓ cleaner.py:30       clean_text()：页眉页脚 / 样板句 / 断行                ← 第 2 节
+   ↓ chunker.py:96       fixed_chunks()：小节 → chunk（500 字 + 标题前缀）     ← 第 3 节
+   ↓ embedder.py:59      embed_batch()：BGE-M3 → 1024 维（带磁盘缓存）        ← 第 4 节
+   ↓ vector_store.py:30  dense_search()：pgvector HNSW，余弦 Top-K（取最相似的 K 条） ← 第 4 节
+   ↓ bm25.py:54          bm25_search()：jieba + BM25Okapi 稀疏一路             ← 第 5 节
+   ↓ hybrid.py:22        rrf_fuse()：只用名次融合两路                          ← 第 6 节
+   ↓ reranker.py:32      SiliconFlowReranker.rerank()：Cross-Encoder 精排      ← 第 7 节
+   ↓ query_rewrite.py:15 三种改写（rewrite / multi_query / HyDE）              ← 第 8 节
+   ↓ context_builder.py:27 build_context()：预算 / 去重 / 排序 / 引用编号      ← 第 8 节
+   ↓ llm.py:32           DeepSeekLLM.chat()：带引用回答，资料不足要拒答        ← 第 8 节
+   ↓ evaluate.py:135     run_eval()：Recall@K / MRR / 噪声率 / 拒答率          ← 第 10 节
+</code></pre>
+<blockquote>
+<p>[!NOTE] 关于行号
+行号对应当前仓库快照，日后代码改动会有 ±几行的漂移——以函数名为准，行号只是
+帮你快速定位。查最新位置：<code>grep -n &quot;def dense_search&quot; playground/retrieve/vector_store.py</code>。</p>
+</blockquote>
+<p>为什么形状统一这么重要？看 <strong><code>playground/retrieve/vector_store.py:14-27</code></strong> 的
+<code>Hit</code> 数据类（Python 的 <code>@dataclass</code>：只声明字段、自动生成构造函数的&quot;结构体&quot;）
+——它就是流水线的&quot;通货&quot;：</p>
+<pre><code class="language-python">@dataclass
+class Hit:
+    doc_id: str          # 来自哪篇文档
+    chunk_id: str        # doc_id::strategy::chunk_index，全局唯一
+    strategy: str        # 哪个索引版本
+    chunk_index: int
+    content: str         # 块正文（送给 LLM 的就是它）
+    section_path: str    # &quot;H1 &gt; H2 &gt; H3&quot;，第 3 节的主角
+    score: float         # 各阶段语义不同：相似度/BM25 分/RRF 分/rerank 分
+    source: str = &quot;&quot;     # dense / bm25 / fused / rerank ...（可观测的钥匙）
+    parent_id: str | None = None    # 第 10 节 Parent-Child 用
+    rank_in_stage: int = 0
+    meta: dict = field(default_factory=dict)
+</code></pre>
+<p>因为每层都吃 <code>Hit</code> 吐 <code>Hit</code>，才可能做到两件事：① 任何一层可以单独替换或
+<strong>消融</strong>——消融（ablation）指&quot;固定其他部分、只动一个部件，量出这个部件值多少分&quot;，
+本课程所有&quot;XX 消融实验&quot;（第 2 节清洗消融、第 3 节切分消融）都是这个套路
+（第 6 节换融合方式、第 7 节开关精排，上层代码一行不改）；② Playground 能把
+每层中间结果原样画出来。<strong>可观测不是加了日志，而是类型设计的红利。</strong></p>
+<h2>1.4 编排者：rag.py 如何把积木装起来</h2>
+<p><code>playground/rag.py</code> 是所有积木的装配车间，值得现在就通读一遍（全文 213 行）：</p>
+<ul>
+<li><strong><code>PipelineOptions</code></strong>（<code>rag.py:30-71</code>）：一个纯配置对象。检索器选哪路
+（<code>retriever</code>）、开不开精排（<code>use_rerank</code>）、用哪种改写（<code>rewrite</code>）、
+哪个索引版本（<code>strategy</code>）……第 2-10 节的所有&quot;实验方案&quot;，本质上就是
+这组开关的不同取值组合。<code>describe()</code>（<code>rag.py:44</code>）把配置变成人话标签，
+实验报告里的方案名都来自它。</li>
+<li><strong><code>RAGPipeline.retrieve()</code></strong>（<code>rag.py:111-183</code>）：改写 → 多路召回 → 融合 →
+（Parent-Child）→ 精排，五步与上面流水线一一对应（<strong>召回</strong>：从全库把可能
+相关的候选捞出来；<strong>融合</strong>：把多路结果合并成一个名单，第 6 节）。</li>
+<li><strong><code>RAGPipeline.answer()</code></strong>（<code>rag.py:186-209</code>）：在 retrieve 之上追加
+Context 装填 + LLM 生成，产出 <code>Trace</code> 数据类（<code>rag.py:87-103</code>）——
+Playground 右侧整面板画的都是它。</li>
+</ul>
+<h2>1.5 为什么评测要先于优化</h2>
+<p>计划书里最重要的一条原则：<strong>先金标，后改进</strong>。没有固定测试集时，你改了检索器、
+换切块大小、加了 rerank，全靠&quot;感觉好像好一点&quot;来判断——人的感觉在 A/B 对比里
+（同一批题跑两套配置、只看数字差异）极不可靠。所以本课程第 1 件事就是冻住金标集
+（<code>data/eval/questions.json</code>，
+<strong>30 题 = 23 可回答 + 7 不可回答</strong>；v1 冻的是 25 题，v2 加厚时增补并重新全量跑过）：</p>
+<ul>
+<li><strong>23 道可回答题</strong>按题型分 7 类：fact 6、symbol 3、semantic 5、
+near_confusion 4、multi_doc 1、cross_chapter 2、global 2——
+题型字段存在 <code>Question.type</code>（<code>evaluate.py:21-36</code>），实验报告按它分题型统计；</li>
+<li><strong>7 道不可回答题</strong>：问 AVX10、NEON、Intel 18A、RISC-V RVV、3D V-Cache、
+APX、CXL——语料里<strong>故意没有</strong>这些内容，考察系统敢不敢说&quot;不知道&quot;。</li>
+</ul>
+<blockquote>
+<p>[!TIP]
+不可回答题是初学者最容易漏的。一个只会&quot;一本正经编答案&quot;的 RAG，
+检索做得再好也是负资产。第 10 节会给&quot;拒答率&quot;一个正式的指标定义。</p>
+</blockquote>
+<p>金标怎么写的？看一题实例（文件就是 JSON 格式——形如 <code>{&quot;键&quot;: &quot;值&quot;}</code> 的通用
+结构化数据写法；<code>evaluate.py:30</code> 的 <code>from_dict</code> 就是读它）：</p>
+<pre><code class="language-json">{ &quot;question&quot;: &quot;SSE4.2 新增的字符串处理指令集缩写是什么？&quot;,
+  &quot;type&quot;: &quot;symbol&quot;, &quot;gold_doc&quot;: &quot;sse&quot;, &quot;keywords&quot;: [&quot;STTNI&quot;] }
+</code></pre>
+<p>三个字段各喂一个指标：<code>gold_doc</code> 喂 Recall/MRR（文档级），<code>keywords</code> 喂
+kw_hit/noise（块级），<code>type</code> 喂分题型统计——第 10 节展开。</p>
+<h3>指标速查：从第 2 节起每张实验表都用它，先学会&quot;读&quot;</h3>
+<p>正式定义与代码实现在第 10 节，这里先用一个玩具例子把三个最重要的数字读明白。
+设某题的正确答案在文档 <code>avx512</code> 里，检索系统返回的 Top-5 文档依次是：
+<code>cache, avx512, sse, cpu-faq, avx</code>：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>指标</th>
+<th>白话定义</th>
+<th>本例的值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Recall@5</strong></td>
+<td>正确答案的文档进没进前 5 名（进了记 1，没进记 0）</td>
+<td>1（<code>avx512</code> 排第 2）</td>
+</tr>
+<tr>
+<td><strong>MRR@5</strong></td>
+<td>排得有多靠前：按 1/名次给分（第 1 名 1 分、第 2 名 0.5 分、第 5 名 0.2 分，没进前 5 记 0），再对全部题目取平均</td>
+<td>1/2 = 0.5</td>
+</tr>
+<tr>
+<td><strong>noise@5</strong></td>
+<td>前 5 名里&quot;凑数的&quot;占多少（<strong>越低越好</strong>，与上面两个相反）</td>
+<td>4/5 = 0.8</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><strong>Recall 管&quot;捞没捞到&quot;，MRR 管&quot;捞到的排得靠不靠前&quot;</strong>——两个必须都看：
+只看 Recall 的话，把正确文档排第 5 的系统和排第 1 的系统得分完全一样；</li>
+<li><strong>kw_hit@K / noise@K 是块级指标</strong>（Top-K 个块里有没有真含答案关键词的块 /
+凑数块占比）。16 篇文档的小语料上文档级指标很快饱和（正确文档几乎总能进前 5），
+区分方案好坏要靠块级指标和逐题对比（第 10 节细讲）；</li>
+<li><strong>拒答率</strong>：对&quot;资料里根本没有答案&quot;的题，系统敢不敢说不知道——上面那 7 道
+不可回答题考察的就是它（第 8 节的实现、第 10 节的定义）。</li>
+</ul>
+<blockquote>
+<p>[!TIP] 读后面实验表的最小装备
+每张实验表都这样读：先看 Recall（捞没捞到）→ 再看 MRR（排得靠不靠前）→
+最后看 noise（塞进来的有多少凑数的）。表头标注的&quot;口径&quot;指&quot;基于哪套金标题 +
+哪个索引版本&quot;——两套口径的数字不能混着比（1.7 节细说）。</p>
+</blockquote>
+<h2>1.6 如何运行</h2>
+<p>本节不需要跑任何新东西——但建议你现在就把评测基线跑出来，后面每节课改完
+都回来对比：</p>
+<pre><code class="language-bash"># 检索层快速评测（5 方案 × 30 题，秒级，只算检索不算生成）
+python -m scripts.run_eval
+#    输出 experiments/exp1_retrievers.md + .json
+
+# 或者不跑命令，直接开网站点 /eval 页 → &quot;运行快速评测&quot;按钮
+python -m course.app
+</code></pre>
+<p><code>run_eval.py:39</code> 的 <code>main()</code> 固定跑 6 组实验（exp1 检索器对比、exp2 清洗、exp3 切分、
+exp4 改写、exp5 Parent-Child、exp6 拒答），每组内部的方案组合见脚本注释——
+<strong>后面第 2-10 节实验表里的所有数字都来自这一个命令</strong>，想验证任何一张表，
+重跑它即可。</p>
+<h2>1.7 注意事项</h2>
+<ul>
+<li><strong>金标两套口径</strong>：v1 实验（exp1-exp6 初版）基于 20 可回答题，MRR 数字如
+0.917/0.887/0.779；v2 重跑（30 题）数字如 0.928/0.880/0.808。两套都真实，
+课程引用时会注明口径；<strong>你自己的实验永远要写清&quot;基于哪套题、哪个 strategy&quot;</strong>。</li>
+<li>单测数字同理：v2 早期是 12 个，KB 加厚后 24 个，v3 修 patch 后 34 个（第 13 节讲怎么写）。</li>
+<li>结论顺序别搞反：先有金标（本节），再谈优化（第 2 节起）。</li>
+</ul>
+<h2>1.8 动手练习</h2>
+<ol>
+<li>打开 Playground，提问&quot;AVX-512 的掩码寄存器有几个？&quot;，对照 1.3 的流水线表，
+数一数 Trace 经过了几层、每层对应哪个函数；</li>
+<li>再问一道不可回答题&quot;AMD 的 3D V-Cache 技术是怎么实现的？&quot;，看它如何拒答
+（真实回答见 <a href="../experiments/exp6_refusal.html">exp6 报告</a>：全部正确拒答）；</li>
+<li>打开 <code>data/eval/questions.json</code>，按 <code>type</code> 数一遍——验证 23 + 7 = 30；</li>
+<li>思考：如果把这 7 道不可回答题从测试集里删掉，你会错过什么能力？
+（提示：检索指标一个都不会变——这正是它们容易被删的原因。）</li>
+</ol>
+<h2>1.9 加厚（v3）：三个高频质疑——把边界想清楚</h2>
+<h3>质疑一：&quot;上下文窗口都百万 token 了，还要 RAG 吗？&quot;</h3>
+<p>这是 2026 年最常被问的问题。答案：<strong>长上下文解决的是&quot;装得下&quot;，RAG 解决的是
+&quot;找得到、信得过&quot;</strong>——两者互补而非替代：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>维度</th>
+<th>全量塞长上下文</th>
+<th>RAG（检索后装填）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>每次提问的成本</td>
+<td>每问都要为全库 token 付费</td>
+<td>只为命中的几块付费</td>
+</tr>
+<tr>
+<td>延迟</td>
+<td>长输入 prefill 慢</td>
+<td>检索毫秒级 + 短上下文</td>
+</tr>
+<tr>
+<td>新鲜度</td>
+<td>改资料要重算重传</td>
+<td>改库即生效（第 9 节增量更新）</td>
+</tr>
+<tr>
+<td>权限与多租户</td>
+<td>谁能看什么难控制</td>
+<td>检索层先过滤（第 9 节）</td>
+</tr>
+<tr>
+<td>溯源</td>
+<td>模型只说&quot;在上面某处&quot;</td>
+<td>[n] 编号引用到块（第 8 节）</td>
+</tr>
+<tr>
+<td>评测</td>
+<td>出错难归因</td>
+<td>金标 + 指标逐层定位（第 10 节）</td>
+</tr>
+</tbody>
+</table></div>
+<p>工程上的合流做法：<strong>检索负责&quot;选&quot;，长窗口负责&quot;装&quot;</strong>——召回更多候选塞进长窗口
+（把第 8 节的预算调大），取舍从&quot;能不能装下&quot;变成&quot;塞多少性价比最高&quot;。</p>
+<h3>质疑二：&quot;换个更强的模型，是不是就不用做检索工程了？&quot;</h3>
+<p>模型变强改善的是&quot;读懂资料、表达答案&quot;（Layer 3 的后半段）；但<strong>该找哪几块、
+找没找到、敢不敢拒答、能不能溯源</strong>——这些 Layer 1/2 的问题不随模型变强而消失。
+第 10 节 8 步排障清单里，只有第 7 步之后才轮到&quot;模型能力&quot;背锅。</p>
+<h3>质疑三：&quot;RAG 的核心是不是向量数据库？&quot;</h3>
+<p>1.2 开篇回答过：不是。向量检索只是 Layer 2 的一路（第 4 节），BM25（第 5 节）
+与融合（第 6 节）同样是一等公民；而<strong>决定答案质量上限的经常是 Layer 1 的清洗
+与切分</strong>——第 2 节的实验里，清洗不花一分钱 API 就把 BM25 救回 0.06 个 MRR。
+把&quot;RAG = 向量库&quot;当心智模型，会让你在检索质量差时只想着换向量库，而真正该改
+的是数据和切分。</p>
+</div>
+  </article>
+  <nav class="wrap post-nav"><a class="prev" href="00.html"><span class="dir">← 上一篇</span><span class="t">课程导览：环境、约定与你的 RAG 地图</span></a><a class="next" href="02.html"><span class="dir">下一篇 →</span><span class="t">原始资料的筛选与清洗</span></a></nav>
+</main>
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb 的博客</span>
+    </div>
+    <p>© <span data-year>2026</span> NorthAdb · RAG 课为静态讲义</p>
+    <div class="f-links">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</footer>
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+<script src="../../js/main.js"></script>
+</body>
+</html>

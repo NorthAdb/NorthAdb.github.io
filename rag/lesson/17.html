@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>从实验台到产品：个人知识库系统 — NorthAdb</title>
+<meta name="description" content="课程积木装配成 /kb 完整系统：上传入库、多轮 condense、CRAG 纠错、流式引用回答；v4：SSE、APIRouter、幂等、ILIKE 在首次出现处展开。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23D97757'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%231C100A' font-family='Georgia' font-weight='bold'>N</text></svg>">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../course.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="orb orb-a"></div>
+<div class="orb orb-b"></div>
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html">首页</a></li>
+        <li><a href="../../index.html#posts">文章</a></li>
+        <li><a href="../../learn.html">课件</a></li>
+        <li><a href="../index.html" class="active">RAG</a></li>
+        <li><a href="../../about.html">关于</a></li>
+        <li><a href="https://github.com/NorthAdb" target="_blank" rel="noopener" class="nav-cta">GitHub ↗</a></li>
+      </ul>
+    </nav>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+<main>
+  <article>
+    <header class="wrap post-hero">
+      <div class="crumbs">
+        <a href="../../index.html">首页</a><span class="sep-c">/</span>
+        <a href="../index.html">RAG</a><span class="sep-c">/</span>
+        <span>第 17 节</span>
+      </div>
+      <h1>从实验台到产品：个人知识库系统</h1>
+      <div class="post-meta"><span>第 17 节</span><span class="sep"></span><span>约 40 分钟</span><span class="sep"></span><a href="../quiz.html?lesson=17">本节自测</a></div><p class="lead">课程积木装配成 /kb 完整系统：上传入库、多轮 condense、CRAG 纠错、流式引用回答；v4：SSE、APIRouter、幂等、ILIKE 在首次出现处展开。</p>
+    </header>
+    <div class="wrap prose wide"><blockquote>
+<p><strong>本节任务</strong>：理解课程手写的检索积木如何被装配成一个可日常使用的产品
+（<code>/kb</code> 个人知识库），并把第 16 节的 CRAG 真正接进产品。这一节也是
+&quot;从 Playground 到 RAGFlow/AnythingLLM&quot;的差距地图。上一节 <a href="16.html">16 高级范式</a>。</p>
+</blockquote>
+<p><strong>课程地图上的位置</strong>：产品篇，全课的收束。设计调研与选型对照见
+<code>docs/04-RAG生态调研与个人知识库系统设计.md</code>。</p>
+<h2>17.1 为什么&quot;能用&quot;和&quot;能实验&quot;是两套要求</h2>
+<p>Playground 的第一原则是<strong>可对比</strong>：固定语料、钉死参数、金标评测。知识库产品
+（RAGFlow、Dify、FastGPT、AnythingLLM 这类）的第一原则是<strong>可用性</strong>：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Playground（实验台）</th>
+<th>KB（产品）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>语料</td>
+<td>16 篇固定章节</td>
+<td>用户随时上传的任意 md/txt/pdf/docx</td>
+</tr>
+<tr>
+<td>切分</td>
+<td>strategy 版本化，多版本并存对比</td>
+<td>固定 kb600x120，换参数=重建</td>
+</tr>
+<tr>
+<td>检索</td>
+<td>5 种方案任选对比</td>
+<td>默认 Hybrid+Rerank（实验结论直接变成默认值）</td>
+</tr>
+<tr>
+<td>输出</td>
+<td>完整 Trace 逐层可视化</td>
+<td>流式答案 + [n] 引用 + 拒答</td>
+</tr>
+<tr>
+<td>会话</td>
+<td>无</td>
+<td>多轮对话 + 持久化 + 导出</td>
+</tr>
+<tr>
+<td>评测</td>
+<td>25/30 题金标</td>
+<td>无金标——用户的问题就是评测</td>
+</tr>
+</tbody>
+</table></div>
+<p>最重要的认知：<strong>实验的结论沉淀为产品的默认值</strong>。第 6 节证明 RRF 不被量纲
+绑架，所以 KB 的融合只留 RRF；第 8 节的引用与拒答约束直接变成对话的硬约束；
+第 16 节的 CRAG 变成可勾选的开关。</p>
+<h2>17.2 结构与数据流</h2>
+<pre><code class="language-text">kb/
+  config.py   KB 专属参数：kb600x120 策略、上下文预算 4800、拒答阈值 0.35
+  parser.py   md/txt（编码兼容）/ pdf（pymupdf 抽文本）/ docx（python-docx，含表格）
+  store.py    持久层：文档/块复用 rg_documents+rg_chunks（corpus='kb'）
+              会话/消息建 rg_kb_sessions + rg_kb_messages
+  ingest.py   上传入库：落盘 → 解析 → 清洗 → 切分 → 嵌入（共享缓存）→ 先删后插
+  chat.py     condense 改写 → 混合检索 → 精排 → CRAG → 装填 → 流式生成 → 拒答
+  routes.py   /kb 页面 + /api/kb/*（FastAPI 的 APIRouter，由 course/app.py 挂载）
+course/static/kb.html   单页前端（用 fetch 读 SSE 流；SSE 见 17.5）
+</code></pre>
+<p><strong>pymupdf</strong> 是把 PDF 页面抽成文本的库。<strong>python-docx</strong> 读 Word 文件，包括里面的表格。
+<strong>APIRouter</strong> 是 FastAPI 里的一组路径。<code>include_router</code> 把这一组挂到主应用上，
+<code>/kb</code> 和 <code>/api/kb/*</code> 不用在 <code>app.py</code> 里逐个函数重写。</p>
+<p>路由挂载只有两行（<code>course/app.py</code>）：</p>
+<pre><code class="language-python">from kb.routes import router as kb_router     # kb/routes.py 里的 APIRouter
+app.include_router(kb_router)                 # /kb 与 /api/kb/* 一次性接入
+</code></pre>
+<p>数据流的关键决策是<strong>同表、不同命名空间</strong>。命名空间在这里不是 Python 的 <code>package</code>，
+而是&quot;同一张表里用前缀和标签把两批数据隔开&quot;。KB 的块写进课程主表
+<code>rg_documents</code> / <code>rg_chunks</code>，靠三个约定看不见课程语料，课程检索也看不见 KB：</p>
+<pre><code class="language-python">doc_id = &quot;kb::&lt;文件名&gt;&quot;                     # kb/ingest.py:36-37 的 doc_id_for()
+meta = {&quot;corpus&quot;: &quot;kb&quot;}                     # 检索过滤（第 9 节的 meta @&gt;）
+strategy = &quot;kb600x120&quot;                      # kb/config.py:11，与课程索引并存
+</code></pre>
+<p>课程手写的 <code>dense_search</code> / <code>bm25_search</code> 不用改就能检索 KB。
+第 1 节的统一命中结构 <code>Hit</code>，加上第 9 节的 corpus 过滤，在这里接到了产品上。
+删文档时的级联也是表结构里现成的：<code>rg_chunks.doc_id</code> 外键指向 <code>rg_documents</code>
+（<code>scripts/init_db.py:39</code>，<code>ON DELETE CASCADE</code> 的含义在第 9 节 9.2.2）。
+父块表的外键在 <code>:31</code>，KB 的固定切分不写父块，实际清理走的是 chunks 那一条。</p>
+<h2>17.3 入库管线走读（kb/ingest.py，125 行）</h2>
+<p><code>ingest_file()</code>（<code>kb/ingest.py:40-77</code>）是唯一入口，其余都是它的包装：</p>
+<pre><code class="language-python">def ingest_file(path, original_name, embed=True):
+    filename = _safe_filename(original_name)          # :42 去 ../、控制字符（:29-34）
+    if ext not in kb_config.ALLOWED_EXTENSIONS: ...   # :43-44 白名单
+    title, text = parser.parse_file(path)             # :46 md/pdf/docx → (标题, 纯文本)
+    text = cleaner.clean_text(text)                   # :47 复用第 2 节清洗器！
+    did, checksum = doc_id_for(filename), sha256(...)[:16]
+    old = store.get_document(did)
+    if old and old[&quot;checksum&quot;] == checksum:           # :59 内容没变 → 跳过
+        return {..., &quot;status&quot;: &quot;unchanged&quot;}
+    chunks = chunker.fixed_chunks(text, did, size=600, overlap=120)   # :63 复用第 3 节
+    embeddings = get_embedder().embed_batch(...)      # :65 复用第 4 节（缓存共享）
+    store.upsert_document(did, title, str(path), checksum)
+    store.replace_chunks(did, chunks, embeddings)     # :67 先删后插（store.py:66-92）
+</code></pre>
+<p>三个值得学的点：</p>
+<ol>
+<li><strong>同名重传 = 版本更新</strong>。checksum 与库里相同就跳过嵌入（<code>kb/ingest.py:55-58</code>）。
+粘贴建文档（<code>ingest_text</code>，<code>:93-104</code>）只是先落盘一个 <code>.md</code>，再走 <code>ingest_file</code>；</li>
+<li><strong>嵌入缓存全局共享</strong>。缓存键是 sha256(模型名 + 文本)（第 4 节 4.2.1）。
+KB 重传、课程实验、重建索引，同一段文字只付一次嵌入 API 的钱；</li>
+<li><strong>入库后清 BM25 缓存</strong>。<code>replace_chunks</code> 末尾调用 <code>clear_retrieval_caches()</code>
+（<code>kb/store.py:173-176</code>）。<code>lru_cache</code> 记的是进程内存里的旧倒排表
+（第 9 节 9.1.4），库更新了它不会自己知道。</li>
+</ol>
+<p>前端对应的入口：上传、粘贴、查看切块、重建、删除。
+上传走 <strong>multipart</strong>：HTTP 正文分成一段段，有的是普通字段，有的是文件字节。
+<code>python-multipart</code> 是 FastAPI 用来拆这种正文的库（<code>routes.py</code> 的上传接口）。
+浏览器 <code>&lt;input accept=&quot;...&quot;&gt;</code> 只影响文件选择框里看得见哪些后缀，拦不住人改请求。
+扩展名和大小的检查在 <code>kb/ingest.py</code> 里做（17.7）。</p>
+<h2>17.4 对话管线走读（kb/chat.py，278 行）</h2>
+<p>一次提问在 <code>routes.py:161</code> 的 <code>kb_chat</code> 里经过五步，然后转成 SSE 事件流：</p>
+<pre><code class="language-text">① 会话准备（routes.py:167-182）：session_id 不给就建新会话；先读历史、
+   存用户消息、首条消息自动命名会话（question[:24]）
+② prepare()（chat.py:217-256）：condense 改写 → retrieve_kb（含 CRAG）→
+   装填 → 拒答判定
+③ stream_answer()（chat.py:258-275）：拒答 → 固定话术不调 LLM；
+   否则 DeepSeek SSE 流式（llm.py:56 的 chat_stream）
+④ SSE 事件（routes.py:156-181）：meta（检索词/命中/引用/CRAG步骤）→
+   delta（逐字）→ done；客户端断开时 finally 落库部分答案
+⑤ 持久化：用户消息先存，assistant 消息带 citations+trace 存档（store.py:224）
+</code></pre>
+<h3>17.4.1 多轮改写：condense_question（chat.py:160-185）</h3>
+<p>追问&quot;那它和 BM25 有什么区别？&quot;不能直接拿去检索。&quot;它&quot;指的是上文。
+**condense（压缩改写）**把这种依赖历史的问句，收成一句不看对话也能检索的话。
+做法和 FastGPT、Dify 相同：最近若干条历史加上最新问题，交给 LLM 改写。
+历史很长时只取最近 N 条（<code>KB_HISTORY_MESSAGES</code>），避免整段对话都塞进检索词。</p>
+<pre><code class="language-python">def condense_question(history, question):
+    recent = [m for m in history if m[&quot;role&quot;] in (...)].[-KB_HISTORY_MESSAGES:]
+    if not recent:
+        return question, False                      # 无历史 = 不改写
+    if not getattr(mod, &quot;is_real&quot;, False):
+        return question, False                      # LLM 降级 = 跳过（:166 保底）
+    rewritten = mod.chat(prompt, system=_CONDENSE_SYSTEM, max_tokens=120)
+    return (rewritten, True) if rewritten else (question, False)
+</code></pre>
+<p>实测：&quot;那多轮对话又是怎么处理的？&quot; → &quot;系统的多轮对话是怎么处理的？&quot;
+改写后的检索词显示在回答脚注里——可观测原则在产品层依然成立。</p>
+<h3>17.4.2 CRAG 在产品里的形态（chat.py:85-145）</h3>
+<p><code>retrieve_kb(query, use_rerank, top_k, crag=False)</code> 的三段逻辑
+（第 16 节 16.3 已给过实测数据）：</p>
+<pre><code class="language-python">fused = _recall(query)                    # :28 dense+bm25 → RRF（课程第 4-6 节）
+scored = rk.rerank(query, fused, ...)     # :95-96 第 7 节精排
+verdict = crag_verdict(best)              # :42 pure：None→unknown / ≥0.35→correct
+if crag and verdict == &quot;incorrect&quot;:       # :133 第二次机会
+    expanded = _expand_query(query)       # :73 LLM 扩展查询（与 condense 是两个 Prompt）
+    merged = _merge_candidates([fused, fused2])    # :55 chunk_id 去重合并
+    scored2 = rk.rerank(expanded, merged, ...)     # 合并候选整体再精排
+</code></pre>
+<p><code>crag_verdict</code>（<code>:42-52</code>）是纯函数（有单测 <code>tests/test_kb.py</code>）：
+<strong>没开精排时返回 unknown</strong>——RRF 分数量纲与相关性阈值不在一个世界
+（第 6 节教训），没有评估器就不该硬评估。每轮的检索词/top1 分数/判定
+放进 <code>crag_steps</code>，随消息落库、随 meta 事件发到前端&quot;检索过程&quot;面板。</p>
+<h3>17.4.3 拒答的双层设计</h3>
+<p>第一层在检索后（<code>chat.py</code> prepare 内）：零命中，或开了精排且 top1 &lt; 0.35
+（<code>kb/config.py:25</code> 的 <code>KB_LOW_SCORE_REFUSAL</code>）→ 直接标记 refusal。
+第二层在生成 Prompt（<code>kb/config.py:31-35</code> 的 <code>KB_SYSTEM_PROMPT</code>）：
+只按资料回答、[n] 引用、矛盾要指出。阈值证据（实测 top1 分布）：
+具体问题 0.9+，含糊多段问题 0.14-0.22，分界清晰——0.35 放在空带里。</p>
+<h2>17.5 前端与 SSE 协议（course/static/kb.html）</h2>
+<p><strong>SSE</strong>（Server-Sent Events，第 8 节）是服务器向浏览器单向持续推送文本的协议。
+一次聊天的响应不是一个完整 JSON，而是按时间往后追加的若干条<strong>事件</strong>。
+每条事件有名字和一段 data。本接口的四个名字：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>事件</th>
+<th>什么时候发</th>
+<th>data 里有什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>meta</code></td>
+<td>检索结束、还没开始生成</td>
+<td>检索词、命中、引用、CRAG 步骤</td>
+</tr>
+<tr>
+<td><code>delta</code></td>
+<td>生成过程中，多次</td>
+<td>新写出来的那几个字</td>
+</tr>
+<tr>
+<td><code>done</code></td>
+<td>生成结束</td>
+<td>message_id、最终引用、耗时</td>
+</tr>
+<tr>
+<td><code>error</code></td>
+<td>中途失败</td>
+<td>错误信息</td>
+</tr>
+</tbody>
+</table></div>
+<p>事件之间用空行分帧。规范里的分隔是 <code>\n\n</code>（两个换行）。
+<strong>sse-starlette</strong>（服务端写出 SSE 的库）用的是 <code>\r\n\r\n</code>。<code>\r</code> 是回车，
+和 <code>\n</code> 一起组成 Windows 风格的换行。前端若只按 <code>\n\n</code> 切，分隔符对不上，
+会一直等下一条，看起来像卡住。解析前先把 <code>\r\n</code> 换成 <code>\n</code>。</p>
+<p>浏览器自带的 <strong>EventSource</strong> 能收 SSE，但只能发 GET。聊天要把问题放在 POST 正文里，
+所以改用 <strong>fetch</strong>：它能 POST，响应体是 <strong>ReadableStream</strong>，字节一段段到达，
+前端自己把字节凑成一帧再解析。</p>
+<p><strong>中断生成</strong>用 <strong>AbortController</strong>。前端调用 <code>abort()</code>，这次 fetch 被取消。
+服务端的生成器收到取消后，<code>finally</code> 仍会执行——<code>finally</code> 是无论正常结束、
+抛错还是被取消都会走的收尾。已生成的半截答案在这里写入数据库，刷新页面不会丢。</p>
+<p>Markdown 渲染是手写的大约 60 行：代码块先摘出来，再按行解析列表、表格和引用，
+最后把代码块放回去。列表遵循 <strong>CommonMark</strong>（Markdown 的一份正式规范）里的一条：
+列表项之间的空行不会结束这个列表。渲染器若把空行当成&quot;列表结束&quot;，
+模型写出的 <code>1.</code> <code>2.</code> <code>3.</code> 会全部显示成 <code>1.</code>。</p>
+<p>每条回答有&quot;复制&quot;和&quot;检索过程&quot;。后者展开 meta 里的命中和 <code>crag_steps</code>：
+Playground 的 Trace，收成产品里的一个折叠面板。</p>
+<h2>17.6 如何运行</h2>
+<pre><code class="language-bash"># KB 的会话表包含在 init_db 里。脚本是幂等的：重复执行和执行一次结果相同
+# （CREATE TABLE IF NOT EXISTS，不会把已有的表删掉重建）
+python -m scripts.init_db
+
+# 启动网站 → 打开 /kb
+python -m course.app
+
+# 终端直接体验完整链路（不经网站）
+python -c &quot;
+from kb.chat import answer_sync
+ans, p = answer_sync('知识库里的检索管线是怎么工作的？')
+print(ans)
+print('citations:', [(c['n'], c['title']) for c in p.citations])
+&quot;
+
+# KB 单测（34 个中 KB 部分的 22 个）
+python -m pytest tests/test_kb.py -q
+</code></pre>
+<p>页面操作路径：文档页签上传/粘贴/查看切块/重建/删除 → 会话页签提问 →
+回答里点 [n] 展开出处 → 工具栏勾选 CRAG 再问一次超纲问题，看两轮检索步骤。</p>
+<p><strong>标准调参流程（/kbtest 检索测试台）</strong>：① 输入一个有代表性的问题；
+② A/B 对比——A 保持现状配置，B 只改一个变量（如开/关 Rerank、开/关 CRAG）；
+③ 看双列的 top1 分数与小结行，确认改动&quot;值得&quot;再进 <code>/kb</code> 的默认配置；
+④ 满意的配置用真实会话验证，点 👍 沉淀进金标，跑一次评测记录趋势。
+这四步就是第 10 节&quot;先金标后改进&quot;在产品里的日常形态。</p>
+<h2>17.7 注意事项</h2>
+<ul>
+<li><strong>KB 与课程实验共享数据库</strong>：KB 的块写进主表（隔离靠 corpus+doc_id 前缀），
+做 exp 重跑时别把 <code>corpus='kb'</code> 的块当垃圾清了；反过来，KB 的&quot;重建全部&quot;
+只碰自己的 doc_id；</li>
+<li>LLM 降级时<strong>condense 与 CRAG 自动跳过</strong>（<code>is_real</code> 检查），此时多轮追问
+退化为&quot;拿原始问题直接检索&quot;——产品不会崩，但体验变差，徽章会提示；</li>
+<li><code>doc_id</code> 用文件名当主键。同一目录下同名文件会互相覆盖，这是设计：重传就是更新。
+若要同名的不同版本并存，可以改成<strong>内容寻址</strong>：用内容的哈希当 id，
+内容一变 id 就变，同名文件不再抢同一行；</li>
+<li>流式回答的 <code>llm_ms</code> 在 done 事件里才完整（meta 时还没生成）——前端
+耗时脚注用的是 done 的 timings；</li>
+<li>50MB 上限和扩展名白名单在后端校验（<code>kb/ingest.py</code> 的 <code>ALLOWED_EXTENSIONS</code>）。
+前端的 <code>accept</code> 只影响文件选择框，拦不住改过的请求。安全边界在服务器上。</li>
+</ul>
+<h2>17.8 评测闭环：反馈 → 金标 → 自有评测</h2>
+<p>产品层最有价值的一块（第 10/13 节评测思想的落地）：用户对回答点 👍/👎，
+点赞的问答对自动沉淀成<strong>用户自有金标</strong>，再在其上评测 KB 的检索配置。</p>
+<pre><code class="language-text">回答操作行的赞（`kb/store.py` 的 `set_feedback`，写入 `rg_kb_messages.feedback`）。
+给已有表加这一列的迁移也是幂等的：列已经在，就不再加一次。
+   ↓ 「沉淀金标」（kb/eval.py:49 build_gold → data/kb_eval/gold.json）
+问题 + gold_docs = 回答引用的文档列表（用户背书：&quot;这些文档答对了我的问题&quot;）
+   ↓ 「运行评测」（kb/eval.py:76 run_kb_eval）
+三方案对比（Rerank off / on / +CRAG）× 文档级 recall@5 / mrr@5
+—— 与第 10 节 _recall_mrr 同一思想，检索路径走 kb.chat.retrieve_kb
+</code></pre>
+<p><strong>金标口径的取舍</strong>：gold_docs 来自&quot;回答实际引用的文档&quot;，比专家标注宽松
+（引用了≠唯一出处）；但它是用户背书的、随使用自动增长、零标注成本——
+&quot;用户自有金标&quot;与&quot;专家金标&quot;的取舍正是第 12 节选型卡片在产品里的体现。
+评测页签在 <code>/kb</code> 侧栏第三个标签，点赞后两键完成闭环。</p>
+<p>另有同轮加的<strong>限定范围提问</strong>：文档列表新增「📌 问这篇」，检索被钉在该文档内
+（<code>kb/chat.py</code> 的 <code>_recall(doc_ids=...)</code>，双路召回后按 doc_id 过滤再融合）；
+限定范围内 CRAG 自动关闭——范围是用户钉死的，扩展查询不能突破它。
+注意当前实现是&quot;检索后过滤&quot;（候选窗 30 再筛），个人规模够用；文档数上千时应
+把 doc_id 写进 SQL WHERE（第 9 节 9.1 的&quot;检索中过滤&quot;）。</p>
+<p><strong>v3 补充的产品件</strong>：① ↻ 重新生成——服务端删旧回答（<code>store.py:224</code>
+<code>delete_message</code> + <code>last_exchange</code> 定位最后一组问答）后复用同一条聊天管线；
+② 只检索不生成。<code>generate=false</code> 时跳过 LLM，检索面板自动展开。
+这类消息不进金标。筛选用的是第 9 节的 <code>-&gt;&gt;</code>：<code>trace-&gt;&gt;'generate'</code> 从 jsonb 里取出文本，
+条件是它不等于 <code>'false'</code>；
+③ 评测历史。每次 <code>run_kb_eval</code> 向 <code>history.jsonl</code> 追加一行。
+<strong>JSONL</strong> 是&quot;每行一条 JSON&quot;的文本，方便追加，不用每次重写整个数组。
+配合使用概览（会话数、问答数、反馈、拒答率、平均耗时，用 SQL 聚合 trace 里的 jsonb）
+构成 KB 的仪表盘雏形；
+④ <strong>金标口径收紧</strong>——👍 时展开&quot;哪些引用真正答对了&quot;勾选面板，勾选结果以
+JSON 存进 <code>feedback_note</code>，<code>gold_candidates</code> 优先采用（校验：只接受出现在
+引用列表里的 doc_id，不信任前端）；⑤ <strong>检索测试台</strong> <code>/kbtest</code>——免开会话、
+只跑检索侧的调参页（Rerank/CRAG/top_k/范围可调，逐轮命中+耗时）；
+⑥ <strong>溯源闭环</strong>——引用卡「📍原文」一键打开原文切块弹窗并高亮定位到被引用
+的那一块（citations 已带 chunk_id）；
+⑦ <strong>测试台 A/B 对比</strong>——<code>/kbtest</code> 支持双配置并排跑同一问题（如 Rerank 开 vs 关），
+自动生成&quot;top1/拒答&quot;差异小结——单变量消融的产品化形态；
+⑧ <strong>数据资产化</strong>——<code>/api/kb/export</code> 把文档原文+会话+金标+评测历史打包成
+JSON 备份；每次评测同步写 <code>experiments/kb_eval.md</code> 进课程实验报告目录；
+⑨ <strong>备份导入恢复</strong>——<code>/api/kb/import</code> 反向恢复：文档重入（checksum 去重，
+同名同内容自动跳过）、会话追加迁移（含反馈）、金标覆盖、评测历史追加；
+pdf/docx 为二进制不经 JSON 导出，重传原件即可；
+⑩ <strong>金标管理</strong>——评测页签直接查看金标清单（问题 + gold_docs），一键删除
+单道题（<code>delete_gold_item</code> 只动金标文件，不碰会话与反馈）；
+⑪ 趋势折线与服务器快照。评测页签用 SVG 画三方案 recall@5 随运行次数的折线
+（SVG 是用标签描述图形的一种 XML，放大不会糊）。<code>data/kb_snapshots/</code> 保留最近 10 份全量快照，
+可下载、可删除。文件名过一道白名单正则，拒绝 <code>../</code> 这类<strong>路径穿越</strong>：
+文件名里夹上上级目录，就能读到数据目录以外的文件。正则只允许预期的那一种文件名。
+⑫ 跨会话搜索。会话页签顶部搜历史问答。SQL 用 <strong>ILIKE</strong>：不区分大小写的模糊匹配，
+<code>%</code> 匹配任意长度的一段字。用户输入里的 <code>%</code> 和 <code>_</code> 要先转义，
+否则一个百分号会变成&quot;匹配任意内容&quot;。点结果会跳到那次会话，滚动到对应消息并闪一下。
+消息节点带 <code>data-mid</code>，用来在页面上找到那一条；
+⑬ <strong>示例语料一键导入</strong>——「📚 导入示例语料」把 data/mineru_corpus 的
+Agent 教程 12 章（约 1164 块）喂进 KB（<code>ingest_sample_dir</code>，重复导入安全），
+空知识库立刻变成可真实问答的助手；配合引用排行（SQL 聚合 citations 的
+jsonb 数组）看哪些文档贡献最大；一键清空会话（只删对话，文档/金标不动）。</p>
+<h2>17.9 对照生态：你在哪、接下来去哪</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>能力</th>
+<th>Dify/RAGFlow/FastGPT</th>
+<th>本项目 KB</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>文档上传</td>
+<td>md/txt/pdf/docx/网页…</td>
+<td>md/txt/pdf/docx（≤50MB）</td>
+</tr>
+<tr>
+<td>深度版面解析</td>
+<td>MinerU/LayoutML 级</td>
+<td>最小文本抽取（复杂 PDF 走第 2 节 MinerU 闭环）</td>
+</tr>
+<tr>
+<td>混合检索 + 重排</td>
+<td>内置</td>
+<td>✅ 复用课程管线（RRF + bge-reranker-v2-m3）</td>
+</tr>
+<tr>
+<td>带引用回答 + 拒答</td>
+<td>内置</td>
+<td>✅ [n] 编号引用，点开看原文；低分/零命中双层拒答</td>
+</tr>
+<tr>
+<td>多轮对话改写</td>
+<td>内置</td>
+<td>✅ condense question（降级自动跳过）</td>
+</tr>
+<tr>
+<td>CRAG / 检索纠错</td>
+<td>部分产品有</td>
+<td>✅ 可开关，步骤落库可观测</td>
+</tr>
+<tr>
+<td>流式输出</td>
+<td>SSE 或 WebSocket</td>
+<td>✅ SSE 逐字上屏</td>
+</tr>
+<tr>
+<td>文档管理/重建/去重</td>
+<td>内置</td>
+<td>✅ checksum 去重、单篇/全量重建、级联删除、切块检查</td>
+</tr>
+<tr>
+<td>多用户/权限/工作流</td>
+<td>✅</td>
+<td>❌ 明确不做（个人单机定位）</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>WebSocket</strong> 是浏览器和服务器之间的双向长连接。SSE 只允许服务器往浏览器推。
+逐字输出用 SSE 就够，本项目没有再开一条 WebSocket。</p>
+<p>四个扩展方向（生态趋势 → 对应课程位置；评测闭环与口径收紧已于 17.8 接入）：Agentic 化（第 16 节控制流地图）；
+GraphRAG（第 14 节的 <code>graph_recall</code> 可以作为第三路召回接进 <code>_recall</code>）；
+深度解析（<code>scripts/ingest_mineru.py</code> 的产物转投 KB，换 parser 而已）；
+把独立检索测试台（<code>/kbtest</code>，免开会话的调参页）接进日常调参流程。</p>
+<h2>17.10 动手练习</h2>
+<ol>
+<li>上传一份你自己的文档（或粘贴一段文本），用&quot;查看切块&quot;检查 kb600x120
+的切分质量，找一块被切断的上下文，想想该调 size 还是 overlap；</li>
+<li>勾选 CRAG 问一个超纲问题，展开&quot;检索过程&quot;面板，数一数几轮检索、
+每轮 top1 分数多少——对照 16.3 的阈值证据；</li>
+<li>开/关 Rerank 各问同一题，对比拒答行为的变化（没精排时拒答只剩&quot;零命中&quot;
+这一层——为什么？回看 17.4.3 与 <code>crag_verdict</code> 的 unknown 分支）；</li>
+<li>导出一次会话为 Markdown，人工核对答案中的 [n] 与引用列表是否对得上
+——这就是最简单的 Faithfulness 抽查（第 13 节的裁判干的也是这事）。</li>
+</ol>
+</div>
+  </article>
+  <nav class="wrap post-nav"><a class="prev" href="16.html"><span class="dir">← 上一篇</span><span class="t">高级范式案例：Self-RAG / CRAG / Agentic RAG（v2 加厚）</span></a><a class="next" href="../index.html"><span class="dir">课表 →</span><span class="t">回到目录</span></a></nav>
+</main>
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb 的博客</span>
+    </div>
+    <p>© <span data-year>2026</span> NorthAdb · RAG 课为静态讲义</p>
+    <div class="f-links">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</footer>
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+<script src="../../js/main.js"></script>
+</body>
+</html>

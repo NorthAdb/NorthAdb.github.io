@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>实验 6：不可回答题与拒答（真实 LLM 生成） — NorthAdb</title>
+<meta name="description" content="实验 6：不可回答题与拒答（真实 LLM 生成）">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23D97757'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%231C100A' font-family='Georgia' font-weight='bold'>N</text></svg>">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../course.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="orb orb-a"></div>
+<div class="orb orb-b"></div>
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html">首页</a></li>
+        <li><a href="../../index.html#posts">文章</a></li>
+        <li><a href="../../learn.html">课件</a></li>
+        <li><a href="../index.html" class="active">RAG</a></li>
+        <li><a href="../../about.html">关于</a></li>
+        <li><a href="https://github.com/NorthAdb" target="_blank" rel="noopener" class="nav-cta">GitHub ↗</a></li>
+      </ul>
+    </nav>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+<main>
+  <article>
+    <header class="wrap post-hero">
+      <div class="crumbs">
+        <a href="../../index.html">首页</a><span class="sep-c">/</span>
+        <a href="../index.html">RAG</a><span class="sep-c">/</span>
+        <span>实验</span>
+      </div>
+      <h1>实验 6：不可回答题与拒答（真实 LLM 生成）</h1>
+      <div class="post-meta"><span class="tag">RAG</span></div>
+    </header>
+    <div class="wrap prose wide"><p>生成时间：2026-09-12 21:01（本机真实运行）</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>方案</th>
+<th>拒答正确</th>
+<th>拒答率</th>
+<th>recall@5</th>
+<th>mrr@5</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dense 基线</td>
+<td>7/7</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>0.88</td>
+</tr>
+<tr>
+<td>Hybrid+Rerank 完整版</td>
+<td>7/7</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>0.928</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>不可回答题的回答摘要</strong>（资料中不存在这些主题，正确行为是拒答）：</p>
+<ul>
+<li><strong>q21</strong> AVX10 相比 AVX-512 增加了哪些新指令？
+→ 拒答=True，回答节选：资料中没有相关信息。</li>
+</ul>
+<p>（说明：提供的资料只涉及 SSE、AVX、AVX2、AVX-512 几代指令集的内容 [1][2][3][4][5][6]，完全没有提到 AVX10，因此无法回答该问题。）</p>
+<ul>
+<li><strong>q22</strong> ARM 的 NEON 指令集和 AVX2 相比，浮点性能谁更强？
+→ 拒答=True，回答节选：资料中没有相关信息。</li>
+</ul>
+<p>现有资料只涉及 x86 平台的 SSE、AVX、AVX2、AVX-512 四代指令集对比 [5]，以及 AVX2 相对 SSE4 的加速比、FMA 浮点累加场景的峰值收益 [1]，完全没有提到 ARM 的 NEON</p>
+<ul>
+<li><strong>q23</strong> Intel 18A 工艺预计什么时候量产？
+→ 拒答=True，回答节选：资料中没有相关信息。</li>
+<li><strong>q24</strong> RISC-V 的向量扩展 RVV 1.0 和 AVX-512 哪个设计更好？
+→ 拒答=True，回答节选：资料中没有相关信息。</li>
+</ul>
+<p>现有资料仅涉及 AVX-512、AVX、AVX2、SSE 等 x86 SIMD 扩展的介绍与对比 [1][2][3][4][5][6]，完全没有提到 RISC-V 的向量扩展 RVV 1.0，因此无法就两者的设计优劣</p>
+<ul>
+<li><strong>q25</strong> AMD 的 3D V-Cache 技术是怎么实现的？
+→ 拒答=True，回答节选：资料中没有相关信息。</li>
+</ul>
+<p>（现有资料仅涉及 SIMD 指令集（SSE/AVX/AVX2/AVX-512）的演进、AVX-512 的硬件特性，以及缓存层次对向量化代码的启示 [1][2][3][4][5][6]，均未提及 AMD 的 3D V-</p>
+<ul>
+<li><strong>q29</strong> Intel 的 APX（Advanced Performance Extensions）把通用寄存器扩展到多少个？
+→ 拒答=True，回答节选：资料中没有相关信息。</li>
+<li><strong>q30</strong> CXL 内存扩展协议会如何改变 NUMA 优化策略？
+→ 拒答=True，回答节选：资料中没有相关信息。</li>
+</ul>
+<p>现有资料只涉及 NUMA 的基本概念（本地/远端内存延迟差异、<code>numactl</code> 绑定策略）[1]，以及 SIMD 指令集演进[2][4][5]、Roofline 模型[6]等内容，均未提及 CXL 内存扩展协议，因</p>
+<ul>
+<li><strong>q21</strong> AVX10 相比 AVX-512 增加了哪些新指令？
+→ 拒答=True，回答节选：资料中没有相关信息。</li>
+</ul>
+<p>提供的资料只涉及 AVX、AVX2 和 AVX-512（包括其掩码寄存器、广播与舍入控制、寄存器数量、子集、降频争议等）[1][2][3][4][5][6]，没有任何一段提到 AVX10，也没有关于 AVX10 相比</p>
+<ul>
+<li><strong>q22</strong> ARM 的 NEON 指令集和 AVX2 相比，浮点性能谁更强？
+→ 拒答=True，回答节选：资料中没有相关信息。</li>
+</ul>
+<p>现有资料只提到 ARM 与 GPU 也有与 FMA 等价的指令 [6]，但没有提供 ARM NEON 指令集的浮点性能数据，也没有将 NEON 与 AVX2 的浮点性能进行对比。因此无法根据这些资料判断两者谁更强。</p>
+<ul>
+<li><strong>q23</strong> Intel 18A 工艺预计什么时候量产？
+→ 拒答=True，回答节选：资料中没有相关信息。</li>
+<li><strong>q24</strong> RISC-V 的向量扩展 RVV 1.0 和 AVX-512 哪个设计更好？
+→ 拒答=True，回答节选：资料中没有相关信息。</li>
+</ul>
+<p>现有资料只涉及 x86 SIMD 家族（MMX/SSE/AVX/AVX-512）的寄存器宽度、引入年份、掩码与缓存影响等内容 [1][2][4][5]，以及分支预测与 SIMD 的关系 [3]，完全没有提到 RISC</p>
+<ul>
+<li><strong>q25</strong> AMD 的 3D V-Cache 技术是怎么实现的？
+→ 拒答=True，回答节选：资料中没有相关信息。</li>
+<li><strong>q29</strong> Intel 的 APX（Advanced Performance Extensions）把通用寄存器扩展到多少个？
+→ 拒答=True，回答节选：资料中没有相关信息。</li>
+<li><strong>q30</strong> CXL 内存扩展协议会如何改变 NUMA 优化策略？
+→ 拒答=True，回答节选：资料中没有相关信息。</li>
+</ul>
+<p>现有资料只涉及 NUMA 的基本机制（本地/远端内存延迟差异、<code>numactl</code> 绑定策略）[1]，以及多插槽通过 UPI 互连引出 NUMA 问题[5]，但均未提及 CXL 内存扩展协议，也没有关于 CXL 如何影</p>
+</div>
+  </article>
+  <nav class="wrap post-nav"><a class="prev" href="exp5_parent_child.html"><span class="dir">← 上一篇</span><span class="t">实验 5：Parent-Child（小块检索、大块生成）</span></a><a class="next" href="exp7_judge.html"><span class="dir">下一篇 →</span><span class="t">实验 7：LLM-as-judge 生成侧评测（评估三元组）</span></a></nav>
+</main>
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb 的博客</span>
+    </div>
+    <p>© <span data-year>2026</span> NorthAdb · RAG 课为静态讲义</p>
+    <div class="f-links">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</footer>
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+<script src="../../js/main.js"></script>
+</body>
+</html>

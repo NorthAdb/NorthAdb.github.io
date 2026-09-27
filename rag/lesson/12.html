@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>框架对照与选型总结 — NorthAdb</title>
+<meta name="description" content="LlamaIndex 术语映射 Demo；选型卡片；LLM Wiki 的后续学习入口；v4：Node、Retriever、Ragas 等框架名词在首次出现处展开。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23D97757'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%231C100A' font-family='Georgia' font-weight='bold'>N</text></svg>">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../course.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="orb orb-a"></div>
+<div class="orb orb-b"></div>
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html">首页</a></li>
+        <li><a href="../../index.html#posts">文章</a></li>
+        <li><a href="../../learn.html">课件</a></li>
+        <li><a href="../index.html" class="active">RAG</a></li>
+        <li><a href="../../about.html">关于</a></li>
+        <li><a href="https://github.com/NorthAdb" target="_blank" rel="noopener" class="nav-cta">GitHub ↗</a></li>
+      </ul>
+    </nav>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+<main>
+  <article>
+    <header class="wrap post-hero">
+      <div class="crumbs">
+        <a href="../../index.html">首页</a><span class="sep-c">/</span>
+        <a href="../index.html">RAG</a><span class="sep-c">/</span>
+        <span>第 12 节</span>
+      </div>
+      <h1>框架对照与选型总结</h1>
+      <div class="post-meta"><span>第 12 节</span><span class="sep"></span><span>约 40 分钟</span><span class="sep"></span><a href="../quiz.html?lesson=12">本节自测</a></div><p class="lead">LlamaIndex 术语映射 Demo；选型卡片；LLM Wiki 的后续学习入口；v4：Node、Retriever、Ragas 等框架名词在首次出现处展开。</p>
+    </header>
+    <div class="wrap prose wide"><blockquote>
+<p><strong>本节任务</strong>：用 LlamaIndex 校对自己的概念命名，然后收束成选型卡片与
+后续路线。读完的检验标准：<strong>手写的每一块都能在框架里找到位置</strong>。</p>
+</blockquote>
+<p><strong>课程地图上的位置</strong>：主线 C 的收口。上一节 <a href="11.html">11 结构化扫盲</a>；
+下一节 <a href="13.html">13 评测进阶</a>（v2 加厚篇开始）。</p>
+<h2>12.1 为什么要看框架</h2>
+<p>自己手写一遍之后看框架，看的是<strong>设计决策</strong>而不是 API 用法：
+&quot;这个概念它叫什么？拆在哪一层？和我拼的位置一样吗？&quot;
+（计划书阶段 8 的原话：用框架校对自己的概念命名和模块切分。）</p>
+<h2>12.2 术语映射表（手写 → LlamaIndex）</h2>
+<p>LlamaIndex 是一套把&quot;加载、切分、索引、检索、生成&quot;串起来的 Python 框架。
+表里的类名先有个着落，再看和手写代码差在哪。</p>
+<ul>
+<li><strong>Document</strong> 是入库前的一篇原文，相当于 <code>RawDoc</code>。<strong>Node</strong> 是切完之后的检索单元，
+相当于 <code>Chunk</code>，并且自带指向父节点和子节点的链接。Parent-Child 因此可以不另建
+<code>rg_parents</code>，父子关系就挂在 Node 上。</li>
+<li><strong>Splitter（切分器）</strong> 负责把 Document 切成 Node。<code>SentenceSplitter</code> 尽量在句子边界
+上滑窗；<code>TokenTextSplitter</code> 按 token 数滑窗。滑窗就是第 3 节的 overlap：
+下一块从上一块末尾往前重复一段，避免一句话正好被切在边界上。</li>
+<li><strong>Postprocessor（后处理器）</strong> 挂在检索之后、生成之前。重排、按元数据过滤，
+都属于这一层。<code>SentenceTransformerRerank</code> 是其中的重排器。
+本课程把标题前缀直接写进 <code>embed_text</code>；框架里常在命中之后再用元数据把上下文贴回去。</li>
+<li><strong>Retriever</strong> 是&quot;给定问题，返回一批 Node&quot;的接口。向量检索和 BM25 各是一个 Retriever。</li>
+<li><strong><code>QueryFusionRetriever</code></strong> 把多个 Retriever 的结果合成一份。
+<code>mode=&quot;reciprocal_rerank&quot;</code> 就是第 6 节的 RRF：按名次的倒数相加，不比较原始分数。
+<code>num_queries</code> 表示它还会把原问题改写成几条，每条各检索一次再融合。
+<code>num_queries=2</code> 就是原问题再加 1 条改写，相当于第 8 节 multi-query 的缩小版。</li>
+<li><strong><code>ResponseSynthesizer</code></strong> 把 Node 填进 Prompt 再调用 LLM。本课程把这件事拆成了
+<code>context_builder</code> 和 <code>llm</code>。<strong><code>PromptHelper</code></strong> 管 token 预算，决定塞得下几块。</li>
+<li><strong>docstore</strong> 是框架在内存里按 id 存放 Node 原文的那一层。BM25 从这里读文本，
+不读向量。<strong><code>VectorStoreIndex</code></strong> 是向量索引对象，<code>as_retriever</code> 把它变成一个 Retriever。
+<strong><code>PGVectorStore</code></strong> 把这一层接到 PostgreSQL + pgvector。本节 Demo 没有用它。</li>
+</ul>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>本课程的模块</th>
+<th>LlamaIndex 里叫</th>
+<th>差异点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RawDoc / Chunk</td>
+<td>Document / Node</td>
+<td>Node 带 parent/child 关系（天然支持 PC）</td>
+</tr>
+<tr>
+<td><code>chunker.fixed_chunks</code>（<code>chunker.py:96</code>）</td>
+<td>SentenceSplitter / TokenTextSplitter</td>
+<td>同为&quot;段落优先滑窗&quot;</td>
+</tr>
+<tr>
+<td><code>chunker</code> 标题前缀（<code>chunker.py:106</code>）</td>
+<td>MetadataPostprocessor / embed_model 包一层</td>
+<td>框架里叫&quot;上下文增强&quot;</td>
+</tr>
+<tr>
+<td><code>embedder</code>（<code>embedder.py:31</code>）</td>
+<td>BaseEmbedding</td>
+<td>同为双塔，接口几乎一一对应</td>
+</tr>
+<tr>
+<td><code>vector_store</code>（<code>vector_store.py:30</code>）</td>
+<td>VectorStoreIndex + PGVectorStore</td>
+<td>HNSW 参数：ours=手工 SQL，框架=参数传入</td>
+</tr>
+<tr>
+<td><code>bm25</code>（<code>bm25.py:54</code>）</td>
+<td>BM25Retriever（llama-index-retrievers-bm25）</td>
+<td>内部同样是 BM25Okapi</td>
+</tr>
+<tr>
+<td><code>hybrid.rrf_fuse</code>（<code>hybrid.py:22</code>）</td>
+<td>QueryFusionRetriever</td>
+<td>默认就是 RRF，num_queries 即多路改写</td>
+</tr>
+<tr>
+<td><code>reranker</code>（<code>reranker.py:22</code>）</td>
+<td>NodePostprocessor（如 SentenceTransformerRerank）</td>
+<td>框架把精排抽象成&quot;后处理器&quot;</td>
+</tr>
+<tr>
+<td><code>context_builder</code>（<code>context_builder.py:27</code>）</td>
+<td>ResponseSynthesizer + PromptHelper</td>
+<td>预算/装填被合并进&quot;合成器&quot;</td>
+</tr>
+<tr>
+<td><code>evaluate.py</code>（<code>evaluate.py:135</code>）</td>
+<td>无内建（社区 Ragas 项目）</td>
+<td><strong>评测框架不做，要自己接</strong>——本课程的立场</td>
+</tr>
+</tbody>
+</table></div>
+<p>看到没有：你手写的每一块都能在框架里找到位置——<strong>这就是&quot;能看懂&quot;的完成标准</strong>。</p>
+<h2>12.3 框架 Demo 的代码走读（scripts/demo_llamaindex.py，110 行）</h2>
+<pre><code class="language-bash">python -m scripts.demo_llamaindex        # 首次会调 embedding API 建内存索引
+</code></pre>
+<p>Demo 分四步，每步对应我们手写的一个部件：</p>
+<pre><code class="language-python"># 1) 接入模型（:37-51）：OpenAILike 接 DeepSeek、OpenAIEmbedding 接硅基流动
+llm = OpenAILike(model=config.LLM_MODEL,
+                 api_base=f&quot;{config.DEEPSEEK_BASE_URL}/v1&quot;, ...)
+embed = OpenAIEmbedding(model_name=config.EMBED_MODEL,
+                        api_base=config.SILICONFLOW_BASE_URL,
+                        embed_batch_size=24)   # :48 与我们 _BATCH=24 一致
+
+# 2) 同一批语料进内存索引（:54-62）：SimpleDirectoryReader 读 data/corpus
+index = VectorStoreIndex.from_documents(docs)
+
+# 3) 框架版 Hybrid（:65-76）
+vector_ret = index.as_retriever(similarity_top_k=10)
+bm25_ret = BM25Retriever.from_defaults(docstore=index.docstore, similarity_top_k=10)
+fusion = QueryFusionRetriever([vector_ret, bm25_ret],
+                              num_queries=2,               # 原始 + 1 改写：multi-query lite
+                              mode=&quot;reciprocal_rerank&quot;)    # 即 RRF
+
+# 4) 对比提问（:80-97）：同一问题并行跑框架版与手写版（:86 手写 Hybrid），
+#    Top-3 并排打印 + 框架生成回答
+</code></pre>
+<p><strong><code>OpenAILike</code> 和 <code>OpenAIEmbedding</code></strong> 说的是调用形状：请求按 OpenAI 那套 HTTP 接口来写。
+模型可以仍是 DeepSeek 或硅基流动，<code>api_base</code> 把地址指到对应的服务。
+<code>SimpleDirectoryReader</code> 按目录读文件，变成一串 Document，相当于本课程的 <code>loader.load_main()</code>。</p>
+<p>观察任务：同一个问题，框架版的命中块与本课程版一致吗？
+（大方向应一致；个别名次差异来自分词器与 chunk 边界的微小不同——
+这正是&quot;换实现 = 换了实验条件，金标要重新对齐&quot;的实例。）</p>
+<p>注意 Demo 的索引在<strong>进程内存</strong>里，每次运行重建，进程结束就没了。
+它没有接课程的 pgvector 表，只做概念对照。真要落库，用
+<code>llama-index-vector-stores-postgres</code> 包里的 <code>PGVectorStore</code>，那已经超出本节的目标。</p>
+<h2>12.4 选型卡片（结业工具）</h2>
+<pre><code class="language-text">问题类型                          → 该加哪一层
+─────────────────────────────────────────────────────
+局部语义事实                      → Vector RAG
+有符号/编号/型号/术语             → + BM25 + RRF（Hybrid）
+候选够，但 Top-K 不准             → + Rerank
+用户口语与文档术语不一致          → + Query Rewrite / Multi-Query
+检索对了答案仍胡编/丢引用         → 改 Prompt 约束 + 引用 + 拒答（不是换模型！）
+小块才能命中、大块才够回答        → + Parent-Child
+脏数据/错章/索引不一致            → 清洗 + 元数据 + checksum（不是换检索器！）
+检索不可靠、需要&quot;刹车&quot;           → + CRAG（第 16 节；KB 已内置可开关）
+章节长文档的层级/全局摘要题       → 考虑 RAPTOR
+实体关系/多跳/全局主题            → 考虑 GraphRAG / LightRAG
+证据已在 Context 仍答不好         → 最后才考虑换更大 LLM
+</code></pre>
+<p>配套的诊断顺序（第 10 节的 8 步清单）+ 这张卡片 = 计划书定义的&quot;能诊断与选型&quot;。
+第 17 节的 KB 系统就是把这张卡片的<strong>默认配置</strong>做成产品：Hybrid+Rerank 常开、
+CRAG 可选、拒答双层。</p>
+<h2>12.5 本课程的最终成绩单</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>计划书里程碑</th>
+<th>达成情况</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>M1 能跑能测</td>
+<td>✅ 全链路 + 金标 + Recall/MRR</td>
+</tr>
+<tr>
+<td>M2 能比较检索器</td>
+<td>✅ exp1：RRF 最优 &gt; Dense &gt; BM25（v1/v2 口径见第 1 节 1.7）</td>
+</tr>
+<tr>
+<td>M3 能比较查询与装填</td>
+<td>✅ exp4：Multi-Query 把 Recall 补满；装填三模式可交互对比</td>
+</tr>
+<tr>
+<td>M4 能做知识库消融</td>
+<td>✅ exp2 清洗、exp3 切分、meta_filter、增量</td>
+</tr>
+<tr>
+<td>M5 能对照框架并做层级检索</td>
+<td>✅ demo_llamaindex + exp5 PC（R@5 1.00）</td>
+</tr>
+<tr>
+<td>M6 能理解结构化 RAG 并选型</td>
+<td>✅ 第 11 节扫盲 + refs/ 源码阅读任务</td>
+</tr>
+<tr>
+<td>M7（v2/产品）能评测生成侧并交付完整系统</td>
+<td>✅ exp7 judge + 34 个单测 + <code>/kb</code> 知识库</td>
+</tr>
+</tbody>
+</table></div>
+<h2>12.6 后续学习路线</h2>
+<pre><code class="language-text">① 把 refs/LightRAG、refs/raptor 的阅读任务做完（第 11 节）
+   → 已有笔记 docs/01、02；读后对照补充自己的理解
+② 用 LLM-as-judge 升级生成侧评测 → ✅ 已完成（第 13 节 exp7）
+③ 给 evaluate.py 加单测，防止改代码悄悄破坏指标 → ✅ 已完成（tests/，24 用例）
+④ 读 RAGFlow 的知识库设计 → ✅ 已完成对照笔记（docs/03）
+⑤ LLM Wiki：《RAG与LLM Wiki》第 6 节起 —— 知识编撰模式
+⑥ 多模态 RAG / MinerU：PDF 解析进知识库 → ✅ 已实操（第 2 节 2.8，
+   1336 chunks 入库）；多模态嵌入是下一步
+⑦ 完整项目实战 → ✅ 已完成（第 17 节：/kb 个人知识库，带 Web API、
+   流式、引用、CRAG）——all-in-rag 第八/九章的对照点
+⑧ 给 KB 建用户自有金标，复用 playground/eval 全套指标（待做，性价比最高）
+</code></pre>
+<blockquote>
+<p>[!IMPORTANT]
+计划书的核心原则，作为结业赠言：
+<strong>不要以&quot;部署成功&quot;为完成标准，而以&quot;能解释每个检索结果为什么出现、
+换一种方案为什么会改变结果&quot;为标准。</strong>
+本课程的每个数字都来自你本机的真实运行——它们可以被你随时重跑、质疑、推翻。
+这就是工程学习与背概念的区别。</p>
+</blockquote>
+<h2>12.7 延伸：评测框架对照（Ragas / TruLens / DeepEval）</h2>
+<p>第 13 节手写了 judge，再看社区评测框架，就是&quot;手写 vs 框架&quot;的评测版。</p>
+<ul>
+<li><strong>Ragas</strong> 实现的是第 13 节那三个分数：Faithfulness、Answer Relevance、
+Context Relevance。社区把这三个分数叫 RAG triad，中文材料里也会写成&quot;RAG 三元组&quot;。
+它和第 11、14 节图上的三元组（主体、关系、客体）不是同一个词。</li>
+<li><strong>TruLens</strong> 把每次调用的输入、检索到的块、模型输出记成一条 trace，再在界面上打分。
+本课程的 Trace 面板是同一想法的手写版。</li>
+<li><strong>DeepEval</strong> 把&quot;分数低于阈值&quot;写成 pytest 风格的断言。<strong>pytest</strong> 是 Python 的测试运行器，
+收集 <code>test_</code> 开头的函数并执行；断言失败，这次改动就被拦下来。
+和第 13 节用单测守住 Recall/MRR 是同一纪律，对象从硬指标换成了裁判分数。</li>
+</ul>
+<p>选型判断与 12.1 相同：手写一遍再看框架，看的是它们怎么处理裁判 Prompt
+的版本、结果缓存和抽样。概念已经在第 13 节。框架替代不了 13.4 的三条纪律，
+也替代不了 13.5 里用金标算出来的硬指标。</p>
+</div>
+  </article>
+  <nav class="wrap post-nav"><a class="prev" href="11.html"><span class="dir">← 上一篇</span><span class="t">结构化 RAG 扫盲：RAPTOR / GraphRAG / LightRAG</span></a><a class="next" href="13.html"><span class="dir">下一篇 →</span><span class="t">评测进阶：LLM-as-judge 与指标保护（v2 加厚）</span></a></nav>
+</main>
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb 的博客</span>
+    </div>
+    <p>© <span data-year>2026</span> NorthAdb · RAG 课为静态讲义</p>
+    <div class="f-links">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</footer>
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+<script src="../../js/main.js"></script>
+</body>
+</html>

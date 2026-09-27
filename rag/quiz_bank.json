@@ -1,0 +1,533 @@
+{
+  "_说明": "全课程自测题库。retrieval practice 用：先自己回想，再展开答案核对。ref 指向可复查的源码/数据位置。type: recall（回忆）/ apply（应用）/ diagnose（诊断）。",
+  "lessons": {
+    "00": [
+      {
+        "q": "本课程把所有模型与参数钉死在一个文件里，改任何一项等于全量重建索引。这个文件是哪个？Embedding 模型与维度分别是什么？",
+        "a": "playground/config.py。Embedding 用 BAAI/bge-m3（硅基流动），1024 维——必须与 pgvector 列维度一致。",
+        "ref": "playground/config.py:34-35",
+        "type": "recall"
+      },
+      {
+        "q": "API key 失效时课程为什么还能继续跑？三个依赖各自的降级实现叫什么？",
+        "a": "config 允许降级（ALLOW_FAKE_EMBEDDING / ALLOW_ECHO_LLM）。Embedding→HashingEmbedder（词袋哈希投影）、LLM→EchoLLM（抽取式拼接）、Rerank→LexicalReranker（词法重排）。选择逻辑在各自的 get_xxx() 里：先探活，失败才降级。",
+        "ref": "playground/retrieve/embedder.py:142",
+        "type": "recall"
+      },
+      {
+        "q": "rg_chunks 表上的三个索引分别服务什么查询？",
+        "a": "HNSW（embedding 列）服务向量近邻；strategy 上的 B-tree 服务索引版本隔离；meta 的 GIN（jsonb_path_ops）服务 corpus 等元数据过滤。",
+        "ref": "scripts/init_db.py:53-58",
+        "type": "recall"
+      },
+      {
+        "q": "启动课程的三条命令是什么？哪一条会花 embedding API 的钱？",
+        "a": "python -m scripts.init_db（建表，不花钱）→ python -m scripts.make_dirty && python -m scripts.build_index（首次调 embedding API 花钱，之后走缓存）→ python -m course.app。",
+        "ref": "scripts/build_index.py:18",
+        "type": "recall"
+      }
+    ],
+    "01": [
+      {
+        "q": "RAG 与 Fine-tuning 的本质区别一句话是什么？判断口径是什么？",
+        "a": "RAG 的知识在外部库（可增删改查，模型参数不动），Fine-tuning 把知识学进参数。口径：要改\"模型知道什么\"用 RAG，要改\"模型怎么说话\"才考虑 Fine-tuning。",
+        "ref": "course/lessons/01.md §1.1",
+        "type": "recall"
+      },
+      {
+        "q": "三层心智模型分别是哪三层？\"检索回来的块本身是脏的/碎的\"是哪一层的问题？",
+        "a": "Layer 1 知识工程（清洗/切分/组织）、Layer 2 检索工程（向量/BM25/融合/精排/过滤）、Layer 3 上下文工程（装填/引用/拒答/控制流）。块脏/碎是 Layer 1。",
+        "ref": "course/lessons/01.md §1.2",
+        "type": "diagnose"
+      },
+      {
+        "q": "流水线每层输入输出的统一形状是什么类型？这个设计带来哪两个能力？",
+        "a": "Hit 数据类（doc_id/chunk_id/score/source/section_path 等）。带来：① 任何一层可单独替换/消融而上下层不改；② Playground 能把每层中间结果原样画出（可观测是类型设计的红利）。",
+        "ref": "playground/retrieve/vector_store.py:14-27",
+        "type": "recall"
+      },
+      {
+        "q": "金标集 30 题里为什么必须放 7 道\"语料里故意没有\"的不可回答题？如果删掉它们，哪些指标会变？",
+        "a": "考察系统敢不敢说\"不知道\"（拒答是能力不是胆小）。删掉后 Recall/MRR/kw_hit 全都不会变——它们不参与召回指标——这正是它们容易被漏掉的原因；只有拒答率无法再测。",
+        "ref": "playground/eval/evaluate.py:87-88",
+        "type": "diagnose"
+      },
+      {
+        "q": "\"上下文窗口都百万 token 了，还要 RAG 吗？\"——从成本、权限、溯源三个维度回答。",
+        "a": "要。成本：全量塞长窗每问都要为全库 token 付费，RAG 只为命中几块付费；权限：多租户\"谁能看什么\"必须在检索层过滤，塞进长窗就难控制；溯源：RAG 有 [n] 编号引用到块，长窗只能说\"在上面某处\"。合流做法：检索负责\"选\"，长窗负责\"装\"。",
+        "ref": "course/lessons/01.md §1.9",
+        "type": "diagnose"
+      }
+    ],
+    "02": [
+      {
+        "q": "脏数据四宗罪是哪四类？各自模拟什么真实场景？",
+        "a": "① 页眉页脚（PDF 解析导出）② 样板句重复（网页爬取的公共模板）③ 断行与符号拆散（OCR/复制粘贴）④ 文档级重复（多来源重复收录）。生成器是 scripts/make_dirty.py 的 dirty_text()。",
+        "ref": "scripts/make_dirty.py:18-23",
+        "type": "recall"
+      },
+      {
+        "q": "实验 2 里为什么 BM25 被脏数据伤得最重而 Dense 相对鲁棒？说出至少两个机制。",
+        "a": "① IDF 污染：页眉句出现在每篇文档，抬高频词的文档频率、拉低 IDF，全库统计变形；② 样板句霸榜：重复免责声明在相关查询里疯狂得分占 Top-K；③ 断词失配：AVX-512 被拆成 AVX-512 - 后 BM25 精确 token 匹配失配，Dense 对子词扰动宽容。",
+        "ref": "course/lessons/02.md §2.5",
+        "type": "diagnose"
+      },
+      {
+        "q": "clean_text 的三步分别是什么？为什么每步都要做成独立开关？",
+        "a": "strip_headers（行级正则过滤页眉页脚+样板句替换）、dedup_lines（相邻重复行去重）、normalize（\\u00a0、折叠空白、英文断词连字符拼回、折叠空行）。独立开关是为了做清洗消融实验——能单独归因每一步的贡献。",
+        "ref": "playground/ingest/cleaner.py:30-60",
+        "type": "recall"
+      },
+      {
+        "q": "doc_level_dedup 能处理\"两篇 90% 相同但有一段不同\"的文档吗？为什么？",
+        "a": "不能。它只对整篇 checksum 完全相同的文档去重（loader 在读入时算的 sha256）。部分重复要靠块级去重（第 9 节的第三层）。",
+        "ref": "playground/ingest/cleaner.py:63-71",
+        "type": "diagnose"
+      },
+      {
+        "q": "换了清洗规则后，怎么判断是\"洗好了\"还是\"规则伤了正文\"？说出至少两步体检。",
+        "a": "① 数量体检：清洗前后字符/块数变化幅度异常（如掉 40%）多半是正则误伤；② 单测保护：把\"页眉必删、正文必留\"固化成断言；③ 金标对比：干净/脏两版跑 run_eval；④ 抽样人检 20 块——自动指标饱和后，肉眼才能发现\"删了不该删的半句话\"。",
+        "ref": "course/lessons/02.md §2.10",
+        "type": "diagnose"
+      }
+    ],
+    "03": [
+      {
+        "q": "\"每 500 字切一刀\"会切出什么样的坏块？Context-aware Chunk 的最小实现是什么（一句话+一行代码）？",
+        "a": "切出\"它在这种情况下性能更好\"这类主语在上文的无主语句，向量匹配不上任何正经问题。最小实现：标题前缀——embed_text = f\"{title}：{piece}\"，向量化用带标题版本，装 Context 用原文。",
+        "ref": "playground/ingest/chunker.py:105-107",
+        "type": "recall"
+      },
+      {
+        "q": "fixed_chunks 的切分顺序是什么？overlap 在代码里是怎么实现的？",
+        "a": "段落优先（空行分割）→ 单段超长按句子切（在 size 内找最后一个句号，且 cut 必须 > size//2）→ 最后硬切。overlap：新块以上一块的末尾 overlap 个字符开头（cur = cur[-overlap:]）。",
+        "ref": "playground/ingest/chunker.py:69-93",
+        "type": "recall"
+      },
+      {
+        "q": "实验 3 里三个切分尺寸的文档级 Recall@5 全部饱和（1.00），区分度落在 MRR 与 noise 上：小块 200 的 MRR 为什么最低？",
+        "a": "小块把同一文档切成很多主题单一的小块，\"把正确文档顶到第一名\"的力量被分散（多块分票），MRR 最低（0.884）；500/900 并列最高（0.928）。文档级指标饱和时区分方案要靠 MRR/noise 等块级与名次指标。结论：没有万能尺寸，只有对这批数据+这批问题的实测最优。",
+        "ref": "course/lessons/03.md §3.4",
+        "type": "diagnose"
+      },
+      {
+        "q": "想试新的切分尺寸，正确做法是什么？直接改 config.CHUNK_SIZE 会怎样？",
+        "a": "加一个新 strategy（build_index 传 chunk_size/overlap 生成新名字如 flat700x100），与旧索引并存对比。直接改默认值会破坏实验可比性——旧成绩全作废，且无法归因。",
+        "ref": "playground/ingest/ingest.py:56-57",
+        "type": "apply"
+      },
+      {
+        "q": "切分策略谱系里\"语义切分\"比固定滑窗贵在哪？什么情况下才值得升级？",
+        "a": "每个相邻句都要算一次 embedding（成本贵数倍）。只有在这批语料的金标上量出提升才值得——把滑窗与语义切分各建一个 strategy 跑 run_eval 对比。升级要有证据，与\"先金标后改进\"同源。",
+        "ref": "course/lessons/03.md §3.7",
+        "type": "diagnose"
+      }
+    ],
+    "04": [
+      {
+        "q": "embedding 磁盘缓存的 key 是怎么算的？为什么要加 \\x00 分隔符？",
+        "a": "sha256(模型名 + '\\x00' + 文本)。分隔符防止 (\"ab\",\"c\") 与 (\"a\",\"bc\") 拼出相同的 key。效果：同一段文字永远只花一次 API 钱。",
+        "ref": "playground/retrieve/embedder.py:64",
+        "type": "recall"
+      },
+      {
+        "q": "pgvector 的 <=> 算子算的是什么？SQL 里怎么变成相似度？",
+        "a": "余弦距离（0=同向，2=反向）。1 - 距离 = 余弦相似度，见 dense_search 的 SELECT 列。",
+        "ref": "playground/retrieve/vector_store.py:38",
+        "type": "recall"
+      },
+      {
+        "q": "HashingEmbedder 是\"真实的弱检索器\"——它什么能做到、什么做不到？",
+        "a": "同词必同向量（词面匹配有效，带符号累加+归一化）；但完全不懂语义，\"向量搜索\"匹配不上\"语义搜索\"这类改写。本质：没有语义的 Dense ≈ 另一种 BM25。",
+        "ref": "playground/retrieve/embedder.py:99-128",
+        "type": "diagnose"
+      },
+      {
+        "q": "ef_search 基准（exp8）的诚实结论是什么？什么时候 HNSW 的取舍才真正显现？",
+        "a": "625 块小语料上各档 ef_search 召回全 1.0、延迟无差别——ANN 取舍在这个规模观察不到。十万块以上 HNSW 才显著省 IO，ef_search 才成为真正的旋钮。结论：基准必须在真实数据量上重测。",
+        "ref": "scripts/bench_hnsw.py:48",
+        "type": "diagnose"
+      },
+      {
+        "q": "HNSW 的三个参数 m、ef_construction、ef_search 各管什么？改哪个不用重建索引？",
+        "a": "m 管\"路修多密\"（每个节点最多连几条边）；ef_construction 管\"修路时多仔细\"（建图时的候选队列宽度）；ef_search 管\"赶路时多仔细\"（查询时的候选队列宽度，越大越准越慢，必须 ≥ top_k）。只有 ef_search 是会话级查询参数、随时可调；前两个改动需要重建索引。",
+        "ref": "course/lessons/04.md §4.2.5",
+        "type": "recall"
+      }
+    ],
+    "05": [
+      {
+        "q": "BM25 公式里 k1 和 b 各控制什么？",
+        "a": "k1≈1.5 控制词频饱和（出现 3 次重要，30 次不会重要 10 倍——防关键词堆砌）；b≈0.75 控制文档长度归一（长文档天然词多，把便宜压回去）。",
+        "ref": "playground/retrieve/bm25.py:3-5",
+        "type": "recall"
+      },
+      {
+        "q": "tokenize 为什么要把英文长词整块切出（保留 - 和 .）？分错会发生什么？",
+        "a": "SSE4.2 / AVX-512 / VPGATHERDD 必须是完整 token，这是符号题的命脉。若 AVX-512 被拆成 avx+512，查询会匹配到所有含 512 的块（如 512 KB L2），噪声暴增。",
+        "ref": "playground/retrieve/bm25.py:26-35",
+        "type": "diagnose"
+      },
+      {
+        "q": "BM25 的丢弃条件是什么？为什么不是\"分数 ≤ 0\"？Dense 有这个概念吗？",
+        "a": "丢弃的是\"词面零重合\"（qtok 与该块 token 集合无交集）的块，而不是\"分数 ≤ 0\"：超小语料里独有词的 IDF 会退化成 0（N=2 时 log(1.5/1.5)=0），有词面重合的有效命中分数也可能是 0，只看分数会把它们误丢——真实踩过的边界 bug。Dense 的余弦几乎永远 >0，没有\"零重合\"概念——这是两路互补的根源之一。",
+        "ref": "playground/retrieve/bm25.py:64",
+        "type": "diagnose"
+      },
+      {
+        "q": "BM25 索引存在哪里？改库之后必须做什么，为什么？",
+        "a": "进程内存（lru_cache 按 (strategy, corpus) 缓存的 BM25Okapi）。改库后必须 cache_clear（KB 在 clear_retrieval_caches 里做）——数据库变了缓存不会自己知道，否则检索的是旧索引。",
+        "ref": "playground/retrieve/bm25.py:38-51",
+        "type": "apply"
+      },
+      {
+        "q": "tsvector 方案与手写 BM25（内存倒排）各自的生态位是什么？切换实现要注意什么？",
+        "a": "数据已在 Postgres 且规模中等 → tsvector + pgvector 同库 Hybrid（少养一套基础设施）；规模大/分词要求高 → 专用引擎（如 ES）。切换实现 = 换了分词 = 换了实验条件，金标要重新对齐——分词器纪律在任何实现里都成立。",
+        "ref": "course/lessons/05.md §5.9",
+        "type": "recall"
+      }
+    ],
+    "06": [
+      {
+        "q": "量纲绑架是什么？用数字说明为什么 α=0.5 的加权实际上是 BM25 说了算。",
+        "a": "Dense 分数在 [0,1]（实测 0.4-0.7），BM25 无界非负（实测 2-30+）。α·cos+(1-α)·bm25 里 BM25 项大 1-2 个数量级，\"五五开\"实际排序≈BM25 单路。实测 MRR 0.822，仍比 Dense 单路（0.880）差（30 题口径）。",
+        "ref": "playground/retrieve/hybrid.py:60-78",
+        "type": "diagnose"
+      },
+      {
+        "q": "RRF 公式是什么？k=60 起什么作用？",
+        "a": "RRF(d) = Σ 1/(k + rank_i(d))。k 越大头部名次分差越小、融合越温和；k 越小头部优势越大。它只用名次不用分数，所以对量纲免疫。",
+        "ref": "playground/retrieve/hybrid.py:29",
+        "type": "recall"
+      },
+      {
+        "q": "想加第三路检索器进融合，rrf_fuse 需要改吗？",
+        "a": "不需要。它接受 lists: list[list[Hit]]，天生支持任意多路——构造出 Hit 列表直接并进去（multi_query 的多组结果就是这样二次融合的）。",
+        "ref": "playground/retrieve/hybrid.py:25",
+        "type": "apply"
+      },
+      {
+        "q": "融合、重排、改写分别在流水线的什么位置？互相能替代吗？",
+        "a": "改写在检索前（改查询）、融合在多路召回后（粗排合并）、rerank 在融合后（精排）。位置不同，不能互相替代——课程全程分开评测。",
+        "ref": "course/lessons/06.md §6.5",
+        "type": "diagnose"
+      },
+      {
+        "q": "RRF 的 k=60 从哪来？什么情况下该考虑加权 RRF、甚至退回单路？",
+        "a": "k=60 是 Cormack 2009 论文的经验值（压平头部名次差距）。实测某一路系统性更强时可用加权 RRF（代价：调参 + 对这批金标过拟合的风险）；若一路明显强、弱路只贡献噪声票，退回单路也是诚实选项——融合是可实测的工程选择，不是信仰。",
+        "ref": "course/lessons/06.md §6.8",
+        "type": "diagnose"
+      }
+    ],
+    "07": [
+      {
+        "q": "双塔和 Cross-Encoder 的本质区别是什么？各自适合流水线的哪个位置？",
+        "a": "双塔独立编码 Query/Doc（可离线预计算，O(1) 查询）→ 全库召回；Cross-Encoder 把 Query+Doc 拼一起进模型，token 级注意力交互所以更准，但每对都要一次前向 → 只能用于候选少的精排。",
+        "ref": "playground/retrieve/reranker.py:22-53",
+        "type": "recall"
+      },
+      {
+        "q": "rerank 分数为什么适合当\"检索质量评估器\"（CRAG/拒答阈值）而 cosine 不行？",
+        "a": "rerank 分数两极分化：强相关 0.9+，真不相关接近 0，中间是空带；cosine 是相对的——语料里没答案时它照样给\"最不坏\"的块打 0.5+，分不出\"真不相关\"。",
+        "ref": "scripts/demo_crag.py:20",
+        "type": "diagnose"
+      },
+      {
+        "q": "实验 1 里 Hybrid+Rerank 的 MRR 与 Hybrid 完全一样（0.928），这能证明 rerank 没用吗？",
+        "a": "不能。16 篇语料 RRF 的 Top-1 已基本正确、文档级 MRR 饱和。逐题对比显示 rerank 把真正定义 STTNI 的段落抬到第 1（0.9985）——排序质量肉眼变好，只是本题没改变命中文档。rerank 救不了\"没召回\"。",
+        "ref": "course/lessons/07.md §7.4",
+        "type": "diagnose"
+      },
+      {
+        "q": "Reranker 救不了什么问题？遇到那种情况该改哪层？",
+        "a": "救不了\"金标根本没进候选\"——那是召回/切分/清洗的问题（Layer 1/召回侧），加 rerank 只是烧钱。",
+        "ref": "course/lessons/07.md §7.4",
+        "type": "diagnose"
+      },
+      {
+        "q": "训练 reranker 时\"随机负例\"和 \"hard negatives\" 的差别是什么？为什么后者才是关键？",
+        "a": "随机负例词面不同、太容易，模型学不到精排能力；hard negatives 是\"粗排高分但不回答\"的块（AVX 之于 AVX-512 查询），模型必须看语义细节才能排除——这正是精排的本职。粗排的错误形态恰好是精排训练数据的采集器。",
+        "ref": "course/lessons/07.md §7.10",
+        "type": "recall"
+      }
+    ],
+    "08": [
+      {
+        "q": "multi_query 的保底设计是什么？为什么它比 rewrite 稳？",
+        "a": "返回列表 ([query] + out)[:n+1]——原始查询永远参与检索，改写是增益不是替代；LLM 返回空/错时至少退回原路。rewrite 是单点替换，改写偏移意图就全线崩。",
+        "ref": "playground/retrieve/query_rewrite.py:35",
+        "type": "recall"
+      },
+      {
+        "q": "HyDE 的 Prompt 为什么要说\"不需要准确，只需要像文档里的答案\"？",
+        "a": "HyDE 要的是文档的词汇分布来拉近语义距离，不是事实。收益与风险同源：词汇对了召回大涨，事实错了会把检索带偏（所以只作对照不作默认）。",
+        "ref": "playground/retrieve/query_rewrite.py:38-50",
+        "type": "diagnose"
+      },
+      {
+        "q": "build_context 做的四件事是什么？超预算丢谁的逻辑是什么？",
+        "a": "去重（同 chunk_id）、预算（按分数收满 3200 字符/6 块即停，剩下的进 dropped 可观测）、排序（score/ends/doc）、引用（[i] 编号+citations 表）。超预算丢分数低的——低分块更可能是噪声。",
+        "ref": "playground/generate/context_builder.py:27-70",
+        "type": "recall"
+      },
+      {
+        "q": "为什么拒答必须放在生成层用 Prompt 约束，而不是靠检索层\"不返回结果\"？",
+        "a": "Top-K 永远会返回\"最不坏\"的 K 个（相似度是相对的），检索层没有\"不够好就不给\"的机制。能不能承认\"证据不够\"只能在生成层约束 + 用不可回答题评测保证。",
+        "ref": "playground/generate/prompt.py:4-8",
+        "type": "diagnose"
+      },
+      {
+        "q": "CONTEXT_CHAR_BUDGET=3200 这笔账怎么算？换 900 字大块或英文语料时分别怎么调？",
+        "a": "预算 ≈ top_k × 平均块长 + 头尾开销（5×500≈2500 + 引用/出处余量 ≈ 3200）。900 字大块：3200 只装得下 3 块，预算要放大或接受更少块；英文按 4 字符/token 换算，同字符数信息量约是中文的 1/4，预算要放大。",
+        "ref": "course/lessons/08.md §8.8",
+        "type": "apply"
+      }
+    ],
+    "09": [
+      {
+        "q": "meta @> 过滤发生在检索的哪个阶段？为什么\"检索完再 filter\"不如它？",
+        "a": "在 SQL 的 WHERE 里（向量检索之内，缩小候选集）。“检索完再 filter”是先花成本取回再丢弃，且 HNSW+过滤有候选不足的坑（iterative_scan 缓解）。",
+        "ref": "playground/retrieve/vector_store.py:40-41",
+        "type": "diagnose"
+      },
+      {
+        "q": "build_index 写库的顺序是什么？为什么必须先删后插？",
+        "a": "先 DELETE 该 strategy 全部旧块 → upsert 文档（checksum 可检测源文件变化）→ 插新块+向量。防止\"部分新部分旧\"的孤儿向量——半新半旧比全旧更危险。",
+        "ref": "playground/ingest/ingest.py:84-87",
+        "type": "recall"
+      },
+      {
+        "q": "去重的三个层次分别发生在什么时机？各在哪个函数？",
+        "a": "文本级（清洗时，cleaner.clean_text 相邻重复行）、文档级（清洗时，doc_level_dedup 按 checksum）、块级（装填时，context_builder 按 chunk_id）。装填层能止血，入库层才治本。",
+        "ref": "playground/generate/context_builder.py:29-35",
+        "type": "recall"
+      },
+      {
+        "q": "一篇文档只改了标题、正文没动，checksum 会变吗？需要重建索引吗？",
+        "a": "会变（checksum 算的是全文）。需要重建——因为标题会进入 embed_text（chunker 的标题前缀），标题变了向量就过时了。",
+        "ref": "playground/ingest/chunker.py:106",
+        "type": "apply"
+      },
+      {
+        "q": "给 meta 加字段的纪律是什么？permissions 字段为什么必须做成 SQL 内过滤？",
+        "a": "字段为\"过滤/展示/权限\"三种用途而设，不为存而存；加之前先问\"将来哪条查询会按它过滤？\"答不上就别加；值要规范化（日期统一格式、枚举走白名单）。permissions 是安全边界不是 UX：必须在 SQL WHERE 内（检索中过滤），\"检索回来再丢弃\"会在日志/缓存里泄漏。",
+        "ref": "course/lessons/09.md §9.7",
+        "type": "diagnose"
+      }
+    ],
+    "10": [
+      {
+        "q": "Parent-Child 解决的矛盾是什么？检索单元和生成单元分别是什么？",
+        "a": "\"块要短才好精确命中，要长才够 LLM 理解\"。子块（200 字）做索引与检索，命中后回表 rg_parents 取整节父块送进 Context（生成单元）。",
+        "ref": "playground/retrieve/parent_child.py:29-70",
+        "type": "recall"
+      },
+      {
+        "q": "auto-merging 的加分逻辑在代码里是哪一行？直觉解释是什么？",
+        "a": "boost = 1/(RRF_K+1) × (n_hits - 1)。同一父块下每多命中一个子块就加分——多个子块都命中说明答案很可能横跨该节，父块值得排更前。",
+        "ref": "playground/retrieve/parent_child.py:48",
+        "type": "recall"
+      },
+      {
+        "q": "四个指标各自回答什么问题？不可回答题参与哪些指标？",
+        "a": "Recall@K（金标进没进 Top-K）、MRR@K（命中排第几）、kw_hit@K（Top-K 里有没有块真含答案关键词）、noise@K（几块是凑数的）。不可回答题不参与召回指标（:87-88 跳过），只算拒答率。",
+        "ref": "playground/eval/evaluate.py:83-132",
+        "type": "recall"
+      },
+      {
+        "q": "金标在候选里但排到 Top-5 之外，按诊断清单该查哪几步？",
+        "a": "先过 1-3 步（源文件/切分/符号路）确认前处理没问题；命中但在候选外 → 第 4 步（召回问题，改召回/加改写）；在候选内但靠后 → 第 5 步（融合/精排问题）。",
+        "ref": "course/lessons/10.md §10.3.4",
+        "type": "diagnose"
+      },
+      {
+        "q": "MRR 和 nDCG 的核心差别是什么？金标里出现什么信号才值得升级到 nDCG？",
+        "a": "MRR 只看第一个命中的名次（单一正确答案够用）；nDCG 同时处理\"多个相关文档 + 相关性有强弱\"（位置按 log 折损，强相关排后罚得多，不相关永远是 0）。金标出现\"分级相关性\"标签（权威定义段 vs 顺带提过）时才值得升级——kw_hit+MRR 组合是它的平民版。",
+        "ref": "course/lessons/10.md §10.7",
+        "type": "recall"
+      }
+    ],
+    "11": [
+      {
+        "q": "扁平 RAG 接不住的三类问题是什么？分别对应哪种结构？",
+        "a": "层级/全局题（答案散在多篇，无单块覆盖）→ RAPTOR 树；多跳关系题（A→B→C 关系链）→ GraphRAG/LightRAG 图；汇总统计题（要看全库不是找相似）→ 摘要层。",
+        "ref": "course/lessons/11.md §11.1",
+        "type": "diagnose"
+      },
+      {
+        "q": "\"同一批数据上 GraphRAG 不如 Hybrid\"能证明图方法没用吗？",
+        "a": "不能。只说明这批数据不需要图结构（CPU 手册的实体是指令/寄存器，关系浅）。换关系型语料（人物/公司）再评。先跑扁平+金标，有对照再上结构。",
+        "ref": "course/lessons/11.md §11.6",
+        "type": "diagnose"
+      },
+      {
+        "q": "RAPTOR 的摘要节点有什么独特风险？",
+        "a": "摘要本身可能幻觉，然后被当证据检索出来——所以树方案的评测要额外看\"引用的是叶节点还是摘要节点\"。",
+        "ref": "docs/02-源码阅读笔记-RAPTOR.md",
+        "type": "diagnose"
+      }
+    ],
+    "12": [
+      {
+        "q": "本课程的 rrf_fuse 在 LlamaIndex 里对应什么？reranker 对应什么抽象？",
+        "a": "QueryFusionRetriever（mode=reciprocal_rerank，默认 RRF）；reranker 对应 NodePostprocessor——框架把精排抽象成\"后处理器\"。",
+        "ref": "scripts/demo_llamaindex.py:69-76",
+        "type": "recall"
+      },
+      {
+        "q": "评测为什么框架不内建（要接 Ragas）？这体现了课程的什么立场？",
+        "a": "框架卖\"能跑\"，评测决定\"好不好、改动有没有用\"，必须自己接金标。立场：先金标后改进，评测不是装饰是地基。",
+        "ref": "course/lessons/12.md §12.2",
+        "type": "diagnose"
+      },
+      {
+        "q": "选型卡片：\"检索对了答案仍胡编/丢引用\"该加哪一层？\"脏数据/索引不一致\"呢？",
+        "a": "前者改 Prompt 约束+引用+拒答（不是换模型）；后者清洗+元数据+checksum（不是换检索器）。",
+        "ref": "course/lessons/12.md §12.4",
+        "type": "diagnose"
+      },
+      {
+        "q": "Ragas / TruLens / DeepEval 各对应课程里的什么？框架能替代金标硬指标吗？",
+        "a": "Ragas ≈ 13.1 的 RAG 评估三元组；TruLens ≈ Trace 思想产品化（追踪+评分 UI）；DeepEval ≈ 13.5 的断言式单测保护。不能替代——13.4 三条纪律与金标硬指标仍是你的责任；框架多的只是包装（裁判 Prompt 版本管理、缓存、抽样）。",
+        "ref": "course/lessons/12.md §12.7",
+        "type": "recall"
+      }
+    ],
+    "13": [
+      {
+        "q": "RAG 评估三元组是哪三个？各自低分分别指向什么病灶？",
+        "a": "Context Relevance 低→查检索层（证据不相关）；Faithfulness 低→幻觉风险（声明无支撑）；Answer Relevance 低→答非所问/拒答失败。三者可分离地坏，必须都测。",
+        "ref": "playground/eval/judge.py:19-45",
+        "type": "recall"
+      },
+      {
+        "q": "LLM 裁判的三条纪律是什么？",
+        "a": "① 只做方案间相对比较（绝对分数无意义）② 必须配合人工抽检校准 ③ 不能替代金标硬指标（judge 是\"另一个 LLM 的观感\"）。",
+        "ref": "course/lessons/13.md §13.4",
+        "type": "recall"
+      },
+      {
+        "q": "exp7 里 Answer Relevance 只有 3.5-3.6，人工抽查发现的真正原因是什么？",
+        "a": "裁判对拒答不友好：不可回答题的正确回答\"资料中没有相关信息\"被判\"没有回答问题\"。教训：judge Prompt 要把正确拒答定义为满分情形，或对不可回答题单独评审。",
+        "ref": "experiments/exp7_judge.md",
+        "type": "diagnose"
+      },
+      {
+        "q": "测试库隔离的坑：test_db_smoke 只设环境变量为什么不够？正确做法是什么？",
+        "a": "pytest 按文件名顺序收集，test_core.py 可能先 import 过 config，环境变量就晚了。正确做法：import 后直接改 config.DB_DSN 属性——连接是懒建立的，改属性仍有效。",
+        "ref": "tests/test_db_smoke.py:14-22",
+        "type": "diagnose"
+      },
+      {
+        "q": "LLM 裁判的已知偏差里，哪一种解释了 exp7 的 AR 偏低？压所有偏差的通用手段是什么？",
+        "a": "\"拒答不友好\"——正确拒答被判\"没回答问题\"，是 AR 3.5-3.6 偏低的主因。通用手段：要求裁判给出可检查的依据（unsupported 清单），有依据的分数才能被人工抽检纠正。其他偏差各有对策：位置→换序、长度→防冗长偏好、自负→裁判与被评不同源、漂移→temperature=0 同批评测。",
+        "ref": "course/lessons/13.md §13.7",
+        "type": "diagnose"
+      }
+    ],
+    "14": [
+      {
+        "q": "图召回的输出是什么？图路在\"谁主导 Zen\"一题上为什么赢？",
+        "a": "输出=实体一跳邻居的来源文档列表。\"谁主导\"匹配不到答案所在文档（jim-keller.md 与问题的词面/语义都远），但图沿 AMD→Zen→凯勒 的关系边直接锁定了它。",
+        "ref": "scripts/toy_graph.py:76-89",
+        "type": "diagnose"
+      },
+      {
+        "q": "抽取 Prompt 的三条军规各防什么风险？",
+        "a": "只抽明确陈述（防 LLM 用世界知识补边、补的边无溯源）；实体用文中原名（命名不一致会让邻接表裂成孤岛）；JSON 数组+字段校验（不信任 LLM 输出）。",
+        "ref": "scripts/toy_graph.py:27-35",
+        "type": "recall"
+      },
+      {
+        "q": "图引导检索的实现是\"只搜图召回文档\"还是别的？对应第几节的什么机制？",
+        "a": "是\"向量结果 ∩ 图召回文档集合\"——图负责缩小范围（过滤），向量负责排序。对应第 9 节\"过滤是检索的一部分\"：图召回文档集合是运行时才知道的 meta_filter。",
+        "ref": "scripts/toy_graph.py:121",
+        "type": "apply"
+      },
+      {
+        "q": "改了 EXTRACT_PROMPT 之后直接重跑 toy_graph 会怎样？",
+        "a": "什么都不会变——triples.json 是抽取缓存，extract_triples 开头就短路返回旧数据。必须加 --force 强制重抽。",
+        "ref": "scripts/toy_graph.py:40-41",
+        "type": "apply"
+      }
+    ],
+    "15": [
+      {
+        "q": "construct_filter 的两道闸是什么？为什么 Prompt 里给了白名单还要再校验？",
+        "a": "① Prompt 内嵌白名单（让 LLM 只能从列表选）② 代码白名单校验（valid = [d for d in ... if d in DOC_LIST]）。因为 LLM 偶尔会编造白名单外的值——校验是保险带，永远不能省。",
+        "ref": "scripts/demo_query_construction.py:43",
+        "type": "recall"
+      },
+      {
+        "q": "空过滤器 = 安全退化是什么意思？哪类问题应该输出空过滤器？",
+        "a": "泛化问题构造不出过滤就退回全局检索，绝不硬构造一个错误范围。如\"CPU 性能优化的主要手段\"这种全局题（过滤反而多余）。",
+        "ref": "scripts/demo_query_construction.py:53-54",
+        "type": "diagnose"
+      },
+      {
+        "q": "Text2SQL 的三条生产铁律是什么？过滤器场景里各自的等价物是什么？",
+        "a": "只读（过滤器的 JSON 天然描述不了 DELETE）；白名单 schema（DOC_LIST 内嵌 Prompt）；先 EXPLAIN 后执行（把过滤器打印给用户确认，尤其结果为空时）。",
+        "ref": "course/lessons/15.md §15.3",
+        "type": "apply"
+      },
+      {
+        "q": "表格进知识库的三层文本化方案是什么？各自丢什么？",
+        "a": "① 行文本化（可语义检索，丢聚合视角）② 按列分组聚合（恢复部分统计视角）③ 摘要节点（回答\"总体情况\"题）。摘要节点用独立 strategy + meta_filter 控制走哪层。",
+        "ref": "course/lessons/15.md §15.4",
+        "type": "recall"
+      }
+    ],
+    "16": [
+      {
+        "q": "CRAG 的三段控制流是什么？评估器为什么选 rerank 分数？",
+        "a": "检索→评估（top1 rerank 分 ≥0.35 直接生成；<0.35 触发纠正）；纠正（multi-query 重检索，要求 s2≥阈值且 s2>s1）；仍不行→拒答。选 rerank 分因为它对\"真不相关\"诚实（0.00），cosine 永远给最不坏的块 0.5+。",
+        "ref": "scripts/demo_crag.py:44-74",
+        "type": "recall"
+      },
+      {
+        "q": "纠正后除了 s2 ≥ 阈值，为什么还要求 s2 > s1？",
+        "a": "防止\"负纠正\"：纠正动作（multi-query 换词）可能引入噪声，若纠正后分数只是低空过线但比第一轮差，说明原始证据更好——两个条件一起保证纠正真的变好了。",
+        "ref": "scripts/demo_crag.py:64",
+        "type": "diagnose"
+      },
+      {
+        "q": "Self-RAG / CRAG / Agentic 的控制流分别放在哪里？",
+        "a": "Self-RAG 放在生成模型里（特殊 token 自检）；CRAG 放在检索后（一次条件分支）；Agentic 放在整个循环外（完整循环+回边）。共同点：都在单次流水线外加了控制流。",
+        "ref": "course/lessons/16.md §16.1",
+        "type": "recall"
+      },
+      {
+        "q": "KB 里的 CRAG 与 demo_crag 的纠正动作有什么不同？",
+        "a": "demo_crag 纠正=multi-query 重检索（重跑一遍）；kb/chat.py 的 CRAG 纠正=LLM 扩展查询→重新召回→合并两轮候选（chunk_id 去重）→整体再精排。后者利用了两轮的全部信息。",
+        "ref": "kb/chat.py:85-145",
+        "type": "apply"
+      }
+    ],
+    "17": [
+      {
+        "q": "KB 的文档/块为什么能直接写进课程主表而互不干扰？三个隔离约定是什么？",
+        "a": "doc_id='kb::文件名' 前缀、meta.corpus='kb'（检索时 meta @> 过滤）、独立 strategy='kb600x120'。课程检索函数一行不改——Hit 形状统一 + corpus 过滤的设计兑现。",
+        "ref": "kb/ingest.py:36",
+        "type": "recall"
+      },
+      {
+        "q": "KB 同名文件重传的处理逻辑是什么？checksum 相同时会发生什么？",
+        "a": "ingest_file 先算新 checksum 与库中对比：相同 → status=unchanged 直接跳过（零成本）；不同 → 重切分重嵌入并 replace_chunks 先删后插（版本更新）。原件落盘 data/kb_uploads 可重建。",
+        "ref": "kb/ingest.py:59-67",
+        "type": "recall"
+      },
+      {
+        "q": "KB 对话的双层拒答是什么？第一层为什么在没开 Rerank 时会失效？",
+        "a": "第一层检索后：零命中或 top1 rerank 分 <0.35 → 不调 LLM 直接拒答；第二层在 System Prompt（只按资料回答）。没开精排时 rerank 分不存在，crag_verdict 返回 unknown——RRF 分数量纲不同不能复用阈值，只剩零命中拒答+Prompt 约束。",
+        "ref": "kb/chat.py:42-52",
+        "type": "diagnose"
+      },
+      {
+        "q": "KB 前端 SSE 解析踩过的分帧坑是什么？",
+        "a": "sse-starlette 用 \\r\\n\\r\\n 分帧，按 \\n\\n 切会永远匹配不上导致流卡死。解析前先把 \\r\\n 归一成 \\n（残留半个 \\r 会在下一块被修正）。",
+        "ref": "course/static/kb.html（send 的流解析）",
+        "type": "diagnose"
+      }
+    ]
+  }
+}

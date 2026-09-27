@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAG Playground 课程 — NorthAdb</title>
+<meta name="description" content="18 节 RAG 讲义、源码导读、实验报告与自测。交互部分需在本机运行。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23D97757'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%231C100A' font-family='Georgia' font-weight='bold'>N</text></svg>">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="course.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="orb orb-a"></div>
+<div class="orb orb-b"></div>
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../index.html">首页</a></li>
+        <li><a href="../index.html#posts">文章</a></li>
+        <li><a href="../learn.html">课件</a></li>
+        <li><a href="index.html" class="active">RAG</a></li>
+        <li><a href="../about.html">关于</a></li>
+        <li><a href="https://github.com/NorthAdb" target="_blank" rel="noopener" class="nav-cta">GitHub ↗</a></li>
+      </ul>
+    </nav>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+<main>
+  <section class="hero wrap">
+    <div class="hero-kicker"><span class="dot"></span> RAG Playground</div>
+    <h1>从零手写一条<br><em>可观测的 RAG</em>。</h1>
+    <p class="sub">18 节讲义：理论、对应代码、以及本机跑出来的实验数据。这一版是静态阅读；要改检索方案并看见每一跳，回到自己的电脑。</p>
+    <div class="hero-actions">
+      <a href="lesson/00.html" class="btn btn-primary">从第 00 节开始 →</a>
+      <a href="quiz.html" class="btn btn-ghost">自测</a>
+      <a href="local.html" class="btn btn-ghost">本机才能跑的部分</a>
+    </div>
+  </section>
+  <section class="wrap" style="padding-bottom: 10px;">
+    <div class="about-strip reveal" style="margin-top:0">
+      <div class="about-avatar">静</div>
+      <div>
+        <h3>这个板块里有什么</h3>
+        <p>GitHub Pages 没有服务器。课表、导读、实验报告和自测题是静态页，可以直接读。Playground、个人知识库和在线评测要连数据库与模型，页面里只保留启动方式。</p>
+        <div class="links">
+          <a href="#lessons">18 节课 →</a>
+          <a href="#reading">导读 →</a>
+          <a href="#experiments">实验报告 →</a>
+          <a href="local.html">本机功能 →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="wrap" id="lessons" style="padding-bottom: 24px;">
+    <div class="sec-head reveal"><h2>课程</h2><a class="more" href="quiz.html">自测 →</a></div>
+    <div class="posts">
+      <article class="post-card reveal">
+        <div class="post-meta"><span class="tag">第 00 节</span><span>约 15 分钟</span></div>
+        <h3><a href="lesson/00.html">课程导览：环境、约定与你的 RAG 地图</a></h3>
+        <p class="excerpt">三条主线、钉死的模型参数、目录结构、怎样用这门课；v3：五步学习闭环。</p>
+        <a class="readmore" href="lesson/00.html">阅读本节 <span class="arrow">→</span></a>
+      </article>
+      <article class="post-card reveal">
+        <div class="post-meta"><span class="tag">第 01 节</span><span>约 20 分钟</span></div>
+        <h3><a href="lesson/01.html">RAG 全景复习：三层心智模型</a></h3>
+        <p class="excerpt">知识工程 / 检索工程 / 上下文工程；为什么 RAG 不是“向量数据库技术”；v3：长上下文之辩等三个高频质疑。</p>
+        <a class="readmore" href="lesson/01.html">阅读本节 <span class="arrow">→</span></a>
+      </article>
+      <article class="post-card reveal">
+        <div class="post-meta"><span class="tag">第 02 节</span><span>约 35 分钟</span></div>
+        <h3><a href="lesson/02.html">原始资料的筛选与清洗</a></h3>
+        <p class="excerpt">脏数据四宗罪实验：页眉页脚、样板句、断行、文档级重复如何污染检索；v3：真实污染清单与清洗评估四步。</p>
+        <a class="readmore" href="lesson/02.html">阅读本节 <span class="arrow">→</span></a>
+      </article>
+      <article class="post-card reveal">
+        <div class="post-meta"><span class="tag">第 03 节</span><span>约 30 分钟</span></div>
+        <h3><a href="lesson/03.html">切分 Chunking：检索单元的设计</a></h3>
+        <p class="excerpt">固定长度/段落/标题三种切法；200/500/900 消融；标题前缀的 context-aware 思想；v3：切分策略谱系（fixed→结构→语义→agentic）。</p>
+        <a class="readmore" href="lesson/03.html">阅读本节 <span class="arrow">→</span></a>
+      </article>
+      <article class="post-card reveal">
+        <div class="post-meta"><span class="tag">第 04 节</span><span>约 45 分钟</span></div>
+        <h3><a href="lesson/04.html">Embedding 与向量检索</a></h3>
+        <p class="excerpt">双编码器、pgvector + HNSW、余弦相似度；v2：ef_search 实测基准；v3：ANN 原理、HNSW 逐层拆解与 m/ef 参数、ANN 算法谱系。</p>
+        <a class="readmore" href="lesson/04.html">阅读本节 <span class="arrow">→</span></a>
+      </article>
+      <article class="post-card reveal">
+        <div class="post-meta"><span class="tag">第 05 节</span><span>约 30 分钟</span></div>
+        <h3><a href="lesson/05.html">BM25 稀疏检索：为什么它还没死</a></h3>
+        <p class="excerpt">TF-IDF → BM25 公式逐项拆解；jieba 分词；符号题吊打 Dense 的现场；v3：BM25 的工程亲戚（tsvector/BM25F）。</p>
+        <a class="readmore" href="lesson/05.html">阅读本节 <span class="arrow">→</span></a>
+      </article>
+      <article class="post-card reveal">
+        <div class="post-meta"><span class="tag">第 06 节</span><span>约 30 分钟</span></div>
+        <h3><a href="lesson/06.html">Hybrid 融合：RRF 与量纲绑架</a></h3>
+        <p class="excerpt">手写 RRF；错误示范：直接加权分数；归一化加权的折中；为什么默认选 RRF；v3：RRF 出处、加权变体与边界。</p>
+        <a class="readmore" href="lesson/06.html">阅读本节 <span class="arrow">→</span></a>
+      </article>
+      <article class="post-card reveal">
+        <div class="post-meta"><span class="tag">第 07 节</span><span>约 30 分钟</span></div>
+        <h3><a href="lesson/07.html">Reranker：召回与精排的分工</a></h3>
+        <p class="excerpt">Cross-Encoder vs 双塔；rerank 救不了没召回的题；v2：ColBERT 晚交互、LLM 重排光谱；v3：reranker 训练数据与 hard negatives。</p>
+        <a class="readmore" href="lesson/07.html">阅读本节 <span class="arrow">→</span></a>
+      </article>
+      <article class="post-card reveal">
+        <div class="post-meta"><span class="tag">第 08 节</span><span>约 35 分钟</span></div>
+        <h3><a href="lesson/08.html">查询改写与 Context 装填</a></h3>
+        <p class="excerpt">Rewrite / Multi-Query / HyDE；token 预算、Lost in the Middle、引用与拒答；v3：改写家族全景与装填预算算账。</p>
+        <a class="readmore" href="lesson/08.html">阅读本节 <span class="arrow">→</span></a>
+      </article>
+      <article class="post-card reveal">
+        <div class="post-meta"><span class="tag">第 09 节</span><span>约 45 分钟</span></div>
+        <h3><a href="lesson/09.html">知识库工程：元数据、去重与增量更新</a></h3>
+        <p class="excerpt">元数据过滤、strategy 版本、checksum 与增量更新；v3：字段设计清单；v4：jsonb、GIN、@&gt;、upsert、事务在首次出现处展开。</p>
+        <a class="readmore" href="lesson/09.html">阅读本节 <span class="arrow">→</span></a>
+      </article>
+      <article class="post-card reveal">
+        <div class="post-meta"><span class="tag">第 10 节</span><span>约 45 分钟</span></div>
+        <h3><a href="lesson/10.html">Parent-Child 与评测体系</a></h3>
+        <p class="excerpt">小块检索大块生成；auto-merging；Recall/MRR/噪声率/拒答率；失败诊断清单；v4：回表、IN、HitRate 与 nDCG 在首次出现处展开。</p>
+        <a class="readmore" href="lesson/10.html">阅读本节 <span class="arrow">→</span></a>
+      </article>
+      <article class="post-card reveal">
+        <div class="post-meta"><span class="tag">第 11 节</span><span>约 35 分钟</span></div>
+        <h3><a href="lesson/11.html">结构化 RAG 扫盲：RAPTOR / GraphRAG / LightRAG</a></h3>
+        <p class="excerpt">树与图分别解决什么；为什么手册语料不适合 GraphRAG；源码阅读入口；v4：扁平 RAG、多跳、聚类、社区检测在首次出现处展开。</p>
+        <a class="readmore" href="lesson/11.html">阅读本节 <span class="arrow">→</span></a>
+      </article>
+      <article class="post-card reveal">
+        <div class="post-meta"><span class="tag">第 12 节</span><span>约 40 分钟</span></div>
+        <h3><a href="lesson/12.html">框架对照与选型总结</a></h3>
+        <p class="excerpt">LlamaIndex 术语映射 Demo；选型卡片；LLM Wiki 的后续学习入口；v4：Node、Retriever、Ragas 等框架名词在首次出现处展开。</p>
+        <a class="readmore" href="lesson/12.html">阅读本节 <span class="arrow">→</span></a>
+      </article>
+      <article class="post-card reveal">
+        <div class="post-meta"><span class="tag">第 13 节</span><span>约 40 分钟</span></div>
+        <h3><a href="lesson/13.html">评测进阶：LLM-as-judge 与指标保护（v2 加厚）</a></h3>
+        <p class="excerpt">RAG 评估三元组（Faithfulness/AR/CR）实测；judge 的三条纪律；单测守住指标回归；v4：声明、回归、冒烟测试与裁判偏差在首次出现处展开。</p>
+        <a class="readmore" href="lesson/13.html">阅读本节 <span class="arrow">→</span></a>
+      </article>
+      <article class="post-card reveal">
+        <div class="post-meta"><span class="tag">第 14 节</span><span>约 45 分钟</span></div>
+        <h3><a href="lesson/14.html">极简 GraphRAG：三元组抽取与多跳检索（v2 加厚）</a></h3>
+        <p class="excerpt">152 条三元组的抽取→邻接表→一跳扩展→图引导检索；“谁主导 Zen”决定性对比；查询路由；v4：三元组、邻接表、一跳在首次出现处展开。</p>
+        <a class="readmore" href="lesson/14.html">阅读本节 <span class="arrow">→</span></a>
+      </article>
+      <article class="post-card reveal">
+        <div class="post-meta"><span class="tag">第 15 节</span><span>约 40 分钟</span></div>
+        <h3><a href="lesson/15.html">查询构造与结构化数据（v2 加厚）</a></h3>
+        <p class="excerpt">NL→元数据过滤器（白名单校验/安全退化）；Text2SQL 三条铁律；表格文本化三层方案；v4：DML/DDL、schema、EXPLAIN 在首次出现处展开。</p>
+        <a class="readmore" href="lesson/15.html">阅读本节 <span class="arrow">→</span></a>
+      </article>
+      <article class="post-card reveal">
+        <div class="post-meta"><span class="tag">第 16 节</span><span>约 40 分钟</span></div>
+        <h3><a href="lesson/16.html">高级范式案例：Self-RAG / CRAG / Agentic RAG（v2 加厚）</a></h3>
+        <p class="excerpt">三个范式三句话；CRAG 纠正循环可运行版（rerank 分数当评估器）；控制流地图；v4：控制流、微调 token、空带与标定在首次出现处展开。</p>
+        <a class="readmore" href="lesson/16.html">阅读本节 <span class="arrow">→</span></a>
+      </article>
+      <article class="post-card reveal">
+        <div class="post-meta"><span class="tag">第 17 节</span><span>约 40 分钟</span></div>
+        <h3><a href="lesson/17.html">从实验台到产品：个人知识库系统</a></h3>
+        <p class="excerpt">课程积木装配成 /kb 完整系统：上传入库、多轮 condense、CRAG 纠错、流式引用回答；v4：SSE、APIRouter、幂等、ILIKE 在首次出现处展开。</p>
+        <a class="readmore" href="lesson/17.html">阅读本节 <span class="arrow">→</span></a>
+      </article>
+    </div>
+  </section>
+  <section class="wrap" id="reading" style="padding-top: 36px;">
+    <div class="sec-head reveal"><h2>导读与笔记</h2></div>
+    <div class="posts">
+      <article class="post-card reveal">
+        <div class="post-meta"><span class="tag">导读</span></div>
+        <h3><a href="reading/lightrag.html">LightRAG 源码导读</a></h3>
+        <p class="excerpt">带行号的四站阅读路线，对照第 11 节。</p>
+        <a class="readmore" href="reading/lightrag.html">打开 <span class="arrow">→</span></a>
+      </article>
+      <article class="post-card reveal">
+        <div class="post-meta"><span class="tag">导读</span></div>
+        <h3><a href="reading/raptor.html">RAPTOR 源码导读</a></h3>
+        <p class="excerpt">找到聚类摘要的递归终止条件。</p>
+        <a class="readmore" href="reading/raptor.html">打开 <span class="arrow">→</span></a>
+      </article>
+      <article class="post-card reveal">
+        <div class="post-meta"><span class="tag">导读</span></div>
+        <h3><a href="notes/lightrag.html">笔记 · LightRAG</a></h3>
+        <p class="excerpt">一页总结：抽取 Prompt 与图+向量混合检索。</p>
+        <a class="readmore" href="notes/lightrag.html">打开 <span class="arrow">→</span></a>
+      </article>
+      <article class="post-card reveal">
+        <div class="post-meta"><span class="tag">导读</span></div>
+        <h3><a href="notes/raptor.html">笔记 · RAPTOR</a></h3>
+        <p class="excerpt">一页总结：树怎么建、检索怎么塌缩。</p>
+        <a class="readmore" href="notes/raptor.html">打开 <span class="arrow">→</span></a>
+      </article>
+    </div>
+  </section>
+  <section class="wrap" id="experiments" style="padding-top: 48px; padding-bottom: 20px;">
+    <div class="sec-head reveal"><h2>实验报告</h2></div>
+    <div class="posts">
+      <article class="post-card reveal">
+        <div class="post-meta"><span class="tag">实验</span></div>
+        <h3><a href="experiments/exp1_retrievers.html">实验 1：检索器对比（Dense / BM25 / Hybrid）</a></h3>
+        <a class="readmore" href="experiments/exp1_retrievers.html">查看数据 <span class="arrow">→</span></a>
+      </article>
+      <article class="post-card reveal">
+        <div class="post-meta"><span class="tag">实验</span></div>
+        <h3><a href="experiments/exp2_cleaning.html">实验 2：原始资料清洗的价值（干净 vs 脏语料）</a></h3>
+        <a class="readmore" href="experiments/exp2_cleaning.html">查看数据 <span class="arrow">→</span></a>
+      </article>
+      <article class="post-card reveal">
+        <div class="post-meta"><span class="tag">实验</span></div>
+        <h3><a href="experiments/exp3_chunking.html">实验 3：切分大小消融（200 / 500 / 900 字符）</a></h3>
+        <a class="readmore" href="experiments/exp3_chunking.html">查看数据 <span class="arrow">→</span></a>
+      </article>
+      <article class="post-card reveal">
+        <div class="post-meta"><span class="tag">实验</span></div>
+        <h3><a href="experiments/exp4_rewrite.html">实验 4：查询侧改写（Rewrite / Multi-Query）</a></h3>
+        <a class="readmore" href="experiments/exp4_rewrite.html">查看数据 <span class="arrow">→</span></a>
+      </article>
+      <article class="post-card reveal">
+        <div class="post-meta"><span class="tag">实验</span></div>
+        <h3><a href="experiments/exp5_parent_child.html">实验 5：Parent-Child（小块检索、大块生成）</a></h3>
+        <a class="readmore" href="experiments/exp5_parent_child.html">查看数据 <span class="arrow">→</span></a>
+      </article>
+      <article class="post-card reveal">
+        <div class="post-meta"><span class="tag">实验</span></div>
+        <h3><a href="experiments/exp6_refusal.html">实验 6：不可回答题与拒答（真实 LLM 生成）</a></h3>
+        <a class="readmore" href="experiments/exp6_refusal.html">查看数据 <span class="arrow">→</span></a>
+      </article>
+      <article class="post-card reveal">
+        <div class="post-meta"><span class="tag">实验</span></div>
+        <h3><a href="experiments/exp7_judge.html">实验 7：LLM-as-judge 生成侧评测（评估三元组）</a></h3>
+        <a class="readmore" href="experiments/exp7_judge.html">查看数据 <span class="arrow">→</span></a>
+      </article>
+      <article class="post-card reveal">
+        <div class="post-meta"><span class="tag">实验</span></div>
+        <h3><a href="experiments/exp8_hnsw.html">实验 8：HNSW ef_search 基准（625 块小语料）</a></h3>
+        <a class="readmore" href="experiments/exp8_hnsw.html">查看数据 <span class="arrow">→</span></a>
+      </article>
+      <article class="post-card reveal">
+        <div class="post-meta"><span class="tag">实验</span></div>
+        <h3><a href="experiments/kb_eval.html">KB 自有金标评测（最新一次运行）</a></h3>
+        <a class="readmore" href="experiments/kb_eval.html">查看数据 <span class="arrow">→</span></a>
+      </article>
+    </div>
+  </section>
+
+</main>
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb 的博客</span>
+    </div>
+    <p>© <span data-year>2026</span> NorthAdb · RAG 课为静态讲义</p>
+    <div class="f-links">
+      <a href="../index.html">首页</a>
+      <a href="../learn.html">课件</a>
+      <a href="index.html">RAG</a>
+      <a href="../about.html">关于</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</footer>
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+<script src="../js/main.js"></script>
+</body>
+</html>

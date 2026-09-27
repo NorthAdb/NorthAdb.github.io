@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>自测 · RAG Playground — NorthAdb</title>
+<meta name="description" content="RAG 课程自测：先回想再翻开答案。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23D97757'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%231C100A' font-family='Georgia' font-weight='bold'>N</text></svg>">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="course.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="orb orb-a"></div>
+<div class="orb orb-b"></div>
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../index.html">首页</a></li>
+        <li><a href="../index.html#posts">文章</a></li>
+        <li><a href="../learn.html">课件</a></li>
+        <li><a href="index.html" class="active">RAG</a></li>
+        <li><a href="../about.html">关于</a></li>
+        <li><a href="https://github.com/NorthAdb" target="_blank" rel="noopener" class="nav-cta">GitHub ↗</a></li>
+      </ul>
+    </nav>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+<main>
+  <section class="hero wrap" style="padding-bottom: 36px;">
+    <div class="hero-kicker"><span class="dot"></span> Retrieval practice</div>
+    <h1>先回想，<em>再翻牌</em>。</h1>
+    <p class="sub">每题先自己说出答案，再打开核对，然后标会或不会。想不起来再看，比直接读答案记得住。</p>
+  </section>
+  <section class="wrap quiz-layout">
+    <div>
+      <div class="quiz-side">
+        <h2>范围</h2>
+        <div class="chips" id="chips"></div>
+        <p style="color:var(--text-faint);font-size:13px;margin-top:12px;">点节号只看该节。点「全部」会打乱顺序。</p>
+        <div class="scorebox">
+          <div>这次成绩</div>
+          <div class="big" id="score">0 / 0</div>
+          <div class="row"><span>会</span><span id="ok">0</span></div>
+          <div class="row"><span>不会</span><span id="ng">0</span></div>
+          <div class="row"><span>未答</span><span id="rest">0</span></div>
+          <button class="ghost-btn" id="btn-wrong" type="button">只练错题</button>
+          <button class="ghost-btn" id="btn-reset" type="button">清空本次记录</button>
+        </div>
+      </div>
+    </div>
+    <div id="qlist"></div>
+  </section>
+<script>
+const $ = (id) => document.getElementById(id);
+let bank = {};
+let filter = new URLSearchParams(location.search).get("lesson");
+let marks = {};
+async function load() {
+  bank = await (await fetch("quiz_bank.json")).json();
+  renderChips(); renderQuestions();
+}
+function allQuestions() {
+  const out = [];
+  for (const [lid, qs] of Object.entries(bank.lessons || {})) {
+    if (filter && lid !== filter) continue;
+    for (const q of qs) out.push({ lid, ...q });
+  }
+  if (!filter) out.sort(() => Math.random() - 0.5);
+  return out;
+}
+function qid(item) { return item.lid + "::" + item.q.slice(0, 40); }
+function renderChips() {
+  const box = $("chips"); box.innerHTML = "";
+  const all = document.createElement("button");
+  all.type = "button";
+  all.className = "chip" + (filter ? "" : " active");
+  all.textContent = "全部";
+  all.onclick = () => { filter = null; history.replaceState(null, "", "quiz.html"); renderChips(); renderQuestions(); };
+  box.appendChild(all);
+  for (const [lid, qs] of Object.entries(bank.lessons || {})) {
+    const c = document.createElement("button");
+    c.type = "button";
+    c.className = "chip" + (filter === lid ? " active" : "");
+    c.textContent = lid + " (" + qs.length + ")";
+    c.onclick = () => { filter = lid; history.replaceState(null, "", "quiz.html?lesson=" + lid); renderChips(); renderQuestions(); };
+    box.appendChild(c);
+  }
+}
+function renderQuestions() {
+  const items = allQuestions();
+  const box = $("qlist"); box.innerHTML = "";
+  if (!items.length) { box.innerHTML = "<p style='color:var(--text-dim)'>这一节还没有题目。</p>"; updateScore(items); return; }
+  for (const item of items) {
+    const id = qid(item);
+    const card = document.createElement("div");
+    card.className = "qcard" + (marks[id] === "ok" ? " marked-ok" : marks[id] === "ng" ? " marked-ng" : "");
+    const typeZh = { recall: "回忆", apply: "应用", diagnose: "诊断" }[item.type || "recall"];
+    card.innerHTML = '<span class="qtype"></span><div class="qq"></div><button class="reveal-btn" type="button">翻开答案</button><div class="answer"></div><div class="ref"></div><div class="mark"><button class="ok" type="button">我答对了</button><button class="ng" type="button">不会 / 答错</button></div>';
+    card.querySelector(".qtype").textContent = typeZh + " · 第 " + item.lid + " 节";
+    card.querySelector(".qq").textContent = item.q;
+    card.querySelector(".answer").textContent = item.a;
+    card.querySelector(".ref").textContent = "可复查：" + (item.ref || "");
+    const reveal = card.querySelector(".reveal-btn");
+    reveal.onclick = () => { card.classList.toggle("open"); reveal.textContent = card.classList.contains("open") ? "收起答案" : "翻开答案"; };
+    card.querySelector(".ok").onclick = () => mark(id, "ok", card);
+    card.querySelector(".ng").onclick = () => mark(id, "ng", card);
+    if (marks[id]) card.classList.add("open");
+    box.appendChild(card);
+  }
+  updateScore(items);
+}
+function mark(id, v, card) {
+  marks[id] = v;
+  card.classList.remove("marked-ok", "marked-ng", "open");
+  card.classList.add(v === "ok" ? "marked-ok" : "marked-ng", "open");
+  updateScore(allQuestions());
+}
+function updateScore(items) {
+  const ok = items.filter(i => marks[qid(i)] === "ok").length;
+  const ng = items.filter(i => marks[qid(i)] === "ng").length;
+  $("score").textContent = ok + " / " + (ok + ng);
+  $("ok").textContent = ok; $("ng").textContent = ng;
+  $("rest").textContent = items.length - ok - ng;
+}
+$("btn-wrong").onclick = () => {
+  const wrong = allQuestions().filter(i => marks[qid(i)] === "ng");
+  if (!wrong.length) { alert("当前范围里没有错题。"); return; }
+  const box = $("qlist"); box.innerHTML = "";
+  for (const item of wrong) {
+    const id = qid(item);
+    const card = document.createElement("div");
+    card.className = "qcard open marked-ng";
+    card.innerHTML = '<span class="qtype"></span><div class="qq"></div><div class="answer"></div><div class="ref"></div><div class="mark"><button class="ok" type="button">这次会了</button></div>';
+    card.querySelector(".qtype").textContent = "错题 · 第 " + item.lid + " 节";
+    card.querySelector(".qq").textContent = item.q;
+    card.querySelector(".answer").textContent = item.a;
+    card.querySelector(".ref").textContent = "可复查：" + (item.ref || "");
+    card.querySelector(".ok").onclick = () => { marks[id] = "ok"; card.remove(); updateScore(allQuestions()); };
+    box.appendChild(card);
+  }
+};
+$("btn-reset").onclick = () => { marks = {}; renderQuestions(); };
+load();
+</script>
+</main>
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb 的博客</span>
+    </div>
+    <p>© <span data-year>2026</span> NorthAdb · RAG 课为静态讲义</p>
+    <div class="f-links">
+      <a href="../index.html">首页</a>
+      <a href="../learn.html">课件</a>
+      <a href="index.html">RAG</a>
+      <a href="../about.html">关于</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</footer>
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+<script src="../js/main.js"></script>
+</body>
+</html>

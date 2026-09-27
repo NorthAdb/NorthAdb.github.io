@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>课程导览：环境、约定与你的 RAG 地图 — NorthAdb</title>
+<meta name="description" content="三条主线、钉死的模型参数、目录结构、怎样用这门课；v3：五步学习闭环。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23D97757'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%231C100A' font-family='Georgia' font-weight='bold'>N</text></svg>">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../course.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="orb orb-a"></div>
+<div class="orb orb-b"></div>
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html">首页</a></li>
+        <li><a href="../../index.html#posts">文章</a></li>
+        <li><a href="../../learn.html">课件</a></li>
+        <li><a href="../index.html" class="active">RAG</a></li>
+        <li><a href="../../about.html">关于</a></li>
+        <li><a href="https://github.com/NorthAdb" target="_blank" rel="noopener" class="nav-cta">GitHub ↗</a></li>
+      </ul>
+    </nav>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+<main>
+  <article>
+    <header class="wrap post-hero">
+      <div class="crumbs">
+        <a href="../../index.html">首页</a><span class="sep-c">/</span>
+        <a href="../index.html">RAG</a><span class="sep-c">/</span>
+        <span>第 00 节</span>
+      </div>
+      <h1>课程导览：环境、约定与你的 RAG 地图</h1>
+      <div class="post-meta"><span>第 00 节</span><span class="sep"></span><span>约 15 分钟</span><span class="sep"></span><a href="../quiz.html?lesson=00">本节自测</a></div><p class="lead">三条主线、钉死的模型参数、目录结构、怎样用这门课；v3：五步学习闭环。</p>
+    </header>
+    <div class="wrap prose wide"><blockquote>
+<p><strong>本节任务</strong>：把开发环境跑起来，在 Playground 里亲手执行一次完整 RAG——之后 17 节课，
+就是在放大镜下重走你今天看到的每一步。</p>
+</blockquote>
+<p><strong>课程地图上的位置</strong>：这是起点。上一节：无；下一节：<a href="01.html">第 01 节 全景复习</a>。</p>
+<h2>0.1 这门课的三条主线</h2>
+<pre><code class="language-text">主线 A：手写一条完整 RAG（第 2-10 节）
+        清洗 → 切分 → 嵌入 → 向量检索 → BM25 → RRF 融合 → Rerank
+        → 查询改写 → Context 装填 → 生成与拒答 → 评测 → Parent-Child
+
+主线 B：知识库工程（第 2、3、9 节穿插）
+        原始资料的筛选清洗、去重、元数据、索引版本管理、增量更新
+
+主线 C：扩展视野（第 11-12 节）
+        RAPTOR / GraphRAG / LightRAG 扫盲 + LlamaIndex 框架对照
+
+主线 D（v2 加厚篇，第 13-16 节）：
+        评测进阶（LLM-as-judge：用一个 LLM 当裁判给回答打分 + 单测保护）
+        极简 GraphRAG（三元组=主谓宾原子事实，多跳=沿关系链走几步）
+        查询构造与结构化数据（NL→过滤器 / Text2SQL 思路 / 表格文本化）
+        高级范式案例（Self-RAG / CRAG / Agentic：让 RAG 会自我纠错的控制流）
+
+主线 E（产品篇，第 17 节）：
+        把以上全部积木装配成 /kb 个人知识库（上传/对话/引用/CRAG）
+</code></pre>
+<h2>0.2 阅读约定（每节课都会用到）</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>记号</th>
+<th>含义</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>路径:行号</code></td>
+<td>真实源码位置，行号对应当前仓库</td>
+<td><code>playground/rag.py:111</code> = <code>retrieve()</code> 方法起点</td>
+</tr>
+<tr>
+<td><strong>如何运行</strong></td>
+<td>可直接粘贴到终端的命令 + 预期输出</td>
+<td>见 0.5 节</td>
+</tr>
+<tr>
+<td><strong>注意事项</strong></td>
+<td>踩过的坑，红色警戒</td>
+<td>改默认参数 = 实验不可比</td>
+</tr>
+<tr>
+<td><strong>动手练习</strong></td>
+<td>去 Playground 或终端亲手做的事</td>
+<td>每节末尾</td>
+</tr>
+</tbody>
+</table></div>
+<h2>0.3 已钉死的约定（改任何一项 = 全量重建索引 = 实验不可比）</h2>
+<p>这些参数全部集中在 <strong><code>playground/config.py</code></strong> 一个文件里，课程所有模块都从它读取：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>项</th>
+<th>值</th>
+<th>定义位置</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Embedding</td>
+<td><code>BAAI/bge-m3</code>（硅基流动）</td>
+<td><code>config.py:34</code></td>
+<td><strong>1024 维</strong>（<code>config.py:35</code>），与 pgvector 列维度一致</td>
+</tr>
+<tr>
+<td>Reranker</td>
+<td><code>BAAI/bge-reranker-v2-m3</code></td>
+<td><code>config.py:38</code></td>
+<td>不可用时自动降级为词法重排</td>
+</tr>
+<tr>
+<td>LLM</td>
+<td><code>deepseek-chat</code>（temperature=0.1）</td>
+<td><code>config.py:40-42</code></td>
+<td>只负责&quot;读 Context 写答案&quot;；temperature = 采样随机度，0.1 ≈ 基本照资料稳定作答</td>
+</tr>
+<tr>
+<td>向量库</td>
+<td>PostgreSQL 17 + pgvector 0.8（HNSW）</td>
+<td><code>config.py:46-49</code></td>
+<td>本机 <code>rag</code> 库，DSN 可用环境变量 <code>RAG_DB_DSN</code> 覆盖</td>
+</tr>
+<tr>
+<td>表前缀</td>
+<td><code>rg_</code></td>
+<td><code>config.py:52</code></td>
+<td>与库中另一个项目的 <code>kb_*</code> 表隔离</td>
+</tr>
+<tr>
+<td>默认切分</td>
+<td>500 字符 / overlap 80</td>
+<td><code>config.py:55-56</code></td>
+<td><code>strategy=flat500x80</code></td>
+</tr>
+<tr>
+<td>语料</td>
+<td>16 篇 CPU/SIMD + 12 篇图谱短文</td>
+<td><code>config.py:14-16</code></td>
+<td><code>data/corpus</code>、<code>data/graph_corpus</code></td>
+</tr>
+<tr>
+<td>金标集</td>
+<td><strong>30 题 = 23 可回答 + 7 不可回答</strong></td>
+<td><code>data/eval/questions.json</code></td>
+<td>v1 为 25 题（20+5），v2 加厚增补后冻在 30</td>
+</tr>
+<tr>
+<td>运行开关</td>
+<td><code>ALLOW_FAKE_EMBEDDING</code> / <code>ALLOW_ECHO_LLM</code></td>
+<td><code>config.py:73-74</code></td>
+<td>允许降级 = API 挂了课程不断</td>
+</tr>
+</tbody>
+</table></div>
+<p>这张表已经用到了不少后面才细讲的名词。本课程的约定是：<strong>每个概念第一次出现，
+就给一句白话解释</strong>（正式讲解在标注的节）——先混个脸熟：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>名词</th>
+<th>一句话解释</th>
+<th>正式登场</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Embedding（嵌入）</strong></td>
+<td>把一段文字变成一串数字（向量），意思越接近的文本向量也越接近——机器能&quot;算语义&quot;的数学地基</td>
+<td>第 4 节</td>
+</tr>
+<tr>
+<td><strong>向量库 / pgvector / HNSW</strong></td>
+<td>能存向量、并按&quot;谁离查询向量最近&quot;快速取回的数据库能力：pgvector 是 PostgreSQL 的插件，HNSW 是它的快速近邻索引</td>
+<td>第 4 节</td>
+</tr>
+<tr>
+<td><strong>Reranker（重排器）</strong></td>
+<td>检索先粗排出一批候选，再用一个更精的模型把最相关的顶到前排</td>
+<td>第 7 节</td>
+</tr>
+<tr>
+<td><strong>切分 / overlap</strong></td>
+<td>把长文档切成一块块短文本作为检索单元；overlap 指相邻块互相重复携带一小段结尾/开头，防止关键句恰好被切在边界上</td>
+<td>第 3 节</td>
+</tr>
+<tr>
+<td><strong>strategy（索引版本）</strong></td>
+<td>同一批文档按某套&quot;清洗 + 切分&quot;参数建成的一套索引，用一个字符串命名（如 <code>flat500x80</code>）。切换它 = 换一套索引检索，文档本身不变</td>
+<td>第 3、9 节</td>
+</tr>
+<tr>
+<td><strong>语料（corpus）</strong></td>
+<td>一批用途相同的文档 + 一个来源标签（main=课程主语料、dirty=脏数据对照、graph、mineru、kb），检索时按标签隔离互不干扰</td>
+<td>第 9 节</td>
+</tr>
+<tr>
+<td><strong>金标集</strong></td>
+<td>带&quot;标准答案&quot;的考题集：每道题标注正确答案出自哪篇文档、含哪些关键词，用来给系统打分</td>
+<td>第 1 节 1.5</td>
+</tr>
+<tr>
+<td><strong>元数据（meta）</strong></td>
+<td>附在每块上的标签信息（来自哪篇文档、哪个章节、什么语料），可以拿来过滤检索范围</td>
+<td>第 9 节</td>
+</tr>
+<tr>
+<td><strong>RRF（融合）</strong></td>
+<td>两路检索各排一个名次，按&quot;名次的倒数&quot;相加合并——只看名次、不看分数</td>
+<td>第 6 节</td>
+</tr>
+<tr>
+<td><strong>Parent-Child</strong></td>
+<td>小块用来检索（命中准），命中后取它所属的整节大块送给模型——检索和生成用不同颗粒度</td>
+<td>第 10 节</td>
+</tr>
+<tr>
+<td><strong>Context 装填</strong></td>
+<td>把检索到的块按预算和顺序组装成&quot;参考资料&quot;，连同问题一起送给大模型</td>
+<td>第 8 节</td>
+</tr>
+<tr>
+<td><strong>拒答</strong></td>
+<td>资料里没有答案时，明确回答&quot;资料中没有相关信息&quot;而不是硬编一个</td>
+<td>第 8 节</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote>
+<p>[!IMPORTANT]
+为什么钉死在 config？因为<strong>换模型 = 换了实验条件</strong>。bge-m3 的 1024 维向量与
+旧向量不可比，金标成绩会整体漂移——你将分不清&quot;是改动变好了，还是换模型变好了&quot;。
+想试新模型？正确姿势是：加新 strategy + 重跑全部实验 + 注明口径（第 3 节细讲）。</p>
+</blockquote>
+<h2>0.4 降级路径：外部依赖必须有 Plan B</h2>
+<p>两把 key 放在项目根目录（不进 git）：<code>dsh.txt</code>（DeepSeek）、<code>bag_m3.txt</code>（硅基流动）。
+读取逻辑在 <code>config.py:26-31</code>——环境变量优先，其次 key 文件。</p>
+<p>任何一家 API 失效，系统<strong>自动</strong>切到离线实现，课程功能不中断：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>依赖</th>
+<th>在线版</th>
+<th>降级版</th>
+<th>切换逻辑</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Embedding</td>
+<td><code>SiliconFlowEmbedder</code>（<code>embedder.py:31</code>）</td>
+<td><code>HashingEmbedder</code> 词袋哈希投影（<code>embedder.py:99</code>）</td>
+<td><code>embedder.py:142</code> <code>get_embedder()</code> 先探活再选择</td>
+</tr>
+<tr>
+<td>LLM</td>
+<td><code>DeepSeekLLM</code>（<code>llm.py:21</code>）</td>
+<td><code>EchoLLM</code> 抽取式拼接（<code>llm.py:90</code>）</td>
+<td><code>llm.py:121</code> <code>get_llm()</code></td>
+</tr>
+<tr>
+<td>Rerank</td>
+<td><code>SiliconFlowReranker</code>（<code>reranker.py:22</code>）</td>
+<td><code>LexicalReranker</code> 词法重排（<code>reranker.py:56</code>）</td>
+<td><code>reranker.py:92</code> <code>get_reranker()</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>表里两个词顺手解释：<strong>词袋</strong>＝只数&quot;哪些词出现过、各多少次&quot;、完全不管词序的
+最朴素文本表示（降级版嵌入靠它模拟）；<strong>探活</strong>＝发一条真实的小请求，试试
+对方服务在不在线。</p>
+<p>页面徽章会实时显示当前是 ✓ 还是&quot;降级&quot;（Playground 顶栏 / <code>/kb</code> 工具栏）。
+<strong>这本身就是第一条重要工程经验：外部依赖必须有降级路径。</strong></p>
+<h2>0.5 动手：跑一遍全流程</h2>
+<p>前置：PostgreSQL 已在本机运行（安装与调优见 <code>D:\PostgreSQL\README.md</code>）。</p>
+<pre><code class="language-bash"># 1) 初始化表结构（幂等：重复执行安全；顺带建 KB 会话表）
+python -m scripts.init_db
+#    OK  schema ready  (documents now: 42)
+#    OK  pgvector 0.8.0
+#    OK  kb tables ready (rg_kb_sessions / rg_kb_messages)
+
+# 2) 生成脏语料 + 构建 7 个索引版本（主语料 4 档切分 + PC + 脏数据 + 图谱语料，
+#    约 630 块；首次会调用 embedding API，几十秒）
+python -m scripts.make_dirty
+python -m scripts.build_index
+
+# 3) 启动课程网站
+python -m course.app        # → http://127.0.0.1:8000
+</code></pre>
+<p>三个命令分别对应 <code>scripts/init_db.py:69</code>（<code>main()</code>，执行 <code>scripts/init_db.py:17</code> 的建表 SQL）、
+<code>scripts/make_dirty.py:48</code> 与 <code>scripts/build_index.py:18</code>。跑完打开
+<strong>Playground</strong> 页（顶栏第一个黄色按钮），用示例问题提问，把右边的 Trace 从头到尾看一遍
+（<strong>Trace</strong>：右侧那块面板，把一次问答&quot;检索 → 融合 → 精排 → 装填 → 生成&quot;每一步的
+中间结果摊开给你看——全课程的可观测枢纽，第 1 节 1.3 正式介绍）：
+<strong>这门课剩下的内容，就是把 Trace 里的每一层讲透。</strong></p>
+<blockquote>
+<p>[!NOTE]
+常见启动问题：① 端口 8000 被占——<code>netstat -ano | findstr :8000</code> 找到 PID 后
+<code>taskkill /PID &lt;pid&gt; /F</code>；② 数据库连不上——检查 PostgreSQL 服务与
+<code>config.py:46</code> 的 DSN；③ 首次建索引卡住——大概率在等 embedding API，看终端
+有无 <code>RuntimeError: embedding API failed</code>，有则说明 key 失效（会自动降级，但向量
+是词袋投影，语义检索会失灵）。</p>
+</blockquote>
+<h2>0.6 项目目录（v2 完整版）</h2>
+<pre><code class="language-text">my_rag_l/
+├── playground/           ← 主角：手写 RAG 流水线（第 2-10 节逐块讲）
+│   ├── ingest/           loader / cleaner / chunker / ingest
+│   ├── retrieve/         embedder / vector_store / bm25 / hybrid / reranker
+│   │                     / query_rewrite / parent_child
+│   ├── generate/         llm（含 SSE 流式）/ context_builder / prompt
+│   ├── eval/             evaluate.py（指标与评测运行器）/ judge.py（LLM 裁判）
+│   └── rag.py            流水线编排 + 完整 Trace
+├── kb/                   ← 个人知识库系统（第 17 节；第 16 节 CRAG 的产品化落地）
+│   ├── parser.py         md/txt/pdf/docx → 纯文本
+│   ├── store.py          持久层（复用主表 + rg_kb_* 会话表）
+│   ├── ingest.py         上传入库 / 重建 / 粘贴建文档
+│   ├── chat.py           多轮改写 + 检索 + CRAG + 流式生成
+│   └── routes.py         /kb 页面 + /api/kb/* API
+├── course/               ← 这个网站本身（FastAPI）：lessons/ + static/ + app.py
+├── scripts/              init_db / make_dirty / build_index / run_eval / run_judge
+│                         / demo_llamaindex / toy_graph / demo_crag
+│                         / demo_query_construction / demo_multi_path / bench_hnsw
+│                         / ingest_mineru
+├── data/
+│   ├── corpus/           16 篇干净主语料
+│   ├── raw_dirty/        脏数据版本（第 2 节实验对照，make_dirty 生成）
+│   ├── graph_corpus/     12 篇图谱对照语料 + triples.json
+│   ├── kb_uploads/       KB 上传的原件（含内置《KB使用指南》）
+│   └── eval/             questions.json 金标集（30 题）
+├── experiments/          8 份实验报告 exp1-exp8（.md 报告 + .json 原始数据）
+├── tests/                34 个单测：核心纯函数 + rag_test 库冒烟 + KB 系统
+├── refs/                 LightRAG / RAPTOR 源码（第 11 节阅读任务）
+└── docs/                 计划书评估与修订 + 源码阅读笔记 + 04-RAG生态调研
+</code></pre>
+<h2>0.7 数据库表（记住这四张，后面天天见）</h2>
+<p>建表 SQL 全在 <code>scripts/init_db.py:17-66</code>，表前缀 <code>rg_</code>（<code>config.py:52</code>）：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>表</th>
+<th>职责</th>
+<th>关键列</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>rg_documents</code></td>
+<td>文档级元数据</td>
+<td><code>doc_id</code>（=文件名，主键）、<code>checksum</code>（sha256 前 16 位——<strong>内容指纹</strong>：由全文算出、内容一变它就变，靠它发现&quot;源文件改了但索引没更新&quot;）、<code>corpus</code>（语料来源标签，检索时靠它隔离互不干扰，见 0.3 名词速查）</td>
+</tr>
+<tr>
+<td><code>rg_chunks</code></td>
+<td>切片 + 向量</td>
+<td><code>strategy</code>（索引版本）、<code>embedding vector(1024)</code>、<code>meta jsonb</code>、UNIQUE(doc_id, strategy, chunk_index)</td>
+</tr>
+<tr>
+<td><code>rg_parents</code></td>
+<td>Parent-Child 父块</td>
+<td><code>parent_id</code> = <code>doc_id::sec&lt;i&gt;</code>，外键级联删除</td>
+</tr>
+<tr>
+<td><code>rg_embedding_cache</code></td>
+<td>向量缓存</td>
+<td><code>key</code> = sha256(模型+文本)——<strong>缓存</strong>即&quot;算过的结果存下来复用&quot;，重跑实验零成本</td>
+</tr>
+<tr>
+<td><code>rg_kb_sessions</code> / <code>rg_kb_messages</code></td>
+<td>KB 会话与消息</td>
+<td><code>kb/store.py:24-45</code> 独立建表</td>
+</tr>
+</tbody>
+</table></div>
+<p><code>rg_chunks</code> 上有三个索引（<code>init_db.py:53-58</code>）：HNSW（向量）、strategy B-tree、
+meta 的 GIN——分别服务第 4、9 节要讲的向量检索与元数据过滤。（B-tree 和 GIN 是
+PostgreSQL 的两种索引类型：前者管普通等值查找，后者管&quot;标签包含&quot;这类 jsonb 查询；
+jsonb 是 PostgreSQL 存 JSON——形如 <code>{&quot;键&quot;: &quot;值&quot;}</code> 的结构化数据——的数据类型。）</p>
+<h2>0.8 每节课的固定结构</h2>
+<ol>
+<li><strong>理论复习</strong>——只讲&quot;它解决什么问题&quot;，公式和直觉；</li>
+<li><strong>代码走读</strong>——真实源码 + 行号，逐段解释为什么这样写；</li>
+<li><strong>如何运行</strong>——终端命令 + 预期输出；</li>
+<li><strong>本机实验数据</strong>——来自 <code>experiments/</code> 的真实运行结果（v1/v2 口径会注明）；</li>
+<li><strong>注意事项</strong>——踩过的坑；</li>
+<li><strong>动手练习</strong>——去 Playground 或终端亲手做。</li>
+</ol>
+<h2>0.9 学习闭环：每节课的最小回路（v3 加厚）</h2>
+<p>内容会加厚、案例会更新，但学法不变——每节课走完这个五步回路，比多读三节课更有效：</p>
+<pre><code class="language-text">① 读      本节正文，抓住&quot;解决什么问题 + 代码怎么对上&quot;
+② 做      去 Playground 复现本节声称的现象（左侧调参数，右侧看 Trace）
+③ 验      跑本节对应的实验或单测（每节&quot;如何运行&quot;都给了命令）
+④ 测      /quiz 本节自测，先回想再翻牌，错题重练
+⑤ 记      用你自己的话把&quot;结论 + 一个反例&quot;写进笔记——写不出来 = 没懂
+</code></pre>
+<p>第 ⑤ 步最容易被跳过，也最值钱：<strong>能复述结论只是及格，能说出&quot;什么情况下结论
+不成立&quot;才算学会</strong>。本课程每个结论后面都跟着它的适用边界（如&quot;rerank 没用&quot;
+只在 16 篇小语料上成立），照着抄一遍边界也是练习。</p>
+<p>下一节先把 RAG 的全景图复习一遍，建立三层心智模型。</p>
+</div>
+  </article>
+  <nav class="wrap post-nav"><a class="prev" href="../index.html"><span class="dir">← 课表</span><span class="t">全部课程</span></a><a class="next" href="01.html"><span class="dir">下一篇 →</span><span class="t">RAG 全景复习：三层心智模型</span></a></nav>
+</main>
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb 的博客</span>
+    </div>
+    <p>© <span data-year>2026</span> NorthAdb · RAG 课为静态讲义</p>
+    <div class="f-links">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</footer>
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+<script src="../../js/main.js"></script>
+</body>
+</html>

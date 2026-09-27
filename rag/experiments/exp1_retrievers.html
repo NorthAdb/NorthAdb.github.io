@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>实验 1：检索器对比（Dense / BM25 / Hybrid） — NorthAdb</title>
+<meta name="description" content="实验 1：检索器对比（Dense / BM25 / Hybrid）">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23D97757'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%231C100A' font-family='Georgia' font-weight='bold'>N</text></svg>">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../course.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="orb orb-a"></div>
+<div class="orb orb-b"></div>
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html">首页</a></li>
+        <li><a href="../../index.html#posts">文章</a></li>
+        <li><a href="../../learn.html">课件</a></li>
+        <li><a href="../index.html" class="active">RAG</a></li>
+        <li><a href="../../about.html">关于</a></li>
+        <li><a href="https://github.com/NorthAdb" target="_blank" rel="noopener" class="nav-cta">GitHub ↗</a></li>
+      </ul>
+    </nav>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+<main>
+  <article>
+    <header class="wrap post-hero">
+      <div class="crumbs">
+        <a href="../../index.html">首页</a><span class="sep-c">/</span>
+        <a href="../index.html">RAG</a><span class="sep-c">/</span>
+        <span>实验</span>
+      </div>
+      <h1>实验 1：检索器对比（Dense / BM25 / Hybrid）</h1>
+      <div class="post-meta"><span class="tag">RAG</span></div>
+    </header>
+    <div class="wrap prose wide"><p>生成时间：2026-09-12 20:58（本机真实运行）</p>
+<p>主语料 strategy=flat500x80，20 道可回答题 + 5 道不可回答题（不可回答题不计入召回指标）。</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>方案</th>
+<th>recall@5</th>
+<th>mrr@5</th>
+<th>noise@5</th>
+<th>kw_hit@3</th>
+<th>kw_hit@5</th>
+<th>seconds</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dense</td>
+<td>1.0</td>
+<td>0.88</td>
+<td>0.571</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>2.5</td>
+</tr>
+<tr>
+<td>BM25</td>
+<td>0.957</td>
+<td>0.808</td>
+<td>0.614</td>
+<td>0.929</td>
+<td>1.0</td>
+<td>0.8</td>
+</tr>
+<tr>
+<td>Hybrid(RRF)</td>
+<td>1.0</td>
+<td>0.928</td>
+<td>0.557</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>0.2</td>
+</tr>
+<tr>
+<td>Hybrid(加权-错)</td>
+<td>1.0</td>
+<td>0.822</td>
+<td>0.6</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>0.2</td>
+</tr>
+<tr>
+<td>Hybrid(归一加权)</td>
+<td>1.0</td>
+<td>0.884</td>
+<td>0.543</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>0.2</td>
+</tr>
+<tr>
+<td>Hybrid(RRF)+Rerank</td>
+<td>1.0</td>
+<td>0.928</td>
+<td>0.557</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>13.8</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>要点</strong>：</p>
+<ul>
+<li>Dense 擅长语义改写题，对精确符号题（STTNI、VPGATHERDD）偏弱；</li>
+<li>BM25 反之：符号题一打一个准，语义改写题丢分；</li>
+<li>Hybrid(RRF) 应不低于两路中较弱的一路；</li>
+<li>Hybrid(加权-错) 会被 BM25 的无界分数绑架，名次几乎等于 BM25 单路 —— 这就是不能直接加分数的证据；</li>
+<li>+Rerank 在本语料上 MRR 未变（Top-1 已基本正确）而耗时显著增加 —— “收益必须实测”的活例子；候选更杂、语料更大时 rerank 的价值才会显现（第 7 节有逐题对比）。</li>
+</ul>
+<p>分题型表现：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>方案</th>
+<th>cross_chapter</th>
+<th>fact</th>
+<th>global</th>
+<th>multi_doc</th>
+<th>near_confusion</th>
+<th>semantic</th>
+<th>symbol</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dense</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>1.0</td>
+</tr>
+<tr>
+<td>BM25</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>0.75</td>
+<td>1.0</td>
+<td>1.0</td>
+</tr>
+<tr>
+<td>Hybrid(RRF)</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>1.0</td>
+</tr>
+<tr>
+<td>Hybrid(加权-错)</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>1.0</td>
+</tr>
+<tr>
+<td>Hybrid(归一加权)</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>1.0</td>
+</tr>
+<tr>
+<td>Hybrid(RRF)+Rerank</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>1.0</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+  </article>
+  <nav class="wrap post-nav"><a class="prev" href="../index.html"><span class="dir">← 课表</span><span class="t">全部课程</span></a><a class="next" href="exp2_cleaning.html"><span class="dir">下一篇 →</span><span class="t">实验 2：原始资料清洗的价值（干净 vs 脏语料）</span></a></nav>
+</main>
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb 的博客</span>
+    </div>
+    <p>© <span data-year>2026</span> NorthAdb · RAG 课为静态讲义</p>
+    <div class="f-links">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</footer>
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+<script src="../../js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>源码阅读笔记：RAPTOR（refs/raptor） — NorthAdb</title>
+<meta name="description" content="源码阅读笔记：RAPTOR（refs/raptor）">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23D97757'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%231C100A' font-family='Georgia' font-weight='bold'>N</text></svg>">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../course.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="orb orb-a"></div>
+<div class="orb orb-b"></div>
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html">首页</a></li>
+        <li><a href="../../index.html#posts">文章</a></li>
+        <li><a href="../../learn.html">课件</a></li>
+        <li><a href="../index.html" class="active">RAG</a></li>
+        <li><a href="../../about.html">关于</a></li>
+        <li><a href="https://github.com/NorthAdb" target="_blank" rel="noopener" class="nav-cta">GitHub ↗</a></li>
+      </ul>
+    </nav>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+<main>
+  <article>
+    <header class="wrap post-hero">
+      <div class="crumbs">
+        <a href="../../index.html">首页</a><span class="sep-c">/</span>
+        <a href="../index.html">RAG</a><span class="sep-c">/</span>
+        <span>笔记</span>
+      </div>
+      <h1>源码阅读笔记：RAPTOR（refs/raptor）</h1>
+      <div class="post-meta"><span class="tag">RAG</span></div>
+    </header>
+    <div class="wrap prose wide"><blockquote>
+<p>阅读任务（第 11 节布置）：找到“聚类摘要的递归终止条件”。
+阅读日期：2026-09-12 · 版本：main 分支浅克隆</p>
+</blockquote>
+<h2>建树流程（raptor/tree_builder.py）</h2>
+<p><code>TreeBuilder.build_from_text()</code>（260 行）：</p>
+<pre><code class="language-text">split_text(text)                 → 叶子 chunks
+multithreaded_create_leaf_nodes  → 叶子节点（每个 chunk 一次 embedding）
+construct_tree(all_nodes, ...)   → 递归逐层向上（抽象方法！）
+</code></pre>
+<p><code>construct_tree</code> 是<strong>抽象方法</strong>（298 行 <code>@abstractclassmethod</code>）——基类只定义骨架，
+真正的“聚类→摘要→建父节点”循环在子类 <code>cluster_tree_builder.ClusterTreeBuilder</code> 里。</p>
+<h2>定位任务答案：递归终止条件（raptor/cluster_utils.py）</h2>
+<p>聚类用的是 <strong>GMM + UMAP 降维</strong>（<code>global_cluster_embeddings</code> 先全局降维，
+<code>local_cluster_embeddings</code> 簇内再降维），循环在 <code>perform_clustering</code>（69 行）：</p>
+<pre><code class="language-python">if len(global_cluster_embeddings_) == 0:      ...  # 终止条件 1：没有数据
+if len(global_cluster_embeddings_) &lt;= dim + 1:     # 终止条件 2：样本太少，无法降维/聚类
+# GMM_cluster: labels = [np.where(prob &gt; threshold)[0] ...]   threshold=0.1
+</code></pre>
+<p>再加上 <code>ClusterTreeBuilder</code> 里的 <code>if len(cluster_nodes) == 1</code>（单节点簇不再摘要），
+以及 <code>TreeBuilderConfig.num_layers</code>（最大层数）。四层保险：</p>
+<pre><code class="language-text">递归终止 = 簇内节点数 ≤ dim+1  或  概率阈值过滤后为空  或  单节点簇  或  达到 num_layers
+</code></pre>
+<p><strong>对照论文</strong>：这就是论文里“recursively cluster until a threshold is hit”的工程形态——
+终止条件不是“树高固定”，而是<strong>数据的可聚类性</strong>（样本太少就不再强行分组）。</p>
+<h2>检索（raptor/tree_retriever.py）</h2>
+<p><code>TreeRetriever.retrieve()</code> 有两种模式：</p>
+<ul>
+<li><code>retrieve_information_collapse_tree</code>（158 行）：<strong>collapsed tree</strong>——把所有层节点拉平
+混在一起做向量检索，命中哪层用哪层（摘要节点和叶节点同台竞争）；</li>
+<li>分层模式：自顶向下逐层选 top-k 再往下走（论文的 tree traversal）。</li>
+</ul>
+<p>配置项 <code>TreeRetrieverConfig</code> 里 <code>top_k / num_layers / max_tokens / collapse_tree</code>。</p>
+<h2>一页笔记：问题 / 方法 / 代价 / 不做什么</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>项</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>问题</strong></td>
+<td>扁平 chunk 检索是“点对点”匹配，接不住需要抽象层级/全局视角的问题</td>
+</tr>
+<tr>
+<td><strong>方法</strong></td>
+<td>GMM 聚类（UMAP 降维）→ LLM 逐簇摘要 → 摘要再聚类，递归成树；检索时 collapsed tree（全层拉平）或分层遍历</td>
+</tr>
+<tr>
+<td><strong>代价</strong></td>
+<td>每个“簇 × 每层”一次 LLM 摘要（建树贵、更新更贵：局部改动可能牵动整棵子树的摘要）；摘要是 LLM 生成的——<strong>摘要幻觉会被当作证据检索出来</strong>；UMAP+GMM 对 embedding 质量敏感</td>
+</tr>
+<tr>
+<td><strong>不做什么</strong></td>
+<td>不做实体关系（那是 GraphRAG 的事）；不改检索器本身（还是向量相似度，只是检索对象多了摘要节点）；不做增量（原实现按全文重建）</td>
+</tr>
+</tbody>
+</table></div>
+<h2>与本课程的连接</h2>
+<ul>
+<li>第 10 节 Parent-Child：“检索单元 ≠ 生成单元”的概念，RAPTOR 推广成“摘要也是检索单元”；</li>
+<li>我们的 <code>rg_parents</code> 表是它的“只有一层的树”（叶子=chunk，父=小节，无摘要）；</li>
+<li>若要手写玩具版（计划书允许的上限）：<code>每章 1 次摘要 + 摘要向量入库 + strategy=chapter_summary</code>，
+用 <code>meta_filter={&quot;strategy_tag&quot;:...}</code> 就能在现有 pgvector 架构上实现——留作练习。</li>
+</ul>
+</div>
+  </article>
+  <nav class="wrap post-nav"><a class="prev" href="lightrag.html"><span class="dir">← 上一篇</span><span class="t">源码阅读笔记：LightRAG（refs/LightRAG）</span></a><a class="next" href="../index.html"><span class="dir">课表 →</span><span class="t">回到目录</span></a></nav>
+</main>
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb 的博客</span>
+    </div>
+    <p>© <span data-year>2026</span> NorthAdb · RAG 课为静态讲义</p>
+    <div class="f-links">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</footer>
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+<script src="../../js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hybrid 融合：RRF 与量纲绑架 — NorthAdb</title>
+<meta name="description" content="手写 RRF；错误示范：直接加权分数；归一化加权的折中；为什么默认选 RRF；v3：RRF 出处、加权变体与边界。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23D97757'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%231C100A' font-family='Georgia' font-weight='bold'>N</text></svg>">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../course.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="orb orb-a"></div>
+<div class="orb orb-b"></div>
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html">首页</a></li>
+        <li><a href="../../index.html#posts">文章</a></li>
+        <li><a href="../../learn.html">课件</a></li>
+        <li><a href="../index.html" class="active">RAG</a></li>
+        <li><a href="../../about.html">关于</a></li>
+        <li><a href="https://github.com/NorthAdb" target="_blank" rel="noopener" class="nav-cta">GitHub ↗</a></li>
+      </ul>
+    </nav>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+<main>
+  <article>
+    <header class="wrap post-hero">
+      <div class="crumbs">
+        <a href="../../index.html">首页</a><span class="sep-c">/</span>
+        <a href="../index.html">RAG</a><span class="sep-c">/</span>
+        <span>第 06 节</span>
+      </div>
+      <h1>Hybrid 融合：RRF 与量纲绑架</h1>
+      <div class="post-meta"><span>第 06 节</span><span class="sep"></span><span>约 30 分钟</span><span class="sep"></span><a href="../quiz.html?lesson=06">本节自测</a></div><p class="lead">手写 RRF；错误示范：直接加权分数；归一化加权的折中；为什么默认选 RRF；v3：RRF 出处、加权变体与边界。</p>
+    </header>
+    <div class="wrap prose wide"><blockquote>
+<p><strong>本节任务</strong>：能用&quot;量纲绑架&quot;解释为什么不能直接加权两路分数，能手算一个
+RRF 融合例子，并记住本课最重要的实验结论之一：<strong>错误的融合可以比任何单路都差</strong>。</p>
+</blockquote>
+<p><strong>课程地图上的位置</strong>：Layer 2 第三站。上一节 <a href="05.html">05 BM25</a>；下一节
+<a href="07.html">07 Rerank</a>。融合的两路输入就是前两节的 <code>dense_search</code> 与 <code>bm25_search</code>
+产出的 <code>Hit</code> 列表。</p>
+<h2>6.1 融合的难题：两把不同的尺子</h2>
+<pre><code class="language-text">Dense 的分数：余弦相似度，取值 [0, 1]      （本课程实测集中在 0.4~0.7）
+BM25 的分数：无界非负，实测常见 2~30+     （取决于 IDF 与词频）
+</code></pre>
+<p>直接 <code>α·cos + (1-α)·bm25</code> 会发生什么？BM25 量纲大几个数量级，
+<strong>α=0.5 的&quot;五五开&quot;实际是 BM25 说了算</strong>——排序几乎等于 BM25 单路。
+这叫<strong>量纲绑架</strong>。</p>
+<h2>6.2 代码走读（playground/retrieve/hybrid.py，96 行）</h2>
+<p>文件顶部注释（<code>hybrid.py:1-11</code>）就点明三个函数的关系：<code>rrf_fuse</code> 正确默认、
+<code>raw_weighted_fuse</code> 错误示范、<code>norm_weighted_fuse</code> 可工作的折中。</p>
+<h3>6.2.1 RRF 本体（hybrid.py:22-57）</h3>
+<pre><code class="language-python">def rrf_fuse(lists: list[list[Hit]], k: int = config.RRF_K, top_k: int = 10):
+    &quot;&quot;&quot;多路排名融合。lists: [dense_hits, bm25_hits, ...]&quot;&quot;&quot;
+    fused: dict[str, dict] = {}
+    for lst in lists:                          # :25 逐路遍历
+        for rank, h in enumerate(lst):         # :26 名次从 0 开始
+            if kid not in fused:
+                fused[kid] = {&quot;hit&quot;: h, &quot;score&quot;: 0.0, &quot;ranks&quot;: []}
+            fused[kid][&quot;score&quot;] += 1.0 / (k + rank + 1)   # :29 RRF 核心一行
+            fused[kid][&quot;ranks&quot;].append(rank + 1)          # :30 记录名次（可观测）
+    out = sorted(fused.items(), key=lambda kv: kv[1][&quot;score&quot;], reverse=True)[:top_k]
+</code></pre>
+<p>核心只有 <code>:29</code> 一行：<code>score += 1/(k + rank + 1)</code>。其余都是记账。
+<code>meta={&quot;ranks&quot;: [...]}</code>（<code>:50</code>）把每路名次塞回 Hit——Playground 的&quot;融合名次&quot;
+一栏展示的就是它。</p>
+<p>走一遍数字（k=60）：</p>
+<pre><code class="language-text">块 X：Dense 第 1、BM25 第 3   → 1/61 + 1/63 = 0.0323   ← 双路都认
+块 Y：Dense 第 2、BM25 缺席   → 1/62 + 0    = 0.0161
+块 Z：Dense 缺席、BM25 第 1   → 0 + 1/61    = 0.0164
+</code></pre>
+<p>X 两路都靠前所以登顶；Y 和 Z 都只有一路票，票值相近。<strong>RRF 不关心分数差多少，
+只关心&quot;几个检索器都把它排在了前面&quot;</strong>——这就是它对量纲免疫的原因。
+<code>k=60</code> 的作用：压平头部差距。k 越大，第 1 名和第 5 名的分差越小，融合越&quot;温和&quot;。</p>
+<p>几个都叫 K 的量不要混（动手练习只拧第一颗）：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>名字</th>
+<th>在哪</th>
+<th>是什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>RRF_K</code> / <code>rrf_fuse</code> 的 <code>k</code></strong></td>
+<td><code>config.py</code> → <code>hybrid.py:21</code></td>
+<td>融合公式 <code>1/(k+名次)</code> 里的平滑常数：越大头部越平</td>
+</tr>
+<tr>
+<td><strong><code>CANDIDATE_K</code> / <code>rrf_fuse</code> 的 <code>top_k</code></strong></td>
+<td><code>config.py</code> → <code>rag.py</code> 传入</td>
+<td>每路召回或融合后取几条 Hit（本课 30），与公式无关</td>
+</tr>
+<tr>
+<td><strong><code>ef_search</code></strong></td>
+<td>第 4 节 HNSW</td>
+<td>向量图上探多宽，融合根本不读它</td>
+</tr>
+</tbody>
+</table></div>
+<p><code>ef_search</code> 必须 ≥ 向量路的 <code>top_k</code>（口袋不能比最终要的条数还小），那是 HNSW 的约束，
+和 <code>RRF_K</code> 无关。生产 Postgres 里稀疏一路也可以用 <code>tsvector</code> 代替本课的内存 BM25
+（第 5 节已写），本节只负责两路名单怎么合成。</p>
+<p><code>:25</code> 的 <code>for lst in lists</code> 说明它<strong>天生支持任意多路</strong>——第 8 节 multi_query
+把 3 组查询的融合结果再并进来（<code>rag.py:165-167</code>），用的就是同一个函数。</p>
+<h3>6.2.2 错误示范：raw_weighted_fuse（hybrid.py:60-78）</h3>
+<pre><code class="language-python">def raw_weighted_fuse(dense, bm25, alpha=0.5, top_k=10):
+    pool = {}
+    for h in dense:
+        pool[_key(h)] = {&quot;hit&quot;: h, &quot;s&quot;: alpha * h.score}          # 0~0.5
+    for h in bm25:
+        e = pool.setdefault(_key(h), {&quot;hit&quot;: h, &quot;s&quot;: 0.0})
+        e[&quot;s&quot;] += (1 - alpha) * h.score                           # 动辄 10~25
+</code></pre>
+<p>代码本身没有 bug——<strong>它错在思想上</strong>：两个不可通约的量纲按字面加权。
+<code>tests/test_core.py</code> 里有用例断言&quot;junk 块必然登顶&quot;（造一个 BM25 高分但内容
+无关的块），把这个错误固化成可运行的证明。</p>
+<h3>6.2.3 折中：norm_weighted_fuse（hybrid.py:81-96）</h3>
+<pre><code class="language-python">def norm(lst):                       # min-max 归一化到 [0,1]
+    lo, hi = min(h.score ...), max(h.score ...)
+    if hi - lo &lt;= 0:                 # 单元素/全并列：没有分布信息，给满权重
+        return {chunk_id: 1.0 for ...}      # :89-90 除零保护（单测抓出的真 bug）
+</code></pre>
+<p>归一化后加权确实救回来了，但仍有两处要警惕：min-max 对<strong>离群值</strong>敏感
+（一个 30 分的异常块会把其他所有块压到接近 0）；α 要调。所以课程结论：
+<strong>默认选 RRF，norm 加权作为&quot;必须保留分数信息&quot;时的折中</strong>。</p>
+<h2>6.3 如何运行</h2>
+<pre><code class="language-bash"># 手算验证：三条 Hit 的 RRF 分（对照 6.2.1 的数字）
+python -c &quot;
+from playground.retrieve.vector_store import Hit
+from playground.retrieve.hybrid import rrf_fuse
+def h(i, d): return Hit(doc_id=d, chunk_id=f'{d}::{i}', strategy='s', chunk_index=i, content='c', section_path='', score=0)
+fused = rrf_fuse([[h(0,'x'), h(1,'y')], [h(0,'z'), h(1,'x')]], top_k=3)
+for f in fused: print(f.doc_id, f.score, f.meta['ranks'])
+&quot;
+
+# 单测（含量纲绑架的可复现证明）
+python -m pytest tests/test_core.py -q -k fuse
+</code></pre>
+<h2>6.4 实验 1 的核心证据（MRR@5）</h2>
+<p>来自 <code>python -m scripts.run_eval</code> 第 1 组（exp1_retrievers），五个方案同一批金标题：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>方案</th>
+<th>MRR@5</th>
+<th>noise@5</th>
+<th>相对 RRF</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dense</td>
+<td>0.880</td>
+<td>0.571</td>
+<td>—</td>
+</tr>
+<tr>
+<td>BM25</td>
+<td>0.808</td>
+<td>0.614</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>Hybrid(RRF)</strong></td>
+<td><strong>0.928</strong></td>
+<td>0.557</td>
+<td>基线，全场最优</td>
+</tr>
+<tr>
+<td>Hybrid(直接加权-错)</td>
+<td>0.822</td>
+<td>0.600</td>
+<td>-0.106，甚至不如 Dense 单路</td>
+</tr>
+<tr>
+<td>Hybrid(归一化加权)</td>
+<td>0.884</td>
+<td>0.543</td>
+<td>可用，但需调 α/β</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>读表：</strong></p>
+<ol>
+<li>错误加权（0.822）被 BM25 的高分牵着走，名次退化成&quot;接近 BM25 单路&quot;，比
+Dense 单路（0.880）还低——这就是&quot;不能直接加分数&quot;的实测证据：<strong>一个实现上
+没有任何 bug 的函数，因为思想错了，成绩比两路单打都差</strong>；</li>
+<li>归一化加权（各自 min-max 后再加权）确实救回来了，但仍需调 α、对离群值敏感；</li>
+<li><strong>RRF 零参数、零调参、稳超两路中较弱者</strong>。</li>
+</ol>
+<p>去 Playground 选 <strong>Hybrid（直接加权——错误示范）</strong>，随便问一题，
+对比 Dense 命中和 BM25 命中的分数：你会直观看到&quot;BM25 的 25 分 vs 余弦的 0.6 分&quot;
+根本不在一个世界。</p>
+<h2>6.5 融合 ≠ Rerank（提前划清边界）</h2>
+<pre><code class="language-text">查询改写（第 8 节）改的是&quot;查询&quot;——输入之前
+RRF 融合（本节）    改的是&quot;多路结果的合并&quot;——粗排
+Reranker（第 7 节） 改的是&quot;候选项的顺序&quot;——精排
+</code></pre>
+<p>很多资料把它们混着讲，导致初学者以为&quot;加了 RRF 就不用 Rerank&quot;或反之。
+它们是流水线上<strong>不同位置</strong>的三个部件，本课程全程分开评测。</p>
+<h2>6.6 注意事项</h2>
+<ul>
+<li><strong>各路召回的 top_k 要一致</strong>：<code>rag.py:138-143</code> 两路都用 <code>config.CANDIDATE_K=30</code>。
+若一路召回 10 一路召回 100，RRF 的名次分布不对称，排名靠后的路被系统性压制；</li>
+<li>RRF 的分数<strong>只在本查询内有意义</strong>：1/(60+rank) 的绝对值没有语义，不能跨查询
+比较（&quot;这题 RRF 0.0323 &gt; 那题 0.0289&quot;不说明任何问题）；</li>
+<li>融合发生在<strong>两个 Hit 列表之间</strong>，与数据库无关——想加第三路（比如图检索），
+构造出 <code>Hit</code> 列表直接丢给 <code>rrf_fuse</code> 即可（第 14 节的图召回就是这么接的思路）。</li>
+</ul>
+<h2>6.7 动手练习</h2>
+<ol>
+<li>Playground 同一问题分别用 RRF / 直接加权 / 归一化加权，对比&quot;融合后候选&quot;
+的第一名是谁（直接加权下第一名几乎总是 BM25 的第一名）；</li>
+<li>把 <code>rrf_fuse</code> 的 <code>k</code>（<code>config.RRF_K</code>，默认 60）临时改成 5 和 200（记得改回来），
+观察融合后头部名次变化——改的是上一小节表里的第一颗 K，不是 <code>top_k</code>；</li>
+<li>用 6.3 的终端示例把 z 块换成三路（再加一路只有 y 的列表），验证
+<code>rrf_fuse</code> 不需要任何修改就能融合三路。</li>
+</ol>
+<h2>6.8 加厚（v3）：RRF 的出处、变体与边界</h2>
+<ul>
+<li>
+<p><strong>出处</strong>：RRF 来自 Cormack 等人 2009 年的实验研究，论文标题就叫&quot;Reciprocal
+Rank Fusion outperforms Condorcet and individual rank learning methods&quot;——
+结论是这个&quot;不像算法的算法&quot;在多路融合上稳赢更复杂的学习方法。<code>k=60</code> 就是
+论文的经验值：压平头部名次差距，让第 1 名不至于一家独大（6.2.1 的手算）；</p>
+</li>
+<li>
+<p><strong>变体：加权 RRF</strong>：给不同路配权重（每路 <code>1/(k+rank)</code> 再乘 <code>w</code> 后相加，
+如 <code>w_dense=0.7, w_bm25=0.3</code>）——pgvector 0.8 与 Qdrant 的混合检索都支持。
+何时值得加权？<strong>实测某一路系统性更强时</strong>。代价是要调参，且权重有&quot;对这批
+金标过拟合&quot;的风险——先跑 6.4 的 RRF 基线，再决定要不要引入这个自由度。</p>
+<p>加权 RRF 和 6.2.3 的归一化加权最容易混：一个给<strong>名次</strong>加权，一个给<strong>分数</strong>加权。
+本课 <code>hybrid.py</code> 没有实现加权 RRF，只有普通 RRF / 裸加权 / 归一加权。</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th></th>
+<th><strong>加权 RRF</strong></th>
+<th><strong>归一化加权</strong>（<code>hybrid_norm</code>）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>加权对象</td>
+<td>Rank：<code>w / (k+名次)</code></td>
+<td>Score：先 min-max 再 <code>α·Dense+(1-α)·BM25</code></td>
+</tr>
+<tr>
+<td>用不用原始分数</td>
+<td>不用</td>
+<td>用（只是先拉到 [0,1]）</td>
+</tr>
+<tr>
+<td>在决定什么</td>
+<td>&quot;谁的<strong>排名</strong>更值得信&quot;</td>
+<td>&quot;谁的<strong>分数</strong>更值得信&quot;</td>
+</tr>
+</tbody>
+</table></div>
+<pre><code class="language-text">加权 RRF：     Rank → 1/(k+rank) → × 路权重 → 相加
+归一化加权：   Raw score → min-max → × α → 相加
+</code></pre>
+<p>四条路怎么记（前三条对应 <code>retriever=hybrid / hybrid_raw / hybrid_norm</code>）：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>方法</th>
+<th>看什么</th>
+<th>优点</th>
+<th>主要问题</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>RRF</strong>（默认）</td>
+<td>Rank</td>
+<td>稳定、不受量纲影响</td>
+<td>丢失原始分数差距</td>
+</tr>
+<tr>
+<td><strong>裸加权</strong></td>
+<td>原始 Score</td>
+<td>实现最简单</td>
+<td>量纲绑架</td>
+</tr>
+<tr>
+<td><strong>归一化加权</strong></td>
+<td>归一化 Score</td>
+<td>解决量纲，仍保留分差</td>
+<td>要调 α、离群值敏感</td>
+</tr>
+<tr>
+<td><strong>加权 RRF</strong></td>
+<td>Rank + 路权重</td>
+<td>保留 RRF 稳定性，同时偏向强路</td>
+<td>要调 w、可能过拟合</td>
+</tr>
+</tbody>
+</table></div>
+<pre><code class="language-text">实际路线：Dense + BM25 → 先普通 RRF 当基线
+          → 看 6.4 / Playground 哪一路系统性更强
+          → 必要时再试加权 RRF（给排名加权），不要一上来调 α
+</code></pre>
+</li>
+<li>
+<p><strong>融合时机的两个流派</strong>：本课程是&quot;先融合多路候选、再统一精排&quot;（rag.py 的
+顺序：召回 → 融合 → 精排）；另一派&quot;各路先各自精排、再融合名次&quot;——后者
+贵 N 倍（每路都要过一次 reranker），通常只在各路异构（向量 + 图 + SQL）
+时才值得；</p>
+</li>
+<li>
+<p><strong>边界</strong>：RRF 假设&quot;各路质量相近&quot;。若一路明显强（某语料上 BM25 几乎全对），
+RRF 会把弱路的噪声票也计入——这时加权、甚至退回单路，都是诚实选项。
+<strong>融合不是信仰，是可实测的工程选择</strong>，6.4 的五方案对比表就是证据。</p>
+</li>
+</ul>
+</div>
+  </article>
+  <nav class="wrap post-nav"><a class="prev" href="05.html"><span class="dir">← 上一篇</span><span class="t">BM25 稀疏检索：为什么它还没死</span></a><a class="next" href="07.html"><span class="dir">下一篇 →</span><span class="t">Reranker：召回与精排的分工</span></a></nav>
+</main>
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb 的博客</span>
+    </div>
+    <p>© <span data-year>2026</span> NorthAdb · RAG 课为静态讲义</p>
+    <div class="f-links">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</footer>
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+<script src="../../js/main.js"></script>
+</body>
+</html>
