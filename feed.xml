@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>NorthAdb 的博客</title>
+    <link>https://northadb.github.io/</link>
+    <description>面向 AI / Agent / Security 的现代技术博客：Agent Harness、RAG、Web 基础设施与工程实践。</description>
+    <language>zh-CN</language>
+    <atom:link href="https://northadb.github.io/feed.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>新博客，开工 —— 你好，世界</title>
+      <link>https://northadb.github.io/posts/hello-world.html</link>
+      <guid isPermaLink="true">https://northadb.github.io/posts/hello-world.html</guid>
+      <description>换了新的博客主题，聊聊这次改版背后的想法。</description>
+      <pubDate>Sun, 20 Jul 2025 00:00:00 +0800</pubDate>
+    </item>
+    <item>
+      <title>拆解 Claude 官网的设计语言</title>
+      <link>https://northadb.github.io/posts/claude-design-language.html</link>
+      <guid isPermaLink="true">https://northadb.github.io/posts/claude-design-language.html</guid>
+      <description>从色彩、字体、纹理到留白，逐层拆解 Claude 官网的设计系统。</description>
+      <pubDate>Fri, 18 Jul 2025 00:00:00 +0800</pubDate>
+    </item>
+    <item>
+      <title>零基础把静态网页部署到 GitHub Pages</title>
+      <link>https://northadb.github.io/posts/github-pages-guide.html</link>
+      <guid isPermaLink="true">https://northadb.github.io/posts/github-pages-guide.html</guid>
+      <description>免费、免服务器、全球 CDN。手把手教你用 GitHub Pages 部署个人博客。</description>
+      <pubDate>Tue, 15 Jul 2025 00:00:00 +0800</pubDate>
+    </item>
+    <item>
+      <title>当我用 AI 写代码时，我在想什么</title>
+      <link>https://northadb.github.io/posts/ai-coding-workflow.html</link>
+      <guid isPermaLink="true">https://northadb.github.io/posts/ai-coding-workflow.html</guid>
+      <description>从「让 AI 帮我生成代码」到「和 AI 结对编程」，分享真实的 AI 编程工作流与踩过的坑。</description>
+      <pubDate>Thu, 10 Jul 2025 00:00:00 +0800</pubDate>
+    </item>
+  </channel>
+</rss>

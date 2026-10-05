@@ -1,0 +1,16 @@
+[
+  {"title": "当我用 AI 写代码时，我在想什么", "url": "posts/ai-coding-workflow.html", "category": "AI · 随笔", "excerpt": "从「让 AI 帮我生成代码」到「和 AI 结对编程」，分享真实的 AI 编程工作流与踩过的坑。", "type": "post", "featured": true},
+  {"title": "新博客，开工 —— 你好，世界", "url": "posts/hello-world.html", "category": "随笔", "excerpt": "换了新的博客主题，聊聊这次改版背后的想法。", "type": "post", "featured": true},
+  {"title": "拆解 Claude 官网的设计语言", "url": "posts/claude-design-language.html", "category": "设计", "excerpt": "从色彩、字体、纹理到留白，逐层拆解 Claude 官网的设计系统。", "type": "post", "featured": false},
+  {"title": "零基础把静态网页部署到 GitHub Pages", "url": "posts/github-pages-guide.html", "category": "教程", "excerpt": "免费、免服务器、全球 CDN。手把手教你用 GitHub Pages 部署个人博客。", "type": "post", "featured": false},
+  {"title": "Agent Harness 架构课程", "url": "agent-harness-course/index.html", "category": "课件 · 15 课", "excerpt": "逆向工程 Pi 源码，回答现代 Agent Harness 需要哪些基础机制。", "type": "course", "featured": false, "keywords": "agent harness pi loop tool context session compaction skills mcp"},
+  {"title": "学习 Pi 导读", "url": "learn-pi/index.html", "category": "课件 · 22 篇", "excerpt": "面向 Pi 仓库的中文学习导读：设计哲学、架构、运行模式与二次开发。", "type": "course", "featured": false, "keywords": "pi agent 导读 架构 设计哲学"},
+  {"title": "从 HTTP 到实时 Agent Server", "url": "web-foundation/COURSE.html", "category": "课件 · 网络通信课", "excerpt": "异步与 HTTP 地基、SSE 流式、WebSocket 双向通信，到 Agent 事件流与生产化。", "type": "course", "featured": false, "keywords": "http sse websocket fastapi redis nginx agent server 网络"},
+  {"title": "RAG Playground", "url": "rag/index.html", "category": "课件 · 18 讲", "excerpt": "从零手写一条可观测的 RAG 流水线：讲义、实验报告与自测。", "type": "course", "featured": false, "keywords": "rag retrieval embedding vector chunk hnsw raptor lightrag 检索"},
+  {"title": "Agent Learning（主课）", "url": "https://northadb.github.io/agent-learning/lessons/", "category": "课件 · 外部", "excerpt": "用 Python 读懂并跑通 coding agent harness。", "type": "course", "featured": false, "keywords": "python harness agent learning"},
+  {"title": "课件总览", "url": "learn.html", "category": "页面", "excerpt": "全部公开课的入口与阅读方式。", "type": "page", "featured": false},
+  {"title": "关于我", "url": "about.html", "category": "页面", "excerpt": "关于 NorthAdb：前端开发者，关注 AI Agent、RAG 与工程实践。", "type": "page", "featured": false},
+  {"title": "AI & Agents", "url": "learn.html", "category": "方向", "excerpt": "Agent Loop、Harness 架构、工具调用与上下文管理。", "type": "topic", "featured": false},
+  {"title": "RAG", "url": "rag/index.html", "category": "方向", "excerpt": "从零手写可观测的 RAG 流水线。", "type": "topic", "featured": false},
+  {"title": "Web & Infra", "url": "web-foundation/COURSE.html", "category": "方向", "excerpt": "从 HTTP 到 Redis / Nginx 生产化的网络通信课。", "type": "topic", "featured": false}
+]
