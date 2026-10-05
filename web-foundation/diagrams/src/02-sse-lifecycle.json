@@ -1,0 +1,166 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "SSE 连接生命周期：直播、心跳与断线续传",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1080,
+      524
+    ],
+    "legend": {
+      "mode": "hidden"
+    },
+    "column_fit": "spread"
+  },
+  "participants": [
+    {
+      "id": "browser",
+      "type": "frontend",
+      "label": "浏览器",
+      "sublabel": "EventSource"
+    },
+    {
+      "id": "api",
+      "type": "backend",
+      "label": "FastAPI",
+      "sublabel": "SSE 端点"
+    },
+    {
+      "id": "agent",
+      "type": "backend",
+      "label": "Agent 任务",
+      "sublabel": "asyncio 后台"
+    }
+  ],
+  "segments": [
+    {
+      "from": 168,
+      "to": 240,
+      "label": "建立连接"
+    },
+    {
+      "from": 256,
+      "to": 354,
+      "label": "事件直播"
+    },
+    {
+      "from": 388,
+      "to": 444,
+      "label": "断开与续传"
+    }
+  ],
+  "messages": [
+    {
+      "from": "browser",
+      "to": "api",
+      "y": 160,
+      "label": "GET /agent/tasks/{id}/events",
+      "variant": "emphasis"
+    },
+    {
+      "from": "api",
+      "to": "browser",
+      "y": 196,
+      "label": "200 text/event-stream",
+      "variant": "return",
+      "note": "响应头带 X-Accel-Buffering: no"
+    },
+    {
+      "from": "api",
+      "to": "browser",
+      "y": 232,
+      "label": "event: agent_started · id: 1",
+      "variant": "emphasis",
+      "note": "Agent emit(seq=1)，端点逐条转发"
+    },
+    {
+      "from": "api",
+      "to": "browser",
+      "y": 268,
+      "label": "event: token · data: \"检\"",
+      "variant": "emphasis"
+    },
+    {
+      "from": "api",
+      "to": "browser",
+      "y": 304,
+      "label": ": ping（空闲 15s 心跳）",
+      "variant": "dashed",
+      "note": "注释行：客户端忽略，防代理断链"
+    },
+    {
+      "from": "browser",
+      "to": "api",
+      "y": 340,
+      "label": "网络中断",
+      "variant": "security",
+      "note": "浏览器自动按 retry 重连"
+    },
+    {
+      "from": "browser",
+      "to": "api",
+      "y": 376,
+      "label": "重连 GET · Last-Event-ID: 5",
+      "variant": "emphasis"
+    },
+    {
+      "from": "api",
+      "to": "browser",
+      "y": 404,
+      "label": "补发 seq 6, 7 …（事件缓冲）",
+      "variant": "return",
+      "note": "先订阅再补发，水位线去重"
+    },
+    {
+      "from": "api",
+      "to": "browser",
+      "y": 436,
+      "label": "event: done → 关闭流",
+      "variant": "return"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "api",
+      "from": 166,
+      "to": 440,
+      "type": "backend"
+    },
+    {
+      "participant": "agent",
+      "from": 226,
+      "to": 300,
+      "type": "backend"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "id 的三重身份",
+      "items": [
+        "SSE 的 id 字段 → 浏览器 lastEventId",
+        "重连时变成 Last-Event-ID 请求头",
+        "服务端事件缓冲的补发位点"
+      ]
+    },
+    {
+      "dot": "orange",
+      "title": "心跳的两个作用",
+      "items": [
+        "重置代理与网关的读超时定时器",
+        "发现死连接，避免半开连接堆积"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "服务端不漏不重",
+      "items": [
+        "先订阅队列，再补发历史缓冲",
+        "重叠区间用水位线去重",
+        "终态事件（done/error）之后关闭流"
+      ]
+    }
+  ]
+}

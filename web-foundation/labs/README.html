@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>labs：渐进式实验区 · 从 HTTP 到实时 Agent Server</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<div class="kicker">实验区</div>
+<h1>labs：渐进式实验区</h1>
+<p>每个实验只教一件事，都能独立运行。课程文档（<code>../course/</code>）会逐段讲解这些代码。</p>
+<h2>准备环境（一次性）</h2>
+<pre><code class="language-bash">cd labs
+python -m venv .venv
+# Windows Git Bash:
+source .venv/Scripts/activate
+# 或 Windows CMD: .venv\Scripts\activate.bat
+pip install -r requirements.txt
+</code></pre>
+<h2>实验索引</h2>
+<table>
+<thead>
+<tr>
+<th>实验</th>
+<th>主题</th>
+<th>端口</th>
+<th>对应模块</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>a1_async/</code></td>
+<td>asyncio：协程、Task、Queue（不开服务）</td>
+<td>-</td>
+<td>模块 1</td>
+</tr>
+<tr>
+<td><code>v0_hello_api/</code></td>
+<td>第一个 FastAPI：路由、Pydantic、/docs</td>
+<td>8801</td>
+<td>模块 1</td>
+</tr>
+<tr>
+<td><code>v2_streaming/</code></td>
+<td>StreamingResponse：分块响应</td>
+<td>8802</td>
+<td>模块 2</td>
+</tr>
+<tr>
+<td><code>v3_sse/v3a</code></td>
+<td>手写 SSE 裸格式（理解协议）</td>
+<td>8803</td>
+<td>模块 2</td>
+</tr>
+<tr>
+<td><code>v3_sse/v3b</code></td>
+<td>FastAPI 原生 SSE + 断线续传 + POST/SSE</td>
+<td>8803</td>
+<td>模块 2</td>
+</tr>
+<tr>
+<td><code>v3_sse/v3c</code></td>
+<td>sse-starlette 生产级方案（心跳）</td>
+<td>8803</td>
+<td>模块 2</td>
+</tr>
+<tr>
+<td><code>v4_websocket/</code></td>
+<td>WebSocket：echo → 聊天室 → ConnectionManager</td>
+<td>8804</td>
+<td>模块 3</td>
+</tr>
+<tr>
+<td><code>v5_llm_stream/</code></td>
+<td>LLM Token Streaming 全链路（mock/真 API）</td>
+<td>8805</td>
+<td>模块 4</td>
+</tr>
+<tr>
+<td><code>v6_agent_events/</code></td>
+<td>统一 Agent 事件协议 + SSE 事件流</td>
+<td>8806</td>
+<td>模块 4</td>
+</tr>
+<tr>
+<td><code>v7_agent_server/</code></td>
+<td><strong>毕业实验</strong>：SSE 输出 + WebSocket 控制</td>
+<td>8807</td>
+<td>模块 4/5</td>
+</tr>
+<tr>
+<td><code>r1_redis_tasks/</code></td>
+<td>任务表外移 → Redis Hash</td>
+<td>18901</td>
+<td>模块 6</td>
+</tr>
+<tr>
+<td><code>r2_redis_stream/</code></td>
+<td>事件日志 → Redis Stream（跨进程续传）</td>
+<td>18902</td>
+<td>模块 6</td>
+</tr>
+<tr>
+<td><code>r3_redis_fanout/</code></td>
+<td>Pub/Sub 跨 Worker 广播（多进程全验证）</td>
+<td>18901/2</td>
+<td>模块 6</td>
+</tr>
+<tr>
+<td><code>n1_nginx_proxy/</code></td>
+<td>Nginx 反代：超时掐流事故对照</td>
+<td>8080→8807</td>
+<td>模块 7</td>
+</tr>
+<tr>
+<td><code>n2_full_stack/</code></td>
+<td>终极拓扑：Nginx → Worker×2 → Redis</td>
+<td>8080</td>
+<td>模块 7</td>
+</tr>
+<tr>
+<td><code>v8_production/</code></td>
+<td>生产化：Nginx/Docker/多 Worker 设计（文档+配置）</td>
+<td>-</td>
+<td>模块 5</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>r 系/n 系依赖基础设施：Redis 用官方镜像
+<code>docker run -d --name course-redis -p 6399:6379 redis:7-alpine</code>；
+Nginx 用 <code>nginx:1.28-alpine</code> 容器（实验脚本自动起停）。</p>
+</blockquote>
+<h2>通用习惯</h2>
+<ul>
+<li>服务端启动统一是：<code>python -m uvicorn &lt;模块&gt;:app --port &lt;端口&gt; --reload</code></li>
+<li>客户端观察统一用三种工具：<code>curl -N</code>（看原始字节）、浏览器（看真实行为）、<code>httpx</code>/<code>websockets</code> 脚本（做自动化验证）</li>
+<li>每个 lab 的 README 末尾有「自测问题」，答不上来说明还没学透，回课程文档对应小节</li>
+<li><strong>改完代码或升级依赖后，跑 <code>python smoke_test.py</code> 一键回归全部实验</strong>（也可以 <code>python smoke_test.py v3b v7</code> 只跑指定项）</li>
+</ul>
+<footer>本页由 markdown 源文件 <code>labs/README.md</code> 自动生成——修改源文件后运行 <code>python tools/build_docs.py</code> 重新生成。</footer>
+<script src="../assets/nav.js" data-base="../" data-track=""></script>
+</body>
+</html>

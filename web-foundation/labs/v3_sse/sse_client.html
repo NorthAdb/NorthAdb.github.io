@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>SSE 客户端实验台</title>
+<style>
+  body { font-family: "Cascadia Code", Consolas, monospace; margin: 2rem; background: #fafafa; color: #222; }
+  h1 { font-size: 1.2rem; }
+  #bar { display: flex; gap: .5rem; margin: 1rem 0; }
+  #url { flex: 1; padding: .5rem; }
+  button { padding: .5rem 1rem; cursor: pointer; }
+  #log { background: #111; color: #cde; padding: 1rem; height: 22rem; overflow-y: auto; font-size: .85rem; line-height: 1.5; }
+  .ev { color: #8f8; } .id { color: #fc6; } .state { color: #f88; } .info { color: #8cf; }
+</style>
+</head>
+<body>
+<h1>SSE 客户端实验台（对照 labs/v3_sse/README.md 使用）</h1>
+<div id="bar">
+  <input id="url" value="http://127.0.0.1:8803/events" size="50">
+  <button id="connect">Connect</button>
+  <button id="close">Close</button>
+</div>
+<p>提示：连接后把服务端 Ctrl+C，观察 readyState 变成 0 (CONNECTING)——浏览器在自动重连；重启服务端，流会自动恢复。</p>
+<div id="log"></div>
+<script>
+  const log = (html) => { const d = document.createElement("div"); d.innerHTML = html;
+    document.getElementById("log").appendChild(d); d.scrollIntoView(); };
+  const stateName = (s) => ({0: "0 (CONNECTING)", 1: "1 (OPEN)", 2: "2 (CLOSED)"})[s] ?? s;
+  let source = null;
+
+  document.getElementById("connect").onclick = () => {
+    if (source) source.close();
+    const url = document.getElementById("url").value;
+    log(`<span class="info">连接 ${url} ...</span>`);
+    source = new EventSource(url);
+
+    // 默认事件（服务器没写 event: 字段的事件走这里）
+    source.onmessage = (e) => log(`[message] id=${e.lastEventId} data=${e.data}`);
+    source.onopen = () => log(`<span class="state">onopen: readyState=${stateName(source.readyState)}</span>`);
+    source.onerror = () => log(`<span class="state">onerror: readyState=${stateName(source.readyState)}（浏览器会按 retry 自动重连）</span>`);
+
+    // 命名事件：必须逐个 addEventListener
+    for (const name of ["count", "tick", "token", "done", "status"]) {
+      source.addEventListener(name, (e) => log(`<span class="ev">[${e.type}]</span> <span class="id">id=${e.lastEventId}</span> data=${e.data}`));
+    }
+  };
+  document.getElementById("close").onclick = () => { if (source) { source.close(); log("<span class='state'>手动 close()</span>"); } };
+</script>
+<script src="../../assets/nav.js" data-base="../../" data-track="reference"></script>
+</body>
+</html>

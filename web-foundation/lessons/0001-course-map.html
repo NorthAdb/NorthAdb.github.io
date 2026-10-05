@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>第 1 课 · 全景地图：你的 Agent 在哪里遇见网络</title>
+<link rel="stylesheet" href="../assets/course.css">
+<style>
+  .layers { display: grid; gap: .4rem; margin: 1rem 0; }
+  .layer { display: flex; align-items: center; gap: .8rem; border: 1px solid var(--line); border-radius: 8px; padding: .55rem .9rem; font-size: .92rem; }
+  .layer .tag { font-family: "Cascadia Code", Consolas, monospace; font-size: .72rem; padding: .1rem .5rem; border-radius: 99px; white-space: nowrap; }
+  .tag.inner { background: #fef3c7; color: #92400e; }
+  .tag.outer { background: var(--accent-soft); color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="kicker">Lesson 0001 · Module 0 · L0.2</div>
+<h1>全景地图：你的 Agent 在哪里遇见网络</h1>
+<p class="lede">这一课不写代码。目标只有一个：把"你已经会的"和"这门课要教的"放到同一张地图上，以后每一课你都知道自己在哪。</p>
+
+<h2>1. 两个世界</h2>
+<p>你学过的 Agent 基础（loop、tool calling）和 RAG 基础，全部发生在<strong>一个 Python 进程内部</strong>。它们是发动机。但发动机不会自己变成一辆车——用户要能打开网页提问、要能看着答案一个个字蹦出来、要能在它失控时按下暂停键。这些全是<strong>进程之外</strong>的事，靠的是网络通信。</p>
+<div class="layers">
+  <div class="layer"><span class="tag inner">已会 · Agent 内部</span> Agent Loop · Tool Calling · RAG · Memory</div>
+  <div class="layer">↕ 唯一的接口：<strong>事件流（Event Stream）</strong>——Agent 把"我在检索/我要调工具/这是第 3 个 token"以事件形式吐出来</div>
+  <div class="layer"><span class="tag outer">本课 · 通信层</span> HTTP → Streaming → SSE → WebSocket（承载者：FastAPI / ASGI）</div>
+</div>
+
+<h2>2. 三个学期的问题，一个直觉</h2>
+<div class="panel">
+  <h4>餐厅比喻</h4>
+  <p style="margin:.2rem 0"><strong>普通 HTTP</strong>：点菜，厨师做完端上来，你吃完才能点下一道（一问一答）。<br>
+  <strong>SSE</strong>：厨师边做边喊"菜洗好了→下锅了→起锅了"（单向直播）。<br>
+  <strong>WebSocket</strong>：你和厨师边做边聊："少放辣""好""等等，先别放盐"（双向对话）。</p>
+</div>
+<p>课程结束前，请记住这个判断式：<strong>只需要服务器不停地说 → SSE；需要客户端随时插话 → WebSocket；两者都要 → 双通道（毕业实验的做法）。</strong></p>
+
+<h2>3. 地图上的六站</h2>
+<table>
+  <tr><th>站</th><th>你会获得</th><th>实验</th></tr>
+  <tr><td>M1 异步与 HTTP</td><td>看懂报文，理解"等待时不占座"</td><td>A1, v0</td></tr>
+  <tr><td>M2 流式与 SSE</td><td>亲手造出打字机的服务端一半</td><td>v2, v3a/b/c</td></tr>
+  <tr><td>M3 WebSocket</td><td>双向连接与广播</td><td>v4</td></tr>
+  <tr><td>M4 LLM 流式与事件</td><td>token 流 + Agent 事件协议 + 遥控</td><td>v5, v6, v7</td></tr>
+  <tr><td>M5 生产化</td><td>Nginx / 多 Worker / Redis</td><td>v8</td></tr>
+</table>
+<p class="note">全景架构图：<a href="../diagrams/01-agent-server-architecture.html">diagrams/01-agent-server-architecture.html</a>。现在打开它看一遍箭头即可，不必看懂每层——这六周你会一层层拆开它。</p>
+
+<h2>4. 检索练习（先回忆，再点击）</h2>
+<div class="quiz" id="quiz">
+  <div class="q">1. LLM 逐 token 输出、用户要看到打字机效果，最适合的通信模型是？</div>
+  <button data-a="0">普通 HTTP API</button>
+  <button data-a="1">SSE</button>
+  <button data-a="2">WebSocket</button>
+  <div class="feedback"></div>
+  <div class="q">2. 用户要随时对运行中的 Agent 发出"暂停/取消/审批"，必须增加哪条通道？</div>
+  <button data-a="0">更快的服务器</button>
+  <button data-a="1">轮询接口</button>
+  <button data-a="2">双向通道（如 WebSocket）</button>
+  <div class="feedback"></div>
+  <div class="q">3. Agent Runtime 与通信层的解耦接口，本课程用什么形态？</div>
+  <button data-a="0">全局变量</button>
+  <button data-a="1">async generator 的 yield 事件</button>
+  <button data-a="2">共享数据库表</button>
+  <div class="feedback"></div>
+</div>
+
+<div class="next">
+  配套讲义：<a href="../course/module-0-为什么需要网络通信.html">M0</a> → <a href="../course/module-1-异步与HTTP地基.html">M1 · L1.1 Python 异步</a>（先跑 <code>python a1_async/asyncio_basics.py</code>）。<br>
+  有任何不清楚的地方，直接在 /teach 会话里问——我是你的讲师，不是出题人。
+</div>
+<footer>课程主入口：<a href="../COURSE.html">COURSE.md</a> · 术语：<a href="../GLOSSARY.html">GLOSSARY.md</a> · 速查表：<a href="../reference/sse-cheatsheet.html">SSE</a> / <a href="../reference/websocket-cheatsheet.html">WebSocket</a></footer>
+<script src="../assets/nav.js" data-base="../" data-track="lesson"></script>
+<script>
+document.querySelectorAll("#quiz .q").forEach((q) => {
+  const fb = q.parentElement.querySelector(".feedback");
+  const answers = ["1", "2", "1"]; // 正确按钮序号（q1: SSE, q2: 双向通道, q3: yield 事件）
+  const idx = [...document.querySelectorAll("#quiz .q")].indexOf(q);
+  q.parentElement.querySelectorAll("button").forEach((btn, i) => {
+    btn.onclick = () => {
+      q.parentElement.querySelectorAll("button").forEach(b => b.classList.remove("correct", "wrong"));
+      if (String(i) === answers[idx]) { btn.classList.add("correct"); fb.textContent = "✔ 正确。"; }
+      else { btn.classList.add("wrong"); fb.textContent = "再想想：回到第 2 节的判断式。"; }
+    };
+  });
+});
+</script>
+</body>
+</html>

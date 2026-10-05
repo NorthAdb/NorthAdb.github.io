@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>r1 · 任务表外移到 Redis Hash · 从 HTTP 到实时 Agent Server</title>
+<link rel="stylesheet" href="../../assets/course.css">
+</head>
+<body>
+<div class="kicker">实验 · r1</div>
+<h1>r1 · 任务表外移到 Redis Hash</h1>
+<p>目标：解决 v7 留下的第一个局限——<code>TASKS</code> 字典只存在于创建任务的那个进程里。
+外移后，<strong>任何进程、任何连接</strong>都能读到任务状态。</p>
+<h2>版本说明（先读）</h2>
+<ul>
+<li>本实验用 Docker 官方镜像 <strong><code>redis:7-alpine</code></strong>（<code>docker run -d --name course-redis -p 6399:6379 redis:7-alpine</code>）。</li>
+<li>为什么是 7.x：官方 Redis 不支持 Windows 原生运行，Docker/Linux 上的 7.x/8.x 是生产标准。
+  课程只使用 Hash / Stream / Pub/Sub——这些原语从 4.0 起行为一致，你在任何版本上运行结论相同。</li>
+<li>代码里的 <code>get_redis()</code> 读 <code>REDIS_URL</code> 环境变量：换成公司内网的 Redis、云 Redis、
+  任何 7.x/8.x 实例，实验代码零改动。连不上时会降级到 fakeredis（单进程仿真），
+  让你至少能把流程跑通——但 r3 的多进程验证必须真 Redis。</li>
+<li>用了 Redis 7 的 RESP3 协议（redis-py 默认启用）：旧 Windows 移植版 Redis 5 不支持 <code>HELLO</code>，
+  这也是"用官方镜像"的理由之一。</li>
+</ul>
+<h2>启动与观察</h2>
+<pre><code class="language-bash"># 终端 1：服务（labs/ 目录下）
+python -m uvicorn r1_redis_tasks.app:app --port 18901
+
+# 终端 2：创建任务并查看
+curl -X POST http://127.0.0.1:18901/agent/tasks -H &quot;Content-Type: application/json&quot; -d '{&quot;goal&quot;: &quot;r1 demo&quot;}'
+curl http://127.0.0.1:18901/agent/tasks
+
+# 终端 3：绕过 HTTP，直接看 Redis 里存了什么（等于&quot;另一个进程&quot;在看）
+docker exec course-redis redis-cli hgetall agent:tasks
+python r1_redis_tasks/verify_cross_connection.py
+</code></pre>
+<p>对照 v7：当时 <code>curl http://其他进程/agent/tasks</code> 要么 404 要么看不到别的进程创建的任务；
+现在任何连接都能看到——因为状态在 Redis，不在进程内存。</p>
+<h2>代码流程讲解</h2>
+<ol>
+<li><strong><code>TaskStore</code>（app.py）</strong>：四个方法 create/get/set_state/all，每个方法就是一条 Redis 命令
+   （<code>HSET</code> / <code>HGET</code> / <code>HSET</code> / <code>HVALS</code>）。注意它不知道 FastAPI 的存在——这就是适配层：
+   v7 里所有 <code>TASKS[...]</code> 的读写点换成 <code>STORE.xxx</code>，其余逻辑一行没动。</li>
+<li><strong><code>agent.py</code> 刻意没变</strong>：事件缓冲 buffer、订阅者队列仍是内存。<code>run_agent_task</code> 在生命周期
+   临界点调用 <code>store.set_state()</code>（done/cancelled/error），让 Hash 里的状态始终可信。</li>
+<li><strong><code>RUNNING.pop(task_id)</code></strong>（agent.py finally 块）：任务结束后从进程登记簿移除——
+   进程内只保留"活着的东西"，历史数据靠 r2 的 Redis Stream。</li>
+</ol>
+<h2>r1 结束后还剩两个局限（r2/r3 的伏笔）</h2>
+<ul>
+<li>事件流仍在内存：换进程看不到事件，断线续传跨进程不成立 → <strong>r2 Stream</strong></li>
+<li>后台任务在进程内：控制指令（暂停/审批）无法跨进程送达属主 → <strong>r3 Pub/Sub + 控制通道</strong></li>
+</ul>
+<h2>自测问题</h2>
+<ol>
+<li><code>HSET agent:tasks &lt;id&gt; &lt;json&gt;</code> 与 v7 的 <code>TASKS[id] = {...}</code> 差别在哪一层？对调用方可见吗？</li>
+<li>为什么 <code>RUNNING</code> 登记簿不能搬进 Redis？（提示：它存的是 asyncio.Task 句柄）</li>
+<li>服务的哪个端点在 r1 仍是"进程绑定"的？为什么？</li>
+</ol>
+<footer>本页由 markdown 源文件 <code>labs/r1_redis_tasks/README.md</code> 自动生成——修改源文件后运行 <code>python tools/build_docs.py</code> 重新生成。</footer>
+<script src="../../assets/nav.js" data-base="../../" data-track=""></script>
+</body>
+</html>

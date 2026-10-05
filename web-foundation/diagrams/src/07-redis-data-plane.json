@@ -1,0 +1,191 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": {
+    "title": "r3 数据面与控制面：双 Worker 经 Redis 协作",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1085,
+      470
+    ]
+  },
+  "stages": [
+    {
+      "label": "属主 Worker A"
+    },
+    {
+      "label": "Redis"
+    },
+    {
+      "label": "任意 Worker B"
+    },
+    {
+      "label": "浏览器"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "runner",
+      "type": "backend",
+      "label": "Agent Runner",
+      "sublabel": "闸门 Event / Future",
+      "stage": 0,
+      "row": 0,
+      "height": 64
+    },
+    {
+      "id": "clisten",
+      "type": "backend",
+      "label": "命令监听",
+      "sublabel": "control 频道",
+      "stage": 0,
+      "row": 1,
+      "height": 64
+    },
+    {
+      "id": "stream",
+      "type": "database",
+      "label": "Stream",
+      "sublabel": "XADD 历史日志",
+      "stage": 1,
+      "row": 0,
+      "height": 64,
+      "yOffset": -7
+    },
+    {
+      "id": "pubsub",
+      "type": "messagebus",
+      "label": "Pub/Sub",
+      "sublabel": "双频道广播",
+      "stage": 1,
+      "row": 1,
+      "height": 64,
+      "yOffset": -7
+    },
+    {
+      "id": "sse",
+      "type": "backend",
+      "label": "SSE 端点",
+      "sublabel": "回放 + 实时",
+      "stage": 2,
+      "row": 0,
+      "height": 64
+    },
+    {
+      "id": "ws",
+      "type": "backend",
+      "label": "WS 端点",
+      "sublabel": "只发布命令",
+      "stage": 2,
+      "row": 1,
+      "height": 64
+    },
+    {
+      "id": "view",
+      "type": "frontend",
+      "label": "事件渲染",
+      "sublabel": "token 拼接 · 卡片",
+      "stage": 3,
+      "row": 0,
+      "height": 64
+    },
+    {
+      "id": "controls",
+      "type": "frontend",
+      "label": "控制面板",
+      "sublabel": "暂停 / 审批",
+      "stage": 3,
+      "row": 1,
+      "height": 64
+    }
+  ],
+  "flows": [
+    {
+      "from": "runner",
+      "to": "stream",
+      "label": "XADD",
+      "variant": "emphasis",
+      "labelDy": -18
+    },
+    {
+      "from": "runner",
+      "to": "pubsub",
+      "label": "PUBLISH",
+      "variant": "dashed",
+      "labelDy": 18
+    },
+    {
+      "from": "stream",
+      "to": "sse",
+      "label": "XRANGE 回放",
+      "variant": "emphasis",
+      "labelDy": -18
+    },
+    {
+      "from": "pubsub",
+      "to": "sse",
+      "label": "实时广播",
+      "variant": "dashed",
+      "labelDy": 18
+    },
+    {
+      "from": "sse",
+      "to": "view",
+      "label": "SSE 流",
+      "variant": "emphasis",
+      "labelDy": 18
+    },
+    {
+      "from": "controls",
+      "to": "ws",
+      "label": "WS 命令",
+      "variant": "security",
+      "labelDy": 18
+    },
+    {
+      "from": "ws",
+      "to": "pubsub",
+      "label": "发命令",
+      "variant": "security",
+      "labelDy": 16,
+      "labelDx": 10
+    },
+    {
+      "from": "pubsub",
+      "to": "clisten",
+      "label": "送达属主",
+      "variant": "security",
+      "labelDy": 18
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "数据面（实线为主）",
+      "items": [
+        "emit = XADD 落历史 + PUBLISH 做实时",
+        "任何 Worker 都能回放与跟随",
+        "seq 由 INCR 保证跨进程单调"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "控制面（安全线路径）",
+      "items": [
+        "WS 命令只发布不执行",
+        "属主 listener 落闸门：暂停/审批/取消",
+        "执行结果以事件回流数据面"
+      ]
+    },
+    {
+      "dot": "orange",
+      "title": "Pub/Sub 陷阱",
+      "items": [
+        "不留存：订阅未就绪即丢——客户端需重发",
+        "必须与 Stream 配合：实时可丢，历史必达",
+        "进程级桥 + 本地队列 = v7 Hub 的分布式版"
+      ]
+    }
+  ]
+}

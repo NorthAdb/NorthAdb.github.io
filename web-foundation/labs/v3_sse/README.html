@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>v3 SSE：三个版本的对照实验 · 从 HTTP 到实时 Agent Server</title>
+<link rel="stylesheet" href="../../assets/course.css">
+</head>
+<body>
+<div class="kicker">实验 · v3</div>
+<h1>v3 SSE：三个版本的对照实验</h1>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>定位</th>
+<th>什么时候用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>v3a_raw_sse.py</code></td>
+<td>手拼 SSE 报文（<code>StreamingResponse</code> + 字符串）</td>
+<td><strong>只为了理解协议</strong>，生产禁用</td>
+</tr>
+<tr>
+<td><code>v3b_fastapi_sse.py</code></td>
+<td>FastAPI 原生 <code>fastapi.sse</code></td>
+<td>新项目首选，本课程默认</td>
+</tr>
+<tr>
+<td><code>v3c_sse_starlette.py</code></td>
+<td>第三方 <code>sse-starlette</code></td>
+<td>存量项目/需要更多控制（如 ping 间隔）</td>
+</tr>
+</tbody>
+</table>
+<p>三个服务共用 8803 端口，<strong>同一时间只启动一个</strong>。</p>
+<h2>启动与观察</h2>
+<pre><code class="language-bash"># A：裸格式
+python -m uvicorn v3_sse.v3a_raw_sse:app --port 8803 --reload
+curl -N -i http://127.0.0.1:8803/events
+# 观察 body：
+#   : heartbeat-comment        ← 注释行（客户端忽略，可当心跳）
+#   retry: 3000                ← 教浏览器断线后 3 秒重连
+#   event: count / id: 1 / data: {...}  ← 一条命名事件
+#   （空行）                    ← 事件结束的标志
+
+# B：原生（先 Ctrl+C 停掉 A）
+python -m uvicorn v3_sse.v3b_fastapi_sse:app --port 8803 --reload
+curl -N http://127.0.0.1:8803/events
+curl -N -H &quot;Last-Event-ID: 3&quot; http://127.0.0.1:8803/resumable   # 从 4 号开始补发
+curl -N -X POST http://127.0.0.1:8803/chat/stream -H &quot;Content-Type: application/json&quot; -d '{&quot;text&quot;: &quot;hello fastapi sse&quot;}'
+
+# C：sse-starlette（同样先停掉上一个）
+python -m uvicorn v3_sse.v3c_sse_starlette:app --port 8803 --reload
+curl -N http://127.0.0.1:8803/events
+# 等 5 秒以上，观察 &quot;: ping&quot; 心跳行
+</code></pre>
+<h2>浏览器实测（必做）</h2>
+<p>双击打开 <code>sse_client.html</code>（或 <code>python -m http.server</code> 后访问），
+填入 <code>http://127.0.0.1:8803/events</code> → Connect：</p>
+<blockquote>
+<p>为什么双击就能用？file:// 页面连 SSE 端点是<strong>跨源请求</strong>（Origin: null），EventSource 受 CORS 约束。
+三个实验服务都加了 <code>CORSMiddleware(allow_origins=["*"])</code> 放行——生产服务请改成前端站点白名单，别用 <code>*</code>。
+对照实验：把中间件注释掉重启，页面会 onerror 且 readyState=2，这就是"跨域被浏览器拦下"的现场。</p>
+</blockquote>
+<ol>
+<li>日志里出现 <code>readyState: 1 (OPEN)</code>，<code>count</code> 事件逐条到达；</li>
+<li><strong>断线重连实验</strong>：把服务端 Ctrl+C 停掉 → 日志显示 <code>readyState: 0 (CONNECTING)</code>——浏览器在自动重连；重启服务端 → 流自动恢复；</li>
+<li>连 <code>resumable</code> 端点重复实验 → 重连后带 <code>Last-Event-ID</code> 补发，日志里能看到 <code>lastEventId</code>。</li>
+</ol>
+<h2>代码流程讲解</h2>
+<ul>
+<li><strong>v3a</strong>：<code>sse_format()</code> 就是协议本身——字段行 + 空行。<code>media_type="text/event-stream"</code> 让浏览器启用 EventSource 语义。手写一遍后，v3b 里框架帮你做的事就全部"看得见"了。</li>
+<li><strong>v3b</strong>：<code>ServerSentEvent(event=..., id=..., data=...)</code> 对象化同样的字段；<code>raw_data="[DONE]"</code> 对齐 OpenAI 流式结束标记；<code>Last-Event-ID</code> 用 <code>Header()</code> 声明即可拿到浏览器自动回传的续传位点。</li>
+<li><strong>v3c</strong>：API 形态几乎一样（dict 即事件），区别是 <code>ping=5</code> 显式配置心跳——对应 v3b 里框架内置的 15 秒心跳。</li>
+</ul>
+<h2>自测问题</h2>
+<ol>
+<li>SSE 报文里"一条事件结束"的标志是什么？漏了会怎样？</li>
+<li>浏览器把 <code>id</code> 字段存成了什么？重连时放在哪个请求头里？</li>
+<li><code>event: token</code> 的事件，<code>EventSource.onmessage</code> 能收到吗？该用什么收？</li>
+<li>心跳为什么用注释行（<code>: ping</code>）而不是一条真事件？</li>
+<li>为什么 LLM 服务商（OpenAI/MCP）都选 SSE 而不是让客户端轮询？</li>
+</ol>
+<h2>延伸</h2>
+<ul>
+<li>MDN: Using server-sent events；FastAPI SSE 教程；sse-starlette README（心跳/超时参数）</li>
+</ul>
+<footer>本页由 markdown 源文件 <code>labs/v3_sse/README.md</code> 自动生成——修改源文件后运行 <code>python tools/build_docs.py</code> 重新生成。</footer>
+<script src="../../assets/nav.js" data-base="../../" data-track=""></script>
+</body>
+</html>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>第 3 课 · Agent 事件时间线浏览器：看懂 v7 的每一条事件</title>
+<link rel="stylesheet" href="../assets/course.css">
+<style>
+  .player { border: 1px solid var(--line); border-radius: 10px; background: #fff; padding: 1rem 1.2rem; margin: 1.2rem 0; }
+  .ctrl button { padding: .45rem 1rem; margin-right: .4rem; cursor: pointer; }
+  .progress { font-family: "Cascadia Code", Consolas, monospace; font-size: .82rem; color: var(--muted); margin: .6rem 0; }
+  .cols { display: grid; grid-template-columns: 1.1fr 1fr; gap: 1rem; }
+  @media (max-width: 720px) { .cols { grid-template-columns: 1fr; } }
+  .mockui { border: 1px solid var(--line); border-radius: 8px; padding: .8rem; min-height: 18rem; background: var(--bg); }
+  .mockui .status { display: inline-block; padding: .1rem .6rem; border-radius: 99px; background: #ddd; font-size: .8rem; margin-bottom: .6rem; }
+  .mockui .answer { min-height: 6rem; font-size: .95rem; line-height: 1.7; white-space: pre-wrap; }
+  .toolcard { border: 1px dashed #b45309; background: #fef3c7; border-radius: 8px; padding: .5rem .8rem; font-size: .85rem; margin-top: .6rem; }
+  .approve { border: 2px solid #e67e22; border-radius: 8px; padding: .5rem .8rem; font-size: .85rem; margin-top: .6rem; }
+  .raw { background: var(--code-bg); color: var(--code-ink); font-family: "Cascadia Code", Consolas, monospace;
+    font-size: .72rem; line-height: 1.55; padding: .8rem; border-radius: 8px; height: 18rem; overflow-y: auto; white-space: pre-wrap; }
+  .raw .hl { color: #8f8; font-weight: 700; }
+  .history { font-size: .8rem; color: var(--muted); margin-top: .5rem; }
+</style>
+</head>
+<body>
+<div class="kicker">Lesson 0003 · Module 4 · L4.4</div>
+<h1>Agent 事件时间线浏览器</h1>
+<p class="lede">下面是一次真实的 v7 毕业实验事件记录（数据来自 <code>test_flow.py</code> 的同类输出）。按"下一帧"单步推进，左边是用户看到的界面变化，右边是同一时刻网络上的 SSE 字节。<strong>看懂这一页，你就看懂了 Agent Server 的全部运行时。</strong></p>
+
+<div class="player">
+  <div class="ctrl">
+    <button id="prev">← 上一帧</button>
+    <button id="next">下一帧 →</button>
+    <button id="auto">▶ 自动播放</button>
+    <button id="reset">重置</button>
+  </div>
+  <div class="progress" id="prog"></div>
+  <div class="cols">
+    <div class="mockui">
+      <span class="status" id="status">idle</span>
+      <div style="font-size:.8rem;color:var(--muted)">Agent 回答</div>
+      <div class="answer" id="answer"></div>
+      <div id="tools"></div>
+      <div class="history" id="hist"></div>
+    </div>
+    <div class="raw" id="raw">（尚未开始。点"下一帧"或"自动播放"）</div>
+  </div>
+</div>
+
+<h2>对着时间线回答</h2>
+<div class="quiz" id="quiz">
+  <div class="q">tool_call 事件之后、approve 到来之前，Agent 的协程在哪里？</div>
+  <button data-a="0">在烧 CPU 计算</button>
+  <button data-a="1">挂起在 wait_approval() 的 Future 上</button>
+  <button data-a="2">已经退出，等前端重新请求</button>
+  <div class="feedback"></div>
+  <div class="q">为什么 token 事件能直接追加到页面上，而 tool 事件要渲染成卡片？</div>
+  <button data-a="0">事件类型不同 → 前端按 type 分发到不同渲染逻辑</button>
+  <button data-a="1">因为 token 更重要</button>
+  <button data-a="2">因为 tool 事件是二进制帧</button>
+  <div class="feedback"></div>
+</div>
+
+<div class="next">
+  去跑真的：<code>python -m uvicorn v7_agent_server.app:app --port 8807 --reload</code> → 浏览器打开
+  <code>http://127.0.0.1:8807/</code>，把这一页的每一步亲手操作一遍。<br>
+  双通道架构图：<a href="../diagrams/05-agent-server-dual-channel.html">diagrams/05</a> · 讲义：<a href="../course/module-4-LLM流式与Agent事件.html">module-4 · L4.4</a>
+</div>
+<footer><a href="0001-course-map.html">← 第 1 课</a> · <a href="0002-sse-format-lab.html">← 第 2 课</a> · 主入口 <a href="../COURSE.html">COURSE.md</a></footer>
+<script src="../assets/nav.js" data-base="../" data-track="lesson"></script>
+
+<script>
+// 与 labs/v7_agent_server 相同的事件协议；数据为脱敏的实录时间线（字段一致）。
+const TIMELINE = [
+  { wire: 'event: agent_started\nid: 1\ndata: {"seq": 1, "type": "agent_started", "task_id": "f427a2", "data": {"goal": "给老板发一封周报邮件"}}\n\n' },
+  { wire: 'event: step_started\nid: 2\ndata: {"seq": 2, "type": "step_started", "data": {"name": "rag_retrieve"}}\n\n',
+    ui: (m) => m.hist.push("步骤开始：rag_retrieve") },
+  { wire: 'event: rag_search\nid: 3\ndata: {"seq": 3, "type": "rag_search", "data": {"query": "给老板发一封周报邮件", "top_k": 3}}\n\n',
+    ui: (m) => { m.status = "running · 检索中"; m.hist.push("RAG 检索：top_k=3"); } },
+  { wire: ': ping\n\n',
+    note: "空闲 15s 心跳（注释行，前端无感，但 Nginx 的读超时定时器被重置）" },
+  { wire: 'event: rag_result\nid: 4\ndata: {"seq": 4, "type": "rag_result", "data": {"documents": ["《RAG 综述》第 2 章", "知识库：产品 FAQ", "2025 技术报告"]}}\n\n',
+    ui: (m) => m.hist.push("检索到 3 篇文档") },
+  { wire: 'event: step_finished\nid: 5\ndata: {"seq": 5, "type": "step_finished", "data": {"name": "rag_retrieve"}}\n\n',
+    ui: (m) => m.hist.push("步骤完成：rag_retrieve") },
+  { wire: 'event: tool_call\nid: 6\ndata: {"seq": 6, "type": "tool_call", "data": {"tool": "send_email", "arguments": {"to": "boss@corp.com"}, "requires_approval": true}}\n\n',
+    ui: (m) => { m.tool = { name: "send_email", to: "boss@corp.com", state: "等待审批…" }; m.hist.push("工具调用卡片打开"); } },
+  { wire: 'event: agent_started 之外的控制面消息（WS）: {"type": "approval_required", "task_id": "f427a2"}\n\n',
+    note: "同一时刻，ControlHub 通过 WebSocket 把 approval_required 镜像推给控制面板——审批按钮亮起",
+    ui: (m) => { m.status = "waiting_approval"; m.approval = true; } },
+  { wire: '（浏览器经 WS 发送 {"action": "approve"} → 服务端 set_result 唤醒 Future）\n\n',
+    note: "这是唯一一条从浏览器流向服务器的消息——SSE 做不到的事",
+    ui: (m) => { m.status = "running"; m.approval = false; m.tool.state = "已批准，发送中…"; } },
+  { wire: 'event: tool_result\nid: 7\ndata: {"seq": 7, "type": "tool_result", "data": {"tool": "send_email", "result": "邮件已发送"}}\n\n',
+    ui: (m) => { m.tool.state = "✔ 邮件已发送"; m.hist.push("工具完成：send_email"); } },
+  { wire: 'event: step_started\nid: 8\ndata: {"seq": 8, "type": "step_started", "data": {"name": "generate"}}\n\n',
+    ui: (m) => m.hist.push("步骤开始：generate") },
+  { wire: 'event: token\nid: 9\ndata: {"seq": 9, "type": "token", "data": {"text": "根据检索"}}\n\n',
+    ui: (m) => m.answer += "根据检索" },
+  { wire: 'event: token\nid: 10\ndata: {"seq": 10, "type": "token", "data": {"text": "结果与审批"}}\n\n',
+    ui: (m) => m.answer += "结果与审批" },
+  { wire: 'event: token\nid: 11\ndata: {"seq": 11, "type": "token", "data": {"text": "后的工具输出："}}\n\n',
+    ui: (m) => m.answer += "后的工具输出：" },
+  { wire: 'event: token\nid: 12\ndata: {"seq": 12, "type": "token", "data": {"text": "本周周报已由 Agent 代拟完毕，请查收。"}}\n\n',
+    ui: (m) => m.answer += "本周周报已由 Agent 代拟完毕，请查收。" },
+  { wire: 'event: step_finished\nid: 13\ndata: {"seq": 13, "type": "step_finished", "data": {"name": "generate"}}\n\n',
+    ui: (m) => m.hist.push("步骤完成：generate") },
+  { wire: 'event: done\nid: 14\ndata: {"seq": 14, "type": "done"}\n\n',
+    note: "终态事件：SSE 端点发出 done 后主动关闭流；浏览器收到后 es.close()",
+    ui: (m) => { m.status = "done"; } },
+];
+
+let idx = 0, timer = null;
+const $ = (id) => document.getElementById(id);
+const rawEl = $("raw"), answerEl = $("answer"), statusEl = $("status"),
+      toolsEl = $("tools"), histEl = $("hist"), progEl = $("prog");
+
+function render() {
+  rawEl.innerHTML = TIMELINE.slice(0, idx).map((t, i) =>
+    (i === idx - 1 ? '<span class="hl">' : "") + t.wire.replace(/&/g, "&amp;").replace(/</g, "&lt;") + (i === idx - 1 ? "</span>" : "")
+  ).join("\n");
+  rawEl.scrollTop = rawEl.scrollHeight;
+  const m = { status: "idle", answer: "", tool: null, approval: false, hist: [] };
+  for (let i = 0; i < idx; i++) if (TIMELINE[i].ui) TIMELINE[i].ui(m);
+  statusEl.textContent = m.status;
+  answerEl.textContent = m.answer || "（还没有 token 事件）";
+  toolsEl.innerHTML = m.tool ? `<div class="toolcard">🛠 <b>${m.tool.name}</b> → ${m.tool.to}<br>${m.tool.state}</div>` : "";
+  if (m.approval) toolsEl.innerHTML += `<div class="approve">⚠ 等待人工审批 <button disabled>批准</button> <button disabled>拒绝</button></div>`;
+  histEl.innerHTML = m.hist.length ? "过程： " + m.hist.join(" → ") : "";
+  progEl.textContent = `第 ${idx} / ${TIMELINE.length} 帧` + (idx > 0 ? `　·　seq=${idx}` : "");
+}
+
+$("next").onclick = () => { if (idx < TIMELINE.length) { idx++; render(); } };
+$("prev").onclick = () => { if (idx > 0) { idx--; render(); } };
+$("reset").onclick = () => { idx = 0; clearInterval(timer); timer = null; render(); };
+$("auto").onclick = () => {
+  if (timer) { clearInterval(timer); timer = null; return; }
+  timer = setInterval(() => {
+    if (idx >= TIMELINE.length) { clearInterval(timer); timer = null; return; }
+    idx++; render();
+  }, 900);
+};
+render();
+
+document.querySelectorAll("#quiz .q").forEach((q, qi) => {
+  const fb = q.parentElement.querySelector(".feedback");
+  q.parentElement.querySelectorAll("button").forEach((btn, i) => {
+    btn.onclick = () => {
+      q.parentElement.querySelectorAll("button").forEach(b => b.classList.remove("correct", "wrong"));
+      if ((qi === 0 && i === 1) || (qi === 1 && i === 0)) { btn.classList.add("correct"); fb.textContent = "✔ 正确。"; }
+      else { btn.classList.remove("wrong"); btn.classList.add("wrong"); fb.textContent = "再单步走一遍时间线，注意第 7-9 帧。"; }
+    };
+  });
+});
+</script>
+</body>
+</html>

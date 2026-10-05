@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>模块 3：WebSocket 双向通信 · 从 HTTP 到实时 Agent Server</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<div class="kicker">讲义 · 模块 3</div>
+<h1>模块 3：WebSocket 双向通信</h1>
+<blockquote>
+<p>3 课 · 实验 v4 · 目标：掌握双向长连接的协议本质与多连接管理</p>
+<p>配图：WebSocket 握手与生命周期 <a href="../diagrams/03-websocket-handshake.html">diagrams/03-websocket-handshake.html</a></p>
+</blockquote>
+<hr />
+<h2>L3.1 握手与生命周期：一条连接的"变身"</h2>
+<h3>目标</h3>
+<p>描述 WebSocket 从 HTTP 到双向帧通道的全过程；说出 ping/pong 与关闭码的作用。</p>
+<h3>概念</h3>
+<p>WebSocket 复用 HTTP 的"入口"，但换掉"内容"：</p>
+<pre><code>① 客户端发 HTTP 请求（带Upgrade 头）
+   GET /ws/chat HTTP/1.1
+   Upgrade: websocket            ← 我请求变身
+   Connection: Upgrade
+   Sec-WebSocket-Key: x3JJHMbDL1EzLkh9GBhXDw==
+
+② 服务端同意（101 Switching Protocols）
+   HTTP/1.1 101 Switching Protocols
+   Upgrade: websocket
+
+③ 从此这条 TCP 连接上跑的不再是 HTTP 报文，而是 WebSocket 帧：
+   客户端 → 服务端 → 服务端 → 客户端 → …（任意交错）
+</code></pre>
+<p>生命周期状态机（对照架构图 03）：<code>Connecting → 握手 → Open →（消息往返 + ping/pong 保活）→ Closing（带状态码）→ Closed</code>。
+- <strong>ping/pong</strong>：协议层心跳。任何一端可发 ping，对方必须回 pong——用于探活（应用层也有心跳，两者不同层）。
+- <strong>关闭码</strong>：1000 正常关闭、1001 对端离开（页面关闭）、1011 服务器内部错误……异常排查时先看它。</p>
+<p>浏览器端 API：</p>
+<pre><code class="language-javascript">const ws = new WebSocket(&quot;ws://127.0.0.1:8804/ws/chat&quot;);
+ws.onopen = () =&gt; ws.send(JSON.stringify({name: &quot;A&quot;, text: &quot;hi&quot;}));
+ws.onmessage = (e) =&gt; console.log(JSON.parse(e.data));
+ws.onclose = (e) =&gt; console.log(e.code, e.reason);
+</code></pre>
+<h3>自测</h3>
+<ol>
+<li>101 之后，这条连接上还能发普通 HTTP 请求吗？（不能——协议已换）</li>
+<li><code>ws://</code> 与 <code>https://</code> 对应的安全版本是什么？（<code>wss://</code>——生产必用）</li>
+</ol>
+<hr />
+<h2>L3.2 FastAPI WebSocket 实战：echo → 聊天室</h2>
+<h3>目标</h3>
+<p>跑通 v4；理解 accept / 收发循环 / WebSocketDisconnect 三要素。</p>
+<h3>实操</h3>
+<pre><code class="language-bash">python -m uvicorn v4_websocket.app:app --port 8804 --reload
+</code></pre>
+<ol>
+<li>双击打开 labs/v4_websocket/chat.html，<strong>开两个标签页</strong>互发消息；</li>
+<li>F12 → Network → 选 ws/chat → <strong>Messages 面板</strong>：绿↓收到的帧、橙↑发出的帧——"双向"第一次变得可见；</li>
+<li>关掉一个标签页，观察另一个页面的"离开"广播；</li>
+<li>自动化验证：<code>python v4_websocket/ws_client.py</code>。</li>
+</ol>
+<h3>代码流程讲解（v4_websocket/app.py）</h3>
+<ol>
+<li><code>@app.websocket("/ws/echo")</code>：注册的不是 HTTP 路由而是 WS 端点。<code>await ws.accept()</code> 完成 101 握手——注意它<strong>不是自动的</strong>，这给了你"拒绝连接"（403 语义）的机会。</li>
+<li><code>receive_text()</code> 会挂起等待下一帧——协程挂起期间事件循环服务其他连接（L1.1 的价值兑现）。<code>send_text/send_json</code> 随时可用，两个方向各自独立。</li>
+<li><code>except WebSocketDisconnect</code>：客户端断开的<strong>唯一正常出口</strong>。聊天室版在断开时把连接从登记簿移除并广播"离开"。</li>
+</ol>
+<hr />
+<h2>L3.3 ConnectionManager 与广播：多连接的工程问题</h2>
+<h3>目标</h3>
+<p>实现并解释 ConnectionManager；能回答"什么场景必须 WS"。</p>
+<h3>代码流程讲解（ConnectionManager）</h3>
+<pre><code class="language-python">class ConnectionManager:
+    def __init__(self): self.active: list[WebSocket] = []
+    async def connect(self, ws): await ws.accept(); self.active.append(ws)
+    def disconnect(self, ws): ...
+    async def broadcast(self, message):
+        for ws in list(self.active):        # ① 快照遍历
+            try: await ws.send_json(message)
+            except Exception: self.disconnect(ws)   # ② 死连接就地清理
+</code></pre>
+<p>两个细节值得多想一分钟：
+- ① <code>list(...)</code> 快照：广播过程中可能有连接断开导致列表变化，边遍历边改列表是经典 bug。
+- ② <code>await send_json</code> 是<strong>串行</strong>的：某个客户端收得慢会拖慢整个广播循环。生产解法是"每连接一个发送队列 + 后台发送任务"（把 L1.1 的 Queue 用起来）——这个模式在 v7 的订阅者队列里重现。</p>
+<h3>SSE vs WebSocket 选型判断（本模块最重要的产出）</h3>
+<pre><code>只需要服务器不断告诉客户端发生了什么？
+    → SSE（实现简单、自动重连、天然过代理、文本事件够用）
+        LLM token 流、RAG 进度、任务日志、通知推送
+
+需要客户端随时往回说话？
+    → WebSocket（双向、低延迟、二进制帧）
+        暂停/取消/审批、协同编辑、语音、实时游戏
+
+两者都要？→ 混合（M4 的毕业实验就是）：
+    SSE 负责直播（Agent → UI），WS 负责遥控（UI → Agent）
+</code></pre>
+<p>真实世界印证：OpenAI API 和 Dify 的输出通道都是 SSE；需要人工中断/审批的 Agent UI（如 CopilotKit/AG-UI 生态）则加一条控制通道。</p>
+<h3>自测（见 labs/v4_websocket/README.md）</h3>
+<ol>
+<li>为什么广播前要快照列表？</li>
+<li>v4 的广播串行 await 有什么隐患？怎么解？</li>
+<li>举两个"必须 WS"和两个"SSE 就够"的场景。</li>
+</ol>
+<h3>延伸</h3>
+<ul>
+<li>多 Worker 场景下连接表放进程内存的局限 → M5 的 Redis Pub/Sub。</li>
+</ul>
+<footer>本页由 markdown 源文件 <code>course/module-3-WebSocket双向通信.md</code> 自动生成——修改源文件后运行 <code>python tools/build_docs.py</code> 重新生成。</footer>
+<script src="../assets/nav.js" data-base="../" data-track="readings"></script>
+</body>
+</html>

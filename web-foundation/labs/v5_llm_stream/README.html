@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>v5 LLM Token Streaming：全链路打通 · 从 HTTP 到实时 Agent Server</title>
+<link rel="stylesheet" href="../../assets/course.css">
+</head>
+<body>
+<div class="kicker">实验 · v5</div>
+<h1>v5 LLM Token Streaming：全链路打通</h1>
+<p>目标：把"LLM 出 token → async generator → SSE → 浏览器打字机"这条最重要的链路亲手跑通。</p>
+<h2>启动与观察</h2>
+<pre><code class="language-bash">python -m uvicorn v5_llm_stream.app:app --port 8805 --reload
+</code></pre>
+<ol>
+<li>浏览器打开 <code>http://127.0.0.1:8805/</code>，同一段提示词分别点两个按钮，对比"转圈圈"和"打字机"。</li>
+<li><code>curl -N -X POST .../chat/stream</code> 看原始 SSE：注意最后一个事件是 <code>event: done</code> + 裸的 <code>[DONE]</code>（对齐 OpenAI 约定）。</li>
+<li>（可选）设置真实 API 后重启，前端与下游代码零改动：
+   <code>bash
+   export OPENAI_API_KEY=sk-...      # 或任何兼容 OpenAI 协议的服务（OPENAI_BASE_URL）
+   export OPENAI_MODEL=gpt-4o-mini</code></li>
+</ol>
+<h2>代码流程讲解（app.py）</h2>
+<pre><code>OpenAI SDK / MockLLM            async generator               SSE                    浏览器
+stream=True 的 chunk    →    yield ServerSentEvent(token) →  data: {&quot;...&quot;}   →  fetch ReadableStream 解析
+                             （事件的&quot;生产者&quot;）            （网络上的形态）        （事件的&quot;消费者&quot;）
+</code></pre>
+<ol>
+<li><strong>生产者解耦</strong>：<code>mock_stream</code> 与 <code>openai_stream</code> 产出<strong>同样的东西</strong>（<code>ServerSentEvent</code>），端点函数只管拼接和收尾 <code>[DONE]</code>。换供应商 = 换 generator。</li>
+<li><strong><code>raw_data="[DONE]"</code></strong>：<code>data=</code> 会被 JSON 编码；<code>raw_data</code> 原样发送。LLM 协议里大量哨兵值是裸字符串，这个字段就是为此存在的。</li>
+<li><strong>前端为什么用 fetch 而不是 EventSource</strong>：<code>EventSource</code> 只支持 GET；LLM 对话要 POST 请求体，所以生产前端普遍用 <code>fetch + ReadableStream</code> 手动解析 SSE（index.html 里 30 行就是完整解析器，你已在 v3a 认识每个字段）。</li>
+</ol>
+<h2>自测问题</h2>
+<ol>
+<li>token 事件从 LLM 到用户眼睛，一共经过几层"翻译"？每层的输入输出是什么？</li>
+<li>为什么 OpenAI 流式响应最后要发一个 <code>[DONE]</code>？没有它客户端怎么知道结束了？</li>
+<li>如果 LLM 服务 30 秒不吐 token，这条 SSE 连接会发生什么？（提示：v3c 的心跳；想想 Nginx 默认读超时）</li>
+<li><code>EventSource</code> 与 <code>fetch</code> 流式解析各自适合什么场景？</li>
+</ol>
+<h2>延伸</h2>
+<ul>
+<li>[openai-python streaming 文档]；下一课给 token 流加上"RAG 进度、工具调用"等事件——从"流文本"进化到"流过程"。</li>
+</ul>
+<footer>本页由 markdown 源文件 <code>labs/v5_llm_stream/README.md</code> 自动生成——修改源文件后运行 <code>python tools/build_docs.py</code> 重新生成。</footer>
+<script src="../../assets/nav.js" data-base="../../" data-track=""></script>
+</body>
+</html>

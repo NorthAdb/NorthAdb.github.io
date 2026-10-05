@@ -1,0 +1,25 @@
+# v8：最小生产拓扑（api + redis + nginx），供模块 5 实验使用
+# 用法：docker compose up --build
+# 说明：api 镜像构建需要 labs/ 目录（Dockerfile 见下）；无 Docker 时本文件仅作阅读参考。
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: v8_production/Dockerfile
+    command: uvicorn v7_agent_server.app:app --host 0.0.0.0 --port 8807 --workers 2
+    environment:
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7-alpine
+
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "80:80"
+    depends_on:
+      - api

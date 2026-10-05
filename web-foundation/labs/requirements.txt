@@ -1,0 +1,8 @@
+# 本课程实验依赖（Python 3.10+，建议 3.12）
+fastapi>=0.135        # 含官方原生 SSE（fastapi.sse），本课程核心框架
+uvicorn[standard]     # ASGI 服务器（standard 附带 websockets 等加速依赖）
+sse-starlette>=2.0    # 第三方生产级 SSE 库（v3c 与原生方案对比用）
+httpx                 # 客户端测试工具（也可以用来消费 SSE）
+websockets            # WebSocket 客户端（写自动化测试脚本用）
+openai                # 可选：v5 中配置 OPENAI_API_KEY 后走真实 LLM，否则用内置 mock
+fakeredis             # 可选：Redis 连不上时的单进程仿真降级（r1-r3 自动使用）

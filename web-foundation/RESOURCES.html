@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Resources: 网络通信 × Agent Server · 从 HTTP 到实时 Agent Server</title>
+<link rel="stylesheet" href="assets/course.css">
+</head>
+<body>
+<div class="kicker">资源清单</div>
+<h1>Resources: 网络通信 × Agent Server</h1>
+<h2>Knowledge</h2>
+<h3>协议与标准（一手来源）</h3>
+<ul>
+<li><a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Overview">MDN: HTTP 概述</a> — HTTP 报文、方法、状态码的权威入门。用于：模块 1 的 HTTP 课。</li>
+<li><a href="https://developer.mozilla.org/zh-CN/docs/Web/API/Server-sent_events">MDN: Server-sent events</a> — SSE 浏览器端 API（EventSource）与事件流格式的标准文档。用于：模块 2。</li>
+<li><a href="https://html.spec.whatwg.org/multipage/server-sent-events.html#server-sent-events">WHATWG HTML 规范：server-sent events</a> — SSE 的最终规范（事件流格式、重连规则、Last-Event-ID）。用于：需要裁定"为什么"时。</li>
+<li><a href="https://developer.mozilla.org/zh-CN/docs/Web/API/WebSockets_API">MDN: WebSocket API</a> — 浏览器 WebSocket API、握手、帧、关闭码。用于：模块 3。</li>
+<li><a href="https://httpwg.org/specs/rfc9110.html">RFC 9110（HTTP 语义）</a> — 状态码与方法语义的权威定义。用于：查阅，不通读。</li>
+<li><a href="https://asgi.readthedocs.io/en/latest/">ASGI 规范</a> — Uvicorn ↔ Starlette/FastAPI 之间的接口标准。用于：模块 2 理解分层。</li>
+</ul>
+<h3>框架与库（本项目直接使用）</h3>
+<ul>
+<li><a href="https://fastapi.tiangolo.com/zh/">FastAPI 官方文档</a> — 主教材。重点：Tutorial 全部、<a href="https://fastapi.tiangolo.com/tutorial/server-sent-events/">SSE 教程</a>、<a href="https://fastapi.tiangolo.com/advanced/websockets/">WebSockets</a>、<a href="https://fastapi.tiangolo.com/advanced/custom-response/#streamingresponse">StreamingResponse</a>。</li>
+<li><a href="https://github.com/sysid/sse-starlette">sse-starlette (GitHub)</a> — FastAPI 原生 SSE 出现之前的事实标准库：心跳 ping、send_timeout、Last-Event-ID 处理。用于：v3c 实验与生产方案对比。</li>
+<li><a href="https://www.uvicorn.org/deployment/">Uvicorn 部署文档</a> — workers、进程模型、Nginx 反代。用于：模块 5 生产化。</li>
+<li><a href="https://redis.io/docs/latest/develop/use/pubsub/">Redis Pub/Sub 文档</a> — 多 Worker 广播的标准答案。用于：M6。</li>
+<li><a href="https://redis.io/docs/latest/develop/data-types/streams-tutorial/">Redis Streams 教程</a> — XADD/XRANGE/消费者组的一手资料。用于：M6 r2/r3。</li>
+<li><a href="https://fakeredis.readthedocs.io/">fakeredis</a> — 纯 Python Redis 仿真，实验降级方案。用于：labs 适配层。</li>
+<li><a href="https://nginx.org/en/docs/beginners_guide.html">Nginx beginner's guide</a> — 配置结构（http/server/location）官方入门。用于：M7。</li>
+<li><a href="https://nginx.org/en/docs/http/ngx_http_proxy_module.html">Nginx 反代文档</a> — proxy_buffering/read_timeout 等指令的权威定义。用于：M7 n1。</li>
+<li><a href="https://www.python-httpx.org/">httpx 文档</a> — Python 客户端，实验中用于测试 API 和消费流。</li>
+</ul>
+<h3>LLM / Agent 流式协议（设计参考）</h3>
+<ul>
+<li><a href="https://github.com/openai/openai-python/blob/main/api.md#streaming-responses">OpenAI Python SDK: streaming</a> — <code>stream=True</code> 的官方用法；LLM token 流的源头。用于：v5。</li>
+<li><a href="https://docs.ag-ui.com/concepts/events">AG-UI 协议：事件模型</a> — CopilotKit 主导的 Agent↔前端事件协议：RUN_STARTED/TEXT_MESSAGE_<em>/TOOL_CALL_</em> 三段式、快照+增量。<strong>本课程 Agent 事件设计的首要对齐对象</strong>。用于：模块 4。</li>
+<li><a href="https://modelcontextprotocol.io/docs/concepts/transports">MCP 规范：Transports</a> — Agent 生态的协议层：stdio 与 Streamable HTTP（服务端用 SSE 回流）。用于：模块 2/4 的延伸阅读，理解"SSE 不只是课程知识，是 Agent 生态的底层协议"。</li>
+<li><a href="https://docs.dify.ai/">Dify API 文档</a> — 生产级 Agent 平台：streaming 模式下 workflow_started / node_started / node_finished / message / message_end / ping 事件流。用于：模块 4 事件设计的真实世界印证。</li>
+</ul>
+<h3>成熟开源项目（读源码阶段）</h3>
+<ul>
+<li><a href="https://github.com/langgenius/dify">langgenius/dify</a> — 生产级 Agent/Workflow 平台，SSE 事件流设计可直接借鉴。</li>
+<li><a href="https://github.com/danny-avila/LibreChat">danny-avila/LibreChat</a> — 多模型聊天服务，SSE streaming 实现清晰。</li>
+<li><a href="https://github.com/fastapi/full-stack-fastapi-template">fastapi/full-stack-fastapi-template</a> — FastAPI 官方全栈模板：项目结构、认证、部署的参考答案。</li>
+</ul>
+<h2>Wisdom (Communities)</h2>
+<ul>
+<li><a href="https://github.com/fastapi/fastapi/discussions">FastAPI GitHub Discussions</a> — 框架作者与核心贡献者出没；SSE/WebSocket 相关问题先搜这里。</li>
+<li><a href="https://github.com/modelcontextprotocol/servers/discussions">MCP GitHub Discussions</a> — MCP 传输层与 Agent 服务化的活跃社区。</li>
+<li><a href="https://discord.com/invite/python">Python Discord #async-dev</a> — asyncio 具体问题的快速反馈。</li>
+<li><a href="https://www.reddit.com/r/FastAPI/">r/FastAPI</a> — 中等信噪比，适合看别人踩坑。</li>
+</ul>
+<h2>Gaps</h2>
+<ul>
+<li>暂缺：系统性的"Agent Server 架构"中文一手资料——目前以 AG-UI 规范 + Dify 源码替代。</li>
+<li>暂缺：本机 Docker 环境是否可用的确认；v8 生产化实验先以文档 + 配置文件形式交付。</li>
+</ul>
+<footer>本页由 markdown 源文件 <code>RESOURCES.md</code> 自动生成——修改源文件后运行 <code>python tools/build_docs.py</code> 重新生成。</footer>
+<script src="assets/nav.js" data-base="" data-track=""></script>
+</body>
+</html>

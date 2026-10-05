@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>GLOSSARY：网络通信 × Agent Server 术语表 · 从 HTTP 到实时 Agent Server</title>
+<link rel="stylesheet" href="assets/course.css">
+</head>
+<body>
+<div class="kicker">术语表</div>
+<h1>GLOSSARY：网络通信 × Agent Server 术语表</h1>
+<blockquote>
+<p>课程统一用词。写代码、读开源项目、提问时按此表对齐。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>英文</th>
+<th>一句话定义</th>
+<th>详见</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>事件循环</td>
+<td>event loop</td>
+<td>异步调度器：谁在 await 就把 CPU 给谁</td>
+<td>M1 L1.1</td>
+</tr>
+<tr>
+<td>协程</td>
+<td>coroutine</td>
+<td>可暂停/继续的函数（async def）</td>
+<td>M1 L1.1</td>
+</tr>
+<tr>
+<td>Task</td>
+<td>task</td>
+<td>提交给事件循环后台并发运行的协程</td>
+<td>M1 L1.1, M4 L4.4</td>
+</tr>
+<tr>
+<td>生产者/消费者</td>
+<td>producer/consumer</td>
+<td>通过队列解耦的两侧：Agent 生产事件，连接消费事件</td>
+<td>M1 L1.1, M4 L4.4</td>
+</tr>
+<tr>
+<td>长连接</td>
+<td>keep-alive</td>
+<td>一条 TCP 连接服务多次请求/持续传输</td>
+<td>M1 L1.3</td>
+</tr>
+<tr>
+<td>分块传输</td>
+<td>chunked transfer encoding</td>
+<td>响应体切成块陆续发送，无 content-length</td>
+<td>M2 L2.2</td>
+</tr>
+<tr>
+<td>流式</td>
+<td>streaming</td>
+<td>边生成边发送，不等全部完成</td>
+<td>M2 L2.2</td>
+</tr>
+<tr>
+<td>服务器推送事件</td>
+<td>SSE / Server-Sent Events</td>
+<td>基于 HTTP 的服务器→客户端单向事件流协议</td>
+<td>M2 L2.3–L2.5</td>
+</tr>
+<tr>
+<td>事件流</td>
+<td>event stream</td>
+<td>SSE 响应体：若干"字段行+空行"构成的事件序列</td>
+<td>M2 L2.3</td>
+</tr>
+<tr>
+<td>心跳</td>
+<td>heartbeat / ping</td>
+<td>空闲期发送的保活数据（SSE 注释行 / WS ping 帧）</td>
+<td>M2 L2.4, M5 L5.2</td>
+</tr>
+<tr>
+<td>断线续传</td>
+<td>resume</td>
+<td>重连时凭 Last-Event-ID 从断点补发事件</td>
+<td>M2 L2.4, M4 L4.4</td>
+</tr>
+<tr>
+<td>单调序号</td>
+<td>seq / id</td>
+<td>事件日志位点：SSE id、重放依据、排序键三合一</td>
+<td>M4 L4.2</td>
+</tr>
+<tr>
+<td>协议升级</td>
+<td>HTTP Upgrade</td>
+<td>WebSocket 借 HTTP 入口换协议的握手（101）</td>
+<td>M3 L3.1</td>
+</tr>
+<tr>
+<td>帧</td>
+<td>frame</td>
+<td>WebSocket 连接上的最小传输单元</td>
+<td>M3 L3.1</td>
+</tr>
+<tr>
+<td>探活</td>
+<td>ping/pong</td>
+<td>WS 协议层心跳，一端 ping 另一端必须 pong</td>
+<td>M3 L3.1</td>
+</tr>
+<tr>
+<td>关闭码</td>
+<td>close code</td>
+<td>1000 正常、1001 对端离开、1011 服务器错误……</td>
+<td>M3 L3.1</td>
+</tr>
+<tr>
+<td>连接管理器</td>
+<td>ConnectionManager</td>
+<td>服务端活跃连接的登记簿：登记/单发/广播</td>
+<td>M3 L3.3</td>
+</tr>
+<tr>
+<td>广播</td>
+<td>broadcast</td>
+<td>一条消息发给所有活跃连接</td>
+<td>M3 L3.3</td>
+</tr>
+<tr>
+<td>令牌流</td>
+<td>token streaming</td>
+<td>LLM 逐 token 输出并实时下发</td>
+<td>M4 L4.1</td>
+</tr>
+<tr>
+<td>打字机效果</td>
+<td>typewriter effect</td>
+<td>前端把 token 流拼接渲染的效果</td>
+<td>M4 L4.1</td>
+</tr>
+<tr>
+<td>事件信封</td>
+<td>event envelope</td>
+<td>统一事件结构 {seq, type, task_id, timestamp, data}</td>
+<td>M4 L4.2</td>
+</tr>
+<tr>
+<td>三段式事件</td>
+<td>start/content/end triad</td>
+<td>有开始有结束的事件配对（tool_call/tool_result）</td>
+<td>M4 L4.2</td>
+</tr>
+<tr>
+<td>事件总线</td>
+<td>event bus</td>
+<td>Agent 事件向多个出口分发的枢纽</td>
+<td>M4 L4.4</td>
+</tr>
+<tr>
+<td>人在回路</td>
+<td>human-in-the-loop</td>
+<td>运行中等待人类审批/输入（v7 的 approval Future）</td>
+<td>M4 L4.4</td>
+</tr>
+<tr>
+<td>反向代理</td>
+<td>reverse proxy</td>
+<td>Nginx 等前置网关；流式的坑主要在缓冲与超时</td>
+<td>M5 L5.2</td>
+</tr>
+<tr>
+<td>发布/订阅</td>
+<td>Pub/Sub</td>
+<td>Redis 的多进程广播原语，替代进程内广播</td>
+<td>M5 L5.2</td>
+</tr>
+<tr>
+<td>首字延迟</td>
+<td>TTFT</td>
+<td>从发问到第一个 token 到达的延迟，流式体验核心指标</td>
+<td>M5 L5.2</td>
+</tr>
+<tr>
+<td>哈希表</td>
+<td>Hash</td>
+<td>Redis 二级字典：任务表外移的落点（HSET/HGET/HVALS）</td>
+<td>M6 L6.2</td>
+</tr>
+<tr>
+<td>流</td>
+<td>Stream</td>
+<td>Redis 持久日志：XADD 写入、XRANGE 区间读，天然支持按位点续传</td>
+<td>M6 L6.3</td>
+</tr>
+<tr>
+<td>发布订阅</td>
+<td>Pub/Sub</td>
+<td>Redis 即发即弃广播：实时性担当，但不留存消息</td>
+<td>M6 L6.4</td>
+</tr>
+<tr>
+<td>控制平面</td>
+<td>control plane</td>
+<td>命令如何路由到属主进程的通道（control 频道）</td>
+<td>M6 L6.4</td>
+</tr>
+<tr>
+<td>命令监听</td>
+<td>control listener</td>
+<td>属主进程内订阅控制频道、执行闸门操作的协程</td>
+<td>M6 L6.4</td>
+</tr>
+<tr>
+<td>事件桥</td>
+<td>event bridge</td>
+<td>进程内唯一订阅协程：Pub/Sub → 本地队列的分发器</td>
+<td>M6 L6.4</td>
+</tr>
+<tr>
+<td>反向代理</td>
+<td>reverse proxy</td>
+<td>Nginx 等前置网关；流式的坑主要在缓冲与超时</td>
+<td>M5/M7</td>
+</tr>
+<tr>
+<td>上游</td>
+<td>upstream</td>
+<td>Nginx 的后端服务器组（负载均衡目标）</td>
+<td>M7 L7.3</td>
+</tr>
+<tr>
+<td>代理缓冲</td>
+<td>proxy_buffering</td>
+<td>Nginx 攒上游数据再转发的开关，SSE 必须关</td>
+<td>M5/M7</td>
+</tr>
+<tr>
+<td>代理读超时</td>
+<td>proxy_read_timeout</td>
+<td>上游静默超过阈值即掐断连接——事故最高频来源</td>
+<td>M7 L7.2</td>
+</tr>
+<tr>
+<td>豁免头</td>
+<td>X-Accel-Buffering: no</td>
+<td>后端发给 Nginx 的"别缓冲我"信号</td>
+<td>M7 L7.2</td>
+</tr>
+</tbody>
+</table>
+<footer>本页由 markdown 源文件 <code>GLOSSARY.md</code> 自动生成——修改源文件后运行 <code>python tools/build_docs.py</code> 重新生成。</footer>
+<script src="assets/nav.js" data-base="" data-track=""></script>
+</body>
+</html>

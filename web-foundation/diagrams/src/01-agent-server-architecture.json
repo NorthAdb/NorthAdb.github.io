@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Mini Agent Server 全景架构",
+    "locale": "zh-CN",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    { "id": "browser", "type": "frontend", "label": "浏览器 UI", "sublabel": "EventSource + WebSocket", "pos": [40, 268], "size": [140, 64] },
+    { "id": "nginx", "type": "cloud", "label": "Nginx", "sublabel": "反向代理 · 不缓冲", "pos": [300, 268], "size": [136, 64] },
+    { "id": "fastapi", "type": "backend", "label": "FastAPI", "sublabel": "Uvicorn · ASGI", "pos": [556, 268], "size": [140, 64] },
+    { "id": "agent", "type": "backend", "label": "Agent Runtime", "sublabel": "Loop · Tool · RAG", "pos": [816, 268], "size": [140, 64] },
+    { "id": "llm", "type": "external", "label": "LLM API", "sublabel": "OpenAI 兼容 · stream", "pos": [1076, 268], "size": [136, 64] },
+    { "id": "redis", "type": "messagebus", "label": "Redis", "sublabel": "Pub/Sub 事件总线", "pos": [616, 486], "size": [136, 64] },
+    { "id": "postgres", "type": "database", "label": "PostgreSQL", "sublabel": "任务与事件持久化", "pos": [876, 486], "size": [140, 64] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "生产拓扑（M5）", "wraps": ["nginx", "fastapi", "agent", "llm", "redis", "postgres"], "pad": 18 }
+  ],
+  "connections": [
+    { "from": "browser", "to": "nginx", "label": "SSE / WS", "variant": "emphasis" },
+    { "from": "nginx", "to": "fastapi", "label": "反向代理", "variant": "emphasis" },
+    { "from": "fastapi", "to": "agent", "label": "create_task", "variant": "emphasis" },
+    { "from": "agent", "to": "llm", "label": "stream=True", "variant": "dashed" },
+    { "from": "fastapi", "to": "redis", "label": "subscribe 分发", "fromSide": "bottom", "toSide": "top" },
+    { "from": "agent", "to": "redis", "label": "publish 事件", "variant": "dashed", "fromSide": "bottom", "toSide": "top" },
+    { "from": "agent", "to": "postgres", "label": "任务/事件落库", "fromSide": "bottom", "toSide": "top" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "双通道分工", "items": ["SSE：Agent → UI 的单向事件直播，断线可续传", "WebSocket：UI → Agent 的实时控制与状态镜像", "REST：创建任务、查询状态的管理面"] },
+    { "dot": "emerald", "title": "Agent Runtime", "items": ["emit() 把内部过程变成统一事件信封", "buffer + 订阅队列支撑不漏不重的事件流", "暂停/审批/取消是三个 asyncio 控制原语"] },
+    { "dot": "orange", "title": "水平扩展", "items": ["多 Worker 后连接与任务表碎裂在各自进程", "Redis Pub/Sub 替代进程内广播", "事件日志进 Redis Stream / PostgreSQL"] }
+  ]
+}

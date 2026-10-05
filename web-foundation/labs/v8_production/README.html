@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>v8 生产化：多 Worker、反向代理与部署配置（文档 + 配置，动手前先读懂 v7） · 从 HTTP 到实时 Agent Server</title>
+<link rel="stylesheet" href="../../assets/course.css">
+</head>
+<body>
+<div class="kicker">实验 · v8</div>
+<h1>v8 生产化：多 Worker、反向代理与部署配置（文档 + 配置，动手前先读懂 v7）</h1>
+<p>实验 v7 的 Mini Agent Server 是<strong>单进程</strong>的。要变成"生产可用"，要解决三件事：
+反向代理不吞流、多 Worker 共享连接与事件、容器化交付。本目录给出配置与设计说明。</p>
+<h2>1. Nginx 反向代理：SSE/WebSocket 的头号杀手是缓冲</h2>
+<p><code>nginx.conf</code> 的关键三处：</p>
+<ul>
+<li><code>proxy_buffering off;</code>（或让 FastAPI 的 <code>X-Accel-Buffering: no</code> 响应头生效——fastapi.sse 已自动带）
+  否则 SSE token 会被 Nginx 攒在缓冲区里，用户看到的是"卡一下全出来"。</li>
+<li><code>proxy_read_timeout 3600s;</code> SSE 是长连接，默认 60s 读超时会掐断你的流（心跳的价值就在这里：15s 一次的 <code>: ping</code> 让 read timer 不断重置）。</li>
+<li>WebSocket 的 <code>Upgrade</code>/<code>Connection</code> 头透传（http 块的 <code>map $http_upgrade</code> 部分）。</li>
+</ul>
+<h2>2. 多 Worker：为什么单进程方案会碎掉</h2>
+<pre><code>uvicorn --workers 4  （或 gunicorn -k uvicorn.workers.UvicornWorker -w 4）
+   worker1: TASKS = {...}   ← 任务 A 在这里
+   worker2: TASKS = {...}   ← SSE 订阅者可能连到这里
+   worker3: TASKS = {...}
+   worker4: TASKS = {...}
+</code></pre>
+<p>v7 的 <code>TASKS</code>、<code>buffer</code>、<code>hub.clients</code> 全在进程内存里：
+- 创建任务的 POST 打到 worker1，SSE 订阅打到 worker2 → <strong>404</strong>；
+- WebSocket 控制指令发到 worker3 → <strong>操作不了 worker1 里的任务</strong>；
+- ControlHub 只能广播给连在本进程上的 WS 客户端。</p>
+<p><strong>标准解法（Redis Pub/Sub）</strong>：进程内事件照常产生，同时 publish 到 Redis 频道
+（如 <code>agent:{task_id}:events</code>）；每个 worker subscribe 自己关心的频道，收到后转发给
+本地连接。这样"事件日志"从进程内存挪到了 Redis（可再持久化到 PostgreSQL）。</p>
+<p>练习（有 Docker 时）：<code>docker compose up</code> 启动本目录的 docker-compose.yml，
+然后把 v7 改造成 Redis 版——改动点只有两处：
+1. <code>AgentTask.emit()</code> 里加 <code>redis.publish(channel, ev.model_dump_json())</code>；
+2. 每个 worker 启动一个后台协程 subscribe 频道，把消息 <code>put_nowait</code> 进本地订阅者队列。
+buffer（重放依据）改存 <code>Redis Stream</code>（<code>XADD/XRANGE</code> 天然支持按 id 续传）。</p>
+<h2>3. 部署拓扑与检查清单</h2>
+<pre><code>Browser ──HTTP/SSE/WS──▶ Nginx(80) ──▶ uvicorn ×N(8807)
+                                          ├─ Redis      （事件总线/会话）
+                                          └─ PostgreSQL （任务/事件持久化）
+</code></pre>
+<p>上线前逐项检查：</p>
+<ul>
+<li>[ ] SSE 响应无缓冲（<code>X-Accel-Buffering: no</code> 或 Nginx <code>proxy_buffering off</code>）</li>
+<li>[ ] 心跳已启用（fastapi.sse 内置 15s；sse-starlette 设 <code>ping=</code>）</li>
+<li>[ ] 客户端断线重连 + <code>Last-Event-ID</code> 续传已测试（v7 已实现）</li>
+<li>[ ] 多 Worker 下事件经由 Redis 广播，任务状态存 Redis/DB</li>
+<li>[ ] WS 有认证（连接时校验 token），SSE 端点校验任务归属</li>
+<li>[ ] 超时与重试：LLM 调用设置合理 timeout，事件消费有 backpressure 策略</li>
+<li>[ ] 日志与指标：连接数、事件吞吐、token 延迟（P50/P95）</li>
+<li>[ ] 优雅停机：<code>SIGTERM</code> 后先完成/取消运行中任务，再退出</li>
+</ul>
+<h2>自测问题</h2>
+<ol>
+<li>为什么"心跳"能同时解决 Nginx 读超时和中间设备空闲断连两个问题？</li>
+<li><code>Last-Event-ID</code> 续传在多 Worker 下还成立吗？事件日志必须存在哪里？</li>
+<li>v7 里哪三个数据结构必须搬到 Redis？各对应 Redis 的什么原语？
+   （提示：TASKS→Hash、buffer→Stream、hub→Pub/Sub）</li>
+</ol>
+<footer>本页由 markdown 源文件 <code>labs/v8_production/README.md</code> 自动生成——修改源文件后运行 <code>python tools/build_docs.py</code> 重新生成。</footer>
+<script src="../../assets/nav.js" data-base="../../" data-track=""></script>
+</body>
+</html>

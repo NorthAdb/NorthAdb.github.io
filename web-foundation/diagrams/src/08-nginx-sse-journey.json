@@ -1,0 +1,158 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "流穿过 Nginx：read_timeout 的生死判定",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1080,
+      560
+    ],
+    "legend": {
+      "mode": "hidden"
+    }
+  },
+  "participants": [
+    {
+      "id": "browser",
+      "type": "frontend",
+      "label": "浏览器",
+      "sublabel": "EventSource"
+    },
+    {
+      "id": "nginx",
+      "type": "cloud",
+      "label": "Nginx",
+      "sublabel": "反向代理"
+    },
+    {
+      "id": "api",
+      "type": "backend",
+      "label": "FastAPI",
+      "sublabel": "SSE 端点"
+    }
+  ],
+  "segments": [
+    {
+      "from": 174,
+      "to": 236,
+      "label": "建立连接"
+    },
+    {
+      "from": 258,
+      "to": 304,
+      "label": "事件转发"
+    },
+    {
+      "from": 320,
+      "to": 478,
+      "label": "静默期的生死判定"
+    }
+  ],
+  "messages": [
+    {
+      "from": "browser",
+      "to": "nginx",
+      "y": 162,
+      "label": "GET /agent/tasks/{id}/events",
+      "variant": "emphasis"
+    },
+    {
+      "from": "nginx",
+      "to": "api",
+      "y": 205,
+      "label": "proxy_pass（HTTP/1.1）",
+      "variant": "emphasis",
+      "note": "buffering off · read_timeout 3600s"
+    },
+    {
+      "from": "api",
+      "to": "nginx",
+      "y": 248,
+      "label": "200 text/event-stream",
+      "variant": "return",
+      "note": "X-Accel-Buffering: no 随响应头送达"
+    },
+    {
+      "from": "nginx",
+      "to": "browser",
+      "y": 291,
+      "label": "200 + 头透传",
+      "variant": "return"
+    },
+    {
+      "from": "api",
+      "to": "nginx",
+      "y": 334,
+      "label": "event: token",
+      "variant": "emphasis"
+    },
+    {
+      "from": "nginx",
+      "to": "browser",
+      "y": 377,
+      "label": "立即转发（不攒缓冲）",
+      "variant": "emphasis"
+    },
+    {
+      "from": "api",
+      "to": "nginx",
+      "y": 420,
+      "label": "（LLM 思考，静默 4 秒）",
+      "variant": "dashed",
+      "note": "静默 < 阈值：定时器随下次数据重置，流继续"
+    },
+    {
+      "from": "nginx",
+      "to": "browser",
+      "y": 463,
+      "label": "事故配置：静默 2s → 连接被掐",
+      "variant": "security",
+      "note": "正确配置 3600s 则安然无恙——心跳让定时器永远走不完"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "nginx",
+      "from": 168,
+      "to": 470,
+      "type": "cloud"
+    },
+    {
+      "participant": "api",
+      "from": 212,
+      "to": 456,
+      "type": "backend"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "三组生死配置",
+      "items": [
+        "proxy_buffering off——别攒流",
+        "proxy_read_timeout 调大——别掐流",
+        "WS 的 Upgrade 头透传——别断升级"
+      ]
+    },
+    {
+      "dot": "orange",
+      "title": "read_timeout 精确语义",
+      "items": [
+        "上游静默超过阈值才掐，数据会重置定时器",
+        "事故场景 = 静默期（LLM 思考）长于阈值",
+        "心跳注释行让定时器永远走不完"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "豁免头",
+      "items": [
+        "fastapi.sse 自动发 X-Accel-Buffering: no",
+        "proxy_hide_header 剥掉它 → 事故回归",
+        "旧版运维配置常不认识这个头"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,186 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "v7 双通道协作：SSE 直播 + WebSocket 审批",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1080,
+      610
+    ],
+    "legend": {
+      "mode": "hidden"
+    },
+    "column_fit": "spread"
+  },
+  "participants": [
+    {
+      "id": "browser",
+      "type": "frontend",
+      "label": "浏览器",
+      "sublabel": "双通道客户端"
+    },
+    {
+      "id": "api",
+      "type": "backend",
+      "label": "FastAPI",
+      "sublabel": "SSE 端点"
+    },
+    {
+      "id": "agent",
+      "type": "backend",
+      "label": "Agent 任务",
+      "sublabel": "asyncio 后台"
+    }
+  ],
+  "segments": [
+    {
+      "from": 170,
+      "to": 242,
+      "label": "创建任务"
+    },
+    {
+      "from": 250,
+      "to": 508,
+      "label": "直播与审批"
+    },
+    {
+      "from": 514,
+      "to": 548,
+      "label": "完成"
+    }
+  ],
+  "messages": [
+    {
+      "from": "browser",
+      "to": "api",
+      "y": 160,
+      "label": "POST /agent/tasks",
+      "variant": "emphasis"
+    },
+    {
+      "from": "api",
+      "to": "browser",
+      "y": 193,
+      "label": "返回 task_id",
+      "variant": "return",
+      "note": "create_task 启动后台任务，与连接解耦"
+    },
+    {
+      "from": "browser",
+      "to": "api",
+      "y": 226,
+      "label": "SSE 订阅 /agent/tasks/{id}/events",
+      "variant": "emphasis"
+    },
+    {
+      "from": "agent",
+      "to": "api",
+      "y": 259,
+      "label": "emit(agent_started, seq=1)",
+      "variant": "default"
+    },
+    {
+      "from": "api",
+      "to": "browser",
+      "y": 292,
+      "label": "SSE: event: agent_started",
+      "variant": "emphasis"
+    },
+    {
+      "from": "agent",
+      "to": "api",
+      "y": 325,
+      "label": "emit(tool_call, requires_approval)",
+      "variant": "default"
+    },
+    {
+      "from": "api",
+      "to": "browser",
+      "y": 358,
+      "label": "SSE: event: tool_call",
+      "variant": "emphasis"
+    },
+    {
+      "from": "api",
+      "to": "browser",
+      "y": 391,
+      "label": "WS 镜像: approval_required",
+      "variant": "dashed",
+      "note": "ControlHub 推给所有控制连接"
+    },
+    {
+      "from": "browser",
+      "to": "api",
+      "y": 424,
+      "label": "WS: approve",
+      "variant": "security",
+      "note": "set_result 唤醒审批闸门上的 Future"
+    },
+    {
+      "from": "agent",
+      "to": "api",
+      "y": 457,
+      "label": "闸门放行：tool_result → token…",
+      "variant": "default"
+    },
+    {
+      "from": "api",
+      "to": "browser",
+      "y": 490,
+      "label": "SSE: tool_result + token 流",
+      "variant": "emphasis"
+    },
+    {
+      "from": "api",
+      "to": "browser",
+      "y": 523,
+      "label": "event: done → 关闭流",
+      "variant": "return"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "api",
+      "from": 166,
+      "to": 527,
+      "type": "backend"
+    },
+    {
+      "participant": "agent",
+      "from": 253,
+      "to": 495,
+      "type": "backend"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "双通道各司其职",
+      "items": [
+        "SSE（实线）：Agent → UI 的单向事件直播",
+        "WS（虚线/安全线）：UI → Agent 的控制指令 + 状态镜像",
+        "REST：创建与查询，任务的唯一入口"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "审批的本质",
+      "items": [
+        "agent 在 wait_approval() 挂起在一个 Future 上",
+        "WS 收到 approve/reject 后 set_result() 唤醒它",
+        "human-in-the-loop = 把一次 await 的答案交给人类"
+      ]
+    },
+    {
+      "dot": "orange",
+      "title": "通往生产（v8）",
+      "items": [
+        "WS 镜像目前是单进程 ControlHub 广播",
+        "多 Worker 后改由 Redis Pub/Sub 承担",
+        "事件缓冲改 Redis Stream，支持跨进程续传"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# 环境与密钥
+.env
+*.key
+
+# 日志与临时文件
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+
+# archify 视觉检查产物（可用 archify visual-check 重新生成）
+diagrams/*.visual-check.*
+
+# 临时探针/测试产物
+**/_nav_test*
+**/_gen_*
+**/_probe*
+sse_file*.txt
+
+# 工具链本地解包（Redis/Nginx Windows 原生版，Docker 方案下不需要）
+tools/_redis_dist/
+tools/_nginx_dist/
+
+# 编辑器
+.vscode/
+.idea/

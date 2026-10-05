@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>A1 asyncio 基础演示 · 从 HTTP 到实时 Agent Server</title>
+<link rel="stylesheet" href="../../assets/course.css">
+</head>
+<body>
+<div class="kicker">实验 · A1</div>
+<h1>A1 asyncio 基础演示</h1>
+<p>目标：不开服务器，用四个纯终端小实验建立异步直觉——这是 SSE/WebSocket/Agent 任务的地基。</p>
+<h2>运行</h2>
+<pre><code class="language-bash">python a1_async/asyncio_basics.py
+</code></pre>
+<h2>四个演示分别看什么</h2>
+<ol>
+<li><strong>串行阻塞</strong>（约 2 秒）：<code>time.sleep</code> 占着事件循环不放——两个任务只能排队。对照第 2 个演示理解"假并发"。</li>
+<li><strong>gather 并发</strong>（约 1 秒）：三个 1 秒任务同时跑。每个 <code>await asyncio.sleep</code> 挂起的瞬间，事件循环去推进别人。</li>
+<li><strong>create_task</strong>：主流程不等后台任务继续往下走——v7 毕业实验的 AgentTask 就是这样启动的。</li>
+<li><strong>Queue 生产者/消费者</strong>：把"生产者"读成 Agent、"消费者"读成 SSE 连接，就是模块 4 的全部架构。</li>
+</ol>
+<h2>自测问题</h2>
+<ol>
+<li><code>async def</code> 里混用 <code>time.sleep</code> 会发生什么？怎么修？</li>
+<li><code>gather</code> 和顺序 <code>await</code> 的时间差从哪来？</li>
+<li><code>create_task</code> 返回值如果不保存，会有什么风险？（提示：任务可能被垃圾回收 / 异常无人接收）</li>
+<li>Queue 的 <code>None</code> 哨兵起什么作用？换成 <code>queue.task_done()</code> + <code>join()</code> 行不行？</li>
+</ol>
+<h2>延伸</h2>
+<ul>
+<li><a href="https://docs.python.org/zh-cn/3/library/asyncio.html">asyncio 官方文档</a>——本实验之后只需精读 Coroutines 与 Tasks 两节。</li>
+</ul>
+<footer>本页由 markdown 源文件 <code>labs/a1_async/README.md</code> 自动生成——修改源文件后运行 <code>python tools/build_docs.py</code> 重新生成。</footer>
+<script src="../../assets/nav.js" data-base="../../" data-track=""></script>
+</body>
+</html>

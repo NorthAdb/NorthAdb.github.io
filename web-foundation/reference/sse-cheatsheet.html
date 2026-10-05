@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>速查表 · SSE</title>
+<link rel="stylesheet" href="../assets/course.css">
+<style>pre { font-size: .8rem; }</style>
+</head>
+<body>
+<div class="kicker">Reference · SSE</div>
+<h1>SSE 速查表</h1>
+
+<h2>报文格式（WHATWG 规范）</h2>
+<pre><code>: 注释行（客户端忽略，常作心跳）
+retry: 3000            # 断线后重连等待（毫秒）
+id: 42                 # 事件编号 → 浏览器存为 lastEventId
+event: token           # 事件名（缺省 = message）
+data: {"text": "检"}   # 载荷（多行 = 多个 data 行）
+                       # 空行 = 一条事件结束（漏了不派发！）</code></pre>
+
+<h2>服务端（FastAPI 原生）</h2>
+<pre><code>from fastapi.sse import EventSourceResponse, ServerSentEvent
+
+@app.get("/events", response_class=EventSourceResponse)
+async def events():                      # 必须自身是 async generator
+    yield ServerSentEvent(event="token", id="1", data={"text": "检"})
+    yield ServerSentEvent(event="done", raw_data="[DONE]")</code></pre>
+<ul>
+  <li>框架自动：text/event-stream 头、no-cache、X-Accel-Buffering: no、15s 空闲心跳</li>
+  <li><code>data=</code> 会 JSON 编码；<code>raw_data=</code> 原样发送（哨兵值用）</li>
+  <li>404 等错误语义放 <code>Depends</code> 依赖（响应开始前执行）；generator 内 raise 会掐断已发出的 200 流</li>
+  <li><code>return EventSourceResponse(gen())</code> 风格会报错——端点必须 yield</li>
+</ul>
+
+<h2>断线续传</h2>
+<pre><code>浏览器：断线自动重连，带请求头  Last-Event-ID: &lt;最后收到的 id&gt;
+服务端：读该头，从事件缓冲补发 seq &gt; id 的事件
+@app.get("/events", response_class=EventSourceResponse)
+async def events(last_event_id: Annotated[str | None, Header()] = None):
+    start = int(last_event_id) + 1 if last_event_id else 1</code></pre>
+
+<h2>客户端</h2>
+<pre><code>const es = new EventSource("/events");   // 仅 GET
+es.onmessage = (e) => ...                 // 无名事件
+es.addEventListener("token", (e) => ...) // 命名事件必须逐个注册
+// e.data / e.lastEventId / es.readyState: 0 CONNECTING 1 OPEN 2 CLOSED
+// POST 场景：fetch + ReadableStream 手动按 "\n\n" 分帧解析</code></pre>
+
+<h2>选型</h2>
+<table>
+  <tr><th>方案</th><th>场景</th></tr>
+  <tr><td>fastapi.sse</td><td>新项目默认（内置心跳）</td></tr>
+  <tr><td>sse-starlette</td><td>存量项目 / 自定义 ping 间隔（注意：id 必须 str，data 传 dict 是 str() 不是 JSON）</td></tr>
+  <tr><td>手拼 StreamingResponse</td><td>仅用于理解协议</td></tr>
+</table>
+<footer><a href="../lessons/0001-course-map.html">← 课程地图</a> · M2 讲义：<a href="../course/module-2-流式传输与SSE.html">module-2</a></footer>
+<script src="../assets/nav.js" data-base="../" data-track="reference"></script>
+</body>
+</html>

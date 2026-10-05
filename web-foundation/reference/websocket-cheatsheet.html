@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>速查表 · WebSocket</title>
+<link rel="stylesheet" href="../assets/course.css">
+<style>pre { font-size: .8rem; }</style>
+</head>
+<body>
+<div class="kicker">Reference · WebSocket</div>
+<h1>WebSocket 速查表</h1>
+
+<h2>生命周期</h2>
+<pre><code>① HTTP 握手：GET /ws/chat HTTP/1.1  +  Upgrade: websocket
+② 服务端 accept() → 101 Switching Protocols（此后不再跑 HTTP）
+③ 帧往返：receive_* / send_* 任意交错（双向）
+④ 探活：Ping 帧 → 对方自动 Pong（协议层心跳）
+⑤ 关闭：带状态码 —— 1000 正常 · 1001 对端离开 · 1011 服务器错误</code></pre>
+
+<h2>服务端（FastAPI）</h2>
+<pre><code>from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+
+@app.websocket("/ws/chat")
+async def ws_chat(ws: WebSocket):
+    await ws.accept()                    # 完成 101 握手（不 accept 可拒绝连接）
+    try:
+        while True:
+            data = await ws.receive_json()   # receive_text/json/bytes
+            await ws.send_json({"echo": data})
+    except WebSocketDisconnect:           # 客户端断开的唯一正常出口
+        manager.disconnect(ws)
+
+# 多连接：ConnectionManager（connect / disconnect / send_personal / broadcast）
+# 广播遍历 list(self.active) 快照；死连接 try/except 就地清理</code></pre>
+
+<h2>浏览器客户端</h2>
+<pre><code>const ws = new WebSocket("wss://host/ws/chat");   // 生产用 wss://
+ws.onopen = () => ws.send(JSON.stringify({text: "hi"}));
+ws.onmessage = (e) => console.log(JSON.parse(e.data));
+ws.onclose = (e) => console.log(e.code, e.reason);
+// F12 → Network → 选 ws 连接 → Messages 面板：绿↓收帧 橙↑发帧</code></pre>
+
+<h2>SSE vs WebSocket 选型</h2>
+<table>
+  <tr><th></th><th>SSE</th><th>WebSocket</th></tr>
+  <tr><td>方向</td><td>服务器 → 客户端</td><td>双向</td></tr>
+  <tr><td>底层</td><td>纯 HTTP</td><td>HTTP Upgrade 换协议</td></tr>
+  <tr><td>断线</td><td>浏览器自动重连 + Last-Event-ID</td><td>自己实现重连逻辑</td></tr>
+  <tr><td>典型</td><td>LLM token 流、进度、日志</td><td>暂停/取消/审批、聊天、协同</td></tr>
+</table>
+<p class="note">Nginx 反代三要点：<code>proxy_buffering off</code>（SSE）、<code>proxy_read_timeout</code> 调大、WS 透传 <code>Upgrade/Connection</code> 头。</p>
+<footer><a href="../lessons/0001-course-map.html">← 课程地图</a> · M3 讲义：<a href="../course/module-3-WebSocket双向通信.html">module-3</a></footer>
+<script src="../assets/nav.js" data-base="../" data-track="reference"></script>
+</body>
+</html>

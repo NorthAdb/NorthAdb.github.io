@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>r3 · 多进程 Agent Server</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 60rem; margin: 2rem auto; background: #fafafa; color: #222; }
+  h1 { font-size: 1.3rem; } small { color: #888; }
+  #bar { display: flex; gap: .5rem; margin: 1rem 0; }
+  #goal { flex: 1; padding: .5rem; }
+  button { padding: .5rem .9rem; cursor: pointer; }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  #state { font-weight: 700; padding: .2rem .7rem; border-radius: 99px; background: #ddd; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .panel { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: .8rem; min-height: 16rem; }
+  .panel h3 { margin: 0 0 .5rem; font-size: .85rem; color: #666; }
+  #answer { white-space: pre-wrap; font-size: .95rem; line-height: 1.7; }
+  .toolcard { border: 1px dashed #b45309; background: #fef3c7; border-radius: 8px; padding: .5rem .8rem; font-size: .85rem; margin-top: .6rem; }
+  #approval { border: 2px solid #e67e22; border-radius: 8px; padding: .8rem; margin-top: 1rem; display: none; }
+  #log { font: .75rem/1.55 Consolas, monospace; height: 14rem; overflow-y: auto; background: #111; color: #cde; padding: .6rem; border-radius: 6px; }
+</style>
+</head>
+<body>
+<h1>r3 · 多进程 Agent Server <small>（SSE 直播 + WebSocket 遥控 · Redis 数据面/控制面）</small></h1>
+
+<div id="bar">
+  <input id="goal" value="给老板发一封周报邮件" placeholder="给 Agent 的目标">
+  <button id="start" onclick="startTask()">启动任务</button>
+  <span id="state">idle</span>
+</div>
+
+<div class="cols">
+  <div class="panel">
+    <h3>Agent 回答（SSE token 事件）</h3>
+    <div id="answer">（尚未启动）</div>
+    <div id="tools"></div>
+    <div id="approval">
+      <b>⚠ 工具调用等待审批</b> send_email → boss@corp.com<br><br>
+      <button onclick="control('approve')">批准</button>
+      <button onclick="control('reject')">拒绝</button>
+    </div>
+  </div>
+  <div class="panel">
+    <h3>控制台（WebSocket → control 频道）</h3>
+    <button id="pause" onclick="control('pause')" disabled>⏸ 暂停</button>
+    <button id="resume" onclick="control('resume')" disabled>▶ 恢复</button>
+    <button id="cancel" onclick="control('cancel')" disabled>✖ 取消</button>
+    <div id="log"></div>
+  </div>
+</div>
+
+<script>
+let taskId = null;
+const stateEl = document.getElementById("state");
+const log = document.getElementById("log");
+const log2 = (html) => { const d = document.createElement("div"); d.innerHTML = html;
+  log.appendChild(d); log.scrollTop = log.scrollHeight; };
+const setState = (s) => {
+  stateEl.textContent = s;
+  document.getElementById("pause").disabled  = !["running", "waiting_approval"].includes(s);
+  document.getElementById("resume").disabled = s !== "paused";
+  document.getElementById("cancel").disabled = !["running", "paused", "waiting_approval"].includes(s);
+  document.getElementById("approval").style.display = s === "waiting_approval" ? "block" : "none";
+};
+
+// ---------- 控制通道：WS 只负责发布命令；执行在属主进程；状态反馈走 SSE ----------
+const ws = new WebSocket(`ws://${location.host}/ws/control`);
+ws.onopen = () => log2("<b>WS 已连接（命令发布到 control 频道）</b>");
+ws.onmessage = (e) => log2(`WS ack: ${e.data}`);
+
+function control(action) {
+  if (!taskId) return alert("先启动任务");
+  ws.send(JSON.stringify({ task_id: taskId, action }));
+}
+
+// ---------- 事件直播：SSE（历史 Stream 回放 + 实时 Pub/Sub，任何 Worker 都能服务） ----------
+function startTask() {
+  const goal = document.getElementById("goal").value;
+  fetch("/agent/tasks", { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({goal}) })
+    .then((r) => r.json())
+    .then(({task_id}) => { taskId = task_id; setState("running"); listen(task_id); });
+}
+
+function listen(id) {
+  document.getElementById("answer").textContent = "";
+  const es = new EventSource(`/agent/tasks/${id}/events`);
+  for (const name of ["agent_started","agent_error","task_state","step_started","step_finished",
+                      "rag_search","rag_result","tool_call","tool_result","token","done"]) {
+    es.addEventListener(name, (e) => {
+      const ev = JSON.parse(e.data);
+      if (ev.type === "token") document.getElementById("answer").textContent += ev.data.text;
+      if (ev.type === "tool_call" && ev.data.requires_approval) {
+        document.getElementById("tools").innerHTML =
+          `<div class="toolcard">🛠 ${ev.data.tool} → ${ev.data.arguments.to}：等待审批…</div>`;
+        setState("waiting_approval");
+      }
+      if (ev.type === "task_state") setState(ev.data.state);
+      if (ev.type === "done" || ev.type === "agent_error") {
+        es.close();
+        setState(ev.type === "done" ? "done" : "error");
+      }
+    });
+  }
+}
+setState("idle");
+</script>
+<script src="../../assets/nav.js" data-base="../../" data-track="reference"></script>
+</body>
+</html>

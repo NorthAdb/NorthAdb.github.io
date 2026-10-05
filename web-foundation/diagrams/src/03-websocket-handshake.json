@@ -1,0 +1,163 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "WebSocket 握手与双向通信",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1080,
+      516
+    ],
+    "column_fit": "spread"
+  },
+  "participants": [
+    {
+      "id": "client_a",
+      "type": "frontend",
+      "label": "客户端 A",
+      "sublabel": "浏览器标签页"
+    },
+    {
+      "id": "server",
+      "type": "backend",
+      "label": "FastAPI",
+      "sublabel": "ConnectionManager"
+    },
+    {
+      "id": "client_b",
+      "type": "frontend",
+      "label": "客户端 B",
+      "sublabel": "另一个标签页"
+    }
+  ],
+  "segments": [
+    {
+      "from": 168,
+      "to": 240,
+      "label": "HTTP Upgrade 握手"
+    },
+    {
+      "from": 272,
+      "to": 370,
+      "label": "双向帧通信"
+    },
+    {
+      "from": 378,
+      "to": 436,
+      "label": "探活与关闭"
+    }
+  ],
+  "messages": [
+    {
+      "from": "client_a",
+      "to": "server",
+      "y": 160,
+      "label": "GET /ws/chat · Upgrade: websocket",
+      "variant": "emphasis",
+      "note": "还是普通 HTTP 请求"
+    },
+    {
+      "from": "server",
+      "to": "client_a",
+      "y": 193,
+      "label": "101 Switching Protocols",
+      "variant": "return",
+      "note": "accept() 之后协议已换"
+    },
+    {
+      "from": "client_b",
+      "to": "server",
+      "y": 226,
+      "label": "第二条连接握手",
+      "variant": "default"
+    },
+    {
+      "from": "server",
+      "to": "client_b",
+      "y": 259,
+      "label": "101 + 登记进 ConnectionManager",
+      "variant": "return"
+    },
+    {
+      "from": "client_a",
+      "to": "server",
+      "y": 292,
+      "label": "send_text（聊天帧）",
+      "variant": "emphasis"
+    },
+    {
+      "from": "server",
+      "to": "client_a",
+      "y": 325,
+      "label": "broadcast → 所有活跃连接",
+      "variant": "emphasis",
+      "note": "receive 与 send 可任意交错——SSE 做不到"
+    },
+    {
+      "from": "server",
+      "to": "client_b",
+      "y": 358,
+      "label": "broadcast → 所有活跃连接",
+      "variant": "emphasis"
+    },
+    {
+      "from": "client_a",
+      "to": "server",
+      "y": 391,
+      "label": "Close 1000（关闭页面）",
+      "variant": "security",
+      "note": "Ping/Pong 探活由协议自动进行；服务端捕获 WebSocketDisconnect"
+    },
+    {
+      "from": "server",
+      "to": "client_b",
+      "y": 424,
+      "label": "system：一位朋友离开了",
+      "variant": "dashed"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "server",
+      "from": 166,
+      "to": 428,
+      "type": "backend"
+    },
+    {
+      "participant": "client_b",
+      "from": 246,
+      "to": 428,
+      "type": "frontend"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "握手前后",
+      "items": [
+        "握手是 HTTP，握手后是 WebSocket 帧",
+        "101 之后这条 TCP 连接不再跑 HTTP 报文",
+        "服务端可通过不 accept 拒绝连接"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "双向与广播",
+      "items": [
+        "receive 与 send 可任意交错——SSE 做不到",
+        "广播遍历连接快照，死连接就地清理",
+        "慢连接会拖慢串行广播，生产用每连接发送队列"
+      ]
+    },
+    {
+      "dot": "orange",
+      "title": "探活与关闭",
+      "items": [
+        "Ping/Pong 是协议层心跳，与 SSE 注释心跳不同层",
+        "关闭带状态码：1000 正常、1001 对端离开",
+        "ConnectionManager 在断开时移除并广播系统消息"
+      ]
+    }
+  ]
+}

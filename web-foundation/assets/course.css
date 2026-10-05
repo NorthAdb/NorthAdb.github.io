@@ -1,0 +1,64 @@
+/* 课程教学页共享样式 —— 所有 lessons/*.html 与 reference/*.html 都链接此文件 */
+:root {
+  --ink: #1a1a1a;
+  --muted: #6b6b6b;
+  --accent: #0f766e;
+  --accent-soft: #ccfbf1;
+  --bg: #fffff8;
+  --panel: #f8f8f2;
+  --line: #e4e2d8;
+  --code-bg: #1e1e28;
+  --code-ink: #d6d6e0;
+}
+* { box-sizing: border-box; }
+body {
+  font-family: "Source Han Serif SC", "Noto Serif SC", Georgia, "Microsoft YaHei", serif;
+  background: var(--bg);
+  color: var(--ink);
+  max-width: 52rem;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 5rem;
+  line-height: 1.85;
+  font-size: 1.02rem;
+}
+h1 { font-size: 1.7rem; line-height: 1.35; margin: 0 0 .2rem; }
+h2 { font-size: 1.25rem; margin-top: 2.6rem; border-bottom: 1px solid var(--line); padding-bottom: .3rem; }
+h3 { font-size: 1.05rem; margin-top: 1.8rem; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.kicker {
+  font-family: "Cascadia Code", Consolas, monospace;
+  font-size: .78rem; letter-spacing: .12em; color: var(--accent);
+  text-transform: uppercase; margin-bottom: .6rem;
+}
+.lede { color: var(--muted); font-size: 1.05rem; margin-top: .4rem; }
+code, pre, .mono { font-family: "Cascadia Code", Consolas, "Microsoft YaHei Mono", monospace; }
+pre {
+  background: var(--code-bg); color: var(--code-ink);
+  padding: .9rem 1.1rem; border-radius: 8px; overflow-x: auto;
+  font-size: .84rem; line-height: 1.6;
+}
+code { background: var(--accent-soft); padding: .08em .35em; border-radius: 4px; font-size: .88em; }
+pre code { background: none; padding: 0; }
+.panel {
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: 10px; padding: 1rem 1.3rem; margin: 1.2rem 0;
+}
+.panel h4 { margin: 0 0 .4rem; font-size: .92rem; color: var(--accent); }
+.note { border-left: 3px solid var(--accent); padding-left: 1rem; color: var(--muted); font-size: .93rem; margin: 1.2rem 0; }
+table { border-collapse: collapse; width: 100%; font-size: .9rem; margin: 1rem 0; }
+th, td { border: 1px solid var(--line); padding: .45rem .7rem; text-align: left; }
+th { background: var(--panel); }
+.quiz { border: 1px solid var(--line); border-radius: 10px; padding: 1rem 1.3rem; margin: 1.4rem 0; background: #fff; }
+.quiz .q { font-weight: 600; margin: .8rem 0 .3rem; }
+.quiz button {
+  display: block; width: 100%; text-align: left; margin: .3rem 0;
+  padding: .5rem .8rem; border: 1px solid var(--line); border-radius: 6px;
+  background: var(--bg); cursor: pointer; font-size: .92rem; font-family: inherit;
+}
+.quiz button:hover { border-color: var(--accent); }
+.quiz button.correct { background: var(--accent-soft); border-color: var(--accent); }
+.quiz button.wrong { background: #fee2e2; border-color: #f87171; }
+.quiz .feedback { font-size: .88rem; color: var(--muted); min-height: 1.3em; margin-top: .4rem; }
+.next { margin-top: 3rem; padding-top: 1rem; border-top: 2px solid var(--line); font-size: .95rem; }
+footer { margin-top: 3rem; font-size: .8rem; color: var(--muted); }

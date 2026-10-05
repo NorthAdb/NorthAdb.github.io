@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "终极总装：完整体系的每一层",
+    "locale": "zh-CN",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    { "id": "browser", "type": "frontend", "label": "浏览器 UI", "sublabel": "M2/M3/M4 互动课", "pos": [40, 268], "size": [150, 70] },
+    { "id": "nginx", "type": "cloud", "label": "Nginx", "sublabel": "M7 · 反代/负载均衡", "pos": [280, 268], "size": [150, 70] },
+    { "id": "w1", "type": "backend", "label": "Worker 1", "sublabel": "M2-M4 · SSE/WS/Agent", "pos": [530, 150], "size": [160, 70] },
+    { "id": "w2", "type": "backend", "label": "Worker 2", "sublabel": "M2-M4 · SSE/WS/Agent", "pos": [530, 400], "size": [160, 70] },
+    { "id": "redis", "type": "messagebus", "label": "Redis", "sublabel": "M6 · Hash/Stream/PubSub", "pos": [860, 262], "size": [170, 76] },
+    { "id": "llm", "type": "external", "label": "LLM API", "sublabel": "M4 · stream=True", "pos": [1120, 130], "size": [150, 64] },
+    { "id": "postgres", "type": "database", "label": "PostgreSQL", "sublabel": "M5 · 持久化", "pos": [1120, 396], "size": [150, 64] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "完整生产体系（M5-M7）", "wraps": ["nginx", "w1", "w2", "redis", "llm", "postgres"], "pad": 18 }
+  ],
+  "connections": [
+    { "from": "browser", "to": "nginx", "label": "SSE / WS", "variant": "emphasis" },
+    { "from": "nginx", "to": "w1", "label": "负载均衡", "variant": "emphasis" },
+    { "from": "nginx", "to": "w2", "label": "负载均衡", "variant": "emphasis" },
+    { "from": "w1", "to": "redis", "label": "publish/XADD" },
+    { "from": "w2", "to": "redis", "label": "subscribe/XRANGE" },
+    { "from": "w1", "to": "llm", "label": "stream=True", "variant": "dashed" },
+    { "from": "redis", "to": "postgres", "label": "持久化" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "每一层都有一课", "items": ["M1 异步地基 / M2 流式与 SSE / M3 WebSocket", "M4 token 流与事件协议 / M5 生产化设计", "M6 Redis 三原语 / M7 Nginx 与总装"] },
+    { "dot": "emerald", "title": "数据如何流动", "items": ["emit → XADD 落日志 → Pub/Sub 广播 → SSE 转发", "控制命令反向：WS → control 频道 → 属主闸门", "Last-Event-ID 续传在任何 Worker 都成立"] },
+    { "dot": "orange", "title": "下一步的世界", "items": ["MCP 服务端：Streamable HTTP 就是 POST+SSE", "AG-UI：把自研事件协议升级为标准", "多 Agent 编排：SUBAGENT 事件与任务树"] }
+  ]
+}

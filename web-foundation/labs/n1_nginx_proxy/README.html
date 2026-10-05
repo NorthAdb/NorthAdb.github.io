@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>n1 · Nginx 反代实战：流式服务的生死开关 · 从 HTTP 到实时 Agent Server</title>
+<link rel="stylesheet" href="../../assets/course.css">
+</head>
+<body>
+<div class="kicker">实验 · n1</div>
+<h1>n1 · Nginx 反代实战：流式服务的生死开关</h1>
+<p>目标：亲手制造并修复流式服务最常见的两类生产事故——<strong>缓冲攒流</strong>与<strong>超时掐流</strong>。</p>
+<h2>前置</h2>
+<pre><code class="language-bash">docker pull nginx:1.28-alpine        # 官方 stable 镜像
+python -m uvicorn n1_nginx_proxy.app:app --host 0.0.0.0 --port 8807   # 注意必须绑 0.0.0.0
+</code></pre>
+<blockquote>
+<p>为什么绑 0.0.0.0：Nginx 跑在容器里，经 <code>host.docker.internal</code> 回访宿主机；
+uvicorn 默认只绑 127.0.0.1，会拒绝来自虚拟网卡的连接（502 现场之一）。</p>
+</blockquote>
+<h2>一键对照实验</h2>
+<pre><code class="language-bash">python n1_nginx_proxy/verify_through_nginx.py
+</code></pre>
+<p>它做两次部署、同一个后端、同一个 URL：</p>
+<table>
+<thead>
+<tr>
+<th>配置</th>
+<th>现象</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>n1-good.conf</code>（buffering off + read_timeout 3600s）</td>
+<td>10 个事件陆续到达（跨度 ≈ 7s），WebSocket 透传正常</td>
+</tr>
+<tr>
+<td><code>n1-incident.conf</code>（read_timeout 2s）</td>
+<td>LLM"思考"静默 4 秒 → 连接被 Nginx 掐断</td>
+</tr>
+</tbody>
+</table>
+<h2>三个事故机制（配置文件里有逐行注释）</h2>
+<ol>
+<li><strong>proxy_buffering on</strong>：Nginx 会尽量从上游读取再转发。下游快于上游时影响不大，
+   但叠加 gzip/TLS/慢客户端后，SSE 小事件会被攒住——用户看到"卡一下全出来"。
+   快api.sse 自动发送 <code>X-Accel-Buffering: no</code> 响应头豁免缓冲；
+   <code>n1-incident.conf</code> 里故意 <code>proxy_hide_header</code> 掉它——旧版运维配置不认识这个头，事故就回来了。</li>
+<li><strong>proxy_read_timeout</strong>：上游静默超过阈值即掐断。默认 60s；LLM 思考 4 秒本身不可怕，
+   可怕的是"静默 4 秒 + 阈值 2s"。心跳（15s 一条注释行）的存在意义就是不断重置这个定时器。</li>
+<li><strong>WebSocket Upgrade 头</strong>：握手必须原样透传 <code>Upgrade</code>/<code>Connection</code> 头，否则升级失败。</li>
+</ol>
+<h2>自测问题</h2>
+<ol>
+<li>为什么 curl 测试一切正常、浏览器却卡死？（提示：Accept-Encoding: gzip，浏览器会带）</li>
+<li><code>proxy_read_timeout</code> 的计时器什么时候开始倒数？"上游慢"和"上游静默"哪个会触发它？</li>
+<li>容器里的 nginx 怎么访问宿主机上的 uvicorn？生产 Linux 上对应什么写法？</li>
+</ol>
+<h2>延伸</h2>
+<ul>
+<li>生产 nginx 通常还有 gzip 压缩模块——记得把 <code>text/event-stream</code> 排除在 gzip_types 之外，
+  否则压缩攒数据会让流式变"卡顿"。</li>
+</ul>
+<footer>本页由 markdown 源文件 <code>labs/n1_nginx_proxy/README.md</code> 自动生成——修改源文件后运行 <code>python tools/build_docs.py</code> 重新生成。</footer>
+<script src="../../assets/nav.js" data-base="../../" data-track=""></script>
+</body>
+</html>

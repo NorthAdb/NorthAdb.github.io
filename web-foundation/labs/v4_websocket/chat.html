@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>WebSocket 聊天室</title>
+<style>
+  body { font-family: "Cascadia Code", Consolas, monospace; margin: 2rem; background: #fafafa; }
+  #msgs { background: #111; color: #cde; padding: 1rem; height: 18rem; overflow-y: auto; font-size: .85rem; line-height: 1.6; }
+  .sys { color: #fc6; } .chat { color: #8f8; }
+  #bar { display: flex; gap: .5rem; margin-top: 1rem; }
+  input, button { padding: .5rem; }
+  #text { flex: 1; }
+</style>
+</head>
+<body>
+<h1>WebSocket 聊天室（开两个标签页对聊）</h1>
+<div id="msgs"></div>
+<div id="bar">
+  <input id="name" value="A" style="width:4rem">
+  <input id="text" placeholder="输入消息回车发送">
+  <button onclick="send()">发送</button>
+</div>
+<script>
+  const box = document.getElementById("msgs");
+  const log = (html, cls) => { const d = document.createElement("div");
+    d.className = cls || ""; d.innerHTML = html; box.appendChild(d); d.scrollIntoView(); };
+
+  const ws = new WebSocket("ws://127.0.0.1:8804/ws/chat");
+  ws.onopen = () => log("<b>已连接 ws://127.0.0.1:8804/ws/chat</b>", "sys");
+  ws.onclose = () => log("<b>连接关闭</b>", "sys");
+  ws.onmessage = (e) => {
+    const m = JSON.parse(e.data);           // 服务端 send_json → 这里 parse
+    if (m.type === "system") log(`※ ${m.text}`, "sys");
+    else log(`<b>${m.from}:</b> ${m.text}`, "chat");
+  };
+
+  function send() {
+    const name = document.getElementById("name").value;
+    const text = document.getElementById("text").value;
+    if (!text) return;
+    ws.send(JSON.stringify({ name, text })); // 双向：这一步是 SSE 做不到的
+    document.getElementById("text").value = "";
+  }
+  document.getElementById("text").addEventListener("keydown", (e) => { if (e.key === "Enter") send(); });
+</script>
+<script src="../../assets/nav.js" data-base="../../" data-track="reference"></script>
+</body>
+</html>

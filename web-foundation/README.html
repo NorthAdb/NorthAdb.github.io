@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>从 HTTP 到实时 Agent Server · 从 HTTP 到实时 Agent Server</title>
+<link rel="stylesheet" href="assets/course.css">
+</head>
+<body>
+<div class="kicker">工作区导航</div>
+<h1>从 HTTP 到实时 Agent Server</h1>
+<blockquote>
+<p>一门面向 <strong>已入门 Agent/RAG 开发者</strong> 的网络通信实战课程：
+用 8 个模块、27 节课、16 个可运行实验，把一个 Python 进程里的 Agent，
+一步步升级为 <strong>能被浏览器访问、能流式输出、能被实时控制、可水平扩展</strong> 的生产级服务。</p>
+</blockquote>
+<pre><code>浏览器 ──SSE(事件直播)+WebSocket(遥控)──▶ Nginx ──▶ Worker×2 ──▶ Redis ──▶ LLM/RAG
+</code></pre>
+<p>这门课的一切代码都<strong>真实可跑</strong>：16 个实验全部配备自动化端到端验证，
+一条命令 <code>python labs/smoke_test.py</code> 即可回归全部实验（当前 14/14 通过）。</p>
+<hr />
+<h2>为什么有这门课</h2>
+<p>学完 Agent 基础（loop、tool calling）和 RAG 之后，这些能力还困在一个 Python 进程里：
+用户无法打开网页提问、看不到答案逐字生成、无法中途打断或审批一次危险操作。</p>
+<p>这门课只教一件事——<strong>把 Agent 接到网络上</strong>，沿着这条主线层层递进：</p>
+<pre><code>Python 异步 → HTTP → FastAPI → 流式传输 → SSE → WebSocket
+→ LLM Token 流 → Agent 事件协议 → 多进程扩展(Redis) → 反向代理(Nginx)
+</code></pre>
+<p>每一层都遵循同一个学习闭环：<strong>读概念 → 跑最小实验 → 亲手制造生产事故 → 修复它 → 自动化验证</strong>。</p>
+<h2>课程总览（8 模块 / 27 课 / 16 实验）</h2>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>主题</th>
+<th>实验</th>
+<th>你将获得</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>M0</td>
+<td>为什么 Agent 开发者需要网络通信</td>
+<td>观察实验</td>
+<td>三种通信模型的心智地图</td>
+</tr>
+<tr>
+<td>M1</td>
+<td>异步与 HTTP 地基</td>
+<td>A1, v0</td>
+<td>事件循环直觉 + 第一个 FastAPI</td>
+</tr>
+<tr>
+<td>M2</td>
+<td>流式传输与 SSE</td>
+<td>v2, v3a/b/c</td>
+<td>手写 SSE 报文 → 生产级实现 → 断线续传</td>
+</tr>
+<tr>
+<td>M3</td>
+<td>WebSocket 双向通信</td>
+<td>v4</td>
+<td>握手/帧/广播/ConnectionManager</td>
+</tr>
+<tr>
+<td>M4</td>
+<td>LLM 流式与 Agent 事件系统</td>
+<td>v5, v6, v7</td>
+<td>token 打字机 + 统一事件协议 + 双通道 Agent Server</td>
+</tr>
+<tr>
+<td>M5</td>
+<td>综合项目与生产化</td>
+<td>v8</td>
+<td>生产化设计清单</td>
+</tr>
+<tr>
+<td>M6</td>
+<td>生产基础设施 I · Redis 事件总线</td>
+<td>r1/r2/r3</td>
+<td>Hash/Stream/Pub/Sub 三原语外移，多进程完全体</td>
+</tr>
+<tr>
+<td>M7</td>
+<td>生产基础设施 II · Nginx 与部署</td>
+<td>n1/n2</td>
+<td>反代三组生死配置 + 完整拓扑总装</td>
+</tr>
+</tbody>
+</table>
+<p>详细讲义在 <a href="course/module-0-为什么需要网络通信.html"><code>course/</code> 模块讲义</a>（27 节课，每节含目标/概念/实操/代码流程讲解/自测题/常见坑）。</p>
+<h2>快速开始</h2>
+<h3>环境要求</h3>
+<ul>
+<li>Python 3.10+（建议 3.12）</li>
+<li>Docker Desktop（Redis 与 Nginx 以官方镜像运行：<code>redis:7-alpine</code>、<code>nginx:1.28-alpine</code>）</li>
+<li>可选：<code>OPENAI_API_KEY</code>（不配也能跑，所有 LLM 实验内置 mock）</li>
+</ul>
+<h3>三步跑起来</h3>
+<pre><code class="language-bash"># 1. 安装依赖
+cd labs
+python -m venv .venv &amp;&amp; source .venv/Scripts/activate   # Windows Git Bash
+pip install -r requirements.txt
+
+# 2. 启动课程 Redis（M6 之后需要；M1-M5 不需要）
+docker run -d --name course-redis -p 6399:6379 redis:7-alpine
+
+# 3. 一键回归全部实验（自动验证 14 个实验的端到端行为）
+python smoke_test.py
+</code></pre>
+<h3>第一个实验</h3>
+<pre><code class="language-bash">python -m uvicorn v0_hello_api.app:app --port 8801 --reload
+curl http://127.0.0.1:8801/hello          # 你的第一个接口
+curl -N http://127.0.0.1:8802/stream      # 亲眼看见&quot;流式&quot;（v2，另一个终端各起各的）
+</code></pre>
+<p>每个实验目录都有 README：启动命令、逐行代码讲解、自测题、常见坑。</p>
+<h2>实验地图</h2>
+<table>
+<thead>
+<tr>
+<th>实验</th>
+<th>主题</th>
+<th>亮点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A1</td>
+<td>asyncio 演示</td>
+<td>串行 2s vs 并发 1s，眼见为实</td>
+</tr>
+<tr>
+<td>v0</td>
+<td>第一个 FastAPI</td>
+<td>路由/Pydantic/OpenAPI</td>
+</tr>
+<tr>
+<td>v2</td>
+<td>分块流式</td>
+<td><code>transfer-encoding: chunked</code> 实测</td>
+</tr>
+<tr>
+<td>v3a/b/c</td>
+<td>SSE 三版本</td>
+<td>手写裸格式 → <code>fastapi.sse</code> 原生 → sse-starlette；断线续传；POST+SSE</td>
+</tr>
+<tr>
+<td>v4</td>
+<td>WebSocket 聊天室</td>
+<td>双向帧 + ConnectionManager 广播</td>
+</tr>
+<tr>
+<td>v5</td>
+<td>LLM Token 流</td>
+<td>mock/真 API 零改动切换；浏览器打字机</td>
+</tr>
+<tr>
+<td>v6</td>
+<td>Agent 事件流</td>
+<td>统一事件信封（对齐 AG-UI/Dify 命名）</td>
+</tr>
+<tr>
+<td><strong>v7</strong></td>
+<td><strong>毕业实验</strong></td>
+<td>SSE 直播 + WS 遥控 + 人工审批（暂停/恢复/取消/批准）</td>
+</tr>
+<tr>
+<td>r1</td>
+<td>任务表 → Redis Hash</td>
+<td>适配层设计，跨连接可见</td>
+</tr>
+<tr>
+<td>r2</td>
+<td>事件 → Redis Stream</td>
+<td>跨进程回放 + Last-Event-ID 续传</td>
+</tr>
+<tr>
+<td><strong>r3</strong></td>
+<td><strong>多进程完全体</strong></td>
+<td>Pub/Sub 双 Worker 协作，暂停/审批跨进程生效</td>
+</tr>
+<tr>
+<td>n1</td>
+<td>Nginx 事故对照</td>
+<td><code>proxy_read_timeout 2s</code> 掐断 LLM 思考期长流（确定性复现）</td>
+</tr>
+<tr>
+<td><strong>n2</strong></td>
+<td><strong>终极拓扑</strong></td>
+<td>Nginx → Worker×2 → Redis 全链路端到端</td>
+</tr>
+<tr>
+<td>v8</td>
+<td>生产化设计</td>
+<td>Nginx/Docker/持久化配置与检查清单</td>
+</tr>
+</tbody>
+</table>
+<p>v7 毕业实验的交互界面（<code>labs/v7_agent_server/index.html</code>）支持完整的
+human-in-the-loop：启动任务 → 审批工具调用 → 暂停/恢复 → 断线刷新后自动续传。</p>
+<h2>交互式图表（9 张）</h2>
+<p><a href="diagrams/01-agent-server-architecture.html"><code>diagrams/</code></a> 下 9 张 archify 生成的可交互 HTML（支持缩放、路径追踪、明暗主题）：</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>图</th>
+<th>类型</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>01</td>
+<td><a href="diagrams/01-agent-server-architecture.html">全景架构</a></td>
+<td>architecture</td>
+</tr>
+<tr>
+<td>02</td>
+<td><a href="diagrams/02-sse-lifecycle.html">SSE 连接生命周期</a>（含断线续传）</td>
+<td>sequence</td>
+</tr>
+<tr>
+<td>03</td>
+<td><a href="diagrams/03-websocket-handshake.html">WebSocket 握手与广播</a></td>
+<td>sequence</td>
+</tr>
+<tr>
+<td>04</td>
+<td><a href="diagrams/04-agent-event-pipeline.html">Agent 事件管道</a></td>
+<td>dataflow</td>
+</tr>
+<tr>
+<td>05</td>
+<td><a href="diagrams/05-agent-server-dual-channel.html">v7 双通道协作时序</a></td>
+<td>sequence</td>
+</tr>
+<tr>
+<td>06</td>
+<td><a href="diagrams/06-multi-worker-redis.html">v8 多 Worker 与 Redis</a></td>
+<td>architecture</td>
+</tr>
+<tr>
+<td>07</td>
+<td><a href="diagrams/07-redis-data-plane.html">r3 数据面与控制面</a></td>
+<td>dataflow</td>
+</tr>
+<tr>
+<td>08</td>
+<td><a href="diagrams/08-nginx-sse-journey.html">流穿过 Nginx：read_timeout 生死判定</a></td>
+<td>sequence</td>
+</tr>
+<tr>
+<td>09</td>
+<td><a href="diagrams/09-final-system.html">终极总装：完整体系</a></td>
+<td>architecture</td>
+</tr>
+</tbody>
+</table>
+<h2>文档系统</h2>
+<ul>
+<li><a href="course/module-0-为什么需要网络通信.html"><code>course/</code></a> 7+1 份模块讲义（Markdown 源文件）</li>
+<li><a href="lessons/0001-course-map.html"><code>lessons/</code></a> 3 节互动 HTML 课（含测验、SSE 格式实验室、事件时间线单步回放）</li>
+<li><a href="reference/sse-cheatsheet.html"><code>reference/</code></a> SSE / WebSocket 速查表</li>
+<li><a href="GLOSSARY.html"><code>GLOSSARY.md</code></a> 全课程统一术语表</li>
+<li><a href="COURSE.html"><code>COURSE.md</code></a> <strong>课程总纲（从这里开始学）</strong></li>
+<li><a href="course/appendix-troubleshooting.html"><code>course/appendix-troubleshooting.md</code></a> 按症状索引的排障手册</li>
+</ul>
+<p>所有 Markdown 文档由 <a href="tools/build_docs.py"><code>tools/build_docs.py</code></a> 渲染为统一风格的 HTML
+（含左侧课程目录抽屉 + 上一篇/下一篇翻页条），改完 <code>.md</code> 后运行重建即可。</p>
+<h2>测试与质量保障</h2>
+<pre><code class="language-bash">python labs/smoke_test.py                # 全量（约 3 分钟，14 个实验端到端）
+python labs/smoke_test.py r3 n2          # 只跑指定实验
+node tools/check_links.js                # 全站链接/导航自检（40+ HTML 页面）
+python tools/build_docs.py               # 文档改动后重建 HTML
+</code></pre>
+<p>测试哲学：不 mock 网络，<strong>在真实端口上测真实字节流</strong>——SSE 分块时序、
+断线续传位点、跨进程 seq 单调性、Pub/Sub 命令路由、Nginx 超时掐流，
+全部有自动化断言。</p>
+<h2>目录结构</h2>
+<pre><code>├── COURSE.md                 # 课程总纲（学习入口）
+├── README.md                 # 本文件
+├── GLOSSARY.md               # 术语表
+├── MISSION.md / NOTES.md / RESOURCES.md
+├── course/                   # 8 份模块讲义 + 排障附录（md 源文件）
+├── labs/                     # 16 个可运行实验 + smoke_test.py
+│   ├── a1_async/ … v0…v7/    #   基础 → 毕业实验
+│   ├── r1…r3/                #   Redis 事件总线
+│   ├── n1…n2/                #   Nginx 与部署
+│   └── v8_production/        #   生产化配置
+├── diagrams/                 # 9 张交互式架构图
+├── lessons/ reference/       # 互动课 + 速查表
+├── learning-records/         # 实测踩坑记录（ADR 风格）
+└── tools/                    # build_docs.py / check_links.js
+</code></pre>
+<h2>设计决策</h2>
+<ul>
+<li><strong>协议优先复用成熟组件</strong>：生产 SSE 用 <code>fastapi.sse</code> / <code>sse-starlette</code>，
+  手写报文只出现在理解协议的教学实验里；事件命名对齐 <a href="https://docs.ag-ui.com/concepts/events">AG-UI</a>
+  与 <a href="https://github.com/langgenius/dify">Dify</a>，学完即可读懂真实项目的通信层。</li>
+<li><strong>所有实验端口固定</strong>（8801–8807、18901–18902），便于多终端跟练。</li>
+<li><strong>Redis/Nginx 均为官方 Docker 镜像</strong>，Windows/macOS/Linux 行为一致；
+  实验代码通过 <code>REDIS_URL</code> 环境变量适配任何 Redis 实例，连不上时自动降级
+  fakeredis（单进程仿真）保证零门槛。</li>
+<li>Windows Git Bash 的 curl 中文编码坑、端口残留、孤儿进程等环境问题
+  全部收录在排障附录，并已在自动化脚本中规避。</li>
+</ul>
+<h2>版本</h2>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>版本</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Python</td>
+<td>3.10+（3.12 验证）</td>
+<td></td>
+</tr>
+<tr>
+<td>FastAPI</td>
+<td>≥ 0.135（0.141 验证）</td>
+<td>原生 SSE（<code>fastapi.sse</code>）</td>
+</tr>
+<tr>
+<td>Redis</td>
+<td>7-alpine（官方镜像）</td>
+<td>仅用 Hash/Stream/PubSub，4.0+ 兼容</td>
+</tr>
+<tr>
+<td>Nginx</td>
+<td>1.28-alpine（stable）</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2>License</h2>
+<p>MIT</p>
+<footer>本页由 markdown 源文件 <code>README.md</code> 自动生成——修改源文件后运行 <code>python tools/build_docs.py</code> 重新生成。</footer>
+<script src="assets/nav.js" data-base="" data-track=""></script>
+</body>
+</html>

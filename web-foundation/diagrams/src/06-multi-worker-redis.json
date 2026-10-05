@@ -1,0 +1,173 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "v8 多 Worker 与 Redis：进程内状态为什么必须外移",
+    "locale": "zh-CN",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "browser",
+      "type": "frontend",
+      "label": "浏览器",
+      "sublabel": "不感知进程数",
+      "pos": [
+        40,
+        268
+      ],
+      "size": [
+        170,
+        70
+      ]
+    },
+    {
+      "id": "nginx",
+      "type": "cloud",
+      "label": "Nginx",
+      "sublabel": "反代 · 不缓冲",
+      "pos": [
+        300,
+        268
+      ],
+      "size": [
+        170,
+        70
+      ]
+    },
+    {
+      "id": "w1",
+      "type": "backend",
+      "label": "Uvicorn Worker 1",
+      "sublabel": "连接 · 任务",
+      "pos": [
+        560,
+        150
+      ],
+      "size": [
+        170,
+        70
+      ]
+    },
+    {
+      "id": "w2",
+      "type": "backend",
+      "label": "Uvicorn Worker 2",
+      "sublabel": "连接 · 任务",
+      "pos": [
+        560,
+        390
+      ],
+      "size": [
+        170,
+        70
+      ]
+    },
+    {
+      "id": "redis",
+      "type": "messagebus",
+      "label": "Redis",
+      "sublabel": "Pub/Sub · Stream",
+      "pos": [
+        850,
+        262
+      ],
+      "size": [
+        170,
+        76
+      ]
+    },
+    {
+      "id": "postgres",
+      "type": "database",
+      "label": "PostgreSQL",
+      "sublabel": "任务/事件落库",
+      "pos": [
+        1120,
+        262
+      ],
+      "size": [
+        170,
+        70
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "多 Worker 生产拓扑",
+      "wraps": [
+        "nginx",
+        "w1",
+        "w2",
+        "redis",
+        "postgres"
+      ],
+      "pad": 18
+    }
+  ],
+  "connections": [
+    {
+      "from": "browser",
+      "to": "nginx",
+      "label": "SSE / WS",
+      "variant": "emphasis"
+    },
+    {
+      "from": "nginx",
+      "to": "w1",
+      "label": "负载均衡",
+      "variant": "emphasis"
+    },
+    {
+      "from": "nginx",
+      "to": "w2",
+      "label": "负载均衡",
+      "variant": "emphasis"
+    },
+    {
+      "from": "w1",
+      "to": "redis",
+      "label": "publish / XADD"
+    },
+    {
+      "from": "w2",
+      "to": "redis",
+      "label": "subscribe / XRANGE"
+    },
+    {
+      "from": "redis",
+      "to": "postgres",
+      "label": "任务/事件落库"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "进程内存的三处碎裂",
+      "items": [
+        "TASKS 任务表：创建与订阅落到不同 Worker → 404",
+        "buffer 事件日志：SSE 断线重连到别的 Worker 无法补发",
+        "ControlHub：广播只能到达连在本进程的 WS 客户端"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Redis 原语对应",
+      "items": [
+        "TASKS → Hash：任务元数据全 Worker 可见",
+        "buffer → Stream：XADD/XRANGE 天然支持按 id 续传",
+        "ControlHub → Pub/Sub：事件跨 Worker 广播"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "客户端零改动",
+      "items": [
+        "SSE/WS 仍连 Nginx，Last-Event-ID 语义不变",
+        "只有服务端把 emit() 加一步 publish、启动订阅协程",
+        "这正是 v7 解耦设计的回报"
+      ]
+    }
+  ]
+}

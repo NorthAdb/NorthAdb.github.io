@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>v4 WebSocket：echo → 聊天室 → ConnectionManager · 从 HTTP 到实时 Agent Server</title>
+<link rel="stylesheet" href="../../assets/course.css">
+</head>
+<body>
+<div class="kicker">实验 · v4</div>
+<h1>v4 WebSocket：echo → 聊天室 → ConnectionManager</h1>
+<p>目标：建立双向长连接的心智模型，掌握连接管理与广播。</p>
+<h2>启动与观察</h2>
+<pre><code class="language-bash">python -m uvicorn v4_websocket.app:app --port 8804 --reload
+</code></pre>
+<ol>
+<li>浏览器打开 <code>chat.html</code>（直接双击即可，或 <code>python -m http.server 8804</code> 后访问 <code>http://127.0.0.1:8804/chat.html</code>）。</li>
+<li><strong>开两个标签页</strong>，取名 A / B 互发消息 → 双方都能收到，包括"新朋友加入"的系统广播。</li>
+<li>F12 → Network → 选中 <code>ws/chat</code> → Messages 面板：<strong>绿色箭头 ↓ 是收到的帧，橙色 ↑ 是发出的帧</strong>。这就是"双向"的实体。</li>
+<li>关掉一个标签页 → 另一个页面立刻收到"离开"广播。</li>
+<li>自动化验证：<code>python v4_websocket/ws_client.py</code>（保持服务运行）。</li>
+</ol>
+<h2>代码流程讲解（app.py）</h2>
+<ol>
+<li><strong><code>@app.websocket("/ws/echo")</code></strong>：不是 HTTP 路由，是 WS 端点。连接进来时还是 HTTP，
+   <code>await ws.accept()</code> 才完成 <code>101 Switching Protocols</code> 握手——从此这条 TCP 连接上跑的是 WebSocket 帧，不再是 HTTP 报文。</li>
+<li><strong>收发循环</strong>：<code>receive_text()</code> 挂起等待下一帧；<code>send_text()</code> 发一帧。两个方向各自独立、可任意交错——这是它与 SSE（只能服务器说）的本质区别。</li>
+<li><strong><code>WebSocketDisconnect</code></strong>：客户端关闭的唯一正常出口。不做 try/except 的话，断连异常会向上抛，产生错误日志。</li>
+<li><strong><code>ConnectionManager</code></strong>：多连接的登记簿。<code>connect</code> 登记、<code>broadcast</code> 遍历快照逐个 <code>send_json</code>、失败连接就地清理。
+   注意广播是<strong>串行 await</strong> 的——一个慢连接会拖慢整个广播循环（模块 5 讲解法：每连接发送队列 + 后台任务）。</li>
+</ol>
+<h2>自测问题</h2>
+<ol>
+<li><code>101 Switching Protocols</code> 出现在什么时刻？握手前后这条连接上分别跑什么协议？</li>
+<li>为什么广播前要对 <code>self.active</code> 做 <code>list(...)</code> 快照？</li>
+<li>两个客户端同时发消息，服务端怎么保证不乱？（提示：每个连接是独立的协程，事件循环调度）</li>
+<li>什么场景必须 WebSocket、SSE 做不了？举两个。</li>
+</ol>
+<h2>延伸</h2>
+<ul>
+<li>FastAPI 官方 WebSockets 教程；MDN WebSocket API；下一模块把"聊天的 text"换成"Agent 的事件与控制指令"。</li>
+</ul>
+<footer>本页由 markdown 源文件 <code>labs/v4_websocket/README.md</code> 自动生成——修改源文件后运行 <code>python tools/build_docs.py</code> 重新生成。</footer>
+<script src="../../assets/nav.js" data-base="../../" data-track=""></script>
+</body>
+</html>

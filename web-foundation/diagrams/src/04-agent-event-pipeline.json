@@ -1,0 +1,167 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": {
+    "title": "Agent 事件管道：从 Runtime 到浏览器",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1085,
+      470
+    ]
+  },
+  "stages": [
+    {
+      "label": "Agent Runtime（生产事件）"
+    },
+    {
+      "label": "Event Bus（事件枢纽）"
+    },
+    {
+      "label": "通信层（双通道）"
+    },
+    {
+      "label": "浏览器 UI（消费事件）"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "steps",
+      "type": "backend",
+      "label": "RAG · 工具步骤",
+      "sublabel": "rag_* / tool_* 过程事件",
+      "stage": 0,
+      "row": 0,
+      "height": 60
+    },
+    {
+      "id": "loop",
+      "type": "backend",
+      "label": "Agent Loop",
+      "sublabel": "步骤与控制检查点",
+      "stage": 0,
+      "row": 1,
+      "height": 60
+    },
+    {
+      "id": "bus",
+      "type": "messagebus",
+      "label": "Event Bus",
+      "sublabel": "emit()：写缓冲 + 投队列",
+      "stage": 1,
+      "row": 0,
+      "height": 60,
+      "yOffset": 7
+    },
+    {
+      "id": "sse",
+      "type": "backend",
+      "label": "SSE 通道",
+      "sublabel": "GET /events · 单向直播",
+      "stage": 2,
+      "row": 0,
+      "height": 60
+    },
+    {
+      "id": "ws",
+      "type": "backend",
+      "label": "WS 控制通道",
+      "sublabel": "/ws/control · 双向",
+      "stage": 2,
+      "row": 1,
+      "height": 60
+    },
+    {
+      "id": "view",
+      "type": "frontend",
+      "label": "事件渲染",
+      "sublabel": "token 拼接 · 卡片状态机",
+      "stage": 3,
+      "row": 0,
+      "height": 60
+    },
+    {
+      "id": "controls",
+      "type": "frontend",
+      "label": "控制面板",
+      "sublabel": "暂停 / 取消 / 审批",
+      "stage": 3,
+      "row": 1,
+      "height": 60
+    }
+  ],
+  "flows": [
+    {
+      "from": "steps",
+      "to": "bus",
+      "label": "过程事件",
+      "variant": "default"
+    },
+    {
+      "from": "loop",
+      "to": "bus",
+      "label": "产生事件",
+      "variant": "emphasis"
+    },
+    {
+      "from": "bus",
+      "to": "sse",
+      "label": "实时+重放",
+      "variant": "emphasis"
+    },
+    {
+      "from": "bus",
+      "to": "ws",
+      "label": "状态镜像",
+      "variant": "dashed"
+    },
+    {
+      "from": "sse",
+      "to": "view",
+      "label": "SSE 流",
+      "variant": "emphasis"
+    },
+    {
+      "from": "controls",
+      "to": "ws",
+      "label": "控制指令",
+      "variant": "emphasis"
+    },
+    {
+      "from": "ws",
+      "to": "loop",
+      "label": "送达检查点",
+      "variant": "emphasis",
+      "route": "bottom-channel"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "解耦边界",
+      "items": [
+        "Agent 只管 yield 事件，不知道 SSE/WS 的存在",
+        "换协议、写测试、换供应商都只动通信层",
+        "统一信封：seq / type / task_id / timestamp / data"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "不漏不重",
+      "items": [
+        "先订阅队列，再补发缓冲历史",
+        "水位线 seq 去重重叠区",
+        "终态事件后关闭流"
+      ]
+    },
+    {
+      "dot": "orange",
+      "title": "双通道分工",
+      "items": [
+        "SSE 向右：单向直播，断线可续传",
+        "WS 向左：控制指令送回 Agent 检查点",
+        "单进程 Hub 是 Redis Pub/Sub 的预演"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>排障附录：实验环境常见坑（Windows 优先） · 从 HTTP 到实时 Agent Server</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<div class="kicker">排障附录</div>
+<h1>排障附录：实验环境常见坑（Windows 优先）</h1>
+<blockquote>
+<p>按症状索引。遇到报错先来这里找，30 秒解决不了再问 /teach 会话。</p>
+</blockquote>
+<h2>环境与启动</h2>
+<p><strong><code>ModuleNotFoundError: No module named 'v7_agent_server'</code></strong>
+- 必须在 <code>labs/</code> 目录下运行 <code>python -m uvicorn v7_agent_server.app:app ...</code>（模块路径相对 labs/）。
+- v5/v6/v7 内部用的是包内相对导入（<code>from .agent import ...</code>），不要试图 <code>python v7_agent_server/app.py</code> 直接运行。</p>
+<p><strong>端口被占用 <code>error while attempting to bind on address ... only one usage</code></strong>
+- 上一个实验服务还开着。找到并结束：<code>netstat -ano | findstr 8803</code> → <code>taskkill /PID &lt;pid&gt; /F</code>。
+- v3 三个变体共用 8803，同时只能起一个。</p>
+<p><strong>pip 装完还是 import 失败</strong>
+- 确认虚拟环境已激活（命令行前面有 <code>(.venv)</code>），且 pip 装进了 venv：<code>python -m pip list</code>。
+- <code>labs/requirements.txt</code> 是唯一依赖清单；别全局安装。</p>
+<p><strong>Windows 防火墙弹窗</strong>
+- uvicorn 只绑 127.0.0.1 时不会触发；如果绑了 0.0.0.0 会弹窗，选"取消"也能本地实验。</p>
+<h2>curl / 客户端</h2>
+<p><strong>POST 中文 body 报 422 或 body 解析错误</strong>
+- Windows Git Bash 的 curl 可能按本地代码页发送中文。解决：body 用 ASCII，或用 httpx：
+  <code>python -c "import httpx; print(httpx.post('http://127.0.0.1:8801/chat', json={'text': '中文'}).json())"</code></p>
+<p><strong><code>curl -N</code> 看流式还是"一次性出全"</strong>
+- <code>-N</code> 只是关掉 curl 自己的缓冲。若响应被代理/网关缓冲，加 <code>-i</code> 看 <code>transfer-encoding: chunked</code> 是否存在；本地实验一般就是忘了 <code>-N</code>。</p>
+<p><strong>SSE 事件"看得到 data 但事件不派发"</strong>
+- 报文少了分界空行（<code>\n\n</code>）。用 lessons/0002 的 SSE 格式实验室逐行核对。</p>
+<h2>浏览器</h2>
+<p><strong>sse_client.html 连不上（onerror，readyState=2）</strong>
+- 跨域：file:// 页面连 SSE 端点受 CORS 约束。v3 三个服务已加 <code>CORSMiddleware</code>；若你自己注释掉了中间件，这是预期现象（见 v3 README 的对照实验）。
+- 服务端根本没起：先 <code>curl -N http://127.0.0.1:8803/events</code> 确认服务活着。</p>
+<p><strong>EventSource 报 GET 405</strong>
+- <code>EventSource</code> 只能 GET。LLM 对话接口是 POST——用 fetch + ReadableStream（v5/index.html 有完整解析器）。</p>
+<p><strong>WebSocket 连接失败</strong>
+- 检查协议：<code>ws://</code> 不是 <code>http://</code>；路径是 <code>/ws/chat</code> 不是 <code>/chat</code>。
+- 服务端没调用 <code>accept()</code> 也会失败。</p>
+<h2>v6 / v7 专属</h2>
+<p><strong>SSE 流收到 200 但随后断开，服务端报 <code>'coroutine' object is not iterable</code></strong>
+- fastapi.sse 端点必须自身是 async generator（yield 风格）。<code>return EventSourceResponse(gen())</code> 会炸——这是学习记录 0002 的头号坑。</p>
+<p><strong>想要 404 却拿到 200 然后流中断</strong>
+- 校验要放在 <code>Depends</code> 依赖里。generator 内 raise HTTPException 只能掐断已开始的 200 流。</p>
+<p><strong>任务列表/事件为空（重启后）</strong>
+- v6/v7 的任务与事件在<strong>进程内存</strong>里，重启即清空。这不是 bug——正是模块 5 引入 Redis 的理由。</p>
+<footer>本页由 markdown 源文件 <code>course/appendix-troubleshooting.md</code> 自动生成——修改源文件后运行 <code>python tools/build_docs.py</code> 重新生成。</footer>
+<script src="../assets/nav.js" data-base="../" data-track="readings"></script>
+</body>
+</html>

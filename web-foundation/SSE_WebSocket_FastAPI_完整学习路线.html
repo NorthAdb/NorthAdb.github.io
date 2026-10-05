@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>SSE、WebSocket 与 FastAPI 完整学习路线 · 从 HTTP 到实时 Agent Server</title>
+<link rel="stylesheet" href="assets/course.css">
+</head>
+<body>
+<div class="kicker">知识底稿</div>
+<h1>SSE、WebSocket 与 FastAPI 完整学习路线</h1>
+<blockquote>
+<p>目标：系统理解 <strong>HTTP、FastAPI、ASGI、Streaming、SSE、WebSocket</strong>，并最终将它们串联到 <strong>LLM Streaming、RAG、Agent Server、Agent UI</strong> 中。</p>
+</blockquote>
+<hr />
+<h1>1. 整体认知</h1>
+<p>这几个概念不要割裂学习，可以理解成一条技术链：</p>
+<pre><code class="language-text">Python Async
+     ↓
+    HTTP
+     ↓
+  FastAPI
+     ↓
+   ASGI
+     ↓
+ Streaming
+    ├──────────────┐
+    ↓              ↓
+   SSE         WebSocket
+    │              │
+服务器推送       双向通信
+    │              │
+    └──────┬───────┘
+           ↓
+      LLM Streaming
+           ↓
+       Agent Events
+           ↓
+      Agent Server
+           ↓
+        Agent UI
+</code></pre>
+<p>其中：</p>
+<ul>
+<li><strong>FastAPI</strong>：Python Web 服务开发框架</li>
+<li><strong>HTTP</strong>：Web 通信基础协议</li>
+<li><strong>SSE</strong>：基于 HTTP 的服务器 → 客户端单向实时推送</li>
+<li><strong>WebSocket</strong>：客户端 ↔ 服务器双向实时通信</li>
+<li><strong>ASGI</strong>：Python 异步 Web Server 与 Web Application 之间的接口标准</li>
+<li><strong>Uvicorn</strong>：常见的 ASGI Server</li>
+<li><strong>Streaming</strong>：将响应分块持续发送，而不是等全部生成完成再返回</li>
+</ul>
+<hr />
+<h1>2. FastAPI、SSE、WebSocket 的关系</h1>
+<h2>2.1 FastAPI 是框架</h2>
+<p>FastAPI 解决的问题是：</p>
+<blockquote>
+<p>如何用 Python 构建一个现代 Web API 服务。</p>
+</blockquote>
+<p>例如：</p>
+<pre><code class="language-python">from fastapi import FastAPI
+
+app = FastAPI()
+
+@app.get(&quot;/hello&quot;)
+async def hello():
+    return {&quot;message&quot;: &quot;hello&quot;}
+</code></pre>
+<p>客户端：</p>
+<pre><code class="language-text">GET /hello
+</code></pre>
+<p>服务器：</p>
+<pre><code class="language-json">{
+  &quot;message&quot;: &quot;hello&quot;
+}
+</code></pre>
+<p>FastAPI 常见能力：</p>
+<pre><code class="language-text">路由
+参数解析
+JSON
+Pydantic 数据校验
+依赖注入
+Middleware
+异常处理
+认证
+Streaming
+SSE
+WebSocket
+OpenAPI
+</code></pre>
+<h2>2.2 SSE 与 WebSocket 是通信机制</h2>
+<p>它们不是 FastAPI 的替代品。</p>
+<pre><code class="language-text">FastAPI
+│
+├── 普通 HTTP API
+├── Streaming
+├── SSE
+└── WebSocket
+</code></pre>
+<p>FastAPI 负责提供服务端的开发框架，而 SSE / WebSocket 解决的是不同的实时通信需求。</p>
+<hr />
+<h1>3. SSE</h1>
+<h2>3.1 SSE 是什么</h2>
+<p>SSE：</p>
+<pre><code class="language-text">Server-Sent Events
+</code></pre>
+<p>核心模型：</p>
+<pre><code class="language-text">Client ───── HTTP Request ─────► Server
+Client ◄──── 持久 HTTP 连接 ──── Server
+                        ▲
+                        │
+                   持续推送事件
+</code></pre>
+<p>核心特点：</p>
+<pre><code class="language-text">Server → Client
+单向
+长连接
+基于 HTTP
+事件流
+</code></pre>
+<h2>3.2 SSE 适合什么</h2>
+<p>典型场景：</p>
+<pre><code class="language-text">LLM Token Streaming
+Agent 状态更新
+Agent Tool Call 日志
+RAG 检索进度
+文件处理进度
+后台任务进度
+实时通知
+监控数据
+</code></pre>
+<p>例如：</p>
+<pre><code class="language-text">event: status
+data: 正在读取 PDF
+
+event: status
+data: 正在进行 RAG 检索
+
+event: token
+data: 根据文档内容
+
+event: token
+data: 可以发现
+
+event: done
+data: 完成
+</code></pre>
+<h2>3.3 浏览器端 SSE</h2>
+<pre><code class="language-javascript">const source = new EventSource(&quot;/events&quot;)
+
+source.onmessage = (event) =&gt; {
+    console.log(event.data)
+}
+</code></pre>
+<p>服务器持续发送：</p>
+<pre><code class="language-text">data: hello
+
+data: world
+
+data: done
+</code></pre>
+<h2>3.4 SSE 的核心概念</h2>
+<pre><code class="language-text">t​ext/event-stream
+event
+data
+id
+retry
+heartbeat
+disconnect
+reconnect
+</code></pre>
+<p>重点理解：</p>
+<pre><code class="language-text">浏览器建立 SSE 连接
+       ↓
+服务器保持连接
+       ↓
+服务器持续发送 Event
+       ↓
+客户端实时处理
+       ↓
+连接结束 / 断开
+       ↓
+必要时重新连接
+</code></pre>
+<hr />
+<h1>4. WebSocket</h1>
+<h2>4.1 WebSocket 是什么</h2>
+<p>WebSocket 的核心：</p>
+<blockquote>
+<p>Client ↔ Server 双向、持续通信。</p>
+</blockquote>
+<pre><code class="language-text">Client ◄────────────────► Server
+        双向长连接
+</code></pre>
+<p>建立连接以后：</p>
+<pre><code class="language-text">Client → Server
+Server → Client
+Client → Server
+Server → Client
+...
+</code></pre>
+<h2>4.2 浏览器端 WebSocket</h2>
+<pre><code class="language-javascript">const ws = new WebSocket(&quot;ws://localhost:8000/ws&quot;)
+
+ws.onopen = () =&gt; {
+    ws.send(&quot;hello&quot;)
+}
+
+ws.onmessage = (event) =&gt; {
+    console.log(event.data)
+}
+</code></pre>
+<h2>4.3 WebSocket 适合什么</h2>
+<pre><code class="language-text">在线聊天
+协作编辑
+实时游戏
+实时控制
+Agent 控制
+终端控制
+双向事件交互
+实时状态同步
+</code></pre>
+<p>特别是在 Agent 中：</p>
+<pre><code class="language-text">Client → Server
+    ├── pause
+    ├── resume
+    ├── cancel
+    ├── approve_tool
+    ├── reject_tool
+    └── user_input
+
+Server → Client
+    ├── agent_start
+    ├── tool_call
+    ├── tool_result
+    ├── token
+    └── done
+</code></pre>
+<hr />
+<h1>5. SSE 与 WebSocket 的区别</h1>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>HTTP API</th>
+<th>SSE</th>
+<th>WebSocket</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>通信方向</td>
+<td>请求 → 响应</td>
+<td>Server → Client</td>
+<td>Client ↔ Server</td>
+</tr>
+<tr>
+<td>长连接</td>
+<td>通常不是</td>
+<td>是</td>
+<td>是</td>
+</tr>
+<tr>
+<td>实时性</td>
+<td>一般</td>
+<td>高</td>
+<td>高</td>
+</tr>
+<tr>
+<td>Client → Server</td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Server → Client</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>浏览器 API</td>
+<td><code>fetch</code></td>
+<td><code>EventSource</code></td>
+<td><code>WebSocket</code></td>
+</tr>
+<tr>
+<td>基于 HTTP</td>
+<td>✅</td>
+<td>✅</td>
+<td>建立阶段使用 HTTP Upgrade</td>
+</tr>
+<tr>
+<td>典型用途</td>
+<td>CRUD/API</td>
+<td>Streaming/事件推送</td>
+<td>实时双向交互</td>
+</tr>
+<tr>
+<td>复杂度</td>
+<td>低</td>
+<td>低~中</td>
+<td>中~高</td>
+</tr>
+</tbody>
+</table>
+<p>判断模型：</p>
+<pre><code class="language-text">我只需要服务器不断告诉客户端发生了什么
+                ↓
+               SSE
+
+我需要客户端和服务器双方不断交互
+                ↓
+           WebSocket
+</code></pre>
+<hr />
+<h1>6. 为什么要先学 HTTP</h1>
+<p>先建立：</p>
+<pre><code class="language-text">HTTP Request
+│
+├── Method
+│   ├── GET
+│   ├── POST
+│   ├── PUT
+│   └── DELETE
+│
+├── URL
+├── Headers
+└── Body
+
+HTTP Response
+│
+├── Status Code
+├── Headers
+└── Body
+</code></pre>
+<p>重点掌握：</p>
+<pre><code class="language-text">200
+201
+400
+401
+403
+404
+409
+500
+</code></pre>
+<p>然后学习：</p>
+<pre><code class="language-text">Cookie
+Session
+Authorization
+Bearer Token
+CORS
+Keep-Alive
+Content-Type
+</code></pre>
+<p>同时学会浏览器：</p>
+<pre><code class="language-text">DevTools
+  ↓
+Network
+  ↓
+Request
+  ↓
+Response
+  ↓
+Headers
+  ↓
+Payload
+</code></pre>
+<p>以及：</p>
+<pre><code class="language-text">curl
+httpx
+Postman
+</code></pre>
+<hr />
+<h1>7. Python Async 是前置基础</h1>
+<p>在 SSE、WebSocket、FastAPI 之前，应该先理解 Python 异步编程。</p>
+<p>重点：</p>
+<pre><code class="language-text">async def
+await
+asyncio
+Task
+create_task()
+gather()
+Queue
+Event
+</code></pre>
+<h2>7.1 async / await</h2>
+<pre><code class="language-python">async def foo():
+    await something()
+</code></pre>
+<p>可以理解为：当前协程暂时等待某个异步操作完成，把执行权交给事件循环。</p>
+<h2>7.2 Task</h2>
+<pre><code class="language-python">task = asyncio.create_task(foo())
+</code></pre>
+<p>允许一个异步任务并发运行。</p>
+<h2>7.3 Producer / Consumer</h2>
+<pre><code class="language-text">Producer
+   │
+   ↓
+ Queue
+   │
+   ↓
+Consumer
+</code></pre>
+<p>这个模型对于 SSE、WebSocket、Agent Event、LLM Streaming 都很重要。</p>
+<hr />
+<h1>8. FastAPI 基础阶段</h1>
+<p>第一阶段先掌握普通 API。</p>
+<h2>8.1 Route</h2>
+<pre><code class="language-python">@app.get(&quot;/users/{user_id}&quot;)
+async def get_user(user_id: int):
+    return {
+        &quot;id&quot;: user_id
+    }
+</code></pre>
+<p>掌握：</p>
+<pre><code class="language-text">Path Parameter
+Query Parameter
+Request Body
+Response
+</code></pre>
+<h2>8.2 Pydantic</h2>
+<pre><code class="language-python">from pydantic import BaseModel
+
+class User(BaseModel):
+    name: str
+    age: int
+</code></pre>
+<p>请求：</p>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;Alice&quot;,
+  &quot;age&quot;: 20
+}
+</code></pre>
+<p>理解：</p>
+<pre><code class="language-text">JSON
+ ↓
+Pydantic Model
+ ↓
+Python Object
+ ↓
+Business Logic
+</code></pre>
+<h2>8.3 FastAPI 基础知识树</h2>
+<pre><code class="language-text">FastAPI
+│
+├── Route
+├── Request
+├── Response
+├── Pydantic
+├── Dependency Injection
+├── Middleware
+├── Exception
+├── Authentication
+└── OpenAPI
+</code></pre>
+<hr />
+<h1>9. ASGI：真正理解 FastAPI 底层</h1>
+<p>整体：</p>
+<pre><code class="language-text">Browser / Client
+       ↓
+   HTTP / WS
+       ↓
+    Uvicorn
+       ↓
+      ASGI
+       ↓
+    FastAPI
+</code></pre>
+<p>再向下：</p>
+<pre><code class="language-text">FastAPI
+   ↓
+Starlette
+   ↓
+ASGI
+   ↓
+Uvicorn
+   ↓
+TCP/IP
+</code></pre>
+<p>各层职责：</p>
+<h3>FastAPI</h3>
+<pre><code class="language-text">API 开发体验
+路由
+参数
+校验
+依赖注入
+</code></pre>
+<h3>Starlette</h3>
+<pre><code class="language-text">Web 基础能力
+ASGI
+HTTP
+WebSocket
+Middleware
+Streaming
+</code></pre>
+<h3>Uvicorn</h3>
+<pre><code class="language-text">运行 ASGI Application
+处理网络连接
+</code></pre>
+<h3>ASGI</h3>
+<pre><code class="language-text">Server ↔ Application
+</code></pre>
+<hr />
+<h1>10. Streaming：SSE 前的关键过渡</h1>
+<p>普通 HTTP：</p>
+<pre><code class="language-text">Request
+   ↓
+等待
+   ↓
+完整结果
+   ↓
+Response
+</code></pre>
+<p>Streaming：</p>
+<pre><code class="language-text">Request
+   ↓
+Chunk 1
+   ↓
+Chunk 2
+   ↓
+Chunk 3
+   ↓
+Chunk 4
+   ↓
+End
+</code></pre>
+<h2>10.1 FastAPI StreamingResponse</h2>
+<pre><code class="language-python">import asyncio
+from fastapi.responses import StreamingResponse
+
+async def generate():
+    for i in range(10):
+        yield f&quot;chunk-{i}\n&quot;
+        await asyncio.sleep(1)
+
+@app.get(&quot;/stream&quot;)
+async def stream():
+    return StreamingResponse(generate())
+</code></pre>
+<p>理解：</p>
+<pre><code class="language-text">async generator
+      ↓
+yield
+      ↓
+StreamingResponse
+      ↓
+HTTP Chunk
+      ↓
+Browser
+</code></pre>
+<hr />
+<h1>11. 从 Streaming 过渡到 SSE</h1>
+<p>SSE 可以理解为：</p>
+<blockquote>
+<p>在 HTTP Streaming 的基础上定义了事件格式和客户端行为。</p>
+</blockquote>
+<p>关系：</p>
+<pre><code class="language-text">HTTP
+ ↓
+HTTP Streaming
+ ↓
+SSE
+</code></pre>
+<p>因此：</p>
+<pre><code class="language-text">Streaming
+= 持续传输数据
+
+SSE
+= 持续传输结构化事件
+</code></pre>
+<hr />
+<h1>12. FastAPI SSE 实践</h1>
+<p>当前 FastAPI 提供专门的 SSE 接口，例如：</p>
+<pre><code class="language-python">import asyncio
+
+from fastapi import FastAPI
+from fastapi.sse import EventSourceResponse, ServerSentEvent
+
+app = FastAPI()
+
+@app.get(
+    &quot;/events&quot;,
+    response_class=EventSourceResponse,
+)
+async def events():
+    for i in range(10):
+        yield ServerSentEvent(
+            data=f&quot;message {i}&quot;
+        )
+        await asyncio.sleep(1)
+</code></pre>
+<p>浏览器：</p>
+<pre><code class="language-javascript">const source = new EventSource(&quot;/events&quot;)
+
+source.onmessage = (event) =&gt; {
+    console.log(event.data)
+}
+</code></pre>
+<hr />
+<h1>13. SSE 学习重点</h1>
+<p>不要只停留在“会写一个 SSE”。</p>
+<p>需要继续理解：</p>
+<pre><code class="language-text">连接建立
+     ↓
+事件流
+     ↓
+事件发送
+     ↓
+Heartbeat
+     ↓
+客户端断线
+     ↓
+Reconnect
+     ↓
+状态恢复
+</code></pre>
+<p>进一步思考：</p>
+<pre><code class="language-text">如果 Agent 运行 10 分钟
+浏览器突然断网
+重新连接之后
+应该从哪里继续？
+</code></pre>
+<p>这就从“SSE API 使用”进入了：</p>
+<blockquote>
+<p>状态管理和事件系统设计。</p>
+</blockquote>
+<hr />
+<h1>14. WebSocket 学习</h1>
+<p>FastAPI：</p>
+<pre><code class="language-python">from fastapi import FastAPI, WebSocket
+
+app = FastAPI()
+
+@app.websocket(&quot;/ws&quot;)
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+
+    while True:
+        data = await websocket.receive_text()
+        await websocket.send_text(
+            f&quot;received: {data}&quot;
+        )
+</code></pre>
+<p>浏览器：</p>
+<pre><code class="language-javascript">const ws = new WebSocket(
+    &quot;ws://localhost:8000/ws&quot;
+)
+
+ws.onopen = () =&gt; {
+    ws.send(&quot;hello&quot;)
+}
+
+ws.onmessage = (event) =&gt; {
+    console.log(event.data)
+}
+</code></pre>
+<hr />
+<h1>15. WebSocket 生命周期</h1>
+<pre><code class="language-text">HTTP Handshake
+      ↓
+Upgrade
+      ↓
+WebSocket Connection
+      ↓
+Message
+      ↓
+Message
+      ↓
+Ping / Pong
+      ↓
+Close
+</code></pre>
+<p>重点 API：</p>
+<pre><code class="language-text">accept()
+receive_text()
+receive_json()
+receive_bytes()
+
+send_text()
+send_json()
+send_bytes()
+
+close()
+</code></pre>
+<hr />
+<h1>16. Connection Manager</h1>
+<p>真正开始进入工程问题的是：多客户端如何管理。</p>
+<pre><code class="language-text">Client A ─┐
+Client B ─┼──► FastAPI
+Client C ─┘
+</code></pre>
+<p>可以抽象：</p>
+<pre><code class="language-python">class ConnectionManager:
+
+    async def connect(self, websocket):
+        ...
+
+    def disconnect(self, websocket):
+        ...
+
+    async def send_personal_message(self, message, websocket):
+        ...
+
+    async def broadcast(self, message):
+        ...
+</code></pre>
+<p>结构：</p>
+<pre><code class="language-text">ConnectionManager
+│
+├── connect
+├── disconnect
+├── send_personal
+└── broadcast
+</code></pre>
+<hr />
+<h1>17. 为什么 Redis 会出现</h1>
+<p>如果只维护：</p>
+<pre><code class="language-python">active_connections = []
+</code></pre>
+<p>这些连接只存在于当前 Python 进程。</p>
+<p>例如：</p>
+<pre><code class="language-text">Nginx
+  │
+  ├── FastAPI Worker 1
+  ├── FastAPI Worker 2
+  └── FastAPI Worker 3
+</code></pre>
+<p>每个 Worker 都有独立的连接集合：</p>
+<pre><code class="language-text">Worker 1
+  active_connections
+
+Worker 2
+  active_connections
+
+Worker 3
+  active_connections
+</code></pre>
+<p>因此进入：</p>
+<pre><code class="language-text">Redis Pub/Sub
+</code></pre>
+<p>架构变成：</p>
+<pre><code class="language-text">Client
+  ↓
+Nginx
+  ↓
+FastAPI
+  ↓
+Redis
+  ↓
+其他 Worker
+</code></pre>
+<hr />
+<h1>18. LLM Streaming</h1>
+<p>普通 LLM 请求：</p>
+<pre><code class="language-text">User
+ ↓
+FastAPI
+ ↓
+LLM
+ ↓
+等待
+ ↓
+完整回答
+ ↓
+Browser
+</code></pre>
+<p>Streaming：</p>
+<pre><code class="language-text">User
+ ↓
+FastAPI
+ ↓
+LLM
+ ↓
+token
+token
+token
+token
+ ↓
+SSE
+ ↓
+Browser
+</code></pre>
+<p>效果：</p>
+<pre><code class="language-text">用户：
+什么是 RAG？
+
+页面：
+R
+RA
+RAG
+RAG 是
+RAG 是一种
+RAG 是一种...
+</code></pre>
+<p>关键链路：</p>
+<pre><code class="language-text">LLM Streaming
+      ↓
+Async Generator
+      ↓
+SSE
+      ↓
+Browser
+</code></pre>
+<hr />
+<h1>19. Agent Event</h1>
+<p>进入 Agent 后，不应该只传 token。</p>
+<p>应该设计统一事件，例如：</p>
+<pre><code class="language-json">{
+  &quot;type&quot;: &quot;tool_call&quot;,
+  &quot;task_id&quot;: &quot;123&quot;,
+  &quot;timestamp&quot;: &quot;2026-09-26T12:00:00Z&quot;,
+  &quot;data&quot;: {
+    &quot;tool&quot;: &quot;search&quot;,
+    &quot;arguments&quot;: {
+      &quot;query&quot;: &quot;FastAPI SSE&quot;
+    }
+  }
+}
+</code></pre>
+<p>事件类型可以设计为：</p>
+<pre><code class="language-text">agent_start
+agent_end
+
+thinking
+token
+
+tool_call
+tool_result
+
+rag_search
+rag_result
+
+task_start
+task_progress
+task_end
+
+error
+</code></pre>
+<p>统一事件流：</p>
+<pre><code class="language-text">Agent
+ ↓
+Event Bus
+ ↓
+SSE / WebSocket
+ ↓
+Frontend
+</code></pre>
+<hr />
+<h1>20. Agent + SSE</h1>
+<p>SSE 特别适合作为 Agent → UI 的事件输出通道。</p>
+<pre><code class="language-text">                 Agent
+                   │
+                   ↓
+              Event Bus
+                   │
+                   ↓
+                 SSE
+                   │
+                   ↓
+               Browser
+</code></pre>
+<p>事件流：</p>
+<pre><code class="language-text">event: agent_start
+
+event: thinking
+
+event: rag_search
+
+event: rag_result
+
+event: tool_call
+
+event: tool_result
+
+event: token
+data: 根据
+
+event: token
+data: 搜索结果
+
+event: done
+</code></pre>
+<hr />
+<h1>21. Agent + WebSocket</h1>
+<p>WebSocket 更适合 UI → Agent 的实时控制。</p>
+<pre><code class="language-text">Browser
+   │
+   ├── pause
+   ├── resume
+   ├── cancel
+   ├── approve_tool
+   ├── reject_tool
+   └── user_input
+        │
+        ↓
+   WebSocket
+        │
+        ↓
+      Agent
+</code></pre>
+<p>因此可以建立实用分工：</p>
+<pre><code class="language-text">SSE
+    Agent → UI
+    主要负责实时事件输出
+
+WebSocket
+    UI ↔ Agent
+    主要负责实时控制和双向交互
+</code></pre>
+<p>这不是绝对规则，实际项目应根据需求选择。</p>
+<hr />
+<h1>22. 最终项目：Mini Agent Platform</h1>
+<p>建议最终做一个：</p>
+<blockquote>
+<p><strong>Mini Agent Platform</strong></p>
+</blockquote>
+<p>整体结构：</p>
+<pre><code class="language-text">                         Browser
+                            │
+                ┌───────────┴───────────┐
+                │                       │
+               SSE                 WebSocket
+                │                       │
+         Agent Event Output       Agent Control
+                │                       │
+                └───────────┬───────────┘
+                            │
+                         FastAPI
+                            │
+                ┌───────────┼───────────┐
+                │           │           │
+              Agent        RAG        Database
+                │
+        ┌───────┼────────┐
+        │       │        │
+       LLM     Tools    Memory
+</code></pre>
+<hr />
+<h1>23. 项目目录</h1>
+<pre><code class="language-text">agent-platform/
+│
+├── backend/
+│   ├── main.py
+│   │
+│   ├── api/
+│   │   ├── chat.py
+│   │   ├── agent.py
+│   │   └── websocket.py
+│   │
+│   ├── services/
+│   │   ├── agent_service.py
+│   │   ├── rag_service.py
+│   │   └── llm_service.py
+│   │
+│   ├── streaming/
+│   │   ├── sse.py
+│   │   └── events.py
+│   │
+│   ├── models/
+│   │
+│   └── core/
+│
+├── frontend/
+│
+└── tests/
+</code></pre>
+<hr />
+<h1>24. 通过 8 个版本逐步实现</h1>
+<h2>v0：Hello API</h2>
+<p>实现：</p>
+<pre><code class="language-text">GET /hello
+POST /chat
+</code></pre>
+<p>目标：</p>
+<pre><code class="language-text">HTTP
+FastAPI
+Pydantic
+</code></pre>
+<h2>v1：CRUD API</h2>
+<p>实现：</p>
+<pre><code class="language-text">/tasks
+
+GET
+POST
+PUT
+DELETE
+</code></pre>
+<p>目标：</p>
+<pre><code class="language-text">REST API
+Path
+Query
+Body
+Response
+Validation
+</code></pre>
+<h2>v2：HTTP Streaming</h2>
+<p>实现：</p>
+<pre><code class="language-text">GET /stream
+</code></pre>
+<p>服务器：</p>
+<pre><code class="language-text">1
+2
+3
+4
+5
+...
+</code></pre>
+<p>目标：</p>
+<pre><code class="language-text">async generator
+yield
+StreamingResponse
+</code></pre>
+<h2>v3：SSE</h2>
+<p>实现：</p>
+<pre><code class="language-text">GET /events
+</code></pre>
+<p>事件：</p>
+<pre><code class="language-text">status
+progress
+message
+done
+</code></pre>
+<p>目标：</p>
+<pre><code class="language-text">SSE
+EventSource
+事件格式
+断线重连
+</code></pre>
+<h2>v4：WebSocket Chat</h2>
+<p>实现：</p>
+<pre><code class="language-text">/ws
+</code></pre>
+<p>支持：</p>
+<pre><code class="language-text">Client → Server
+Server → Client
+Broadcast
+</code></pre>
+<p>目标：</p>
+<pre><code class="language-text">WebSocket
+Connection
+Connection Manager
+</code></pre>
+<h2>v5：LLM Agent</h2>
+<p>加入：</p>
+<pre><code class="language-text">LLM
+Tool
+Memory
+RAG
+</code></pre>
+<p>整体：</p>
+<pre><code class="language-text">User
+ ↓
+FastAPI
+ ↓
+Agent
+ ↓
+LLM
+ ↓
+Tool
+ ↓
+RAG
+</code></pre>
+<h2>v6：统一 Agent Event</h2>
+<p>建立：</p>
+<pre><code class="language-python">{
+    &quot;type&quot;: &quot;...&quot;,
+    &quot;task_id&quot;: &quot;...&quot;,
+    &quot;timestamp&quot;: &quot;...&quot;,
+    &quot;data&quot;: {}
+}
+</code></pre>
+<p>例如：</p>
+<pre><code class="language-text">agent_start
+tool_call
+tool_result
+rag_search
+rag_result
+token
+error
+done
+</code></pre>
+<p>然后：</p>
+<pre><code class="language-text">Agent
+ ↓
+Event Bus
+ ↓
+SSE / WebSocket
+ ↓
+Frontend
+</code></pre>
+<p>这是最值得深入的一步。</p>
+<h2>v7：Agent Control</h2>
+<p>WebSocket 增加：</p>
+<pre><code class="language-text">pause
+resume
+cancel
+approve
+reject
+send_message
+</code></pre>
+<p>形成：</p>
+<pre><code class="language-text">Agent Output
+       ↓
+      SSE
+
+Agent Control
+       ↓
+   WebSocket
+</code></pre>
+<h2>v8：生产化</h2>
+<p>加入：</p>
+<pre><code class="language-text">Redis
+PostgreSQL
+Nginx
+Docker
+Authentication
+Multiple Workers
+Logging
+Metrics
+Retry
+Reconnect
+Heartbeat
+</code></pre>
+<p>最终：</p>
+<pre><code class="language-text">                    Browser
+                       │
+              ┌────────┴────────┐
+              │                 │
+             SSE           WebSocket
+              │                 │
+              └────────┬────────┘
+                       │
+                     Nginx
+                       │
+                    FastAPI
+                       │
+             ┌─────────┼─────────┐
+             │         │         │
+           Agent      Redis    PostgreSQL
+             │
+       ┌─────┼─────┐
+       │     │     │
+      LLM   RAG   Tools
+</code></pre>
+<hr />
+<h1>25. 完整学习顺序</h1>
+<pre><code class="language-text">01. Python async/await
+        ↓
+02. HTTP
+        ↓
+03. REST API
+        ↓
+04. FastAPI
+        ↓
+05. Pydantic
+        ↓
+06. ASGI / Starlette / Uvicorn
+        ↓
+07. StreamingResponse
+        ↓
+08. SSE
+        ↓
+09. WebSocket
+        ↓
+10. Connection Manager
+        ↓
+11. Redis / PubSub
+        ↓
+12. LLM Streaming
+        ↓
+13. Agent Event System
+        ↓
+14. Agent + SSE
+        ↓
+15. Agent + WebSocket
+        ↓
+16. 完整 Agent Server
+        ↓
+17. Nginx / Docker / 多 Worker / 生产化
+</code></pre>
+<hr />
+<h1>26. 每个阶段的核心问题</h1>
+<h2>Async</h2>
+<pre><code class="language-text">为什么要 async？
+await 到底发生了什么？
+Task 是什么？
+Event Loop 在干什么？
+</code></pre>
+<h2>HTTP</h2>
+<pre><code class="language-text">Request 和 Response 怎么组成？
+HTTP 是不是一定一次请求一次响应？
+长连接是什么？
+</code></pre>
+<h2>FastAPI</h2>
+<pre><code class="language-text">FastAPI 和 Uvicorn 什么关系？
+FastAPI 和 Starlette 什么关系？
+请求怎么进入 Python 函数？
+</code></pre>
+<h2>Streaming</h2>
+<pre><code class="language-text">为什么可以边生成边返回？
+yield 在这里起什么作用？
+</code></pre>
+<h2>SSE</h2>
+<pre><code class="language-text">SSE 和普通 Streaming 有什么区别？
+为什么 SSE 可以自动重连？
+为什么 SSE 适合 LLM？
+</code></pre>
+<h2>WebSocket</h2>
+<pre><code class="language-text">为什么需要 WebSocket？
+为什么它能双向通信？
+连接如何管理？
+多 Worker 怎么办？
+</code></pre>
+<h2>Agent</h2>
+<pre><code class="language-text">Agent 内部事件怎么表示？
+Tool Call 怎么传给前端？
+Task 状态放在哪里？
+断线以后怎么恢复？
+SSE 与 WebSocket 怎么协同？
+</code></pre>
+<hr />
+<h1>27. 最终认知框架</h1>
+<pre><code class="language-text">┌──────────────────────────────┐
+│          Agent Layer         │
+│                              │
+│ Agent / RAG / Tool / Memory  │
+└──────────────┬───────────────┘
+               │
+┌──────────────▼───────────────┐
+│       Application Layer      │
+│                              │
+│           FastAPI            │
+└──────────────┬───────────────┘
+               │
+┌──────────────▼───────────────┐
+│       Communication Layer    │
+│                              │
+│ HTTP / SSE / WebSocket       │
+└──────────────┬───────────────┘
+               │
+┌──────────────▼───────────────┐
+│       Runtime Layer          │
+│                              │
+│ AsyncIO / ASGI / Uvicorn     │
+└──────────────────────────────┘
+</code></pre>
+<hr />
+<h1>28. 与 Agent Harness 的联系</h1>
+<p>你之前学习的：</p>
+<pre><code class="language-text">Agent Loop
+Tool Calling
+RAG
+Memory
+Task State
+Blackboard
+Hooks
+Subagent
+</code></pre>
+<p>属于 <strong>Agent 内部运行机制</strong>。</p>
+<p>而：</p>
+<pre><code class="language-text">HTTP
+SSE
+WebSocket
+FastAPI
+</code></pre>
+<p>属于 <strong>Agent 对外服务和通信层</strong>。</p>
+<p>两者组合起来：</p>
+<pre><code class="language-text">                   Agent Server
+                        │
+        ┌───────────────┴────────────────┐
+        │                                │
+   Communication                    Agent Runtime
+        │                                │
+ ┌──────┼──────┐                 ┌───────┼───────┐
+ │      │      │                 │       │       │
+HTTP   SSE   WebSocket          Loop    Tool    RAG
+                                      │
+                                    Memory
+</code></pre>
+<blockquote>
+<p><strong>SSE / WebSocket 不属于 Agent 本身，但它们是 Agent 产品化时非常重要的通信基础设施。</strong></p>
+</blockquote>
+<hr />
+<h1>29. 最终目标</h1>
+<p>学完以后，你应该能够独立解释并实现：</p>
+<pre><code class="language-text">浏览器
+   │
+   │ HTTP
+   ▼
+FastAPI
+   │
+   ├── REST API
+   │
+   ├── SSE
+   │     └── LLM / Agent Streaming
+   │
+   └── WebSocket
+         └── Agent Control
+                │
+                ▼
+              Agent
+                │
+        ┌───────┼───────┐
+        │       │       │
+       LLM     RAG     Tool
+</code></pre>
+<p>最终能够回答：</p>
+<pre><code class="language-text">为什么 LLM Streaming 常用 SSE？
+什么时候应该用 WebSocket？
+FastAPI 和 Uvicorn 什么关系？
+ASGI 解决了什么问题？
+StreamingResponse 和 SSE 什么关系？
+WebSocket 多连接怎么管理？
+多 Worker 为什么需要 Redis？
+Agent 的事件应该怎么设计？
+Agent UI 和 Agent Runtime 如何解耦？
+</code></pre>
+<hr />
+<h1>30. 推荐学习方式</h1>
+<p>不要采用“看完教程再写项目”的方式，而是每学一个层次就做一个最小实验：</p>
+<pre><code class="language-text">asyncio
+  ↓
+一个并发 Demo
+
+HTTP
+  ↓
+curl / httpx 请求
+
+FastAPI
+  ↓
+Hello API
+
+Streaming
+  ↓
+逐块输出数字
+
+SSE
+  ↓
+实时事件页面
+
+WebSocket
+  ↓
+双向聊天
+
+Redis
+  ↓
+多 Worker 事件同步
+
+LLM
+  ↓
+Token Streaming
+
+Agent
+  ↓
+Tool / RAG / Event
+</code></pre>
+<p>这样学习的重点不是“记住 FastAPI API”，而是逐层建立：</p>
+<pre><code class="language-text">网络通信
+   ↓
+异步运行时
+   ↓
+Web 框架
+   ↓
+流式传输
+   ↓
+实时通信
+   ↓
+AI Streaming
+   ↓
+Agent Server
+</code></pre>
+<p>最终形成完整的后端与 Agent 通信心智模型。</p>
+<footer>本页由 markdown 源文件 <code>SSE_WebSocket_FastAPI_完整学习路线.md</code> 自动生成——修改源文件后运行 <code>python tools/build_docs.py</code> 重新生成。</footer>
+<script src="assets/nav.js" data-base="" data-track=""></script>
+</body>
+</html>

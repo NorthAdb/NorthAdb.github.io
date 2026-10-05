@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>第 2 课 · SSE 格式实验室：亲手拆解事件流</title>
+<link rel="stylesheet" href="../assets/course.css">
+<style>
+  .lab { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.2rem 0; }
+  @media (max-width: 720px) { .lab { grid-template-columns: 1fr; } }
+  textarea {
+    width: 100%; height: 20rem; background: var(--code-bg); color: var(--code-ink);
+    font-family: "Cascadia Code", Consolas, monospace; font-size: .8rem; line-height: 1.6;
+    border: 1px solid var(--line); border-radius: 8px; padding: .8rem; resize: vertical;
+  }
+  .parse-error { color: #f87171; font-size: .85rem; min-height: 1.3em; margin: .2rem 0; }
+  .evcard { border: 1px solid var(--line); border-radius: 8px; padding: .6rem .9rem; margin-bottom: .6rem; background: #fff; }
+  .evcard .evname { font-family: "Cascadia Code", Consolas, monospace; font-weight: 700; color: var(--accent); }
+  .evcard .eid { font-family: "Cascadia Code", Consolas, monospace; color: #b45309; font-size: .8rem; margin-left: .5rem; }
+  .evcard pre { margin: .4rem 0 0; font-size: .78rem; }
+  .samples button { margin: .15rem .3rem .15rem 0; padding: .3rem .7rem; font-size: .8rem; cursor: pointer;
+    border: 1px solid var(--line); border-radius: 6px; background: #fff; }
+  .samples button:hover { border-color: var(--accent); }
+  .comment { color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="kicker">Lesson 0002 · Module 2 · L2.3</div>
+<h1>SSE 格式实验室</h1>
+<p class="lede">左边是服务器发往浏览器的<strong>原始字节</strong>（就是 v3a 里 <code>sse_format()</code> 拼出来的东西）。右边是浏览器 <code>EventSource</code> 解析后派发的<strong>事件</strong>。改左边的文本，右边实时变化——协议格式从此不用背，动手拆一遍就懂。</p>
+
+<div class="samples">
+  载入示例：
+  <button data-s="0">最简单的流</button>
+  <button data-s="1">命名事件 + 编号</button>
+  <button data-s="2">心跳与 retry</button>
+  <button data-s="3">多行 data</button>
+  <button data-s="4">故意出错：漏了空行</button>
+</div>
+
+<div class="lab">
+  <div>
+    <h3 style="margin-top:0">服务器发送的字节</h3>
+    <textarea id="src" spellcheck="false"></textarea>
+    <div class="parse-error" id="err"></div>
+  </div>
+  <div>
+    <h3 style="margin-top:0">浏览器派发的事件</h3>
+    <div id="out"></div>
+  </div>
+</div>
+
+<h2>规则卡片（拆完对着看）</h2>
+<div class="panel">
+  <h4>解析规则（WHATWG）</h4>
+  <ul style="margin:.2rem 0 0; padding-left:1.2rem">
+    <li>以 <code>event:</code> / <code>data:</code> / <code>id:</code> / <code>retry:</code> 开头的行是字段</li>
+    <li>以 <code>:</code> 开头的行是注释 → <span class="comment">客户端忽略，常作心跳</span></li>
+    <li><strong>空行 = 事件结束</strong>。没有空行，事件就一直"攒着"不派发（示例 4）</li>
+    <li>没有 <code>event:</code> 字段 → 事件名是 <code>message</code>（用 <code>onmessage</code> 收）</li>
+    <li>多个 <code>data:</code> 行 → 用换行符拼接成一条载荷（示例 3）</li>
+  </ul>
+</div>
+
+<div class="quiz" id="quiz">
+  <div class="q">心跳为什么发 <code>: ping</code> 而不是 <code>data: ping</code>？</div>
+  <button data-a="0">因为 data 会消耗更多流量</button>
+  <button data-a="1">注释行客户端忽略——保活连接但不打扰应用逻辑</button>
+  <button data-a="2">因为浏览器不解析注释行之后的内容</button>
+  <div class="feedback"></div>
+</div>
+
+<div class="next">
+  网页实验之后，去跑真服务：<code>python -m uvicorn v3_sse.v3a_raw_sse:app --port 8803 --reload</code>，
+  用 <code>curl -N http://127.0.0.1:8803/events</code> 对照。
+</div>
+<footer>讲义：<a href="../course/module-2-流式传输与SSE.html">module-2 · L2.3</a> · 速查表：<a href="../reference/sse-cheatsheet.html">SSE</a></footer>
+<script src="../assets/nav.js" data-base="../" data-track="lesson"></script>
+
+<script>
+const SAMPLES = [
+`data: hello
+
+data: world
+
+data: done
+`,
+`id: 1
+event: count
+data: {"n": 1}
+
+id: 2
+event: count
+data: {"n": 2}
+
+id: 3
+event: done
+data: finished
+`,
+`: heartbeat-comment
+retry: 3000
+data: 连接成功
+
+: ping
+
+: ping
+
+data: 第 1 条真事件
+`,
+`event: token
+data: 第一行
+data: 第二行（两个 data 行 = 用换行拼接）
+
+event: done
+data: ok
+`,
+`event: token
+data: 这条事件后面忘了空行
+event: token
+data: 于是它和上一条粘在一起，谁都不会被派发
+`
+];
+
+const src = document.getElementById("src");
+const out = document.getElementById("out");
+const err = document.getElementById("err");
+
+function parse() {
+  const text = src.value;
+  out.innerHTML = "";
+  err.textContent = "";
+  const blocks = text.split("\n\n");
+  let count = 0;
+  blocks.forEach((block, bi) => {
+    if (!block.trim()) return;
+    const ev = { event: "message", data: [], id: null, retry: null, comment: [] };
+    for (const line of block.split("\n")) {
+      if (!line.trim()) continue;  // 块尾换行不算字段行
+      if (line.startsWith(":")) { ev.comment.push(line.slice(1).trim()); continue; }
+      const m = line.match(/^(event|data|id|retry):\s?(.*)$/);
+      if (!m) { err.textContent = `⚠ 第 ${bi + 1} 段有无法识别的行：${JSON.stringify(line)}（字段格式应为 "field: value"）`; continue; }
+      const [, f, v] = m;
+      if (f === "data") ev.data.push(v);
+      else if (f === "event") ev.event = v;
+      else if (f === "id") ev.id = v;
+      else if (f === "retry") ev.retry = v;
+    }
+    const isLastIncomplete = bi === blocks.length - 1 && !text.endsWith("\n\n");
+    const card = document.createElement("div");
+    card.className = "evcard";
+    const dataJoined = ev.data.join("\\n");
+    const extra = [
+      ev.id !== null ? `<span class="eid">id=${ev.id}</span>` : "",
+      ev.retry !== null ? `<span class="eid">retry=${ev.retry}ms</span>` : "",
+      ev.comment.length ? `<div class="comment">注释（忽略）：${ev.comment.join(" / ")}</div>` : "",
+    ].join("");
+    card.innerHTML = `
+      <span class="evname">${ev.event}</span>${extra}
+      ${isLastIncomplete ? '<div class="comment" style="color:#f87171">⚠ 块末尾没有空行：这条事件攒着不会派发（直到下一个空行或连接关闭）</div>' : ""}
+      <pre>${dataJoined ? dataJoined.replace(/&/g, "&amp;").replace(/</g, "&lt;") : "（无 data 字段 → 不会派发）"}</pre>`;
+    out.appendChild(card);
+    count++;
+  });
+  if (!count) out.innerHTML = '<div class="comment">（空流：没有任何事件）</div>';
+}
+
+document.querySelectorAll(".samples button").forEach((b) => {
+  b.onclick = () => { src.value = SAMPLES[+b.dataset.s]; parse(); };
+});
+src.addEventListener("input", parse);
+src.value = SAMPLES[1];
+parse();
+
+document.querySelectorAll("#quiz .q").forEach((q) => {
+  const fb = q.parentElement.querySelector(".feedback");
+  q.parentElement.querySelectorAll("button").forEach((btn, i) => {
+    btn.onclick = () => {
+      q.parentElement.querySelectorAll("button").forEach(b => b.classList.remove("correct", "wrong"));
+      if (i === 1) { btn.classList.add("correct"); fb.textContent = "✔ 正确。连接保活了，但应用层的事件处理器完全无感。"; }
+      else { btn.classList.add("wrong"); fb.textContent = "提示：如果派发成 message 事件，前端逻辑就得忽略它——想想这有多烦。"; }
+    };
+  });
+});
+</script>
+</body>
+</html>

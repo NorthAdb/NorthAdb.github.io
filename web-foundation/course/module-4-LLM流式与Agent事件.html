@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>模块 4：LLM 流式与 Agent 事件系统 · 从 HTTP 到实时 Agent Server</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<div class="kicker">讲义 · 模块 4</div>
+<h1>模块 4：LLM 流式与 Agent 事件系统</h1>
+<blockquote>
+<p>4 课 · 实验 v5、v6、v7（毕业实验）· 目标：从"流 token"到"流过程"，最终交付可遥控的 Agent Server</p>
+<p>配图：Agent 事件管道 <a href="../diagrams/04-agent-event-pipeline.html">diagrams/04-agent-event-pipeline.html</a> · v7 双通道时序 <a href="../diagrams/05-agent-server-dual-channel.html">diagrams/05-agent-server-dual-channel.html</a>
+互动课：<a href="../lessons/0003-agent-event-explorer.html">lessons/0003 Agent 事件时间线浏览器</a>（单步回放一次真实任务的事件流与界面变化）</p>
+</blockquote>
+<hr />
+<h2>L4.1 LLM Token Streaming 全链路</h2>
+<h3>目标</h3>
+<p>跑通 v5；画出 token 从 LLM 到用户眼睛的完整翻译链。</p>
+<h3>全链路（背下来）</h3>
+<pre><code>LLM SDK（stream=True 的 chunk）        ← 事件的&quot;源头&quot;
+    → async generator（yield 事件）
+    → SSE 端点（ServerSentEvent）      ← 网络上的形态：event: token\ndata: ...\n\n
+    → 浏览器（fetch + ReadableStream 解析 / EventSource）
+    → 打字机效果
+</code></pre>
+<h3>实操：实验 v5</h3>
+<pre><code class="language-bash">python -m uvicorn v5_llm_stream.app:app --port 8805 --reload
+</code></pre>
+<ol>
+<li>浏览器打开 <code>http://127.0.0.1:8805/</code>——同一个 mock LLM 两个按钮：非流式"转圈圈 2 秒" vs 流式打字机；</li>
+<li><code>curl -N -X POST .../chat/stream ...</code> 看原始 SSE，注意最后一个事件是裸的 <code>[DONE]</code>；</li>
+<li>（可选）<code>export OPENAI_API_KEY=...</code> 后重启——<strong>下游代码零改动</strong>切换到真实 LLM。</li>
+</ol>
+<h3>代码流程讲解（v5_llm_stream/app.py）</h3>
+<ol>
+<li><code>mock_stream</code> 与 <code>openai_stream</code> 产出<strong>同一种东西</strong>（ServerSentEvent 流）。端点函数只做选择 + 收尾 <code>[DONE]</code>。<strong>换供应商 = 换 generator</strong>，这是接口对齐的威力。</li>
+<li><code>raw_data="[DONE]"</code>：<code>data=</code> 会被 JSON 编码，<code>raw_data</code> 原样发送——LLM 协议里裸字符串哨兵（<code>[DONE]</code>）的专用通道。</li>
+<li>index.html 里 30 行实现 SSE 解析器（fetch + ReadableStream）：因为 <code>EventSource</code> 只支持 GET，LLM 对话要 POST。<strong>你在 v3a 手写过的格式，现在从客户端再认一遍</strong>。</li>
+</ol>
+<h3>自测</h3>
+<ol>
+<li>token 从 LLM 到屏幕经过几次"翻译"？每次的输入输出？</li>
+<li>没有 <code>[DONE]</code>，客户端还能靠什么判断结束？（连接关闭——但显式哨兵能区分"正常结束"和"异常断开"）</li>
+</ol>
+<hr />
+<h2>L4.2 统一 Agent 事件协议：对齐 AG-UI / Dify</h2>
+<h3>目标</h3>
+<p>理解为什么"只传 token"不够；掌握统一事件信封设计；能把课程事件表与业界协议对照。</p>
+<h3>概念</h3>
+<p>Agent 的价值在<strong>过程</strong>：检索到了什么、调用了什么工具、为什么这么答。只流 token = 只直播结论。要把过程流出去，需要一个<strong>事件协议</strong>。设计三原则：</p>
+<ol>
+<li><strong>信封一致</strong>：所有事件同构 <code>{seq, type, task_id, timestamp, data}</code>——前端写一套分发逻辑通吃。</li>
+<li><strong>三段式</strong>：有开始就有结束（step_started/step_finished、tool_call/tool_result）——前端据此维护卡片状态机。</li>
+<li><strong>单调 seq</strong>：既是 SSE 的 <code>id</code>，又是断线续传位点、又是前端排序键。</li>
+</ol>
+<h3>事件对照表（读开源项目的钥匙）</h3>
+<table>
+<thead>
+<tr>
+<th>本课程</th>
+<th>AG-UI</th>
+<th>Dify (streaming)</th>
+<th>LangChain</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>agent_started/finished/error</td>
+<td>RUN_STARTED/FINISHED/ERROR</td>
+<td>workflow_started/finished</td>
+<td>on_chain_start/end</td>
+</tr>
+<tr>
+<td>step_started/finished</td>
+<td>STEP_STARTED/FINISHED</td>
+<td>node_started/finished</td>
+<td>on_chain_start/end</td>
+</tr>
+<tr>
+<td>rag_search/rag_result</td>
+<td>CUSTOM/STEP 携带</td>
+<td>node 事件（retriever 节点）</td>
+<td>on_retriever_start/end</td>
+</tr>
+<tr>
+<td>tool_call/tool_result</td>
+<td>TOOL_CALL_START/RESULT</td>
+<td>agent_thought</td>
+<td>on_tool_start/end</td>
+</tr>
+<tr>
+<td>token</td>
+<td>TEXT_MESSAGE_CONTENT(delta)</td>
+<td>message</td>
+<td>on_chat_model_stream</td>
+</tr>
+<tr>
+<td>done</td>
+<td>RUN_FINISHED</td>
+<td>message_end</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p>结构相似度极高——<strong>学会这套，读任何 Agent 平台的事件流只是换名字</strong>。AG-UI 还定义了课程未展开的进阶事件：STATE_SNAPSHOT/STATE_DELTA（JSON Patch 增量同步）、SUBAGENT_*、人工中断的 RUN_FINISHED(outcome=interrupt)——正是 v7 审批功能的协议化表达。</p>
+<h3>代码讲解（v6_agent_events/events.py）</h3>
+<p><code>EventType</code> 枚举 + <code>AgentEvent</code> 信封（Pydantic）。注意 <code>seq</code> 由 Agent 侧生成（不是 SSE 端点现编）——因为断线重连后端点会换一个，但事件序列不能换。</p>
+<hr />
+<h2>L4.3 事件流架构：Agent Runtime 与通信层解耦</h2>
+<h3>目标</h3>
+<p>指出解耦边界；解释 v6 已知局限如何引出 v7 设计。</p>
+<h3>代码讲解（v6 agent.py + app.py）</h3>
+<ul>
+<li><code>FakeRAGAgent.run()</code> 是 async generator，只管 <code>yield AgentEvent</code>——<strong>完全不知道 FastAPI/SSE 存在</strong>。换 WS、写单测、做 CLI 版，都不动它。这就是解耦边界。</li>
+<li><code>to_sse()</code> 是唯一知道"事件怎么变成网络字节"的函数（<code>event=type, id=seq, data=整个事件</code>）。</li>
+<li><code>TASK_STORE</code> 边发边记 → replay 端点按 seq 补发。</li>
+</ul>
+<h3>v6 的三个已知局限（刻意留下）</h3>
+<ol>
+<li>Agent 生成器与 SSE 连接<strong>同生共死</strong>——浏览器断开，generator 没人消费，任务中断（真实 Agent 不能这样死）。</li>
+<li>无控制能力：不能暂停/取消/审批。</li>
+<li>进程内存存储，多 Worker 即失效（M5 主题）。</li>
+</ol>
+<h3>自测</h3>
+<ol>
+<li>为什么说"解耦点在 async generator 的 yield 边界"？</li>
+<li>如果要把 v6 的 token 事件改成走 WebSocket，哪些文件要动？（答案：只动 app.py——验证解耦是否真的成立）</li>
+</ol>
+<hr />
+<h2>L4.4 毕业实验：双通道 Agent Server（v7）</h2>
+<h3>目标</h3>
+<p>理解并复述 v7 的五个关键设计；跑通全部控制操作；完成断线续传实验。</p>
+<h3>实操</h3>
+<pre><code class="language-bash">python -m uvicorn v7_agent_server.app:app --port 8807 --reload
+</code></pre>
+<p>浏览器打开 <code>http://127.0.0.1:8807/</code>，依次完成：
+1. 启动任务 → 左侧打字机 + 右侧事件日志；
+2. <strong>审批</strong>：中途弹出审批卡片 → 批准/拒绝各试一次；
+3. <strong>暂停/恢复</strong>：观察暂停时代码停在哪个检查点；
+4. <strong>取消</strong>：暂停后取消 → agent_error(cancelled) 优雅收尾；
+5. <strong>断线续传</strong>：任务运行中刷新页面 → EventSource 自动重连，事件从断点继续，不重不漏；
+6. 自动化验证：<code>python v7_agent_server/test_flow.py</code>（断言 29 条事件、seq 单调、审批成功）。</p>
+<h3>五个关键设计（对照 labs/v7_agent_server/README.md 的架构图）</h3>
+<ol>
+<li><strong>Agent 与连接解耦</strong>：<code>asyncio.create_task(run_agent_task(task))</code> 后台运行（L1.1 演示 3 的落地）。浏览器关了任务照跑，重开页面从 buffer 续看。</li>
+<li><strong>buffer + 订阅者队列</strong>：<code>emit()</code> 同时写 buffer（全量日志，重放依据）和每个 SSE 订阅者的 Queue（实时分发）。SSE 端点三步走：<strong>先订阅 → 再补历史 → 水位线去重</strong>——不漏不重。</li>
+<li><strong>暂停 = asyncio.Event 闸门</strong>：agent 每步之间 <code>await task.checkpoint()</code>。pause 清信号 → 协程挂在闸门上；resume 置信号 → 从原位继续。没有轮询。</li>
+<li><strong>审批 = asyncio.Future</strong>：<code>wait_approval()</code> 挂在一个 Future 上；WS 收到 approve/reject 后 <code>set_result()</code> 唤醒。<strong>human-in-the-loop 的本质：把一次 await 的答案交给人类来填</strong>。</li>
+<li><strong>取消 = task.cancel()</strong>：CancelledError 在最近的 await 点抛出，被主流程捕获 → 发 agent_error 事件优雅收尾。用户看到的是一条事件，不是崩溃。</li>
+</ol>
+<h3>双通道分工（本课程核心结论）</h3>
+<pre><code>SSE   GET /agent/tasks/{id}/events   Agent → UI   单向直播、断线续传、过代理
+WS    /ws/control                    UI → Agent   实时控制 + 状态镜像（approval_required、state_update）
+</code></pre>
+<p>WS 的 ControlHub 把状态变化镜像推给所有控制连接——它就是 M5 里 Redis Pub/Sub 的"单进程预演"。</p>
+<h3>自测（labs/v7_agent_server/README.md 5 题）</h3>
+<p>必须能口头回答第 1、3、4 题（订阅顺序 / 暂停后取消的事件顺序 / 为什么审批走 WS 而测试的 SSE 只读）。</p>
+<h3>延伸</h3>
+<ul>
+<li>把 mock 换成真 LLM + 真 RAG：<code>agent.py</code> 的 <code>run_agent_task</code> 换成你 M4 之前写的 Agent，事件 emit 点不变——通信层完全复用。</li>
+</ul>
+<footer>本页由 markdown 源文件 <code>course/module-4-LLM流式与Agent事件.md</code> 自动生成——修改源文件后运行 <code>python tools/build_docs.py</code> 重新生成。</footer>
+<script src="../assets/nav.js" data-base="../" data-track="readings"></script>
+</body>
+</html>

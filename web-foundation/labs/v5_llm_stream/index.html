@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>LLM Token Streaming 对比实验</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 46rem; margin: 2rem auto; background: #fafafa; color: #222; }
+  h1 { font-size: 1.25rem; }
+  .card { border: 1px solid #ddd; border-radius: 8px; padding: 1rem; margin: 1rem 0; min-height: 6rem; background: #fff; }
+  .card h3 { margin: 0 0 .5rem; font-size: .9rem; color: #666; }
+  button { padding: .5rem 1rem; margin-right: .5rem; cursor: pointer; }
+  input { padding: .5rem; width: 24rem; }
+  code { background: #eee; padding: .1rem .3rem; border-radius: 4px; }
+</style>
+</head>
+<body>
+<h1>转圈圈 vs 打字机</h1>
+<p>同一个 mock LLM，两种返回方式。<code>/chat</code> 等 2 秒一次给全，<code>/chat/stream</code> 用 SSE 逐 token 推送。</p>
+<div>
+  <input id="prompt" value="什么是 RAG？">
+  <button onclick="ask(false)">非流式请求</button>
+  <button onclick="ask(true)">流式请求（SSE）</button>
+</div>
+<div class="card"><h3>非流式 /chat</h3><div id="a1">（等待请求）</div></div>
+<div class="card"><h3>流式 /chat/stream</h3><div id="a2">（等待请求）</div></div>
+<script>
+// 非流式：fetch 等 JSON 一次到位
+async function ask(stream) {
+  const text = document.getElementById("prompt").value;
+  if (stream) return askStream(text);
+  const a1 = document.getElementById("a1");
+  a1.textContent = "⏳ 等待中……（这 2 秒用户什么都看不到）";
+  const r = await fetch("/chat", { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({text}) });
+  const j = await r.json();
+  a1.textContent = j.reply;
+}
+
+// 流式：EventSource 只支持 GET，POST 场景用 fetch + ReadableStream 手动解析 SSE
+async function askStream(text) {
+  const a2 = document.getElementById("a2");
+  a2.textContent = "";
+  const r = await fetch("/chat/stream", { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({text}) });
+  const reader = r.body.getReader();
+  const decoder = new TextDecoder();
+  let buf = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buf += decoder.decode(value, { stream: true });
+    // SSE 报文以空行分界；这就是 v3a 手写过的格式，换到客户端再认一遍
+    let idx;
+    while ((idx = buf.indexOf("\n\n")) >= 0) {
+      const block = buf.slice(0, idx); buf = buf.slice(idx + 2);
+      let ev = "message", data = "";
+      for (const line of block.split("\n")) {
+        if (line.startsWith("event:")) ev = line.slice(6).trim();
+        else if (line.startsWith("data:")) data += line.slice(5).trim();
+      }
+      if (ev === "token") a2.textContent += data;
+      if (ev === "done") a2.textContent += "  ✔ [DONE]";
+    }
+  }
+}
+</script>
+<script src="../../assets/nav.js" data-base="../../" data-track="reference"></script>
+</body>
+</html>
