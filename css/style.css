@@ -542,3 +542,48 @@ main { min-height: calc(100vh - var(--nav-h) - 160px); }
   .prose { font-size: 15.5px; }
   .footer-inner { flex-direction: column; text-align: center; }
 }
+
+/* ---- courses dropdown (课件) ---- */
+.nav-drop { position: relative; }
+.nav-drop > a::after { content: "▾"; font-size: 10px; margin-left: 5px; vertical-align: 1px; opacity: 0.65; }
+.drop-menu {
+  position: absolute;
+  top: 100%; left: 0;
+  min-width: 264px;
+  padding: 6px;
+  list-style: none;
+  background: rgba(22, 20, 17, 0.98);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(6px);
+  transition: opacity 0.16s ease, transform 0.16s ease, visibility 0.16s;
+  z-index: 60;
+}
+.drop-menu::before { content: ""; position: absolute; top: -10px; left: 0; right: 0; height: 10px; }
+.nav-drop:hover .drop-menu,
+.nav-drop:focus-within .drop-menu { opacity: 1; visibility: visible; transform: none; }
+.drop-menu a {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 9px 12px; border-radius: 8px;
+}
+.drop-menu a b { font-size: 13.5px; font-weight: 650; color: var(--text); }
+.drop-menu a span { font-size: 12px; color: var(--text-dim); }
+.drop-menu a:hover { background: rgba(255, 255, 255, 0.05); }
+.drop-menu a:hover b { color: var(--accent-strong); }
+
+@media (max-width: 640px) {
+  .drop-menu {
+    position: static; min-width: 0;
+    opacity: 1; visibility: visible; transform: none;
+    background: none; border: none; box-shadow: none;
+    padding: 0 0 4px 10px;
+  }
+  .drop-menu::before { display: none; }
+  .drop-menu a { padding: 9px 14px; }
+  .drop-menu a b { font-size: 14.5px; }
+  .drop-menu a span { display: none; }
+  .nav-drop > a::after { display: none; }
+}
