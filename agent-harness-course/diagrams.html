@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>图库 · Agent Harness 课程 13 张架构图</title>
+<link rel="stylesheet" href="assets/course.css">
+<style>
+.grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px,1fr)); gap:.9rem; margin:1.4rem 0; }
+details.card { background:#fff; border:1px solid var(--line); border-radius:10px; overflow:hidden; }
+details.card summary { cursor:pointer; padding:.85rem 1rem; list-style:none; }
+details.card summary::-webkit-details-marker { display:none; }
+details.card summary:hover { background: var(--accent-soft); }
+.card .no { font-family:Consolas,monospace; font-size:.72rem; color:var(--accent); }
+.card .t { font-weight:bold; margin:.1rem 0; }
+.card .q { font-size:.85rem; color:var(--soft); }
+.card .type { display:inline-block; font-family:Consolas,monospace; font-size:.68rem;
+  border:1px solid var(--line); border-radius:99px; padding:.05rem .5rem; margin-top:.3rem; }
+details.card iframe { width:100%; height:640px; border:0; border-top:1px solid var(--line); }
+.card .links { padding:.5rem 1rem .8rem; font-size:.82rem; }
+</style>
+</head>
+<body>
+<main>
+  <div class="kicker">Agent Harness 课程 · 图库（13 张 · Archify）</div>
+  <h1>图库：13 张聚焦架构图</h1>
+  <p class="lede">每张图回答一个问题、只有一条主路径。点击卡片内嵌展开（懒加载），或跳到所属课程/全屏视图。规格文件在 <code>assets/diagrams/specs/</code>，可自行修改后用 Archify 重渲染。</p>
+
+  <div class="grid">
+    <details class="card"><summary>
+      <div class="no">01 · 第 1 课</div><div class="t">Pi Agent Harness 总体架构</div>
+      <div class="q">Harness 到底比 LLM 多了什么？</div>
+      <span class="type">architecture</span></summary>
+      <iframe src="lessons/diagrams/01-harness-overview.html" loading="lazy" title="Diagram 01"></iframe>
+      <div class="links"><a href="lessons/diagrams/01-harness-overview.html" target="_blank">全屏 ↗</a> · <a href="lessons/0001-why-llm-is-not-agent.html">去第 1 课</a></div>
+    </details>
+
+    <details class="card"><summary>
+      <div class="no">02 · 第 2 课</div><div class="t">Agent Loop</div>
+      <div class="q">循环由谁控制？何时结束？错误怎么回模型？</div>
+      <span class="type">workflow</span></summary>
+      <iframe src="lessons/diagrams/02-agent-loop.html" loading="lazy" title="Diagram 02"></iframe>
+      <div class="links"><a href="lessons/diagrams/02-agent-loop.html" target="_blank">全屏 ↗</a> · <a href="lessons/0002-agent-loop.html">去第 2 课</a></div>
+    </details>
+
+    <details class="card"><summary>
+      <div class="no">03 · 第 3 课</div><div class="t">Tool Calling / Execution</div>
+      <div class="q">模型看到什么？Runtime 执行什么？</div>
+      <span class="type">sequence</span></summary>
+      <iframe src="lessons/diagrams/03-tool-calling.html" loading="lazy" title="Diagram 03"></iframe>
+      <div class="links"><a href="lessons/diagrams/03-tool-calling.html" target="_blank">全屏 ↗</a> · <a href="lessons/0003-tool-calling.html">去第 3 课</a></div>
+    </details>
+
+    <details class="card"><summary>
+      <div class="no">04 · 第 4 课</div><div class="t">Context Assembly Pipeline</div>
+      <div class="q">Context 如何形成？Session ≠ Context？</div>
+      <span class="type">architecture</span></summary>
+      <iframe src="lessons/diagrams/04-context-assembly.html" loading="lazy" title="Diagram 04"></iframe>
+      <div class="links"><a href="lessons/diagrams/04-context-assembly.html" target="_blank">全屏 ↗</a> · <a href="lessons/0004-context-assembly.html">去第 4 课</a></div>
+    </details>
+
+    <details class="card"><summary>
+      <div class="no">05 · 第 5 课</div><div class="t">Session：append-only 历史树</div>
+      <div class="q">为什么需要历史树而不是 messages[]？</div>
+      <span class="type">architecture</span></summary>
+      <iframe src="lessons/diagrams/05-session-tree.html" loading="lazy" title="Diagram 05"></iframe>
+      <div class="links"><a href="lessons/diagrams/05-session-tree.html" target="_blank">全屏 ↗</a> · <a href="lessons/0005-session-tree.html">去第 5 课</a></div>
+    </details>
+
+    <details class="card"><summary>
+      <div class="no">06 · 第 6 课</div><div class="t">Compaction Pipeline</div>
+      <div class="q">为什么压缩是状态压缩而非删消息？</div>
+      <span class="type">architecture</span></summary>
+      <iframe src="lessons/diagrams/06-compaction.html" loading="lazy" title="Diagram 06"></iframe>
+      <div class="links"><a href="lessons/diagrams/06-compaction.html" target="_blank">全屏 ↗</a> · <a href="lessons/0006-compaction.html">去第 6 课</a></div>
+    </details>
+
+    <details class="card"><summary>
+      <div class="no">07 · 第 7 课</div><div class="t">Skills 渐进披露</div>
+      <div class="q">为什么不全量注入？四笔账怎么算？</div>
+      <span class="type">architecture</span></summary>
+      <iframe src="lessons/diagrams/07-skills.html" loading="lazy" title="Diagram 07"></iframe>
+      <div class="links"><a href="lessons/diagrams/07-skills.html" target="_blank">全屏 ↗</a> · <a href="lessons/0007-skills.html">去第 7 课</a></div>
+    </details>
+
+    <details class="card"><summary>
+      <div class="no">08 · 第 8 课</div><div class="t">Extensions / Hooks</div>
+      <div class="q">为什么功能不进 Core？Minimal Core 意味着什么？</div>
+      <span class="type">architecture</span></summary>
+      <iframe src="lessons/diagrams/08-extensions.html" loading="lazy" title="Diagram 08"></iframe>
+      <div class="links"><a href="lessons/diagrams/08-extensions.html" target="_blank">全屏 ↗</a> · <a href="lessons/0008-extensions.html">去第 8 课</a></div>
+    </details>
+
+    <details class="card"><summary>
+      <div class="no">09 · 第 9 课</div><div class="t">Capability Boundary</div>
+      <div class="q">Capability / Authorization / Sandbox 差在哪？</div>
+      <span class="type">architecture</span></summary>
+      <iframe src="lessons/diagrams/09-capability-boundary.html" loading="lazy" title="Diagram 09"></iframe>
+      <div class="links"><a href="lessons/diagrams/09-capability-boundary.html" target="_blank">全屏 ↗</a> · <a href="lessons/0009-capability-boundary.html">去第 9 课</a></div>
+    </details>
+
+    <details class="card"><summary>
+      <div class="no">10 · 第 10 课</div><div class="t">Same Runtime, Multiple Interfaces</div>
+      <div class="q">为什么接口不能和 Runtime 写死？</div>
+      <span class="type">workflow</span></summary>
+      <iframe src="lessons/diagrams/10-interfaces.html" loading="lazy" title="Diagram 10"></iframe>
+      <div class="links"><a href="lessons/diagrams/10-interfaces.html" target="_blank">全屏 ↗</a> · <a href="lessons/0010-interfaces.html">去第 10 课</a></div>
+    </details>
+
+    <details class="card"><summary>
+      <div class="no">11 · 第 11 课</div><div class="t">Full Runtime 总时序</div>
+      <div class="q">一次真实任务如何流过所有层？</div>
+      <span class="type">sequence</span></summary>
+      <iframe src="lessons/diagrams/11-full-runtime.html" loading="lazy" title="Diagram 11"></iframe>
+      <div class="links"><a href="lessons/diagrams/11-full-runtime.html" target="_blank">全屏 ↗</a> · <a href="lessons/0011-full-runtime.html">去第 11 课</a></div>
+    </details>
+
+    <details class="card"><summary>
+      <div class="no">12 · 第 12 课</div><div class="t">Generic Agent Harness</div>
+      <div class="q">哪些通用？哪些领域特有？哪些是 Pi 的选择？</div>
+      <span class="type">architecture · 抽象模型</span></summary>
+      <iframe src="lessons/diagrams/12-generic-harness.html" loading="lazy" title="Diagram 12"></iframe>
+      <div class="links"><a href="lessons/diagrams/12-generic-harness.html" target="_blank">全屏 ↗</a> · <a href="lessons/0012-generic-harness.html">去第 12 课</a></div>
+    </details>
+
+    <details class="card"><summary>
+      <div class="no">13 · 第 14 课</div><div class="t">五层 Mental Model</div>
+      <div class="q">Agent = LLM + Loop + Harness + Environment 成立吗？</div>
+      <span class="type">architecture · 抽象模型</span></summary>
+      <iframe src="lessons/diagrams/13-mental-model.html" loading="lazy" title="Diagram 13"></iframe>
+      <div class="links"><a href="lessons/diagrams/13-mental-model.html" target="_blank">全屏 ↗</a> · <a href="lessons/0014-mental-model.html">去第 14 课</a></div>
+    </details>
+
+    <details class="card"><summary>
+      <div class="no">14 · 第 15 课（进阶）</div><div class="t">MCP 与 Pi：内置扩展接入路径</div>
+      <div class="q">MCP 是什么？Pi 如何以可替换的内置扩展接入？何时进 Core？</div>
+      <span class="type">architecture · 源码证据 + 推断</span></summary>
+      <iframe src="lessons/diagrams/14-mcp-bridge.html" loading="lazy" title="Diagram 14"></iframe>
+      <div class="links"><a href="lessons/diagrams/14-mcp-bridge.html" target="_blank">全屏 ↗</a> · <a href="lessons/0015-mcp.html">去第 15 课</a></div>
+    </details>
+  </div>
+
+  <footer class="note">第 13 课（横向比较）为表驱动、无图——见 <a href="lessons/0013-comparison.html">课程页</a>。回 <a href="index.html">首页</a>。</footer>
+</main>
+</body>
+</html>

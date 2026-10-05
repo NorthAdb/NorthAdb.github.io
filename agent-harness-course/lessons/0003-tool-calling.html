@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第 3 课 · Tool Calling / Tool Execution</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <div class="kicker">Agent Harness 课程 · 第 3 课 / 共 14 课 · 第三阶段：理解 Tool Calling</div>
+  <h1>Tool Calling：模型看到什么，Runtime 执行什么</h1>
+  <p class="lede">模型"会调工具"是它最容易被误解的能力。这一课沿着一次工具调用的生命周期走一遍：声明 → 调用 → 校验 → 执行 → 回填，看清模型和 Runtime 各自的辖区。</p>
+
+  <div class="question"><strong>本课核心问题：</strong>为什么说工具是"模型上下文的一部分"？tool name、description、input schema、toolCall、toolResult 分别在哪里产生、保存、传递？——模型到底看到什么？Runtime 到底执行什么？</div>
+
+  <h2>一、这张图要解决什么问题</h2>
+  <p>把"AI 调用了工具"这句模糊的话，拆成一张时序图上的六方协作：LLM、agentLoop、Tool Registry（含校验）、Tool Executor、OS、Context。看完你就会明白：所谓"模型调用工具"，模型只负责<b>生成一段 JSON 建议</b>，剩下的一切都是 Runtime 的事。</p>
+
+  <figure class="diagram">
+    <iframe src="diagrams/03-tool-calling.html" title="Diagram 03 · Tool Calling 时序" loading="lazy"></iframe>
+    <figcaption>Diagram 03 · 虚线 return 为返回值。<a href="diagrams/03-tool-calling.html" target="_blank">全屏打开 ↗</a></figcaption>
+  </figure>
+
+  <h2>二、如何从图上读懂 Pi</h2>
+  <p><span class="badge src">源码</span><strong>声明侧（进模型）：</strong>每个工具在 <code>packages/ai/src/types.ts:717</code> 定义为 <code>{ name, description, parameters(TypeBox JSON Schema) }</code>——注意这个接口<b>没有 execute</b>。这三样会随每次请求发给模型（"本店菜单"）。<code>description</code> 写得好坏直接决定模型会不会正确用这个工具——它是纯粹写给模型看的广告词。</p>
+  <p><span class="badge src">源码</span><strong>调用侧（出模型）：</strong>模型输出 <code>{ type: "toolCall", id, name, arguments }</code>（<code>types.ts:419</code>）。Runtime 先用 TypeBox 做 <code>validateToolArguments</code>（<code>packages/ai/src/utils/validation.ts:317</code>），再经扩展的 <code>tool_call</code> 钩子（可 block），然后才调用 <code>tool.execute()</code>。<span class="badge src">源码</span>execute 是 agent 包加的：<code>AgentTool extends Tool</code>（<code>agent/src/types.ts:464</code>，<code>execute</code> 在 <code>:481</code>），真正干活的函数由产品层注入（<code>coding-agent/src/core/tools/tool-definition-wrapper.ts</code>）。</p>
+  <p><span class="badge src">源码</span><strong>结果侧（回模型）：</strong>执行产出 <code>AgentToolResult { content, details }</code>，被包成 <code>role:"toolResult"</code> 消息 push 回 Context——<b>工具因此是上下文的一部分</b>：schema 进请求参数，结果进消息历史。输出超限有统一截断（2000 行 / 50KB，<code>tools/truncate.ts:11</code>），截断时附带"如何继续读"的提示。OS 全程只见 Executor，见不到模型。</p>
+
+  <h2>三、新概念的七问：Tool Schema / ToolCall / ToolResult</h2>
+  <ol class="seven">
+    <li><b>解决什么问题？</b>给受约束的模型一个结构化、可校验、可审计的"动手接口"。</li>
+    <li><b>没有它会怎样？</b>只能靠解析自由文本里的命令，脆弱且危险。</li>
+    <li><b>输入是什么？</b>工具开发者写的 name/description/schema/execute。</li>
+    <li><b>输出是什么？</b>结构化 AgentToolResult（文本/图片 content），错误时 isError=true。</li>
+    <li><b>由谁控制？</b>声明与校验由 Runtime 控制；toolCall 的"意愿"由模型产生；副作用由 OS 发生。</li>
+    <li><b>和前一概念的关系？</b>toolCall 是 Agent Loop 每轮循环的"分流信号"——本课解释这个信号长什么样、怎么被兑现。</li>
+    <li><b>Pi 在源码哪里实现？</b><span class="badge src">源码</span><code>packages/ai/src/types.ts:717</code>（Tool）、<code>:419</code>（ToolCall）、<code>packages/agent/src/types.ts:464</code>（AgentTool.execute）。产品注册表有 8 个工具（<code>tools/index.ts:95</code>），默认只启用 read / bash / edit / write（<code>settings-manager.ts:215</code>）。powershell、grep、find、ls 在注册表里，不在默认集合里。</li>
+  </ol>
+
+  <h2>四、源码映射</h2>
+  <table class="map">
+    <tr><th>对象</th><th>在哪里产生</th><th>存在哪里</th><th>传给谁</th></tr>
+    <tr><td>name / description / schema</td><td>工具作者（coding-agent/tools/*）</td><td>Tool Registry</td><td>随请求发给模型</td></tr>
+    <tr><td>toolCall { id, name, arguments }</td><td>模型生成</td><td>AssistantMessage.content</td><td>Runtime 解析执行</td></tr>
+    <tr><td>toolResult 消息</td><td>Runtime 包装执行结果</td><td>Context.messages + 会话 JSONL</td><td>下一轮发给模型</td></tr>
+  </table>
+  <pre><code># 一次工具调用的完整旅程
+menu   = [{name:"read", description:"...", schema:...}, ...]   # 声明：进请求
+reply  = stream_simple(model, context + menu)
+call   = reply.content.find(type == "toolCall")                # 模型只产 JSON
+args   = validate_tool_arguments(call.name, call.arguments)    # TypeBox 校验
+blocked = extensions.emit("tool_call", call)                   # 扩展可拦截
+result = registry[call.name].execute(call.id, args, signal)    # 真副作用
+result = truncate(result, max_lines=2000, max_bytes=50KB)      # 统一截断
+context.messages.append(toolResultMessage(result))             # 回填给模型</code></pre>
+
+  <h2>五、这张图在整个体系中的位置</h2>
+  <p>工具是模型与真实世界之间唯一的桥。第 4 课看这些桥的产出如何挤占上下文预算（引出 Compaction），第 9 课看桥的另一端如何被安全边界约束。</p>
+
+  <div class="quiz" data-quiz='{"title": "检索练习（先凭记忆作答）", "items": [{"q": "pi-ai 里的 Tool 接口（name/description/parameters）包含 execute 函数吗？", "options": ["包含 execute 字段", "不包含，execute 在 agent 包", "旧版包含，新版移除"], "answer": 1, "why": "Tool 是纯声明（进模型的菜单）；AgentTool extends Tool 加上 execute——调用点与实现体分离。"}, {"q": "toolResult 消息里的 isError=true 意味着？", "options": ["会话必须终止", "这次调用失败，但信息仍给模型", "模型需要重新声明工具"], "answer": 1, "why": "错误文本进入下一轮请求，模型据此自纠——这就是循环的容错机制。"}, {"q": "工具输出超过 2000 行 / 50KB 时 Pi 会？", "options": ["直接报错", "静默丢弃", "截断并附上继续读取的提示"], "answer": 2, "why": "truncate.ts 统一截断，read 保开头并提示 offset 续读，bash 保结尾并落盘完整输出。"}]}'></div>
+
+  <h2>延伸阅读（一手来源）</h2>
+  <p><span class="badge src">源码</span><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/ai/src/types.ts">packages/ai/src/types.ts</a>（Tool/ToolCall 定义）· <a href="https://github.com/NorthAdb/pi-agent-north/tree/main/packages/coding-agent/src/core/tools/">packages/coding-agent/src/core/tools/</a>（8 个内置工具实现）。追问请找你的 AI 导师。</p>
+
+  <nav class="pager"><a href="0002-agent-loop.html">← 上一课</a> <a href="0004-context-assembly.html">下一课：Context Assembly →</a></nav>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>两条 Harness，不要混成一条 · 学习 Pi 导读</title>
+<meta name="description" content="两条 Harness，不要混成一条 · 学习 Pi 导读 — NorthAdb 课件">
+<link rel="stylesheet" href="../../learn-pi/style.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumbs"><a href="../../learn-pi/index.html">← 总目录</a></nav>
+  <article>
+<h1>两条 Harness，不要混成一条</h1>
+<p>1.0.0 删掉了 <code>packages/agent</code> 里的 <code>AgentHarness</code>、会话仓库和压缩库。<code>packages/agent/docs/</code> 也不在了。现在要先分清你打开的是哪条路径。</p>
+<table>
+<thead>
+<tr>
+<th>路径</th>
+<th>你实际跑到的代码</th>
+<th>什么时候读</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>日常 <code>pi</code></td>
+<td><code>Agent</code> + <code>AgentSession</code> + JSONL <code>SessionManager</code></td>
+<td>使用、扩展、读 coding-agent</td>
+</tr>
+<tr>
+<td>实验持久化</td>
+<td><code>@earendil-works/pi-durable</code> 的 <code>Harness</code></td>
+<td>要做崩溃可恢复、提交先于展示的运行时</td>
+</tr>
+</tbody></table>
+<p>两条都叫 harness，解决的问题不一样。低层循环只负责「这一轮怎么叫模型和工具」。产品还要决定历史放哪、压缩切在哪、扩展什么时候加载。</p>
+<h2>日常路径：会话文件是产品的真相</h2>
+<p><code>packages/coding-agent/src/core/session-manager.ts</code> 把一次会话写成 append-only JSONL。条目不止消息，还有模型切换、压缩、分支摘要。当前叶子是 <code>leafId</code>，从叶子走到根才是模型这一轮该看见的历史。</p>
+<p>压缩在 <code>packages/coding-agent/src/core/compaction/compaction.ts</code>，不在 agent 包里。它替换的是送给模型的投影，不删 JSONL 原文。</p>
+<p>扩展、技能、工具、信任门禁都在 coding-agent。<code>packages/agent</code> 只提供循环和事件。</p>
+<h2>实验路径：pi-durable</h2>
+<p><code>packages/durable/README.md</code> 开头就写了：<strong>Experimental. The API changes without notice.</strong></p>
+<p>它解决的是另一件事：对话、模型回合、工具调用先提交到存储，进程死在半路，重新打开还能从上次的检查点继续。存储可以是内存、JSONL 或 SQLite（<code>src/storage/sqlite/node.ts</code>）。1.0 之前单独的 <code>packages/session-backends</code> 没有了，SQLite 收进这个包。</p>
+<p>概念上它和日常 CLI 不是同一套对象：</p>
+<ul>
+<li><strong>Harness</strong>：一份打开的存储，加上在上面跑 agent 的机器</li>
+<li><strong>Conversation</strong>：不可变条目组成的转录</li>
+<li><strong>Commit</strong>：一次原子写入。条目、文档、任务要么一起落下，要么都不落</li>
+<li><strong>Task</strong>：每一步存检查点。生成模型回复的是内置任务 <code>pi.generation</code>，它再拥有工具任务</li>
+</ul>
+<p>规范在 <code>packages/durable/docs/spec.md</code>（Pico5）。coding-agent 里引用它的代码在 <code>src/experimental/</code>，不是 <code>pi</code> 默认打开会话的那条路。<code>packages/coding-agent/package.json</code> 的 dependencies 里没有 <code>pi-durable</code>。</p>
+<h2>学习者怎么用</h2>
+<ol>
+<li>先把 <code>packages/agent/src/agent-loop.ts</code> 的双层 while、<code>prepareRequest</code>、<code>finishTurn</code> 读懂。</li>
+<li>再读 <code>session-manager.ts</code> 和 <code>compaction.ts</code>，这是你用 <code>pi</code> 时真正落盘的模型。</li>
+<li>只有要做「死了还能接着跑」的宿主时，再打开 <code>packages/durable/README.md</code>。不要把 spec 里的相位和对象名套回今天的 <code>AgentSession</code>。</li>
+</ol>
+<h2>相关路径</h2>
+<ul>
+<li><code>packages/agent/README.md</code> — 循环、事件、<code>prepareRequest</code> / <code>finishTurn</code></li>
+<li><code>packages/coding-agent/src/core/session-manager.ts</code></li>
+<li><code>packages/coding-agent/src/core/compaction/compaction.ts</code></li>
+<li><code>packages/durable/README.md</code></li>
+<li><code>packages/durable/docs/spec.md</code></li>
+<li><code>packages/coding-agent/src/experimental/durable/</code></li>
+</ul>
+
+  </article>
+<nav class="pager"><a href="关键文件清单.html">← 关键文件清单</a>
+    <span class="spacer"></span>
+    <a href="../07-参考/术语表.html">术语表 →</a></nav>
+  <footer>学习 Pi 导读（learn-pi） · 基准 pi 1.0.2（2026-10-04） · <a href="https://github.com/NorthAdb/pi-agent-north" target="_blank" rel="noopener">源码仓库 ↗</a> · 姊妹课程 <a href="../../agent-harness-course/index.html">Agent Harness 架构课</a></footer>
+</div>
+</body>
+</html>

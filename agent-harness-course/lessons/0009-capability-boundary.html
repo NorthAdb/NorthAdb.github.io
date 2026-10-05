@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第 9 课 · 权限与沙箱</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <div class="kicker">Agent Harness 课程 · 第 9 课 / 共 14 课 · 第九阶段：权限与 Sandbox</div>
+  <h1>能力边界：Core 刻意不做安全</h1>
+  <p class="lede">这一课可能是 Pi 最反直觉的设计：bash 工具执行前没有任何确认弹窗，核心里也搜不到 permission 系统。这不是疏忽，而是一个立场清晰的安全模型。我们把它拆开看。</p>
+
+  <div class="question"><strong>本课核心问题：</strong>Pi 哪些权限是 Core 自带的？为什么安全边界可以（应该？）位于 Harness 外部？为什么 Tool Calling ≠ Permission System？Capability / Authorization / Sandbox 三个词差在哪？</div>
+
+  <h2>一、这张图要解决什么问题</h2>
+  <p>从 LLM 到"你的生产数据库"之间隔着几层？每一层由谁负责？把这三层混为一谈（"模型会调工具所以有权限问题"）就无法讨论安全。这张图把链路画出来，并把 Pi 实际部署的三道边界——Trust、扩展门、外部容器——标在正确的位置上。</p>
+
+  <figure class="diagram">
+    <iframe src="diagrams/09-capability-boundary.html" title="Diagram 09 · Capability Boundary" loading="lazy"></iframe>
+    <figcaption>Diagram 09 · 虚线框是可选的外部隔离边界。<a href="diagrams/09-capability-boundary.html" target="_blank">全屏打开 ↗</a></figcaption>
+  </figure>
+
+  <h2>二、如何从图上读懂 Pi</h2>
+  <p><span class="badge doc">文档</span><strong>官方立场原话</strong>（<code>packages/coding-agent/docs/security.md:3</code>）："Pi can read, change, and execute files with the permissions of the account that started it, and <b>it does not ask for approval before every tool call</b>." 同文还明确："Project trust … does not limit what tool calls can access or affect."（Project trust 不限制工具调用的触及范围。）</p>
+  <p><span class="badge src">源码</span><strong>Core 自带的安全机制只有一道：Project Trust。</strong><code>trust-manager.ts</code> + <code>main.ts:704-764</code>：首次进入一个项目目录时，用户必须显式信任，之后该目录的 <code>.pi/extensions、.pi/skills、.pi/settings.json</code> 等才会被加载。<b>它防的是供应链攻击</b>（clone 一个恶意仓库 → 其 .pi/extensions 自动执行），<b>不是</b>工具行为审批。</p>
+  <p><span class="badge src">源码</span><strong>工具层留了"接缝"而非"审批"。</strong>bash 工具的 <code>BashOperations</code> 接口（tools/bash.ts:59）注释明说"Override these to delegate command execution to remote systems (for example SSH)"；<code>BashSpawnHook</code> 允许扩展改写 command/cwd/env。也就是说：执行<b>去哪</b>是可插拔的，执行<b>前要不要问人</b>也是可插拔的（permission-gate 扩展）——但两者都不在 Core 里。</p>
+  <p><span class="badge doc">文档</span><strong>官方推荐的硬边界在容器。</strong><code>docs/containerization.md</code> 给出四种隔离方案（Plain Docker / Docker Sandboxes / OpenShell / Gondolin micro-VM）与 Dockerfile 示例——把整条 LLM→Runtime→Tool→OS 链关进笼子，笼子由环境负责，不由 Harness 负责。<b>Tool Calling ≠ Permission System</b>：结构化的 JSON 调用解决的是"可靠地动手"，不是"该不该动手"。</p>
+  <p><strong>三个词的辨析：</strong><b>Capability</b>＝工具给了模型什么本事（read/bash/edit…）；<b>Authorization</b>＝动手前谁说了算（Pi Core：无人审批，启动者即授权人；想审批→扩展钩子）；<b>Sandbox</b>＝动手时物理上碰得到什么（OS 用户权限 / 容器 / micro-VM——全在 Harness 外部）。</p>
+
+  <h2>三、新概念的七问：Capability / Authorization / Sandbox</h2>
+  <ol class="seven">
+    <li><b>解决什么问题？</b>在"能干活"与"不闯祸"之间划一条清晰的、不撒谎的线。</li>
+    <li><b>没有它会怎样？</b>如果 Core 假装弹窗就是安全，用户会带着虚假安全感在生产机上跑 bash——比"明说没有"更危险。</li>
+    <li><b>输入是什么？</b>工具调用的意愿（来自模型）+ 执行环境的事实（来自 OS/容器）。</li>
+    <li><b>输出是什么？</b>放行/拦截的决策（扩展层）+ 被物理约束的副作用（环境层）。</li>
+    <li><b>由谁控制？</b>三层各自独立：Capability=工具作者；Authorization=用户与扩展；Sandbox=运行环境。</li>
+    <li><b>和前一概念的关系？</b>第 8 课的 tool_call 钩子正是 Authorization 层的挂点——Core 提供接缝，不提供政策。</li>
+    <li><b>Pi 在源码哪里实现？</b><span class="badge src">源码</span>Trust：<code>trust-manager.ts</code>；接缝：<code>tools/bash.ts</code>；官方容器指南：<code>docs/containerization.md</code>；<span class="badge doc">文档</span>立场声明：<code>docs/security.md</code>。</li>
+  </ol>
+
+  <h2>四、源码映射</h2>
+  <table class="map">
+    <tr><th>层</th><th>Pi 的实现</th><th>证据等级</th></tr>
+    <tr><td>Capability</td><td>8 个内置工具 + 扩展注册工具</td><td><span class="badge src">源码</span> tools/index.ts:95</td></tr>
+    <tr><td>Authorization（Core）</td><td>无审批；仅 Project Trust 门禁加载</td><td><span class="badge src">源码</span> trust-manager.ts + <span class="badge doc">文档</span> security.md</td></tr>
+    <tr><td>Authorization（扩展）</td><td>tool_call block + UI 确认</td><td><span class="badge src">源码</span> examples/extensions/permission-gate.ts</td></tr>
+    <tr><td>Sandbox</td><td>容器 / micro-VM（外部）；BashOperations 可指远程</td><td><span class="badge doc">文档</span> containerization.md + <span class="badge src">源码</span> bash.ts:59</td></tr>
+  </table>
+
+  <h2>五、这张图在整个体系中的位置</h2>
+  <p>这是"Minimal Core"哲学的压力测试：安全这样的大事也敢外包？看完这一课你应该能自己论证：弹窗审批挡不住真正的破坏（容器才能），而 Core 假装安全比诚实更危险。下一课看接口层如何同样贯彻"核心最小"。</p>
+
+  <div class="quiz" data-quiz='{"title": "检索练习（先凭记忆作答）", "items": [{"q": "Pi Core 自带的「安全机制」是什么？", "options": ["每次调用前的审批弹窗", "Project Trust 门禁加载", "一个内置的沙箱"], "answer": 1, "why": "Trust 防供应链（恶意仓库的 .pi/extensions 自动执行），不限制工具调用的触及范围——security.md 原文。"}, {"q": "「Tool Calling ≠ Permission System」的意思是？", "options": ["工具调用本身不安全", "解决可靠动手，不解决该不该动手", "二者互斥互补"], "answer": 1, "why": "JSON schema 让调用可靠、可校验、可审计，但授权与物理隔离是另外两层。"}, {"q": "官方推荐的硬隔离边界在哪？", "options": ["Core 内置权限矩阵", "容器 / micro-VM", "扩展确认门机制"], "answer": 1, "why": "Harness 外部的物理隔离才是硬边界；扩展确认门只是可选的软措施。"}]}'></div>
+
+  <h2>延伸阅读（一手来源）</h2>
+  <p><span class="badge doc">文档</span><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/coding-agent/docs/security.md">docs/security.md</a> · <a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/coding-agent/docs/containerization.md">docs/containerization.md</a>。追问请找你的 AI 导师。</p>
+
+  <nav class="pager"><a href="0008-extensions.html">← 上一课</a> <a href="0010-interfaces.html">下一课：TUI / RPC / SDK →</a></nav>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

@@ -1,0 +1,282 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Diagram 02 · Agent Loop：一次 prompt 如何驱动 LLM→Tool→Observation",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "output": "agent-harness-course/lessons/diagrams/02-agent-loop.html",
+    "viewBox": [
+      1180,
+      656
+    ],
+    "legend": {
+      "mode": "hidden"
+    }
+  },
+  "lanes": [
+    {
+      "id": "ui",
+      "label": "User / TUI"
+    },
+    {
+      "id": "loop",
+      "label": "Agent Loop（含 LLM 流式调用）"
+    },
+    {
+      "id": "tools",
+      "label": "工具与 OS"
+    },
+    {
+      "id": "err",
+      "label": "错误路径（仍是 toolResult）",
+      "variant": "exception"
+    }
+  ],
+  "phases": [
+    {
+      "id": "intake",
+      "label": "输入",
+      "fromCol": 0,
+      "toCol": 1
+    },
+    {
+      "id": "reasoning",
+      "label": "推理",
+      "fromCol": 2,
+      "toCol": 3,
+      "variant": "emphasis"
+    },
+    {
+      "id": "execution",
+      "label": "执行与回填",
+      "fromCol": 4,
+      "toCol": 5,
+      "variant": "dashed"
+    }
+  ],
+  "groups": [
+    {
+      "id": "whileg",
+      "label": "双层 while 循环体",
+      "lane": "loop",
+      "fromCol": 2,
+      "toCol": 5,
+      "variant": "emphasis"
+    },
+    {
+      "id": "errg",
+      "label": "错误不抛出 · 转为消息",
+      "lane": "err",
+      "fromCol": 3,
+      "toCol": 4,
+      "variant": "security"
+    },
+    {
+      "id": "toolg",
+      "label": "工具执行",
+      "lane": "tools",
+      "fromCol": 4,
+      "toCol": 4,
+      "variant": "dashed"
+    }
+  ],
+  "mainPath": [
+    "user",
+    "session",
+    "buildctx",
+    "llmcall",
+    "dec",
+    "exec",
+    "tresult"
+  ],
+  "nodes": [
+    {
+      "id": "user",
+      "lane": "ui",
+      "col": 0,
+      "type": "external",
+      "label": "用户",
+      "sublabel": "发出 prompt",
+      "width": 120
+    },
+    {
+      "id": "session",
+      "lane": "ui",
+      "col": 1,
+      "type": "backend",
+      "label": "AgentSession.prompt()",
+      "sublabel": "steering / followUp 队列",
+      "width": 150
+    },
+    {
+      "id": "final",
+      "lane": "ui",
+      "col": 4,
+      "type": "backend",
+      "label": "agent_end",
+      "sublabel": "无 toolCall 且队列空 → 终止",
+      "width": 150
+    },
+    {
+      "id": "buildctx",
+      "lane": "loop",
+      "col": 2,
+      "type": "database",
+      "label": "Context 投影",
+      "sublabel": "会话投影 + 钩子改写",
+      "width": 150
+    },
+    {
+      "id": "llmcall",
+      "lane": "loop",
+      "col": 3,
+      "type": "cloud",
+      "label": "streamSimple → LLM",
+      "sublabel": "SSE → AssistantMessage",
+      "width": 150
+    },
+    {
+      "id": "dec",
+      "lane": "loop",
+      "col": 4,
+      "type": "backend",
+      "label": "含 toolCall 块？",
+      "sublabel": "agent-loop.ts:259",
+      "width": 150
+    },
+    {
+      "id": "tresult",
+      "lane": "loop",
+      "col": 5,
+      "type": "database",
+      "label": "toolResult 消息",
+      "sublabel": "push 回 messages",
+      "width": 150
+    },
+    {
+      "id": "exec",
+      "lane": "tools",
+      "col": 4,
+      "type": "messagebus",
+      "label": "executeToolCalls",
+      "sublabel": "校验 → 执行 → spawn 真实进程",
+      "width": 150
+    },
+    {
+      "id": "terr",
+      "lane": "err",
+      "col": 3,
+      "type": "security",
+      "label": "isError toolResult",
+      "sublabel": "createErrorToolResult",
+      "width": 150
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "from": "user",
+      "to": "session",
+      "label": "prompt",
+      "variant": "default"
+    },
+    {
+      "id": "e2",
+      "from": "session",
+      "to": "buildctx",
+      "label": "每轮组装",
+      "role": "main",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e3",
+      "from": "buildctx",
+      "to": "llmcall",
+      "label": "systemPrompt + messages + tools",
+      "role": "main",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e4",
+      "from": "llmcall",
+      "to": "dec",
+      "label": "AssistantMessage",
+      "role": "main"
+    },
+    {
+      "id": "e5",
+      "from": "dec",
+      "to": "exec",
+      "label": "有 toolCall",
+      "role": "main",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e6",
+      "from": "dec",
+      "to": "final",
+      "label": "无 toolCall → 退出",
+      "role": "branch"
+    },
+    {
+      "id": "e7",
+      "from": "exec",
+      "to": "tresult",
+      "label": "ToolResultMessage",
+      "role": "main",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e8",
+      "from": "tresult",
+      "to": "buildctx",
+      "label": "append 后进入下一轮 while",
+      "role": "main",
+      "route": "bottom-channel",
+      "channelY": 585
+    },
+    {
+      "id": "e9",
+      "from": "exec",
+      "to": "terr",
+      "label": "throw 被捕获",
+      "role": "error",
+      "variant": "security"
+    },
+    {
+      "id": "e10",
+      "from": "terr",
+      "to": "llmcall",
+      "label": "isError=true 回给模型自纠",
+      "role": "error",
+      "variant": "security"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "循环由谁控制",
+      "items": [
+        "控制权在 Runtime 的 while——不是模型",
+        "模型每轮唯一的决定：要不要发起 toolCall"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "错误也是数据",
+      "items": [
+        "工具 throw 被循环捕获，包成 isError=true 的 toolResult",
+        "错误文本进入下一轮请求，模型自行重试"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "退出条件",
+      "items": [
+        "无 toolCall 且 steering / followUp 队列为空",
+        "stopReason 为 error / aborted 时硬退出"
+      ]
+    }
+  ]
+}

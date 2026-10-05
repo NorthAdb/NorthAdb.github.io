@@ -1,0 +1,239 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Diagram 04 · Context Assembly Pipeline：Context 是如何形成的",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/NorthAdb/pi-agent-north",
+      "provider": "github",
+      "revision": "47c9be752f88c26f4ffa06caf0d2a3888117d9b1"
+    },
+    "viewBox": [
+      1100,
+      580
+    ]
+  },
+  "components": [
+    {
+      "id": "base",
+      "type": "backend",
+      "label": "静态 base prompt",
+      "sublabel": "preamble/rules/env/全局 AGENTS.md",
+      "tag": "static",
+      "pos": [
+        60,
+        60
+      ],
+      "size": [
+        200,
+        60
+      ]
+    },
+    {
+      "id": "agentsmd",
+      "type": "database",
+      "label": "项目 AGENTS.md / CLAUDE.md",
+      "sublabel": "沿祖先目录收集",
+      "pos": [
+        60,
+        150
+      ],
+      "size": [
+        200,
+        60
+      ]
+    },
+    {
+      "id": "skills",
+      "type": "database",
+      "label": "Skills 目录（XML）",
+      "sublabel": "name+description+location",
+      "pos": [
+        60,
+        240
+      ],
+      "size": [
+        200,
+        60
+      ]
+    },
+    {
+      "id": "sections",
+      "type": "backend",
+      "label": "buildSystemPromptSections",
+      "sublabel": "preamble/tools/rules/docs/project_context/skills/cwd",
+      "tag": "组装层",
+      "pos": [
+        330,
+        60
+      ],
+      "size": [
+        240,
+        240
+      ],
+      "sources": [
+        {
+          "path": "packages/coding-agent/src/core/system-prompt.ts",
+          "line": 121
+        }
+      ]
+    },
+    {
+      "id": "ctx",
+      "type": "database",
+      "label": "Context",
+      "sublabel": "systemPrompt + messages + tools",
+      "pos": [
+        330,
+        340
+      ],
+      "size": [
+        240,
+        160
+      ],
+      "sources": [
+        {
+          "path": "packages/ai/src/types.ts",
+          "line": 734
+        }
+      ]
+    },
+    {
+      "id": "hist",
+      "type": "database",
+      "label": "会话历史投影",
+      "sublabel": "含 toolResult · 可被压缩",
+      "pos": [
+        640,
+        350
+      ],
+      "size": [
+        190,
+        60
+      ],
+      "sources": [
+        {
+          "path": "packages/coding-agent/src/core/session-manager.ts",
+          "line": 576
+        }
+      ]
+    },
+    {
+      "id": "tooldecl",
+      "type": "backend",
+      "label": "tools 声明",
+      "sublabel": "Tool schema → 请求参数",
+      "pos": [
+        640,
+        440
+      ],
+      "size": [
+        190,
+        60
+      ]
+    },
+    {
+      "id": "llm",
+      "type": "cloud",
+      "label": "LLM 请求",
+      "sublabel": "prompt cache 友好",
+      "pos": [
+        900,
+        380
+      ],
+      "size": [
+        160,
+        70
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "from": "base",
+      "to": "sections",
+      "label": "静态段",
+      "fromSide": "right",
+      "toSide": "left",
+      "labelAt": [
+        275,
+        134
+      ]
+    },
+    {
+      "from": "agentsmd",
+      "to": "sections",
+      "label": "项目指令",
+      "fromSide": "right",
+      "toSide": "left",
+      "labelAt": [
+        243,
+        224
+      ]
+    },
+    {
+      "from": "skills",
+      "to": "sections",
+      "label": "skills 目录",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "from": "sections",
+      "to": "ctx",
+      "label": "systemPrompt",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDy": 24
+    },
+    {
+      "from": "hist",
+      "to": "ctx",
+      "label": "messages",
+      "fromSide": "left",
+      "toSide": "right"
+    },
+    {
+      "from": "tooldecl",
+      "to": "ctx",
+      "label": "tools 参数",
+      "fromSide": "left",
+      "toSide": "right"
+    },
+    {
+      "from": "ctx",
+      "to": "llm",
+      "label": "最终请求",
+      "fromSide": "right",
+      "toSide": "left",
+      "labelDy": 14
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Static vs Dynamic",
+      "items": [
+        "base prompt / 规则 / 环境信息 / 全局 AGENTS.md 是静态段",
+        "项目 AGENTS.md、skills 目录、会话投影是动态段"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Session ≠ Context",
+      "items": [
+        "Session 是磁盘上的完整历史树（JSONL）",
+        "Context 只是本轮送给模型的那一份投影"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Prompt Cache",
+      "items": [
+        "sections 分块 diff（diffSystemPromptSections），只发变更",
+        "静态段在前、动态段在后，缓存命中率更高"
+      ]
+    }
+  ]
+}

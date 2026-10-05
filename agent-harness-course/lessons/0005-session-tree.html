@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第 5 课 · Session / State</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <div class="kicker">Agent Harness 课程 · 第 5 课 / 共 14 课 · 第五阶段：Session / State</div>
+  <h1>Session：append-only 的历史树</h1>
+  <p class="lede">模型每轮都失忆，所以 Harness 必须替它记住一切。这一课看 Pi 的选择：一个 append-only 的 JSONL 文件，条目之间用 parentId 连成一棵树——以及为什么这比 messages[] 好得多。</p>
+
+  <div class="question"><strong>本课核心问题：</strong>为什么 Coding Agent 不应该只维护一个简单的 messages[]，而需要 History Tree？branch / fork / resume 分别是什么？</div>
+
+  <h2>一、这张图要解决什么问题</h2>
+  <p>messages[] 有三个致命伤：改历史 = 破坏证据（出错了想回溯？没了）；分支 = 复制整段历史（内存与磁盘双倍浪费）；恢复 = 重新序列化一切。这张图展示 Pi 的答案：条目只增不删，parentId 连成树，一个 leafId 指针决定"现在站在哪"。</p>
+
+  <figure class="diagram">
+    <iframe src="diagrams/05-session-tree.html" title="Diagram 05 · Session 历史树" loading="lazy"></iframe>
+    <figcaption>Diagram 05 · 上排是编排者与投影，中排是条目链，指针行与分叉在中间。<a href="diagrams/05-session-tree.html" target="_blank">全屏打开 ↗</a></figcaption>
+  </figure>
+
+  <h2>二、如何从图上读懂 Pi</h2>
+  <p><span class="badge src">源码</span><strong>一切皆条目。</strong><code>packages/coding-agent/src/core/session-manager.ts</code> 里，文件头是 <code>SessionHeader</code>（<code>:43</code>），树上的条目联合类型是 <code>SessionEntry</code>（<code>:183</code>）。不只是消息（message），还有 model_change、thinking_level_change、usage、compaction、branch_summary、custom、custom_message、context_edit、label、session_info。配置的演变、压缩事件、扩展的私有状态都被持久化。每个条目带 <code>{ type, id, parentId, timestamp }</code>（<code>SessionEntryBase</code>，<code>:57</code>）。</p>
+  <p><span class="badge src">源码</span><strong>分支 = 移动指针。</strong>类注释（:977-985）写明 "append-only trees… The 'leaf' pointer tracks the current position. Branching moves the leaf to an earlier entry"。<code>branch(branchFromId)</code>（:1574）只是把 leafId 指回某个祖先——零拷贝；<code>branchWithSummary()</code> 额外落一条 branch_summary 摘要条目；<code>forkFrom()</code>（:1808）才真正把 root→leaf 路径抽成新文件（header 记 parentSession 血缘）。<code>--continue</code> 按 mtime 找最近文件（:1788）重放恢复 model 与 thinking level。</p>
+  <p><span class="badge src">源码</span><strong>投影，不是回放全部。</strong><code>buildSessionProjection()</code> 从 leaf 沿 parentId 回溯到根，处理 compaction 与 context_edit 条目，产出喂给 Agent 的 messages——这就是第 4 课"Context 投影"的来源。</p>
+
+  <h2>三、新概念的七问：Session Tree</h2>
+  <ol class="seven">
+    <li><b>解决什么问题？</b>持久、可回溯、可分支、可恢复的任务历史。</li>
+    <li><b>没有它会怎样？</b>崩溃即失忆；改提示词重跑只能从头再来；无法安全地"回到三步之前"。</li>
+    <li><b>输入是什么？</b>每一条新事件（消息、配置变更、压缩、扩展条目）。</li>
+    <li><b>输出是什么？</b>投影后的 messages（给 Agent）+ 可 resume 的文件（给人类）。</li>
+    <li><b>由谁控制？</b>SessionManager 编排；写入是 appendFileSync 一行 JSON（:1187）。</li>
+    <li><b>和前一概念的关系？</b>Session 是第 4 课"历史投影"的数据源头——投影是树的一次遍历。</li>
+    <li><b>Pi 在源码哪里实现？</b><span class="badge src">源码</span><code>packages/coding-agent/src/core/session-manager.ts</code>（文件在 <code>~/.pi/agent/sessions/--&lt;编码后的 cwd&gt;--/&lt;时间戳&gt;_&lt;id&gt;.jsonl</code>）。</li>
+  </ol>
+
+  <h2>四、源码映射与心智图</h2>
+  <pre><code>Session = 树
+  Entry = { type, id, parentId, timestamp, ... }   # 只增不删
+  leafId ──────────► "当前站在哪个条目"             # 一个指针
+  branch(id): leafId = id                           # 分支 = 拨指针，零拷贝
+  fork():     root→leaf 路径复制成新 .jsonl          # 血缘 parentSession
+  resume():   打开旧文件，重放恢复 model/thinking
+  projection: leaf→root 回溯 + compaction 替换 → messages</code></pre>
+
+  <h2>五、这张图在整个体系中的位置</h2>
+  <p>Session 回答"状态存在哪里"。下一课的 Compaction 是这棵树上唯一"改写投影"的合法机制——历史不动，投影被摘要替换。两课合起来才是完整的状态管理。</p>
+
+  <div class="quiz" data-quiz='{"title": "检索练习（先凭记忆作答）", "items": [{"q": "Pi 的 branch() 操作会复制历史条目吗？", "options": ["会，深拷贝整条路径", "不会，只移动 leafId 指针", "会，但只复制最近 10 条"], "answer": 1, "why": "branch 只拨指针，零拷贝；forkFrom() 才把路径抽成新文件。"}, {"q": "下列哪项不是 Pi 会话里的条目类型？", "options": ["compaction 摘要条目", "model_change 配置变更条目", "git commit 快照条目"], "answer": 2, "why": "条目全集包括 message/model_change/thinking_level_change/usage/compaction/branch_summary/custom/context_edit 等，没有 git 快照。"}, {"q": "喂给 Agent 的 messages 是怎么来的？", "options": ["直接读 JSONL 的全部行", "leaf 回溯 + 压缩处理的投影", "内存里另存 messages[] 副本"], "answer": 1, "why": "buildSessionProjection 的投影才是模型可见的——这解释了 Session ≠ Context。"}]}'></div>
+
+  <h2>延伸阅读（一手来源）</h2>
+  <p><span class="badge src">源码</span><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/coding-agent/src/core/session-manager.ts">session-manager.ts</a>。追问请找你的 AI 导师。</p>
+
+  <nav class="pager"><a href="0004-context-assembly.html">← 上一课</a> <a href="0006-compaction.html">下一课：Compaction →</a></nav>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

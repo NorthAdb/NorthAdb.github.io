@@ -1,0 +1,2 @@
+pytest>=8.0
+# 选做：接入真实 Anthropic API 时（AnthropicProvider），自行 `pip install anthropic`

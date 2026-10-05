@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第 2 课 · Agent Loop</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <div class="kicker">Agent Harness 课程 · 第 2 课 / 共 14 课 · 第二阶段：先彻底理解 Agent Loop</div>
+  <h1>Agent Loop：循环由谁控制</h1>
+  <p class="lede">上一课我们说"LLM 是被调用的函数"。这一课看调用它的那个 while 循环——整个 Harness 的心脏，也是你将来自己写 Harness 时要写的第一段代码。</p>
+
+  <div class="question"><strong>本课核心问题：</strong>用户发出一个请求之后，Pi 是如何驱动 LLM → Tool → Observation → LLM 的？循环到底由谁控制？什么情况下结束？</div>
+
+  <h2>一、这张图要解决什么问题</h2>
+  <p>"Agent 会自己思考"是一种错觉。真相是：一个普通程序里的 while 循环，每轮把 Context 发给模型，模型回一段文本（可能夹着结构化的 toolCall），循环解析后执行工具，把结果追加回 Context，再来一轮。这张图把这个最容易被神化的机制摊开在桌面上。</p>
+
+  <figure class="diagram">
+    <iframe src="diagrams/02-agent-loop.html" title="Diagram 02 · Agent Loop" loading="lazy"></iframe>
+    <figcaption>Diagram 02 · 主路径高亮为每轮的实际执行序。<a href="diagrams/02-agent-loop.html" target="_blank">全屏打开 ↗</a></figcaption>
+  </figure>
+
+  <h2>二、如何从图上读懂 Pi</h2>
+  <p><span class="badge src">源码</span><strong>1. 循环由 Runtime 控制。</strong>公开入口 <code>agentLoop</code> 在 <code>packages/agent/src/agent-loop.ts:38</code>，真正的双层循环是私有函数 <code>runLoop</code>（<code>:163</code>）：外层 while（<code>:179</code>）处理 follow-up 消息队列，内层 while（<code>:183</code>）处理"本轮还有没有 toolCall / steering 消息"。模型从未持有控制权——它每轮只提交一次"意见书"。</p>
+  <p><strong>2. 是否执行工具，看 content 里的 toolCall 块。</strong><code>agent-loop.ts:259</code>：<code>message.content.filter(c =&gt; c.type === "toolCall")</code>——不是看 stopReason。有 toolCall 就执行；没有，且 steering / followUp 队列也空，就发 <code>agent_end</code> 退出。宿主另有两道刹车：每次请求前的 <code>prepareRequest</code>（<code>:219</code>，含第一轮）可以替换即将送出的上下文；回合结束后的 <code>finishTurn</code>（<code>:286</code>）返回 <code>{ action: "end" }</code> 可以在 <code>turn_end</code> 之后停住，不再排下一轮。整批工具结果都带 <code>terminate</code> 时，也会跳过下一次模型调用。</p>
+  <p><strong>3. 错误不抛出，而是变成消息。</strong>工具 throw 被循环捕获，经 <code>createErrorToolResult</code>（<code>agent-loop.ts:905</code>）包成 <code>isError: true</code> 的 toolResult 文本消息回给模型，模型下一轮自己重试。<span class="badge src">源码</span>还有个精妙细节：<code>stopReason === "length"</code>（<code>:268</code>，函数 <code>failToolCallsFromTruncatedMessage</code> 在 <code>:478</code>）时，所有 toolCall 一律判失败——防止执行参数被截断的命令。</p>
+
+  <h2>三、新概念的七问：Agent Loop</h2>
+  <ol class="seven">
+    <li><b>解决什么问题？</b>把"一次问答"变成"多步任务"：观察结果 → 再决定下一步。</li>
+    <li><b>没有它会怎样？</b>模型只能一次性凭空猜答案，无法根据工具反馈修正。</li>
+    <li><b>输入是什么？</b>用户 prompt（经 AgentSession 的 steering / followUp 队列调度）。</li>
+    <li><b>输出是什么？</b>一串 AgentMessage（最终出现在会话里）+ 10 种 AgentEvent 事件。</li>
+    <li><b>由谁控制？</b>Runtime 的 while。模型只有"建议权"（发 toolCall），没有"执行权"。</li>
+    <li><b>和前一概念的关系？</b>它是第 1 课 Harness 图里那颗"循环心脏"——Harness 的其他部件都为它服务。</li>
+    <li><b>Pi 在源码哪里实现？</b><span class="badge src">源码</span><code>packages/agent/src/agent-loop.ts</code>；有状态封装在 <code>packages/agent/src/agent.ts</code>（steering / followUp / 事件规约）。</li>
+  </ol>
+
+  <h2>四、源码映射与最简伪代码</h2>
+  <table class="map">
+    <tr><th>机制</th><th>位置</th><th>要点</th></tr>
+    <tr><td>双层 while</td><td><code>agent-loop.ts:179</code> / <code>:183</code></td><td>外层 follow-up 队列，内层 toolCall/steering</td></tr>
+    <tr><td>请求前 / 回合后</td><td><code>prepareRequest:219</code> · <code>finishTurn:286</code></td><td>换上下文，或用 <code>{ action: "end" }</code> 停住</td></tr>
+    <tr><td>toolCall 判定</td><td><code>agent-loop.ts:259</code></td><td>看 content 里的 toolCall 块</td></tr>
+    <tr><td>结果回填</td><td><code>agent-loop.ts:274-277</code></td><td><code>currentContext.messages.push(result)</code></td></tr>
+    <tr><td>错误包装</td><td><code>agent-loop.ts:905</code></td><td><code>createErrorToolResult</code>，<code>isError: true</code></td></tr>
+    <tr><td>事件流</td><td><code>packages/agent/src/types.ts:514</code></td><td>10 种 AgentEvent（agent_start/end、turn_*、message_*、tool_execution_*）</td></tr>
+  </table>
+  <pre><code># 1.0.2 的最简 Agent Loop（agent-loop.ts runLoop）
+while True:                                    # 外层 :179 follow-up
+    has_more = True
+    while has_more or pending:                 # 内层 :183 toolCall / steering
+        context = prepare_request(context)     # :219 每次请求前，含第一轮
+        msg = stream_simple(model, context)
+        tool_calls = [c for c in msg.content if c.type == "toolCall"]  # :259
+        if msg.stop_reason == "length":
+            results = fail_all(tool_calls)     # :268 / :478 截断一律失败
+            has_more = False
+        elif tool_calls:
+            results = execute_all(tool_calls)
+            has_more = not batch_says_terminate
+        else:
+            results = []
+            has_more = False
+        for r in results:
+            context.messages.append(r)         # :274 含 isError
+        if finish_turn() == "end":             # :286 正常回合可提前结束
+            emit("turn_end"); return
+    if not follow_ups:
+        emit("agent_end"); return</code></pre>
+
+  <h2>五、这张图在整个体系中的位置</h2>
+  <p>Agent Loop 是课程的"根概念"：第 3 课深入它调度的工具，第 4 课看它每轮送出的 Context 是怎么拼的，第 11 课看它跑一整场真实任务。把这个 while 循环写出来，你就已经有了最小 Harness 的骨架。</p>
+
+  <div class="quiz" data-quiz='{"title": "检索练习（先凭记忆作答）", "items": [{"q": "Pi 判断「要不要继续循环」的依据是？", "options": ["stopReason 是否为 toolUse", "消息 content 里有没有 toolCall 块", "用户是否按了回车"], "answer": 1, "why": "agent-loop.ts:259 用 content.filter(type===toolCall) 决定是否执行工具。finishTurn 和 terminate 是宿主额外的刹车，不改变这条判定。"}, {"q": "工具抛出异常时，Pi 会？", "options": ["终止整个会话并报错", "静默吞掉，不告诉模型", "包成 isError 消息回给模型"], "answer": 2, "why": "createErrorToolResult 把错误文本变成消息，模型下一轮可自行修正——错误也是数据。"}, {"q": "stopReason=length（输出被截断）时，模型发出的 toolCall 会？", "options": ["照常执行", "一律判失败不执行", "只执行第一个"], "answer": 1, "why": "failToolCallsFromTruncatedMessage 防止执行参数被截断的命令——安全优先。"}]}'></div>
+
+  <h2>延伸阅读（一手来源）</h2>
+  <p><span class="badge src">源码</span><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/agent/src/agent-loop.ts">packages/agent/src/agent-loop.ts</a>（本课主角）· <a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/agent/README.md">packages/agent/README.md</a> 的 Event Flow 一节。追问请找你的 AI 导师。</p>
+
+  <nav class="pager"><a href="0001-why-llm-is-not-agent.html">← 上一课</a> <a href="0003-tool-calling.html">下一课：Tool Calling →</a></nav>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

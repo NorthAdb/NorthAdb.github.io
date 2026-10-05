@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Diagram 03 · Tool Calling / Tool Execution 时序",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "viewBox": [1024, 560],
+    "column_fit": "spread"
+  },
+  "participants": [
+    { "id": "llm", "type": "cloud", "label": "LLM", "sublabel": "只生成 toolCall，不执行" },
+    { "id": "loop", "type": "backend", "label": "agentLoop()", "sublabel": "Runtime 控制器" },
+    { "id": "registry", "type": "backend", "label": "Tool Registry", "sublabel": "schema 校验 + 钩子" },
+    { "id": "exec", "type": "messagebus", "label": "Tool Executor", "sublabel": "AgentTool.execute" },
+    { "id": "os", "type": "external", "label": "OS / FS / Shell", "sublabel": "真实副作用发生地" },
+    { "id": "ctx", "type": "database", "label": "Context", "sublabel": "messages 追加" }
+  ],
+  "segments": [
+    { "from": 150, "to": 252, "label": "声明与调用" },
+    { "from": 264, "to": 376, "label": "执行" },
+    { "from": 384, "to": 456, "label": "回填与续跑" }
+  ],
+  "messages": [
+    { "id": "m1", "from": "loop", "to": "llm", "y": 160, "label": "streamSimple(context, tools)", "variant": "emphasis" },
+    { "id": "m2", "from": "llm", "to": "loop", "y": 188, "label": "toolCall { id, name, arguments }" },
+    { "id": "m3", "from": "loop", "to": "registry", "y": 216, "label": "validateToolArguments（TypeBox）", "variant": "security" },
+    { "id": "m4", "from": "registry", "to": "loop", "y": 244, "label": "通过 / 扩展 block", "variant": "return" },
+    { "id": "m5", "from": "loop", "to": "exec", "y": 276, "label": "tool.execute(id, args, signal)", "variant": "emphasis" },
+    { "id": "m6", "from": "exec", "to": "os", "y": 304, "label": "spawn / 文件读写" },
+    { "id": "m7", "from": "os", "to": "exec", "y": 332, "label": "stdout / 文件内容", "variant": "return" },
+    { "id": "m8", "from": "exec", "to": "loop", "y": 360, "label": "AgentToolResult { content }", "variant": "return" },
+    { "id": "m9", "from": "loop", "to": "ctx", "y": 392, "label": "push toolResult（isError 可为 true）" },
+    { "id": "m10", "from": "loop", "to": "llm", "y": 420, "label": "下一轮请求（含 toolResult）", "variant": "emphasis" },
+    { "id": "m11", "from": "llm", "to": "loop", "y": 448, "label": "文本回复 或 下一个 toolCall" }
+  ],
+  "activations": [
+    { "participant": "loop", "from": 160, "to": 452, "type": "backend" },
+    { "participant": "llm", "from": 160, "to": 194, "type": "cloud" },
+    { "participant": "registry", "from": 216, "to": 250, "type": "backend" },
+    { "participant": "exec", "from": 276, "to": 366, "type": "messagebus" },
+    { "participant": "os", "from": 304, "to": 338, "type": "external" },
+    { "participant": "ctx", "from": 392, "to": 400, "type": "database" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "模型到底看到什么", "items": [
+      "每个工具的 name / description / JSON Schema 参数",
+      "历史对话中的 toolCall 与 toolResult 文本",
+      "它看不到进程、路径权限或真实执行环境"
+    ] },
+    { "dot": "rose", "title": "Runtime 到底执行什么", "items": [
+      "校验通过后的真实参数与真实副作用",
+      "工具是模型上下文的一部分：schema 进提示词，结果进消息",
+      "toolCall 产生于模型，执行权永远在 Runtime"
+    ] },
+    { "dot": "orange", "title": "边界线", "items": [
+      "LLM ↔ Runtime：结构化 JSON 建议",
+      "Runtime ↔ OS：进程与文件系统调用",
+      "OS 永远只见到 Executor，见不到模型"
+    ] }
+  ]
+}

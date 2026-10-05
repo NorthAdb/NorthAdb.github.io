@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>为什么 Pi 适合学习 · 学习 Pi 导读</title>
+<meta name="description" content="为什么 Pi 适合学习 · 学习 Pi 导读 — NorthAdb 课件">
+<link rel="stylesheet" href="../../learn-pi/style.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumbs"><a href="../../learn-pi/index.html">← 总目录</a></nav>
+  <article>
+<h1>为什么 Pi 适合学习</h1>
+<p>这里的「适合初学者」不是指「零基础就能改内核」，而是：<strong>学「现代编码 Agent 是怎么拼起来的」时，Pi 是一条清晰、可动手、可拆开的路径。</strong></p>
+<h2>1. 内核足够小，概念可数清</h2>
+<p>默认模型能力面非常克制：</p>
+<ul>
+<li>四个核心工具：<code>read</code> / <code>write</code> / <code>edit</code> / <code>bash</code></li>
+<li>一条主循环：用户输入 → LLM →（可选）工具 → 再 LLM → …</li>
+<li>几种扩展手段：Extensions / Skills / Prompt Templates / Themes / Packages</li>
+</ul>
+<p>对比「MCP 工具全量注入 + 子 Agent + Plan + 权限矩阵 + 后台任务」的巨型产品，Pi 更容易在脑中画出完整框图：MCP 在这里是一个<strong>可替换的内置扩展</strong>，工具默认不声明给模型（走 <code>codemode</code> 按需调用）。</p>
+<h2>2. 分层像教科书</h2>
+<pre><code>pi-ai → pi-agent-core → pi-coding-agent
+pi-tui（独立）
+</code></pre>
+<p>你可以按层次学：</p>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>学到什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>pi-ai</code></td>
+<td>多厂商统一流式调用、工具 schema、模型目录</td>
+</tr>
+<tr>
+<td><code>pi-agent-core</code></td>
+<td>Agent 循环、事件序列、工具并行/串行、上下文变换</td>
+</tr>
+<tr>
+<td><code>pi-tui</code></td>
+<td>终端差分渲染、组件、无闪烁刷新（与 LLM 无关）</td>
+</tr>
+<tr>
+<td><code>pi-coding-agent</code></td>
+<td>产品化：会话、扩展发现、slash 命令、四种模式</td>
+</tr>
+</tbody></table>
+<p>每层都有 README，而且依赖方向单向，不会「到处互相引用」。</p>
+<h2>3. 例子是阶梯，不是散点</h2>
+<p><code>packages/coding-agent/examples/</code>：</p>
+<ul>
+<li><strong>SDK</strong>：<code>01-minimal.ts</code> → … → <code>12-full-control.ts</code> → <code>13-session-runtime.ts</code></li>
+<li><strong>Extensions</strong>：几十个模式（权限门、子 Agent、plan-mode、自定义 provider、UI overlay…）</li>
+</ul>
+<p>初学者可以「抄一个最小例子 → 改一行 → 理解一个概念」，不必一开始啃万行 <code>interactive-mode.ts</code>。</p>
+<h2>4. 「Ask the agent」——用产品学产品</h2>
+<p>官方文档反复鼓励：让 Pi 自己帮你写 extension / skill / package。<br>根 README 也说：你可以 <strong>ask the agent to explain itself</strong>。</p>
+<p>这对初学者极友好：环境配好后，学习闭环变成：</p>
+<ol>
+<li>读一小段 docs</li>
+<li>问 Pi：「按 docs/extensions.md 给我写一个 hello extension」</li>
+<li>对照例子目录验收</li>
+<li>再读对应源码缝合点</li>
+</ol>
+<h2>5. 文档与源码对齐</h2>
+<ul>
+<li><code>packages/coding-agent/docs/</code>：面向使用者与扩展作者</li>
+<li><code>packages/agent/README.md</code>：循环与事件。这个包没有 <code>docs/</code> 目录</li>
+<li><code>packages/durable/README.md</code>：实验性可恢复 Harness，不是日常 CLI 的会话说明</li>
+<li>Session 格式、RPC、SDK 都有独立文档</li>
+</ul>
+<p>学到卡点时，通常能找到<strong>同名概念的文档页</strong>，而不是只能靠猜。</p>
+<h2>6. 可以不花钱跑测试</h2>
+<p><code>AGENTS.md</code> 约定：非 e2e 用 <code>./test.sh</code>；suite 用 faux provider，不依赖真实 API。</p>
+<p>你可以在没有 Key 的情况下理解大量行为契约。</p>
+<h2>7. 安全模型诚实、好理解</h2>
+<p>Pi <strong>没有</strong>内置「权限弹窗系统」。默认等于「启动它的用户权限」。</p>
+<p>初学者反而更容易建立正确心智：</p>
+<ul>
+<li>Agent 能读你的盘、跑你的 shell，是因为你给了进程权限</li>
+<li>要隔离 → Docker / Gondolin / OpenShell / 自己写 permission extension</li>
+</ul>
+<p>没有「看起来很安全其实边界模糊」的假象。</p>
+<h2>适合学什么 / 不适合当什么</h2>
+<p><strong>适合：</strong></p>
+<ul>
+<li>理解 coding agent 的最小完备集</li>
+<li>学习如何做可扩展 CLI Agent</li>
+<li>二次开发自己的工作流或产品壳</li>
+</ul>
+<p><strong>不适合当作：</strong></p>
+<ul>
+<li>「零编程基础入门 AI」教程（仍需要 JS/TS 与命令行）</li>
+<li>「开箱即用企业权限与审计套件」（要自己加）</li>
+</ul>
+<h2>和「功能最全的 Agent」比，学得更快的原因</h2>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>巨型产品</th>
+<th>Pi</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>概念数量</td>
+<td>多且耦合</td>
+<td>少且分层</td>
+</tr>
+<tr>
+<td>改行为方式</td>
+<td>常要 fork 或等官方开关</td>
+<td>Extension / Package 优先</td>
+</tr>
+<tr>
+<td>运行时形态</td>
+<td>常绑 IDE</td>
+<td>TUI + SDK + RPC 都开放</td>
+</tr>
+<tr>
+<td>省略功能</td>
+<td>少</td>
+<td>多（但有例子可装回）</td>
+</tr>
+</tbody></table>
+<p>「省略」降低了入门噪声；「例子把省略装回来」又保证进阶时不缺参照实现。</p>
+
+  </article>
+<nav class="pager"><a href="什么是-Pi.html">← 什么是-Pi</a>
+    <span class="spacer"></span>
+    <a href="前置知识.html">前置知识 →</a></nav>
+  <footer>学习 Pi 导读（learn-pi） · 基准 pi 1.0.2（2026-10-04） · <a href="https://github.com/NorthAdb/pi-agent-north" target="_blank" rel="noopener">源码仓库 ↗</a> · 姊妹课程 <a href="../../agent-harness-course/index.html">Agent Harness 架构课</a></footer>
+</div>
+</body>
+</html>

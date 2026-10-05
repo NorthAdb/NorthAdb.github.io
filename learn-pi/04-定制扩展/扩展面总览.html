@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>扩展面总览 · 学习 Pi 导读</title>
+<meta name="description" content="扩展面总览 · 学习 Pi 导读 — NorthAdb 课件">
+<link rel="stylesheet" href="../../learn-pi/style.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumbs"><a href="../../learn-pi/index.html">← 总目录</a></nav>
+  <article>
+<h1>扩展面总览</h1>
+<p>二次开发 Pi，先选对「钉子」。</p>
+<h2>能力光谱（从浅到深）</h2>
+<pre><code>Themes
+  └─ 只改观感
+
+Prompt Templates
+  └─ slash 展开固定提示
+
+Skills
+  └─ 教模型何时/如何用某套流程或 CLI
+
+Extensions (TypeScript)
+  └─ 新工具、钩子、命令、UI、自定义 Provider、改系统提示…
+
+Pi Packages
+  └─ 把上面资源打包成可 npm/git 安装的单元
+
+SDK / RPC / JSON
+  └─ 换宿主：你的应用 / IDE / 编排器
+
+Containerization / 权限扩展
+  └─ 换信任边界：微 VM、Docker、确认门
+</code></pre>
+<h2>决策树</h2>
+<pre><code>只想改颜色/样式？ → Theme
+只想要一条可复用提示？ → Prompt Template
+想给模型「按需说明书」？ → Skill
+要拦工具 / 加工具 / 加命令 / 改 UI / 自定义登录？ → Extension
+要让工具不占用模型上下文、只在脚本里可调？ → 注册时设 `exposure: &quot;codemode&quot;` 或 `&quot;deferred&quot;`
+要接 MCP 服务器？ → 先 `pi mcp add` 写 mcp.json，不必写代码；要动态注册才用 `pi.registerMcpServer()`
+要分发给别人或多个项目复用？ → 打成 Pi Package
+要嵌进自己的后端/IDE？ → SDK 或 RPC
+要隔离文件系统/网络？ → Containerization 或 permission extension
+要改 tool-call 循环语义本身？ → 才考虑动 pi-agent-core
+</code></pre>
+<h2>工具暴露等级（选错会很贵）</h2>
+<p><code>exposure</code> 决定工具怎么被模型看见，直接影响上下文预算：</p>
+<table>
+<thead>
+<tr>
+<th>值</th>
+<th>模型能看到吗</th>
+<th>典型用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>direct</code>（默认）</td>
+<td>能，直接声明</td>
+<td>小而常用的工具</td>
+</tr>
+<tr>
+<td><code>model-only</code></td>
+<td>能声明，但不能被别的工具调用</td>
+<td>编排类/提问类工具</td>
+</tr>
+<tr>
+<td><code>codemode</code></td>
+<td><strong>不能</strong>，只能在 codemode 脚本里被调用</td>
+<td>MCP 服务器的默认值</td>
+</tr>
+<tr>
+<td><code>deferred</code></td>
+<td>先不能，<code>tool_search</code> 找到后才装载</td>
+<td>超大工具集</td>
+</tr>
+<tr>
+<td><code>hidden</code></td>
+<td>不能</td>
+<td>注册但暂时不可达</td>
+</tr>
+</tbody></table>
+<h2>为什么这种光谱适合初学者</h2>
+<ul>
+<li>每一档都有<strong>独立文档</strong>和<strong>可运行例子</strong></li>
+<li>失败成本低：弄坏一个 skill 不会搞崩循环</li>
+<li>进阶路径清晰：Skill → 小 Extension → Package → SDK</li>
+</ul>
+<h2>为什么这种光谱适合二次开发</h2>
+<ul>
+<li><strong>不必 fork</strong> 就能做出 Plan Mode / 子 Agent / 权限门（仓库 examples 已证明）</li>
+<li><strong>分发路径</strong>内置（<code>pi install</code> / packages）</li>
+<li><strong>嵌入路径</strong>内置（SDK/RPC），产品与库同构</li>
+</ul>
+<h2>安全提醒（所有扩展面共用）</h2>
+<p>扩展与主进程同权。装第三方 package ≈ 跑别人的代码。<br>生产环境用容器或自己的 permission 策略；不要假设「扩展 API」等于沙箱。</p>
+<h2>下一步</h2>
+<ul>
+<li><a href="./%E6%89%A9%E5%B1%95-%E6%8A%80%E8%83%BD-%E5%8C%85.html">扩展-技能-包.md</a></li>
+<li><a href="./SDK%E4%B8%8E%E8%BF%9B%E7%A8%8B%E9%9B%86%E6%88%90.html">SDK与进程集成.md</a></li>
+<li>官方索引：<code>packages/coding-agent/docs/index.md</code> → Customization</li>
+</ul>
+
+  </article>
+<nav class="pager"><a href="../03-使用/会话与上下文.html">← 会话与上下文</a>
+    <span class="spacer"></span>
+    <a href="扩展-技能-包.html">扩展-技能-包 →</a></nav>
+  <footer>学习 Pi 导读（learn-pi） · 基准 pi 1.0.2（2026-10-04） · <a href="https://github.com/NorthAdb/pi-agent-north" target="_blank" rel="noopener">源码仓库 ↗</a> · 姊妹课程 <a href="../../agent-harness-course/index.html">Agent Harness 架构课</a></footer>
+</div>
+</body>
+</html>

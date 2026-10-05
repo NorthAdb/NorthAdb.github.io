@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>如何扩展而不改内核 · 学习 Pi 导读</title>
+<meta name="description" content="如何扩展而不改内核 · 学习 Pi 导读 — NorthAdb 课件">
+<link rel="stylesheet" href="../../learn-pi/style.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumbs"><a href="../../learn-pi/index.html">← 总目录</a></nav>
+  <article>
+<h1>如何扩展而不改内核</h1>
+<h2>原则</h2>
+<ol>
+<li><strong>先搜 examples</strong>，再写代码  </li>
+<li><strong>先 Skill/Prompt，后 Extension</strong>（能轻则轻）  </li>
+<li><strong>先观察事件，后拦截行为</strong>  </li>
+<li><strong>用 package 分发</strong>，避免每人一份私改内核  </li>
+<li><strong>改内核前先问</strong>：能否 <code>registerTool</code> / <code>on(...)</code> / 自定义 ResourceLoader / 自定义 provider？</li>
+</ol>
+<h2>路径 A：项目级工作流（最常见）</h2>
+<ol>
+<li>在项目放 <code>AGENTS.md</code> 写清规范  </li>
+<li>加 skills / prompt templates  </li>
+<li>需要强制约束时加 extension（例如禁止未提交就 exit、危险命令确认）  </li>
+<li>团队用 <code>pi install</code> 装内部 git/npm 包</li>
+</ol>
+<p>验证：新同事 clone 项目 + 装包后，行为一致。</p>
+<h2>路径 B：用户级生产力</h2>
+<p>资源放在用户配置目录（<code>piConfig.configDir</code>，默认与 <code>.pi</code> 相关路径，详见 settings 文档）。<br>适合个人快捷键、主题、通用 skills。</p>
+<h2>路径 C：嵌入式产品</h2>
+<ol>
+<li>依赖 <code>@earendil-works/pi-coding-agent</code>（或 workspace 源码）  </li>
+<li><code>createAgentSession</code> 装配模型与工具  </li>
+<li>关掉不需要的 discovery，注入自己的 extensions  </li>
+<li>UI 完全自绘，只消费事件</li>
+</ol>
+<p>参考：<code>examples/sdk/12-full-control.ts</code>。</p>
+<h2>路径 D：安全加固</h2>
+<p>按威胁模型选：</p>
+<table>
+<thead>
+<tr>
+<th>手段</th>
+<th>文档/例子</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>确认门扩展</td>
+<td><code>confirm-destructive.ts</code>、<code>permission-gate</code></td>
+</tr>
+<tr>
+<td>Docker 整进程</td>
+<td><code>docs/containerization.md</code></td>
+</tr>
+<tr>
+<td>Gondolin 微 VM</td>
+<td>同文档 + <code>examples/extensions/gondolin</code></td>
+</tr>
+<tr>
+<td>OpenShell</td>
+<td>同文档</td>
+</tr>
+</tbody></table>
+<p>不要只做「提示模型小心」——模型会忽略；要在工具钩子或 OS 边界强制。</p>
+<h2>路径 E：自定义模型供应</h2>
+<ol>
+<li>标准 API → <code>models.json</code> / 内置 provider 配置  </li>
+<li>非标 → extension <code>registerProvider</code>  </li>
+<li>本地 llama.cpp → 官方 <code>docs/llama-cpp.md</code></li>
+</ol>
+<h2>什么时候才该改内核</h2>
+<ul>
+<li>发现扩展 API 的真实缺口，并准备 <strong>PR 回上游</strong>  </li>
+<li>研究性改动循环语义（应先读 harness/hooks 文档）  </li>
+<li>修复 bug（如遗漏字段导致 build 失败）</li>
+</ul>
+<p>改内核时遵守 <code>AGENTS.md</code>：小步、测准、changelog 规范、不要误伤其他 agent 会话的 git 状态。</p>
+<h2>推荐一周练习（二次开发向）</h2>
+<table>
+<thead>
+<tr>
+<th>日</th>
+<th>练习</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>跑通源码 <code>pi-test</code>，完成一次真实小重构</td>
+</tr>
+<tr>
+<td>2</td>
+<td>写 skill + prompt template</td>
+</tr>
+<tr>
+<td>3</td>
+<td>写 extension：给所有 <code>bash</code> 打日志</td>
+</tr>
+<tr>
+<td>4</td>
+<td>写 extension：拦截匹配危险模式的命令</td>
+</tr>
+<tr>
+<td>5</td>
+<td>把 2–4 打成 package 并 <code>pi install</code> 到另一目录验证</td>
+</tr>
+<tr>
+<td>6</td>
+<td>SDK minimal → 自定义 tool</td>
+</tr>
+<tr>
+<td>7</td>
+<td>读 <code>agent-loop.ts</code> 事件路径，画自己的序列图</td>
+</tr>
+</tbody></table>
+<h2>检查清单（发版前）</h2>
+<ul>
+<li><input disabled="" type="checkbox"> 无扩展时核心路径仍可用  </li>
+<li><input disabled="" type="checkbox"> 扩展失败是否有明确错误（不要静默）  </li>
+<li><input disabled="" type="checkbox"> 不在扩展里硬编码密钥  </li>
+<li><input disabled="" type="checkbox"> 文档写明信任与权限假设  </li>
+<li><input disabled="" type="checkbox"> 若改会话格式，有迁移/兼容策略</li>
+</ul>
+
+  </article>
+<nav class="pager"><a href="为什么适合二次开发.html">← 为什么适合二次开发</a>
+    <span class="spacer"></span>
+    <a href="Fork与换皮.html">Fork与换皮 →</a></nav>
+  <footer>学习 Pi 导读（learn-pi） · 基准 pi 1.0.2（2026-10-04） · <a href="https://github.com/NorthAdb/pi-agent-north" target="_blank" rel="noopener">源码仓库 ↗</a> · 姊妹课程 <a href="../../agent-harness-course/index.html">Agent Harness 架构课</a></footer>
+</div>
+</body>
+</html>

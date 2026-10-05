@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>学习 Pi Agent（learn-pi） · 学习 Pi 导读</title>
+<meta name="description" content="学习 Pi Agent（learn-pi） · 学习 Pi 导读 — NorthAdb 课件">
+<link rel="stylesheet" href="../learn-pi/style.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumbs"></nav>
+  <article>
+<h1>学习 Pi Agent（learn-pi）</h1>
+<p>本目录是面向本仓库（<code>pi-agent</code> / fork of <a href="https://github.com/earendil-works/pi">earendil-works/pi</a>）的<strong>中文学习笔记</strong>，按主题分门别类，帮助你理解：</p>
+<ul>
+<li>Pi 为什么这样设计</li>
+<li>为什么适合初学者入门「编码 Agent」</li>
+<li>为什么适合二次开发 / 二次定制</li>
+<li>设计哲学与刻意省略</li>
+<li>如何学习、需要什么前置知识</li>
+</ul>
+<p>官方英文文档仍是权威来源（<code>packages/*/docs</code>、<a href="https://pi.dev">pi.dev</a>）。本系列是<strong>导读与结构化导图</strong>，并在文中大量指向源码与官方文档路径。</p>
+<hr>
+<h2>建议阅读顺序</h2>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>文档</th>
+<th>目标</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0 入门</td>
+<td><a href="00-%E6%A6%82%E8%A7%88/%E4%BB%80%E4%B9%88%E6%98%AF-Pi.html">00-概览/什么是-Pi.md</a></td>
+<td>一句话定位 + 洋葱分层</td>
+</tr>
+<tr>
+<td>0 入门</td>
+<td><a href="00-%E6%A6%82%E8%A7%88/%E4%B8%BA%E4%BB%80%E4%B9%88%E9%80%82%E5%90%88%E5%AD%A6%E4%B9%A0.html">00-概览/为什么适合学习.md</a></td>
+<td>为何对初学者友好</td>
+</tr>
+<tr>
+<td>0 入门</td>
+<td><a href="00-%E6%A6%82%E8%A7%88/%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86.html">00-概览/前置知识.md</a></td>
+<td>要先会什么、可以边学边补什么</td>
+</tr>
+<tr>
+<td>1 哲学</td>
+<td><a href="01-%E8%AE%BE%E8%AE%A1%E5%93%B2%E5%AD%A6/%E8%AE%BE%E8%AE%A1%E5%93%B2%E5%AD%A6.html">01-设计哲学/设计哲学.md</a></td>
+<td>核心信条</td>
+</tr>
+<tr>
+<td>1 哲学</td>
+<td><a href="01-%E8%AE%BE%E8%AE%A1%E5%93%B2%E5%AD%A6/%E5%88%BB%E6%84%8F%E7%9C%81%E7%95%A5.html">01-设计哲学/刻意省略.md</a></td>
+<td>MCP 为何从省略变成内置扩展 / 无子 Agent / 无权限弹窗…</td>
+</tr>
+<tr>
+<td>2 架构</td>
+<td><a href="02-%E6%9E%B6%E6%9E%84/%E5%8C%85%E5%9C%B0%E5%9B%BE%E4%B8%8E%E4%BE%9D%E8%B5%96.html">02-架构/包地图与依赖.md</a></td>
+<td>monorepo 分层</td>
+</tr>
+<tr>
+<td>2 架构</td>
+<td><a href="02-%E6%9E%B6%E6%9E%84/Agent-%E8%BF%90%E8%A1%8C%E6%97%B6%E5%BE%AA%E7%8E%AF.html">02-架构/Agent-运行时循环.md</a></td>
+<td>prompt → LLM → tools 循环</td>
+</tr>
+<tr>
+<td>2 架构</td>
+<td><a href="02-%E6%9E%B6%E6%9E%84/Coding-Agent-%E6%A0%88.html">02-架构/Coding-Agent-栈.md</a></td>
+<td>CLI / Session / 四种模式</td>
+</tr>
+<tr>
+<td>3 使用</td>
+<td><a href="03-%E4%BD%BF%E7%94%A8/%E6%9C%AC%E5%9C%B0%E8%B7%91%E8%B5%B7%E6%9D%A5.html">03-使用/本地跑起来.md</a></td>
+<td>从源码安装与运行</td>
+</tr>
+<tr>
+<td>3 使用</td>
+<td><a href="03-%E4%BD%BF%E7%94%A8/%E5%9B%9B%E7%A7%8D%E8%BF%90%E8%A1%8C%E6%A8%A1%E5%BC%8F.html">03-使用/四种运行模式.md</a></td>
+<td>TUI / print / JSON / RPC</td>
+</tr>
+<tr>
+<td>3 使用</td>
+<td><a href="03-%E4%BD%BF%E7%94%A8/%E4%BC%9A%E8%AF%9D%E4%B8%8E%E4%B8%8A%E4%B8%8B%E6%96%87.html">03-使用/会话与上下文.md</a></td>
+<td>session、分支、compaction、AGENTS.md</td>
+</tr>
+<tr>
+<td>4 定制</td>
+<td><a href="04-%E5%AE%9A%E5%88%B6%E6%89%A9%E5%B1%95/%E6%89%A9%E5%B1%95%E9%9D%A2%E6%80%BB%E8%A7%88.html">04-定制扩展/扩展面总览.md</a></td>
+<td>Extensions / Skills / Packages…</td>
+</tr>
+<tr>
+<td>4 定制</td>
+<td><a href="04-%E5%AE%9A%E5%88%B6%E6%89%A9%E5%B1%95/%E6%89%A9%E5%B1%95-%E6%8A%80%E8%83%BD-%E5%8C%85.html">04-定制扩展/扩展-技能-包.md</a></td>
+<td>各自解决什么问题</td>
+</tr>
+<tr>
+<td>4 定制</td>
+<td><a href="04-%E5%AE%9A%E5%88%B6%E6%89%A9%E5%B1%95/SDK%E4%B8%8E%E8%BF%9B%E7%A8%8B%E9%9B%86%E6%88%90.html">04-定制扩展/SDK与进程集成.md</a></td>
+<td>嵌入应用与 RPC</td>
+</tr>
+<tr>
+<td>5 二次开发</td>
+<td><a href="05-%E4%BA%8C%E6%AC%A1%E5%BC%80%E5%8F%91/%E4%B8%BA%E4%BB%80%E4%B9%88%E9%80%82%E5%90%88%E4%BA%8C%E6%AC%A1%E5%BC%80%E5%8F%91.html">05-二次开发/为什么适合二次开发.md</a></td>
+<td>可扩展缝合点</td>
+</tr>
+<tr>
+<td>5 二次开发</td>
+<td><a href="05-%E4%BA%8C%E6%AC%A1%E5%BC%80%E5%8F%91/%E5%A6%82%E4%BD%95%E6%89%A9%E5%B1%95%E8%80%8C%E4%B8%8D%E6%94%B9%E5%86%85%E6%A0%B8.html">05-二次开发/如何扩展而不改内核.md</a></td>
+<td>实操路径</td>
+</tr>
+<tr>
+<td>5 二次开发</td>
+<td><a href="05-%E4%BA%8C%E6%AC%A1%E5%BC%80%E5%8F%91/Fork%E4%B8%8E%E6%8D%A2%E7%9A%AE.html">05-二次开发/Fork与换皮.md</a></td>
+<td><code>piConfig</code>、品牌与配置目录</td>
+</tr>
+<tr>
+<td>6 深读</td>
+<td><a href="06-%E6%B7%B1%E8%AF%BB%E8%B7%AF%E5%BE%84/%E6%8E%A8%E8%8D%90%E9%98%85%E8%AF%BB%E9%A1%BA%E5%BA%8F.html">06-深读路径/推荐阅读顺序.md</a></td>
+<td>文档 → 例子 → 源码</td>
+</tr>
+<tr>
+<td>6 深读</td>
+<td><a href="06-%E6%B7%B1%E8%AF%BB%E8%B7%AF%E5%BE%84/%E5%85%B3%E9%94%AE%E6%96%87%E4%BB%B6%E6%B8%85%E5%8D%95.html">06-深读路径/关键文件清单.md</a></td>
+<td>先打开哪 20 个文件</td>
+</tr>
+<tr>
+<td>6 深读</td>
+<td><a href="06-%E6%B7%B1%E8%AF%BB%E8%B7%AF%E5%BE%84/Harness%E5%8C%97%E6%98%9F.html">06-深读路径/Harness北星.md</a></td>
+<td>日常 JSONL 会话，以及实验性 pi-durable</td>
+</tr>
+<tr>
+<td>7 参考</td>
+<td><a href="07-%E5%8F%82%E8%80%83/%E6%9C%AF%E8%AF%AD%E8%A1%A8.html">07-参考/术语表.md</a></td>
+<td>名词对照</td>
+</tr>
+<tr>
+<td>7 参考</td>
+<td><a href="07-%E5%8F%82%E8%80%83/%E5%AE%98%E6%96%B9%E6%96%87%E6%A1%A3%E5%9C%B0%E5%9B%BE.html">07-参考/官方文档地图.md</a></td>
+<td>指向仓库内官方 docs</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>一句话总结</h2>
+<blockquote>
+<p><strong>Pi = 极简编码 Agent 线束（harness）</strong>：内核做「多模型 LLM + Agent 循环 + JSONL 会话 + 默认四个工具 + 终端 UX」。MCP 与 codemode 是可替换的内置扩展。其余工作流靠 <strong>Extensions / Skills / Packages / SDK</strong> 自己拼。<strong>改工作流，不必改循环。</strong></p>
+</blockquote>
+<hr>
+<h2>与官方文档的关系</h2>
+<table>
+<thead>
+<tr>
+<th>需求</th>
+<th>看哪里</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>产品使用</td>
+<td><code>packages/coding-agent/docs/</code></td>
+</tr>
+<tr>
+<td>Agent 循环与事件</td>
+<td><code>packages/agent/README.md</code></td>
+</tr>
+<tr>
+<td>多厂商 LLM</td>
+<td><code>packages/ai/README.md</code></td>
+</tr>
+<tr>
+<td>终端 UI</td>
+<td><code>packages/tui/README.md</code></td>
+</tr>
+<tr>
+<td>贡献与 Agent 规则</td>
+<td>根目录 <code>AGENTS.md</code>、<code>CONTRIBUTING.md</code></td>
+</tr>
+<tr>
+<td>本系列（学习导读）</td>
+<td><code>learn-pi/</code>（本目录）</td>
+</tr>
+</tbody></table>
+<p>官方 Philosophy（摘录自 <code>packages/coding-agent/README.md</code>）：</p>
+<blockquote>
+<p>Pi is aggressively extensible so it doesn&#39;t have to dictate your workflow.</p>
+</blockquote>
+
+  </article>
+
+  <footer>学习 Pi 导读（learn-pi） · 基准 pi 1.0.2（2026-10-04） · <a href="https://github.com/NorthAdb/pi-agent-north" target="_blank" rel="noopener">源码仓库 ↗</a> · 姊妹课程 <a href="../agent-harness-course/index.html">Agent Harness 架构课</a></footer>
+</div>
+</body>
+</html>

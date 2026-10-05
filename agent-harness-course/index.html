@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agent Harness 架构课程 · 从 Pi 源码到自研 Harness</title>
+<style>
+:root { --ink:#1a1a1a; --soft:#5a564e; --accent:#0f6b5f; --accent-soft:#e7f2ef; --line:#ddd6c8; --paper:#faf8f2; }
+* { box-sizing: border-box; }
+body { margin:0; background:var(--paper); color:var(--ink);
+  font-family: Georgia, "Noto Serif SC", serif; line-height:1.7; }
+.wrap { max-width: 1000px; margin: 0 auto; padding: 3rem 1.4rem 5rem; }
+.kicker { font-family: Consolas, monospace; font-size:.78rem; letter-spacing:.14em;
+  text-transform: uppercase; color: var(--accent); }
+h1 { font-size: 2.2rem; margin:.3rem 0 .6rem; line-height:1.25; }
+.lede { color: var(--soft); font-size: 1.06rem; max-width: 46em; }
+.facts { display:flex; gap:1.6rem; flex-wrap:wrap; margin:1.6rem 0 0;
+  font-family: Consolas, monospace; font-size:.82rem; color:var(--soft); }
+.facts b { color: var(--accent); font-size:1.15rem; display:block; }
+.phase { margin-top: 2.8rem; }
+.phase > h2 { font-size:1.05rem; border-bottom:1px solid var(--line); padding-bottom:.4rem;
+  font-family: Consolas, monospace; letter-spacing:.06em; }
+.grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap:.9rem; }
+a.card { display:block; text-decoration:none; color:inherit; background:#fff;
+  border:1px solid var(--line); border-radius:10px; padding: .95rem 1.1rem;
+  transition: transform .12s ease, box-shadow .12s ease; }
+a.card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,.07); }
+.card .no { font-family: Consolas, monospace; font-size:.72rem; color:var(--accent); }
+.card .t { font-weight: bold; margin:.15rem 0 .2rem; }
+.card .q { font-size:.86rem; color: var(--soft); }
+.row { display:flex; gap:.9rem; flex-wrap:wrap; margin-top:.9rem; }
+.pill { display:inline-block; border:1px solid var(--line); background:#fff; border-radius:99px;
+  padding:.32rem .95rem; font-size:.86rem; text-decoration:none; color:var(--ink); }
+.pill:hover { border-color: var(--accent); color: var(--accent); }
+footer { margin-top:3.4rem; padding-top:1rem; border-top:1px solid var(--line);
+  font-size:.84rem; color:var(--soft); }
+@media (prefers-color-scheme: dark) {
+  :root { --ink:#e8e4da; --soft:#b3aea2; --accent:#5cc8b4; --accent-soft:#1d332e;
+    --line:#3a362e; --paper:#1c1b18; }
+  a.card { background:#232019; }
+  .pill { background:#232019; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="kicker">Agent Harness 课程 · 以 Pi 源码为工程样本</div>
+  <h1>从「会用 Agent」到「能造 Agent」</h1>
+  <p class="lede">14 课逆向工程 Pi（本仓库）的真实源码，回答一个问题：<b>一个现代 Agent Harness 为了让 LLM 稳定、持续、安全地完成复杂任务，到底需要哪些基础机制？</b>终点：不看任何宣传页，从空白目录手写一个 Minimal Harness。每条结论都标注证据等级【源码 / 文档 / 推断】。</p>
+  <div class="facts">
+    <div><b>15</b> 课 · 每课 15–25 分钟</div>
+    <div><b>13</b> 张交互架构图</div>
+    <div><b>17</b> 个毕业练习验收测试</div>
+    <div><b>30+</b> 源码文件地图</div>
+  </div>
+
+  <div class="phase"><h2>第一阶段 · 建立总体认知（第 1 课）</h2>
+    <div class="grid">
+      <a class="card" href="lessons/0001-why-llm-is-not-agent.html">
+        <div class="no">LESSON 01 · DIAGRAM 01</div><div class="t">为什么 LLM 不是 Agent</div>
+        <div class="q">Harness 到底比 LLM 多了什么？三层边界一次看清。</div></a>
+    </div>
+  </div>
+
+  <div class="phase"><h2>第二至四阶段 · 循环、工具与上下文（第 2–4 课）</h2>
+    <div class="grid">
+      <a class="card" href="lessons/0002-agent-loop.html">
+        <div class="no">LESSON 02 · DIAGRAM 02</div><div class="t">Agent Loop</div>
+        <div class="q">循环由谁控制？何时结束？错误怎么回到模型？</div></a>
+      <a class="card" href="lessons/0003-tool-calling.html">
+        <div class="no">LESSON 03 · DIAGRAM 03</div><div class="t">Tool Calling / Execution</div>
+        <div class="q">模型看到什么？Runtime 执行什么？边界在哪？</div></a>
+      <a class="card" href="lessons/0004-context-assembly.html">
+        <div class="no">LESSON 04 · DIAGRAM 04</div><div class="t">Context Assembly</div>
+        <div class="q">Context 如何形成？为什么 Session ≠ Context？</div></a>
+    </div>
+  </div>
+
+  <div class="phase"><h2>第五至八阶段 · 状态、压缩与扩展（第 5–8 课）</h2>
+    <div class="grid">
+      <a class="card" href="lessons/0005-session-tree.html">
+        <div class="no">LESSON 05 · DIAGRAM 05</div><div class="t">Session / State</div>
+        <div class="q">为什么需要历史树而不是 messages[]？</div></a>
+      <a class="card" href="lessons/0006-compaction.html">
+        <div class="no">LESSON 06 · DIAGRAM 06</div><div class="t">Compaction</div>
+        <div class="q">为什么压缩是状态压缩，而不是删消息？</div></a>
+      <a class="card" href="lessons/0007-skills.html">
+        <div class="no">LESSON 07 · DIAGRAM 07</div><div class="t">Skills 渐进披露</div>
+        <div class="q">为什么不全量注入？四笔账怎么算？</div></a>
+      <a class="card" href="lessons/0008-extensions.html">
+        <div class="no">LESSON 08 · DIAGRAM 08</div><div class="t">Extensions / Hooks</div>
+        <div class="q">为什么功能不进 Core？Extension 与 Skill 的边界？</div></a>
+    </div>
+  </div>
+
+  <div class="phase"><h2>第九至十一阶段 · 边界、接口与总装（第 9–11 课）</h2>
+    <div class="grid">
+      <a class="card" href="lessons/0009-capability-boundary.html">
+        <div class="no">LESSON 09 · DIAGRAM 09</div><div class="t">权限与沙箱</div>
+        <div class="q">Capability / Authorization / Sandbox 三个词差在哪？</div></a>
+      <a class="card" href="lessons/0010-interfaces.html">
+        <div class="no">LESSON 10 · DIAGRAM 10</div><div class="t">TUI / RPC / SDK</div>
+        <div class="q">为什么接口不能和 Runtime 写死？</div></a>
+      <a class="card" href="lessons/0011-full-runtime.html">
+        <div class="no">LESSON 11 · DIAGRAM 11</div><div class="t">完整 Runtime 总时序</div>
+        <div class="q">一次真实任务如何流过所有层？</div></a>
+    </div>
+  </div>
+
+  <div class="phase"><h2>第十二至十四阶段 · 抽象、比较与模型（第 12–14 课）</h2>
+    <div class="grid">
+      <a class="card" href="lessons/0012-generic-harness.html">
+        <div class="no">LESSON 12 · DIAGRAM 12</div><div class="t">通用 Harness 抽象</div>
+        <div class="q">必需品、领域层与 Pi 的个性选择，三箱分清。</div></a>
+      <a class="card" href="lessons/0013-comparison.html">
+        <div class="no">LESSON 13 · 无图 · 表驱动</div><div class="t">横向比较</div>
+        <div class="q">Pi vs Claude Code vs Codex vs OpenCode：三条划线。</div></a>
+      <a class="card" href="lessons/0014-mental-model.html">
+        <div class="no">LESSON 14 · DIAGRAM 13</div><div class="t">五层 Mental Model</div>
+        <div class="q">Agent = LLM + Loop + Harness + Environment 成立吗？</div></a>
+    </div>
+  </div>
+
+  <div class="phase"><h2>选修 · 主线之外（第 15 课）</h2>
+    <div class="grid">
+      <a class="card" href="lessons/0015-mcp.html">
+        <div class="no">LESSON 15 · DIAGRAM 14 · 进阶</div><div class="t">MCP 深潜</div>
+        <div class="q">协议是什么？Pi 如何以可替换的内置扩展接入？归属层级怎么判？</div></a>
+    </div>
+  </div>
+
+  <div class="phase"><h2>资源与毕业</h2>
+    <div class="row">
+      <a class="pill" href="reference/glossary.html">📖 术语表</a>
+      <a class="pill" href="reference/source-map.html">🗺 关键源码地图</a>
+      <a class="pill" href="reference/minimal-harness.html">🎯 毕业设计卷</a>
+      <a class="pill" href="reference/cheatsheet.html">🖨 一页纸速查表</a>
+      <a class="pill" href="practice/index.html">🛠 毕业练习工作区（17 测试）</a>
+      <a class="pill" href="../learn-pi/index.html">入库概览导读 learn-pi</a>
+    </div>
+  </div>
+
+  <footer>图表由 Archify 生成 · 证据基准上游 <code>1.0.2</code>（2026-10-04）· 1.0 起循环在 <code>pi-agent-core</code>，产品会话在 coding-agent，实验持久化在 <code>pi-durable</code> ·
+  学习中随时向你的 AI 导师追问 · <a href="COURSE.html">Markdown 版总纲</a></footer>
+</div>
+</body>
+</html>

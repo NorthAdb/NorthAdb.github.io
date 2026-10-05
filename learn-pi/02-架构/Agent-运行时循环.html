@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agent 运行时循环 · 学习 Pi 导读</title>
+<meta name="description" content="Agent 运行时循环 · 学习 Pi 导读 — NorthAdb 课件">
+<link rel="stylesheet" href="../../learn-pi/style.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumbs"><a href="../../learn-pi/index.html">← 总目录</a></nav>
+  <article>
+<h1>Agent 运行时循环</h1>
+<p>核心在 <code>packages/agent</code>。先读 <code>packages/agent/README.md</code>，再读 <code>src/agent-loop.ts</code>。</p>
+<h2>两层入口</h2>
+<table>
+<thead>
+<tr>
+<th>API</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>agentLoop</code> / <code>runAgentLoop</code></td>
+<td>偏纯函数式的循环实现</td>
+</tr>
+<tr>
+<td><code>Agent</code> 类</td>
+<td>有状态封装：持有 messages、订阅事件、<code>prompt()</code></td>
+</tr>
+</tbody></table>
+<p>Coding-agent 的 <code>AgentSession</code> 主要建立在这类运行时之上，再叠加会话文件、扩展、工具集。</p>
+<h2>消息两段变换</h2>
+<pre><code>AgentMessage[] ──transformContext()──► AgentMessage[] ──convertToLlm()──► Message[] ──► LLM
+</code></pre>
+<ul>
+<li><strong>AgentMessage</strong>：应用可扩展（甚至 declaration merging 自定义类型）</li>
+<li><strong>LLM Message</strong>：只有模型能懂的 <code>user</code> / <code>assistant</code> / <code>toolResult</code></li>
+<li><strong>transformContext</strong>：修剪、注入外部上下文（可选）</li>
+<li><strong>convertToLlm</strong>：过滤 UI-only、转换自定义消息（必需边界）</li>
+</ul>
+<p>这是扩展作者最重要的缝：<strong>你在 Agent 世界里加的东西，最终要能投影到 LLM 世界。</strong></p>
+<h2>无工具时的事件序（简化）</h2>
+<pre><code>prompt(&quot;Hello&quot;)
+├─ agent_start
+├─ turn_start
+├─ message_start / message_end     (user)
+├─ message_start
+├─ message_update…                 (assistant 流式)
+├─ message_end
+├─ turn_end
+└─ agent_end
+</code></pre>
+<h2>有工具时的循环</h2>
+<pre><code>user ──► LLM（可能带 tool_calls）
+              │
+              ▼
+     beforeToolCall（可拦截）
+              │
+              ▼
+     执行工具（parallel 默认 / sequential）
+              │
+              ▼
+     afterToolCall
+              │
+              ▼
+     写入 toolResult 消息
+              │
+              ▼
+     下一 turn：LLM 继续
+              │
+              └─ 直到不再调工具（再处理 follow-up 队列等）
+</code></pre>
+<p>关键旋钮：</p>
+<ul>
+<li>全局 <code>toolExecution</code>：<code>parallel</code> | <code>sequential</code></li>
+<li>单工具可强制 <code>executionMode: &quot;sequential&quot;</code></li>
+<li>Steering / Follow-up 队列：运行中插入用户消息的不同时机</li>
+<li>工具结果可 <code>terminate</code>。整批结果都带这个标记时，才跳过后续 LLM 调用</li>
+<li><code>prepareRequest</code>：每一次 provider 请求之前，包括第一轮。用来装上已落盘的上下文，本身不读队列</li>
+<li><code>finishTurn</code>：助手消息和工具结果都定稿之后、<code>turn_end</code> 之前。返回 <code>{ action: &quot;end&quot; }</code> 结束这一轮运行；返回 <code>{ action: &quot;continue&quot; }</code> 保证再有一次请求。错误和中止仍然是硬退出。0.87 删掉的 <code>shouldStopAfterTurn</code> 迁到这里</li>
+</ul>
+<h2>为什么这样设计</h2>
+<ol>
+<li><strong>事件足够细</strong>：TUI / RPC / 评测都能挂同一套流  </li>
+<li><strong>工具执行与模型调用解耦</strong>：并行工具时完成顺序 ≠ 持久化顺序（文档说明：完成事件按完成序，持久化 toolResult 仍按助手源序）  </li>
+<li><strong>钩子可挡工具</strong>：安全扩展不必改循环源码</li>
+</ol>
+<h2>和 Coding Agent 的关系</h2>
+<pre><code>用户在 TUI 输入
+    → AgentSession.prompt / steer / followUp
+        → Agent / loop
+            → pi-ai stream
+            → 内置或扩展 tools
+        ← 事件
+    → 持久化到 session 文件 + 刷新 UI
+</code></pre>
+<p>学循环时，建议实验：</p>
+<ol>
+<li>SDK <code>01-minimal.ts</code>：只看文本流  </li>
+<li>带 <code>bash</code>/<code>read</code> 的会话：对照 README 里「With Tool Calls」图  </li>
+<li>打开 <code>agent-loop.ts</code>，搜索 <code>tool</code> 相关分支</li>
+</ol>
+<h2>下一步</h2>
+<ul>
+<li>产品如何包这层循环：<a href="./Coding-Agent-%E6%A0%88.html">Coding-Agent-栈.md</a></li>
+<li>持久化北星：<a href="../06-%E6%B7%B1%E8%AF%BB%E8%B7%AF%E5%BE%84/Harness%E5%8C%97%E6%98%9F.html">../06-深读路径/Harness北星.md</a></li>
+</ul>
+
+  </article>
+<nav class="pager"><a href="包地图与依赖.html">← 包地图与依赖</a>
+    <span class="spacer"></span>
+    <a href="Coding-Agent-栈.html">Coding-Agent-栈 →</a></nav>
+  <footer>学习 Pi 导读（learn-pi） · 基准 pi 1.0.2（2026-10-04） · <a href="https://github.com/NorthAdb/pi-agent-north" target="_blank" rel="noopener">源码仓库 ↗</a> · 姊妹课程 <a href="../../agent-harness-course/index.html">Agent Harness 架构课</a></footer>
+</div>
+</body>
+</html>

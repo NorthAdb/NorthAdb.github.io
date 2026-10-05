@@ -1,0 +1,226 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Diagram 07 · Skills：渐进披露（Progressive Disclosure）",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/NorthAdb/pi-agent-north",
+      "provider": "github",
+      "revision": "47c9be752f88c26f4ffa06caf0d2a3888117d9b1"
+    },
+    "viewBox": [
+      1100,
+      580
+    ]
+  },
+  "components": [
+    {
+      "id": "dirs",
+      "type": "database",
+      "label": "skills 目录",
+      "sublabel": "~/.pi/agent/skills · .pi/skills",
+      "pos": [
+        60,
+        80
+      ],
+      "size": [
+        190,
+        64
+      ]
+    },
+    {
+      "id": "disc",
+      "type": "backend",
+      "label": "loadSkills()",
+      "sublabel": "含 SKILL.md 即 skill 根 · frontmatter 校验",
+      "pos": [
+        60,
+        210
+      ],
+      "size": [
+        190,
+        64
+      ],
+      "sources": [
+        {
+          "path": "packages/coding-agent/src/core/skills.ts",
+          "line": 409
+        }
+      ]
+    },
+    {
+      "id": "catalog",
+      "type": "messagebus",
+      "label": "<available_skills> XML",
+      "sublabel": "仅 name + description + location",
+      "tag": "常驻极小",
+      "pos": [
+        330,
+        177
+      ],
+      "size": [
+        220,
+        90
+      ],
+      "sources": [
+        {
+          "path": "packages/coding-agent/src/core/skills.ts",
+          "line": 355
+        }
+      ]
+    },
+    {
+      "id": "sp",
+      "type": "database",
+      "label": "System Prompt",
+      "sublabel": "skills section 常驻",
+      "pos": [
+        330,
+        340
+      ],
+      "size": [
+        220,
+        64
+      ]
+    },
+    {
+      "id": "model",
+      "type": "cloud",
+      "label": "模型",
+      "sublabel": "按 description 匹配任务",
+      "pos": [
+        630,
+        340
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "read",
+      "type": "backend",
+      "label": "read 工具",
+      "sublabel": "加载 SKILL.md 全文",
+      "pos": [
+        630,
+        470
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "ctx",
+      "type": "database",
+      "label": "Context",
+      "sublabel": "全文按需进入上下文",
+      "pos": [
+        330,
+        470
+      ],
+      "size": [
+        220,
+        64
+      ]
+    },
+    {
+      "id": "act",
+      "type": "backend",
+      "label": "按 skill 指引执行",
+      "sublabel": "工作流落地",
+      "pos": [
+        60,
+        470
+      ],
+      "size": [
+        190,
+        64
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "from": "dirs",
+      "to": "disc",
+      "label": "扫描",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDy": 24
+    },
+    {
+      "from": "disc",
+      "to": "catalog",
+      "label": "注册目录",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "from": "catalog",
+      "to": "sp",
+      "label": "注入",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDy": 24
+    },
+    {
+      "from": "sp",
+      "to": "model",
+      "label": "目录可见",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "from": "model",
+      "to": "read",
+      "label": "匹配后主动读",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "variant": "emphasis",
+      "labelDy": 24
+    },
+    {
+      "from": "read",
+      "to": "ctx",
+      "label": "全文",
+      "fromSide": "left",
+      "toSide": "right"
+    },
+    {
+      "from": "ctx",
+      "to": "act",
+      "label": "指引行为",
+      "fromSide": "left",
+      "toSide": "right"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "为什么不全量注入",
+      "items": [
+        "20 个 skill 全文可能 5 万 token——大部分轮次用不到",
+        "目录只有每条一两行，常驻成本趋近于零"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "与 Traditional 的差别",
+      "items": [
+        "Traditional：System Prompt 塞满全部文档 → 贵、 cache 失效快",
+        "Progressive：小注册表常驻 → 全文只在触发后进入 Context"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Pi 的取舍",
+      "items": [
+        "disable-model-invocation 的 skill 不进目录，仅 /skill:name 调用",
+        "同名冲突记入 collision 诊断，不静默覆盖"
+      ]
+    }
+  ]
+}

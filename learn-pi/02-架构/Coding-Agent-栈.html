@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coding Agent 栈 · 学习 Pi 导读</title>
+<meta name="description" content="Coding Agent 栈 · 学习 Pi 导读 — NorthAdb 课件">
+<link rel="stylesheet" href="../../learn-pi/style.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumbs"><a href="../../learn-pi/index.html">← 总目录</a></nav>
+  <article>
+<h1>Coding Agent 栈</h1>
+<p><code>packages/coding-agent</code> 是大多数人说的「Pi」。</p>
+<h2>入口链路</h2>
+<pre><code>src/cli.ts
+  → configureHttpDispatcher()
+  → src/main.ts 的 main()
+       → 创建 services / runtime / session
+       → 按 appMode 进入不同 Mode
+</code></pre>
+<h2>三层会话结构</h2>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>典型文件</th>
+<th>职责</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Services</td>
+<td><code>core/agent-session-services.ts</code></td>
+<td>与 cwd 绑定：设置、鉴权、模型、ResourceLoader</td>
+</tr>
+<tr>
+<td>Runtime</td>
+<td><code>core/agent-session-runtime.ts</code></td>
+<td>新建 / 恢复 / fork 会话；各模式共用</td>
+</tr>
+<tr>
+<td>Session</td>
+<td><code>core/agent-session.ts</code></td>
+<td>prompt/steer/followUp、compaction、事件落盘、工具编排</td>
+</tr>
+</tbody></table>
+<p>注释思想（转述）：<strong>模式只加自己的 I/O；共享逻辑在 AgentSession。</strong></p>
+<p>这就是四种模式能共用一套行为的原因，也是 SDK 能嵌入的原因。</p>
+<h2>默认工具</h2>
+<p>默认启用：<code>read</code>、<code>bash</code>、<code>edit</code>、<code>write</code>（<code>settings-manager.ts</code> 的 <code>DEFAULT_TOOL_NAMES</code>）。注册表另外还有 <code>powershell</code>、<code>grep</code>、<code>find</code>、<code>ls</code>，不在默认集合里。<code>codemode</code> 和 <code>tool_search</code> 是内置扩展工具，默认不激活。</p>
+<p>CLI 可用 <code>--tools</code> / <code>--exclude-tools</code> / <code>--no-builtin-tools</code> 等裁剪。</p>
+<p>工具少 = 模型决策空间清晰；复杂能力用 Skill（教模型用外部 CLI）或 Extension（注册新 tool）补。</p>
+<h2>资源发现（ResourceLoader）</h2>
+<p>启动时发现并装载：</p>
+<ul>
+<li>Extensions（TS，经 jiti 加载）</li>
+<li>Skills</li>
+<li>Prompt templates</li>
+<li>Themes</li>
+<li>Context files（<code>AGENTS.md</code> / <code>CLAUDE.md</code>）</li>
+</ul>
+<p>发现路径通常包括用户目录与项目目录（具体见官方 docs/settings、packages）。<br>SDK 可注入自定义 ResourceLoader——这是测试与嵌入的关键缝。</p>
+<h2>Extension 运行时</h2>
+<ul>
+<li><code>ExtensionAPI</code>：注册工具、命令、快捷键、provider、UI、监听事件等</li>
+<li><code>ExtensionContext</code>：运行时上下文（cwd、model、scopedModels、sessionManager、abort…）</li>
+<li><code>ExtensionRunner</code>：把扩展绑到会话生命周期</li>
+</ul>
+<p>扩展与 Pi <strong>同权限</strong>（同进程）。安全靠信任 + 沙箱部署，不靠「扩展商店权限清单」幻想。</p>
+<h2>上下文如何进模型</h2>
+<ol>
+<li>系统提示（含技能名/描述等渐进披露信息）</li>
+<li>项目/全局 context files</li>
+<li>会话历史（经 compaction / 分支投影）</li>
+<li>当前用户消息（可附带 @file）</li>
+</ol>
+<p>细节见官方 <code>docs/sessions.md</code>、<code>compaction.md</code>、<code>session-format.md</code>。</p>
+<h2>配置与换皮钩子</h2>
+<p><code>package.json</code> 的 <code>piConfig</code>：</p>
+<pre><code class="language-json">{
+  &quot;piConfig&quot;: {
+    &quot;name&quot;: &quot;pi&quot;,
+    &quot;configDir&quot;: &quot;.pi&quot;
+  }
+}
+</code></pre>
+<p>影响横幅、配置目录、相关环境变量命名。Fork 换皮优先改这里，而不是全局搜字符串。见 <a href="../05-%E4%BA%8C%E6%AC%A1%E5%BC%80%E5%8F%91/Fork%E4%B8%8E%E6%8D%A2%E7%9A%AE.html">Fork与换皮.md</a>。</p>
+<h2>调试入口</h2>
+<ul>
+<li>隐藏命令 <code>/debug</code> → 写 <code>~/.pi/agent/pi-debug.log</code>（TUI 行、最近送给 LLM 的消息）</li>
+<li>源码运行：<code>pi-test.ps1</code> / <code>pi-test.sh</code>（保持调用者 cwd）</li>
+</ul>
+<h2>心智图</h2>
+<pre><code>┌─────────────────────────────────────────────┐
+│                 Modes (I/O)                 │
+│   interactive │ print/json │ rpc │ (sdk)    │
+└─────────────────────▲───────────────────────┘
+                      │ events / commands
+┌─────────────────────┴───────────────────────┐
+│              AgentSession                   │
+│   tools │ extensions │ compaction │ model   │
+└─────────────────────▲───────────────────────┘
+                      │
+┌─────────────────────┴───────────────────────┐
+│           pi-agent-core + pi-ai             │
+└─────────────────────────────────────────────┘
+</code></pre>
+<p>学编码 Agent 产品层时，优先抓住：<strong>Mode 薄、Session 厚、AI 栈在下。</strong></p>
+
+  </article>
+<nav class="pager"><a href="Agent-运行时循环.html">← Agent-运行时循环</a>
+    <span class="spacer"></span>
+    <a href="../03-使用/本地跑起来.html">本地跑起来 →</a></nav>
+  <footer>学习 Pi 导读（learn-pi） · 基准 pi 1.0.2（2026-10-04） · <a href="https://github.com/NorthAdb/pi-agent-north" target="_blank" rel="noopener">源码仓库 ↗</a> · 姊妹课程 <a href="../../agent-harness-course/index.html">Agent Harness 架构课</a></footer>
+</div>
+</body>
+</html>

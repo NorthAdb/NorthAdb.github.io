@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第 4 课 · Context Assembly</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <div class="kicker">Agent Harness 课程 · 第 4 课 / 共 14 课 · 第四阶段：Context Engineering</div>
+  <h1>Context Assembly：模型的全部世界</h1>
+  <p class="lede">模型是健忘的：每一轮请求它都只认识你这一次发给它的内容。所以"发给它什么"就是 Harness 最重要的设计决策。这一课看 Pi 如何把十几种来源拼装成一份 Context——以及为什么 Session ≠ Context。</p>
+
+  <div class="question"><strong>本课核心问题：</strong>Context 是如何形成的？哪些信息静态、哪些动态、哪些按需加载？哪些内容影响 prompt cache？Context 和 Session 是一回事吗？</div>
+
+  <h2>一、这张图要解决什么问题</h2>
+  <p>打开任何一次 Agent 请求，你看到的不是"用户一句话 + 系统提示"，而是：基础提示词、环境信息、全局与项目 AGENTS.md、技能目录、整段会话投影、历史工具结果、当前请求……。这张图把这些来源按"静态/动态"分开，走一遍它们汇入 Context 的流水线。</p>
+
+  <figure class="diagram">
+    <iframe src="diagrams/04-context-assembly.html" title="Diagram 04 · Context Assembly Pipeline" loading="lazy"></iframe>
+    <figcaption>Diagram 04 · 左列来源 → 组装层 → Context → LLM。<a href="diagrams/04-context-assembly.html" target="_blank">全屏打开 ↗</a></figcaption>
+  </figure>
+
+  <h2>二、如何从图上读懂 Pi</h2>
+  <p><span class="badge src">源码</span><strong>组装层是分块的（sections）。</strong><code>packages/coding-agent/src/core/system-prompt.ts:121</code> 的 <code>buildSystemPromptSections()</code> 把系统提示词拆成 <code>preamble / tools / rules / docs / addendum / project_context / skills / cwd</code> 八段，各自独立生成、独立替换。模型看到的最终提示词 = 各段包上 XML 标签的拼接。</p>
+  <p><span class="badge src">源码</span><strong>项目指令是"沿目录向上收集"的。</strong><code>resource-loader.ts:127-212</code> 按候选名 <code>AGENTS.override.md → AGENTS.md → CLAUDE.md</code> 先读全局 <code>~/.pi/agent/AGENTS.md</code>，再从 cwd 沿祖先目录向上收集——这是"项目级指令"的动态来源。</p>
+  <p><span class="badge src">源码</span><strong>分块 + diff 是为 prompt cache 服务的。</strong><code>diffSystemPromptSections</code>（system-prompt.ts:204）只把<b>变化的 section</b> 下发；静态段在前、动态段在后，配合 coding-agent 侧的 cacheWarmer 预热——上下文没变的部分命中缓存，省钱且降延迟。<strong>影响缓存的设计原则：内容稳定的大块放前面，易变的小块放后面。</strong></p>
+  <p><strong>Session ≠ Context。</strong>Session 是磁盘上完整的历史树（第 5 课）；Context 只是<b>本轮</b>送给模型的那一份投影。投影会因 compaction（第 6 课）和 context_edit 条目而与原始历史不同——历史永远在，模型看见的被精心裁剪过。</p>
+
+  <h2>三、新概念的七问：Context Assembly</h2>
+  <ol class="seven">
+    <li><b>解决什么问题？</b>在有限窗口与有限预算下，把"模型该知道的一切"按时组装好。</li>
+    <li><b>没有它会怎样？</b>每次请求都是裸 prompt——项目约定、工具说明、历史一概不知。</li>
+    <li><b>输入是什么？</b>静态文本、AGENTS.md、skills 目录、会话投影、tools 声明。</li>
+    <li><b>输出是什么？</b>一份 <code>{ systemPrompt, messages, tools }</code>（pi-ai 的 Context）。</li>
+    <li><b>由谁控制？</b>coding-agent 的 system-prompt / resource-loader；扩展可在 before_agent_start 改写。</li>
+    <li><b>和前一概念的关系？</b>第 3 课的工具<b>声明</b>与<b>结果</b>都是 Context 的组成部分。</li>
+    <li><b>Pi 在源码哪里实现？</b><span class="badge src">源码</span><code>system-prompt.ts</code>（组装/diff）+ <code>resource-loader.ts</code>（发现）+ <code>agent-session.ts</code>（投影）。</li>
+  </ol>
+
+  <h2>四、源码映射</h2>
+  <table class="map">
+    <tr><th>信息</th><th>静态/动态</th><th>来源</th></tr>
+    <tr><td>preamble / rules / docs</td><td>静态</td><td>system-prompt.ts 内置文本</td></tr>
+    <tr><td>cwd / 环境</td><td>静态（每会话）</td><td>启动时的 cwd</td></tr>
+    <tr><td>全局与项目 AGENTS.md</td><td>动态（每项目）</td><td>resource-loader 沿祖先目录收集</td></tr>
+    <tr><td>skills 目录</td><td>动态 · 按需</td><td>loadSkills() → XML 目录；全文按需 read（第 7 课）</td></tr>
+    <tr><td>会话历史投影</td><td>动态 · 每轮</td><td>buildSessionProjection（第 5/6 课）</td></tr>
+  </table>
+
+  <h2>五、这张图在整个体系中的位置</h2>
+  <p>Context 是 Loop 的"每轮输入"，也是后面两大机制的舞台：历史从哪来（第 5 课 Session）、太长了怎么办（第 6 课 Compaction）。记住这句：<strong>Context 是"本轮送进模型的信息"，Session 是"长期保存的任务历史与状态"。</strong></p>
+
+  <div class="quiz" data-quiz='{"title": "检索练习（先凭记忆作答）", "items": [{"q": "Pi 的系统提示词以什么形式组装？", "options": ["一整段硬编码的字符串", "分 sections 生成、diff 更新", "完全由 AGENTS.md 动态提供"], "answer": 1, "why": "buildSystemPromptSections 拆成 preamble/tools/rules/docs/project_context/skills/cwd 等段，diff 后只发变更。"}, {"q": "Context 和 Session 的关系是？", "options": ["同义词", "Context 是本轮投影，Session 是磁盘完整历史", "Session 是 Context 的子集"], "answer": 1, "why": "compaction/context_edit 改变投影而不改历史——模型看见的被裁剪，历史永远完整。"}, {"q": "对 prompt cache 最友好的做法是？", "options": ["每轮把全量重新发一遍", "稳定段在前，只下发 diff", "prompt 尽量写得短一些"], "answer": 1, "why": "sections diff + 静态在前 + cacheWarmer 预热，都是为了让前缀命中缓存。"}]}'></div>
+
+  <h2>延伸阅读（一手来源）</h2>
+  <p><span class="badge src">源码</span><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/coding-agent/src/core/system-prompt.ts">system-prompt.ts</a> · <a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/coding-agent/src/core/resource-loader.ts">resource-loader.ts</a>。追问请找你的 AI 导师。</p>
+
+  <nav class="pager"><a href="0003-tool-calling.html">← 上一课</a> <a href="0005-session-tree.html">下一课：Session / State →</a></nav>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

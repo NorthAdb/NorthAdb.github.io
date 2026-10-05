@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第 1 课 · 为什么 LLM 不是 Agent</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <div class="kicker">Agent Harness 课程 · 第 1 课 / 共 14 课 · 第一阶段：总体认知</div>
+  <h1>为什么 LLM 不是 Agent</h1>
+  <p class="lede">从一个空白目录到"Pi 这样的编码智能体"，中间隔着一整层工程。这一课我们先看清这层工程的全貌，并回答整个课程的第一块基石：LLM 和 Agent 之间，到底差了什么。</p>
+
+  <div class="question"><strong>本课核心问题：</strong>Pi 作为一个 Coding Agent Harness，核心组件有哪些？这些组件之间如何连接？——以及最根本的：为什么 LLM 本身不是 Agent？</div>
+
+  <h2>一、这张图要解决什么问题</h2>
+  <p>你大概已经用过各种 Coding Agent：输入一句话，它自己读代码、改文件、跑测试。直觉上"是模型在干活"。这张图要打破这个直觉：把 Pi 拆开，看清里面的每一个部件——哪些是 LLM，哪些不是，谁在指挥谁。不看清这个，后面 13 课的所有机制都没有挂靠点。</p>
+
+  <figure class="diagram">
+    <iframe src="diagrams/01-harness-overview.html" title="Diagram 01 · Pi Agent Harness 总体架构" loading="lazy"></iframe>
+    <figcaption>Diagram 01 · 可缩放/平移/点选追踪连线。<a href="diagrams/01-harness-overview.html" target="_blank">全屏打开 ↗</a></figcaption>
+  </figure>
+
+  <h2>二、如何从图上读懂 Pi</h2>
+  <p><span class="badge src">源码</span>图上有三个颜色/边界层次，对应 Pi 仓库的真实分层：</p>
+  <p><strong>外层是外部系统</strong>：你和你的操作系统（Shell、文件系统）。Harness 能通过"工具执行"触碰 OS，但 OS 本身不归它管。</p>
+  <p><strong>中间是产品层 Harness（pi-coding-agent）</strong>：TUI 交互界面、AgentSessionRuntime（会话宿主）、AgentSession（产品状态机）、Tool Registry（read/bash/edit/write 等工具）、Session JSONL（磁盘上的历史）、以及 Compaction·Skills·Extensions 这组服务。你日常看到的"Pi"几乎全部是这一层。</p>
+  <p><strong>内层是 Core Runtime（pi-agent-core + pi-ai）</strong>：<code>agentLoop()</code> 双层 while 循环、Context 数据结构、以及 Model Provider 抽象（多家模型厂商，统一成一个 <code>streamSimple</code> 流式接口）。<span class="badge src">源码</span>1.0 起 <code>packages/agent</code> 只剩循环、Agent 和 proxy，不再包含会话或压缩。关键证据：这一层完全不知道"编码"的存在——包里没有 read/bash/edit，这些是产品层注入进去的。另一条实验线 <code>packages/durable</code> 做可恢复的 Harness，日常 <code>pi</code> 不走它。</p>
+  <p><strong>为什么 LLM 本身不是 Agent？</strong>因为图上粉色卡片说的三件事：LLM 只做一件事——收一份 Context，吐一段 token，请求结束即"失忆"。它不能执行工具（只能<b>建议</b>调用哪个工具）、不能持久化任何东西、看不到文件系统。图上所有"持久的、会做决定的、能动手的"部件，全部住在 Harness 侧。<strong>Agent = LLM + 一整套让它稳定持续安全干活的工程</strong>，这套工程就叫 Harness（线束/马具——套在 LLM 这匹"马"上的那套装备）。</p>
+
+  <h2>三、新概念的七问：Harness</h2>
+  <ol class="seven">
+    <li><b>它解决什么问题？</b>让一个"只能生成 token 的函数"变成能持续、稳定、安全完成多步任务的系统。</li>
+    <li><b>如果没有它会怎样？</b>你要手动把文件内容粘贴给模型、手动把它的修改写回磁盘、手动重试每一次失败——它只是一个聊天窗口。</li>
+    <li><b>输入是什么？</b>用户的自然语言任务 + 工作区环境（文件、目录、git 状态）。</li>
+    <li><b>输出是什么？</b>对真实世界的副作用（改了哪些文件、跑了什么命令）+ 给用户的答复。</li>
+    <li><b>它由谁控制？</b>循环和状态由 Harness 代码控制；模型只在每一步被咨询一次意见。</li>
+    <li><b>它和前一个概念的关系？</b>这是课程第一个概念——它是后面一切机制（Loop、工具、会话、压缩……）的容器。</li>
+    <li><b>Pi 在源码哪里实现？</b><span class="badge src">源码</span>三层各自成包：<code>packages/ai</code>（模型 IO）、<code>packages/agent</code>（循环）、<code>packages/coding-agent</code>（产品组装）。实验性可恢复 Harness 在 <code>packages/durable</code>，与日常 CLI 分开。</li>
+  </ol>
+
+  <h2>四、源码映射</h2>
+  <table class="map">
+    <tr><th>组件</th><th>源码位置</th><th>职责</th></tr>
+    <tr><td>agentLoop() / runLoop</td><td><code>packages/agent/src/agent-loop.ts:38</code> / <code>:163</code></td><td>公开入口与私有双层 while（第 2 课的主角）</td></tr>
+    <tr><td>Context 类型</td><td><code>packages/ai/src/types.ts:734</code></td><td><code>{ systemPrompt?, messages, tools? }</code>——送出前还会被 normalizeContext 折进转录</td></tr>
+    <tr><td>Model Provider</td><td><code>packages/ai/src/models.ts:895</code></td><td><code>Models.streamSimple</code>，统一各 provider 的流式入口</td></tr>
+    <tr><td>AgentSession</td><td><code>packages/coding-agent/src/core/agent-session.ts:362</code></td><td>产品层状态机：工具启停、压缩、扩展</td></tr>
+    <tr><td>Tool Registry</td><td><code>packages/coding-agent/src/core/tools/index.ts:95</code></td><td>注册表 8 个：read/bash/powershell/edit/write/grep/find/ls。默认启用 4 个：read/bash/edit/write（<code>settings-manager.ts:215</code>）</td></tr>
+    <tr><td>Session JSONL</td><td><code>packages/coding-agent/src/core/session-manager.ts:1080</code></td><td>append-only 会话文件</td></tr>
+  </table>
+
+  <h2>五、这张图在整个体系中的位置</h2>
+  <p>它是课程的总地图：后面每一课都会回到这张图，点亮其中一个部件（第 2 课点亮 agentLoop，第 5 课点亮 Session……）。现在你只需要记住一句话：<strong>LLM 是被调用的函数，Harness 是拥有控制权的主体。</strong></p>
+
+  <div class="quiz" data-quiz='{"title": "检索练习（先凭记忆作答）", "items": [{"q": "Pi 的 Core Runtime（pi-agent-core + pi-ai）知道「read / bash」这些编码工具吗？", "options": ["知道，工具定义在 agent 包里", "不知道，工具由产品层注入", "只认识 read，不认识 bash"], "answer": 1, "why": "Core 是 provider 无关、任务无关的循环；工具定义在 packages/coding-agent/src/core/tools/ 并通过 wrapper 注入。"}, {"q": "模型输出一个 toolCall 后，真正执行它的是？", "options": ["模型自己", "Model Provider", "Harness 侧的循环与工具执行层"], "answer": 2, "why": "toolCall 只是 JSON 建议；执行发生在 agent-loop 调用 tool.execute()，最终由 OS 完成。"}, {"q": "「Agent = LLM + ____」，空格里最准确的词是？", "options": ["更长的上下文窗口", "更强的推理模型", "一套完整的 Harness 工程"], "answer": 2, "why": "把任一现代 Agent 的 Harness 拆掉只留模型，它就退化成一个聊天窗口。"}]}'></div>
+
+  <h2>延伸阅读（一手来源）</h2>
+  <p><span class="badge doc">文档</span><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/README.md">仓库 README</a> 与 <a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/agent/README.md">packages/agent/README.md</a>（最小 Agent 示例）；概览侧的中文导读见 <a href="../../learn-pi/index.html">learn-pi/</a>。有疑问随时问你的 AI 导师——每课都可以追问。</p>
+
+  <nav class="pager"><a href="../COURSE.html">← 课程总纲</a> <a href="0002-agent-loop.html">下一课：Agent Loop →</a></nav>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

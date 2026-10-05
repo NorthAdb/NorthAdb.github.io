@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>术语表 · Agent Harness 课程</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <div class="kicker">Agent Harness 课程 · 参考 · 术语表</div>
+  <h1>术语表（Glossary）</h1>
+  <p class="lede">全课程统一用语。标注 = 该术语首次详解的课程。Pi 特有实现的词条附源码位置。</p>
+
+  <h2>基础</h2>
+  <table class="map">
+    <tr><th>术语</th><th>定义</th><th>详见</th></tr>
+    <tr><td>LLM</td><td>无状态 token 生成函数：收 Context，吐 token，请求结束即失忆</td><td><a href="../lessons/0001-why-llm-is-not-agent.html">第 1 课</a></td></tr>
+    <tr><td>Harness（线束）</td><td>套在 LLM 上的全部工程：循环、工具、状态、接口、安全接缝</td><td>第 1 课</td></tr>
+    <tr><td>Agent Loop</td><td>驱动 LLM→Tool→Observation→LLM 的 while 循环；控制权在 Runtime</td><td><a href="../lessons/0002-agent-loop.html">第 2 课</a></td></tr>
+    <tr><td>toolCall</td><td>模型生成的结构化 JSON 建议 { id, name, arguments }；无执行权</td><td><a href="../lessons/0003-tool-calling.html">第 3 课</a></td></tr>
+    <tr><td>toolResult</td><td>执行结果包装成的消息；isError=true 时错误文本也回给模型</td><td>第 3 课</td></tr>
+    <tr><td>Tool Schema</td><td>name + description + JSON Schema 参数——随请求发给模型的"菜单"</td><td>第 3 课</td></tr>
+    <tr><td>Context</td><td>本轮送给模型的信息：systemPrompt + messages + tools</td><td><a href="../lessons/0004-context-assembly.html">第 4 课</a></td></tr>
+    <tr><td>Session</td><td>磁盘上的完整任务历史树（Pi：append-only JSONL + parentId）</td><td><a href="../lessons/0005-session-tree.html">第 5 课</a></td></tr>
+    <tr><td>投影（projection）</td><td>从会话树构建的本轮模型可见消息；≠ 原始历史</td><td>第 5 课</td></tr>
+    <tr><td>leafId</td><td>Pi 会话树的当前分支指针；branch() 只拨指针</td><td>第 5 课 · <code>session-manager.ts:1574</code></td></tr>
+    <tr><td>Compaction</td><td>状态压缩：旧历史→结构化摘要条目；投影被替换，存储不动</td><td><a href="../lessons/0006-compaction.html">第 6 课</a></td></tr>
+    <tr><td>reserveTokens / keepRecentTokens</td><td>回复余量（默认 16384）/ 近期保留预算（默认 20000）</td><td>第 6 课 · <code>compaction.ts:148</code></td></tr>
+    <tr><td>渐进披露（Progressive Disclosure）</td><td>常驻只放目录，全文按需加载</td><td><a href="../lessons/0007-skills.html">第 7 课</a></td></tr>
+    <tr><td>Skill</td><td>含 SKILL.md 的知识/流程包；模型按 description 触发、read 加载</td><td>第 7 课</td></tr>
+    <tr><td>Extension</td><td>可执行运行时定制：factory(pi) 注册能力 + 挂事件钩子</td><td><a href="../lessons/0008-extensions.html">第 8 课</a></td></tr>
+    <tr><td>注册面 / 事件面</td><td>registerTool/Command/UI/Provider × 生命周期钩子（40+）</td><td>第 8 课 · <code>extensions/types.ts</code></td></tr>
+    <tr><td>Capability / Authorization / Sandbox</td><td>能力（有什么工具）/ 授权（动手前谁说了算）/ 沙箱（物理上碰得到什么）</td><td><a href="../lessons/0009-capability-boundary.html">第 9 课</a></td></tr>
+    <tr><td>Project Trust</td><td>Pi 唯一 Core 级安全机制：门禁项目 .pi/* 资源加载，防供应链</td><td>第 9 课 · <code>trust-manager.ts</code></td></tr>
+    <tr><td>AppMode</td><td>Pi 的四种运行形态：interactive / print / json / rpc</td><td><a href="../lessons/0010-interfaces.html">第 10 课</a> · <code>main.ts:111</code></td></tr>
+    <tr><td>AgentEvent</td><td>10 种生命周期事件（agent_start/end、turn_*、message_*、tool_execution_*）</td><td>第 2 / 10 课 · <code>agent/src/types.ts:514</code></td></tr>
+    <tr><td>steering / followUp</td><td>中途插话 / 排队后续消息——Loop 外层 while 的两个驱动源</td><td>第 2 课 · <code>agent.ts</code></td></tr>
+    <tr><td>Mental Model 五层</td><td>Model → Agent Loop → Runtime → Harness → Environment</td><td><a href="../lessons/0014-mental-model.html">第 14 课</a></td></tr>
+    <tr><td>Sections（提示词分块）</td><td>Pi 把系统提示词拆成 preamble/tools/rules/docs/project_context/skills/cwd 等独立段，diff 后只发变更</td><td>第 4 课 · <code>system-prompt.ts:121/204</code></td></tr>
+    <tr><td>Prompt Cache</td><td>Provider 端的前缀缓存：稳定大块在前、易变小块在后、只发 diff，可省钱降延迟</td><td>第 4 课</td></tr>
+    <tr><td>Append-only</td><td>只追加不修改的写入策略；Pi 的会话 JSONL 与大多数数据库 WAL 同构</td><td>第 5 课</td></tr>
+    <tr><td>Minimal Core</td><td>Pi 的架构信条：Core 只留接缝（循环/事件/注册面），工作流与安全政策外包给扩展与环境</td><td><a href="../lessons/0008-extensions.html">第 8 课</a></td></tr>
+    <tr><td>三箱分箱法</td><td>评判任何 Agent 的方法：通用必需 / 领域特有 / 该产品自己的设计选择</td><td><a href="../lessons/0012-generic-harness.html">第 12 课</a></td></tr>
+  </table>
+
+  <footer class="note">术语与源码如有出入，以当前 checkout 的源码为准（commit 47c9be75）。回 <a href="../COURSE.html">课程总纲</a>。</footer>
+</main>
+</body>
+</html>

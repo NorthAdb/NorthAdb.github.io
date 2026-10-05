@@ -1,0 +1,158 @@
+/* Agent Harness 课程共享样式 —— 所有 lesson 与 reference 页面共用 */
+:root {
+  --ink: #1a1a1a;
+  --ink-soft: #4a4a4a;
+  --paper: #fdfcf9;
+  --accent: #0f6b5f;
+  --accent-soft: #e7f2ef;
+  --warn: #8a4b08;
+  --warn-soft: #fdf3e3;
+  --fact: #0f4c81;
+  --fact-soft: #e8f0f8;
+  --guess: #5b4a83;
+  --guess-soft: #efeaf7;
+  --line: #d8d3c8;
+  --code-bg: #f4f1ea;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "Georgia", "Noto Serif SC", "Songti SC", serif;
+  font-size: 17px;
+  line-height: 1.75;
+}
+main { max-width: 880px; margin: 0 auto; padding: 2.5rem 1.4rem 5rem; }
+h1, h2, h3 { font-family: "Georgia", "Noto Serif SC", serif; line-height: 1.3; }
+h1 { font-size: 1.9rem; margin: 0 0 .4rem; }
+h2 { font-size: 1.35rem; margin-top: 2.6rem; border-bottom: 1px solid var(--line); padding-bottom: .35rem; }
+h3 { font-size: 1.08rem; margin-top: 1.8rem; }
+p { margin: .8rem 0; }
+a { color: var(--accent); }
+code, pre, .mono {
+  font-family: "Cascadia Code", "JetBrains Mono", Consolas, monospace;
+  font-size: .86em;
+}
+code { background: var(--code-bg); padding: .1em .35em; border-radius: 4px; }
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 1rem 1.1rem;
+  overflow-x: auto;
+  line-height: 1.55;
+}
+pre code { background: none; padding: 0; }
+
+/* 课程头 */
+.kicker {
+  font-family: Consolas, monospace;
+  font-size: .78rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: .5rem;
+}
+.lede { font-size: 1.06rem; color: var(--ink-soft); margin-top: .6rem; }
+.question {
+  border-left: 4px solid var(--accent);
+  background: var(--accent-soft);
+  padding: .9rem 1.2rem;
+  border-radius: 0 8px 8px 0;
+  margin: 1.6rem 0;
+  font-size: 1.05rem;
+}
+.question strong { color: var(--accent); }
+
+/* 图表嵌入 */
+figure.diagram { margin: 2rem 0; }
+figure.diagram iframe {
+  width: 100%;
+  height: 820px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+}
+figure.diagram figcaption { font-size: .85rem; color: var(--ink-soft); margin-top: .5rem; }
+
+/* 证据徽章 */
+.badge {
+  display: inline-block;
+  font-family: Consolas, monospace;
+  font-size: .72rem;
+  padding: .1em .55em;
+  border-radius: 99px;
+  vertical-align: middle;
+  margin-right: .35em;
+}
+.badge.src { background: var(--fact-soft); color: var(--fact); }
+.badge.doc { background: var(--accent-soft); color: var(--accent); }
+.badge.guess { background: var(--guess-soft); color: var(--guess); }
+.badge.generic { background: var(--warn-soft); color: var(--warn); }
+.callout { border: 1px solid var(--line); border-radius: 10px; padding: 1rem 1.3rem; margin: 1.4rem 0; }
+.callout.fact { border-left: 4px solid var(--fact); background: var(--fact-soft); }
+.callout.doc { border-left: 4px solid var(--accent); background: var(--accent-soft); }
+.callout.guess { border-left: 4px solid var(--guess); background: var(--guess-soft); }
+.callout.generic { border-left: 4px solid var(--warn); background: var(--warn-soft); }
+.callout .t { font-weight: bold; font-size: .85rem; letter-spacing: .06em; display: block; margin-bottom: .3rem; }
+
+/* 源码映射表 */
+table.map { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 1.2rem 0; }
+table.map th, table.map td { border: 1px solid var(--line); padding: .5rem .7rem; text-align: left; vertical-align: top; }
+table.map th { background: var(--code-bg); font-family: Consolas, monospace; font-size: .8rem; }
+table.map td code { white-space: nowrap; }
+
+/* 七问 */
+.seven { counter-reset: q; margin: 1rem 0; padding: 0; list-style: none; }
+.seven li { counter-increment: q; margin: .7rem 0; padding-left: 2.2rem; position: relative; }
+.seven li::before {
+  content: counter(q);
+  position: absolute; left: 0; top: .15em;
+  width: 1.5rem; height: 1.5rem;
+  background: var(--accent); color: #fff;
+  border-radius: 50%;
+  font-family: Consolas, monospace; font-size: .8rem;
+  display: flex; align-items: center; justify-content: center;
+}
+.seven li b { color: var(--accent); }
+
+/* 测验 */
+.quiz { border: 1px solid var(--line); border-radius: 10px; padding: 1.2rem 1.4rem; margin: 2rem 0; background: #fff; }
+.quiz h3 { margin-top: 0; }
+.quiz fieldset { border: none; margin: 1.2rem 0 0; padding: 0; }
+.quiz legend { font-weight: bold; margin-bottom: .4rem; }
+.quiz label { display: block; margin: .35rem 0; cursor: pointer; font-size: .95rem; }
+.quiz .btn {
+  margin-top: 1rem;
+  background: var(--accent); color: #fff;
+  border: none; border-radius: 6px;
+  padding: .5rem 1.3rem; font-size: .95rem; cursor: pointer;
+  font-family: inherit;
+}
+.quiz .btn:hover { filter: brightness(1.08); }
+.quiz .result { margin-top: .8rem; font-size: .95rem; min-height: 1.4em; }
+.quiz .ok { color: var(--accent); font-weight: bold; }
+.quiz .bad { color: #b3372f; font-weight: bold; }
+.quiz .why { font-size: .88rem; color: var(--ink-soft); margin-top: .5rem; }
+
+/* 导航 */
+nav.pager { display: flex; justify-content: space-between; margin-top: 3rem; font-family: Consolas, monospace; font-size: .9rem; }
+nav.pager a { text-decoration: none; }
+footer.note { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--line); font-size: .85rem; color: var(--ink-soft); }
+@media print {
+  figure.diagram iframe { height: auto; }
+  nav.pager { display: none; }
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink: #e8e4da; --ink-soft: #b3aea2; --paper: #1c1b18;
+    --accent: #5cc8b4; --accent-soft: #1d332e; --warn: #d9a35a; --warn-soft: #3a2d18;
+    --fact: #7db3e8; --fact-soft: #1b2a3a; --guess: #a996d9; --guess-soft: #2a2440;
+    --line: #3a362e; --code-bg: #26231d;
+  }
+  .quiz { background: #232019; }
+  figure.diagram iframe { background: #fff; }
+  a { color: var(--accent); }
+}

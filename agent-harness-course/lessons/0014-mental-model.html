@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第 14 课 · 五层 Mental Model</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <div class="kicker">Agent Harness 课程 · 第 14 课 / 共 14 课 · 第十四阶段：最终 Mental Model</div>
+  <h1>五层 Mental Model 与公式的修正</h1>
+  <p class="lede">最后一课把 13 课的积累叠成五层——Model / Agent Loop / Runtime / Harness / Environment。每层回答六个固定问题：输入、输出、谁控制谁、数据怎么流、状态在哪、安全边界在哪。然后修正那个著名的公式。</p>
+
+  <div class="question"><strong>本课核心问题：</strong>"Agent = LLM + Loop + Harness + Environment" 这个公式成立吗？严格来说应该如何修正？</div>
+
+  <h2>一、这张图要解决什么问题</h2>
+  <p>你需要一个能在没有 Pi 源码、没有任何 Agent 在场时，依然可以在白板上画出来的模型——用它可以解释你见过的每一个 Agent，也能指导你从零写一个。五层模型就是那个白板。</p>
+
+  <figure class="diagram">
+    <iframe src="diagrams/13-mental-model.html" title="Diagram 13 · 五层 Mental Model" loading="lazy"></iframe>
+    <figcaption>Diagram 13 · 每层一个边界框；箭头标注控制与数据方向。<a href="diagrams/13-mental-model.html" target="_blank">全屏打开 ↗</a></figcaption>
+  </figure>
+
+  <h2>二、逐层拆解</h2>
+  <p><strong>Layer 1 · Model【推断/业界共识】。</strong>输入：一份 Context；输出：token（可能含 toolCall 建议）；控制：被调用；状态：无；安全边界：无——它只是函数。</p>
+  <p><strong>Layer 2 · Agent Loop【源码：agent-loop.ts】。</strong>输入：Context 投影；输出：下一动作（toolCall 或终止）；控制：Runtime 的 while；与 L1 的关系：每轮"送 Context、收 token"。</p>
+  <p><strong>Layer 3 · Runtime【源码】。</strong>Tools（注册/校验/执行）、Context（组装/缓存）、State（会话树）。输入：Loop 的调度；输出：对 L5 的副作用请求与新的 Context；控制：Loop 调度它；状态：Context 与会话树。</p>
+  <p><strong>Layer 4 · Harness【源码 + 推断】。</strong>Skills/Extensions/Compaction/Policy/UI·RPC·SDK。输入：用户与扩展的意图；输出：对 Runtime 的配置与约束、给用户的界面；控制：<b>它拥有整个系统</b>——Loop 是它调的，工具表是它配的，安全策略是它选的。</p>
+  <p><strong>Layer 5 · Environment【源码：docs/containerization.md + OS】。</strong>FS/Shell/Net/Git/容器。输入：工具的副作用请求；输出：观察结果（stdout、文件内容、退出码）；控制：物理世界；状态：一切真实状态；安全边界：<b>真正的边界在这里</b>（第 9 课）。</p>
+  <p><strong>关键的不对称（图上玫红卡片）：</strong>控制流自上而下，数据流自下而上；而 <b>LLM 对 Environment 没有任何直接通路</b>——每一条通往现实世界的路径都穿过 Harness 的手。这是安全的根基，也是"LLM 不是 Agent"的最终形态。</p>
+
+  <h2>三、公式的修正</h2>
+  <p>"Agent = LLM + Loop + Harness + Environment" 是<b>成分正确、结构错误</b>：它把四个词并列成加法，掩盖了包含与控制关系。严格式应当是：</p>
+  <pre><code>Agent = Harness( Loop( Runtime( LLM ) ), Environment )
+        │        │       │         │        └─ 物理世界：唯一发生副作用的地方
+        │        │       └─ 被调用的 token 生成器（无状态）
+        │        └─ 拥有控制权的 while 循环（Reason→Act→Observe）
+        └─ 拥有整个系统的主体：装配、配置、约束、暴露接口</code></pre>
+  <p>换句话说：<b>LLM 是被调用的函数，Harness 是调用者</b>。加法公式把"马"和"马具"并排放在了一起；乘法/嵌套式才表达了"谁套住谁"。这也回答了课程开头的问题：为什么 LLM 自己不能成为 Agent——因为在嵌套式里，LLM 甚至不是最外层的任何一个括号。</p>
+
+  <h2>四、七问（最终复盘）</h2>
+  <ol class="seven">
+    <li><b>解决什么问题？</b>给你一个可携带、可教学、可指导设计的白板模型。</li>
+    <li><b>没有它会怎样？</b>知识散在 13 课里，无法整体调用。</li>
+    <li><b>输入是什么？</b>全部课程观察。</li>
+    <li><b>输出是什么？</b>五层图 + 嵌套式公式。</li>
+    <li><b>由谁控制？</b>你——下一步用它去设计（见最终练习）。</li>
+    <li><b>和前概念的关系？</b>第 12 课的通用 Harness 是本图的 L3+L4 雏形。</li>
+    <li><b>源码依据？</b>每层都在对应课程给过文件级证据；本课无新源码。</li>
+  </ol>
+
+  <h2>五、接下来：毕业设计</h2>
+  <p>课程结束的标志不是读完，而是<b>从空白目录写出一个 Minimal Pi-like Agent Harness</b>：LLM Provider、Agent Loop、Tool Registry、Tool Execution、Context Builder、Session Store、Compaction、Skill Loader、Extension Hook——按 需求→接口→数据结构→运行流程→最小实现→测试→扩展 的顺序，全部在 → <a href="../reference/minimal-harness.html"><strong>最终练习：从 0 手写 Minimal Pi-like Agent Harness</strong></a>。</p>
+
+  <div class="quiz" data-quiz='{"title": "毕业检索练习", "items": [{"q": "五层中「真正的安全边界」在哪层？", "options": ["Layer 1 Model", "Layer 4 Harness", "Layer 5 Environment"], "answer": 2, "why": "物理隔离在环境层；Harness 只能提供软措施（确认门）与接缝。"}, {"q": "「控制流自上而下、数据流自下而上」意味着？", "options": ["LLM 控制 Harness", "Harness 驱动，观察向上流入", "各层自治互不控制"], "answer": 1, "why": "这正是「LLM 对 Environment 无直接通路」的另一种说法。"}, {"q": "修正后的公式是？", "options": ["Agent = LLM × Tools × Prompts × Agents", "Agent = Harness(Loop(Runtime(LLM)), Env)", "Agent = Prompt + Model + Memory + Tools"], "answer": 1, "why": "嵌套式表达「谁套住谁、谁调用谁」——LLM 是被调用的函数，Harness 是主体。"}]}'></div>
+
+  <h2>延伸阅读</h2>
+  <p>回看 <a href="../COURSE.html">COURSE.md</a> 与全部 13 张图做一次快速过片；然后进入 → <a href="../reference/minimal-harness.html">最终练习</a>。有任何一步卡住，问你的 AI 导师。</p>
+
+  <nav class="pager"><a href="0013-comparison.html">← 上一课</a> <a href="0015-mcp.html">下一课：MCP 深潜 →</a></nav>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

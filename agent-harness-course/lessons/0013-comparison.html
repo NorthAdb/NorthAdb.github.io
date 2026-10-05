@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第 13 课 · 横向比较</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <div class="kicker">Agent Harness 课程 · 第 13 课 / 共 14 课 · 第十三阶段：横向比较</div>
+  <h1>Pi vs Claude Code vs Codex vs OpenCode</h1>
+  <p class="lede">用第 12 课的三箱模型去检验另外三个 Agent。先声明证据规则：Pi 的每一格都有本仓库源码背书；另外三家的核心不完全开源，只能以<b>公开文档/公开仓库资料</b>为准——证据等级整体降一级，且截至 2026 年 9 月，请以最新官方文档复核。</p>
+
+  <div class="question"><strong>本课核心问题：</strong>不同 Agent 在"哪些事情应该进入 Core，哪些留给 Harness / Extension"上的设计差异发生在哪些层？（不做谁最好的排名）</div>
+
+  <h2>一、Harness 层比较表</h2>
+  <table class="map">
+    <tr><th>维度</th><th>Pi【源码级】</th><th>Claude Code【公开资料】</th><th>Codex CLI【公开资料】</th><th>OpenCode【公开资料】</th></tr>
+    <tr><td>Core Runtime</td><td>TS monorepo 三层（ai/agent/coding-agent）</td><td>闭源 CLI（Node）</td><td>开源（Rust）</td><td>开源（TS）</td></tr>
+    <tr><td>Agent Loop</td><td>provider 无关双层 while + 事件流</td><td>未公开细节</td><td>未公开细节（开源可读）</td><td>未公开细节（开源可读）</td></tr>
+    <tr><td>Tool System</td><td>8 内置 + 扩展注册；TypeBox 校验</td><td>内置工具集 + MCP</td><td>内置 + MCP</td><td>内置 + MCP + LSP</td></tr>
+    <tr><td>Skills</td><td>SKILL.md 渐进披露（目录进提示词，全文 read）</td><td>有 Agent Skills（同类渐进披露）</td><td>公开资料较少</td><td>公开资料较少</td></tr>
+    <tr><td>Extensions</td><td>40+ 钩子、registerTool/Command/UI/Provider</td><td>Hooks + 子代理 + 斜杠命令</td><td>配置/通知钩子为主</td><td>插件/自定义命令/Provider 扩展</td></tr>
+    <tr><td>Session</td><td>JSONL append-only 树 + leafId 分支 + fork</td><td>JSONL 转录 + resume（公开观察）</td><td>会话持久化 + resume</td><td>会话存储 + 共享</td></tr>
+    <tr><td>Compaction</td><td>阈值触发 + 结构化摘要 + 迭代摘要（源码级精读）</td><td>/compact 与自动压缩（公开文档）</td><td>公开资料较少</td><td>公开资料较少</td></tr>
+    <tr><td>Subagent</td><td><b>无</b>（刻意，扩展可补）</td><td>有（Task/子代理）</td><td>公开资料较少</td><td>有（多代理配置）</td></tr>
+    <tr><td>Permissions</td><td><b>Core 无审批</b>；Trust 只管加载</td><td>权限模式 + 允许清单 + 计划模式</td><td>审批模式 + OS 级沙箱</td><td>权限配置</td></tr>
+    <tr><td>Sandbox</td><td>外部容器 / micro-VM（官方指南）</td><td>依赖运行环境（公开资料）</td><td>内置 OS 沙箱（seatbelt/landlock）</td><td>依赖运行环境</td></tr>
+    <tr><td>MCP</td><td><b>内置扩展</b>（0.99 起，可替换）；默认 <code>codemode</code>，工具不声明给模型</td><td>支持（工具默认声明）</td><td>支持（工具默认声明）</td><td>支持（工具默认声明）</td></tr>
+    <tr><td>RPC / SDK</td><td>SDK + stdio JSON 行 RPC + 实验性二进制协议</td><td>非交互模式（-p）为主</td><td>exec 非交互模式</td><td>非交互模式 + 客户端/服务端形态</td></tr>
+    <tr><td>Observability</td><td>AgentEvent 事件流（可全量订阅）</td><td>公开资料较少</td><td>公开资料较少</td><td>公开资料较少</td></tr>
+    <tr><td>Philosophy</td><td>Minimal Core + 厚扩展；安全外包给环境</td><td>一体化产品，能力进产品</td><td>安全优先（沙箱内置）</td><td>开放中立（多 provider）</td></tr>
+  </table>
+  <p><span class="badge generic">证据说明</span>标【公开资料】的格子可能随时过时，且无源码级精度；这正是本课程反复强调证据分级的原因——<b>拿这张表做讨论起点，不做终审判决</b>。</p>
+
+  <h2>二、差异真正的战场：Core vs Harness 的划线</h2>
+  <p>把上表压缩成一句话：<b>四家在"必需品"上高度趋同（Loop/Context/Session/压缩/工具），真正的分歧在三条划线上</b>——</p>
+  <p><strong>划线一：安全放哪？</strong>Pi 放环境（容器）；Codex 把 OS 沙箱内置进产品；Claude Code 用产品内权限模式。同一问题，三个答案，决定了三家的信任模型与目标用户。</p>
+  <p><strong>划线二：生态协议放哪？</strong>MCP 是"工具生态"的行业协议。0.99 之前 Pi 完全不实现，是四家里最显眼的分歧；0.99 起 Pi 把它接成了<b>可替换的内置扩展</b>——协议进来了，Core 工具表没有变，工具默认还不声明给模型（<code>exposure: "codemode"</code>）。其他三家默认把 MCP 工具直接暴露给模型。<b>分歧从"接不接"移到了"接了之后占不占上下文"</b>——这是比"进不进 Core"更细的一层价值排序。详见第 15 课。</p>
+  <p><strong>划线三：多代理放哪？</strong>Claude Code 把子代理做进产品；Pi 认为扩展 + 多会话（runtime 的 fork/switch）已够。<b>Subagent 本质上是"并发与隔离"问题</b>——它可以长在 Runtime 里，也可以长在 Harness 编排层，还可以完全交给用户 shell。</p>
+  <p>用第 12 课的三箱法看：三箱（通用必需）四家几乎一致；二箱（Coding 特有）趋同；所有争执都发生在<b>三箱（设计选择）</b>——而三箱的争执，恰恰是"Minimal Core 划在哪条线"的哲学之争。</p>
+
+  <h2>三、七问（针对"比较方法"）</h2>
+  <ol class="seven">
+    <li><b>解决什么问题？</b>防止把"某家的选择"当成"行业的必然"。</li>
+    <li><b>没有它会怎样？</b>学完 Pi 就以为 Agent = Pi，做设计时盲目照抄。</li>
+    <li><b>输入是什么？</b>同一张比较表（统一维度、分级证据）。</li>
+    <li><b>输出是什么？</b>三条"划线"级的洞察，而非排名。</li>
+    <li><b>由谁控制？</b>你——比较的结论要能落到你自己的 Minimal Harness 设计决策上。</li>
+    <li><b>和前一概念的关系？</b>第 12 课的三箱模型是本表的分组器。</li>
+    <li><b>证据？</b>Pi 列全为<span class="badge src">源码</span>；他列全为<span class="badge generic">公开资料</span>（2026-09 截止，需复核）。</li>
+  </ol>
+
+  <h2>四、本课无图</h2>
+  <p>比较是表驱动的：强行画一张四家巨型架构图只会产生几百个节点的 spaghetti——违背本课程"一次一张聚焦图"的原则。表格即图。</p>
+
+  <div class="quiz" data-quiz='{"title": "检索练习（先凭记忆作答）", "items": [{"q": "四家分歧最集中的层是？", "options": ["通用必需品（Loop/Session）", "设计选择层（安全/生态/多代理的划线）", "提示词写法"], "answer": 1, "why": "必需品趋同；Core vs Harness 的三条划线才是真分歧。"}, {"q": "关于 MCP，Pi 1.0 的立场是？", "options": ["Core 里的第五个内置工具", "可替换内置扩展，默认只在脚本可见", "仅在服务端模式支持"], "answer": 1, "why": "自 0.99 起以内置扩展接入，1.0.2 仍如此。默认启用的工具仍是 read/bash/edit/write；默认 exposure 是 codemode，工具不声明给模型。"}, {"q": "对另外三家的结论应持什么证据等级？", "options": ["与 Pi 源码同级", "公开资料级，需定期复核", "不可被讨论"], "answer": 1, "why": "核心不完全开源 → 无源码级精度；本课程明确降级标注。"}]}'></div>
+
+  <h2>延伸阅读</h2>
+  <p><span class="badge generic">公开资料</span>各家官方文档与开源仓库（请自行复核最新状态）。Pi 侧对应源码见各课映射。追问请找你的 AI 导师。</p>
+
+  <nav class="pager"><a href="0012-generic-harness.html">← 上一课</a> <a href="0014-mental-model.html">下一课：Mental Model →</a></nav>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

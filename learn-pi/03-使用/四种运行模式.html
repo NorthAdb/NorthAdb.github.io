@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>四种运行模式 · 学习 Pi 导读</title>
+<meta name="description" content="四种运行模式 · 学习 Pi 导读 — NorthAdb 课件">
+<link rel="stylesheet" href="../../learn-pi/style.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumbs"><a href="../../learn-pi/index.html">← 总目录</a></nav>
+  <article>
+<h1>四种运行模式</h1>
+<p>Pi 同内核，四种（加 SDK）出口——这是「适合二次开发 / 集成」的关键设计。</p>
+<h2>对照表</h2>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>如何进入</th>
+<th>模块</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Interactive (TUI)</td>
+<td>默认 <code>pi</code></td>
+<td><code>modes/interactive/</code></td>
+<td>日常人机结对</td>
+</tr>
+<tr>
+<td>Print</td>
+<td><code>-p</code> / <code>--print</code>；管道 stdin 也会走向 print</td>
+<td><code>modes/print-mode.ts</code></td>
+<td>一次性任务、脚本</td>
+</tr>
+<tr>
+<td>JSON</td>
+<td><code>--mode json</code></td>
+<td>同上</td>
+<td>结构化事件流，便于宿主解析</td>
+</tr>
+<tr>
+<td>RPC</td>
+<td><code>--mode rpc</code></td>
+<td><code>modes/rpc/</code></td>
+<td>用 JSONL 命令/事件做进程集成</td>
+</tr>
+<tr>
+<td>SDK</td>
+<td>代码里 <code>createAgentSession()</code></td>
+<td><code>core/sdk.ts</code></td>
+<td>嵌进 Node 应用（无 CLI）</td>
+</tr>
+</tbody></table>
+<h2>Interactive</h2>
+<ul>
+<li>完整编辑器、slash 命令、快捷键、消息队列</li>
+<li>依赖 <code>pi-tui</code> 差分渲染</li>
+<li>1.0 起默认全屏。要原来的终端滚动缓冲，把设置 <code>tuiMode</code> 设为 <code>&quot;regular&quot;</code>，或传 <code>--tui-mode regular</code></li>
+<li>扩展可加自定义 header/footer/overlay/编辑器行为</li>
+</ul>
+<p>适合：学习产品、写扩展、日常开发。</p>
+<h2>Print / JSON</h2>
+<ul>
+<li>非交互跑完退出</li>
+<li>JSON 模式输出事件，便于日志与自动化</li>
+<li>官方文档：<code>docs/json.md</code>、<code>docs/usage.md</code></li>
+</ul>
+<p>适合：CI 片段、批处理、简单自动化（复杂集成更看 RPC/SDK）。</p>
+<h2>RPC</h2>
+<ul>
+<li>stdin：JSONL 命令</li>
+<li>stdout：JSONL 事件</li>
+<li>官方：<code>docs/rpc.md</code></li>
+<li>例子：<code>examples/rpc-extension-ui.ts</code> 等</li>
+</ul>
+<p>适合：IDE 插件宿主、外部编排器、不想链进 SDK 打包时。</p>
+<h2>SDK</h2>
+<p>阶梯例子在 <code>examples/sdk/</code>：</p>
+<ol>
+<li><code>01-minimal</code> — 最小会话  </li>
+<li><code>02-custom-model</code> — 模型  </li>
+<li><code>03-custom-prompt</code> — 提示  </li>
+<li><code>04-skills</code> — 技能  </li>
+<li><code>05-tools</code> — 工具  </li>
+<li><code>06-extensions</code> — 扩展  </li>
+<li>…  </li>
+<li><code>12-full-control</code> — 高度定制  </li>
+<li><code>13-session-runtime</code> — runtime 级控制</li>
+</ol>
+<p>适合：做自己的 Agent 产品壳、评测、内部平台。</p>
+<h2>设计收益</h2>
+<pre><code>同一 AgentSession
+    ├─ TUI 渲染事件
+    ├─ JSON 打印事件
+    ├─ RPC 翻译事件
+    └─ SDK 订阅事件
+</code></pre>
+<p>二次开发时优先问：<strong>我是缺 UI、缺协议，还是缺循环？</strong></p>
+<ul>
+<li>缺 UI → extension / 自建前端 + SDK  </li>
+<li>缺协议 → RPC/JSON  </li>
+<li>缺循环语义 → 才考虑动 agent-core</li>
+</ul>
+<h2>下一步</h2>
+<ul>
+<li><a href="./%E4%BC%9A%E8%AF%9D%E4%B8%8E%E4%B8%8A%E4%B8%8B%E6%96%87.html">会话与上下文.md</a></li>
+<li><a href="../04-%E5%AE%9A%E5%88%B6%E6%89%A9%E5%B1%95/SDK%E4%B8%8E%E8%BF%9B%E7%A8%8B%E9%9B%86%E6%88%90.html">../04-定制扩展/SDK与进程集成.md</a></li>
+</ul>
+
+  </article>
+<nav class="pager"><a href="本地跑起来.html">← 本地跑起来</a>
+    <span class="spacer"></span>
+    <a href="会话与上下文.html">会话与上下文 →</a></nav>
+  <footer>学习 Pi 导读（learn-pi） · 基准 pi 1.0.2（2026-10-04） · <a href="https://github.com/NorthAdb/pi-agent-north" target="_blank" rel="noopener">源码仓库 ↗</a> · 姊妹课程 <a href="../../agent-harness-course/index.html">Agent Harness 架构课</a></footer>
+</div>
+</body>
+</html>

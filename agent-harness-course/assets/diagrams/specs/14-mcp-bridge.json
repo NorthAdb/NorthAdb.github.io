@@ -1,0 +1,287 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Diagram 14 · MCP 与 Pi：可替换内置扩展",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "output": "agent-harness-course/lessons/diagrams/14-mcp-bridge.html",
+    "viewBox": [
+      1160,
+      490
+    ],
+    "repository": {
+      "url": "https://github.com/NorthAdb/pi-agent-north.git",
+      "provider": "github",
+      "revision": "49987be9a71f2c36d56076ee584b302c68f1d280"
+    }
+  },
+  "components": [
+    {
+      "id": "llm",
+      "type": "cloud",
+      "label": "LLM",
+      "sublabel": "只认工具菜单",
+      "pos": [
+        60,
+        70
+      ],
+      "size": [
+        170,
+        60
+      ]
+    },
+    {
+      "id": "core",
+      "type": "backend",
+      "label": "AgentSession 核心",
+      "sublabel": "四个内置工具【源码】",
+      "tag": "Minimal Core",
+      "pos": [
+        360,
+        70
+      ],
+      "size": [
+        200,
+        64
+      ]
+    },
+    {
+      "id": "api",
+      "type": "backend",
+      "label": "ExtensionAPI",
+      "sublabel": "registerTool 接缝",
+      "pos": [
+        660,
+        70
+      ],
+      "size": [
+        190,
+        64
+      ],
+      "sources": [
+        {
+          "path": "packages/coding-agent/src/core/extensions/types.ts",
+          "line": 1853
+        }
+      ]
+    },
+    {
+      "id": "trust",
+      "type": "security",
+      "label": "Project Trust",
+      "sublabel": "门禁 .pi/mcp.json",
+      "pos": [
+        60,
+        210
+      ],
+      "size": [
+        170,
+        60
+      ],
+      "sources": [
+        {
+          "path": "packages/coding-agent/src/core/trust-manager.ts",
+          "line": 32
+        }
+      ]
+    },
+    {
+      "id": "registry",
+      "type": "backend",
+      "label": "Tool Registry",
+      "sublabel": "默认不声明给模型",
+      "pos": [
+        360,
+        210
+      ],
+      "size": [
+        190,
+        64
+      ]
+    },
+    {
+      "id": "bridge",
+      "type": "backend",
+      "label": "内置 MCP 扩展",
+      "sublabel": "builtin · replaceable",
+      "tag": "已内置【源码】",
+      "pos": [
+        660,
+        210
+      ],
+      "size": [
+        200,
+        64
+      ],
+      "sources": [
+        {
+          "path": "packages/coding-agent/src/extensions/mcp/index.ts",
+          "line": 7
+        }
+      ]
+    },
+    {
+      "id": "client",
+      "type": "messagebus",
+      "label": "MCP Client",
+      "sublabel": "JSON-RPC 2.0 会话",
+      "pos": [
+        940,
+        210
+      ],
+      "size": [
+        170,
+        64
+      ],
+      "sources": [
+        {
+          "path": "packages/mcp/src/index.ts",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "id": "servers",
+      "type": "external",
+      "label": "MCP Servers",
+      "sublabel": "tools/resources/prompts",
+      "pos": [
+        660,
+        350
+      ],
+      "size": [
+        200,
+        64
+      ]
+    },
+    {
+      "id": "transport",
+      "type": "external",
+      "label": "stdio / Streamable HTTP",
+      "sublabel": "子进程或远端",
+      "pos": [
+        940,
+        350
+      ],
+      "size": [
+        170,
+        60
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "security-group",
+      "label": "外部进程 · 权限=OS 用户（第 9 课）",
+      "wraps": [
+        "servers",
+        "transport"
+      ],
+      "pad": 16
+    }
+  ],
+  "connections": [
+    {
+      "from": "llm",
+      "to": "core",
+      "label": "toolCall 建议",
+      "fromSide": "right",
+      "toSide": "left",
+      "labelDy": 56
+    },
+    {
+      "from": "core",
+      "to": "api",
+      "label": "接缝",
+      "fromSide": "right",
+      "toSide": "left",
+      "labelDy": 56
+    },
+    {
+      "from": "api",
+      "to": "bridge",
+      "label": "工厂加载",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDy": 24
+    },
+    {
+      "from": "bridge",
+      "to": "client",
+      "label": "JSON-RPC",
+      "fromSide": "right",
+      "toSide": "left",
+      "labelDy": 56
+    },
+    {
+      "from": "client",
+      "to": "transport",
+      "label": "连接",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDy": 24
+    },
+    {
+      "from": "transport",
+      "to": "servers",
+      "label": "tools/resources/prompts",
+      "fromSide": "left",
+      "toSide": "right",
+      "labelDy": -40
+    },
+    {
+      "from": "bridge",
+      "to": "registry",
+      "label": "按 exposure 注册",
+      "fromSide": "left",
+      "toSide": "right",
+      "labelDy": 56
+    },
+    {
+      "from": "registry",
+      "to": "core",
+      "label": "direct 才进菜单",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "labelDy": -24
+    },
+    {
+      "from": "trust",
+      "to": "registry",
+      "label": "门禁加载",
+      "fromSide": "right",
+      "toSide": "left",
+      "labelDy": 56
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "MCP 是什么【公开资料】",
+      "items": [
+        "Model Context Protocol：JSON-RPC 2.0 上的工具生态协议",
+        "Host 内嵌 Client，Server 以 stdio 子进程或 Streamable HTTP 暴露能力",
+        "三种原语：tools（可调用）/ resources（可读）/ prompts（模板）"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Pi 的接法【源码】",
+      "items": [
+        "src/extensions/index.ts：mcp 是 builtin + replaceable 的内置扩展",
+        "默认 exposure: codemode —— 工具不声明给模型，脚本用 searchTools() 找",
+        "客户端独立成包 packages/mcp，第三方扩展可整个顶替内置实现"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "归属层级与上下文预算",
+      "items": [
+        "四档归属：Core 工具 / 内置扩展 / 用户扩展与包 / 外部进程",
+        "接入 ≠ 声明：接了协议也可以一条工具描述都不加",
+        "判断顺序：生态密度 → 信任模型 → 上下文预算 → 归属层级"
+      ]
+    }
+  ]
+}

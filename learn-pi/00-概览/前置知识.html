@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>前置知识 · 学习 Pi 导读</title>
+<meta name="description" content="前置知识 · 学习 Pi 导读 — NorthAdb 课件">
+<link rel="stylesheet" href="../../learn-pi/style.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumbs"><a href="../../learn-pi/index.html">← 总目录</a></nav>
+  <article>
+<h1>前置知识</h1>
+<p>按目标分档：不必一次全会。</p>
+<h2>A. 只用 Pi 当编码助手（最低）</h2>
+<ul>
+<li>会用终端（PowerShell / bash）</li>
+<li>会装 Node（本仓库要求 <strong>Node ≥ 22.19</strong>；部分依赖提示更高）</li>
+<li>有一家模型的 API Key，或可用的订阅（<code>/login</code>）</li>
+<li>基本 Git 概念（会话与项目目录相关）</li>
+</ul>
+<p><strong>不需要</strong>：写 TypeScript、懂 monorepo、懂 Agent 循环。</p>
+<p>路径：官方 <a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/coding-agent/docs/quickstart.md">quickstart</a> + 本系列 <a href="../03-%E4%BD%BF%E7%94%A8/%E6%9C%AC%E5%9C%B0%E8%B7%91%E8%B5%B7%E6%9D%A5.html">本地跑起来.md</a>。</p>
+<h2>B. 写 Skill / Prompt Template / Theme（低）</h2>
+<ul>
+<li>Markdown 与 YAML frontmatter</li>
+<li>会把文件放到 <code>~/.pi/agent/</code> 或项目 <code>.pi/</code> 约定目录</li>
+<li>理解「系统提示里只有摘要，完整技能按需加载」（渐进披露）</li>
+</ul>
+<p>路径：<code>packages/coding-agent/docs/skills.md</code>、<code>prompt-templates.md</code>、<code>themes.md</code>。</p>
+<h2>C. 写 Extension / 二次定制工作流（中）</h2>
+<p>必备：</p>
+<ul>
+<li><strong>TypeScript / JavaScript</strong>（async/await、模块、基本类型）</li>
+<li>阅读别人的 TS 例子并改</li>
+<li>理解「工具 = 名称 + JSON schema + execute 函数」</li>
+</ul>
+<p>加分：</p>
+<ul>
+<li>Node 文件系统与子进程</li>
+<li>终端 UI 基础（若要做自定义组件）</li>
+<li>对 LLM tool calling 有直觉（模型返回 <code>tool_use</code>，宿主执行再把结果喂回）</li>
+</ul>
+<p>路径：<code>examples/extensions/hello.ts</code> → <code>permission-gate.ts</code> → <code>docs/extensions.md</code>。</p>
+<h2>D. 用 SDK / RPC 嵌入自己的应用（中高）</h2>
+<ul>
+<li>Node 应用结构、事件流 / JSONL</li>
+<li>进程间通信（RPC 模式）</li>
+<li>错误处理与取消（AbortSignal）</li>
+</ul>
+<p>路径：<code>examples/sdk/01-minimal.ts</code> → <code>12-full-control.ts</code>，<code>docs/sdk.md</code>、<code>docs/rpc.md</code>。</p>
+<h2>E. 改内核 / 跟进 Harness 设计（高）</h2>
+<ul>
+<li>扎实 TS（含泛型、声明合并）</li>
+<li>并发与可重入（hooks、busy phase、pending writes）</li>
+<li>持久化与会话树（append-only log、leaf、compaction）</li>
+<li>愿意读长设计文档：先 <code>packages/agent/README.md</code>，再 <code>packages/durable/docs/spec.md</code>（实验，API 会变）</li>
+</ul>
+<h2>推荐补课清单（按缺口）</h2>
+<table>
+<thead>
+<tr>
+<th>缺口</th>
+<th>补什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>不懂 LLM 工具调用</td>
+<td>任意一篇 OpenAI/Anthropic tool use 教程 + 看 <code>packages/agent/README.md</code> 事件序列图</td>
+</tr>
+<tr>
+<td>不懂 monorepo</td>
+<td>本系列 <a href="../02-%E6%9E%B6%E6%9E%84/%E5%8C%85%E5%9C%B0%E5%9B%BE%E4%B8%8E%E4%BE%9D%E8%B5%96.html">包地图与依赖.md</a></td>
+</tr>
+<tr>
+<td>不懂流式输出</td>
+<td>跑 SDK 最小例子，订阅 <code>message_update</code></td>
+</tr>
+<tr>
+<td>不懂终端原始模式</td>
+<td><code>packages/tui/README.md</code> 前几节即可，不必先精通</td>
+</tr>
+<tr>
+<td>网络/代理问题</td>
+<td>本机 <code>HTTP(S)_PROXY</code>；模型目录生成依赖 <code>models.dev</code>（见本地构建笔记）</td>
+</tr>
+</tbody></table>
+<h2>时间预期（粗估）</h2>
+<table>
+<thead>
+<tr>
+<th>目标</th>
+<th>时间</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>跑起来并完成一次改文件任务</td>
+<td>0.5–1 天</td>
+</tr>
+<tr>
+<td>写第一个 skill / prompt</td>
+<td>几小时</td>
+</tr>
+<tr>
+<td>写第一个有用的 extension</td>
+<td>1–3 天</td>
+</tr>
+<tr>
+<td>读懂 agent-loop + AgentSession</td>
+<td>1–2 周（业余）</td>
+</tr>
+<tr>
+<td>能基于 SDK 做小产品</td>
+<td>数周</td>
+</tr>
+</tbody></table>
+<h2>学习时建议准备的环境</h2>
+<ol>
+<li>已 clone 的本仓库 + <code>npm install --ignore-scripts</code> + 成功 <code>build</code>（或 <code>hydrate:model-data</code> + <code>build:offline</code>）</li>
+<li>至少一个可用模型（国内网络注意代理）</li>
+<li>编辑器能跳转 TypeScript 定义（Cursor / VS Code）</li>
+<li>可选：tmux（官方推荐用 tmux 代替「后台 bash」心智）</li>
+</ol>
+
+  </article>
+<nav class="pager"><a href="为什么适合学习.html">← 为什么适合学习</a>
+    <span class="spacer"></span>
+    <a href="../01-设计哲学/设计哲学.html">设计哲学 →</a></nav>
+  <footer>学习 Pi 导读（learn-pi） · 基准 pi 1.0.2（2026-10-04） · <a href="https://github.com/NorthAdb/pi-agent-north" target="_blank" rel="noopener">源码仓库 ↗</a> · 姊妹课程 <a href="../../agent-harness-course/index.html">Agent Harness 架构课</a></footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SDK 与进程集成 · 学习 Pi 导读</title>
+<meta name="description" content="SDK 与进程集成 · 学习 Pi 导读 — NorthAdb 课件">
+<link rel="stylesheet" href="../../learn-pi/style.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumbs"><a href="../../learn-pi/index.html">← 总目录</a></nav>
+  <article>
+<h1>SDK 与进程集成</h1>
+<h2>SDK：嵌进 Node 应用</h2>
+<p>入口概念：<code>createAgentSession()</code>（及 runtime 相关 API），见：</p>
+<ul>
+<li><code>packages/coding-agent/docs/sdk.md</code></li>
+<li><code>packages/coding-agent/src/core/sdk.ts</code></li>
+<li><code>packages/coding-agent/examples/sdk/</code></li>
+</ul>
+<p>你得到的是与 CLI <strong>共享的会话能力</strong>，但 I/O 自己定：</p>
+<ul>
+<li>自己订阅事件渲染 Web/桌面/日志</li>
+<li>自己注入 ResourceLoader / 工具 / 模型</li>
+<li>自己决定是否落盘会话</li>
+</ul>
+<p><strong>何时用 SDK</strong>：你已经有 Node 宿主，想要库式 API。</p>
+<h3>学习阶梯（强制按序）</h3>
+<ol>
+<li><code>01-minimal.ts</code> — 跑通  </li>
+<li><code>05-tools.ts</code> — 工具  </li>
+<li><code>06-extensions.ts</code> — 扩展装载  </li>
+<li><code>11-sessions.ts</code> — 会话  </li>
+<li><code>12-full-control.ts</code> — 总控  </li>
+<li><code>13-session-runtime.ts</code> — 替换/恢复会话的 runtime 视角</li>
+</ol>
+<h2>RPC：进程边界集成</h2>
+<ul>
+<li><code>--mode rpc</code></li>
+<li>文档：<code>docs/rpc.md</code></li>
+<li>用 JSONL 说话，避免把 coding-agent 打进对方奇异运行时</li>
+</ul>
+<p><strong>何时用 RPC</strong>：宿主不是 Node、或想强隔离进程、或语言绑定更简单。</p>
+<h2>JSON 事件流</h2>
+<ul>
+<li><code>--mode json</code></li>
+<li>文档：<code>docs/json.md</code></li>
+<li>适合单向消费事件（监控、录制、简单管道）</li>
+</ul>
+<h2>Print</h2>
+<ul>
+<li><code>-p</code> 文本结果</li>
+<li>适合「问一句、拿一段」的脚本</li>
+</ul>
+<h2>集成选型</h2>
+<table>
+<thead>
+<tr>
+<th>需求</th>
+<th>选择</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>同进程、要精细控制</td>
+<td>SDK</td>
+</tr>
+<tr>
+<td>跨进程、协议简单</td>
+<td>RPC</td>
+</tr>
+<tr>
+<td>只录事件</td>
+<td>JSON</td>
+</tr>
+<tr>
+<td>Shell 一行出结果</td>
+<td>print</td>
+</tr>
+</tbody></table>
+<h2>与「适合二次开发」的关系</h2>
+<p>很多「做自己的 Agent 产品」其实是：</p>
+<pre><code>自家 UI / 工作流引擎
+        │
+        ▼
+   Pi SDK 或 RPC
+        │
+        ▼
+   同一套工具 + 扩展生态
+</code></pre>
+<p>你买到的是 <strong>harness</strong>，不是必须用官方 TUI。TUI 只是第一种 Mode。</p>
+<h2>评测与测试</h2>
+<ul>
+<li><code>packages/evals</code>：行为评测方向  </li>
+<li><code>packages/coding-agent/test/suite</code>：faux provider，不烧真实 token</li>
+</ul>
+<p>二次开发自己的扩展时，优先学会在测试里注入 faux / 临时目录，而不是每次手工点 TUI。</p>
+
+  </article>
+<nav class="pager"><a href="扩展-技能-包.html">← 扩展-技能-包</a>
+    <span class="spacer"></span>
+    <a href="../05-二次开发/为什么适合二次开发.html">为什么适合二次开发 →</a></nav>
+  <footer>学习 Pi 导读（learn-pi） · 基准 pi 1.0.2（2026-10-04） · <a href="https://github.com/NorthAdb/pi-agent-north" target="_blank" rel="noopener">源码仓库 ↗</a> · 姊妹课程 <a href="../../agent-harness-course/index.html">Agent Harness 架构课</a></footer>
+</div>
+</body>
+</html>

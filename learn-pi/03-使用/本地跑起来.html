@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>本地跑起来 · 学习 Pi 导读</title>
+<meta name="description" content="本地跑起来 · 学习 Pi 导读 — NorthAdb 课件">
+<link rel="stylesheet" href="../../learn-pi/style.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumbs"><a href="../../learn-pi/index.html">← 总目录</a></nav>
+  <article>
+<h1>本地跑起来</h1>
+<p>针对本仓库 <code>E:\pi_north</code>（Windows 可用 <code>pi-test.ps1</code>）。</p>
+<h2>1. 环境</h2>
+<ul>
+<li>Node.js <strong>≥ 22.19</strong>（<code>package.json</code> engines）</li>
+<li>网络：首次完整 <code>build</code> 会访问 <code>models.dev</code> 等；不通时用 hydrate + offline（见下）</li>
+<li>若系统代理是 <code>127.0.0.1:7897</code> 之类，<strong>Node 不一定读 WinINET</strong>——终端里可设：</li>
+</ul>
+<pre><code class="language-powershell">$env:HTTP_PROXY = &quot;http://127.0.0.1:7897&quot;
+$env:HTTPS_PROXY = &quot;http://127.0.0.1:7897&quot;
+</code></pre>
+<h2>2. 安装依赖</h2>
+<pre><code class="language-powershell">cd E:\pi_north
+npm install --ignore-scripts
+</code></pre>
+<p><code>--ignore-scripts</code> 是项目推荐姿势（供应链）。</p>
+<blockquote>
+<p>每次 <code>git merge</code> 上游后都要重跑一次：<code>package-lock.json</code> 变了就可能有新包或删包（1.0 删了 <code>session-backends</code>，SQLite 收进 <code>pi-durable</code>；<code>pi-codemode</code>、<code>pi-mcp</code> 和 <code>quickjs-wasi</code> 还在），
+不装就会出现 <code>ERR_MODULE_NOT_FOUND</code>。判断是否过期：比较 <code>package-lock.json</code> 与 <code>node_modules/.package-lock.json</code> 的修改时间。</p>
+</blockquote>
+<h2>3. 模型数据与构建</h2>
+<p>模型 JSON 在 <code>packages/ai/src/providers/data/</code>，被 gitignore。新鲜 clone <strong>没有</strong>这些文件。</p>
+<p><strong>有网络：</strong></p>
+<pre><code class="language-powershell">npm run build
+</code></pre>
+<p>（内部会 <code>generate-models</code> 再编译各包。）</p>
+<p><strong>网络不稳，但能偶发连通：</strong></p>
+<pre><code class="language-powershell">npm run hydrate:model-data
+npm run build:offline
+</code></pre>
+<p><strong>完全不能访问 models.dev：</strong></p>
+<p>从上游 Release 下载 <code>pi-*-source.tar.gz</code>（内含已生成 model data），把 <code>packages/ai/src/providers/data</code> 拷进本仓库，再 <code>build:offline</code>。</p>
+<p><code>build:offline</code> 的含义是：<strong>不重新联网生成，但本地数据必须已存在。</strong></p>
+<h2>4. 从源码启动 Pi</h2>
+<pre><code class="language-powershell">.\pi-test.ps1
+</code></pre>
+<p>单次提示：</p>
+<pre><code class="language-powershell">.\pi-test.ps1 -p &quot;Say exactly: ok&quot;
+</code></pre>
+<p>脚本可从任意目录调用；Pi 使用<strong>调用者当前工作目录</strong>作为项目 cwd。</p>
+<h2>5. 鉴权</h2>
+<ul>
+<li>API Key：如 <code>$env:ANTHROPIC_API_KEY = &quot;...&quot;</code>（其它厂商见 <code>docs/providers.md</code>）</li>
+<li>订阅：进入交互后 <code>/login</code></li>
+</ul>
+<p>选模型：<code>/model</code> 或文档所述快捷键。</p>
+<h2>6. 验证构建是否完整</h2>
+<p>成功时大致应有（按根 <code>package.json</code> 的 <code>build</code> 顺序）：</p>
+<ul>
+<li><code>packages/chord/dist</code>、<code>packages/tui/dist</code>、<code>packages/telemetry/dist</code></li>
+<li><code>packages/codemode/dist</code>、<code>packages/mcp/dist</code></li>
+<li><code>packages/ai/dist</code>（含 providers/data 拷贝）、<code>packages/durable/dist</code>、<code>packages/agent/dist</code></li>
+<li><code>packages/protocol/dist</code>、<code>packages/client/dist</code>、<code>packages/server/dist</code></li>
+<li><code>packages/coding-agent/dist/cli.js</code>（未打包入口）与 <code>packages/coding-agent/dist/bundle/cli.js</code>（<code>bin</code> 指向的打包产物）</li>
+</ul>
+<p>没有 <code>packages/session-backends</code>。SQLite 存储在 <code>packages/durable</code> 里，而且不是日常 <code>pi</code> 会话的默认后端。</p>
+<p>更快的一致性检查：<code>.\pi-test.ps1 --version</code>（源码直跑，不需 dist）。</p>
+<blockquote>
+<p>历史遗留：早期笔记记录过上游遗漏 <code>ExtensionContext.scopedModels</code>（interactive shortcuts 的 <code>createContext</code> 未填充）。
+上游已经修好。<code>scopedModels</code> 由会话注入交互模式（<code>src/modes/interactive/interactive-mode.ts:2218</code>），本仓库不需要再打这个补丁。</p>
+</blockquote>
+<h2>7. 检查与测试</h2>
+<pre><code class="language-powershell">npm run check          # lint + 类型等（改代码后）
+.\test.sh              # 非 LLM 依赖测试（Git Bash / WSL；Windows 可按 AGENTS.md 用 vitest 单测）
+</code></pre>
+<p>按 <code>AGENTS.md</code>：<strong>不要</strong>随便跑完整 <code>npm test</code>（可能触发需密钥的 e2e）。</p>
+<h2>8. 下一步</h2>
+<ul>
+<li>使用：<a href="./%E5%9B%9B%E7%A7%8D%E8%BF%90%E8%A1%8C%E6%A8%A1%E5%BC%8F.html">四种运行模式.md</a></li>
+<li>官方：<a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/coding-agent/docs/quickstart.md">docs/quickstart.md</a>、<a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/coding-agent/docs/cli.md">docs/cli.md</a>、<a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/coding-agent/docs/windows.md">docs/windows.md</a></li>
+</ul>
+
+  </article>
+<nav class="pager"><a href="../02-架构/Coding-Agent-栈.html">← Coding-Agent-栈</a>
+    <span class="spacer"></span>
+    <a href="四种运行模式.html">四种运行模式 →</a></nav>
+  <footer>学习 Pi 导读（learn-pi） · 基准 pi 1.0.2（2026-10-04） · <a href="https://github.com/NorthAdb/pi-agent-north" target="_blank" rel="noopener">源码仓库 ↗</a> · 姊妹课程 <a href="../../agent-harness-course/index.html">Agent Harness 架构课</a></footer>
+</div>
+</body>
+</html>

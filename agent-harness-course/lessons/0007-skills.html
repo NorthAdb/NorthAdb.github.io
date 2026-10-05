@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第 7 课 · Skills 与渐进披露</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <div class="kicker">Agent Harness 课程 · 第 7 课 / 共 14 课 · 第七阶段：Skills</div>
+  <h1>Skills：渐进披露（Progressive Disclosure）</h1>
+  <p class="lede">如果用户装了 30 个技能包，每个 2000 字说明，全塞进系统提示词？这一课看 Pi 的答案：常驻的只有"菜单"，正菜按需上。这是上下文工程里最重要的杠杆之一。</p>
+
+  <div class="question"><strong>本课核心问题：</strong>为什么 Skill 不应该一开始就把全部说明注入 Context？渐进披露在 Token 成本、Prompt Cache、可发现性、可扩展性上各赢在哪？</div>
+
+  <h2>一、这张图要解决什么问题</h2>
+  <p>Traditional 做法：System Prompt 里塞满所有技能文档 + 所有工具文档 + 全部历史。代价是三重的：token 贵、缓存失效快、模型在长文档里"找不到重点"。这张图展示 Progressive Disclosure 的流水线：发现 → 索引 → 只披露目录 → 模型按需自己加载全文。</p>
+
+  <figure class="diagram">
+    <iframe src="diagrams/07-skills.html" title="Diagram 07 · Skills 渐进披露" loading="lazy"></iframe>
+    <figcaption>Diagram 07 · 左列发现，中列目录与提示词，右列模型按需加载。<a href="diagrams/07-skills.html" target="_blank">全屏打开 ↗</a></figcaption>
+  </figure>
+
+  <h2>二、如何从图上读懂 Pi</h2>
+  <p><span class="badge src">源码</span><strong>发现与索引。</strong><code>packages/coding-agent/src/core/skills.ts:409</code> 的 <code>loadSkills()</code> 扫描 <code>~/.pi/agent/skills</code>（用户级）与 <code>&lt;cwd&gt;/.pi/skills</code>（项目级），规则极简：<b>目录里有 SKILL.md 就是技能根，不再下钻</b>（:160）。frontmatter 校验严格：name ≤64 字符小写连字符，description 必填 ≤1024（:92-127）。</p>
+  <p><span class="badge src">源码</span><strong>披露：只有菜单进提示词。</strong><code>formatSkillsForPrompt()</code>（:355）生成一段 XML：</p>
+  <pre><code>&lt;available_skills&gt;
+  &lt;skill&gt;&lt;name&gt;…&lt;/name&gt;&lt;description&gt;…&lt;/description&gt;
+         &lt;location&gt;/path/to/SKILL.md&lt;/location&gt;&lt;/skill&gt;
+&lt;/available_skills&gt;</code></pre>
+  <p>每个技能常驻成本 ≈ 两行字。<strong>全文加载没有任何特殊机制</strong>——就是提示模型"任务匹配 description 时，用 read 工具读 location 指向的文件"。魔法全部借用了第 3 课的工具循环。<code>disable-model-invocation: true</code> 的技能不进目录，只能 <code>/skill:name</code> 显式调用（不给模型自主触发的权力）。</p>
+  <p><strong>四笔账：</strong>Token Cost（常驻 ≈ 0，触发后才付全文的钱）；Prompt Cache（菜单不变 → 前缀稳定 → 缓存命中）；Discoverability（菜单常在，模型随时能"看到"还有什么可用）；Extensibility（装一个技能 = 丢一个目录进文件夹，零代码）。对比 Traditional 的"全量注入"，四项全输。</p>
+
+  <h2>三、新概念的七问：Skill / 渐进披露</h2>
+  <ol class="seven">
+    <li><b>解决什么问题？</b>让 Agent 掌握大量可复用的知识与流程，而不用为"可能用不到"预付上下文。</li>
+    <li><b>没有它会怎样？</b>要么技能贫瘠，要么提示词爆炸、缓存失效、模型迷航。</li>
+    <li><b>输入是什么？</b>一个含 SKILL.md（frontmatter: name/description/…）的目录。</li>
+    <li><b>输出是什么？</b>提示词里的 XML 目录条目 + 触发后由 read 工具载入的全文。</li>
+    <li><b>由谁控制？</b>发现与注入由 skills.ts；<b>触发由模型决定</b>（这是与 Extension 的关键区别）。</li>
+    <li><b>和前一概念的关系？</b>Compaction 是"事后瘦身"，渐进披露是"事前不胖"——同一场上下文预算战争的两侧。</li>
+    <li><b>Pi 在源码哪里实现？</b><span class="badge src">源码</span><code>packages/coding-agent/src/core/skills.ts</code>；注入点 <code>system-prompt.ts:166</code> 的 skills section。</li>
+  </ol>
+
+  <h2>四、源码映射</h2>
+  <table class="map">
+    <tr><th>阶段</th><th>函数</th><th>关键事实</th></tr>
+    <tr><td>发现</td><td><code>loadSkillsFromDirInternal</code></td><td>含 SKILL.md 即根；尊重 .gitignore</td></tr>
+    <tr><td>校验</td><td>frontmatter 解析</td><td>name/description 规则；冲突记 collision 诊断</td></tr>
+    <tr><td>披露</td><td><code>formatSkillsForPrompt:355</code></td><td>仅 name+description+location 的 XML</td></tr>
+    <tr><td>加载</td><td>read 工具（无特殊机制）</td><td>相对路径按 skill 目录解析</td></tr>
+  </table>
+
+  <h2>五、这张图在整个体系中的位置</h2>
+  <p>Skills 是"知识面的扩展"，下一课的 Extensions 是"运行时的扩展"——两者构成 Pi 可扩展性的两翼，也是"Minimal Core"哲学的两大支柱。</p>
+
+  <div class="quiz" data-quiz='{"title": "检索练习（先凭记忆作答）", "items": [{"q": "Pi 把技能全文注入系统提示词吗？", "options": ["总是全文注入", "只注入目录，全文按需加载", "只有用户级技能注入"], "answer": 1, "why": "formatSkillsForPrompt 只放 name+description+location；全文加载借用普通工具循环，无特殊机制。"}, {"q": "disable-model-invocation: true 的技能？", "options": ["被完全禁用不可用", "仅 /skill:name 调用", "只在项目级目录生效"], "answer": 1, "why": "不给模型自主触发权，把触发收回到人手里。"}, {"q": "渐进披露对 prompt cache 的好处是？", "options": ["没有任何影响", "菜单稳定让缓存命中", "全文注入缓存更全"], "answer": 1, "why": "常驻部分越小越稳定，前缀缓存命中率越高，token 费用与延迟越低。"}]}'></div>
+
+  <h2>延伸阅读（一手来源）</h2>
+  <p><span class="badge src">源码</span><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/coding-agent/src/core/skills.ts">skills.ts</a>。追问请找你的 AI 导师。</p>
+
+  <nav class="pager"><a href="0006-compaction.html">← 上一课</a> <a href="0008-extensions.html">下一课：Extensions →</a></nav>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

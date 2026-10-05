@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>设计哲学 · 学习 Pi 导读</title>
+<meta name="description" content="设计哲学 · 学习 Pi 导读 — NorthAdb 课件">
+<link rel="stylesheet" href="../../learn-pi/style.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumbs"><a href="../../learn-pi/index.html">← 总目录</a></nav>
+  <article>
+<h1>设计哲学</h1>
+<p>Pi 的哲学可以压成一句话：</p>
+<blockquote>
+<p><strong>激进可扩展（aggressively extensible），所以不必替你规定工作流。</strong></p>
+</blockquote>
+<p>出处：<code>packages/coding-agent/README.md</code> → Philosophy。</p>
+<h2>1. 工作流属于用户，不属于内核</h2>
+<p>对比常见路线：</p>
+<table>
+<thead>
+<tr>
+<th>路线</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>内核堆功能</td>
+<td>人人被迫同一套 Plan / TODO / 权限 UI</td>
+</tr>
+<tr>
+<td>Pi</td>
+<td>内核只保「能跑 Agent」；工作流用扩展拼</td>
+</tr>
+</tbody></table>
+<p>口号：</p>
+<blockquote>
+<p>Adapt pi to your workflows, not the other way around.</p>
+</blockquote>
+<p>二次开发的默认动作是 <strong>加扩展 / 装包</strong>，不是 <strong>改 <code>interactive-mode.ts</code> 然后永远 rebase</strong>。</p>
+<h2>2. 最小完备核心（Minimal Core）</h2>
+<p>「最小」不是简陋，而是<strong>完备集尽量小</strong>：</p>
+<ul>
+<li>能对话、能调工具、能改仓库文件、能跑命令</li>
+<li>能持久化会话、能选模型、能有体面的 TUI</li>
+<li>能被扩展、能被嵌入</li>
+</ul>
+<p>多出来的「协作仪式」（子 Agent、Plan、全局权限弹窗）全部外置。MCP 走可替换的内置扩展，不进默认的四个工具。1.0 把实验性 AgentHarness 移出循环包，循环因此更薄。</p>
+<p>好处：</p>
+<ul>
+<li>模型更不容易被内置 TODO / 复杂模式搞糊涂（官方明确说 built-in to-dos confuse models）</li>
+<li>安全边界由部署环境决定，不假装内核已沙箱</li>
+</ul>
+<h2>3. 可组合的扩展面，而不是单一插件协议</h2>
+<p>Pi 提供<strong>多层不同成本</strong>的定制：</p>
+<pre><code>Themes / Prompt Templates   ← 几乎零代码
+Skills                      ← Markdown + 可选脚本
+Extensions (TS)             ← 完整能力：工具、钩子、UI、Provider
+Pi Packages                 ← 打包分发上述资源
+SDK / RPC / JSON            ← 嵌入与进程集成
+Containerization            ← 部署隔离
+</code></pre>
+<p>哲学含义：<strong>用合适的钉子钉合适的板</strong>——改一句提示词不必写 Extension；要拦 <code>rm -rf</code> 才写钩子。</p>
+<h2>4. 事件可观察，钩子可参与</h2>
+<p>在 agent-core / harness 设计里：</p>
+<ul>
+<li><strong>Events</strong>：观察已发生的事（做 UI、日志、遥测）</li>
+<li><strong>Hooks</strong>：语义参与（改上下文、拦截工具、影响 compaction）</li>
+</ul>
+<p>不要把「旁路观察」和「改写行为」混成一种回调。这对二次开发者很重要：扩展作者需要清楚自己是在「看」还是在「改」。</p>
+<h2>5. 会话是真相，运行时依赖可重建</h2>
+<p>Harness / durable 方向的核心判断：</p>
+<ul>
+<li><strong>会话日志</strong>（消息、工具结果、树结构）应当可持久化、可恢复</li>
+<li><strong>工具实现、扩展、模型客户端</strong>是宿主注入的运行时依赖——不必（也不该）完整序列化进会话文件</li>
+</ul>
+<p>恢复会话 = 重放/加载日志 + <strong>重新挂上</strong>当前环境的工具与扩展。</p>
+<p>这对「适合二次开发」极关键：你可以换工具实现、换沙箱，而不必换会话格式。</p>
+<h2>6. 供应链与确定性</h2>
+<p>根 README 的 supply-chain hardening 也是哲学的一部分：</p>
+<ul>
+<li>依赖钉死版本</li>
+<li>lockfile / shrinkwrap 当真</li>
+<li>默认 <code>npm install --ignore-scripts</code></li>
+<li>把依赖变更当代码审查</li>
+</ul>
+<p>Agent 工具链本身就是高权限软件；Pi 选择在<strong>工程供应链</strong>上偏偏执，而不是在产品里堆假权限 UI。</p>
+<h2>7. 开放训练数据的文化立场</h2>
+<p>官方鼓励分享 OSS 上的 coding agent sessions（Hugging Face 等）。<br>哲学延伸：<strong>真实工作流数据 &gt; 玩具 benchmark</strong>。学习 Pi 时也会碰到「session 格式为什么要稳定、可分享」的设计约束。</p>
+<h2>设计张力（要接受的取舍）</h2>
+<table>
+<thead>
+<tr>
+<th>收益</th>
+<th>代价</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>内核干净</td>
+<td>很多「开箱功能」要自己装或写</td>
+</tr>
+<tr>
+<td>无内置权限弹窗</td>
+<td>新手可能低估风险</td>
+</tr>
+<tr>
+<td>MCP 不进 Core</td>
+<td>可替换内置扩展；默认 <code>codemode</code>，模型不会自动看到工具 schema</td>
+</tr>
+<tr>
+<td>扩展能力极强</td>
+<td>扩展与 Pi 同权（能碰文件系统）——信任模型要清醒</td>
+</tr>
+</tbody></table>
+<h2>延伸阅读</h2>
+<ul>
+<li>本系列：<a href="./%E5%88%BB%E6%84%8F%E7%9C%81%E7%95%A5.html">刻意省略.md</a></li>
+<li>作者博客：<a href="https://mariozechner.at/posts/2025-11-30-pi-coding-agent/">Pi coding agent</a></li>
+<li>RFC 入口（根 README）：<a href="https://rfc.earendil.com/keyword/pi/">rfc.earendil.com</a></li>
+</ul>
+
+  </article>
+<nav class="pager"><a href="../00-概览/前置知识.html">← 前置知识</a>
+    <span class="spacer"></span>
+    <a href="刻意省略.html">刻意省略 →</a></nav>
+  <footer>学习 Pi 导读（learn-pi） · 基准 pi 1.0.2（2026-10-04） · <a href="https://github.com/NorthAdb/pi-agent-north" target="_blank" rel="noopener">源码仓库 ↗</a> · 姊妹课程 <a href="../../agent-harness-course/index.html">Agent Harness 架构课</a></footer>
+</div>
+</body>
+</html>

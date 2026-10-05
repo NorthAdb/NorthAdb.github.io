@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第 10 课 · TUI / RPC / SDK</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <div class="kicker">Agent Harness 课程 · 第 10 课 / 共 14 课 · 第十阶段：TUI / RPC / SDK</div>
+  <h1>Same Runtime, Multiple Interfaces</h1>
+  <p class="lede">为什么同一个 Agent 能在终端里交互、在 CI 里一键跑、在别的进程里被遥控？答案不是运气，而是接口层与 Runtime 的彻底解耦。这一课看 Pi 怎么做到"四种入口，一个会话"。</p>
+
+  <div class="question"><strong>本课核心问题：</strong>为什么一个好的 Agent Harness 不应该把 TUI、Agent Runtime、Agent State 写死在一起？Interactive / Automation / Embedding 三种形态分别意味着什么？</div>
+
+  <h2>一、这张图要解决什么问题</h2>
+  <p>很多 Agent 的第一批"架构债"就是把循环和 UI 写在一起：想在服务器上跑一次批处理？想给自己的 Web 应用接一个后端 Agent？都得重写。这张图展示解耦后的样子：入口层（TUI/print/RPC/SDK）各走各的，全部汇入同一个 AgentSessionRuntime。</p>
+
+  <figure class="diagram">
+    <iframe src="diagrams/10-interfaces.html" title="Diagram 10 · Same Runtime, Multiple Interfaces" loading="lazy"></iframe>
+    <figcaption>Diagram 10 · 上：四种入口；中：共享 Runtime；下：核心组装。<a href="diagrams/10-interfaces.html" target="_blank">全屏打开 ↗</a></figcaption>
+  </figure>
+
+  <h2>二、如何从图上读懂 Pi</h2>
+  <p><span class="badge src">源码</span><strong>四种模式是一次分发，不是四套代码。</strong><code>main.ts:111-122</code> 的 <code>resolveAppMode</code>：RPC/JSON 由参数指定，管道输入自动降级为 print，否则 interactive。三种 CLI 模式全部接收同一个 <code>AgentSessionRuntime</code>（agent-session-runtime.ts:74，提供 newSession/fork/switchSession 与 setRebindSession）。</p>
+  <p><span class="badge src">源码</span><strong>SDK 绕过 CLI 直接组装。</strong><code>sdk.ts:175</code> 的 <code>createAgentSession()</code>：组合 Agent（agent-core）+ streamFn（pi-ai）+ SessionManager + 扩展——这是"把 Pi 嵌进你的 Node 程序"的入口。更彻底的是 RPC 模式（<code>modes/rpc/rpc-mode.ts</code>，stdio 上的 JSON 行协议），专为"Agent 在别的进程、UI 在你的应用"设计；仓库还有一套实验性的二进制协议（protocol/server/client 包，CBOR 分帧 + Chord 服务语义）。</p>
+  <p><span class="badge src">源码</span><strong>事件是公共货币。</strong>第 2 课的 10 种 AgentEvent 从循环里发出，AgentSession 转发（agent-session.ts:437），TUI 订阅渲染（interactive-mode.ts:3272），print 模式把它们打到 stdout，RPC 把它们编码成 JSON 行。<b>三种形态 = 同一个事件流的三种消费者。</b>连扩展的 UI 请求都经 <code>extension_ui_request/response</code> 在 RPC 下透传。</p>
+
+  <h2>三、新概念的七问：接口层解耦</h2>
+  <ol class="seven">
+    <li><b>解决什么问题？</b>同一套 Agent 能力，服务交互、自动化、嵌入三种完全不同的使用形态。</li>
+    <li><b>没有它会怎样？</b>循环和 UI 焊死：没有终端就没有 Agent；想嵌入就得重写。</li>
+    <li><b>输入是什么？</b>用户按键 / 命令行参数 / RPC 请求 / SDK 方法调用。</li>
+    <li><b>输出是什么？</b>渲染的界面 / stdout 文本或 JSON 事件 / 进程间消息 / SDK 回调。</li>
+    <li><b>由谁控制？</b>main.ts 分发；每种模式独立消费事件；Runtime 与 State 始终居中。</li>
+    <li><b>和前一概念的关系？</b>安全边界（第 9 课）在环境层，接口边界在进程层——Pi 用同样的"分层"思路对待信任与交互。</li>
+    <li><b>Pi 在源码哪里实现？</b><span class="badge src">源码</span><code>main.ts</code> / <code>modes/*</code> / <code>core/sdk.ts</code> / <code>core/agent-session-runtime.ts</code>。</li>
+  </ol>
+
+  <h2>四、源码映射</h2>
+  <table class="map">
+    <tr><th>形态</th><th>入口</th><th>特征</th></tr>
+    <tr><td>Interactive</td><td><code>modes/interactive/interactive-mode.ts</code></td><td>订阅事件 + pi-tui 差分渲染（tui 包零业务依赖）</td></tr>
+    <tr><td>Automation</td><td><code>modes/print-mode.ts</code>（text/json）</td><td>管道输入自动进入；一次性任务</td></tr>
+    <tr><td>Embedding</td><td><code>modes/rpc/rpc-mode.ts</code> + <code>core/sdk.ts</code></td><td>进程内 SDK 或跨进程 JSON 行协议</td></tr>
+  </table>
+
+  <h2>五、这张图在整个体系中的位置</h2>
+  <p>接口层是 Harness 的"外壳设计"。至此 Pi 的五大机制（Loop/Context/Session/Compaction/扩展）与两个边界（安全、接口）都看完了——下一课把它们串成一次真实任务的总时序。</p>
+
+  <div class="quiz" data-quiz='{"title": "检索练习（先凭记忆作答）", "items": [{"q": "Pi 的 CLI 在「管道输入」时自动进入哪种模式？", "options": ["interactive", "print", "rpc"], "answer": 1, "why": "resolveAppMode：!stdinIsTTY || !stdoutIsTTY 强制降级为 print——CI 里 piped 输入直接可用。"}, {"q": "想把自己的 Node 应用嵌一个 Pi 后端，官方入口是？", "options": ["复制 main.ts 来改一改", "createAgentSession()", "另外起一个 TUI 进程"], "answer": 1, "why": "createAgentSession 组装 Agent+streamFn+SessionManager+扩展，跳过 CLI。"}, {"q": "「事件是公共货币」指？", "options": ["事件可以付费获得", "同一事件流的不同消费者", "事件只在 TUI 有效"], "answer": 1, "why": "AgentEvent 10 种生命周期事件向所有模式广播——这就是解耦的技术基础。"}]}'></div>
+
+  <h2>延伸阅读（一手来源）</h2>
+  <p><span class="badge src">源码</span><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/coding-agent/src/main.ts">main.ts</a> · <a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/coding-agent/src/core/sdk.ts">core/sdk.ts</a> · <a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/tui/README.md">packages/tui/README.md</a>。追问请找你的 AI 导师。</p>
+
+  <nav class="pager"><a href="0009-capability-boundary.html">← 上一课</a> <a href="0011-full-runtime.html">下一课：完整 Runtime →</a></nav>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

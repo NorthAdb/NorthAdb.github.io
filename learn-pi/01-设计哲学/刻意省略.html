@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>刻意省略（Intentional Omissions） · 学习 Pi 导读</title>
+<meta name="description" content="刻意省略（Intentional Omissions） · 学习 Pi 导读 — NorthAdb 课件">
+<link rel="stylesheet" href="../../learn-pi/style.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumbs"><a href="../../learn-pi/index.html">← 总目录</a></nav>
+  <article>
+<h1>刻意省略（Intentional Omissions）</h1>
+<p>官方 Philosophy 明确列出一组 <strong>No</strong>：这些不是 roadmap 上的「还没写」，而是<strong>刻意不放进内核</strong>。理解这一点，才能理解为什么 Pi「看起来功能少，却适合二次开发」。</p>
+<p>以下除特别标注外，摘自 / 转述自 <code>packages/coding-agent/README.md</code> Philosophy。</p>
+<blockquote>
+<p><strong>版本注记（1.0.2 复核）</strong>：本清单是 Philosophy 的「不进内核」列表。0.99.0 把 MCP 做成了内置扩展，1.0 没有把它收回 Core。
+「不进内核」仍然成立，「Pi 没有 MCP」这句老话不准确。见下节。</p>
+</blockquote>
+<h2>MCP：从「刻意省略」到「内置扩展」</h2>
+<ul>
+<li><strong>Core 的立场没变</strong>：Core 工具仍是 <code>read</code> / <code>write</code> / <code>edit</code> / <code>bash</code>；MCP 不是第五个内置工具。</li>
+<li><strong>实现位置变了</strong>：0.99.0 起 MCP 随 Pi 以<strong>内置扩展</strong>加载（<code>packages/coding-agent/src/extensions/index.ts:7-14</code>，
+客户端库在 <code>packages/mcp</code>）。它标记为 <code>replaceable: true</code>——第三方扩展可以整个顶掉它。</li>
+<li><strong>默认不占上下文</strong>：服务器默认 <code>exposure: &quot;codemode&quot;</code>（<code>src/extensions/mcp/index.ts</code> 文件头）。
+MCP 工具不声明给模型，也不进 codemode 的工具清单。脚本用 <code>searchTools()</code> / <code>describeNamespace()</code> 按需发现。
+非 <code>direct</code> 的服务器在后台连接，不挡住第一条 prompt。</li>
+<li><strong>配置与命令</strong>：用户级 <code>~/.pi/agent/mcp.json</code>，加上受信任项目的 <code>.pi/mcp.json</code>。项目文件可以只写 <code>enabled</code> / <code>exposure</code> / <code>toolExposure</code>，覆盖同名的用户级服务器，不必重写启动命令。命令是 <code>pi mcp add|remove|list|login|logout</code>，会话内是 <code>/mcp</code>。
+见 <code>packages/coding-agent/docs/mcp.md</code>。</li>
+<li><strong>二次开发</strong>：先用 <code>pi mcp add</code>（零代码）；要按环境动态注册，用 <code>pi.registerMcpServer()</code> / <code>pi.getMcpServers()</code> /
+<code>mcp_servers_change</code> 事件。</li>
+<li><strong>延伸</strong>：<a href="https://mariozechner.at/posts/2025-11-02-what-if-you-dont-need-mcp/">What if you don&#39;t need MCP?</a>（理解上下文预算的必读）、<code>packages/coding-agent/docs/mcp.md</code></li>
+</ul>
+<h2>No sub-agents（无内置子 Agent）</h2>
+<ul>
+<li><strong>立场</strong>：子 Agent 有很多做法——tmux 再开一个 <code>pi</code>、自己写 extension、或装别人的 package。</li>
+<li><strong>仓库里已有参照</strong>：<code>packages/coding-agent/examples/extensions/subagent/</code></li>
+<li><strong>启示</strong>：编排策略属于工作流，不属于「所有人必须同一套」的内核。</li>
+</ul>
+<h2>No permission popups（无权限弹窗）</h2>
+<ul>
+<li><strong>立场</strong>：在容器里跑，或用 extension 做确认流，贴合你的环境与合规。</li>
+<li><strong>根 README</strong>：Pi <strong>没有</strong>内置限制文件系统/进程/网络/凭据的权限系统；默认 = 启动用户权限。</li>
+<li><strong>隔离方案文档</strong>：<code>packages/coding-agent/docs/containerization.md</code>（Gondolin / Docker / OpenShell）</li>
+<li><strong>例子</strong>：<code>examples/extensions/</code> 下的 permission / confirm 类扩展（如 <code>permission-gate</code>、<code>confirm-destructive</code>）</li>
+</ul>
+<h2>No plan mode</h2>
+<ul>
+<li><strong>立场</strong>：计划写成文件，或用 extension / package。</li>
+<li><strong>参照</strong>：<code>examples/extensions/plan-mode/</code></li>
+</ul>
+<h2>No built-in to-dos</h2>
+<ul>
+<li><strong>理由（官方）</strong>：内置 TODO <strong>会迷惑模型</strong>。</li>
+<li><strong>替代</strong>：<code>TODO.md</code>，或自己做 extension（例子里有 todo 相关工具）。</li>
+</ul>
+<h2>No background bash</h2>
+<ul>
+<li><strong>立场</strong>：用 <strong>tmux</strong>。可观察、可直接交互。</li>
+<li><strong>文档</strong>：<code>packages/coding-agent/docs/tmux.md</code></li>
+</ul>
+<h2>省略表的统一逻辑</h2>
+<pre><code>若功能满足：
+  ① 有多种合理实现；且
+  ② 强绑内核会限制工作流或迷惑模型；且
+  ③ 能用扩展/包/外部工具表达
+→ 就不进内核。
+</code></pre>
+<blockquote>
+<p>MCP 是这套逻辑的新样本：它没有进 Core，而是进了<strong>可替换的内置扩展</strong>——介于「核心」与「用户扩展」之间的第三种归属。</p>
+</blockquote>
+<p>这就是「适合二次开发」的根源：<strong>空白处是扩展市场，不是产品缺陷。</strong></p>
+<h2>学习者怎么对待省略</h2>
+<ol>
+<li><strong>先接受默认</strong>：四个工具 + 会话，完成真实改代码任务  </li>
+<li><strong>缺什么再补什么</strong>：需要确认再装/写 permission；需要并行调研再看 subagent 例子  </li>
+<li><strong>不要一上来把所有 No 都用扩展填满</strong>——那会把自己做成另一个巨型产品，丢掉 Pi 的清晰度</li>
+</ol>
+<h2>对照：内核「有」的东西</h2>
+<p>省略之外，内核<strong>坚持提供</strong>的，往往是跨工作流都稳定的基础设施：</p>
+<ul>
+<li>多模型 / 多厂商</li>
+<li>Agent 循环与工具执行语义</li>
+<li>会话格式与分支 / compaction</li>
+<li>扩展加载与 API 面（含一组可替换的<strong>内置扩展</strong>：<code>llama.cpp</code>、<code>codemode</code>、<code>tool-search</code>、<code>mcp</code>）</li>
+<li>TUI / RPC / SDK 出口</li>
+</ul>
+<p>学 Pi = 分清 <strong>基础设施</strong> vs <strong>工作流插件</strong>。</p>
+
+  </article>
+<nav class="pager"><a href="设计哲学.html">← 设计哲学</a>
+    <span class="spacer"></span>
+    <a href="../02-架构/包地图与依赖.html">包地图与依赖 →</a></nav>
+  <footer>学习 Pi 导读（learn-pi） · 基准 pi 1.0.2（2026-10-04） · <a href="https://github.com/NorthAdb/pi-agent-north" target="_blank" rel="noopener">源码仓库 ↗</a> · 姊妹课程 <a href="../../agent-harness-course/index.html">Agent Harness 架构课</a></footer>
+</div>
+</body>
+</html>

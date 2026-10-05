@@ -1,0 +1,274 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Diagram 06 · Context Compaction Pipeline：状态压缩",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "viewBox": [
+      700,
+      440
+    ],
+    "repository": {
+      "url": "https://github.com/NorthAdb/pi-agent-north",
+      "provider": "github",
+      "revision": "47c9be752f88c26f4ffa06caf0d2a3888117d9b1"
+    }
+  },
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "为什么不能直接删最老的消息",
+      "items": [
+        "中间摘要丢失会导致目标漂移与重复劳动",
+        "toolCall/toolResult 必须成对保留，否则请求被 API 拒绝"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Compaction = State Compression",
+      "items": [
+        "历史永远完整保存在 Session（JSONL 不动）",
+        "压缩只改变「投影」——模型可见的那一份"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "三层连接",
+      "items": [
+        "Session：持久状态（全量）",
+        "Compaction：把旧状态压成摘要条目"
+      ]
+    }
+  ],
+  "components": [
+    {
+      "id": "tokens",
+      "type": "database",
+      "label": "token 估算",
+      "sublabel": "chars/4 + usage",
+      "pos": [
+        40,
+        60
+      ],
+      "size": [
+        160,
+        60
+      ]
+    },
+    {
+      "id": "should",
+      "type": "backend",
+      "label": "shouldCompact",
+      "sublabel": "window − 16384 余量",
+      "pos": [
+        40,
+        150
+      ],
+      "size": [
+        160,
+        60
+      ],
+      "sources": [
+        {
+          "path": "packages/coding-agent/src/core/compaction/compaction.ts",
+          "line": 289
+        }
+      ]
+    },
+    {
+      "id": "cut",
+      "type": "backend",
+      "label": "findCutPoint",
+      "sublabel": "keepRecent 20000",
+      "pos": [
+        40,
+        240
+      ],
+      "size": [
+        160,
+        60
+      ],
+      "sources": [
+        {
+          "path": "packages/coding-agent/src/core/compaction/compaction.ts",
+          "line": 468
+        }
+      ]
+    },
+    {
+      "id": "guard",
+      "type": "security",
+      "label": "保护 toolCall 对",
+      "sublabel": "切点不落 toolResult",
+      "pos": [
+        40,
+        330
+      ],
+      "size": [
+        160,
+        60
+      ]
+    },
+    {
+      "id": "conv",
+      "type": "database",
+      "label": "旧消息序列化",
+      "sublabel": "<conversation> 标签",
+      "pos": [
+        260,
+        330
+      ],
+      "size": [
+        170,
+        60
+      ]
+    },
+    {
+      "id": "llmsum",
+      "type": "cloud",
+      "label": "LLM 摘要",
+      "sublabel": "Goal/Progress/…",
+      "pos": [
+        260,
+        240
+      ],
+      "size": [
+        170,
+        60
+      ]
+    },
+    {
+      "id": "upd",
+      "type": "messagebus",
+      "label": "增量摘要",
+      "sublabel": "迭代更新",
+      "pos": [
+        500,
+        240
+      ],
+      "size": [
+        140,
+        60
+      ]
+    },
+    {
+      "id": "entry",
+      "type": "database",
+      "label": "Compaction 条目",
+      "sublabel": "summary+firstKept",
+      "pos": [
+        260,
+        150
+      ],
+      "size": [
+        170,
+        60
+      ]
+    },
+    {
+      "id": "proj",
+      "type": "backend",
+      "label": "会话投影重建",
+      "sublabel": "摘要替换旧历史",
+      "pos": [
+        260,
+        60
+      ],
+      "size": [
+        170,
+        60
+      ]
+    },
+    {
+      "id": "cont",
+      "type": "messagebus",
+      "label": "继续 Loop",
+      "sublabel": "模型只见压缩后",
+      "pos": [
+        500,
+        60
+      ],
+      "size": [
+        140,
+        60
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "from": "tokens",
+      "to": "should",
+      "label": "每轮检查",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDy": 24
+    },
+    {
+      "from": "should",
+      "to": "cut",
+      "label": "达到阈值",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "variant": "emphasis",
+      "labelDy": 24
+    },
+    {
+      "from": "cut",
+      "to": "guard",
+      "label": "候选切点",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDy": 24
+    },
+    {
+      "from": "guard",
+      "to": "conv",
+      "label": "确定切点",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "from": "conv",
+      "to": "llmsum",
+      "label": "摘要请求",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "variant": "emphasis",
+      "labelDy": -6
+    },
+    {
+      "from": "upd",
+      "to": "llmsum",
+      "label": "旧摘要并入",
+      "fromSide": "left",
+      "toSide": "right",
+      "variant": "dashed"
+    },
+    {
+      "from": "llmsum",
+      "to": "entry",
+      "label": "写入会话",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "variant": "emphasis",
+      "labelDy": -6
+    },
+    {
+      "from": "entry",
+      "to": "proj",
+      "label": "重放时替换",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "variant": "emphasis",
+      "labelDy": -6
+    },
+    {
+      "from": "proj",
+      "to": "cont",
+      "label": "继续循环",
+      "fromSide": "right",
+      "toSide": "left"
+    }
+  ]
+}

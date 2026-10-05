@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agent Harness 架构课程 · 总纲 · Agent Harness 架构课程</title>
+<meta name="description" content="Agent Harness 架构课程 · 总纲 · Agent Harness 架构课程 — NorthAdb 课件">
+<link rel="stylesheet" href="../learn-pi/style.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumbs"><a href="../agent-harness-course/index.html">← 课程首页</a></nav>
+  <article>
+<h1>Agent Harness 架构课程 · 总纲</h1>
+<blockquote>
+<p>浏览器友好入口：<a href="index.html">index.html</a> · 研究对象：本仓库（fork of <a href="https://github.com/earendil-works/pi">earendil-works/pi</a>）。
+教学立场：不背 API，只回答&quot;<strong>为什么这么设计</strong>&quot;。所有结论标注证据等级：
+【源码】源码可直接证明 ·【文档】官方文档证明 ·【推断】架构推断。
+前置导读：仓库自带的 <code>learn-pi/</code>（是什么/怎么用）；本课程在其之上做&quot;为什么 + 源码逆向&quot;。</p>
+</blockquote>
+<h2>我的进度（做完一项打个 ×）</h2>
+<ul>
+<li><input disabled="" type="checkbox"> 第 01 课 · 为什么 LLM 不是 Agent</li>
+<li><input disabled="" type="checkbox"> 第 02 课 · Agent Loop</li>
+<li><input disabled="" type="checkbox"> 第 03 课 · Tool Calling</li>
+<li><input disabled="" type="checkbox"> 第 04 课 · Context Assembly</li>
+<li><input disabled="" type="checkbox"> 第 05 课 · Session / State</li>
+<li><input disabled="" type="checkbox"> 第 06 课 · Compaction</li>
+<li><input disabled="" type="checkbox"> 第 07 课 · Skills</li>
+<li><input disabled="" type="checkbox"> 第 08 课 · Extensions</li>
+<li><input disabled="" type="checkbox"> 第 09 课 · 权限与沙箱</li>
+<li><input disabled="" type="checkbox"> 第 10 课 · TUI / RPC / SDK</li>
+<li><input disabled="" type="checkbox"> 第 11 课 · 完整 Runtime 总时序</li>
+<li><input disabled="" type="checkbox"> 第 12 课 · 通用 Harness 抽象</li>
+<li><input disabled="" type="checkbox"> 第 13 课 · 横向比较</li>
+<li><input disabled="" type="checkbox"> 第 14 课 · 五层 Mental Model</li>
+<li><input disabled="" type="checkbox"> 第 15 课（进阶） · MCP 深潜</li>
+<li><input disabled="" type="checkbox"> 毕业练习 · practice/ 17 测试全绿</li>
+</ul>
+<h2>课程地图（14 课 + 1 进阶）</h2>
+<table>
+<thead>
+<tr>
+<th>课</th>
+<th>主题</th>
+<th>图</th>
+<th>一句话问题</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a href="lessons/0001-why-llm-is-not-agent.html">0001</a></td>
+<td>为什么 LLM 不是 Agent</td>
+<td><a href="lessons/diagrams/01-harness-overview.html">01</a></td>
+<td>Harness 到底比 LLM 多了什么？</td>
+</tr>
+<tr>
+<td><a href="lessons/0002-agent-loop.html">0002</a></td>
+<td>Agent Loop</td>
+<td><a href="lessons/diagrams/02-agent-loop.html">02</a></td>
+<td>循环由谁控制？何时结束？</td>
+</tr>
+<tr>
+<td><a href="lessons/0003-tool-calling.html">0003</a></td>
+<td>Tool Calling / Execution</td>
+<td><a href="lessons/diagrams/03-tool-calling.html">03</a></td>
+<td>模型看到什么？Runtime 执行什么？</td>
+</tr>
+<tr>
+<td><a href="lessons/0004-context-assembly.html">0004</a></td>
+<td>Context Assembly</td>
+<td><a href="lessons/diagrams/04-context-assembly.html">04</a></td>
+<td>Context 如何形成？Session ≠ Context？</td>
+</tr>
+<tr>
+<td><a href="lessons/0005-session-tree.html">0005</a></td>
+<td>Session / State</td>
+<td><a href="lessons/diagrams/05-session-tree.html">05</a></td>
+<td>为什么需要历史树而不是 messages[]？</td>
+</tr>
+<tr>
+<td><a href="lessons/0006-compaction.html">0006</a></td>
+<td>Compaction</td>
+<td><a href="lessons/diagrams/06-compaction.html">06</a></td>
+<td>压缩为什么是状态压缩而非删消息？</td>
+</tr>
+<tr>
+<td><a href="lessons/0007-skills.html">0007</a></td>
+<td>Skills / 渐进披露</td>
+<td><a href="lessons/diagrams/07-skills.html">07</a></td>
+<td>为什么不全量注入？</td>
+</tr>
+<tr>
+<td><a href="lessons/0008-extensions.html">0008</a></td>
+<td>Extensions / Hooks</td>
+<td><a href="lessons/diagrams/08-extensions.html">08</a></td>
+<td>为什么功能不进 Core？</td>
+</tr>
+<tr>
+<td><a href="lessons/0009-capability-boundary.html">0009</a></td>
+<td>权限与沙箱</td>
+<td><a href="lessons/diagrams/09-capability-boundary.html">09</a></td>
+<td>Capability / Authorization / Sandbox 差在哪？</td>
+</tr>
+<tr>
+<td><a href="lessons/0010-interfaces.html">0010</a></td>
+<td>TUI / RPC / SDK</td>
+<td><a href="lessons/diagrams/10-interfaces.html">10</a></td>
+<td>为什么接口不能和 Runtime 写死？</td>
+</tr>
+<tr>
+<td><a href="lessons/0011-full-runtime.html">0011</a></td>
+<td>完整 Runtime 总时序</td>
+<td><a href="lessons/diagrams/11-full-runtime.html">11</a></td>
+<td>一次真实任务如何流过所有层？</td>
+</tr>
+<tr>
+<td><a href="lessons/0012-generic-harness.html">0012</a></td>
+<td>通用 Agent Harness 抽象</td>
+<td><a href="lessons/diagrams/12-generic-harness.html">12</a></td>
+<td>哪些是通用需求，哪些是 Pi 的选择？</td>
+</tr>
+<tr>
+<td><a href="lessons/0013-comparison.html">0013</a></td>
+<td>横向比较</td>
+<td>—</td>
+<td>各家在&quot;Core vs Harness&quot;边界上的分歧</td>
+</tr>
+<tr>
+<td><a href="lessons/0014-mental-model.html">0014</a></td>
+<td>五层 Mental Model</td>
+<td><a href="lessons/diagrams/13-mental-model.html">13</a></td>
+<td>Agent = LLM + Loop + Harness + Environment 成立吗？</td>
+</tr>
+<tr>
+<td><a href="lessons/0015-mcp.html">0015</a></td>
+<td><strong>进阶</strong> · MCP 深潜</td>
+<td><a href="lessons/diagrams/14-mcp-bridge.html">14</a></td>
+<td>MCP 是什么？Pi 如何以可替换的内置扩展接入？归属层级怎么判？</td>
+</tr>
+</tbody></table>
+<p>最终练习：<a href="reference/minimal-harness.html">从 0 手写 Minimal Pi-like Agent Harness</a>，配套可运行工作区 <a href="practice/index.html">practice/</a>（接口 + 17 个验收测试已就位，实现留给你）。
+随查随用：<a href="reference/glossary.html">术语表</a> · <a href="reference/source-map.html">关键源码地图</a> · <a href="reference/cheatsheet.html">一页纸速查表</a> · <a href="diagrams.html">图库</a>。</p>
+<h2>后续编排（如何用完这套课程）</h2>
+<ol>
+<li><strong>逐课推进</strong>：读完一课 → 做课末检索测验（先凭记忆）→ 通过导师追问后进入下一课。</li>
+<li><strong>写学习记录</strong>：每当&quot;证明了一个理解 / 纠正了一个误解 / 声明了已有知识&quot;，在
+<a href="https://github.com/NorthAdb/pi-agent-north/tree/course/agent-harness-course/learning-records">learning-records/</a> 增加一条 <code>NNNN-slug.md</code>——这是跨会话计算你最近发展区的依据。</li>
+<li><strong>毕业练习</strong>：读完第 14 课后进入 <code>practice/</code>，按 README 的 6 步实现顺序把 17 个测试逐个变绿。</li>
+<li><strong>完成标志</strong>：设计卷末尾的七条自查全部回答&quot;是&quot;，并能对照 Diagram 01 向他人讲清整个 Harness。</li>
+</ol>
+<h2>学习方式</h2>
+<ul>
+<li>每课 15–25 分钟：一张聚焦图（8–12 节点）+ 三段图解 + 七问 + 源码映射 + 检索练习。</li>
+<li>图表用 Archify 生成，全部通过 9 项 showcase 校验与浏览器视口检查；规格文件在
+<code>assets/diagrams/specs/</code>，可自行修改重渲染。</li>
+<li>每课结尾的测验是<strong>检索练习</strong>：先凭记忆回答，再对照正文——这是长期记忆的关键。</li>
+</ul>
+<h2>证据基准</h2>
+<p>所有 Pi 侧结论基于当前 checkout，上游 <strong>1.0.2</strong>（2026-10-04）。
+1.0.0 把实验性 AgentHarness 从 <code>packages/agent</code> 删除；产品会话仍是 coding-agent 的 JSONL 树，实验持久化在 <code>packages/durable</code>。
+合并上游大版本后，被改动机制对应的课需要重新审计行号。
+第 13 课比较 Claude Code / Codex / OpenCode 时只有公开文档级证据，会明确降级标注。</p>
+
+  </article>
+
+  <footer>Agent Harness 架构课程 · 基准 pi 1.0.2（2026-10-04） · <a href="https://github.com/NorthAdb/pi-agent-north" target="_blank" rel="noopener">源码仓库 ↗</a> · 姊妹课程 <a href="../agent-harness-course/index.html">Agent Harness 架构课</a></footer>
+</div>
+</body>
+</html>

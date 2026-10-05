@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>为什么适合二次开发 · 学习 Pi 导读</title>
+<meta name="description" content="为什么适合二次开发 · 学习 Pi 导读 — NorthAdb 课件">
+<link rel="stylesheet" href="../../learn-pi/style.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumbs"><a href="../../learn-pi/index.html">← 总目录</a></nav>
+  <article>
+<h1>为什么适合二次开发</h1>
+<p>「适合二次开发」在这里指：<strong>以可维护的方式改行为、做产品、做分发，而不是靠长期脏 fork。</strong></p>
+<h2>1. 扩展优先于改内核</h2>
+<p>官方明确目标：不 fork、不改 internals，也能适配工作流。<br>仓库用 examples 把「别人内置的功能」演示成扩展：subagent、plan-mode、permission、自定义 provider…</p>
+<p>二次开发默认路径：</p>
+<pre><code>需求 → 找例子 → 写成 extension/skill → （可选）打成 package → 安装到环境
+</code></pre>
+<p>只有当扩展 API 表达不了时，才考虑 PR 上游或 fork 深改。</p>
+<h2>2. 清晰的包边界</h2>
+<p><code>pi-ai</code> / <code>pi-agent-core</code> / <code>pi-tui</code> / <code>pi-coding-agent</code> 可独立依赖。</p>
+<ul>
+<li>只要统一 LLM？用 <code>pi-ai</code>  </li>
+<li>只要循环不要 TUI？用 <code>pi-agent-core</code>  </li>
+<li>只要终端组件？用 <code>pi-tui</code>  </li>
+<li>只要 MCP 客户端？用 <code>pi-mcp</code>（独立成包，不依赖 Pi）  </li>
+<li>只要&quot;沙箱里跑 JS 调工具&quot;？用 <code>pi-codemode</code>（唯一能力是调用注入的工具）  </li>
+<li>要完整编码 Agent？用 <code>pi-coding-agent</code></li>
+</ul>
+<p>二次开发不必吞下整个 CLI。</p>
+<h2>3. 多种宿主形态</h2>
+<p>TUI / print / JSON / RPC / SDK —— 同一 Session 内核。<br>做 IDE 插件、Web 控制台、Slack 机器人（另见 pi-chat）、内部平台，都有落点。</p>
+<h2>4. 可换皮配置</h2>
+<p><code>piConfig.name</code> / <code>configDir</code> / <code>bin</code> 支持 fork 换品牌与目录，而不必改遍源码。见 <a href="./Fork%E4%B8%8E%E6%8D%A2%E7%9A%AE.html">Fork与换皮.md</a>。</p>
+<h2>5. 会话与运行时分离</h2>
+<p>会话日志可持久化；工具与扩展是恢复时重绑的依赖。<br>意味着你可以：</p>
+<ul>
+<li>换沙箱实现仍打开旧会话  </li>
+<li>在评测里替换工具  </li>
+<li>在企业环境注入审计工具而不改历史格式</li>
+</ul>
+<h2>6. 工程纪律利于长期维护</h2>
+<p>钉依赖、shrinkwrap、ignore-scripts、check 脚本、逐文件提交文化（本仓库 AGENTS）——二次开发团队不容易「依赖地狱里改 Agent」。</p>
+<h2>7. 文档 + 例子 + 自解释</h2>
+<ul>
+<li>docs 全  </li>
+<li>examples 多  </li>
+<li>可让 Agent 读自家 docs 生成扩展</li>
+</ul>
+<p>新人 onboarding 成本显著低于「只有源码没有扩展模型」的项目。</p>
+<h2>不适合的二次开发预期</h2>
+<ul>
+<li>期望内核自带企业级 ACL / 审批流（要自建）  </li>
+<li>期望 MCP 自动成为模型的可见工具（内置了，但默认 <code>exposure: &quot;codemode&quot;</code>，要改成 <code>direct</code> 或 <code>deferred</code> 才会进模型声明）  </li>
+<li>期望不学 TypeScript 就能做深扩展</li>
+</ul>
+<h2>结论</h2>
+<p>Pi 适合二次开发，是因为把「产品差异点」放在<strong>扩展面与宿主面</strong>，把「稳定协议」放在 <strong>ai / agent / session</strong>。<br>你改的是自己的层；上游进化时，扩展 API 与会话格式是缓冲带。</p>
+
+  </article>
+<nav class="pager"><a href="../04-定制扩展/SDK与进程集成.html">← SDK与进程集成</a>
+    <span class="spacer"></span>
+    <a href="如何扩展而不改内核.html">如何扩展而不改内核 →</a></nav>
+  <footer>学习 Pi 导读（learn-pi） · 基准 pi 1.0.2（2026-10-04） · <a href="https://github.com/NorthAdb/pi-agent-north" target="_blank" rel="noopener">源码仓库 ↗</a> · 姊妹课程 <a href="../../agent-harness-course/index.html">Agent Harness 架构课</a></footer>
+</div>
+</body>
+</html>

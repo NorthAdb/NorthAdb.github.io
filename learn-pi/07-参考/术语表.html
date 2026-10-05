@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>术语表 · 学习 Pi 导读</title>
+<meta name="description" content="术语表 · 学习 Pi 导读 — NorthAdb 课件">
+<link rel="stylesheet" href="../../learn-pi/style.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumbs"><a href="../../learn-pi/index.html">← 总目录</a></nav>
+  <article>
+<h1>术语表</h1>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Pi</strong></td>
+<td>通常指 coding-agent 产品 / CLI；广义指整个 harness monorepo</td>
+</tr>
+<tr>
+<td><strong>Harness</strong></td>
+<td>把模型、工具、会话、扩展绑在一起的编排层</td>
+</tr>
+<tr>
+<td><strong>Agent loop</strong></td>
+<td>多轮「LLM → 工具 → LLM」循环</td>
+</tr>
+<tr>
+<td><strong>AgentMessage</strong></td>
+<td>应用侧消息（可含自定义类型）</td>
+</tr>
+<tr>
+<td><strong>convertToLlm</strong></td>
+<td>把 AgentMessage 投影为模型可读 Message</td>
+</tr>
+<tr>
+<td><strong>Tool</strong></td>
+<td>名称 + 参数 schema + execute；供模型调用</td>
+</tr>
+<tr>
+<td><strong>Extension</strong></td>
+<td>TS 模块，注册工具/钩子/命令/UI/Provider 等</td>
+</tr>
+<tr>
+<td><strong>Skill</strong></td>
+<td>按需加载的能力说明包（Agent Skills）</td>
+</tr>
+<tr>
+<td><strong>Prompt template</strong></td>
+<td>slash 展开的提示模板</td>
+</tr>
+<tr>
+<td><strong>Pi Package</strong></td>
+<td>可安装的扩展资源捆</td>
+</tr>
+<tr>
+<td><strong>Theme</strong></td>
+<td>终端主题</td>
+</tr>
+<tr>
+<td><strong>ResourceLoader</strong></td>
+<td>发现并加载上述资源的组件</td>
+</tr>
+<tr>
+<td><strong>AgentSession</strong></td>
+<td>coding-agent 产品级会话门面</td>
+</tr>
+<tr>
+<td><strong>Mode</strong></td>
+<td>interactive / print / json / rpc 等 I/O 形态</td>
+</tr>
+<tr>
+<td><strong>SDK</strong></td>
+<td>嵌入 Node 应用的库 API</td>
+</tr>
+<tr>
+<td><strong>RPC mode</strong></td>
+<td>JSONL 进程协议模式</td>
+</tr>
+<tr>
+<td><strong>Session file</strong></td>
+<td>持久化会话（常见 JSONL）</td>
+</tr>
+<tr>
+<td><strong>Branching</strong></td>
+<td>会话树分叉与导航</td>
+</tr>
+<tr>
+<td><strong>Compaction</strong></td>
+<td>压缩过长上下文</td>
+</tr>
+<tr>
+<td><strong>Steering / Follow-up</strong></td>
+<td>运行中插入用户输入的不同队列语义</td>
+</tr>
+<tr>
+<td><strong>Scoped models</strong></td>
+<td>会话可用模型子集</td>
+</tr>
+<tr>
+<td><strong>Provider</strong></td>
+<td>模型厂商/网关适配</td>
+</tr>
+<tr>
+<td><strong>Faux provider</strong></td>
+<td>测试用假模型后端</td>
+</tr>
+<tr>
+<td><strong>piConfig</strong></td>
+<td>换皮：name / configDir 等</td>
+</tr>
+<tr>
+<td><strong>Gondolin</strong></td>
+<td>将工具执行放入本地 Linux 微 VM 的隔离模式之一</td>
+</tr>
+<tr>
+<td><strong>Progressive disclosure</strong></td>
+<td>技能等资源先暴露摘要、按需加载全文</td>
+</tr>
+<tr>
+<td><strong>Turn snapshot</strong></td>
+<td>单次 LLM turn 的冻结配置视图</td>
+</tr>
+<tr>
+<td><strong>Hook</strong></td>
+<td>可改变行为的参与者回调（非只读）</td>
+</tr>
+<tr>
+<td><strong>Event</strong></td>
+<td>只读观察流</td>
+</tr>
+<tr>
+<td><strong>MCP</strong></td>
+<td>Model Context Protocol。Pi 以内置可替换扩展接入，默认 <code>exposure: &quot;codemode&quot;</code>，工具不声明给模型</td>
+</tr>
+<tr>
+<td><strong>mcp.json</strong></td>
+<td>MCP 服务器配置：用户级 <code>~/.pi/agent/mcp.json</code> + 受信任项目的 <code>.pi/mcp.json</code></td>
+</tr>
+<tr>
+<td><strong>exposure</strong></td>
+<td>工具对模型的暴露等级：<code>direct</code> / <code>model-only</code> / <code>codemode</code> / <code>deferred</code> / <code>hidden</code></td>
+</tr>
+<tr>
+<td><strong>codemode</strong></td>
+<td>在 QuickJS 沙箱里执行模型写的 JS，唯一能力是调用注入的工具</td>
+</tr>
+<tr>
+<td><strong>tool_search</strong></td>
+<td>把 <code>deferred</code> 工具按需装载进模型声明的工具</td>
+</tr>
+<tr>
+<td><strong>Built-in extension</strong></td>
+<td>随 Pi 发布但走扩展 API 的组件（<code>llama.cpp</code> / <code>codemode</code> / <code>tool-search</code> / <code>mcp</code>），可被第三方替换</td>
+</tr>
+<tr>
+<td><strong>Virtual model</strong></td>
+<td>一个可选条目，把每次请求路由到某个物理模型 + thinking 档</td>
+</tr>
+<tr>
+<td><strong>Namespace</strong></td>
+<td>工具分组（一个 MCP server 就是一个 namespace），codemode 里按组展示</td>
+</tr>
+<tr>
+<td><strong>Nested tool call</strong></td>
+<td>工具通过 <code>ctx.executeTool()</code> 调用另一个工具，事件带 <code>parentToolCallId</code></td>
+</tr>
+</tbody></table>
+<p>有歧义时以官方 docs 英文术语为准。</p>
+
+  </article>
+<nav class="pager"><a href="../06-深读路径/Harness北星.html">← Harness北星</a>
+    <span class="spacer"></span>
+    <a href="官方文档地图.html">官方文档地图 →</a></nav>
+  <footer>学习 Pi 导读（learn-pi） · 基准 pi 1.0.2（2026-10-04） · <a href="https://github.com/NorthAdb/pi-agent-north" target="_blank" rel="noopener">源码仓库 ↗</a> · 姊妹课程 <a href="../../agent-harness-course/index.html">Agent Harness 架构课</a></footer>
+</div>
+</body>
+</html>

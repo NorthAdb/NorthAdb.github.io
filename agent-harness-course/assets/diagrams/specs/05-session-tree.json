@@ -1,0 +1,361 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Diagram 05 · Session State：append-only 历史树",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/NorthAdb/pi-agent-north",
+      "provider": "github",
+      "revision": "47c9be752f88c26f4ffa06caf0d2a3888117d9b1"
+    },
+    "viewBox": [
+      1100,
+      560
+    ]
+  },
+  "layout": {
+    "mode": "grid",
+    "cols": 3,
+    "gapX": 46,
+    "gapY": 58,
+    "cellW": 224,
+    "cellH": 100
+  },
+  "components": [
+    {
+      "id": "sm",
+      "type": "backend",
+      "label": "SessionManager",
+      "sublabel": "branch / fork / resume",
+      "tag": "编排者",
+      "pos": [
+        60,
+        120
+      ],
+      "size": [
+        190,
+        64
+      ],
+      "sources": [
+        {
+          "path": "packages/coding-agent/src/core/session-manager.ts",
+          "line": 977
+        }
+      ]
+    },
+    {
+      "id": "jsonl",
+      "type": "database",
+      "label": "sessions/*.jsonl",
+      "sublabel": "append-only 文件",
+      "pos": [
+        300,
+        120
+      ],
+      "size": [
+        190,
+        64
+      ],
+      "sources": [
+        {
+          "path": "packages/coding-agent/src/core/session-manager.ts",
+          "line": 1080
+        }
+      ]
+    },
+    {
+      "id": "proj",
+      "type": "database",
+      "label": "buildSessionProjection",
+      "sublabel": "重放 compaction/context_edit",
+      "pos": [
+        540,
+        120
+      ],
+      "size": [
+        200,
+        64
+      ],
+      "sources": [
+        {
+          "path": "packages/coding-agent/src/core/session-manager.ts",
+          "line": 576
+        }
+      ]
+    },
+    {
+      "id": "agent",
+      "type": "cloud",
+      "label": "Agent.initialState",
+      "sublabel": "喂给 agent-core",
+      "pos": [
+        790,
+        120
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "e1",
+      "type": "backend",
+      "label": "user · Turn 1",
+      "sublabel": "Entry{id,parentId}",
+      "pos": [
+        300,
+        300
+      ],
+      "size": [
+        170,
+        64
+      ],
+      "sources": [
+        {
+          "path": "packages/coding-agent/src/core/session-manager.ts",
+          "line": 57
+        }
+      ]
+    },
+    {
+      "id": "e2",
+      "type": "backend",
+      "label": "assistant · Turn 2",
+      "pos": [
+        510,
+        300
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "tc",
+      "type": "backend",
+      "label": "toolCall",
+      "pos": [
+        720,
+        300
+      ],
+      "size": [
+        150,
+        64
+      ]
+    },
+    {
+      "id": "tr",
+      "type": "backend",
+      "label": "toolResult",
+      "pos": [
+        910,
+        300
+      ],
+      "size": [
+        150,
+        64
+      ]
+    },
+    {
+      "id": "leaf",
+      "type": "messagebus",
+      "label": "leafId 指针",
+      "sublabel": "当前分支位置",
+      "pos": [
+        510,
+        215
+      ],
+      "size": [
+        170,
+        60
+      ]
+    },
+    {
+      "id": "branch",
+      "type": "backend",
+      "label": "branch()",
+      "sublabel": "移动 leafId → 分叉",
+      "pos": [
+        720,
+        215
+      ],
+      "size": [
+        150,
+        60
+      ]
+    },
+    {
+      "id": "bs",
+      "type": "database",
+      "label": "branch_summary",
+      "sublabel": "分支入口摘要",
+      "pos": [
+        910,
+        215
+      ],
+      "size": [
+        150,
+        60
+      ]
+    },
+    {
+      "id": "fork",
+      "type": "database",
+      "label": "fork → 新 JSONL",
+      "sublabel": "parentSession 指向",
+      "pos": [
+        910,
+        440
+      ],
+      "size": [
+        150,
+        64
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "append-only JSONL 会话树（从不改写历史）",
+      "wraps": [
+        "jsonl",
+        "e1",
+        "e2",
+        "tc",
+        "tr",
+        "leaf",
+        "branch",
+        "bs",
+        "fork"
+      ],
+      "pad": 16
+    }
+  ],
+  "connections": [
+    {
+      "from": "sm",
+      "to": "jsonl",
+      "label": "appendEntry",
+      "fromSide": "right",
+      "toSide": "left",
+      "labelDy": 56
+    },
+    {
+      "from": "jsonl",
+      "to": "proj",
+      "label": "读取重放",
+      "fromSide": "right",
+      "toSide": "left",
+      "labelDy": 56
+    },
+    {
+      "from": "proj",
+      "to": "agent",
+      "label": "messages 投影",
+      "fromSide": "right",
+      "toSide": "left",
+      "labelDy": 56
+    },
+    {
+      "from": "jsonl",
+      "to": "e1",
+      "label": "条目流",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDx": 70,
+      "labelDy": 24
+    },
+    {
+      "from": "e1",
+      "to": "e2",
+      "label": "parentId",
+      "fromSide": "right",
+      "toSide": "left",
+      "labelDy": 50
+    },
+    {
+      "from": "e2",
+      "to": "tc",
+      "label": "parentId",
+      "fromSide": "right",
+      "toSide": "left",
+      "labelDy": 50
+    },
+    {
+      "from": "tc",
+      "to": "tr",
+      "label": "parentId",
+      "fromSide": "right",
+      "toSide": "left",
+      "labelDy": 50
+    },
+    {
+      "from": "e2",
+      "to": "leaf",
+      "label": "指向",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "variant": "dashed",
+      "labelAt": [
+        595,
+        289
+      ]
+    },
+    {
+      "from": "leaf",
+      "to": "branch",
+      "label": "移动指针",
+      "fromSide": "right",
+      "toSide": "left",
+      "labelAt": [
+        700,
+        211
+      ]
+    },
+    {
+      "from": "branch",
+      "to": "bs",
+      "label": "写入",
+      "fromSide": "right",
+      "toSide": "left",
+      "labelDy": -20
+    },
+    {
+      "from": "tr",
+      "to": "fork",
+      "label": "抽取路径",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "variant": "dashed",
+      "labelDy": 24
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "为什么是树而不是 messages[]",
+      "items": [
+        "append-only 让「改写历史」在物理上不可能",
+        "分支 = 移动 leafId 指针，零拷贝、可回退"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Entry 类型不止消息",
+      "items": [
+        "model_change / thinking_level_change 记录配置演变",
+        "compaction / branch_summary 是特殊的摘要条目"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Session ≠ Context",
+      "items": [
+        "历史树完整保存在磁盘",
+        "投影（projection）决定哪些条目进入本轮 Context"
+      ]
+    }
+  ]
+}

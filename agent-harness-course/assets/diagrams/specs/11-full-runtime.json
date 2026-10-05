@@ -1,0 +1,272 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Diagram 11 · Full Runtime：『修 bug 并跑测试』总时序",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1080,
+      640
+    ],
+    "column_fit": "spread"
+  },
+  "participants": [
+    {
+      "id": "tui",
+      "type": "frontend",
+      "label": "用户 / TUI",
+      "sublabel": "InteractiveMode"
+    },
+    {
+      "id": "sess",
+      "type": "backend",
+      "label": "AgentSession",
+      "sublabel": "含 agentLoop"
+    },
+    {
+      "id": "llm",
+      "type": "cloud",
+      "label": "LLM",
+      "sublabel": "streamSimple"
+    },
+    {
+      "id": "tools",
+      "type": "messagebus",
+      "label": "工具执行",
+      "sublabel": "read/edit/bash"
+    },
+    {
+      "id": "store",
+      "type": "database",
+      "label": "Session JSONL",
+      "sublabel": "append-only"
+    }
+  ],
+  "segments": [
+    {
+      "from": 150,
+      "to": 290,
+      "label": "理解 → 读"
+    },
+    {
+      "from": 298,
+      "to": 420,
+      "label": "修改"
+    },
+    {
+      "from": 428,
+      "to": 534,
+      "label": "验证"
+    },
+    {
+      "from": 542,
+      "to": 592,
+      "label": "答复"
+    }
+  ],
+  "messages": [
+    {
+      "id": "m1",
+      "from": "tui",
+      "to": "sess",
+      "y": 160,
+      "label": "用户：修 bug 并跑测试 → prompt()",
+      "variant": "emphasis"
+    },
+    {
+      "id": "m2",
+      "from": "sess",
+      "to": "store",
+      "y": 188,
+      "label": "appendEntry(user)",
+      "variant": "dashed"
+    },
+    {
+      "id": "m3",
+      "from": "sess",
+      "to": "llm",
+      "y": 216,
+      "label": "streamSimple #1（系统提示+skills 目录）",
+      "variant": "emphasis"
+    },
+    {
+      "id": "m4",
+      "from": "llm",
+      "to": "sess",
+      "y": 244,
+      "label": "toolCall read(bug.py)"
+    },
+    {
+      "id": "m5",
+      "from": "sess",
+      "to": "tools",
+      "y": 272,
+      "label": "execute read → OS"
+    },
+    {
+      "id": "m6",
+      "from": "tools",
+      "to": "sess",
+      "y": 300,
+      "label": "toolResult（截断保护）",
+      "variant": "return"
+    },
+    {
+      "id": "m7",
+      "from": "sess",
+      "to": "llm",
+      "y": 328,
+      "label": "streamSimple #2",
+      "variant": "emphasis"
+    },
+    {
+      "id": "m8",
+      "from": "llm",
+      "to": "sess",
+      "y": 356,
+      "label": "toolCall edit(bug.py)"
+    },
+    {
+      "id": "m9",
+      "from": "sess",
+      "to": "tools",
+      "y": 384,
+      "label": "execute edit → OS 写回"
+    },
+    {
+      "id": "m10",
+      "from": "tools",
+      "to": "sess",
+      "y": 412,
+      "label": "toolResult",
+      "variant": "return"
+    },
+    {
+      "id": "m11",
+      "from": "sess",
+      "to": "llm",
+      "y": 440,
+      "label": "streamSimple #3",
+      "variant": "emphasis"
+    },
+    {
+      "id": "m12",
+      "from": "llm",
+      "to": "sess",
+      "y": 468,
+      "label": "toolCall bash(pytest)"
+    },
+    {
+      "id": "m13",
+      "from": "sess",
+      "to": "tools",
+      "y": 496,
+      "label": "execute → 运行测试 → 全绿"
+    },
+    {
+      "id": "m14",
+      "from": "tools",
+      "to": "sess",
+      "y": 524,
+      "label": "toolResult → #4",
+      "variant": "return"
+    },
+    {
+      "id": "m15",
+      "from": "sess",
+      "to": "llm",
+      "y": 552,
+      "label": "最终答复 ✓（并逐条 appendEntry）"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "tui",
+      "from": 160,
+      "to": 170,
+      "type": "frontend"
+    },
+    {
+      "participant": "sess",
+      "from": 160,
+      "to": 560,
+      "type": "backend"
+    },
+    {
+      "participant": "llm",
+      "from": 216,
+      "to": 250,
+      "type": "cloud"
+    },
+    {
+      "participant": "llm",
+      "from": 328,
+      "to": 362,
+      "type": "cloud"
+    },
+    {
+      "participant": "llm",
+      "from": 440,
+      "to": 474,
+      "type": "cloud"
+    },
+    {
+      "participant": "llm",
+      "from": 552,
+      "to": 560,
+      "type": "cloud"
+    },
+    {
+      "participant": "tools",
+      "from": 272,
+      "to": 306,
+      "type": "messagebus"
+    },
+    {
+      "participant": "tools",
+      "from": 384,
+      "to": 418,
+      "type": "messagebus"
+    },
+    {
+      "participant": "tools",
+      "from": 496,
+      "to": 530,
+      "type": "messagebus"
+    },
+    {
+      "participant": "store",
+      "from": 188,
+      "to": 196,
+      "type": "database"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "控制流",
+      "items": [
+        "整条时序由 AgentSession 内的 while 循环驱动",
+        "LLM 每轮只回答『下一步调用什么工具』",
+        "无 toolCall 时循环退出，产出最终答复"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "工具流与状态",
+      "items": [
+        "Context 随每条 toolResult 增长——这是模型的全部世界",
+        "工具结果超限自动截断（2000 行 / 50KB）"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "持久化",
+      "items": [
+        "user 消息一落地就 appendEntry——先持久化再思考",
+        "assistant / toolResult 同样逐条追加，可随时 resume"
+      ]
+    }
+  ]
+}

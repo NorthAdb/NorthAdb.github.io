@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fork 与换皮 · 学习 Pi 导读</title>
+<meta name="description" content="Fork 与换皮 · 学习 Pi 导读 — NorthAdb 课件">
+<link rel="stylesheet" href="../../learn-pi/style.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumbs"><a href="../../learn-pi/index.html">← 总目录</a></nav>
+  <article>
+<h1>Fork 与换皮</h1>
+<h2>官方支持的换皮</h2>
+<p>换皮没有独立文档页。改 <code>packages/coding-agent/package.json</code> 的 <code>piConfig</code>（解析逻辑在 <code>packages/coding-agent/src/config.ts</code>）：</p>
+<pre><code class="language-json">{
+  &quot;piConfig&quot;: {
+    &quot;name&quot;: &quot;pi&quot;,
+    &quot;configDir&quot;: &quot;.pi&quot;
+  }
+}
+</code></pre>
+<p>同时调整 <code>bin</code> 等字段。影响：</p>
+<ul>
+<li>CLI 横幅 / 产品名（<code>APP_NAME</code> / <code>APP_TITLE</code>）</li>
+<li>配置目录名（<code>CONFIG_DIR_NAME</code>）→ 用户目录 <code>~/.pi/agent</code> 与项目目录 <code>.pi</code> 同时改名</li>
+<li>环境变量前缀：<code>PI_CODING_AGENT_DIR</code> / <code>PI_CODING_AGENT_SESSION_DIR</code> 变成 <code>&lt;NAME&gt;_CODING_AGENT_*</code></li>
+<li><code>pi install</code> 落盘位置、<code>pi update --self</code> 的目标包名</li>
+</ul>
+<p><strong>优先改配置，而不是全局替换字符串。</strong></p>
+<h2>路径解析注意</h2>
+<p>三种运行方式：npm 全局、独立 binary、tsx 源码。<br>包内资源路径应走 <code>src/config.ts</code> 的 <code>getPackageDir</code> / <code>getThemeDir</code>，不要对 <code>__dirname</code> 写死假设。</p>
+<h2>Fork 策略建议</h2>
+<h3>轻度 fork（推荐）</h3>
+<ul>
+<li>保留与上游同步能力  </li>
+<li>自有品牌用 <code>piConfig</code>  </li>
+<li>差异放在私有 packages（extensions/skills）仓库  </li>
+<li>内核仅 cherry-pick 或定期 merge</li>
+</ul>
+<h3>重度 fork（谨慎）</h3>
+<ul>
+<li>改 agent 循环、会话格式、扩展 API  </li>
+<li>成本：难以跟上游；要自己维护模型目录生成、发布管道</li>
+</ul>
+<p>若目标是产品差异化，<strong>重度 fork 通常输给「薄宿主 + 官方 coding-agent + 私有扩展」</strong>。</p>
+<h2>本仓库（North fork）场景</h2>
+<p>你已有 <code>pi-agent-north</code> 这类 fork 时：</p>
+<ol>
+<li>明确 fork 目的：跟上游学习？做内部分发？改协议？  </li>
+<li>若是学习/内部分发：保持 remote 可拉取 upstream，差异放扩展  </li>
+<li>贡献回上游时遵循 <code>CONTRIBUTING.md</code>（新贡献者 issue/PR 默认自动关闭等策略）</li>
+</ol>
+<h2>上游地址</h2>
+<ul>
+<li>典型上游：<code>https://github.com/earendil-works/pi</code>  </li>
+<li>文档与 npm 作用域：<code>@earendil-works/*</code>  </li>
+<li>网站：<a href="https://pi.dev">https://pi.dev</a></li>
+</ul>
+<p>添加 upstream remote 示例：</p>
+<pre><code class="language-powershell">cd E:\pi_north
+git remote add upstream https://github.com/earendil-works/pi.git
+git fetch upstream
+</code></pre>
+<h2>发布自己的发行版？</h2>
+<p>若要公开发布改名后的 CLI：</p>
+<ul>
+<li>处理 npm 包名、二进制名、文档商标  </li>
+<li>遵守 MIT 与依赖许可证  </li>
+<li>认真对待 supply-chain（继承上游的 ignore-scripts / 钉版本文化）  </li>
+<li>模型数据生成与 release source archive 流程见根 README</li>
+</ul>
+<p>对大多数二次开发：<strong>不需要发布内核</strong>；发布你的 <code>pi package</code> 即可。</p>
+
+  </article>
+<nav class="pager"><a href="如何扩展而不改内核.html">← 如何扩展而不改内核</a>
+    <span class="spacer"></span>
+    <a href="../06-深读路径/推荐阅读顺序.html">推荐阅读顺序 →</a></nav>
+  <footer>学习 Pi 导读（learn-pi） · 基准 pi 1.0.2（2026-10-04） · <a href="https://github.com/NorthAdb/pi-agent-north" target="_blank" rel="noopener">源码仓库 ↗</a> · 姊妹课程 <a href="../../agent-harness-course/index.html">Agent Harness 架构课</a></footer>
+</div>
+</body>
+</html>

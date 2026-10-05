@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>会话与上下文 · 学习 Pi 导读</title>
+<meta name="description" content="会话与上下文 · 学习 Pi 导读 — NorthAdb 课件">
+<link rel="stylesheet" href="../../learn-pi/style.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumbs"><a href="../../learn-pi/index.html">← 总目录</a></nav>
+  <article>
+<h1>会话与上下文</h1>
+<h2>Session（会话）</h2>
+<ul>
+<li>交互过程落到会话文件（格式见 <code>docs/session-format.md</code>）</li>
+<li>可 <code>-c</code> 继续最近会话、<code>-r</code> 选择恢复、<code>--fork</code> 分叉</li>
+<li><code>--no-session</code> 临时模式</li>
+</ul>
+<p>会话不只是「聊天记录」，还包含树/分支、compaction 相关条目等，使 Agent 工作可恢复、可分享（OSS session 数据集文化）。</p>
+<h2>Branching（分支）</h2>
+<p>可在会话树上导航、从中间节点长出新分支。<br>用途：试探两条实现路径、回滚到工具调用前等。</p>
+<p>文档：<code>docs/sessions.md</code>。</p>
+<h2>Compaction（压缩）</h2>
+<p>上下文太长时，用摘要等策略压缩，保住「还能继续干活」的记忆。<br>也可自定义 compaction（扩展例子：<code>custom-compaction.ts</code>）。</p>
+<p>文档：<code>docs/compaction.md</code>。</p>
+<h2>Context files</h2>
+<p>默认发现 <code>AGENTS.md</code> / <code>CLAUDE.md</code>（全局与项目祖先链）。<br>本仓库根目录就有 <code>AGENTS.md</code>——这是「项目规则进系统上下文」的标准做法。</p>
+<p>可用 <code>--no-context-files</code> 关闭。</p>
+<h2>Skills 与渐进披露</h2>
+<ul>
+<li>系统提示里通常只有技能<strong>名称与描述</strong></li>
+<li>完整 <code>SKILL.md</code> 在需要时通过 <code>read</code> 或 <code>/skill:…</code> 进入上下文</li>
+</ul>
+<p>避免一上来把所有手册塞进窗口——这是 Agent Skills 的核心教学点。</p>
+<h2>Scoped models</h2>
+<p><code>--models</code> / <code>enabledModels</code> 把可用模型限制到子集；<code>/scoped-models</code> 与 <code>ctx.scopedModels</code>（扩展 API）暴露同一集合。</p>
+<p>空列表通常表示「未配置范围 = 全部可用」。</p>
+<h2>消息队列（交互模式）</h2>
+<p>运行中可排队：steering / follow-up 等（产品 README 的 Message Queue 节）。<br>对应 agent-core 的队列语义——UI 与运行时对齐。</p>
+<h2>学习者实验建议</h2>
+<ol>
+<li>开会话改一个文件，退出，用 <code>-c</code> 继续，观察是否记得上下文  </li>
+<li>故意把对话拖长，触发 / 手动 compaction，看摘要如何出现  </li>
+<li>在项目放一小段 <code>AGENTS.md</code>，问模型「你读到了什么项目规则」  </li>
+<li>导出或打开 session 文件，对照 <code>session-format.md</code> 认条目类型</li>
+</ol>
+<h2>官方文档</h2>
+<ul>
+<li><code>packages/coding-agent/docs/sessions.md</code></li>
+<li><code>packages/coding-agent/docs/compaction.md</code></li>
+<li><code>packages/coding-agent/docs/session-format.md</code></li>
+<li><code>packages/coding-agent/docs/skills.md</code></li>
+</ul>
+
+  </article>
+<nav class="pager"><a href="四种运行模式.html">← 四种运行模式</a>
+    <span class="spacer"></span>
+    <a href="../04-定制扩展/扩展面总览.html">扩展面总览 →</a></nav>
+  <footer>学习 Pi 导读（learn-pi） · 基准 pi 1.0.2（2026-10-04） · <a href="https://github.com/NorthAdb/pi-agent-north" target="_blank" rel="noopener">源码仓库 ↗</a> · 姊妹课程 <a href="../../agent-harness-course/index.html">Agent Harness 架构课</a></footer>
+</div>
+</body>
+</html>

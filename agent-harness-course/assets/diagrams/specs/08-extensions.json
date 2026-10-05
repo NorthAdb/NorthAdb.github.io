@@ -1,0 +1,227 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Diagram 08 · Extensions / Hooks：Minimal Core + Extensible Harness",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "output": "agent-harness-course/lessons/diagrams/08-extensions.html",
+    "repository": {
+      "url": "https://github.com/NorthAdb/pi-agent-north.git",
+      "provider": "github",
+      "revision": "49987be9a71f2c36d56076ee584b302c68f1d280"
+    },
+    "viewBox": [
+      1080,
+      380
+    ]
+  },
+  "components": [
+    {
+      "id": "exts",
+      "type": "frontend",
+      "label": "扩展来源",
+      "sublabel": "用户 / 项目 .pi/extensions",
+      "pos": [
+        60,
+        80
+      ],
+      "size": [
+        190,
+        64
+      ]
+    },
+    {
+      "id": "api",
+      "type": "backend",
+      "label": "ExtensionAPI (pi)",
+      "sublabel": "registerTool / Command / UI",
+      "tag": "注册面",
+      "pos": [
+        330,
+        80
+      ],
+      "size": [
+        200,
+        64
+      ],
+      "sources": [
+        {
+          "path": "packages/coding-agent/src/core/extensions/types.ts",
+          "line": 2004
+        }
+      ]
+    },
+    {
+      "id": "core",
+      "type": "backend",
+      "label": "AgentSession 核心",
+      "sublabel": "不因需求膨胀",
+      "tag": "Minimal Core",
+      "pos": [
+        620,
+        80
+      ],
+      "size": [
+        190,
+        64
+      ],
+      "sources": [
+        {
+          "path": "packages/coding-agent/src/core/agent-session.ts",
+          "line": 362
+        }
+      ]
+    },
+    {
+      "id": "prompt",
+      "type": "database",
+      "label": "before_agent_start",
+      "sublabel": "改写 systemPrompt",
+      "pos": [
+        880,
+        80
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "trust",
+      "type": "security",
+      "label": "Project Trust",
+      "sublabel": "门禁扩展加载",
+      "pos": [
+        60,
+        220
+      ],
+      "size": [
+        190,
+        64
+      ]
+    },
+    {
+      "id": "builtin",
+      "type": "backend",
+      "label": "四个内置扩展",
+      "sublabel": "llama · mcp · codemode",
+      "pos": [
+        330,
+        220
+      ],
+      "size": [
+        200,
+        64
+      ]
+    },
+    {
+      "id": "events",
+      "type": "messagebus",
+      "label": "生命周期事件",
+      "sublabel": "runner.ts · 40+ 钩子",
+      "tag": "事件面",
+      "pos": [
+        620,
+        220
+      ],
+      "size": [
+        190,
+        64
+      ]
+    },
+    {
+      "id": "block",
+      "type": "security",
+      "label": "tool_call → block",
+      "sublabel": "permission-gate.ts",
+      "pos": [
+        880,
+        220
+      ],
+      "size": [
+        160,
+        64
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "from": "exts",
+      "to": "api",
+      "label": "factory(pi)",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "from": "trust",
+      "to": "exts",
+      "label": "控制加载",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "from": "builtin",
+      "to": "api",
+      "label": "registerProvider",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "from": "api",
+      "to": "core",
+      "label": "注入能力",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "from": "core",
+      "to": "events",
+      "label": "emit",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDy": 24
+    },
+    {
+      "from": "events",
+      "to": "block",
+      "label": "tool_call 事件",
+      "fromSide": "right",
+      "toSide": "left",
+      "labelDy": 56
+    },
+    {
+      "from": "core",
+      "to": "prompt",
+      "label": "提示词钩子",
+      "fromSide": "right",
+      "toSide": "left"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "为什么功能不进 Core",
+      "items": [
+        "每个人的工作流不同——Core 只能约定接缝，不能约定流程",
+        "40+ 钩子让需求变成扩展，而不是 Core 的 if-else"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Extension ≠ Skill",
+      "items": [
+        "Skill = 知识/流程包（markdown，模型自己读）",
+        "Extension = 可执行运行时定制（TS，注册工具/拦事件）"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "事件面 × 注册面",
+      "items": [
+        "注册面：tool / command / shortcut / renderer / provider",
+        "事件面：session / agent / turn / message / tool / provider"
+      ]
+    }
+  ]
+}

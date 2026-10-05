@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>官方文档地图 · 学习 Pi 导读</title>
+<meta name="description" content="官方文档地图 · 学习 Pi 导读 — NorthAdb 课件">
+<link rel="stylesheet" href="../../learn-pi/style.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumbs"><a href="../../learn-pi/index.html">← 总目录</a></nav>
+  <article>
+<h1>官方文档地图</h1>
+<p>本页把仓库内<strong>权威文档</strong>按主题索引。学完 learn-pi 导读后，深挖请直接读这些文件。</p>
+<blockquote>
+<p>基准：上游 <strong>1.0.2</strong>。产品文档在 <code>packages/coding-agent/docs/</code>（含 <code>mcp.md</code>、<code>codemode.md</code>、<code>virtual-models.md</code>）。
+<code>packages/agent/docs/</code> 与 <code>docs/development.md</code> 在本仓库不存在。</p>
+</blockquote>
+<h2>根目录</h2>
+<table>
+<thead>
+<tr>
+<th>文档</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>README.md</code></td>
+<td>总览、权限、构建、供应链</td>
+</tr>
+<tr>
+<td><code>AGENTS.md</code></td>
+<td>人与 Agent 共同开发规则</td>
+</tr>
+<tr>
+<td><code>CONTRIBUTING.md</code></td>
+<td>贡献流程</td>
+</tr>
+<tr>
+<td><code>SECURITY.md</code></td>
+<td>安全披露</td>
+</tr>
+</tbody></table>
+<h2>coding-agent（产品）</h2>
+<p>目录：<code>packages/coding-agent/docs/</code>（约 40 篇 Markdown）</p>
+<table>
+<thead>
+<tr>
+<th>文档</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>index.md</code></td>
+<td>总目录</td>
+</tr>
+<tr>
+<td><code>quickstart.md</code></td>
+<td>安装与首次会话</td>
+</tr>
+<tr>
+<td><code>usage.md</code></td>
+<td>交互用法</td>
+</tr>
+<tr>
+<td><code>cli.md</code></td>
+<td>完整 CLI：包命令、MCP 命令、工具开关</td>
+</tr>
+<tr>
+<td><code>cli-integration.md</code></td>
+<td>把 pi 接进别的 CLI / 脚本</td>
+</tr>
+<tr>
+<td><code>models.md</code> <code>providers.md</code> <code>custom-provider.md</code> <code>llama-cpp.md</code></td>
+<td>模型与厂商（含本地 llama.cpp 与分类器）</td>
+</tr>
+<tr>
+<td><code>virtual-models.md</code></td>
+<td>一次请求路由到不同物理模型</td>
+</tr>
+<tr>
+<td><code>mcp.md</code></td>
+<td>MCP 服务器配置、OAuth、exposure、项目级覆盖</td>
+</tr>
+<tr>
+<td><code>codemode.md</code></td>
+<td>沙箱脚本、<code>searchTools</code>、<code>models</code> API</td>
+</tr>
+<tr>
+<td><code>settings.md</code> <code>keybindings.md</code> <code>configuration.md</code></td>
+<td>配置、键位、目录约定</td>
+</tr>
+<tr>
+<td><code>sessions.md</code> <code>session-format.md</code> <code>compaction.md</code></td>
+<td>会话、文件格式、压缩</td>
+</tr>
+<tr>
+<td><code>skills.md</code> <code>prompt-templates.md</code> <code>themes.md</code> <code>packages.md</code></td>
+<td>资源面</td>
+</tr>
+<tr>
+<td><code>extensions.md</code></td>
+<td>扩展 API：exposure / namespace / <code>ctx.executeTool</code> / <code>prepareLoadout</code> / <code>registerToolRenderer</code></td>
+</tr>
+<tr>
+<td><code>tui.md</code></td>
+<td>扩展用 TUI 组件</td>
+</tr>
+<tr>
+<td><code>sdk.md</code> <code>rpc.md</code> <code>rpc-commands.md</code> <code>rpc-extension-ui.md</code> <code>json.md</code> <code>slash-commands.md</code></td>
+<td>嵌入与进程集成</td>
+</tr>
+<tr>
+<td><code>security.md</code> <code>containerization.md</code></td>
+<td>信任模型与隔离</td>
+</tr>
+<tr>
+<td><code>environment-variables.md</code> <code>message-types.md</code> <code>how-pi-works.md</code></td>
+<td>参考</td>
+</tr>
+<tr>
+<td>平台：<code>windows.md</code> <code>termux.md</code> <code>tmux.md</code> <code>terminal-setup.md</code> <code>shell-aliases.md</code></td>
+<td>环境</td>
+</tr>
+<tr>
+<td><code>docs.json</code></td>
+<td>文档站索引数据（非阅读用）</td>
+</tr>
+</tbody></table>
+<p>本地开发与换皮没有单独文档页：看根 <code>README.md</code> 的 Development 段、<code>AGENTS.md</code>，
+以及 <code>packages/coding-agent/package.json</code> 的 <code>piConfig</code>。</p>
+<p>产品 README Philosophy 也在：<code>packages/coding-agent/README.md</code>。</p>
+<h2>agent-core</h2>
+<p>这个包没有 <code>docs/</code> 目录。循环说明只在：</p>
+<table>
+<thead>
+<tr>
+<th>文档</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>packages/agent/README.md</code></td>
+<td>循环、事件、工具执行、<code>prepareRequest</code>、<code>finishTurn</code></td>
+</tr>
+<tr>
+<td><code>packages/agent/src/agent-loop.ts</code></td>
+<td>实现</td>
+</tr>
+</tbody></table>
+<p>1.0 之前的 <code>docs/harness.md</code>、<code>pico3</code>、<code>assistant-durability.md</code> 已随 AgentHarness 删除。可恢复运行时改看 <code>packages/durable/README.md</code> 与 <code>packages/durable/docs/spec.md</code>。</p>
+<h2>其它包</h2>
+<table>
+<thead>
+<tr>
+<th>文档</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>packages/ai/README.md</code></td>
+<td>统一 LLM API（很长，按需）</td>
+</tr>
+<tr>
+<td><code>packages/tui/README.md</code></td>
+<td>终端 UI 框架</td>
+</tr>
+<tr>
+<td><code>packages/mcp/README.md</code></td>
+<td>独立 MCP 客户端</td>
+</tr>
+<tr>
+<td><code>packages/codemode/README.md</code></td>
+<td>沙箱内执行 JS 调工具</td>
+</tr>
+<tr>
+<td><code>packages/durable/README.md</code> + <code>docs/spec.md</code></td>
+<td>实验性持久化运行时；SQLite 在 <code>storage/sqlite/node</code></td>
+</tr>
+<tr>
+<td><code>packages/chord/README.md</code></td>
+<td>组合运行时底座</td>
+</tr>
+<tr>
+<td><code>packages/protocol/README.md</code> <code>packages/client/README.md</code> <code>packages/server/README.md</code></td>
+<td>协议三件套</td>
+</tr>
+<tr>
+<td><code>packages/telemetry/README.md</code></td>
+<td>遥测契约</td>
+</tr>
+<tr>
+<td><code>packages/evals/README.md</code></td>
+<td>评测</td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/examples/**/README.md</code></td>
+<td>例子说明</td>
+</tr>
+</tbody></table>
+<h2>外部</h2>
+<table>
+<thead>
+<tr>
+<th>链接</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a href="https://pi.dev">https://pi.dev</a></td>
+<td>产品站与在线文档</td>
+</tr>
+<tr>
+<td><a href="https://pi.dev/docs/latest">https://pi.dev/docs/latest</a></td>
+<td>文档站（若可访问）</td>
+</tr>
+<tr>
+<td><a href="https://modelcontextprotocol.io">https://modelcontextprotocol.io</a></td>
+<td>MCP 规范（0.99 起 Pi 内置客户端所实现的协议）</td>
+</tr>
+<tr>
+<td><a href="https://rfc.earendil.com/keyword/pi/">https://rfc.earendil.com/keyword/pi/</a></td>
+<td>RFC / 长期计划入口</td>
+</tr>
+<tr>
+<td><a href="https://mariozechner.at/posts/2025-11-30-pi-coding-agent/">https://mariozechner.at/posts/2025-11-30-pi-coding-agent/</a></td>
+<td>设计长文</td>
+</tr>
+<tr>
+<td><a href="https://mariozechner.at/posts/2025-11-02-what-if-you-dont-need-mcp/">https://mariozechner.at/posts/2025-11-02-what-if-you-dont-need-mcp/</a></td>
+<td>上下文预算的反方论证（0.99 的 codemode 默认暴露正是对此的回答）</td>
+</tr>
+</tbody></table>
+<h2>learn-pi（本目录）</h2>
+<p>导读与学习路径，<strong>不替代</strong>上表。发现矛盾时以上表与源码为准，并欢迎改正 learn-pi。</p>
+
+  </article>
+<nav class="pager"><a href="术语表.html">← 术语表</a>
+    <span class="spacer"></span></nav>
+  <footer>学习 Pi 导读（learn-pi） · 基准 pi 1.0.2（2026-10-04） · <a href="https://github.com/NorthAdb/pi-agent-north" target="_blank" rel="noopener">源码仓库 ↗</a> · 姊妹课程 <a href="../../agent-harness-course/index.html">Agent Harness 架构课</a></footer>
+</div>
+</body>
+</html>

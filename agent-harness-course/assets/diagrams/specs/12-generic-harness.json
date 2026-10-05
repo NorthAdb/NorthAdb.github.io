@@ -1,0 +1,264 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Diagram 12 · 通用 Agent Harness",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "output": "agent-harness-course/lessons/diagrams/12-generic-harness.html",
+    "viewBox": [
+      1030,
+      530
+    ]
+  },
+  "components": [
+    {
+      "id": "iface",
+      "type": "frontend",
+      "label": "接口层",
+      "sublabel": "TUI / RPC / SDK",
+      "tag": "通用",
+      "pos": [
+        270,
+        80
+      ],
+      "size": [
+        200,
+        64
+      ]
+    },
+    {
+      "id": "policy",
+      "type": "security",
+      "label": "Policy / Safety",
+      "sublabel": "能力边界",
+      "tag": "通用",
+      "pos": [
+        540,
+        80
+      ],
+      "size": [
+        190,
+        64
+      ]
+    },
+    {
+      "id": "inject",
+      "type": "backend",
+      "label": "Skills · Extensions",
+      "sublabel": "渐进披露 + 钩子",
+      "tag": "通用",
+      "pos": [
+        60,
+        220
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "ctx",
+      "type": "backend",
+      "label": "Context Management",
+      "sublabel": "组装 / 缓存友好",
+      "tag": "通用",
+      "pos": [
+        270,
+        220
+      ],
+      "size": [
+        200,
+        64
+      ]
+    },
+    {
+      "id": "loop",
+      "type": "backend",
+      "label": "Agent Loop",
+      "sublabel": "Reason→Act→Observe",
+      "tag": "通用",
+      "pos": [
+        540,
+        220
+      ],
+      "size": [
+        190,
+        64
+      ]
+    },
+    {
+      "id": "toolrt",
+      "type": "messagebus",
+      "label": "Tool Runtime",
+      "sublabel": "注册 / 校验 / 执行",
+      "tag": "通用",
+      "pos": [
+        790,
+        220
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "sess",
+      "type": "database",
+      "label": "State / Session",
+      "sublabel": "持久历史树",
+      "tag": "通用",
+      "pos": [
+        60,
+        360
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "comp",
+      "type": "backend",
+      "label": "Compaction",
+      "sublabel": "状态压缩",
+      "tag": "通用",
+      "pos": [
+        270,
+        360
+      ],
+      "size": [
+        200,
+        64
+      ]
+    },
+    {
+      "id": "llm",
+      "type": "cloud",
+      "label": "LLM",
+      "sublabel": "被包裹的 token 生成器",
+      "pos": [
+        540,
+        360
+      ],
+      "size": [
+        190,
+        64
+      ]
+    },
+    {
+      "id": "env",
+      "type": "external",
+      "label": "Environment",
+      "sublabel": "FS / Shell / Net",
+      "pos": [
+        790,
+        360
+      ],
+      "size": [
+        180,
+        64
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "from": "iface",
+      "to": "ctx",
+      "label": "任务输入",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDy": 24
+    },
+    {
+      "from": "inject",
+      "to": "ctx",
+      "label": "注入",
+      "fromSide": "right",
+      "toSide": "left",
+      "labelDy": -34
+    },
+    {
+      "from": "comp",
+      "to": "ctx",
+      "label": "压缩后的历史",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "labelDy": -24
+    },
+    {
+      "from": "sess",
+      "to": "comp",
+      "label": "持久历史",
+      "fromSide": "right",
+      "toSide": "left",
+      "labelDy": 56
+    },
+    {
+      "from": "ctx",
+      "to": "loop",
+      "label": "模型可见上下文",
+      "fromSide": "right",
+      "toSide": "left",
+      "labelDy": -34
+    },
+    {
+      "from": "policy",
+      "to": "loop",
+      "label": "约束执行",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDy": 48
+    },
+    {
+      "from": "loop",
+      "to": "toolrt",
+      "label": "toolCall / 结果",
+      "fromSide": "right",
+      "toSide": "left",
+      "labelDy": -34
+    },
+    {
+      "from": "toolrt",
+      "to": "env",
+      "label": "副作用",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDy": 24
+    },
+    {
+      "from": "loop",
+      "to": "llm",
+      "label": "唯一出口",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDy": 24
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "哪些是所有 Harness 都需要的",
+      "items": [
+        "Loop / Context / Tool Runtime / Session——缺一不可运行",
+        "Compaction——长任务必然撞上下文窗口"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "哪些是 Coding Agent 特有",
+      "items": [
+        "read/edit/bash 工具组与文件系统工作区约定",
+        "AGENTS.md 式的项目指令发现"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "哪些是 Pi 自己的选择",
+      "items": [
+        "MCP 是可替换内置扩展；无子代理 / 无内置权限系统",
+        "JSONL 会话树 + leafId 分支是 Pi 的状态管理签名"
+      ]
+    }
+  ]
+}

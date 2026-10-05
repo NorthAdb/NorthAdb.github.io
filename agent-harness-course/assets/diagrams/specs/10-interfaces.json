@@ -1,0 +1,257 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Diagram 10 · Same Runtime, Multiple Interfaces",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "legend": {
+      "mode": "hidden"
+    },
+    "viewBox": [
+      1180,
+      640
+    ]
+  },
+  "lanes": [
+    {
+      "id": "ui",
+      "label": "入口层"
+    },
+    {
+      "id": "runtime",
+      "label": "共享 Runtime"
+    },
+    {
+      "id": "core",
+      "label": "核心层"
+    }
+  ],
+  "phases": [
+    {
+      "id": "entry",
+      "label": "入口",
+      "fromCol": 0,
+      "toCol": 1
+    },
+    {
+      "id": "share",
+      "label": "同一 Runtime",
+      "fromCol": 2,
+      "toCol": 3,
+      "variant": "emphasis"
+    },
+    {
+      "id": "core",
+      "label": "核心",
+      "fromCol": 4,
+      "toCol": 5,
+      "variant": "dashed"
+    }
+  ],
+  "groups": [
+    {
+      "id": "modes",
+      "label": "四种入口 · 一个 runtime",
+      "lane": "ui",
+      "fromCol": 1,
+      "toCol": 4,
+      "variant": "emphasis"
+    },
+    {
+      "id": "coreg",
+      "label": "AgentSession 组装",
+      "lane": "core",
+      "fromCol": 2,
+      "toCol": 5,
+      "variant": "dashed"
+    }
+  ],
+  "mainPath": [
+    "user",
+    "tui",
+    "runtime",
+    "session",
+    "agent",
+    "ai"
+  ],
+  "nodes": [
+    {
+      "id": "user",
+      "lane": "ui",
+      "col": 0,
+      "type": "external",
+      "label": "用户 / 宿主程序",
+      "width": 140
+    },
+    {
+      "id": "tui",
+      "lane": "ui",
+      "col": 1,
+      "type": "frontend",
+      "label": "TUI",
+      "sublabel": "InteractiveMode",
+      "width": 120
+    },
+    {
+      "id": "printm",
+      "lane": "ui",
+      "col": 2,
+      "type": "backend",
+      "label": "print / json",
+      "sublabel": "一次性任务",
+      "width": 120
+    },
+    {
+      "id": "rpcm",
+      "lane": "ui",
+      "col": 3,
+      "type": "messagebus",
+      "label": "RPC",
+      "sublabel": "stdio JSON 行协议",
+      "width": 130
+    },
+    {
+      "id": "sdkm",
+      "lane": "ui",
+      "col": 4,
+      "type": "backend",
+      "label": "SDK",
+      "sublabel": "createAgentSession()",
+      "width": 140
+    },
+    {
+      "id": "runtime",
+      "lane": "runtime",
+      "col": 2,
+      "type": "backend",
+      "label": "AgentSessionRuntime",
+      "sublabel": "new / fork / switch",
+      "width": 160
+    },
+    {
+      "id": "store",
+      "lane": "runtime",
+      "col": 4,
+      "type": "database",
+      "label": "SessionManager",
+      "sublabel": "JSONL 会话树",
+      "width": 150
+    },
+    {
+      "id": "session",
+      "lane": "core",
+      "col": 3,
+      "type": "backend",
+      "label": "AgentSession",
+      "sublabel": "工具 / 压缩 / 扩展",
+      "width": 150
+    },
+    {
+      "id": "agent",
+      "lane": "core",
+      "col": 4,
+      "type": "backend",
+      "label": "Agent（agent-core）",
+      "sublabel": "agentLoop",
+      "width": 150
+    },
+    {
+      "id": "ai",
+      "lane": "core",
+      "col": 5,
+      "type": "cloud",
+      "label": "pi-ai",
+      "sublabel": "streamSimple",
+      "width": 110
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "from": "user",
+      "to": "tui",
+      "label": "交互"
+    },
+    {
+      "id": "e2",
+      "from": "tui",
+      "to": "runtime",
+      "label": "驱动",
+      "role": "main",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e3",
+      "from": "printm",
+      "to": "runtime",
+      "label": "驱动"
+    },
+    {
+      "id": "e4",
+      "from": "rpcm",
+      "to": "runtime",
+      "label": "驱动"
+    },
+    {
+      "id": "e5",
+      "from": "sdkm",
+      "to": "session",
+      "label": "直接组装"
+    },
+    {
+      "id": "e6",
+      "from": "runtime",
+      "to": "session",
+      "label": "共享同一会话",
+      "role": "main",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e7",
+      "from": "session",
+      "to": "agent",
+      "label": "包裹",
+      "role": "main"
+    },
+    {
+      "id": "e8",
+      "from": "agent",
+      "to": "ai",
+      "label": "streamSimple",
+      "role": "main"
+    },
+    {
+      "id": "e9",
+      "from": "session",
+      "to": "store",
+      "label": "持久化"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "为什么要解耦",
+      "items": [
+        "TUI 写死在循环里 → 永远无法做自动化与嵌入",
+        "Pi 的答案：AppMode 只是 main.ts 的一次分发"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "三种使用形态",
+      "items": [
+        "Interactive：TUI 事件订阅 + 差分渲染",
+        "Automation：print / json 直接跑任务、吐事件流"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "事件是公共货币",
+      "items": [
+        "AgentEvent 10 种生命周期事件向下广播",
+        "TUI / print / RPC 只是不同的『事件消费者』"
+      ]
+    }
+  ]
+}

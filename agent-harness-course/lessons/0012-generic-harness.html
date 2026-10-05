@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第 12 课 · 通用 Agent Harness 抽象</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <div class="kicker">Agent Harness 课程 · 第 12 课 / 共 14 课 · 第十二阶段：从 Pi 抽象出通用 Harness</div>
+  <h1>从 Pi 抽象出通用 Agent Harness</h1>
+  <p class="lede">现在把 Pi 的名字从图上拿掉。哪些部件是任何 Agent Harness 都必需的？哪些是 Coding Agent 特有的？哪些纯属 Pi 的设计口味？这一课给你一张"设计空白目录"时可以 starting 的图。</p>
+
+  <div class="question"><strong>本课核心问题：</strong>Pi 做的事情，哪些属于所有 Agent Harness 都需要？哪些是 Coding Agent 特有？哪些是 Pi 自己的设计选择？</div>
+
+  <h2>一、这张图要解决什么问题</h2>
+  <p>前 11 课的所有结论都带着"Pi"的标签。要能"不看任何现成 Agent、从空白目录自己设计"，就必须把观察升级为模型——同时诚实标注每块的证据等级，不为图的完整而虚构。</p>
+
+  <figure class="diagram">
+    <iframe src="diagrams/12-generic-harness.html" title="Diagram 12 · Generic Agent Harness" loading="lazy"></iframe>
+    <figcaption>Diagram 12 · 全部节点标注「通用概念」，不指代 Pi 的具体实现。<a href="diagrams/12-generic-harness.html" target="_blank">全屏打开 ↗</a></figcaption>
+  </figure>
+
+  <h2>二、如何从图上读懂（按三个证据层级分箱）</h2>
+  <p><strong>第一箱：所有 Harness 都需要【推断＋业界共识】。</strong>Agent Loop（没有循环就没有多步）；Context Management（模型失忆，必须有人喂）；Tool Runtime（注册/校验/执行）；State/Session（可恢复性）；Interfaces（交互/自动化/嵌入三形态）；Observability（图上未画——Pi 的 AgentEvent 事件流就是它的雏形【源码】，完整的 trace 方案各家仍在演化）。</p>
+  <p><strong>第二箱：Coding Agent 特有【推断】。</strong>文件读写/Shell 执行的工具组与"工作区"概念；项目指令发现（AGENTS.md 一类）；以仓库/目录为中心组织会话。这些放到"客服 Agent"上就不成立——领域决定了工具集。</p>
+  <p><strong>第三箱：Pi 自己的设计选择【源码】。</strong>同样必备的部件，Pi 做了有个性取舍：① 日常 CLI 用 JSONL append-only 会话树 + leafId 分支（<code>session-manager.ts</code>）。1.0 起实验包 <code>pi-durable</code> 自己带 SQLite 和 JSONL，并且先提交再展示；那不是 <code>pi</code> 打开会话时走的路径。② 无子代理编排、无内置权限系统（<code>docs/security.md</code>）。MCP 自 0.99 起以<b>可替换的内置扩展</b>接入，1.0.2 仍如此，默认启用的 Core 工具仍是 read / bash / edit / write（第 15 课）。③ 扩展面厚而循环包极薄——1.0 把实验性 AgentHarness 从 <code>packages/agent</code> 拿掉之后，这个包只剩循环。④ TUI 为自研差分渲染框架（pi-tui 零业务依赖），1.0 起默认全屏。<b>共性是必需品，个性是竞争力</b>——审阅任何新 Agent 时先分这两箱，就不会被宣传页牵着走。</p>
+
+  <h2>三、本课七问（针对"抽象方法"本身）</h2>
+  <ol class="seven">
+    <li><b>解决什么问题？</b>把对单一产品的理解升维成可迁移的设计模型。</li>
+    <li><b>没有它会怎样？</b>每见一个新 Agent 都要从零理解，且容易被营销语言误导。</li>
+    <li><b>输入是什么？</b>第 1–11 课的全部源码级观察。</li>
+    <li><b>输出是什么？</b>一张分箱标注的通用架构图 + 三箱判定清单。</li>
+    <li><b>由谁控制？</b>你自己——这张图之后，评判标准在你手里。</li>
+    <li><b>和前一概念的关系？</b>第 11 课的总时序提供了"运行时证据"，本课把它静态化。</li>
+    <li><b>源码依据？</b>本课每个"Pi 选择"都已在对应课程给出文件级证据（见各课映射表）。</li>
+  </ol>
+
+  <h2>四、三箱速查表</h2>
+  <table class="map">
+    <tr><th>部件</th><th>箱</th><th>依据</th></tr>
+    <tr><td>Agent Loop / Context / Tool Runtime / Session / Interfaces</td><td>通用必需</td><td><span class="badge generic">通用概念</span></td></tr>
+    <tr><td>Compaction</td><td>通用必需（长任务）</td><td><span class="badge generic">通用概念</span> + <span class="badge src">源码</span>实现</td></tr>
+    <tr><td>FS/Shell 工具组、AGENTS.md、仓库中心会话</td><td>Coding Agent 特有</td><td><span class="badge generic">通用概念</span>（领域层）</td></tr>
+    <tr><td>JSONL 树 + leafId、MCP 走内置扩展、无子代理/权限、厚扩展薄 Core、自研 TUI</td><td>Pi 的设计选择</td><td><span class="badge src">源码</span></td></tr>
+  </table>
+
+  <h2>五、这张图在整个体系中的位置</h2>
+  <p>它是"毕业设计"的图纸：第 13 课用它做横向比较（验证模型的解释力），第 14 课把它叠成五层 Mental Model，最终服务 Minimal Harness 手写练习。</p>
+
+  <div class="quiz" data-quiz='{"title":"检索练习（先凭记忆作答）","items":[
+    {"q":"「无子代理编排」属于哪一箱？","options":["通用必需","Coding Agent 特有","Pi 自己的设计选择"],"answer":2,"why":"子代理不是 Harness 的逻辑必需品；Pi 刻意不做（截至当前源码），且用扩展也能补。"},
+    {"q":"「文件读写工具组」属于哪一箱？","options":["通用必需","Coding Agent 特有","Pi 独有发明"],"answer":1,"why":"它是领域（编码）决定的工具集——客服 Agent 就不需要 edit 工具。"},
+    {"q":"Observability 在 Pi 里的雏形是？","options":["AgentEvent 事件流","独立的日志文件","没有"],"answer":0,"why":"10 种 AgentEvent 天然是 trace 的骨架；完整可观测方案各家仍在演化。"}
+  ]}'></div>
+
+  <h2>延伸阅读</h2>
+  <p>本课为抽象课，无新源码；请回看 <a href="../COURSE.html">COURSE.md</a> 各课映射表。追问请找你的 AI 导师。</p>
+
+  <nav class="pager"><a href="0011-full-runtime.html">← 上一课</a> <a href="0013-comparison.html">下一课：横向比较 →</a></nav>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

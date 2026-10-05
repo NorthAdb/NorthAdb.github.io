@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第 8 课 · Extensions / Hooks</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <div class="kicker">Agent Harness 课程 · 第 8 课 / 共 14 课 · 第八阶段：Extensions / Hooks</div>
+  <h1>Extensions：Minimal Core 的另一半</h1>
+  <p class="lede">Pi 没有把权限确认、自定义命令、本地模型支持写进核心——它留了 40+ 个钩子，让你在外面包一层。这一课看这个"注册面 × 事件面"的架构，以及 Extension 与 Skill 的边界。</p>
+
+  <div class="question"><strong>本课核心问题：</strong>为什么 Pi 不把所有功能直接写进 Core？"Minimal Core + Extensible Harness"为什么是一种设计哲学？Extension 和 Skill 的边界到底在哪？</div>
+
+  <h2>一、这张图要解决什么问题</h2>
+  <p>任何 Harness 都面临一个拷问：新需求（确认危险命令、接本地模型、自定义面板）来了，是改 Core，还是留接缝？这张图展示 Pi 的答案：一个极小的核心，加上两条扩展通路——注册面（往里放东西）和事件面（在流程上挂钩子）。</p>
+
+  <figure class="diagram">
+    <iframe src="diagrams/08-extensions.html" title="Diagram 08 · Extensions / Hooks" loading="lazy"></iframe>
+    <figcaption>Diagram 08 · 左：来源与信任门禁；中：API 与核心；右：事件面与挂钩点。<a href="diagrams/08-extensions.html" target="_blank">全屏打开 ↗</a></figcaption>
+  </figure>
+
+  <h2>二、如何从图上读懂 Pi</h2>
+  <p><span class="badge src">源码</span><strong>扩展本体是一个函数。</strong><code>ExtensionFactory = (pi: ExtensionAPI) =&gt; void</code>（<code>extensions/types.ts:2004</code>），TS 文件由 jiti 动态加载（loader.ts）。事件类型从 <code>ExtensionEvent</code>（<code>:1364</code>）开始，注册面在 <code>ExtensionAPI</code>（<code>:1551</code>）：<code>registerTool / registerCommand / registerShortcut / registerFlag / registerMessageRenderer / registerProvider / registerMcpServer</code>。事件面包括 <code>session_start / before_agent_start / context / before_provider_request / tool_call / tool_result / agent_start / turn_end / …</code>。</p>
+  <p><span class="badge src">源码</span><strong>钩子的权力有多大？</strong>举三个实锤：<code>before_agent_start</code>（<code>:911</code>）可以改写系统提示词；<code>tool_call</code> 处理器返回的 <code>ToolCallEventResult</code>（<code>:1413</code>）带 <code>block?: boolean</code>（<code>:1415</code>），可以拒绝一次工具调用；<code>session_before_compact</code>（<code>:763</code>）可以<b>接管压缩</b>。官方示例 <code>examples/extensions/permission-gate.ts</code> 用扩展实现危险命令确认门——第 9 课会回头讲它。</p>
+  <p><span class="badge src">源码</span><strong>连 provider 和 MCP 都是扩展。</strong>随产品加载的内置扩展有四个（<code>src/extensions/index.ts:7-14</code>）：<code>llama.cpp</code> 用 <code>pi.registerProvider()</code> 接本地模型；<code>codemode</code>、<code>tool-search</code>、<code>mcp</code> 标了 <code>replaceable: true</code>，第三方扩展可以整个顶替。"接新模型"和"接工具协议"都不在 Core 里。</p>
+  <p><strong>Extension ≠ Skill（结合源码说）：</strong>permission-gate 是 Extension——它是<b>可执行代码</b>，在运行时拦截 tool_call 事件、弹 UI、返回 block；而 <code>.pi/skills/interactive-testing.md</code>（仓库 AGENTS.md 里自己用到的）是 Skill——它是<b>知识文档</b>，靠模型读 SKILL.md 后自觉遵循。一句话：<b>Skill 改变模型知道什么，Extension 改变 Harness 做什么。</b></p>
+
+  <h2>三、新概念的七问：Extension / Hook</h2>
+  <ol class="seven">
+    <li><b>解决什么问题？</b>让千差万别的工作流需求不污染核心——工作流是用户的，接缝才是 Core 的。</li>
+    <li><b>没有它会怎样？</b>Core 膨胀成 if-else 泥潭；每换一个团队/公司都要 fork 整个 Agent。</li>
+    <li><b>输入是什么？</b>一个 TS 文件（factory 函数）+ 用户/项目目录的发现规则。</li>
+    <li><b>输出是什么？</b>注册进核心的能力（工具/命令/UI/provider）+ 挂在事件上的行为。</li>
+    <li><b>由谁控制？</b>事件由核心 emit（runner.ts 分发）；处理器逻辑由扩展作者写；加载受 Project Trust 门禁（第 9 课）。</li>
+    <li><b>和前一概念的关系？</b>Skill 是给模型的知识包（被动、由模型触发）；Extension 是给 Harness 的行为包（主动、由事件驱动）。</li>
+    <li><b>Pi 在源码哪里实现？</b><span class="badge src">源码</span><code>packages/coding-agent/src/core/extensions/{types,runner,loader}.ts</code>；例子在 <code>examples/extensions/</code>（80+ 个）。</li>
+  </ol>
+
+  <h2>四、源码映射</h2>
+  <table class="map">
+    <tr><th>能力</th><th>API</th><th>例子</th></tr>
+    <tr><td>自定义工具</td><td><code>pi.registerTool(def)</code></td><td>工具进注册表，模型可调用</td></tr>
+    <tr><td>斜杠命令 / 快捷键</td><td><code>pi.registerCommand / registerShortcut</code></td><td>UI 层扩展</td></tr>
+    <tr><td>拦截工具调用</td><td><code>pi.on("tool_call") → { block, reason }</code></td><td>permission-gate.ts</td></tr>
+    <tr><td>改系统提示词</td><td><code>pi.on("before_agent_start")</code></td><td>可整体 forceSystemPrompt</td></tr>
+    <tr><td>新模型 provider</td><td><code>pi.registerProvider(p)</code></td><td>内置 llama.cpp；同清单里还有可替换的 mcp / codemode / tool-search</td></tr>
+    <tr><td>扩展私有持久化</td><td><code>pi.appendEntry</code></td><td>状态进会话 JSONL</td></tr>
+  </table>
+
+  <h2>五、这张图在整个体系中的位置</h2>
+  <p>Extensions 让 Core 敢于保持最小。下一课讨论安全性时你会看到同一个哲学的激进面：连"权限系统"本身也不在 Core 里——它被留给扩展与外部环境。</p>
+
+  <div class="quiz" data-quiz='{"title": "检索练习（先凭记忆作答）", "items": [{"q": "一个扩展想阻止模型运行 rm -rf，它应该挂哪个钩子？", "options": ["before_agent_start", "tool_call 并返回 block: true", "session_before_compact"], "answer": 1, "why": "tool_call 处理器返回 { block: true, reason } 即拒绝本次调用——官方 permission-gate.ts 示例正是这样做的。"}, {"q": "「给 Agent 加一个本地 llama.cpp 模型」在 Pi 里是？", "options": ["直接修改 pi-agent-core", "内置扩展调 registerProvider", "在配置文件里显式声明"], "answer": 1, "why": "src/extensions/index.ts:7-14 的四个内置扩展里，llama.cpp 用 registerProvider。它和 mcp、codemode 一样不在 agent 循环包里。"}, {"q": "Extension 与 Skill 的边界？", "options": ["Extension 是 JS 版的 Skill", "Skill 是知识；Extension 是行为", "完全等价可互换"], "answer": 1, "why": "Skill 改变模型知道什么；Extension 改变 Harness 做什么。"}]}'></div>
+
+  <h2>延伸阅读（一手来源）</h2>
+  <p><span class="badge src">源码</span><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/coding-agent/src/core/extensions/types.ts">extensions/types.ts</a>（API 全景）· <a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/coding-agent/examples/extensions/permission-gate.ts">examples/extensions/permission-gate.ts</a>。追问请找你的 AI 导师。</p>
+
+  <nav class="pager"><a href="0007-skills.html">← 上一课</a> <a href="0009-capability-boundary.html">下一课：权限与沙箱 →</a></nav>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

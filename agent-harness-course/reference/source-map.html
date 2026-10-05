@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>关键源码地图 · Agent Harness 课程</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <div class="kicker">Agent Harness 课程 · 参考 · 源码地图</div>
+  <h1>关键源码地图</h1>
+  <p class="lede">深读 Pi 时按此清单开文件。每行给出：路径（可点击）· 一句话职责 · 关键行号 · 所属课程。行号按上游 <code>1.0.2</code>（2026-10-04）复核。</p>
+
+  <h2>第 0 层：模型 IO —— packages/ai（@earendil-works/pi-ai）</h2>
+  <table class="map">
+    <tr><th>文件</th><th>职责</th><th>关键行</th><th>课程</th></tr>
+    <tr><td><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/ai/src/types.ts">src/types.ts</a></td><td>Context / Tool / ToolCall。systemPrompt 与 tools 在送出前由 normalizeContext 折进转录</td><td>Context:734 · Tool:717 · ToolCall:419 · AssistantMessageEvent:769</td><td><a href="../lessons/0003-tool-calling.html">03</a></td></tr>
+    <tr><td><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/ai/src/models.ts">src/models.ts</a></td><td>createModels / streamSimple：provider 注册、鉴权、统一流入口</td><td>streamSimple:895 · createModels:985</td><td><a href="../lessons/0001-why-llm-is-not-agent.html">01</a></td></tr>
+    <tr><td><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/ai/src/utils/event-stream.ts">src/utils/event-stream.ts</a></td><td>EventStream：事件队列 + result() 取终值</td><td>class:26</td><td>02</td></tr>
+    <tr><td><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/ai/src/utils/validation.ts">src/utils/validation.ts</a></td><td>TypeBox 工具参数校验</td><td>validateToolArguments:317</td><td><a href="../lessons/0003-tool-calling.html">03</a></td></tr>
+    <tr><td><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/ai/src/utils/transcript.ts">src/utils/transcript.ts</a></td><td>system 归一化、工具声明 diff</td><td>normalizeContext:30 · getCurrentTools:58</td><td><a href="../lessons/0004-context-assembly.html">04</a></td></tr>
+  </table>
+
+  <h2>第 1 层：循环 —— packages/agent（@earendil-works/pi-agent-core）</h2>
+  <table class="map">
+    <tr><th>文件</th><th>职责</th><th>关键行</th><th>课程</th></tr>
+    <tr><td><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/agent/src/agent-loop.ts">src/agent-loop.ts</a></td><td>核心循环：双层 while、prepareRequest、finishTurn、tool 执行、错误包装。1.0 起本包只有循环</td><td>agentLoop:38 · runLoop:163 · while:179/183 · toolCall:259 · 回填:274 · 截断:268 · failToolCalls:478 · createErrorToolResult:905 · prepareRequest:219 · finishTurn:286</td><td><a href="../lessons/0002-agent-loop.html">02</a></td></tr>
+    <tr><td><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/agent/src/agent.ts">src/agent.ts</a></td><td>有状态 Agent：订阅、事件规约、steering/followUp、abort</td><td>subscribe:266 · prompt:373 · processEvents:565</td><td>02 / 10</td></tr>
+    <tr><td><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/agent/src/types.ts">src/types.ts</a></td><td>AgentTool（含 execute）/ AgentEvent / FinishTurn / PrepareRequest</td><td>AgentTool:464 · execute:481 · AgentEvent:514 · FinishTurn:155</td><td><a href="../lessons/0002-agent-loop.html">02</a></td></tr>
+    <tr><td><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/agent/src/proxy.ts">src/proxy.ts</a></td><td>把已有模型流代理成 Agent 事件，本身不持有会话</td><td>streamProxy:120</td><td>02</td></tr>
+    <tr><td><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/agent/README.md">README.md</a></td><td>最小 Agent 示例、事件时序、prepareRequest / finishTurn</td><td>Quick Start · Request preparation</td><td>01</td></tr>
+  </table>
+
+  <h2>第 2 层：产品 —— packages/coding-agent（@earendil-works/pi-coding-agent）</h2>
+  <table class="map">
+    <tr><th>文件</th><th>职责</th><th>关键行</th><th>课程</th></tr>
+    <tr><td><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/coding-agent/src/main.ts">src/main.ts</a></td><td>参数解析、AppMode 判定、模式分发</td><td>resolveAppMode:112 · main:573</td><td><a href="../lessons/0010-interfaces.html">10</a></td></tr>
+    <tr><td><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/coding-agent/src/core/sdk.ts">src/core/sdk.ts</a></td><td>createAgentSession：组装 Agent、streamFn、工具与会话（SDK 入口）</td><td>createAgentSession:175</td><td>10</td></tr>
+    <tr><td><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/coding-agent/src/core/agent-session.ts">src/core/agent-session.ts</a></td><td>产品层状态机：prompt、工具启停、自动压缩、扩展生命周期</td><td>类:362 · 订阅 Agent:485 · subscribe:1339 · _runAutoCompaction:3050</td><td>02 / 06</td></tr>
+    <tr><td><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/coding-agent/src/core/agent-session-runtime.ts">src/core/agent-session-runtime.ts</a></td><td>会话宿主：new/fork/switch 供三种模式共享</td><td>:74 · newSession:226 · fork:262</td><td><a href="../lessons/0010-interfaces.html">10</a></td></tr>
+    <tr><td><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/coding-agent/src/core/session-manager.ts">src/core/session-manager.ts</a></td><td>JSONL append-only 会话树。SessionHeader 在 :43，条目联合类型在 :183</td><td>parentId:57 · 类:987 · 会话文件:1080 · appendMessage:1204 · branch:1579 · continueRecent:1793 · forkFrom:1815</td><td><a href="../lessons/0005-session-tree.html">05</a></td></tr>
+    <tr><td><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/coding-agent/src/core/compaction/compaction.ts">src/core/compaction/compaction.ts</a></td><td>产品路径的压缩：阈值、切点、摘要。不在 agent 包里</td><td>默认参数:126 · shouldCompact:267 · estimateTokens:298 · isCutPointMessage:351 · findCutPoint:446 · SUMMARIZATION_PROMPT:507 · compact:965</td><td><a href="../lessons/0006-compaction.html">06</a></td></tr>
+    <tr><td><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/coding-agent/src/core/system-prompt.ts">src/core/system-prompt.ts</a></td><td>系统提示词 sections 组装与 diff</td><td>build:121 · skills 注入:166 · diff:204</td><td><a href="../lessons/0004-context-assembly.html">04</a></td></tr>
+    <tr><td><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/coding-agent/src/core/resource-loader.ts">src/core/resource-loader.ts</a></td><td>AGENTS.md / skills / extensions / prompts 发现</td><td>loadProjectContextFiles:232 · DefaultResourceLoader:309</td><td>04 / 08</td></tr>
+    <tr><td><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/coding-agent/src/core/skills.ts">src/core/skills.ts</a></td><td>SKILL.md 发现、校验、XML 目录注入</td><td>发现规则注释:160 · loadSkillsFromDir:168 · frontmatter:92 · formatSkillsForPrompt:355 · loadSkills:409</td><td><a href="../lessons/0007-skills.html">07</a></td></tr>
+    <tr><td><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/coding-agent/src/core/tools/index.ts">src/core/tools/index.ts</a></td><td>注册表 8 个工具。默认启用的是其中 4 个，见 settings-manager.ts:215</td><td>ToolName:95</td><td><a href="../lessons/0003-tool-calling.html">03</a></td></tr>
+    <tr><td><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/coding-agent/src/core/tools/bash.ts">src/core/tools/bash.ts</a></td><td>bash：spawn、流式输出、BashOperations 抽象。powershell 在同目录 powershell.ts</td><td>BashOperations:75 · BashSpawnHook:184 · execute:261</td><td><a href="../lessons/0009-capability-boundary.html">09</a></td></tr>
+    <tr><td><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/coding-agent/src/core/tools/truncate.ts">src/core/tools/truncate.ts</a></td><td>统一截断：2000 行 / 50KB，head/tail</td><td>:11</td><td>03</td></tr>
+    <tr><td><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/coding-agent/src/core/tools/tool-definition-wrapper.ts">src/core/tools/tool-definition-wrapper.ts</a></td><td>ToolDefinition→AgentTool 桥接（注入扩展上下文）</td><td>:5-19</td><td>03</td></tr>
+    <tr><td><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/coding-agent/src/core/extensions/types.ts">src/core/extensions/types.ts</a></td><td>ExtensionAPI：事件面 + 注册面。含 registerMcpServer</td><td>ExtensionEvent:1364 · ToolCallEventResult.block:1415 · ExtensionAPI:1551 · registerMcpServer:1853 · mcp_servers_change:722 · ExtensionFactory:2004</td><td><a href="../lessons/0008-extensions.html">08</a></td></tr>
+    <tr><td><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/coding-agent/src/core/extensions/runner.ts">src/core/extensions/runner.ts</a></td><td>扩展事件分发执行器</td><td>—</td><td>08</td></tr>
+    <tr><td><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/coding-agent/src/core/trust-manager.ts">src/core/trust-manager.ts</a></td><td>Project Trust：项目资源加载门禁</td><td>—</td><td><a href="../lessons/0009-capability-boundary.html">09</a></td></tr>
+    <tr><td><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/coding-agent/src/modes/print-mode.ts">src/modes/print-mode.ts</a></td><td>print/json 单次执行模式</td><td>—</td><td><a href="../lessons/0010-interfaces.html">10</a></td></tr>
+    <tr><td><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/coding-agent/src/modes/rpc/rpc-mode.ts">src/modes/rpc/rpc-mode.ts</a></td><td>stdio JSON 行协议（嵌入用）</td><td>—</td><td>10</td></tr>
+    <tr><td><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/coding-agent/src/modes/interactive/interactive-mode.ts">src/modes/interactive/interactive-mode.ts</a></td><td>交互 TUI。1.0 起默认全屏，<code>tuiMode: "regular"</code> 恢复普通滚动缓冲</td><td>scopedModels 注入:2218</td><td>10</td></tr>
+    <tr><td><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/coding-agent/src/extensions/index.ts">src/extensions/index.ts</a></td><td>四个内置扩展：llama.cpp、codemode、tool-search、mcp。后三个 replaceable</td><td>builtInExtensions:7-14</td><td><a href="../lessons/0008-extensions.html">08</a></td></tr>
+    <tr><td><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/coding-agent/src/extensions/mcp/index.ts">src/extensions/mcp/index.ts</a></td><td>MCP 内置扩展。默认 exposure codemode；非 direct 服务器不挡住第一条 prompt</td><td>文件头:1-27</td><td><a href="../lessons/0015-mcp.html">15</a></td></tr>
+  </table>
+
+  <h2>第 3 层：接口与基础设施</h2>
+  <table class="map">
+    <tr><th>文件</th><th>职责</th><th>课程</th></tr>
+    <tr><td><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/tui/README.md">packages/tui/README.md</a></td><td>自研差分渲染 TUI 框架（零业务依赖）</td><td>10</td></tr>
+    <tr><td><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/protocol/README.md">packages/protocol/README.md</a></td><td>实验性 CBOR 二进制协议（chord 语义）</td><td>10</td></tr>
+    <tr><td><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/durable/README.md">packages/durable/README.md</a></td><td>实验性持久化 Harness。日常 pi 不走这条路径</td><td>12</td></tr>
+    <tr><td><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/durable/src/harness/harness.ts">packages/durable/src/harness/harness.ts</a></td><td>Harness.open：存储、会话、生成任务</td><td>12</td></tr>
+    <tr><td><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/durable/src/storage/sqlite/node.ts">packages/durable/src/storage/sqlite/node.ts</a></td><td>Node SQLite 存储。1.0 起不再有 packages/session-backends</td><td>05</td></tr>
+    <tr><td><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/mcp/README.md">packages/mcp/README.md</a></td><td>独立 MCP 客户端，不依赖 Pi</td><td>15</td></tr>
+    <tr><td><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/codemode/README.md">packages/codemode/README.md</a></td><td>QuickJS 沙箱里执行模型写的脚本</td><td>15</td></tr>
+    <tr><td><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/coding-agent/docs/security.md">coding-agent/docs/security.md</a></td><td>安全立场声明：无逐次审批</td><td>09</td></tr>
+    <tr><td><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/coding-agent/docs/containerization.md">coding-agent/docs/containerization.md</a></td><td>容器/micro-VM 隔离指南</td><td>09</td></tr>
+    <tr><td><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/coding-agent/examples/extensions/permission-gate.ts">examples/extensions/permission-gate.ts</a></td><td>用扩展实现的危险命令确认门</td><td>08 / 09</td></tr>
+    <tr><td><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/AGENTS.md">AGENTS.md</a></td><td>仓库自己的 Agent 开发规则（自托管证据）</td><td>12</td></tr>
+  </table>
+
+  <footer class="note">建议深读顺序：agent-loop.ts → session-manager.ts → compaction.ts → system-prompt.ts → extensions/types.ts → main.ts。回 <a href="../COURSE.html">课程总纲</a>。</footer>
+</main>
+</body>
+</html>

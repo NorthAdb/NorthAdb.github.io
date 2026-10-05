@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>什么是 Pi · 学习 Pi 导读</title>
+<meta name="description" content="什么是 Pi · 学习 Pi 导读 — NorthAdb 课件">
+<link rel="stylesheet" href="../../learn-pi/style.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumbs"><a href="../../learn-pi/index.html">← 总目录</a></nav>
+  <article>
+<h1>什么是 Pi</h1>
+<h2>定位</h2>
+<p>Pi（本仓库的产品入口是 <code>@earendil-works/pi-coding-agent</code>，CLI 名通常为 <code>pi</code>）是一个<strong>极简的终端编码 Agent 线束（coding agent harness）</strong>。</p>
+<p>它不是「功能最全的 IDE 插件」，也不是「把所有 Agent 概念都内置进去」的产品。它刻意保持：</p>
+<ul>
+<li><strong>核心小</strong>：默认启用四个工具（<code>read</code> / <code>bash</code> / <code>edit</code> / <code>write</code>）。注册表里还有 <code>powershell</code> / <code>grep</code> / <code>find</code> / <code>ls</code>，但不在默认集合里。再加上会话、模型、终端 UI</li>
+<li><strong>缝合点多</strong>：用 TypeScript Extensions、Skills、Prompt Templates、Themes、Pi Packages、SDK / RPC 扩展</li>
+<li><strong>可嵌入</strong>：同一套 Session 可跑在交互 TUI、打印模式、JSON 事件流、RPC、或你自己的 Node 应用里</li>
+</ul>
+<p>官方一句话（<code>packages/coding-agent/README.md</code>）：</p>
+<blockquote>
+<p>Adapt pi to your workflows, not the other way around, without having to fork and modify pi internals.</p>
+</blockquote>
+<p>翻译：<strong>让 Pi 适应你的工作流，而不是反过来；不必 fork 改内核。</strong></p>
+<h2>本仓库是什么</h2>
+<p>根 README 称整个 monorepo 为 <strong>Pi Agent Harness</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>包</th>
+<th>角色</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>pi-ai</code></td>
+<td>统一多厂商 LLM API</td>
+</tr>
+<tr>
+<td><code>pi-agent-core</code></td>
+<td>循环与事件。1.0 起不含会话、压缩、Harness</td>
+</tr>
+<tr>
+<td><code>pi-tui</code></td>
+<td>终端 UI（差分渲染）</td>
+</tr>
+<tr>
+<td><code>pi-coding-agent</code></td>
+<td>面向开发者的编码 Agent CLI / SDK。日常 JSONL 会话在这里</td>
+</tr>
+<tr>
+<td><code>pi-durable</code></td>
+<td>实验性可恢复 Harness。SQLite / JSONL 存储在包内。日常 <code>pi</code> 不走它</td>
+</tr>
+<tr>
+<td><code>pi-codemode</code></td>
+<td>QuickJS 沙箱里跑 JS，能力是调用被注入的工具</td>
+</tr>
+<tr>
+<td><code>pi-mcp</code></td>
+<td>独立 MCP 客户端（stdio / Streamable HTTP / OAuth）</td>
+</tr>
+<tr>
+<td><code>pi-server</code></td>
+<td>实验性服务封装</td>
+</tr>
+</tbody></table>
+<p>各包 1.0.2 lockstep 同版本；完整依赖图与构建顺序见 <a href="../02-%E6%9E%B6%E6%9E%84/%E5%8C%85%E5%9C%B0%E5%9B%BE%E4%B8%8E%E4%BE%9D%E8%B5%96.html">包地图与依赖.md</a>。</p>
+<p>你当前工作区是这个 fork。内容对应上游 1.0.2。</p>
+<h2>「Harness」是什么意思</h2>
+<p>在 Agent 语境里，<strong>harness（线束 / 驾驭层）</strong> 指：把模型、工具、会话持久化、事件、扩展点<strong>绑在一起</strong>，让应用能安全地跑多轮「想 → 调工具 → 再想」的循环。</p>
+<p>Pi 把这件事拆成三条不要混用的路径：</p>
+<ol>
+<li><strong>低层 <code>Agent</code> / <code>agentLoop</code></strong>：内存态循环 + 事件流。<code>packages/agent</code> 现在只有这一层。</li>
+<li><strong>产品会话</strong>：<code>AgentSession</code> + JSONL 树。这是 <code>pi</code> 每天在用的 harness。</li>
+<li><strong>实验 <code>Harness</code>（pi-durable）</strong>：先提交再展示，崩溃后可恢复。不是 CLI 的默认会话。</li>
+</ol>
+<p>详见 <a href="../06-%E6%B7%B1%E8%AF%BB%E8%B7%AF%E5%BE%84/Harness%E5%8C%97%E6%98%9F.html">Harness北星.md</a>。</p>
+<h2>洋葱分层（心智模型）</h2>
+<p>从外到内理解最省力：</p>
+<pre><code>你（用户 / 宿主应用）
+    │
+    ▼
+coding-agent（产品：CLI、会话、扩展、Skills、四种模式）
+    │
+    ├─► tui（终端渲染，与 AI 栈无关）
+    │
+    ▼
+agent-core（只有循环、工具执行、事件）
+    │
+    ▼
+pi-ai（多厂商 stream / tools / 模型目录）
+    │
+    ▼
+各 LLM Provider API
+</code></pre>
+<p><strong>初学者</strong>：先当「会说话的终端程序员」用（coding-agent）。<br><strong>二次开发者</strong>：从外层扩展面下手；只有要改协议/循环语义时才沉到 agent / ai。</p>
+<h2>Pi 默认给你什么</h2>
+<ul>
+<li>交互终端编程助手</li>
+<li>订阅或 API Key 多模型切换</li>
+<li>会话文件（可继续、可分支、可 compaction）</li>
+<li>项目上下文文件（<code>AGENTS.md</code> / <code>CLAUDE.md</code>）</li>
+<li>扩展生态：自己写或 <code>pi install</code> 第三方包</li>
+</ul>
+<h2>Pi 默认不给你什么（刻意）</h2>
+<p>子 Agent、权限弹窗、Plan Mode、内置 TODO、后台 bash……详见 <a href="../01-%E8%AE%BE%E8%AE%A1%E5%93%B2%E5%AD%A6/%E5%88%BB%E6%84%8F%E7%9C%81%E7%95%A5.html">刻意省略.md</a>。</p>
+<p>这些不是「做不出来」，而是<strong>不该钉死在内核里</strong>——用扩展或包按你的安全与流程重做。</p>
+<p>MCP 是这条原则的边界样本：0.99.0 起它以内置扩展形式随 Pi 发布，1.0.2 仍如此。默认启用的工具没有增加 MCP。默认 <code>exposure: &quot;codemode&quot;</code>，工具不声明给模型，脚本用 <code>searchTools()</code> 按需发现。非 <code>direct</code> 的服务器不挡住第一条 prompt。</p>
+<h2>相关链接</h2>
+<ul>
+<li>产品站：<a href="https://pi.dev">pi.dev</a></li>
+<li>官方文档索引：<code>packages/coding-agent/docs/index.md</code></li>
+<li>设计哲学长文（作者博客，README 引用）：<a href="https://mariozechner.at/posts/2025-11-30-pi-coding-agent/">pi coding agent</a></li>
+<li>MCP 上下文预算的经典论证：<a href="https://mariozechner.at/posts/2025-11-02-what-if-you-dont-need-mcp/">What if you don&#39;t need MCP?</a>——0.99 的内置 MCP + codemode 正是这条批评的工程回答</li>
+</ul>
+
+  </article>
+<nav class="pager"><span class="spacer"></span>
+    <a href="为什么适合学习.html">为什么适合学习 →</a></nav>
+  <footer>学习 Pi 导读（learn-pi） · 基准 pi 1.0.2（2026-10-04） · <a href="https://github.com/NorthAdb/pi-agent-north" target="_blank" rel="noopener">源码仓库 ↗</a> · 姊妹课程 <a href="../../agent-harness-course/index.html">Agent Harness 架构课</a></footer>
+</div>
+</body>
+</html>

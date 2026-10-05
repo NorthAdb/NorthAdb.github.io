@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Diagram 01 · Pi Agent Harness 总体架构",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "output": "agent-harness-course/lessons/diagrams/01-harness-overview.html",
+    "repository": {
+      "url": "https://github.com/NorthAdb/pi-agent-north.git",
+      "provider": "github",
+      "revision": "49987be9a71f2c36d56076ee584b302c68f1d280"
+    }
+  },
+  "components": [
+    { "id": "user", "type": "external", "label": "用户", "sublabel": "发任务、看结果", "pos": [20, 24], "size": [148, 68] },
+    { "id": "tui", "type": "frontend", "label": "TUI", "sublabel": "交互入口", "pos": [232, 24], "size": [148, 68], "sources": [{ "path": "packages/coding-agent/src/modes/interactive/interactive-mode.ts", "line": 447 }] },
+    { "id": "runtime", "type": "backend", "label": "会话宿主", "sublabel": "new 与 fork", "pos": [444, 24], "size": [148, 68], "sources": [{ "path": "packages/coding-agent/src/core/agent-session-runtime.ts", "line": 74 }] },
+    { "id": "session", "type": "backend", "label": "AgentSession", "sublabel": "产品状态机", "pos": [656, 24], "size": [148, 68], "sources": [{ "path": "packages/coding-agent/src/core/agent-session.ts", "line": 362 }] },
+    { "id": "store", "type": "database", "label": "JSONL 会话", "sublabel": "append-only", "pos": [868, 24], "size": [148, 68], "sources": [{ "path": "packages/coding-agent/src/core/session-manager.ts", "line": 1080 }] },
+    { "id": "skills", "type": "backend", "label": "压缩与技能", "sublabel": "产品层服务", "pos": [444, 352], "size": [148, 68], "sources": [{ "path": "packages/coding-agent/src/core/compaction/compaction.ts", "line": 267 }] },
+    { "id": "tools", "type": "backend", "label": "工具表", "sublabel": "默认四个", "pos": [232, 188], "size": [148, 68], "sources": [{ "path": "packages/coding-agent/src/core/tools/index.ts", "line": 95 }] },
+    { "id": "exec", "type": "messagebus", "label": "工具执行", "sublabel": "tool.execute", "pos": [232, 352], "size": [148, 68], "sources": [{ "path": "packages/agent/src/types.ts", "line": 481 }] },
+    { "id": "os", "type": "external", "label": "操作系统", "sublabel": "文件与进程", "pos": [20, 352], "size": [148, 68] },
+    { "id": "context", "type": "database", "label": "Context", "sublabel": "模型输入", "pos": [232, 540], "size": [148, 68], "sources": [{ "path": "packages/ai/src/types.ts", "line": 734 }] },
+    { "id": "loop", "type": "backend", "label": "agentLoop", "sublabel": "双层 while", "tag": "循环", "pos": [656, 540], "size": [148, 68], "sources": [{ "path": "packages/agent/src/agent-loop.ts", "line": 38 }] },
+    { "id": "provider", "type": "cloud", "label": "pi-ai", "sublabel": "streamSimple", "pos": [868, 540], "size": [148, 68], "sources": [{ "path": "packages/ai/src/models.ts", "line": 895 }] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "产品层 · pi-coding-agent", "wraps": ["tui", "runtime", "session", "store", "skills", "tools", "exec"], "pad": 16 },
+    { "kind": "region", "label": "循环层 · pi-agent-core + pi-ai", "wraps": ["context", "loop", "provider"], "pad": 16 }
+  ],
+  "connections": [
+    { "id": "user-tui", "from": "user", "to": "tui", "label": "输入" },
+    { "id": "tui-runtime", "from": "tui", "to": "runtime", "label": "事件" },
+    { "id": "runtime-session", "from": "runtime", "to": "session", "label": "编排" },
+    { "id": "session-store", "from": "session", "to": "store", "label": "落盘" },
+    { "id": "session-loop", "from": "session", "to": "loop", "label": "驱动", "variant": "emphasis" },
+    { "id": "loop-provider", "from": "loop", "to": "provider", "label": "流式" },
+    { "id": "loop-context", "from": "loop", "to": "context", "label": "读写" },
+    { "id": "loop-tools", "from": "loop", "to": "tools", "label": "调度" },
+    { "id": "tools-exec", "from": "tools", "to": "exec", "label": "执行" },
+    { "id": "exec-os", "from": "exec", "to": "os", "label": "调用" },
+    { "id": "skills-context", "from": "skills", "to": "context", "label": "注入", "variant": "dashed" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "两层边界", "items": ["pi-agent-core 只剩循环、Agent 和 proxy", "会话、工具、压缩、界面在 pi-coding-agent"] },
+    { "dot": "rose", "title": "为什么 LLM 不是 Agent", "items": ["模型只收 Context、吐 token，请求结束即失忆", "执行、落盘、碰文件系统都在 Harness 侧"] },
+    { "dot": "emerald", "title": "读图顺序", "items": ["主路径：用户 → TUI → AgentSession → agentLoop", "工具路径：agentLoop → 工具表 → 执行 → 操作系统"] }
+  ]
+}

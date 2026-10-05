@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>一页纸速查表 · Agent Harness 课程</title>
+<link rel="stylesheet" href="../assets/course.css">
+<style>
+@media print {
+  body { font-size: 11.5px; }
+  main { max-width: none; padding: 0; }
+  h2 { margin-top: 1.1rem; font-size: 1rem; }
+  .cols { column-count: 2; column-gap: 1.4rem; }
+  .cols > section { break-inside: avoid; }
+  nav.pager, footer.note { display: none; }
+}
+.cols > section { margin: 0 0 1.2rem; }
+.mini { font-size: .85rem; }
+.mini td, .mini th { padding: .28rem .5rem; }
+.k { font-weight: bold; color: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <div class="kicker">Agent Harness 课程 · 参考 · 一页纸速查表（打印友好）</div>
+  <h1>整门课程，一页纸</h1>
+
+  <div class="cols">
+    <section>
+      <h2>公式（第 14 课）</h2>
+      <pre><code>Agent = Harness( Loop( Runtime( LLM ) ), Environment )
+LLM 是被调用的函数；Harness 是拥有控制权的主体。
+LLM 对 Environment 没有任何直接通路。</code></pre>
+
+      <h2>五层模型</h2>
+      <table class="map mini">
+        <tr><th>层</th><th>输入→输出</th><th>谁控制</th></tr>
+        <tr><td>1 Model</td><td>Context → token</td><td>被调用</td></tr>
+        <tr><td>2 Loop</td><td>投影 → 动作/终止</td><td>Runtime 的 while</td></tr>
+        <tr><td>3 Runtime</td><td>调度 → 副作用请求</td><td>Loop</td></tr>
+        <tr><td>4 Harness</td><td>意图 → 配置/约束/界面</td><td>它拥有系统</td></tr>
+        <tr><td>5 Environment</td><td>副作用 → 观察</td><td>物理世界</td></tr>
+      </table>
+
+      <h2>Agent Loop 骨架（第 2 课）</h2>
+      <pre><code>while True:                        # 外层 followUp
+    while more or pending:         # 内层 toolCall/steering
+        ctx = build_projection()
+        msg = stream_fn(model, ctx)
+        calls = [c for c in msg if c.type=="toolCall"]
+        if not calls and not pending: end()
+        for c in calls:
+            r = hooks.tool_call(c) or validate_execute(c)
+            ctx.append(toolResult(r))   # isError 也是消息</code></pre>
+    </section>
+
+    <section>
+      <h2>关键数字（Pi 实测值）</h2>
+      <table class="map mini">
+        <tr><td>reserveTokens</td><td>16384</td></tr>
+        <tr><td>keepRecentTokens</td><td>20000</td></tr>
+        <tr><td>输出截断</td><td>2000 行 / 50KB</td></tr>
+        <tr><td>内置工具</td><td>8 个（默认启 4）</td></tr>
+        <tr><td>AgentEvent</td><td>10 种</td></tr>
+        <tr><td>扩展钩子</td><td>40+</td></tr>
+        <tr><td>运行模式</td><td>4（TUI/print/json/RPC）</td></tr>
+        <tr><td>Provider</td><td>约 40 家 / 10 种 API</td></tr>
+        <tr><td>会话条目</td><td>11 类 · append-only</td></tr>
+      </table>
+
+      <h2>七问清单（每个新概念）</h2>
+      <p class="mini">① 解决什么 ② 没有会怎样 ③ 输入 ④ 输出 ⑤ 谁控制 ⑥ 与前概念的关系 ⑦ Pi 源码哪里</p>
+
+      <h2>看图三段（每张 Archify 图）</h2>
+      <p class="mini">① 图要解决什么问题 ② 如何从图读懂 Pi ③ 此图在体系中的位置</p>
+
+      <h2>三箱分箱法（第 12 课）</h2>
+      <p class="mini"><span class="k">通用必需</span>：Loop/Context/Tool/Session/Compaction/Interfaces ·
+        <span class="k">领域特有</span>：FS 工具组、AGENTS.md、仓库中心会话 ·
+        <span class="k">Pi 的选择</span>：JSONL 树+leafId、MCP 走内置扩展（默认 codemode）、无子代理/权限、厚扩展薄 Core、自研 TUI</p>
+
+      <h2>证据分级</h2>
+      <p class="mini"><span class="badge src">源码</span>可直接证明 ·
+        <span class="badge doc">文档</span>官方文档 ·
+        <span class="badge guess">推断</span>架构推断 ·
+        <span class="badge generic">通用概念</span>非 Pi 当前实现</p>
+
+      <h2>三条划线（第 13 课）</h2>
+      <p class="mini">安全放环境（Pi）还是产品（Codex/Claude）？生态协议进 Core、内置扩展还是用户扩展？多代理进 Runtime 还是编排层？</p>
+
+      <h2>源码 Top 10</h2>
+      <p class="mini mono"><code>agent-loop.ts</code> · <code>session-manager.ts</code> ·
+        <code>compaction.ts</code> · <code>system-prompt.ts</code> · <code>skills.ts</code> ·
+        <code>extensions/types.ts</code> · <code>agent-session.ts</code> · <code>sdk.ts</code> ·
+        <code>main.ts</code> · <code>tools/bash.ts</code><br>
+        完整地图：<a href="source-map.html">source-map.html</a></p>
+    </section>
+  </div>
+
+  <footer class="note">打印：浏览器 Ctrl+P，自动两栏 A4。回 <a href="../index.html">首页</a>。</footer>
+  <nav class="pager"><a href="glossary.html">术语表</a> <a href="minimal-harness.html">毕业设计卷</a></nav>
+</main>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>毕业练习 · 从 0 手写 Minimal Pi-like Agent Harness</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <div class="kicker">Agent Harness 课程 · 毕业练习</div>
+  <h1>从 0 手写 Minimal Pi-like Agent Harness</h1>
+  <p class="lede">不看任何 Agent 的宣传页，从一个空白目录开始，写出九个组件的最小可用实现。本页是<b>设计卷</b>：给出需求、接口、数据结构、流程与测试标准；代码骨架只给到"接口级伪代码"，<b>具体实现必须你自己写</b>——写不下去时先回对应课程看 Pi 的真实做法。</p>
+
+  <div class="question"><strong>总目标：</strong>两周内，你的 Harness 能完成这句话——"在 ./demo 项目里修复 util.py 的 bug 并跑通 pytest"，全程无人工干预，且崩溃后可 resume。</div>
+
+  <h2>第 0 步 · 需求清单（先写下来，做完逐条打勾）</h2>
+  <ol>
+    <li>LLM Provider：至少 1 家真实 API + 1 家 mock（测试用），可切换</li>
+    <li>Agent Loop：toolCall 驱动；无 toolCall 退出；工具异常 → isError 消息回模型</li>
+    <li>Tool Registry：注册 ≥3 个工具（read / write / shell）；名称冲突报错</li>
+    <li>Tool Execution：参数 JSON Schema 校验；输出截断（2000 行/50KB）；错误不抛出</li>
+    <li>Context Builder：systemPrompt（分 3 段：preamble/tools/rules）+ messages + tools 声明</li>
+    <li>Session Store：JSONL append-only；条目含 id/parentId；支持从文件恢复</li>
+    <li>Compaction：tokens &gt; 窗口 − reserve 时触发；切点不落 toolResult；结构化摘要</li>
+    <li>Skill Loader：扫 SKILL.md 目录 → 提示词只注入 name/description/location</li>
+    <li>Extension Hook：至少 2 个事件（before_llm_request 可改 context；tool_call 可 block）</li>
+  </ol>
+
+  <h2>第 1 步 · 接口设计（对着 Pi 的真实契约抄形状）</h2>
+  <pre><code># 对应 Pi: packages/ai/src/types.ts:734
+class Context:  system_prompt: str;  messages: list[Message];  tools: list[Tool]
+
+# 对应 Pi: types.ts:717（Tool 无 execute）+ agent/src/types.ts:464（AgentTool 加 execute）
+@dataclass
+class Tool:
+    name: str; description: str; parameters: dict        # JSON Schema
+    execute: Callable[[str, dict], ToolResult]           # ← 由产品层注入
+
+# 对应 Pi: Message 联合类型（user / assistant / toolResult）
+Message = UserMessage | AssistantMessage | ToolResultMessage
+ToolResultMessage = {role:"toolResult", tool_call_id, content, is_error}
+
+# 对应 Pi: agent-loop.ts:38 的 agentLoop 入口
+def agent_loop(context, tools, stream_fn, hooks) -> list[Message]
+
+# 对应 Pi: StreamFn 契约——失败不抛异常，返回 stop_reason="error"
+def stream_fn(model, context) -> AssistantMessage   # SSE 或整块均可</code></pre>
+
+  <h2>第 2 步 · 数据结构（磁盘形状先定，代码后写）</h2>
+  <pre><code># session.jsonl —— 每行一个 Entry（对应 session-manager.ts:43）
+{"type":"session",   "id":"...", "cwd":"...", "ts":0}
+{"type":"message",   "id":"e1","parent_id":null,"message":{...user}}
+{"type":"message",   "id":"e2","parent_id":"e1","message":{...assistant}}
+{"type":"tool_result","id":"e3","parent_id":"e2", "is_error":false, ...}
+{"type":"compaction","id":"e9","parent_id":"e8",
+ "summary":"## Goal ... ## Progress ...", "first_kept_entry_id":"e4"}
+# leaf = 最后一条的 id；恢复 = 逐行读 + 沿 parent_id 回溯投影</code></pre>
+
+  <h2>第 3 步 · 运行流程（第 2 课的循环 + 第 6 课的压缩检查）</h2>
+  <pre><code>def agent_loop(context, tools, stream_fn, hooks, session):
+    while True:
+        if should_compact(len_tokens(context), WINDOW, reserve=4096):
+            compact(session, context, keep_recent=3000)     # 第 6 课
+        hooks.emit("before_llm_request", context)           # 扩展可改写
+        msg = stream_fn(MODEL, context)                     # 失败→error 消息
+        calls = [c for c in msg.blocks if c.type == "toolCall"]
+        if not calls and not session.pending():
+            session.append(msg); return                     # agent_end
+        for call in calls:
+            verdict = hooks.emit("tool_call", call)         # 可 block
+            if verdict.blocked:
+                result = error_result(verdict.reason)
+            elif not validate(call.args, schema_of(call.name)):
+                result = error_result("参数校验失败")
+            else:
+                try:    result = tools[call.name].execute(call.id, call.args)
+                except Exception as e: result = error_result(str(e))
+            result = truncate(result, 2000, 50*1024)
+            tm = tool_result_message(call, result)          # isError 也在内
+            context.messages.append(tm); session.append(tm)</code></pre>
+
+  <h2>第 4 步 · 最小实现顺序（严格按依赖排序，每步可运行）</h2>
+  <ol>
+    <li><b>Day 1–2 · Session Store</b>：append/restore/projection（30 行）——先有记忆再谈循环</li>
+    <li><b>Day 2–3 · LLM Provider</b>：mock 先行（返回写死的 toolCall），真 API 后接</li>
+    <li><b>Day 3–5 · Agent Loop + Tool Execution</b>：read/write/shell 三工具；mock 测试全绿</li>
+    <li><b>Day 5–6 · Context Builder</b>：3 段 systemPrompt + tools 声明 + 投影喂入</li>
+    <li><b>Day 7 · Extension Hook</b>：before_llm_request / tool_call 两个 emit 点</li>
+    <li><b>Day 8–9 · Compaction</b>：mock 超长会话触发；摘要用真 API</li>
+    <li><b>Day 10 · Skill Loader</b>：目录扫描 + XML 菜单注入 + 手工验证模型会去 read</li>
+  </ol>
+
+  <h2>第 5 步 · 测试（不花一分钱 API 费）</h2>
+  <table class="map">
+    <tr><th>用例</th><th>做法</th><th>验收标准</th><th>对照课程</th></tr>
+    <tr><td>循环退出</td><td>mock 连续返回 2 个 toolCall 后返回纯文本</td><td>agent_end 恰好触发 1 次</td><td>02</td></tr>
+    <tr><td>工具报错</td><td>read 一个不存在的文件</td><td>模型收到 is_error=true 的 toolResult，循环继续</td><td>02 / 03</td></tr>
+    <tr><td>截断</td><td>write 一个 3000 行文件再 read</td><td>输出带"如何继续读"提示</td><td>03</td></tr>
+    <tr><td>恢复</td><td>跑到第 5 条消息时 kill 进程，重新启动</td><td>投影完整恢复，继续任务</td><td>05</td></tr>
+    <tr><td>压缩</td><td>mock 会话填到超阈值 + 伪造 toolCall/result 对</td><td>摘要生成、切点没拆散对、窗口内继续</td><td>06</td></tr>
+    <tr><td>技能触发</td><td>放一个 deploy 技能，问部署问题</td><td>模型 read 了 SKILL.md 全文</td><td>07</td></tr>
+    <tr><td>拦截</td><td>扩展 block 所有含 "rm" 的 shell 调用</td><td>模型收到 block 理由并改道</td><td>08 / 09</td></tr>
+  </table>
+
+  <h2>第 6 步 · 扩展方向（做完基础版再选做）</h2>
+  <ul>
+    <li><b>会话分支</b>：leaf 指针 + branch()/fork()——回看 <a href="../lessons/0005-session-tree.html">第 5 课</a> 再动手</li>
+    <li><b>流式输出</b>：增量渲染——Pi 的 AssistantMessageEvent（ai/src/types.ts:769）</li>
+    <li><b>steering 队列</b>：用户中途插话——Pi 的外层 while 第二驱动源</li>
+    <li><b>多 Provider 路由</b>：模型降级/切换——pi-ai 的 provider 抽象</li>
+    <li><b>提示词 sections diff</b>：只发变更段，保 prompt cache</li>
+  </ul>
+
+  <h2>自查清单（对照 Pi 的灵魂拷问）</h2>
+  <ol class="seven">
+    <li>你的 toolCall 是不是<b>建议</b>而非执行？（模型没有执行权）</li>
+    <li>工具错误是否<b>回给模型</b>而不是抛给用户？</li>
+    <li>历史是否<b>只增不删</b>，投影才可变？</li>
+    <li>切点是否<b>绝不落在 toolResult</b> 上？</li>
+    <li>技能是否<b>只注入目录</b>？</li>
+    <li>扩展能否在<b>不碰你 Core 代码</b>的前提下拦截一次调用？</li>
+    <li>进程被 kill 后，你能在 1 分钟内恢复到崩溃前的状态吗？</li>
+  </ol>
+  <p>七问全"是"——恭喜，你写出的已是一个 Pi-like Harness，而不是一个套壳聊天机器人。把它与 <a href="../lessons/diagrams/01-harness-overview.html">Diagram 01</a> 对照着讲给下一个人听，就是你毕业的时刻。</p>
+
+  <footer class="note">卡住了？回到对应课程看 Pi 的真实源码，或直接问你的 AI 导师。回 <a href="../COURSE.html">课程总纲</a>。</footer>
+</main>
+</body>
+</html>

@@ -1,0 +1,255 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Diagram 13 · 五层 Mental Model：Agent = LLM + Loop + Runtime + Harness + Environment",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1150,
+      610
+    ]
+  },
+  "components": [
+    {
+      "id": "l1",
+      "type": "cloud",
+      "label": "Layer 1 · Model",
+      "sublabel": "LLM：收 Context，吐 token",
+      "pos": [
+        310,
+        60
+      ],
+      "size": [
+        280,
+        64
+      ]
+    },
+    {
+      "id": "l2",
+      "type": "backend",
+      "label": "Layer 2 · Agent Loop",
+      "sublabel": "Reason → Act → Observe → Repeat",
+      "pos": [
+        310,
+        170
+      ],
+      "size": [
+        280,
+        64
+      ]
+    },
+    {
+      "id": "l3a",
+      "type": "backend",
+      "label": "Tools",
+      "sublabel": "read/bash/edit…",
+      "pos": [
+        60,
+        280
+      ],
+      "size": [
+        190,
+        64
+      ]
+    },
+    {
+      "id": "l3b",
+      "type": "database",
+      "label": "Context",
+      "sublabel": "模型可见世界",
+      "pos": [
+        310,
+        280
+      ],
+      "size": [
+        280,
+        64
+      ]
+    },
+    {
+      "id": "l3c",
+      "type": "database",
+      "label": "State",
+      "sublabel": "会话 / 记忆",
+      "pos": [
+        650,
+        280
+      ],
+      "size": [
+        190,
+        64
+      ]
+    },
+    {
+      "id": "l4a",
+      "type": "frontend",
+      "label": "UI / RPC / SDK",
+      "sublabel": "交互与嵌入",
+      "pos": [
+        60,
+        395
+      ],
+      "size": [
+        190,
+        64
+      ]
+    },
+    {
+      "id": "l4b",
+      "type": "backend",
+      "label": "Skills · Ext · Compaction",
+      "sublabel": "扩展与压缩",
+      "pos": [
+        310,
+        395
+      ],
+      "size": [
+        280,
+        64
+      ]
+    },
+    {
+      "id": "l4c",
+      "type": "security",
+      "label": "Policy",
+      "sublabel": "能力边界",
+      "pos": [
+        650,
+        395
+      ],
+      "size": [
+        190,
+        64
+      ]
+    },
+    {
+      "id": "l5",
+      "type": "external",
+      "label": "Layer 5 · Environment",
+      "sublabel": "FS / Shell / Net / Git / Container",
+      "pos": [
+        310,
+        510
+      ],
+      "size": [
+        280,
+        64
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Layer 3 · Runtime（调度与状态）",
+      "wraps": [
+        "l3a",
+        "l3b",
+        "l3c"
+      ],
+      "pad": 14
+    },
+    {
+      "kind": "region",
+      "label": "Layer 4 · Harness（产品与扩展）",
+      "wraps": [
+        "l4a",
+        "l4b",
+        "l4c"
+      ],
+      "pad": 14
+    }
+  ],
+  "connections": [
+    {
+      "from": "l2",
+      "to": "l1",
+      "label": "送 Context · 收 token",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "labelDy": -6
+    },
+    {
+      "from": "l2",
+      "to": "l3b",
+      "label": "读写",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDy": 24
+    },
+    {
+      "from": "l3a",
+      "to": "l3b",
+      "label": "被 Loop 调度",
+      "fromSide": "right",
+      "toSide": "left",
+      "labelDy": -46
+    },
+    {
+      "from": "l3c",
+      "to": "l3b",
+      "label": "投影进上下文",
+      "fromSide": "left",
+      "toSide": "right",
+      "labelDy": -46
+    },
+    {
+      "from": "l4b",
+      "to": "l3b",
+      "label": "供给 / 压缩",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "labelDy": -20
+    },
+    {
+      "from": "l4a",
+      "to": "l3a",
+      "label": "触发与扩展",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "labelDy": -20
+    },
+    {
+      "from": "l4c",
+      "to": "l3c",
+      "label": "约束访问",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "labelDy": -20
+    },
+    {
+      "from": "l5",
+      "to": "l4b",
+      "label": "承载一切执行",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "labelDy": -20
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "每层一句话",
+      "items": [
+        "L1 只生成 token；L2 决定循环；L3 持有工具/上下文/状态",
+        "L4 是产品层：技能、扩展、压缩、界面、安全策略"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "谁控制谁",
+      "items": [
+        "控制流自上而下：Harness 驱动 Loop，Loop 调度 Runtime",
+        "数据流自下而上：环境产出观察，经 Runtime 进入 Context"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "公式修正",
+      "items": [
+        "Agent = LLM + Loop + Harness + Environment 不完整",
+        "严格式：Agent = Harness( Loop( Runtime( LLM ) ), Environment )"
+      ]
+    }
+  ]
+}

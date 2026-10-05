@@ -1,0 +1,238 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Diagram 09 · Agent Capability Boundary：能力、授权与沙箱",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/NorthAdb/pi-agent-north",
+      "provider": "github",
+      "revision": "47c9be752f88c26f4ffa06caf0d2a3888117d9b1"
+    },
+    "viewBox": [
+      1020,
+      380
+    ]
+  },
+  "components": [
+    {
+      "id": "llm",
+      "type": "cloud",
+      "label": "LLM",
+      "sublabel": "只能建议",
+      "pos": [
+        60,
+        80
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "runtime",
+      "type": "backend",
+      "label": "Agent Runtime",
+      "sublabel": "决定是否执行",
+      "tag": "决策者",
+      "pos": [
+        290,
+        80
+      ],
+      "size": [
+        190,
+        64
+      ]
+    },
+    {
+      "id": "tools",
+      "type": "backend",
+      "label": "Tool 层",
+      "sublabel": "能力封装",
+      "pos": [
+        540,
+        80
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "shell",
+      "type": "external",
+      "label": "Shell",
+      "sublabel": "以启动者权限运行",
+      "pos": [
+        790,
+        80
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "trust",
+      "type": "security",
+      "label": "Project Trust",
+      "sublabel": "门禁 .pi/* 加载",
+      "pos": [
+        60,
+        220
+      ],
+      "size": [
+        170,
+        64
+      ],
+      "sources": [
+        {
+          "path": "packages/coding-agent/src/core/trust-manager.ts",
+          "line": 1
+        }
+      ]
+    },
+    {
+      "id": "gate",
+      "type": "security",
+      "label": "扩展确认门",
+      "sublabel": "examples/permission-gate.ts",
+      "pos": [
+        290,
+        220
+      ],
+      "size": [
+        190,
+        64
+      ]
+    },
+    {
+      "id": "fs",
+      "type": "external",
+      "label": "Filesystem",
+      "sublabel": "真实文件",
+      "pos": [
+        540,
+        220
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "net",
+      "type": "external",
+      "label": "Network / 凭证",
+      "sublabel": "同一 OS 权限域",
+      "pos": [
+        790,
+        220
+      ],
+      "size": [
+        160,
+        64
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "security-group",
+      "label": "可选隔离边界：容器 / MicroVM（Pi 本体不提供，见 docs/containerization.md）",
+      "wraps": [
+        "runtime",
+        "tools",
+        "gate",
+        "shell",
+        "fs",
+        "net"
+      ],
+      "pad": 16
+    }
+  ],
+  "connections": [
+    {
+      "from": "llm",
+      "to": "runtime",
+      "label": "toolCall 仅建议",
+      "fromSide": "right",
+      "toSide": "left",
+      "labelDy": 56
+    },
+    {
+      "from": "runtime",
+      "to": "tools",
+      "label": "execute 决定",
+      "fromSide": "right",
+      "toSide": "left",
+      "labelDy": 56
+    },
+    {
+      "from": "tools",
+      "to": "shell",
+      "label": "spawn",
+      "fromSide": "right",
+      "toSide": "left",
+      "labelDy": 56
+    },
+    {
+      "from": "tools",
+      "to": "fs",
+      "label": "读写",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDy": 24
+    },
+    {
+      "from": "shell",
+      "to": "net",
+      "label": "可达",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDy": 24
+    },
+    {
+      "from": "runtime",
+      "to": "gate",
+      "label": "tool_call 事件",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDy": 24
+    },
+    {
+      "from": "trust",
+      "to": "gate",
+      "label": "控制扩展加载",
+      "fromSide": "right",
+      "toSide": "left",
+      "labelDy": -34
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "三个不同的词",
+      "items": [
+        "Capability：工具给了模型什么能力（read/bash/…）",
+        "Authorization：执行前谁说了算（Pi Core：没人，用户即授权）"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Pi 的立场【源码+文档】",
+      "items": [
+        "docs/security.md：不在每次工具调用前请求批准",
+        "Core 只有 Project Trust——防的是供应链（.pi/* 加载），不是工具行为"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "边界为何在 Harness 外部",
+      "items": [
+        "bash 工具永远能 spawn 进程——进程权限由 OS 决定",
+        "容器化把整条 LLM→Runtime→Tool→OS 链一起关进笼子"
+      ]
+    }
+  ]
+}

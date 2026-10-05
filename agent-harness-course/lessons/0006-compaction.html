@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第 6 课 · Compaction</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <div class="kicker">Agent Harness 课程 · 第 6 课 / 共 14 课 · 第六阶段：Compaction</div>
+  <h1>Compaction：状态压缩，而不是删消息</h1>
+  <p class="lede">任务越长，Context 越胖，终会撞上模型窗口上限。天真的做法是"删最老的消息"——这几乎必然坏事。这一课看 Pi 怎么做：用 LLM 把旧历史压成一份结构化摘要，历史不动，投影被替换。</p>
+
+  <div class="question"><strong>本课核心问题：</strong>为什么不能简单删除最老的消息？为什么 Compaction 本质上是 State Compression？Session、Context、Compaction 三者如何连接？</div>
+
+  <h2>一、这张图要解决什么问题</h2>
+  <p>一条真实任务的时间线：read 十几个文件 → 试错三轮 → 终于改对 → 跑测试。到第 40 轮时，最初的目标和中间的教训早已"滚出"模型的注意力。这张图展示压缩流水线：何时触发、在哪里切、怎么摘要、如何持久化、如何重建。</p>
+
+  <figure class="diagram">
+    <iframe src="diagrams/06-compaction.html" title="Diagram 06 · Compaction Pipeline" loading="lazy"></iframe>
+    <figcaption>Diagram 06 · 自下而上的主管道，右下是增量摘要支路。<a href="diagrams/06-compaction.html" target="_blank">全屏打开 ↗</a></figcaption>
+  </figure>
+
+  <h2>二、如何从图上读懂 Pi</h2>
+  <p><span class="badge src">源码</span><strong>触发：留出回复余量。</strong><code>packages/coding-agent/src/core/compaction/compaction.ts:267</code> 的 <code>shouldCompact</code>：<code>contextTokens &gt; contextWindow − reserveTokens</code>。默认 <code>reserveTokens: 16384</code>、<code>keepRecentTokens: 20000</code>（<code>:126-130</code>）。reserve 给模型回复留空间，keep 决定"最近多少内容原样保留"。1.0 起这段代码只住在产品包里，<code>packages/agent</code> 不再有压缩库。</p>
+  <p><span class="badge src">源码</span><strong>切点：绝不切在 toolResult 上。</strong><code>findCutPoint</code>（:468-523）从最新往回累计估算 token，到 keepRecentTokens 预算处取最近的合法切点；<code>isCutPointMessage</code>（:373）规定 toolResult <b>永远不是</b>合法切点——否则会把 toolCall 和 toolResult 拆散，请求直接被 API 拒绝。这就是"不能简单删最老消息"的第一层原因。</p>
+  <p><span class="badge src">源码</span><strong>摘要：结构化模板 + 迭代更新。</strong><code>SUMMARIZATION_PROMPT</code>（:529）强制输出 <code>## Goal / ## Constraints &amp; Preferences / ## Progress（Done/In Progress/Blocked） / ## Key Decisions / ## Next Steps / ## Critical Context</code>；已有旧摘要时走 <code>UPDATE_SUMMARIZATION_PROMPT</code>（:562）做<b>增量迭代摘要</b>——这正是"分支摘要/迭代摘要"的落点。产物持久化为 <code>CompactionEntry { summary, firstKeptEntryId, tokensBefore, … }</code>（session-manager.ts:91），投影重建时用摘要替换 firstKeptEntryId 之前的所有条目。</p>
+  <p><strong>为什么这是 State Compression？</strong>因为被压缩的不是"存储"（JSONL 原文永远在），而是"模型可见的工作集"——和操作系统的页压缩/快照同构：<b>持久状态 → 压缩表示 → 模型可见上下文</b>。保留所有历史 ≠ 把所有历史送进模型。</p>
+
+  <h2>三、新概念的七问：Compaction</h2>
+  <ol class="seven">
+    <li><b>解决什么问题？</b>长任务的上下文耗尽——目标是"忘掉细节，记住意图"。</li>
+    <li><b>没有它会怎样？</b>长任务必然撞窗口上限；硬删消息则目标漂移、重复劳动、API 报错。</li>
+    <li><b>输入是什么？</b>当前投影 + 阈值参数（reserveTokens / keepRecentTokens）。</li>
+    <li><b>输出是什么？</b>一条 CompactionEntry 持久化进会话树 + 压缩后的新投影。</li>
+    <li><b>由谁控制？</b>agent-session.ts 的 <code>_runAutoCompaction</code>（:2747）自动触发（threshold / overflow 两类）；<code>/compact</code> 手动；扩展可用 session_before_compact 钩子接管。</li>
+    <li><b>和前一概念的关系？</b>它是 Session（第 5 课）树上唯一合法的"投影改写器"。</li>
+    <li><b>Pi 在源码哪里实现？</b><span class="badge src">源码</span><code>packages/coding-agent/src/core/compaction/compaction.ts</code>（纯算法）+ <code>agent-session.ts:2599-2735</code>（编排）。</li>
+  </ol>
+
+  <h2>四、源码映射与心智图</h2>
+  <pre><code>Old History ─► Persistent State（JSONL，永不改动）
+           ─► Compressed Representation（CompactionEntry 摘要条目）
+           ─► Model-visible Context（buildSessionProjection 重建）
+
+trigger: tokens &gt; window − 16384
+cut:     从最新往回累计 ≥ 20000，且切点不得是 toolResult
+summary: LLM 按结构化模板生成；有旧摘要则迭代更新
+persist: CompactionEntry { summary, firstKeptEntryId }
+rebuild: 投影时用 summary 替换 firstKeptEntryId 之前的一切</code></pre>
+
+  <h2>五、这张图在整个体系中的位置</h2>
+  <p>Compaction 让"无限长任务"成为可能，是 Harness 区别于"套壳聊天"的标志能力之一。下一课的 Skills 用相反的思路控制上下文：与其事后压缩，不如一开始就别装进来——这就是渐进披露。</p>
+
+  <div class="quiz" data-quiz='{"title": "检索练习（先凭记忆作答）", "items": [{"q": "Pi 的压缩触发条件是？", "options": ["消息条数超过 100 条", "tokens 超过窗口减余量", "必须手动 /compact 才触发"], "answer": 1, "why": "shouldCompact 比较估算 token 与 窗口−16384 余量；/compact 只是手动触发的一种。"}, {"q": "为什么切点永远不能落在 toolResult 上？", "options": ["toolResult 太长", "toolCall 对被拆散，请求被拒", "toolResult 是加密的"], "answer": 1, "why": "成对完整性是 API 硬约束——isCutPointMessage 把 toolResult 恒定为非法切点。"}, {"q": "「Compaction 是状态压缩」的含义是？", "options": ["压缩 JSONL 文件体积", "压缩的是模型可见投影，存储历史不动", "删除重复消息"], "answer": 1, "why": "JSONL 原文永远在；被替换的是 buildSessionProjection 的输出。"}]}'></div>
+
+  <h2>延伸阅读（一手来源）</h2>
+  <p><span class="badge src">源码</span><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/coding-agent/src/core/compaction/compaction.ts">compaction.ts</a>（SUMMARIZATION_PROMPT 值得精读）。追问请找你的 AI 导师。</p>
+
+  <nav class="pager"><a href="0005-session-tree.html">← 上一课</a> <a href="0007-skills.html">下一课：Skills →</a></nav>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

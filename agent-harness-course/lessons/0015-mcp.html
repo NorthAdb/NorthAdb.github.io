@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第 15 课 · MCP 深潜：协议、上下文预算与「内置扩展」这条中间路线</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <div class="kicker">Agent Harness 课程 · 第 15 课（进阶）· 超出原 14 阶段主线</div>
+  <h1>MCP 深潜：协议、上下文预算与「内置扩展」这条中间路线</h1>
+  <p class="lede">第 13 课的比较表里，MCP 是 Pi 与其他三家分歧最大的一条划线。当时的答案是「Pi 零实现」。上游 0.99.0 改写了这个答案：MCP 进了 Pi，但<b>不是作为 Core 工具</b>——它成了一个可被第三方顶替的<b>内置扩展</b>，工具默认只在脚本里可见。这一课讲清协议本身、这次接入的每个决策点，以及一条可迁移的判断框架：<b>一个协议该进 Core、进内置扩展，还是留给用户扩展？</b></p>
+
+  <div class="question"><strong>本课核心问题：</strong>MCP 是什么？Pi 用什么方式接入了它（0.99 接入，1.0.2 仍保持）？以及最重要的——<b>为什么答案不是「加第五个工具」，而是「加一个默认不占上下文的可替换扩展」？</b></div>
+
+  <h2>一、这张图要解决什么问题</h2>
+  <p>MCP（Model Context Protocol）是当前工具生态的事实协议。0.99 之前，Pi 一个字都没实现；0.99 之后，它随 Pi 一起发布，却仍然没有出现在 Core 的工具清单里。这句话同时引出三个问题：协议本身长什么样（不搞懂就没法评判取舍）？「接了但不算 Core」在源码里到底是什么形态？以及——对于你自己的 Harness——<b>什么时候该把某个协议放进 Core？</b>这张图把三者画在一张画布上。</p>
+
+  <figure class="diagram">
+    <iframe src="diagrams/14-mcp-bridge.html" title="Diagram 14 · MCP 与 Pi：内置扩展接入路径" loading="lazy"></iframe>
+    <figcaption>Diagram 14 · 粉红卡片是信任边界。MCP 是可替换的内置扩展，默认走 codemode，不进模型工具声明。<a href="diagrams/14-mcp-bridge.html" target="_blank">全屏打开 ↗</a></figcaption>
+  </figure>
+
+  <h2>二、MCP 三十分钟速成【公开资料】</h2>
+  <p><span class="badge generic">公开资料</span>以下按 Model Context Protocol 规范（modelcontextprotocol.io，spec 仍在演化，请以最新版为准）：</p>
+  <p><strong>角色分工：</strong><b>Host</b> 是嵌入 MCP Client 的应用（比如一个 Coding Agent）；<b>Client</b> 与 Server 保持 1:1 会话；<b>Server</b> 是暴露能力的服务——可以是本地子进程（stdio 传输），也可以是远端服务（Streamable HTTP 传输；旧的 SSE 传输 Pi 不支持）。底层消息全部是 <b>JSON-RPC 2.0</b>。</p>
+  <p><strong>三种原语：</strong><b>tools</b>（模型可调用的函数——对应第 3 课的 toolCall 机制）、<b>resources</b>（可读取的数据）、<b>prompts</b>（预置提示词模板）。连接时双方先做 capability 协商（"我有哪些工具"）。</p>
+  <p><strong>它解决的问题：</strong>工具生态的 N×M 问题——没有协议时，M 个 Agent 要各自适配 N 个工具源；有了协议，工具作者写一次 Server，所有支持 MCP 的 Agent 都能用。这正是第 13 课"生态协议放哪条线"的背景。</p>
+
+  <h2>三、Pi 的接入方式【源码 · 1.0.2】</h2>
+  <p><span class="badge src">源码</span><strong>核心事实：MCP 是内置扩展，不是 Core 工具。</strong>随 Pi 加载的扩展清单里就有它（<code>packages/coding-agent/src/extensions/index.ts:7-14</code>）：</p>
+  <pre><code>export const builtInExtensions: InlineExtension[] = [
+  { name: "llama.cpp", factory: llamaExtension, builtin: true },
+  // Replaceable: an extension that registers `codemode`, `tool_search`, or `/mcp` … takes over.
+  { name: "codemode",    factory: codemodeExtension,    replaceable: true, builtin: true },
+  { name: "tool-search", factory: toolSearchExtension,  replaceable: true, builtin: true },
+  { name: "mcp",         factory: mcpExtension,         replaceable: true, builtin: true },
+];</code></pre>
+  <p>三个关键词值得记：<b>builtin</b>（随产品发布，无需安装）、<b>replaceable</b>（第三方扩展可以整个顶掉它）、以及「不在 <code>read/write/edit/bash</code> 之列」。客户端能力本身被拆成独立包 <code>packages/mcp</code>（<code>@earendil-works/pi-mcp</code>，导出 <code>McpClient</code>），它不依赖 Pi，可以单独嵌进任何 Node 应用。</p>
+  <p><span class="badge src">源码</span><strong>关键设计：默认不占用模型上下文。</strong>文件头（<code>src/extensions/mcp/index.ts:1-27</code>）把策略写得很清楚：MCP 工具注册成 <code>mcp__&lt;server&gt;__&lt;tool&gt;</code>，默认 <code>exposure: "codemode"</code>，<b>不声明给模型</b>，也不写进 codemode 工具清单。脚本用 <code>searchTools()</code> 发现、用 <code>describeNamespace()</code> 读服务器说明。服务器名字出现在系统提示的 <code>mcp_servers</code> 段，一行摘要，而不是把每个工具的 schema 塞进上下文。只有改成 <code>direct</code> 才会立刻声明给模型；<code>deferred</code> 则等 <code>tool_search</code> 装载后再声明。</p>
+  <p><span class="badge src">源码</span>两个容易看错的细节。第一，配置值 <code>codemode</code> 在注册成工具时，<code>toToolExposure</code>（<code>extensions/mcp/tools.ts:45</code>）把它映射成工具暴露 <code>deferred</code>。配置档位没有合并：<code>codemode</code> 激活 codemode 工具，<code>deferred</code> 激活 <code>tool_search</code>。第二，脚本里的名字把 <code>-</code> 换成 <code>_</code>，所以 <code>mcp__my-server__x</code> 在脚本里是 <code>mcp__my_server__x</code>。第一条 prompt 只等待带 <code>direct</code> 工具的服务器，其余在后台连接，脚本或 <code>tool_search</code> 真正用到时才等它们。</p>
+  <p><span class="badge doc">文档</span>四种暴露等级的对照（<code>packages/coding-agent/docs/mcp.md</code>）：</p>
+  <table class="map">
+    <tr><th>exposure</th><th>模型能直接看到吗</th><th>典型用途</th></tr>
+    <tr><td><code>codemode</code>（默认）</td><td>不能，只能被脚本调用</td><td>大多数 MCP 服务器；需要脚本组合/过滤调用时</td></tr>
+    <tr><td><code>deferred</code></td><td>先不能，<code>tool_search</code> 找到后装载</td><td>工具很多的服务器，但希望发现后直接调</td></tr>
+    <tr><td><code>direct</code></td><td>能，像内置工具一样声明</td><td>小而高频的工具集</td></tr>
+    <tr><td><code>hidden</code></td><td>不能</td><td>注册但保持不可达</td></tr>
+  </table>
+  <p><span class="badge src">源码</span><strong>配置与信任。</strong>配置来自两份 <code>mcp.json</code>：用户级 <code>~/.pi/agent/mcp.json</code> 与受信任项目的 <code>&lt;project&gt;/.pi/mcp.json</code>（<code>config.ts:4-5</code>、<code>:147-148</code>）。项目级那份属于需要项目信任的资源，和 <code>settings.json</code>、<code>extensions/</code> 并列（<code>trust-manager.ts:30-39</code>）。1.0.1 起，项目文件里一条<b>没有</b> <code>command</code> / <code>url</code> 的条目，只覆盖用户级服务器的 <code>enabled</code>、<code>exposure</code>、<code>toolExposure</code>（<code>config.ts:9</code>），不必把启动命令再写一遍。能起子进程的东西仍然不能被未受信任的项目静默加载。</p>
+  <p><span class="badge doc">文档</span><strong>两种用法。</strong>零代码路径是配置：</p>
+  <pre><code>pi mcp add filesystem -- npx -y @modelcontextprotocol/server-filesystem .
+pi mcp list
+# 会话内：/mcp 查看连接、登录、改 exposure、启停服务器</code></pre>
+  <p>需要按环境动态注册时，才写扩展代码（<code>src/core/extensions/types.ts:1853</code>）：</p>
+  <pre><code>export default (pi: ExtensionAPI) =&gt; {
+  pi.registerMcpServer("jira", { url: "https://mcp.example.com/jira", exposure: "codemode" })
+  pi.on("session_start", () =&gt; { for (const s of pi.getMcpServers()) { /* 观察别人注册了什么 */ } })
+}</code></pre>
+  <p>注册不是持久化的（每次加载都要重新注册），<code>mcp.json</code> 里的同名条目优先；另一个扩展若接管 <code>mcp_servers_change</code> 事件，内置实现就把连接权让出去——这正是第 8 课「替换而非叠加」的注册面语义。</p>
+
+  <h2>四、作者的反方论证，与 Pi 的工程回答</h2>
+  <p><span class="badge doc">文档</span>作者 Mario Zechner 的博文《What if you don't need MCP at all?》（2025-11-02）给过三条批评。有趣的是，0.99 的实现几乎是逐条作答——批评没有被否定，而是被机制吸收了：</p>
+  <ol>
+    <li><b>上下文开销：</b>Playwright MCP 有 21 个工具、13.7k tokens 的描述；Chrome DevTools MCP 26 个工具、18k tokens。"That many tools will confuse your agent."<br>
+      → Pi 的答案：<b>默认 <code>codemode</code></b>。工具 schema 不进模型声明，也不进 codemode 工具清单。系统提示的 <code>mcp_servers</code> 段只留服务器名字和一行摘要；模型写脚本，用 <code>searchTools()</code> 按需发现。这与第 7 课 skills 的渐进披露是同一个哲学，只是搬到了工具面。</li>
+    <li><b>可组合性：</b>"Results returned by an MCP server have to go through the agent's context to be persisted to disk or combined with other results."<br>
+      → Pi 的答案：<b>让脚本做组合</b>。codemode 脚本可以直接拿到结构化结果（工具的 <code>structuredContent</code>），在沙箱里过滤/合并后再回给模型，避免每个中间结果都进上下文。</li>
+    <li><b>难扩展：</b>改一个 MCP Server 的输出格式 = 读别人的代码库；改自己的 CLI 脚本 = 改十行。<br>
+      → Pi 的答案：<b>不强迫二选一</b>。你可以继续用 CLI + skills；MCP 是<b>可替换的内置扩展</b>，不满意就连同它的语义一起换掉。</li>
+  </ol>
+  <p><strong>他的替代方案</strong>（四个 bash 可调的 Node 脚本 + 一份 225 tokens 的 README）核心信念是 <b>"Bash and code are composable."</b>。0.99 的 codemode 实际上是把这句话内化了：<b>协议负责搬运能力，脚本负责组合能力</b>。</p>
+
+  <h2>五、判断框架：Core、内置扩展，还是用户扩展？</h2>
+  <p>把第 12 课的三箱法与第 13 课的划线收拢，再补上 0.99 给出的新样本。依次问四个问题：</p>
+  <ol class="seven">
+    <li><b>生态需求密度：</b>你的用户每周都要接新的 Server 吗？偶发 → 写 CLI 工具或让用户装扩展；高频 → 内置才摊薄固定成本。Pi 的答案：MCP 密度已经够高，所以内置。</li>
+    <li><b>信任模型：</b>每个 stdio Server 都是以你的 OS 权限运行的子进程（图上虚线框——第 9 课的边界）。内置意味着产品要定义"哪些 Server 默认可信、如何审批"。Pi 的答案：项目级配置走项目信任门禁，用户级配置由用户自己写。</li>
+    <li><b>上下文预算：</b>能力进 Core 之后，它<b>默认占不占模型上下文</b>？这一问是 0.99 最值得学的地方：<b>接入 ≠ 声明</b>。MCP 接了，但默认一条工具声明都不加。</li>
+    <li><b>归属层级：</b>Core 工具（不可替换，永远在）、内置扩展（随产品发布但可替换）、用户扩展/包（自己装）、外部进程（不进产品）。Pi 把 MCP 放在第二层——这是比"进不进 Core"更细的一档。</li>
+  </ol>
+  <p>四问之后，你会得到与 Pi 相同或不同的结论——<b>重要的是你做过这四问，而不是结论与谁一致</b>。</p>
+
+  <h2>六、动手：两种接入路径（选做练习）</h2>
+  <p><b>路径 A（零代码，先试这个）：</b>写配置 → 验证连接 → 会话内用 <code>/mcp</code> 看工具数量；然后对比 <code>exposure: "codemode"</code> 与 <code>"direct"</code> 两种配置下的上下文占用差异。这是本课最直观的实验。</p>
+  <p><b>路径 B（写代码）：</b>写一个扩展，用 <code>pi.registerMcpServer()</code> 动态注册一个只在某个项目里可用的 Server，并把它设为 <code>hidden</code> + <code>toolExposure</code> 放行个别工具——体验"能力可达性"与"模型可见性"解耦的设计。</p>
+
+  <h2>七、七问（MCP-in-Pi 专场）</h2>
+  <ol class="seven">
+    <li><b>解决什么问题？</b>MCP 解决工具生态的 N×M 适配；Pi 的接入方式解决"接了协议但别撑爆上下文"。</li>
+    <li><b>没有它会怎样？</b>工具生态靠 CLI + skills + 扩展（第 7/8 课）；每接一个新服务都要写桥。</li>
+    <li><b>输入是什么？</b>Server 的 capability（工具/资源清单）与 JSON-RPC 调用；对模型侧则是 codemode 脚本里的 <code>searchTools()</code>。</li>
+    <li><b>输出是什么？</b>注册进工具表（默认不声明）的 <code>mcp__server__tool</code>，以及脚本回给模型的精简结果。</li>
+    <li><b>由谁控制？</b>协议：spec；会话：<code>pi-mcp</code> 客户端；加载：项目信任 + <code>mcp.json</code>；可见性：<code>exposure</code>；策略：你的扩展代码。</li>
+    <li><b>和前概念的关系？</b>第 13 课"生态协议划线"的深潜 + 第 8 课注册面 + 第 9 课信任边界 + 第 7 课渐进披露的联合应用。</li>
+    <li><b>Pi 在源码哪里实现？</b><span class="badge src">源码</span>客户端在 <code>packages/mcp/src/index.ts</code>；内置扩展在 <code>packages/coding-agent/src/extensions/mcp/index.ts</code>；装配清单在 <code>src/extensions/index.ts:7-14</code>；扩展开口 <code>registerMcpServer</code> 在 <code>src/core/extensions/types.ts:1853</code>。</li>
+  </ol>
+
+  <h2>八、源码与证据映射</h2>
+  <table class="map">
+    <tr><th>主张</th><th>证据</th><th>等级</th></tr>
+    <tr><td>MCP 以可替换的内置扩展接入</td><td><code>src/extensions/index.ts:7-14</code>（<code>replaceable: true, builtin: true</code>）</td><td><span class="badge src">源码</span></td></tr>
+    <tr><td>默认 <code>exposure: "codemode"</code>，不声明给模型；非 direct 服务器不挡住第一条 prompt</td><td><code>src/extensions/mcp/index.ts:1-27</code>；工具名映射 <code>tools.ts:45</code></td><td><span class="badge src">源码</span></td></tr>
+    <tr><td>配置来自用户级 + 受信任项目级 mcp.json；项目可只覆盖 enabled / exposure</td><td><code>src/extensions/mcp/config.ts:4-5</code>、<code>:9</code>、<code>:147</code>；<code>trust-manager.ts:30-39</code></td><td><span class="badge src">源码</span></td></tr>
+    <tr><td>扩展可动态注册 MCP server</td><td><code>registerMcpServer</code> 在 <code>types.ts:1853</code>；事件 <code>mcp_servers_change</code> 在 <code>:722</code></td><td><span class="badge src">源码</span></td></tr>
+    <tr><td>exposure 四档与 <code>pi mcp</code> 命令</td><td><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/coding-agent/docs/mcp.md">docs/mcp.md</a></td><td><span class="badge doc">文档</span></td></tr>
+    <tr><td>MCP 协议细节（JSON-RPC / 三原语 / transports）</td><td>modelcontextprotocol.io（演化中，请复核）</td><td><span class="badge generic">公开资料</span></td></tr>
+    <tr><td>上下文开销 13.7k–18k tokens 等数据</td><td><a href="https://mariozechner.at/posts/2025-11-02-what-if-you-dont-need-mcp/">What if you don't need MCP at all?</a>（作者博客）</td><td><span class="badge doc">文档</span></td></tr>
+    <tr><td>「四问」判断框架与两条接入路径</td><td>本课第 5–6 节</td><td><span class="badge guess">推断</span></td></tr>
+  </table>
+
+  <h2>九、这张图在整个体系中的位置</h2>
+  <p>第 15 课是主线之外的第一门"选修"：它不引入新的 Harness 机制，而是用已建立的 14 课框架（三箱法、注册面、信任边界、上下文预算）去消化一个真实的生态协议。它比原版多给了一样东西：<b>一个可以观测到的历史答案</b>——同一个项目在 0.87 说"不必等内核"，在 0.99 真的接入时，做的仍然是"不进 Core"。以后遇到任何"XX 协议该不该进 Core"的争论——A2A、OpenAPI-as-tools、浏览器协议——都照这一课的四问重演一遍。</p>
+
+  <div class="quiz" data-quiz='{"title":"检索练习（先凭记忆作答）","items":[
+    {"q":"Pi 对 MCP 的实现方式？","options":["Core 内置的第五个工具","以可替换的内置扩展接入","只在服务端模式支持"],"answer":1,"why":"src/extensions/index.ts 的 builtInExtensions 里是 builtin + replaceable，且 Core 工具仍是 read/write/edit/bash。"},
+    {"q":"MCP 工具默认的 exposure 是？","options":["direct，直接声明给模型","codemode，只在脚本里可调用","hidden，注册但保持不可达"],"answer":1,"why":"默认 codemode：工具不进模型声明，脚本用 searchTools() 发现，服务器只露出一句 description。"},
+    {"q":"默认这么设计最主要换来了什么？","options":["节省上下文预算","协议不支持声明","企业授权更简单"],"answer":0,"why":"对应作者博文的核心批评：几十个 MCP 工具的描述会吃掉上万 token。"},
+    {"q":"接一个 MCP server 的最短路径？","options":["写一个 TypeScript 扩展","用 pi mcp add 写 mcp.json","fork 改 coding-agent"],"answer":1,"why":"配置优先：pi mcp add / pi mcp list，会话内 /mcp 管理；只有动态注册才需要写代码。"}
+  ]}'></div>
+
+  <h2>延伸阅读</h2>
+  <p><span class="badge doc">文档</span><a href="https://github.com/NorthAdb/pi-agent-north/blob/main/packages/coding-agent/docs/mcp.md">docs/mcp.md</a>（配置、OAuth、exposure 表）·
+  <span class="badge doc">文档</span><a href="https://mariozechner.at/posts/2025-11-02-what-if-you-dont-need-mcp/">What if you don't need MCP at all?</a>（本课主要论据）·
+  <span class="badge generic">公开资料</span><a href="https://modelcontextprotocol.io">Model Context Protocol 规范</a> ·
+  <span class="badge doc">文档</span><a href="../../learn-pi/01-设计哲学/刻意省略.html">learn-pi/刻意省略.md</a>。追问请找你的 AI 导师。</p>
+
+  <nav class="pager"><a href="0014-mental-model.html">← 上一课</a> <a href="../reference/minimal-harness.html">毕业练习 →</a></nav>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

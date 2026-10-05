@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>关键文件清单 · 学习 Pi 导读</title>
+<meta name="description" content="关键文件清单 · 学习 Pi 导读 — NorthAdb 课件">
+<link rel="stylesheet" href="../../learn-pi/style.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumbs"><a href="../../learn-pi/index.html">← 总目录</a></nav>
+  <article>
+<h1>关键文件清单</h1>
+<p>按「先打开谁」排序。路径相对仓库根 <code>pi_north/</code>。</p>
+<h2>文档（先读）</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>路径</th>
+<th>为什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td><code>README.md</code></td>
+<td>monorepo、权限立场、构建</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>packages/coding-agent/README.md</code></td>
+<td>产品说明 + Philosophy</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>packages/coding-agent/docs/index.md</code></td>
+<td>官方文档地图</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>packages/coding-agent/docs/quickstart.md</code></td>
+<td>上手</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>packages/agent/README.md</code></td>
+<td>循环与事件</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>packages/coding-agent/docs/extensions.md</code></td>
+<td>扩展 API（可分段读）</td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>packages/coding-agent/docs/sdk.md</code></td>
+<td>嵌入</td>
+</tr>
+<tr>
+<td>8</td>
+<td><code>packages/coding-agent/docs/skills.md</code></td>
+<td>技能</td>
+</tr>
+<tr>
+<td>9</td>
+<td><code>packages/coding-agent/examples/README.md</code></td>
+<td>例子索引</td>
+</tr>
+<tr>
+<td>10</td>
+<td><code>AGENTS.md</code></td>
+<td>贡献/开发约束</td>
+</tr>
+</tbody></table>
+<h2>源码（接着读）</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>路径</th>
+<th>为什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>11</td>
+<td><code>packages/agent/src/agent-loop.ts</code></td>
+<td>工具循环真相</td>
+</tr>
+<tr>
+<td>12</td>
+<td><code>packages/agent/src/types.ts</code></td>
+<td>契约类型</td>
+</tr>
+<tr>
+<td>13</td>
+<td><code>packages/agent/src/agent.ts</code></td>
+<td>Agent 封装</td>
+</tr>
+<tr>
+<td>14</td>
+<td><code>packages/coding-agent/src/cli.ts</code></td>
+<td>CLI 入口</td>
+</tr>
+<tr>
+<td>15</td>
+<td><code>packages/coding-agent/src/main.ts</code></td>
+<td>模式分发</td>
+</tr>
+<tr>
+<td>16</td>
+<td><code>packages/coding-agent/src/core/agent-session.ts</code></td>
+<td>产品会话中枢</td>
+</tr>
+<tr>
+<td>17</td>
+<td><code>packages/coding-agent/src/core/sdk.ts</code></td>
+<td>嵌入工厂</td>
+</tr>
+<tr>
+<td>18</td>
+<td><code>packages/coding-agent/src/core/resource-loader.ts</code></td>
+<td>资源发现缝</td>
+</tr>
+<tr>
+<td>19</td>
+<td><code>packages/coding-agent/src/core/extensions/types.ts</code></td>
+<td>Extension 类型面</td>
+</tr>
+<tr>
+<td>20</td>
+<td><code>packages/coding-agent/examples/sdk/01-minimal.ts</code></td>
+<td>最小可运行嵌入</td>
+</tr>
+</tbody></table>
+<h2>加分文件</h2>
+<table>
+<thead>
+<tr>
+<th>路径</th>
+<th>场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>packages/coding-agent/src/core/session-manager.ts</code></td>
+<td>日常 JSONL 会话树</td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/src/core/compaction/compaction.ts</code></td>
+<td>产品路径的压缩</td>
+</tr>
+<tr>
+<td><code>packages/durable/README.md</code></td>
+<td>实验性可恢复 Harness。不是 <code>pi</code> 的默认会话</td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/src/extensions/index.ts</code></td>
+<td>内置扩展：llama.cpp，以及可替换的 codemode / tool-search / mcp</td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/src/extensions/mcp/index.ts</code></td>
+<td>MCP：默认 <code>exposure: &quot;codemode&quot;</code>，非 direct 服务器后台连接</td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/src/extensions/codemode/tool.ts</code></td>
+<td>codemode 工具与脚本侧 API（<code>searchTools</code> 等）</td>
+</tr>
+<tr>
+<td><code>packages/mcp/src/index.ts</code></td>
+<td>独立 MCP 客户端包</td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/docs/mcp.md</code></td>
+<td>MCP 配置、OAuth、exposure 表</td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/docs/rpc.md</code></td>
+<td>进程集成</td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/docs/session-format.md</code></td>
+<td>会话文件</td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/docs/custom-provider.md</code></td>
+<td>自定义厂商</td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/docs/containerization.md</code></td>
+<td>沙箱</td>
+</tr>
+<tr>
+<td><code>packages/tui/README.md</code></td>
+<td>终端 UI</td>
+</tr>
+<tr>
+<td><code>packages/ai/README.md</code></td>
+<td>多模型层</td>
+</tr>
+<tr>
+<td><code>examples/extensions/permission-gate.ts</code>（或同名）</td>
+<td>安全扩展范式</td>
+</tr>
+<tr>
+<td><code>pi-test.ps1</code> / <code>pi-test.sh</code></td>
+<td>源码启动</td>
+</tr>
+</tbody></table>
+<h2>怎么读大文件</h2>
+<ul>
+<li><code>interactive-mode.ts</code>、<code>agent-session.ts</code>、<code>packages/durable/docs/spec.md</code> 都很大  </li>
+<li>用「问题驱动」：搜索符号（<code>prompt(</code>、<code>scopedModels</code>、<code>createTurnState</code>）  </li>
+<li>不要线性通读第一周</li>
+</ul>
+<h2>对照本系列</h2>
+<p>读完上表 1–10，应能讲清哲学与用法；<br>读完 11–20，应能讲清一次请求的包间跳转。</p>
+
+  </article>
+<nav class="pager"><a href="推荐阅读顺序.html">← 推荐阅读顺序</a>
+    <span class="spacer"></span>
+    <a href="Harness北星.html">Harness北星 →</a></nav>
+  <footer>学习 Pi 导读（learn-pi） · 基准 pi 1.0.2（2026-10-04） · <a href="https://github.com/NorthAdb/pi-agent-north" target="_blank" rel="noopener">源码仓库 ↗</a> · 姊妹课程 <a href="../../agent-harness-course/index.html">Agent Harness 架构课</a></footer>
+</div>
+</body>
+</html>
