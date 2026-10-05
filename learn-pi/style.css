@@ -31,8 +31,12 @@ article hr { border:none; border-top:1px solid var(--line); margin:2rem 0; }
 footer { margin-top:2.5rem; padding-top:1rem; border-top:1px solid var(--line);
   font-size:.84rem; color:var(--soft); }
 footer a { color:var(--accent); }
+/* 暗色：跟随系统，但允许 data-theme 手动覆盖（主题切换按钮） */
 @media (prefers-color-scheme: dark) {
-  :root { --ink:#e8e4da; --soft:#b3aea2; --accent:#5cc8b4; --line:#3a362e;
+  :root:not([data-theme="light"]) { --ink:#e8e4da; --soft:#b3aea2; --accent:#5cc8b4; --line:#3a362e;
     --paper:#1c1b18; --card:#232019; }
-  article tr:nth-child(even) td { background:rgba(255,255,255,.03); }
+  :root:not([data-theme="light"]) article tr:nth-child(even) td { background:rgba(255,255,255,.03); }
 }
+[data-theme="dark"] { --ink:#e8e4da; --soft:#b3aea2; --accent:#5cc8b4; --line:#3a362e;
+  --paper:#1c1b18; --card:#232019; }
+[data-theme="dark"] article tr:nth-child(even) td { background:rgba(255,255,255,.03); }

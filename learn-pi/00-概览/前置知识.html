@@ -6,6 +6,7 @@
 <title>前置知识 · 学习 Pi 导读</title>
 <meta name="description" content="前置知识 · 学习 Pi 导读 — NorthAdb 课件">
 <link rel="stylesheet" href="../../learn-pi/style.css">
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
 </head>
 <body>
 <div class="wrap">
@@ -129,5 +130,7 @@
     <a href="../01-设计哲学/设计哲学.html">设计哲学 →</a></nav>
   <footer>学习 Pi 导读（learn-pi） · 基准 pi 1.0.2（2026-10-04） · <a href="https://github.com/NorthAdb/pi-agent-north" target="_blank" rel="noopener">源码仓库 ↗</a> · 姊妹课程 <a href="../../agent-harness-course/index.html">Agent Harness 架构课</a></footer>
 </div>
+<button id="themeToggle" aria-label="切换主题" style="position:fixed;top:14px;right:14px;z-index:999;width:34px;height:34px;border-radius:8px;border:1px solid rgba(127,127,127,.45);background:rgba(127,127,127,.14);color:inherit;cursor:pointer;display:grid;place-items:center;font-size:15px;line-height:1;">☾</button>
+<script>(function(){var b=document.getElementById("themeToggle");if(!b)return;function cur(){var t=document.documentElement.getAttribute("data-theme");if(t)return t;try{return localStorage.getItem("theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")}catch(e){return "light"}}function paint(){b.textContent=cur()==="dark"?"☀":"☾"}b.addEventListener("click",function(){var n=cur()==="dark"?"light":"dark";document.documentElement.setAttribute("data-theme",n);try{localStorage.setItem("theme",n)}catch(e){}paint()});paint()})();</script>
 </body>
 </html>

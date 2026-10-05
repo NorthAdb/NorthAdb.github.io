@@ -62,3 +62,20 @@ th { background: var(--panel); }
 .quiz .feedback { font-size: .88rem; color: var(--muted); min-height: 1.3em; margin-top: .4rem; }
 .next { margin-top: 3rem; padding-top: 1rem; border-top: 2px solid var(--line); font-size: .95rem; }
 footer { margin-top: 3rem; font-size: .8rem; color: var(--muted); }
+
+/* 手动暗色（主题切换按钮）—— 与博客设计令牌一致的暗色组 */
+[data-theme="dark"] {
+  --ink: #e4e4e7;
+  --muted: #a1a1aa;
+  --accent: #5eead4;
+  --accent-soft: rgba(94, 234, 212, 0.12);
+  --bg: #0a0a0a;
+  --panel: #16161a;
+  --line: #27272a;
+  --code-bg: #101013;
+  --code-ink: #d6d6e0;
+}
+[data-theme="dark"] .quiz { background: #101013; }
+[data-theme="dark"] .quiz button { background: #16161a; }
+[data-theme="dark"] .quiz button.wrong { background: rgba(248, 113, 113, 0.15); }
+[data-theme="dark"] th { background: #16161a; }

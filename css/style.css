@@ -68,6 +68,25 @@
   --glow: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(220, 74, 74, 0.05), transparent);
 }
 
+/* legacy token aliases — course overlay stylesheets (rag/, learn-pi/, …)
+   were written against the previous token names; resolve them to the
+   current ones so overlays keep working in both themes. */
+:root {
+  --bg-soft: var(--bg-1);
+  --bg-card: var(--bg-1);
+  --bg-hover: var(--bg-2);
+  --line: var(--border);
+  --line-soft: var(--border-soft);
+  --text-dim: var(--text-2);
+  --text-faint: var(--text-3);
+  --radius-lg: var(--r-lg);
+  --radius-md: var(--r-md);
+  --radius-sm: var(--r-sm);
+  --serif: var(--font-sans);
+  --sans: var(--font-sans);
+  --mono: var(--font-mono);
+}
+
 /* ---------- 2. Reset & base ---------- */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -917,7 +936,6 @@ section.block { padding: 44px 0; }
   padding: 1.5px 6px;
   color: var(--accent-strong);
 }
-[data-theme="light"] .prose code { color: #c73e3e; }
 
 .prose pre {
   margin: 1.8em 0;

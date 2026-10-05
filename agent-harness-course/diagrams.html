@@ -19,6 +19,7 @@ details.card summary:hover { background: var(--accent-soft); }
 details.card iframe { width:100%; height:640px; border:0; border-top:1px solid var(--line); }
 .card .links { padding:.5rem 1rem .8rem; font-size:.82rem; }
 </style>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
 </head>
 <body>
 <main>
@@ -142,5 +143,7 @@ details.card iframe { width:100%; height:640px; border:0; border-top:1px solid v
 
   <footer class="note">第 13 课（横向比较）为表驱动、无图——见 <a href="lessons/0013-comparison.html">课程页</a>。回 <a href="index.html">首页</a>。</footer>
 </main>
+<button id="themeToggle" aria-label="切换主题" style="position:fixed;top:14px;right:14px;z-index:999;width:34px;height:34px;border-radius:8px;border:1px solid rgba(127,127,127,.45);background:rgba(127,127,127,.14);color:inherit;cursor:pointer;display:grid;place-items:center;font-size:15px;line-height:1;">☾</button>
+<script>(function(){var b=document.getElementById("themeToggle");if(!b)return;function cur(){var t=document.documentElement.getAttribute("data-theme");if(t)return t;try{return localStorage.getItem("theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")}catch(e){return "light"}}function paint(){b.textContent=cur()==="dark"?"☀":"☾"}b.addEventListener("click",function(){var n=cur()==="dark"?"light":"dark";document.documentElement.setAttribute("data-theme",n);try{localStorage.setItem("theme",n)}catch(e){}paint()});paint()})();</script>
 </body>
 </html>

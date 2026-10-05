@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <title>v4 WebSocket：echo → 聊天室 → ConnectionManager · 从 HTTP 到实时 Agent Server</title>
 <link rel="stylesheet" href="../../assets/course.css">
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
 </head>
 <body>
 <div class="kicker">实验 · v4</div>
@@ -41,5 +42,7 @@
 </ul>
 <footer>本页由 markdown 源文件 <code>labs/v4_websocket/README.md</code> 自动生成——修改源文件后运行 <code>python tools/build_docs.py</code> 重新生成。</footer>
 <script src="../../assets/nav.js" data-base="../../" data-track=""></script>
+<button id="themeToggle" aria-label="切换主题" style="position:fixed;top:14px;right:14px;z-index:999;width:34px;height:34px;border-radius:8px;border:1px solid rgba(127,127,127,.45);background:rgba(127,127,127,.14);color:inherit;cursor:pointer;display:grid;place-items:center;font-size:15px;line-height:1;">☾</button>
+<script>(function(){var b=document.getElementById("themeToggle");if(!b)return;function cur(){var t=document.documentElement.getAttribute("data-theme");if(t)return t;try{return localStorage.getItem("theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")}catch(e){return "light"}}function paint(){b.textContent=cur()==="dark"?"☀":"☾"}b.addEventListener("click",function(){var n=cur()==="dark"?"light":"dark";document.documentElement.setAttribute("data-theme",n);try{localStorage.setItem("theme",n)}catch(e){}paint()});paint()})();</script>
 </body>
 </html>
