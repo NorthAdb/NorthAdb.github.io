@@ -27,6 +27,10 @@
   --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 28px rgba(0, 0, 0, 0.35);
   --shadow-pop: 0 16px 48px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0, 0, 0, 0.4);
   --glow: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(255, 99, 99, 0.07), transparent);
+  --sheen: inset 0 1px 0 rgba(255, 255, 255, 0.05);   /* Raycast-style inner top highlight */
+  --glass: rgba(16, 16, 19, 0.72);                     /* frosted panel fill */
+  --glass-border: rgba(255, 255, 255, 0.08);
+  color-scheme: dark;
 
   /* typography */
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI",
@@ -66,6 +70,10 @@
   --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.06);
   --shadow-pop: 0 16px 48px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
   --glow: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(220, 74, 74, 0.05), transparent);
+  --sheen: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+  --glass: rgba(255, 255, 255, 0.78);
+  --glass-border: rgba(0, 0, 0, 0.06);
+  color-scheme: light;
 }
 
 /* legacy token aliases — course overlay stylesheets (rag/, learn-pi/, …)
@@ -97,6 +105,30 @@ html {
   overflow-x: clip;
 }
 
+/* gentle page fade-in on load (MPA view-transitions were tried and removed:
+   they can leave the document in a stuck transitional state in some environments) */
+@keyframes pagein {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+body { animation: pagein 0.35s ease both; }
+
+/* slim themed scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 5px;
+  border: 2px solid var(--bg);
+}
+::-webkit-scrollbar-thumb:hover { background: var(--text-3); }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
 body {
   background: var(--bg);
   color: var(--text);
@@ -117,7 +149,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 
 .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
 
-/* faint top glow — the only decoration; keep it quiet */
+/* faint top glow + fading grid — the only decorations; keep them quiet */
 .hero-glow {
   position: absolute;
   top: 0;
@@ -129,6 +161,28 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   pointer-events: none;
   z-index: -1;
 }
+.hero-glow::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--border-soft) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border-soft) 1px, transparent 1px);
+  background-size: 56px 56px;
+  -webkit-mask-image: radial-gradient(ellipse 70% 65% at 50% 0%, #000 30%, transparent 75%);
+  mask-image: radial-gradient(ellipse 70% 65% at 50% 0%, #000 30%, transparent 75%);
+}
+
+/* hero entrance: staggered rise (disabled by prefers-reduced-motion) */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: none; }
+}
+.hero-kicker { animation: rise 0.55s 0.05s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.hero h1     { animation: rise 0.65s 0.14s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.hero .sub   { animation: rise 0.65s 0.24s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.hero-actions { animation: rise 0.65s 0.34s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.hero-stats  { animation: rise 0.65s 0.44s cubic-bezier(0.22, 1, 0.36, 1) both; }
 
 /* ---------- 3. Typography scale ---------- */
 .t-display {
@@ -298,7 +352,9 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
     gap: 4px;
     margin: 0;
     padding: 12px 16px 16px;
-    background: var(--bg-1);
+    background: var(--glass);
+    backdrop-filter: blur(24px) saturate(1.5);
+    -webkit-backdrop-filter: blur(24px) saturate(1.5);
     border-bottom: 1px solid var(--border);
     box-shadow: var(--shadow-pop);
     display: none;
@@ -428,6 +484,20 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   font-style: normal;
   color: var(--accent);
 }
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .hero h1 {
+    background: linear-gradient(180deg, var(--text) 55%, var(--text-2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  .hero h1 em {
+    background: linear-gradient(115deg, var(--accent) 20%, #ff9a62);
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+}
 .hero .sub {
   max-width: 560px;
   margin-top: 24px;
@@ -500,6 +570,7 @@ section.block { padding: 44px 0; }
   background: var(--bg-1);
   border: 1px solid var(--border);
   border-radius: var(--r-lg);
+  box-shadow: var(--sheen);
   overflow: hidden;
   transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -515,7 +586,7 @@ section.block { padding: 44px 0; }
 .featured:hover {
   border-color: var(--accent-border);
   transform: translateY(-2px);
-  box-shadow: var(--shadow-card);
+  box-shadow: var(--sheen), var(--shadow-card);
 }
 .featured:hover::before { opacity: 1; }
 .featured .f-tag {
@@ -614,16 +685,31 @@ section.block { padding: 44px 0; }
   gap: 12px;
 }
 .topic-card {
+  position: relative;
   padding: 20px;
   background: var(--bg-1);
   border: 1px solid var(--border);
   border-radius: var(--r-md);
+  box-shadow: var(--sheen);
   transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
+.topic-card::before,
+.course-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  border-radius: var(--r-md) var(--r-md) 0 0;
+  background: linear-gradient(90deg, transparent, var(--accent-border), transparent);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.topic-card:hover::before,
+.course-card:hover::before { opacity: 1; }
 .topic-card:hover {
   border-color: var(--accent-border);
   transform: translateY(-2px);
-  box-shadow: var(--shadow-card);
+  box-shadow: var(--sheen), var(--shadow-card);
 }
 .topic-card .t-name {
   font-size: 14.5px;
@@ -645,18 +731,20 @@ section.block { padding: 44px 0; }
   gap: 12px;
 }
 .course-card {
+  position: relative;
   display: flex;
   flex-direction: column;
   padding: 22px;
   background: var(--bg-1);
   border: 1px solid var(--border);
   border-radius: var(--r-md);
+  box-shadow: var(--sheen);
   transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 .course-card:hover {
   border-color: var(--accent-border);
   transform: translateY(-2px);
-  box-shadow: var(--shadow-card);
+  box-shadow: var(--sheen), var(--shadow-card);
 }
 .course-card .c-badge {
   align-self: flex-start;
@@ -946,7 +1034,9 @@ section.block { padding: 44px 0; }
   overflow-x: auto;
   font-size: 13.5px;
   line-height: 1.7;
+  transition: border-color 0.2s ease;
 }
+.prose pre:hover { border-color: var(--text-3); }
 .prose pre code {
   background: none;
   border: none;
@@ -1047,8 +1137,10 @@ section.block { padding: 44px 0; }
 .cmdk {
   width: 100%;
   max-width: 580px;
-  background: var(--bg-1);
-  border: 1px solid var(--border);
+  background: var(--glass);
+  backdrop-filter: blur(28px) saturate(1.6);
+  -webkit-backdrop-filter: blur(28px) saturate(1.6);
+  border: 1px solid var(--glass-border);
   border-radius: var(--r-lg);
   box-shadow: var(--shadow-pop);
   overflow: hidden;
@@ -1129,8 +1221,10 @@ section.block { padding: 44px 0; }
   height: 38px;
   display: grid;
   place-items: center;
-  background: var(--bg-1);
-  border: 1px solid var(--border);
+  background: var(--glass);
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  border: 1px solid var(--glass-border);
   border-radius: var(--r-sm);
   color: var(--text-2);
   opacity: 0;

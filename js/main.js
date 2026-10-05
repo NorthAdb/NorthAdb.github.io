@@ -276,6 +276,33 @@
     });
   }
 
+  /* ---- hero stat counters ---- */
+  var counters = document.querySelectorAll("[data-count]");
+  if (counters.length && "IntersectionObserver" in window) {
+    var reduceMotion = false;
+    try { reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
+    var cio = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        cio.unobserve(entry.target);
+        var el = entry.target;
+        var end = parseInt(el.getAttribute("data-count"), 10) || 0;
+        var suffix = el.getAttribute("data-suffix") || "";
+        if (reduceMotion) { el.textContent = end + suffix; return; }
+        var t0 = null;
+        var tick = function (t) {
+          if (t0 === null) t0 = t;
+          var p = Math.min((t - t0) / 900, 1);
+          var eased = 1 - Math.pow(1 - p, 3);
+          el.textContent = Math.round(end * eased) + suffix;
+          if (p < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      });
+    }, { threshold: 0.5 });
+    counters.forEach(function (el) { cio.observe(el); });
+  }
+
   /* ---- footer year ---- */
   var yearEls = document.querySelectorAll("[data-year]");
   var now = new Date().getFullYear();
