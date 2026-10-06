@@ -87,6 +87,21 @@
 }
 .mermaid svg { max-width: 100%; height: auto; }
 
+/* 未入库附件占位（blob 链接的缺失图片 / ![[...]] 嵌入） */
+.img-missing {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: .4em 0;
+  padding: 8px 12px;
+  border: 1px dashed var(--border);
+  border-radius: var(--r-sm);
+  background: var(--bg-1);
+  color: var(--text-3);
+  font-size: 13px;
+}
+.img-missing small { opacity: .75; }
+
 /* KaTeX display blocks can be wide on mobile */
 .katex-display { overflow-x: auto; overflow-y: hidden; padding: .3em 0; }
 

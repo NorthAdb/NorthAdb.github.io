@@ -98,7 +98,7 @@
 <blockquote>
 <p><strong>作者</strong>：小林面试笔记 | <strong>来源</strong>：微信公众号</p>
 </blockquote>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-02.png">agent-01.png</p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-02.png">agent-01.png</p>
 <hr>
 <h2 id="本文八大面试题">📋 本文八大面试题</h2>
 <ol>
@@ -148,7 +148,7 @@
 <blockquote>
 <p>一个完整的 Agent = LLM（大脑）+ 规划模块 + 记忆模块 + 工具模块</p>
 </blockquote>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-03.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-03.png"></p>
 <h3 id="一句话区分">一句话区分</h3>
 <blockquote>
 <p><strong>LLM 告诉你「怎么做」，Agent 直接帮你「做完了」。</strong></p>
@@ -199,12 +199,12 @@
 <blockquote>
 <p>💡 <strong>Anthropic 建议</strong>：从最简单方案开始，明确需要时才加复杂度。生产中最常见的是<strong>混合架构</strong>。</p>
 </blockquote>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-04.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-04.png"></p>
 <hr>
 <h2 id="3-agent-的工作模式">3️⃣ Agent 的工作模式</h2>
 <h3 id="模式一react边想边做">模式一：ReAct（边想边做）</h3>
 <p><strong>Reasoning + Acting</strong>，最经典最基础的模式。三步循环：<strong>思考 → 行动 → 观察 → 回到思考</strong>。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-05.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-05.png"></p>
 <ul>
 <li>✅ 透明可审计、灵活适应、通用性强</li>
 <li>❌ token 消耗大、可能陷入死循环</li>
@@ -226,11 +226,11 @@
 <blockquote>
 <p>⚠️ Anthropic 提醒：<strong>不要过早引入多 Agent</strong>，一个强大单 Agent 往往够用。</p>
 </blockquote>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-06.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-06.png"></p>
 <hr>
 <h2 id="4-function-call-是什么">4️⃣ Function Call 是什么？</h2>
 <p>让 LLM 不仅能生成文字，还能告诉外部程序「我想调用某个函数」。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-07.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-07.png"></p>
 <h3 id="工作流程四步">工作流程四步</h3>
 <ol>
 <li><strong>定义函数</strong>：用 JSON 描述工具的名字、功能、参数</li>
@@ -238,7 +238,7 @@
 <li><strong>执行函数</strong>：⚠️ <strong>LLM 不自己执行</strong>，只输出结构化指令，真正执行的是你的应用程序</li>
 <li><strong>生成回答</strong>：真实数据回传 LLM，用自然语言回复用户</li>
 </ol>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-08.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-08.png"></p>
 <h3 id="解决两个核心问题">解决两个核心问题</h3>
 <ul>
 <li><strong>什么时候调用</strong>：LLM 根据意图自动判断</li>
@@ -250,7 +250,7 @@
 <hr>
 <h2 id="5-mcp-是什么协议">5️⃣ MCP 是什么协议？</h2>
 <p><strong>Model Context Protocol（模型上下文协议）</strong>，Anthropic 于 2024 年 11 月开源。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-09.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-09.png"></p>
 <blockquote>
 <p>称为「<strong>AI 界的 USB-C 接口</strong>」——把 <strong>N × M 的集成问题变成 N + M</strong></p>
 </blockquote>
@@ -281,7 +281,7 @@
 </tr>
 </tbody>
 </table>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-10.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-10.png"></p>
 <h3 id="关键价值">关键价值</h3>
 <ul>
 <li>新增服务不用改 AI 应用代码</li>
@@ -290,7 +290,7 @@
 <hr>
 <h2 id="6-skills-是什么">6️⃣ Skills 是什么？</h2>
 <p>教 Agent「<strong>在什么场景下、按什么方法、遵循什么规范</strong>来完成特定任务」的自然语言指令文件（通常是 <code>SKILL.md</code>）。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-11.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-11.png"></p>
 <h3 id="skill-结构示例">Skill 结构示例</h3>
 <pre><code class="language-markdown">---
 name: Code_Review_Expert
@@ -312,7 +312,7 @@ triggers:
 <blockquote>
 <p>🔧 <strong>MCP 给了装满工具的厨房，Skills 是一本菜谱</strong> — MCP 解决「能做什么」，Skills 解决「该怎么做」。</p>
 </blockquote>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-12.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-12.png"></p>
 <h3 id="工作方式">工作方式</h3>
 <p>Agent 启动扫描 Skills 列表 → 用户请求匹配 Skill → <strong>加载到上下文</strong> → 按 Skill 指令思考行动（可声明 <code>allowed-tools</code>、打包脚本、指导调用 MCP 工具）。</p>
 <blockquote>
@@ -348,7 +348,7 @@ triggers:
 </tr>
 </tbody>
 </table>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-13.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-13.png"></p>
 <h3 id="维度对比">维度对比</h3>
 <table>
 <thead>
@@ -399,7 +399,7 @@ Skills（知识层 - 不同维度，指导「什么时候调用、用什么策�
 <hr>
 <h2 id="8-a2a-协议">8️⃣ A2A 协议</h2>
 <p><strong>Agent-to-Agent Protocol</strong>，Google 于 2025 年 4 月发布，联合 50+ 合作伙伴。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-14.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-14.png"></p>
 <h3 id="为什么需要-a2a">为什么需要 A2A？</h3>
 <p>MCP 解决的是「Agent ↔ 工具」连接，但当企业里多个 Agent（HR/IT/财务，不同框架开发）需要协作时，MCP 管不了「Agent ↔ Agent」的通信。</p>
 <h3 id="三大核心概念">三大核心概念</h3>
@@ -451,7 +451,7 @@ Skills（知识层 - 不同维度，指导「什么时候调用、用什么策�
 </tr>
 </tbody>
 </table>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-15.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-15.png"></p>
 <blockquote>
 <p>📌 <strong>协议边界</strong>：Agent 之间通信走 A2A，Agent 调用工具走 MCP。</p>
 </blockquote>
@@ -463,7 +463,7 @@ Skills（知识层 - 不同维度，指导「什么时候调用、用什么策�
 </ul>
 <hr>
 <h2 id="agent-协议三层结构">🧩 Agent 协议三层结构</h2>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-16.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-16.png"></p>
 <pre><code>Function Call（底层调用能力）
     +
 MCP（标准化 Agent ↔ 工具连接，竖向）
@@ -475,7 +475,7 @@ Agent 技术完整基础设施
 <p>三层各司其职、互补共存。</p>
 <hr>
 <h2 id="总结速查">📝 总结速查</h2>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-17.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-17.png"></p>
 <table>
 <thead>
 <tr>

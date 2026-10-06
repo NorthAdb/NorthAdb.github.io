@@ -102,7 +102,7 @@
 </div>
 <h2 id="一句话结论">一句话结论</h2>
 <p><strong>评测是眼睛，记忆是大脑，Self-Improve 是手脚，人机协作是方向盘和刹车。</strong> 只有打通“评测信号 → 记忆/Skill → 候选改进 → 门控/灰度 → 新数据回流”，Agent 才能持续产生复利。</p>
-<p><img alt="Agent 自进化飞轮总览" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-evolution-overview.jpg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Agent 自进化飞轮总览" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-evolution-overview.jpg"></p>
 <h2 id="一先区分自进化改什么">一、先区分自进化改什么</h2>
 <table>
 <thead>
@@ -184,7 +184,7 @@
 </tbody>
 </table>
 <p>Skill 还需做有/无对照、难度校准、轨迹追踪和关键路径验证。</p>
-<p><img alt="评测体系关键结构" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-evolution-evaluation.jpg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="评测体系关键结构" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-evolution-evaluation.jpg"></p>
 <h2 id="三记忆核心是治理不是存储">三、记忆：核心是治理，不是存储</h2>
 <p>向量库只能回答“存在哪里”，不能回答什么值得存、何时遗忘、冲突如何解决、如何精准召回。记忆更像 Git：要有版本、来源、审核、冲突解决和回滚。</p>
 <h3 id="写入存储读取三环">写入、存储、读取三环</h3>
@@ -224,7 +224,7 @@ L2 场景块 / 可复用模式
 L3 用户画像 / 稳定 Skill
 </code></pre>
 <p>默认读取高密度的 L3，需要证据时再向下回溯。每条记忆应记录版本、来源、触发原因和状态，并支持更新、合并、分裂、TTL、主动遗忘、冲突解决和乐观锁。</p>
-<p><img alt="记忆系统分层与治理" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-evolution-memory.jpg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="记忆系统分层与治理" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-evolution-memory.jpg"></p>
 <p>读取建议采用渐进披露：会话开始只注入 Persona/Skill 前言；任务到来后并行检索 Facts/Scenario；遇到疑问时再回溯原始轨迹。示例预算：Skill ≤ 2000 token、Facts ≤ 800 token、Profile ≤ 500 token，单条记忆 ≤ 200 token，最多注入 6 条。</p>
 <h2 id="四落地把修复做成-cicd">四、落地：把修复做成 CI/CD</h2>
 <p>完全无人值守的“发现问题 → 修改 → 上线”风险很高。更稳妥的自动化范围是：<strong>候选生成 → 独立评测 → 门控筛选</strong>；高风险修改和关键决策保留人工确认。</p>
@@ -250,7 +250,7 @@ L3 用户画像 / 稳定 Skill
 <li>P0 退化自动回滚；</li>
 <li>记录每次版本、diff、触发来源和关联评测结果。</li>
 </ul>
-<p><img alt="Agent CI/CD 工程化链路" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-evolution-engineering.jpg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Agent CI/CD 工程化链路" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-evolution-engineering.jpg"></p>
 <h3 id="dreaming异步发现跨会话模式">Dreaming：异步发现跨会话模式</h3>
 <p>同步评测看不到慢变量。Dreaming 在空闲时审阅历史轨迹，寻找反复失败、低效成功路径和知识缺口，输出带优先级和影响评估的修订建议，但不应直接修改生产配置。建议每天或每周运行一次，人工审阅后进入流水线。</p>
 <h2 id="五控制分级自主人是正确性保障">五、控制：分级自主，人是正确性保障</h2>
@@ -265,7 +265,7 @@ L3 用户画像 / 稳定 Skill
 </ol>
 <p>避免审核疲劳：自动门控先过滤大多数低质量候选，批量异步审核并附评测对比、影响范围、代表性样例和推荐理由；稳定运行后逐步放权，回归时自动降级。</p>
 <p>防止对齐漂移需要：定期方向审计、监控输出长度/工具调用/拒答率等方向性指标，并在评测集加入简洁性、格式、语气和安全风格维度。</p>
-<p><img alt="人机协作与控制" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-evolution-control.jpg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="人机协作与控制" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-evolution-control.jpg"></p>
 <h2 id="六四个齿如何咬合">六、四个齿如何咬合</h2>
 <ol>
 <li><strong>评测 → 记忆</strong>：成功结果和可复用经验进入策展式记忆；</li>
@@ -273,7 +273,7 @@ L3 用户画像 / 稳定 Skill
 <li><strong>落地 → 控制 → 生效</strong>：候选经过门控、人工确认和灰度后才影响生产；</li>
 <li><strong>生效 → 下一轮评测</strong>：灰度期间样本回流，成为下一轮燃料。</li>
 </ol>
-<p><img alt="四齿飞轮数据流" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-evolution-flywheel.jpg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="四齿飞轮数据流" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-evolution-flywheel.jpg"></p>
 <h3 id="从零到一">从零到一</h3>
 <table>
 <thead>
@@ -312,7 +312,7 @@ L3 用户画像 / 稳定 Skill
 </tbody>
 </table>
 <p>优先跑通 Phase 1：能手动转一圈的粗糙飞轮，比自动化程度很高但从未闭环的蓝图更有价值。</p>
-<p><img alt="从零到一落地路线" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-evolution-roadmap.jpg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="从零到一落地路线" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-evolution-roadmap.jpg"></p>
 <h2 id="工程化补充">工程化补充</h2>
 <ul>
 <li>每次运行绑定 <code>run_id</code>、<code>tenant_id</code>、<code>prompt_version</code>、<code>skill_version</code>、<code>memory_snapshot</code>、<code>eval_version</code>；</li>

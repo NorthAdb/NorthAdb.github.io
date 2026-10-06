@@ -144,7 +144,7 @@
 </table>
 <h3 id="rag-的解决思路开卷考试">RAG 的解决思路：开卷考试</h3>
 <p>RAG = <strong>R</strong>etrieval-<strong>A</strong>ugmented <strong>G</strong>eneration（检索增强生成）</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-02.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-02.png"></p>
 <ol>
 <li><strong>检索（Retrieval）</strong>：从外部知识库中找到和问题相关的资料</li>
 <li><strong>增强（Augmented）</strong>：将检索到的资料作为上下文和问题一起给大模型</li>
@@ -160,7 +160,7 @@
 </ul>
 <hr>
 <h2 id="2-rag-整体工作流程">2️⃣ RAG 整体工作流程</h2>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-03.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-03.png"></p>
 <p>RAG 系统分为<strong>两个大阶段</strong>：</p>
 <h3 id="索引阶段离线-把知识整理好">索引阶段（离线）— 把知识整理好</h3>
 <pre><code>文档加载 → 文档切割(Chunking) → 向量化(Embedding) → 存入向量数据库
@@ -174,7 +174,7 @@
 <h3 id="查询阶段在线-让大模型翻书找答案">查询阶段（在线）— 让大模型翻书找答案</h3>
 <pre><code>用户提问 → 问题向量化 → 向量检索(相似度搜索) → 构造增强Prompt → 大模型生成回答
 </code></pre>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-04.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-04.png"></p>
 <p>这是最基础的 <strong>Naive RAG（朴素 RAG）</strong>。实际生产中还会加入查询改写、多路召回、Re-rank 等高级技术。</p>
 <hr>
 <h2 id="3-微调-vs-rag">3️⃣ 微调 vs RAG</h2>
@@ -226,7 +226,7 @@
 </tr>
 </tbody>
 </table>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-05.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-05.png"></p>
 <h3 id="怎么选">怎么选？</h3>
 <ul>
 <li><strong>大多数场景优先选 RAG</strong>：需严格基于文档、知识频繁更新、需可追溯</li>
@@ -235,7 +235,7 @@
 </ul>
 <hr>
 <h2 id="4-文档切割策略chunking">4️⃣ 文档切割策略（Chunking）</h2>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-06.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-06.png"></p>
 <p>文档切割是索引阶段最关键的一步。切割的<strong>两难</strong>：</p>
 <ul>
 <li>切太小 → 丢失上下文</li>
@@ -307,7 +307,7 @@
 </tr>
 </tbody>
 </table>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-07.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-07.png"></p>
 <hr>
 <h2 id="5-re-rank重排序">5️⃣ Re-rank（重排序）</h2>
 <h3 id="为什么需要-re-rank">为什么需要 Re-rank？</h3>
@@ -318,13 +318,13 @@
 </ol>
 <h3 id="cross-encoder-解决问题">Cross-Encoder 解决问题</h3>
 <p>Bi-Encoder 是「各自写好简历然后匹配」，Cross-Encoder 是「面对面面试」。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-08.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-08.png"></p>
 <p>把查询和文档拼在一起，通过自注意力机制让两者充分交互。</p>
 <h3 id="两阶段检索架构">两阶段检索架构</h3>
 <pre><code>第一阶段: Bi-Encoder 快速从全部文档中筛出 Top-50~100（追求召回率）
 第二阶段: Cross-Encoder 对候选做精细化重排序（追求精准度）
 </code></pre>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-09.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-09.png"></p>
 <h3 id="主流-re-rank-模型">主流 Re-rank 模型</h3>
 <table>
 <thead>
@@ -385,7 +385,7 @@
 </table>
 <hr>
 <h2 id="6-embedding-算法演进">6️⃣ Embedding 算法演进</h2>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-10.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-10.png"></p>
 <h3 id="第一代静态词向量2013">第一代：静态词向量（2013）</h3>
 <p><strong>Word2Vec</strong>（Google）：上下文相似的词语义也相似</p>
 <ul>
@@ -424,7 +424,7 @@
 </tr>
 </tbody>
 </table>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-11.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-11.png"></p>
 <h3 id="第四代基于大模型2025">第四代：基于大模型（2025）</h3>
 <p>LLM2Vec、Qwen3-Embedding、<strong>Seed1.5-Embedding</strong>（字节跳动）—— 用大模型的理解能力做 Embedding，MTEB 中英文 SOTA。</p>
 <h3 id="选型建议">选型建议</h3>
@@ -438,7 +438,7 @@
 <h2 id="7-向量数据库">7️⃣ 向量数据库</h2>
 <h3 id="核心原理">核心原理</h3>
 <p>海量向量 → 建立索引结构 → 毫秒级近似最近邻搜索（ANN）</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-12.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-12.png"></p>
 <h3 id="三种主流索引思路">三种主流索引思路</h3>
 <table>
 <thead>
@@ -467,7 +467,7 @@
 </tbody>
 </table>
 <h3 id="主流数据库对比">主流数据库对比</h3>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-13.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-13.png"></p>
 <table>
 <thead>
 <tr>
@@ -512,7 +512,7 @@
 <h3 id="单路召回的局限">单路召回的局限</h3>
 <p>向量检索擅长语义匹配，但在<strong>精确匹配</strong>（产品编号、型号）方面有短板。</p>
 <h3 id="多路召回的核心思想">多路召回的核心思想</h3>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-14.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-14.png"></p>
 <p><strong>多条路各自召回，最后合并结果：</strong></p>
 <table>
 <thead>
@@ -544,7 +544,7 @@
 <blockquote>
 <p>不看绝对分数，只看在各路中的排名。排名越靠前得分越高，被越多路命中的文档综合得分越高。</p>
 </blockquote>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-15.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-15.png"></p>
 <h3 id="实施效果">实施效果</h3>
 <p>混合检索通常比单路好 <strong>10%-30%</strong>，精确匹配场景提升更明显。</p>
 <h3 id="高级召回策略">高级召回策略</h3>
@@ -604,7 +604,7 @@
 </tbody>
 </table>
 <h3 id="ragas-框架">RAGAS 框架</h3>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-16.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-16.png"></p>
 <p>目前最流行的 RAG 评估框架。用更强的大模型（如 GPT-4）作为"裁判"，自动化评估。</p>
 <pre><code class="language-python"># RAGAS 使用示例
 from ragas import evaluate
@@ -624,7 +624,7 @@ evaluate(dataset)
 <blockquote>
 <p>大模型自信地说出一些听起来很专业但实际上是编造的内容。不是"错误"，而是"不知道但假装知道"。</p>
 </blockquote>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-17.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-17.png"></p>
 <h3 id="幻觉的两大类型">幻觉的两大类型</h3>
 <table>
 <thead>
@@ -651,7 +651,7 @@ evaluate(dataset)
 <li><strong>可追溯可验证</strong>：错误可定位到具体文档</li>
 </ol>
 <h3 id="降低幻觉的五道防线">降低幻觉的五道防线</h3>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-18.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-18.png"></p>
 <p><strong>第一道：Prompt 工程约束</strong>（零成本，立即生效）</p>
 <pre><code>- 限制知识范围：「仅基于参考资料回答，没有相关信息就说不知道」
 - 要求标注来源：「每句标注出处」
@@ -794,7 +794,7 @@ evaluate(dataset)
 </tbody>
 </table>
 <h3 id="rag-20graphrag">RAG 2.0：GraphRAG</h3>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-evo-01.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-evo-01.png"></p>
 <p>图数据库把知识变成一张<strong>带关系的网</strong>：</p>
 <ul>
 <li><strong>节点</strong> = 知识的「实体」：人物、地点、事件、公司等</li>
@@ -837,7 +837,7 @@ evaluate(dataset)
 <p>关联：<strong>LightRAG</strong>（开源）= GraphRAG 轻量版，图增强文本索引 + 双层检索，大幅降低 Token 开销。对需要<strong>全局理解</strong>的问题（财报分析、合同义务梳理），GraphRAG 类方案比传统 RAG 效果更好。</p>
 </blockquote>
 <h3 id="演进增强结构化-rag-sagsql-rag">演进增强：结构化 RAG / SAG（SQL-RAG）</h3>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-evo-02.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-evo-02.png"></p>
 <p>思路转变：<strong>不建复杂的「全局图」</strong>，把分片抽成「实体」「事件」存入 SQL 数据库，用户提问时通过 SQL 语句<strong>动态拼接</strong>关联事件。</p>
 <ul>
 <li><strong>向量依然是 C 位</strong>：SAG 本质 = 向量 RAG 之上加一层 SQL 结构查询</li>
@@ -881,7 +881,7 @@ evaluate(dataset)
 <p>SAG 依然是 RAG。能否替代 GraphRAG 尚无定论，但其思想值得学习 —— 用更低成本轻量实现"图能力"。</p>
 </blockquote>
 <h3 id="另辟蹊径pageindex-无向量不切片">另辟蹊径：PageIndex —— 无向量、不切片</h3>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-evo-03.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-evo-03.png"></p>
 <p>由 <strong>Vectify AI</strong> 提出（开源：<code>github.com/VectifyAI/PageIndex</code>），完全<strong>不用向量、不切片</strong>，工作逻辑非常像<strong>人类查资料</strong>：先通过目录看答案在第几页，再翻到对应页码。</p>
 <p><strong>流程</strong>：</p>
 <pre><code>文档解析 → LLM 构建目录树(JsonTree：章节/节点/页码行数定位/摘要) → 目录树存储
@@ -910,7 +910,7 @@ evaluate(dataset)
 </blockquote>
 <hr>
 <h2 id="总结速查">📝 总结速查</h2>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-19.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-19.png"></p>
 <table>
 <thead>
 <tr>

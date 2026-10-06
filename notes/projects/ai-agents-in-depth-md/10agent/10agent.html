@@ -110,7 +110,7 @@
 <p>共享文件系统：Agent 之间通过读写共享目录下的文档、代码等中间产物来交换信息，适合产物较大或需要持久化的场景；</p>
 <p>消息总线（Message Bus）：一个专门负责在 Agent 之间传递消息的中转站，Agent 不直接调用彼此，而是把消息发送到消息总线，由它转发给目标 Agent。</p>
 <p>对应到 IPC 的两大范式：共享文件系统就是 Agent 世界的“共享内存”；工具调用参数和消息总线则是“消息传递”的两种形态——前者随调用同步传递，后者经中转站异步投递。两种范式各有取舍。Go 语言有一句广为流传的话：“不要通过共享内存来通信，而要通过通信来共享内存”。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/53e718c6932b75a73d98a3b97f3f835bd1e34f4d9e89184f4738a64866f069cb.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/53e718c6932b75a73d98a3b97f3f835bd1e34f4d9e89184f4738a64866f069cb.jpg"><br>
 图 10-1 共享上下文与不共享上下文对比</p>
 <h2 id="1012-维度二协作拓扑">10.1.2 维度二：协作拓扑</h2>
 <p>第二个维度是协作拓扑——Agent 之间的控制权和信息按什么结构流动。协作拓扑有三种典型形态：</p>
@@ -160,7 +160,7 @@
 <p>三、外部挂载资源（Mounted External Resources）。用户授权接入的第三方信息源——Google Drive、Notion、Dropbox、企业 Wiki 等——通过适配器（adapter）映射为文件系统中的挂载点（如 /mnt/gdrive）。Agent 以读文件的方式访问一篇 Notion 文档，底层由适配器调用对方 API 完成。这一层有三项区别于本地存储的特性，需要在设计时显式处理：访问受外部权限约束（用户在源系统中的权限决定 Agent 的可见范围）、延迟更高且一致性更弱（每次读取为一次网络往返，数据可能已被外部修改，只能按最终一致性对待）、以按需只读为主（写回外部源须谨慎，误写可能污染用户的真实数据）。统一的文件接口使 Agent 无需为每个数据源定制专用工具，但也掩盖了上述性能与安全差异，因此需在挂载层面显式管理只读/可写、超时与凭证边界。</p>
 <p>四、系统内置资源（Built-in System Resources）。系统预置、对所有 Agent 只读共享的资源包，典型代表是第二章、第四章介绍的 Skills——以文件形式组织的知识文档与脚本，挂载于 /skills 等路径，按渐进式披露（先索引、后按需展开）取用；此外还包括参考手册、模板库与共享工具定义。该层全局共享、只读、跨会话稳定，可被所有 Agent 并发读取而无需并发控制。</p>
 <p>图 10-2 呈现了这四类区域统一挂载于同一目录树的结构：Agent 通过统一接口访问整棵树，用户从共享空间上传与下载文件，外部数据源经适配器挂载，系统内置资源则以只读方式提供。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/f681b331ff82bf799077676e3e59ca443caed60a41f6e39a0a71212bd21b98b3.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/f681b331ff82bf799077676e3e59ca443caed60a41f6e39a0a71212bd21b98b3.jpg"><br>
 图 10-2 Agent 虚拟文件系统的四类区域挂载结构</p>
 <p>表 10-3 从可见性、生命周期、读写权限与并发控制四个维度对比这四类区域，可作为文件系统布局设计的检查表。</p>
 <p>表 10-3 Agent 虚拟文件系统的四类区域</p>
@@ -196,7 +196,7 @@
 <p>这一方向的价值，在于把任务连续性从不断增长的执行历史中分离出来：上下文可以刷新，界面操作也可能失败，但下一轮仍能从最近一次核实的状态继续。论文在保持 Qwen 3.7-Plus 模型与 Claude Code 执行后端相同、只改变外层 loop 的对照中，报告 WeaveBench PassRate 从 51.8% 提升到 80.7%，OSWorld 2.0 二元完成率从 2.8%提升到 8.3%，Terminal-Bench 2.1 成功率从 69.7% 提升到 77.2%。代价也不是固定的：前两个基准分别消耗了基线 2.3 倍的总 token 和 3.6 倍的输出 token，Terminal-Bench 2.1 则减少了 24%。在实际部署中，还需要处理外部环境或用户要求变化造成的旧状态失效，并用轮数、时间和费用预算防止恢复循环无限运行。</p>
 <p>公开轨迹与实验复现。项目网站提供了 WeaveBench、OSWorld 2.0 和 Terminal-Bench 2.1 的数百条运行轨迹，可以直接查看执行过程和不同角色的记录。以 WeaveBench 的 WEB_task_16_webrtc_simulcast_layer_audit 为例，可以对照使用同一 Qwen 3.7-Plus 模型的基线轨迹与 MEA 轨迹：前者在 Wireshark 交互卡住后反复尝试，得分 0.59；后者把失败和未满足的证据项写回任务状态，后续轮次只处理缺口，得分 0.92。这个案例用于展示“失败如何变成下一轮输入”，不能代替总体统计；完整实验的环境、参数和启动脚本见固定版本的 eval/ 目录。</p>
 <h2 id="10432-提议者-审核者范式">10.4.3.2 提议者-审核者范式</h2>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/de18018a95cd49ba750b513b96d5833591f56508284301d8910d1afa46842dbb.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/de18018a95cd49ba750b513b96d5833591f56508284301d8910d1afa46842dbb.jpg"><br>
 图 10-3 提议者-审核者循环</p>
 <p>提议者-审核者是最经典的对等协作范式。第五章已经在 PPT 生成、视频编辑和日志可视化三个实验中详细介绍了这一范式的设计原则和实战应用：Proposer Agent 负责生成代码，Reviewer Agent 渲染执行结果并用 VisionLLM 评估质量、给出结构化改进建议，两者反复迭代直到效果达标。</p>
 <p>这一范式同样适用于安全审查（提议者生成操作方案，审核者检查合规性和潜在风险）、内容审核（提议者起草回复，审核者检查业务规则和用语规范）、代码审核（提议者编写代码，审核者检查安全性和最佳实践）等场景。</p>
@@ -249,7 +249,7 @@ return summarize_failures(workers)
 </code></pre>
 <p>settle_once 必须是幂等的（通常由锁或事务保护），否则两个几乎同时到达的成功事件会触发两次汇总。</p>
 <p>顺序协调形态。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/a8f5e03fdb27c7d4553ba86754faa148fe27dcd08c2d01585e0321ea5e4ca735.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/a8f5e03fdb27c7d4553ba86754faa148fe27dcd08c2d01585e0321ea5e4ca735.jpg"><br>
 图 10-4 Manager 顺序协调</p>
 <p>Manager 按顺序依次调用专门 Agent，每个 Agent 完成后返回结果，Manager 再决定下一步。控制流是线性的，简单明了，适合子任务之间有清晰先后依赖的场景。</p>
 <h2 id="实验-10-2-书籍翻译-agent">实验 10-2 ★★：书籍翻译 Agent</h2>
@@ -265,10 +265,10 @@ return summarize_failures(workers)
 <ol>
 <li>选择一本图文并茂、包含代码的技术书籍作为翻译对象2. 实现 Manager、Glossary、Translation、Proofreading 四种 Agent3. 记录每个 Agent 的上下文消耗，验证管理者模式控制上下文膨胀的有效性4. 对比单 Agent vs 管理者模式在翻译质量、执行效率、资源消耗方面的差异</li>
 </ol>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/61e43013085829a62af0effc51bdbe66721d7b86ab8ed90038d0eeb8c65ed603.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/61e43013085829a62af0effc51bdbe66721d7b86ab8ed90038d0eeb8c65ed603.jpg"><br>
 图 10-5 书籍翻译 Agent 架构<br>
 并行协调形态。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/54db2c372edd3a42df878f8f93e4ea4cfb10f861f701460ed04138669a3b97be.jpg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/54db2c372edd3a42df878f8f93e4ea4cfb10f861f701460ed04138669a3b97be.jpg"></p>
 <pre><code class="language-json">消息总线通信示例
 Manager → Agent 1 {&quot;type&quot;:&quot;start&quot;,&quot;task&quot;:&quot;采集 arxiv 论文&quot;,&quot;params&quot;:{&quot;query&quot;:&quot;LLM agent&quot;}} 
 Agent 3 → Manager {&quot;type&quot;:&quot;completed&quot;,&quot;agent_id&quot;:&quot;3&quot;,&quot;result&quot;:&quot;charts/fig1.svg 已生成&quot;} 
@@ -287,7 +287,7 @@ Manager → Agent 4 {&quot;type&quot;:&quot;start&quot;,&quot;depends_on&quot;:[
 <p>任务场景：用户只给出一个网站 URL，请 Agent 填写复杂的注册或航班预订表单。Computer Agent 先打开页面并识别字段；姓名、证件号、联系方式、地址和偏好等信息不在当前上下文中，需要向用户收集。</p>
 <p>系统架构：Computer Agent 负责浏览器操作，也是本实验的编排者；Phone Agent 负责 ASR、LLM、TTS和实时对话。两者通过点对点工具或消息总线交换结构化消息（发送者、接收者、类型、内容）。不需要额外的Manager 进程：Computer Agent 可以像调用工具一样调用 Phone Agent。</p>
 <p>并行与闭环：Phone Agent 通过 WebRTC 逐项提问、抽取并校验回答；Computer Agent 同时截屏、理解页面并填写字段。每收到一个有效值就发送 info_collected，Phone Agent 不等待网页填写完成便询问下一项；Computer Agent 反馈 fill_error 或页面状态，Phone Agent 据此调整话术。格式错误发送 format_invalid并重新询问，超过重试次数或页面异常则安全暂停。信息收集完成后发送 task_completed，Computer Agent通过校验后提交表单。异常时取消仍在运行的对端，关闭浏览器、音频轨道和通话；真人语音须显式同意，提交须显式授权。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/ea524949dbe8eba042ba242f5185b66d92bdf7381e93f10652371c0b0c77cc8d.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/ea524949dbe8eba042ba242f5185b66d92bdf7381e93f10652371c0b0c77cc8d.jpg"><br>
 图 10-7 Phone 与 Computer 双 Agent 架构</p>
 <p>本实验探索多 Agent 并行执行在信息收集场景中的应用。与实验 10-3 的两个异构 Agent 协作不同，本实验关注的是多个同构 Agent 的并行搜索，以及如何通过中心协调实现高效的任务完成和资源优化。</p>
 <h2 id="核心挑战">核心挑战：</h2>
@@ -326,7 +326,7 @@ Manager → Agent 4 {&quot;type&quot;:&quot;start&quot;,&quot;depends_on&quot;:[
 <p>记录和对比并行执行与串行执行的时间差异，验证并行化带来的性能提升</p>
 </li>
 </ol>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/80578bdabfea2e1fcdbd5073972e31d1780eeb3d5a052183da33e8a36010253c.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/80578bdabfea2e1fcdbd5073972e31d1780eeb3d5a052183da33e8a36010253c.jpg"><br>
 图 10-8 并行 Web Scraping 架构</p>
 <h2 id="1045-去中心化模式">10.4.5 去中心化模式</h2>
 <p>有了管理者模式，为什么还要去中心化模式？去掉中心控制者的动机，主要在于模拟人类社会的组织方式：让多个职责对等的角色分工与制衡，各自从自己的专业视角审视问题、自主决定与谁沟通，而不是把所有判断都汇集到一个 Manager 那里。在去中心化模式中，每个 Agent 根据自己的专业判断，自主决定何时向其他 Agent 发起沟通——可能是移交任务（“我的部分做完了，交给你”），也可能是请求反馈（“这个方案技术上可行吗？”），或者报告问题（“你给的需求有矛盾，我们需要重新讨论”）。</p>
@@ -334,7 +334,7 @@ Manager → Agent 4 {&quot;type&quot;:&quot;start&quot;,&quot;depends_on&quot;:[
 <p>微服务领域把管理者和去中心化模式分别称为编排（orchestration）与编舞（choreography）：前者由指挥统一调度，后者靠每位舞者自行把握入场时机。</p>
 <p>下面三个案例是一条递进线索：MetaGPT 控制流其实是固定流水线（伪去中心化，只在通信机制上解耦），AutoGen group chat 是共享对话记录加中心化调度的混合形态，直到 OpenAI Swarm 才在控制流上做到真正的对等去中心化。</p>
 <p>MetaGPT：SOP 驱动的软件公司模拟。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/095856cc39d9794a620a528492a2e895482dece44fac7d602f64e016f022ed31.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/095856cc39d9794a620a528492a2e895482dece44fac7d602f64e016f022ed31.jpg"><br>
 图 10-9 MetaGPT 多 Agent 协作网络</p>
 <p>MetaGPT 的核心洞察是：人类软件公司积累的标准作业程序（SOP，Standard Operating Procedure）本身就是被反复验证过的协作协议——把 SOP 编码进多 Agent 系统，让每个角色像流水线上的专业工种一样产出标准化交付物，交付物天然构成了角色间的通信接口。</p>
 <p>在 MetaGPT 中，各角色沿固定顺序工作（Product Manager → Architect → Project Manager → Engineer→ QA），每个角色输出结构化的“移交包”：</p>
@@ -413,7 +413,7 @@ else:
 <p>经济涌现：Agent 通过市场机制进行资源分配和任务协调。Vending-Bench Arena 让多个 Agent 在同一市场中竞争经营，Pinchwork 和 RentAHuman 则构建了 Agent 之间（以及 Agent 与人类之间）的经济交易市场。</p>
 <p>策略博弈：Agent 在规则约束下进行推理、欺骗和社交操控。狼人杀实验考验的是 Agent 在信息不对称条件下的策略涌现。</p>
 <h2 id="1061-斯坦福-ai-小镇生成式-agent-的社会模拟">10.6.1 斯坦福 AI 小镇：生成式 Agent 的社会模拟</h2>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/7245682e0602c99ced25dedfff33ffb243acbf699902fb12825adcfbe015b847.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/7245682e0602c99ced25dedfff33ffb243acbf699902fb12825adcfbe015b847.jpg"><br>
 图 10-10 AI 小镇架构</p>
 <p>2023 年，斯坦福大学和 Google 研究团队发表了具有里程碑意义的论文《Generative Agents: Interactive Sim-ulacra of Human Behavior》，提出了“生成式 Agent”的概念。核心创新在于不再局限于让 Agent 完成预定义的任务，而是赋予 Agent 接近人类的记忆、反思和规划能力，使它们能够在开放的社会环境中自主生活、社交和发展。</p>
 <p>Smallville 是一个类似《模拟人生》的 2D 虚拟小镇，里面有咖啡馆、公园、住宅、商店等公共和私人空间。25 个Agent 扮演不同角色（店主、艺术家、学生、教授等），每个都有独特的背景故事、性格特点和人际关系。比如 JohnLin 是药店老板，热爱家庭、关心社区；Isabella Rodriguez 经营着小镇的咖啡馆 Hobbs Cafe，热情好客；KlausMueller 是一名正在写研究论文的大学生。</p>
@@ -499,7 +499,7 @@ else:
 <p>预言家 Agent 能在合适时机跳出并公布验人信息</p>
 <p>村民 Agent 的推理基于发言和行为的逻辑分析，而非随机猜测</p>
 <p>游戏结束时能正确判断胜负</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/41a2b6e6b48b7199d6c45a8e91f66540a264a257bd9df358525025b4b0a3fca2.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/41a2b6e6b48b7199d6c45a8e91f66540a264a257bd9df358525025b4b0a3fca2.jpg"><br>
 图 10-11 语音狼人杀 Agent 系统</p>
 <h2 id="107-本章小结">10.7 本章小结</h2>
 <p>多 Agent 协作的价值在于引入单个 Agent 原本无法获得的新信息。代码执行结果、视觉反馈和外部工具验证能够打破单一思维链的盲区。因而，是否真正带来信息增量、是否值得额外的 token 成本，应成为是否采用多 Agent的第一判断标准。</p>

@@ -109,7 +109,7 @@
 <p>本章加入 Task System。每个任务都有独立的 ID 和状态，<code>blockedBy</code> 记录前置任务，<code>owner</code> 记录负责执行的 Agent。</p>
 <hr>
 <h2 id="解决方案">解决方案</h2>
-<p><img alt="Task System Overview" src="https://gitee.com/cheng-jiaqing/images/raw/master/task-system-overview.svg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Task System Overview" src="https://gitee.com/cheng-jiaqing/images/raw/master/task-system-overview.svg"></p>
 <p>代码保留 S04 的五个基础工具、Permission、Hooks 和统一 <code>execute_tool</code>，再加入 6 个任务工具、<code>.tasks/</code> 目录持久化和 <code>blockedBy</code> 依赖检查。</p>
 <p>TodoWrite vs Task System：</p>
 <table>
@@ -165,7 +165,7 @@
 </table>
 <hr>
 <h2 id="工作原理">工作原理</h2>
-<p><img alt="Task DAG" src="https://gitee.com/cheng-jiaqing/images/raw/master/task-dag.svg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Task DAG" src="https://gitee.com/cheng-jiaqing/images/raw/master/task-dag.svg"></p>
 <h3 id="task-数据结构">Task: 数据结构</h3>
 <p>每个任务是一个 JSON 文件，存于 <code>.tasks/</code> 目录：</p>
 <pre><code class="language-python">@dataclass

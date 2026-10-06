@@ -99,7 +99,7 @@
 <p><strong>作者</strong>：小林面试笔记 | <strong>来源</strong>：微信公众号
 <strong>日期</strong>：2026-07-31</p>
 </blockquote>
-<p><img alt="llm-params-01" src="https://gitee.com/cheng-jiaqing/images/raw/master/llm_params_01.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="llm-params-01" src="https://gitee.com/cheng-jiaqing/images/raw/master/llm_params_01.png"></p>
 <hr>
 <h2 id="面试场景还原">面试场景还原</h2>
 <p><strong>面试官</strong>：讲讲大模型的几个采样参数：温度值、Top-P、Top-K 分别是什么？各场景下怎么设置？</p>
@@ -190,7 +190,7 @@
 <blockquote>
 <p><strong>Top-P 核心优势 = 自适应</strong>。候选池大小根据当前上下文的「确定性」自动调整：确定时小、开放时大，比固定 K 合理得多。</p>
 </blockquote>
-<p><img alt="llm-params-02" src="https://gitee.com/cheng-jiaqing/images/raw/master/llm_params_02.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="llm-params-02" src="https://gitee.com/cheng-jiaqing/images/raw/master/llm_params_02.png"></p>
 <h3 id="实际工程怎么配三个参数">实际工程怎么配三个参数</h3>
 <blockquote>
 <p><strong>绝大多数情况，只调 Temperature 一个参数就够了，Top-P 和 Top-K 保持默认。</strong></p>
@@ -242,7 +242,7 @@ top_p=0.95
 <blockquote>
 <p>⚠️ 不要把某个产品某个版本的默认值当成行业固定标准——模型更新后默认策略也会变。</p>
 </blockquote>
-<p><img alt="llm-params-03" src="https://gitee.com/cheng-jiaqing/images/raw/master/llm_params_03.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="llm-params-03" src="https://gitee.com/cheng-jiaqing/images/raw/master/llm_params_03.png"></p>
 <h3 id="两个常见踩坑">两个常见踩坑</h3>
 <p><strong>① 同时调 temperature 高 + top_p 低</strong>
 如 temperature=1.2 + top_p=0.5 =「让分布变平坦再截掉一半」，两个参数互相打架，结果完全不可预测。</p>
@@ -251,7 +251,7 @@ top_p=0.95
 <blockquote>
 <p><strong>口诀</strong>：先只调 temperature，top_p 保持默认或 0.9~1.0，top_k 不设置。如果决定调 top_p，就先固定 temperature，不要两个一起大幅改。</p>
 </blockquote>
-<p><img alt="llm-params-04" src="https://gitee.com/cheng-jiaqing/images/raw/master/llm_params_04.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="llm-params-04" src="https://gitee.com/cheng-jiaqing/images/raw/master/llm_params_04.png"></p>
 <hr>
 <h2 id="面试回答模板">🎯 面试回答模板</h2>
 <h3 id="讲作用维度原理">讲作用维度（原理）</h3>

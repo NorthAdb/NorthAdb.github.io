@@ -103,7 +103,7 @@
 <p>对于“每天早上 9 点跑测试”或“每 30 分钟检查 CI 状态”这样的请求，如果只依靠当前的 Agent Loop，用户仍要在每次到点后重新发送 prompt。Harness 需要保存执行时间，到点后把对应的 prompt 加入待执行队列，再在 Agent 空闲时交给 Agent Loop。</p>
 <hr>
 <h2 id="解决方案">解决方案</h2>
-<p><img alt="Cron Scheduler Overview" src="https://gitee.com/cheng-jiaqing/images/raw/master/cron-scheduler-overview.svg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Cron Scheduler Overview" src="https://gitee.com/cheng-jiaqing/images/raw/master/cron-scheduler-overview.svg"></p>
 <p>假设 Agent 注册了下面这项任务：</p>
 <pre><code class="language-text">cron:   0 9 * * *
 prompt: run tests

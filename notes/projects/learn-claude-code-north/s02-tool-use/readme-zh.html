@@ -107,7 +107,7 @@
 <p>模型想的是"读这个文件"，却要拼出 <code>cat path/to/file</code>。多了一层翻译，浪费 token，还容易拼错。</p>
 <hr>
 <h2 id="全局视角工具分发">全局视角：工具分发</h2>
-<p><img alt="Tool Dispatch" src="https://gitee.com/cheng-jiaqing/images/raw/master/tool-dispatch.svg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Tool Dispatch" src="https://gitee.com/cheng-jiaqing/images/raw/master/tool-dispatch.svg"></p>
 <p>s01 的循环完全保留（LLM 调用、<code>tool_use</code> block 判断、消息追加）。唯一的变动在工具执行那 1 行：<code>run_bash()</code> 替换为 <code>TOOL_HANDLERS[block.name]()</code> 查表分发。</p>
 <p>给 Agent 加一个工具只需要做两件事：</p>
 <ol>

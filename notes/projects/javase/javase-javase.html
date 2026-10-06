@@ -95,17 +95,17 @@
         </div>
 
         <div class="prose">
-<p><img alt="image-20221004132312588" src="https://s2.loli.net/2022/10/04/aRsN9WoS7BcC3uY.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20221004132312588" src="https://s2.loli.net/2022/10/04/aRsN9WoS7BcC3uY.png"></p>
 <h1 id="多线程与反射">多线程与反射</h1>
 <p>前面我们已经讲解了JavaSE的大部分核心内容，最后一章，我们还将继续学习JavaSE中提供的各种高级特性。这些高级特性对于我们之后的学习，会有着举足轻重的作用。</p>
 <h2 id="多线程">多线程</h2>
 <p><strong>注意：</strong> 本章节会涉及到 <strong>操作系统</strong> 相关知识。</p>
 <p>在了解多线程之前，让我们回顾一下<code>操作系统</code>中提到的进程概念：</p>
-<p><img alt="b040eadb-8aa1-4b2a-b587-2c0a6b4efa0b" src="https://s2.loli.net/2022/10/04/GhrSTfNRsc2jFZM.jpg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="b040eadb-8aa1-4b2a-b587-2c0a6b4efa0b" src="https://s2.loli.net/2022/10/04/GhrSTfNRsc2jFZM.jpg"></p>
 <p>进程是程序执行的实体，每一个进程都是一个应用程序（比如我们运行QQ、浏览器、LOL、网易云音乐等软件），都有自己的内存空间，CPU一个核心同时只能处理一件事情，当出现多个进程需要同时运行时，CPU一般通过<code>时间片轮转调度</code>算法，来实现多个进程的同时运行。</p>
-<p><img alt="image-20221004132729868" src="https://s2.loli.net/2022/10/04/hUkGafu7vztB4qR.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20221004132729868" src="https://s2.loli.net/2022/10/04/hUkGafu7vztB4qR.png"></p>
 <p>在早期的计算机中，进程是拥有资源和独立运行的最小单位，也是程序执行的最小单位。但是，如果我希望两个任务同时进行，就必须运行两个进程，由于每个进程都有一个自己的内存空间，进程之间的通信就变得非常麻烦（比如要共享某些数据）而且执行不同进程会产生上下文切换，非常耗时，那么能否实现在一个进程中就能够执行多个任务呢？</p>
-<p><img alt="image-20221004132700554" src="https://s2.loli.net/2022/10/04/okgq3HEKGn6jBVw.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20221004132700554" src="https://s2.loli.net/2022/10/04/okgq3HEKGn6jBVw.png"></p>
 <p>后来，线程横空出世，一个进程可以有多个线程，线程是程序执行中一个单一的顺序控制流程，现在线程才是程序执行流的最小单元，各个线程之间共享程序的内存空间（也就是所在进程的内存空间），上下文切换速度也高于进程。</p>
 <p>在之前的学习中，一直以来编写的都是单线程应用程序（运行<code>main()</code>方法的内容），也就是说只能同时执行一个任务（无论你是调用方法、还是进行计算，始终都是依次进行的，也就是同步的），而如果我们希望同时执行多个任务（两个方法<strong>同时</strong>在运行或者是两个计算同时在进行，也就是并发的），就需要用到Java多线程框架。实际上一个Java程序启动后，会创建很多辅助线程，不仅仅只运行一个主线程：</p>
 <pre><code class="language-java">public static void main(String[] args) {
@@ -177,7 +177,7 @@ public interface Runnable {
 </code></pre>
 <p>我们可以看到打印实际上是在交替进行的，也证明了他们是在同时运行！</p>
 <p><strong>注意</strong>：我们发现还有一个run方法，也能执行线程里面定义的内容，但是run是直接在当前线程执行，并不是创建一个线程执行！</p>
-<p><img alt="image-20221004133119997" src="https://s2.loli.net/2022/10/04/Srx4H8YyRWqXofc.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20221004133119997" src="https://s2.loli.net/2022/10/04/Srx4H8YyRWqXofc.png"></p>
 <p>实际上，线程和进程差不多，也会等待获取CPU资源，一旦获取到，就开始按顺序执行我们给定的程序，当需要等待外部IO操作（比如Scanner获取输入的文本），就会暂时处于休眠状态，等待通知，或是调用<code>sleep()</code>方法来让当前线程休眠一段时间：</p>
 <pre><code class="language-java">public static void main(String[] args) throws InterruptedException {
     System.out.println(&quot;l&quot;);
@@ -399,9 +399,9 @@ public static void main(String[] args) throws InterruptedException {
 <p>实际上，t2线程只是暂时处于等待状态，当t1执行结束时，t2才开始继续执行，只是在效果上看起来好像是两个线程合并为一个线程在执行而已。</p>
 <h3 id="线程锁和线程同步">线程锁和线程同步</h3>
 <p>在开始讲解线程同步之前，我们需要先了解一下多线程情况下Java的内存管理：</p>
-<p><img alt="image-20221004203914215" src="https://s2.loli.net/2022/10/04/ZvI8neF3tdGJwS4.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20221004203914215" src="https://s2.loli.net/2022/10/04/ZvI8neF3tdGJwS4.png"></p>
 <p>线程之间的共享变量（比如之前悬念中的value变量）存储在主内存（main memory）中，每个线程都有一个私有的工作内存（本地内存），工作内存中存储了该线程以读/写共享变量的副本。它类似于我们在<code>计算机组成原理</code>中学习的多核心处理器高速缓存机制：</p>
-<p><img alt="image-20221004204209038" src="https://s2.loli.net/2022/10/04/SKlbIZyvxMnauLJ.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20221004204209038" src="https://s2.loli.net/2022/10/04/SKlbIZyvxMnauLJ.png"></p>
 <p>高速缓存通过保存内存中数据的副本来提供更加快速的数据访问，但是如果多个处理器的运算任务都涉及同一块内存区域，就可能导致各自的高速缓存数据不一致，在写回主内存时就会发生冲突，这就是引入高速缓存引发的新问题，称之为：缓存一致性。</p>
 <p>实际上，Java的内存模型也是这样类似设计的，当我们同时去操作一个共享变量时，如果仅仅是读取还好，但是如果同时写入内容，就会出现问题！好比说一个银行，如果我和我的朋友同时在银行取我账户里面的钱，难道取1000还可能吐2000出来吗？我们需要一种更加安全的机制来维持秩序，保证数据的安全性！</p>
 <p>比如我们可以来看看下面这个问题：</p>
@@ -423,7 +423,7 @@ public static void main(String[] args) throws InterruptedException {
 }
 </code></pre>
 <p>实际上，当两个线程同时读取value的时候，可能会同时拿到同样的值，而进行自增操作之后，也是同样的值，再写回主内存后，本来应该进行2次自增操作，实际上只执行了一次！</p>
-<p><img alt="image-20221004204439553" src="https://s2.loli.net/2022/10/04/T2l3xfIP17Gr5dw.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20221004204439553" src="https://s2.loli.net/2022/10/04/T2l3xfIP17Gr5dw.png"></p>
 <p>通过synchronized关键字来创造一个线程锁，首先我们来认识一下synchronized代码块，它需要在括号中填入一个内容，必须是一个对象或是一个类，我们在value自增操作外套上同步代码块：</p>
 <pre><code class="language-java">private static int value = 0;
 
@@ -506,7 +506,7 @@ public static void main(String[] args) throws InterruptedException {
 <p>我们发现实际上效果是相同的，只不过这个锁不用你去给，如果是静态方法，就是使用的类锁，而如果是普通成员方法，就是使用的对象锁。通过灵活的使用synchronized就能很好地解决我们之前提到的问题了。</p>
 <h3 id="死锁">死锁</h3>
 <p>其实死锁的概念在<code>操作系统</code>中也有提及，它是指两个线程相互持有对方需要的锁，但是又迟迟不释放，导致程序卡住：</p>
-<p><img alt="image-20221004205058223" src="https://s2.loli.net/2022/10/04/Ja6TPO23wCI8pvn.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20221004205058223" src="https://s2.loli.net/2022/10/04/Ja6TPO23wCI8pvn.png"></p>
 <p>我们发现，线程A和线程B都需要对方的锁，但是又被对方牢牢把握，由于线程被无限期地阻塞，因此程序不可能正常终止。我们来看看以下这段代码会得到什么结果：</p>
 <pre><code class="language-java">public static void main(String[] args) throws InterruptedException {
     Object o1 = new Object();
@@ -602,7 +602,7 @@ Found 1 deadlock.
 <p>notifyAll其实和notify一样，也是用于唤醒，但是前者是唤醒所有调用<code>wait()</code>后处于等待的线程，而后者是看运气随机选择一个。</p>
 <h3 id="threadlocal的使用">ThreadLocal的使用</h3>
 <p>既然每个线程都有一个自己的工作内存，那么能否只在自己的工作内存中创建变量仅供线程自己使用呢？</p>
-<p><img alt="img" src="https://s2.loli.net/2023/08/14/lNCAaZcfysW5UQ2.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="img" src="https://s2.loli.net/2023/08/14/lNCAaZcfysW5UQ2.png"></p>
 <p>我们可以使用ThreadLocal类，来创建工作内存中的变量，它将我们的变量值存储在内部（只能存储一个变量），不同的线程访问到ThreadLocal对象时，都只能获取到当前线程所属的变量。</p>
 <pre><code class="language-java">public static void main(String[] args) throws InterruptedException {
     ThreadLocal&lt;String&gt; local = new ThreadLocal&lt;&gt;();  //注意这是一个泛型类，存储类型为我们要存放的变量类型
@@ -871,7 +871,7 @@ private void mainLoop() {
 }
 </code></pre>
 <p>我们发现，有些时候运气不好，得到的结果并不是2000个元素，而是：</p>
-<p><img alt="image-20221004212332535" src="https://s2.loli.net/2022/10/04/m1nZfG4wPCOQx8V.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20221004212332535" src="https://s2.loli.net/2022/10/04/m1nZfG4wPCOQx8V.png"></p>
 <p>因为之前的集合类，并没有考虑到多线程运行的情况，如果两个线程同时执行，那么有可能两个线程同一时间都执行同一个方法，这种情况下就很容易出问题：</p>
 <pre><code class="language-java">public boolean add(E e) {
     ensureCapacityInternal(size + 1);  // 当数组容量更好还差一个满的时候，这个时候两个线程同时走到了这里，因为都判断为没满，所以说没有进行扩容，但是实际上两个线程都要插入一个元素进来
@@ -978,9 +978,9 @@ private static void test2() {
 }
 </code></pre>
 <p>可以看到，我们在<code>main</code>方法内调用<code>test1</code>方法，然后<code>test1</code>内又调用<code>test2</code>方法，在方法的调用过程中，实际上有一个专门的栈结构，在储存方法的调用和其参数。我们每向下调用一次方法，那么方法信息以及其携带的参数就会进栈，像这样的东西我们一般称为"栈帧"，然后等待位于最顶上的方法执行完毕：</p>
-<p><img alt="image-20250709174657728" src="https://s2.loli.net/2025/07/09/ZGIktoeiC1gPFNd.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20250709174657728" src="https://s2.loli.net/2025/07/09/ZGIktoeiC1gPFNd.png"></p>
 <p>当最顶上的方法结束之后，栈中的对应的栈帧便会离开，从而继续执行下一个位于栈顶的方法：</p>
-<p><img alt="image-20250709175203003" src="https://s2.loli.net/2025/07/09/1pflz2dUjiL76KI.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20250709175203003" src="https://s2.loli.net/2025/07/09/1pflz2dUjiL76KI.png"></p>
 <p>大致原理就是这样，程序的执行需要用到栈来维护秩序。不过栈的深度是有限制的，就像我们之前使用递归的形式调用方法，如果不加以限制，那么栈中将无限制插入栈帧，这肯定会出现问题。默认情况下，栈的深度由JVM自动设定，我们也可以手动干预每个线程的最大栈深度：</p>
 <pre><code class="language-java">public static void main(String[] args) {
     Thread.ofPlatform()
@@ -993,7 +993,7 @@ private static void test1() {  //写个递归无限往下
     test1();
 }
 </code></pre>
-<p><img alt="image-20250709180135817" src="https://s2.loli.net/2025/07/09/Yt1u4mpZ6IoTMxH.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20250709180135817" src="https://s2.loli.net/2025/07/09/Yt1u4mpZ6IoTMxH.png"></p>
 <p>默认情况下，在深度达到30000左右时出现了爆栈的情况（不同的系统可能结果不一样）我们可以通过配置<code>stackSize</code>来建议此线程使用多大的栈空间：</p>
 <pre><code class="language-java">public static void main(String[] args) {
     Thread.ofPlatform()
@@ -1002,7 +1002,7 @@ private static void test1() {  //写个递归无限往下
 }
 </code></pre>
 <p>重新执行后，可以看到，调用深度比刚刚大了不少：</p>
-<p><img alt="image-20250709180451994" src="https://s2.loli.net/2025/07/09/PKJjm5yblLGx8WD.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20250709180451994" src="https://s2.loli.net/2025/07/09/PKJjm5yblLGx8WD.png"></p>
 <p>不过这个参数只是建议，如果给的过大或者过小都会强制使用预设的最大最小值。</p>
 <h3 id="java-21-虚拟线程">(Java 21) 虚拟线程</h3>
 <p>虚拟线程（Virtual Threads）是Java在JDK 19中引入的一项新特性，旨在简化并发编程模型，提升高并发应用的性能和可扩展性，此功能最终在Java 21版本实装上线。</p>
@@ -1013,7 +1013,7 @@ private static void test1() {  //写个递归无限往下
 <li><strong>资源效率</strong>：虚拟线程内存占用较少，启动速度快，有助于构建高性能的服务器和微服务。</li>
 </ul>
 <p>综上，虚拟线程实际上是在单个线程内进一步细分的产物：</p>
-<p><img alt="image-20250709155427062" src="https://s2.loli.net/2025/07/09/A3ugTDX4GI27bHz.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20250709155427062" src="https://s2.loli.net/2025/07/09/A3ugTDX4GI27bHz.png"></p>
 <p>线程在Java中分为两种：</p>
 <ul>
 <li><strong>平台线程：</strong> 就是我们上面讲解的线程，由操作系统进行调度。</li>
@@ -1029,7 +1029,7 @@ private static void test1() {  //写个递归无限往下
     System.out.println(&quot;我是虚拟线程&quot;);
 }).join();
 </code></pre>
-<p><img alt="image-20250709181308353" src="https://s2.loli.net/2025/07/09/J8sNqAhSbY2gjyP.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20250709181308353" src="https://s2.loli.net/2025/07/09/J8sNqAhSbY2gjyP.png"></p>
 <p>除此之外，我们也可以使用生成器创建虚拟线程：</p>
 <pre><code class="language-java">Thread.ofVirtual()
         .name(&quot;虚拟线程 01&quot;)
@@ -1042,7 +1042,7 @@ private static void test1() {  //写个递归无限往下
 <p>简而言之，我们可以通过反射机制，获取到类的一些属性，包括类里面有哪些字段，有哪些方法，继承自哪个类，甚至还能获取到泛型！它的权限非常高，慎重使用！</p>
 <h3 id="java类加载机制">Java类加载机制</h3>
 <p>在学习Java的反射机制之前，我们需要先了解一下类的加载机制，一个类是如何被加载和使用的：</p>
-<p><img alt="image-20221004213335479" src="https://s2.loli.net/2022/10/04/vZ4onhuJWcALHNP.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20221004213335479" src="https://s2.loli.net/2022/10/04/vZ4onhuJWcALHNP.png"></p>
 <p>在Java程序启动时，JVM会将一部分类（class文件）先加载（并不是所有的类都会在一开始加载），通过ClassLoader将类加载，在加载过程中，会将类的信息提取出来（存放在元空间中，JDK1.8之前存放在永久代），同时也会生成一个Class对象存放在内存（堆内存），注意此Class对象只会存在一个，与加载的类唯一对应！</p>
 <p>为了方便各位小伙伴理解，你们就直接理解为默认情况下（仅使用默认类加载器）每个类都有且只有一个唯一的Class对象存放在JVM中，我们无论通过什么方式访问，都是始终是那一个对象。Class对象中包含我们类的一些信息，包括类里面有哪些方法、哪些变量等等。</p>
 <h3 id="class类获取">Class类获取</h3>
@@ -1346,9 +1346,9 @@ System.out.println(str);
 <li><strong>更易维护和扩展</strong>：大型项目变得更有条理。</li>
 </ul>
 <p>可见，模块化机制实际上是为大型项目准备的，而我们目前阶段仅仅还在初学状态，这里可以为大家简单介绍一下项目如何进行模块化开发。我们可以将项目分为多个子模块，不同模块开发不同的内容，然后相互作为依赖使用。</p>
-<p><img alt="image-20250725233619547" src="https://s2.loli.net/2025/07/25/LldWpCgbqr3YjHa.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20250725233619547" src="https://s2.loli.net/2025/07/25/LldWpCgbqr3YjHa.png"></p>
 <p>比如我们可以在<code>app</code>模块中将<code>utils</code>作为依赖导入：</p>
-<p><img alt="image-20250725233919608" src="https://s2.loli.net/2025/07/25/4iNoEJMnfcVhW1L.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20250725233919608" src="https://s2.loli.net/2025/07/25/4iNoEJMnfcVhW1L.png"></p>
 <p>此时我们就可以在<code>app</code>中直接使用<code>utils</code>里面定义的类和方法了，同样可以进行包的导入，就像使用JDK官方提供的类那样。当然，在JavaWeb阶段我们还会学习Maven，它相比我们这里的简单模块化来说，是一个更加强大的依赖管理和模块化工具，使用Maven来引入我们自己的模块或是别人的框架模块会更加简单和方便，现代化企业级项目基本都是基于Maven或Gradle进行开发。不过，无论通过哪种方式引入，实际上都适用于Java9的模块化机制。</p>
 <p>项目现在是模块化的了，那么到底如何才能使用Java9的模块化机制呢？模块具有四种类型，我们首先介绍一下<strong>应用程序模块</strong>，在我们自己的项目中，我们可以在某个模块下的源代码根路径下新建一个叫做<code>module-info.java</code>的文件，它用于配置模块化信息：</p>
 <pre><code class="language-java">module hello.utils {
@@ -1357,7 +1357,7 @@ System.out.println(str);
 </code></pre>
 <p>这里使用<code>module</code>关键字（此关键字仅在模块化声明文件中生效）声明模块的名称，后面需要跟随一个花括号。</p>
 <p>声明模块后，我们会发现项目中某些类无法正常使用了：</p>
-<p><img alt="image-20250725235627947" src="https://s2.loli.net/2025/07/25/CHJB5ND7ASWvLch.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20250725235627947" src="https://s2.loli.net/2025/07/25/CHJB5ND7ASWvLch.png"></p>
 <p>这是因为我们现在使用了模块机制，我们如果需要使用其他模块，需要手动进行导入，默认情况下，包中如果没有创建<code>module-info.java</code>文件，那么会按照<strong>未命名模块</strong>进行处理，未命名模块同样可以访问所有其他模块提供的类，这样我们之前写的Java 8代码才能正常地在Java 9以及之后的版本下运行。要在模块化的子模块中导入其他未命名模块，我们只需要使用其他模块的默认名称即可：</p>
 <pre><code class="language-java">module hello.app {
     requires utils;   //其他模块的名称，默认是IDEA中的子模块名称
@@ -1389,7 +1389,7 @@ Method hello = utilsClass.getDeclaredMethod(&quot;hello&quot;);
 hello.setAccessible(true);
 hello.invoke( null);
 </code></pre>
-<p><img alt="image-20250726001257644" src="https://s2.loli.net/2025/07/26/f1KOc5gPSAh4opr.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20250726001257644" src="https://s2.loli.net/2025/07/26/f1KOc5gPSAh4opr.png"></p>
 <p>这个错误实际上在我们前面的JDK类中进行反射操作也出现了，要允许其他模块使用越级反射操作，我们可以在模块的前面添加<code>open</code>关键字来允许其他模块的越级访问操作：</p>
 <pre><code class="language-java">open module hello.utils {
     exports com.test.utils;
@@ -1409,9 +1409,9 @@ hello.invoke( null);
 <li><strong>AppClassLoader</strong>：应用类加载器，主要用于加载我们自己编写的类，以及其他JDK中没有被上述两个类加载器加载的模块和类。</li>
 </ul>
 <p>对于采用模块化的项目来说，在程序启动后，根据不同的模块划分，不同类会在一开始直接分配给对应的ClassLoader进行加载：</p>
-<p><img alt="image-20250726155642491" src="https://s2.loli.net/2025/07/26/FDLJfg74QN6jxcC.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20250726155642491" src="https://s2.loli.net/2025/07/26/FDLJfg74QN6jxcC.png"></p>
 <p>对于传统非模块化项目来说，在程序启动后，会按照Java8之前的双亲委派机制进行类的加载：</p>
-<p><img alt="image-20250726160510070" src="https://s2.loli.net/2025/07/26/rQg5JciKZxpePUf.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20250726160510070" src="https://s2.loli.net/2025/07/26/rQg5JciKZxpePUf.png"></p>
 <p>当类需要进行加载时，默认会由最下层的AppClassLoader接手，但并不会立即加载类，而是向上传递询问其父类加载器PlatformClassLoader能否进行加载，同样的PlatformClassLoader也不会立即加载，而是继续向上传递到顶层BootClassLoader进行判断，如果顶层可以直接加载这些类（比如JDK核心类就可以直接加载）那么会直接在BootClassLoader中完成类加载，并直接得到对应的Class对象，如果顶层不行，再继续向下让PlatformClassLoader进行加载，如果还是无法加载，最后才会让AppClassLoader尝试加载，比如我们自己编写的类就是由AppClassLoader完成加载的，这样的类加载机制我们也叫<strong>双亲委派机制</strong>。</p>
 <p>我们可以来观察下不同类的类加载器：</p>
 <pre><code class="language-java">public class Main {

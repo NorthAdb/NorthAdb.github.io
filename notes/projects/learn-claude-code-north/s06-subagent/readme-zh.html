@@ -106,7 +106,7 @@
 <p>Agent 在修一个 bug。为了追踪调用链，它读取了许多文件；每次工具调用和结果都会留在父循环的 <code>messages[]</code> 中。调用链已经弄清以后，多数中间细节不再需要，却仍然占用上下文。</p>
 <hr>
 <h2 id="解决方案">解决方案</h2>
-<p><img alt="Subagent Overview" src="https://gitee.com/cheng-jiaqing/images/raw/master/subagent-overview.svg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Subagent Overview" src="https://gitee.com/cheng-jiaqing/images/raw/master/subagent-overview.svg"></p>
 <p>调用 <code>task</code> 时，会同步运行一个使用全新 <code>messages[]</code> 的嵌套 Agent Loop。循环结束后，它的最终文本会成为父对话中的工具结果。</p>
 <p>这里隔离的是消息，不是进程或文件系统。父 Agent 与子 Agent 共享 <code>WORKDIR</code>，写文件和命令仍会影响同一个工作区。子 Agent 拥有五个基础工具，但没有 <code>task</code>；它的工具调用与父 Agent 使用同一组权限和生命周期 Hooks。</p>
 <hr>

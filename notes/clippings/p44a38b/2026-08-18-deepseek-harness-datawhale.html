@@ -146,7 +146,7 @@
 </tbody>
 </table>
 <p><strong>叠加顺序</strong>：先装各组合包 → 打 profile 补丁 → 打本地补丁 → 启动命令里临时再加一层补丁。<strong>每一层都能覆盖上一层的结果。</strong></p>
-<p><img alt="Profile / Bundle / Patch 三层组装" src="https://gitee.com/cheng-jiaqing/images/raw/master/dsh-plugin-guide-20260817-01.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Profile / Bundle / Patch 三层组装" src="https://gitee.com/cheng-jiaqing/images/raw/master/dsh-plugin-guide-20260817-01.png"></p>
 <p><strong><code>dsh-base</code></strong> 是每个 profile 必装的第一层组合包——装上就有模型适配器、工具、数据持久化、安全策略、遥测等基础能力，后续组合包和用户补丁按名字覆盖它。</p>
 <h3 id="顶层四种运行模式">顶层：四种运行模式</h3>
 <table>
@@ -221,10 +221,10 @@ export class GreeterService extends Service {
 </tr>
 </tbody>
 </table>
-<p><img alt="Cordis 核心词汇" src="https://gitee.com/cheng-jiaqing/images/raw/master/dsh-plugin-guide-20260817-02.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Cordis 核心词汇" src="https://gitee.com/cheng-jiaqing/images/raw/master/dsh-plugin-guide-20260817-02.png"></p>
 <h3 id="事件五种分发方式">事件五种分发方式</h3>
 <p>前几种是广播/定向通知，<strong>最后一种 <code>waterfall</code> 是实现拦截的模式</strong>：每个监听者拿到一个"继续往下传"的开关，调用它就把工作交给下一个监听者，不调用就直接拦下。DSH 的工具执行流水线就是四段 waterfall 串起来的。</p>
-<p><img alt="事件五种分发方式" src="https://gitee.com/cheng-jiaqing/images/raw/master/dsh-plugin-guide-20260817-03.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="事件五种分发方式" src="https://gitee.com/cheng-jiaqing/images/raw/master/dsh-plugin-guide-20260817-03.png"></p>
 <hr>
 <h2 id="三fiberinjecteffect插件动态能力的三个关键机制">三、Fiber、inject、effect：插件动态能力的三个关键机制</h2>
 <h3 id="fiber加载与卸载都有迹可循">Fiber：加载与卸载都有迹可循</h3>
@@ -269,7 +269,7 @@ export class GreeterService extends Service {
 </code></pre>
 <p><strong>天生受 effect 管理、不用自己写清理的</strong>：注册事件监听器（卸载自动移除）、挂载子插件（父卸载子跟着清）、往工具注册表注册工具（卸载自动注销）。</p>
 <p><strong>清理执行纪律</strong>：按注册的反序启动，多个异步清理并发跑；有先后顺序要求的放进同一个清理函数里依次执行。</p>
-<p><img alt="Fiber / inject / effect 三机制" src="https://gitee.com/cheng-jiaqing/images/raw/master/dsh-plugin-guide-20260817-04.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Fiber / inject / effect 三机制" src="https://gitee.com/cheng-jiaqing/images/raw/master/dsh-plugin-guide-20260817-04.png"></p>
 <blockquote>
 <p><strong>三个机制各管一段、互不重叠：Fiber 管生命周期，inject 管依赖，effect 管清理。</strong></p>
 </blockquote>
@@ -281,7 +281,7 @@ export class GreeterService extends Service {
 - 声明依赖"提示词组装"能力，等就位才启动，启动时立刻注册自己用的提示词片段；
 - 提供"注册工具"方法——调用方每注册一个工具拿回一个<strong>卸载函数</strong>，想动态卸载某个工具时直接调用即可（"动态"在最细粒度的样子）。</p>
 <p><strong>工具执行是四段 waterfall 流水线</strong>：</p>
-<p><img alt="工具执行四段流水线" src="https://gitee.com/cheng-jiaqing/images/raw/master/dsh-plugin-guide-20260817-05.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="工具执行四段流水线" src="https://gitee.com/cheng-jiaqing/images/raw/master/dsh-plugin-guide-20260817-05.png"></p>
 <ul>
 <li><strong>审批插件</strong>在"执行前"一环直接拦下，工具实际逻辑从没运行；</li>
 <li><strong>结果屏蔽插件</strong>在"执行后"把成功结果改写成错误提示，模型看到的已是改写后的内容。</li>

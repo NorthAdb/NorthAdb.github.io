@@ -108,7 +108,7 @@
 <p>S11 要解决的问题是：让耗时的 Bash 命令在后台执行，使 Agent Loop 可以继续处理其他工作，并在后续轮次收集完成结果。</p>
 <hr>
 <h2 id="解决方案">解决方案</h2>
-<p><img alt="Background Tasks Overview" src="https://gitee.com/cheng-jiaqing/images/raw/master/background-tasks-overview.svg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Background Tasks Overview" src="https://gitee.com/cheng-jiaqing/images/raw/master/background-tasks-overview.svg"></p>
 <p>本章把慢操作放入后台线程。当前工具调用先返回一个占位 <code>tool_result</code>，Agent Loop 可以继续运行；后续轮次开始时再收集已经完成的结果，以通知形式加入对话。</p>
 <p>同步 vs 后台：</p>
 <table>

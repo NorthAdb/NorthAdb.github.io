@@ -100,13 +100,13 @@
 <strong>来源</strong>：微信公众号
 <strong>日期</strong>：2026-08-07</p>
 </blockquote>
-<p><img alt="Codex 模型选择界面：5.6 Sol、5.6 Terra、5.6 Luna 等模型" src="https://gitee.com/cheng-jiaqing/images/raw/master/cover.jpg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Codex 模型选择界面：5.6 Sol、5.6 Terra、5.6 Luna 等模型" src="https://gitee.com/cheng-jiaqing/images/raw/master/cover.jpg"></p>
 <hr>
 <h2 id="背景从-claude-code-到-codex">背景：从 Claude Code 到 Codex</h2>
 <p>用 Claude 三个月后账号被封，转而研究 Codex。封号邮件称，Anthropic 的 Safeguards Team 在内部调查中发现与账号相关的可疑信号，认定违反 Usage Policy，随后撤销 Claude 的访问权限，并提供了申诉入口。</p>
-<p><img alt="Claude 封号邮件：账号因违反 Usage Policy 被撤销访问权限" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-01.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Claude 封号邮件：账号因违反 Usage Policy 被撤销访问权限" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-01.png"></p>
 <p>聊天截图里，读者问「林哥不用 cc 了吗」，作者回答「看最近一直 codex」，并用「被封了」解释了迁移原因。Claude Code 和 Codex 的工程化能力<strong>很多功能是相通的</strong>——<code>AGENTS.md</code> ≈ <code>CLAUDE.md</code>，其余 Skills、Subagents、MCP、Hooks 的概念也基本一致。</p>
-<p><img alt="聊天截图：从 Claude Code 转向 Codex" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-02.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="聊天截图：从 Claude Code 转向 Codex" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-02.png"></p>
 <p><strong>Codex 五件套总览</strong>：</p>
 <table>
 <thead>
@@ -149,7 +149,7 @@
 <li><strong>手动创建</strong>：在项目根目录新建 <code>AGENTS.md</code>，写入团队约定、修改规则和检查命令</li>
 <li><strong>让 Codex 生成</strong>：按 <code>Cmd/Ctrl + O</code> 打开项目后，发送提示词描述规则</li>
 </ol>
-<p><img alt="在 Finder 中打开 product-docs 项目根目录" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-03.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="在 Finder 中打开 product-docs 项目根目录" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-03.png"></p>
 <p>示例提示词：</p>
 <pre><code>请在当前项目根目录创建 AGENTS.md。
 这是一个团队技术文档仓库。
@@ -159,11 +159,11 @@
 完成修改后执行 `python3 scripts/check_docs.py` 检查标题和图片引用。
 先只创建规则文件，不修改任何文档，也不执行检查命令。
 </code></pre>
-<p><img alt="Codex 创建 AGENTS.md 后的任务结果与审核入口" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-04.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Codex 创建 AGENTS.md 后的任务结果与审核入口" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-04.png"></p>
 <p>Codex 生成后可在右侧审核产出内容：</p>
-<p><img alt="Codex 审核 AGENTS.md：右侧显示新增规则的 diff" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-05.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Codex 审核 AGENTS.md：右侧显示新增规则的 diff" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-05.png"></p>
 <p><strong>验证规则是否被读到</strong>：新任务中输入「只总结当前生效的项目规则，并列出规则来自哪些 AGENTS.md 文件」，返回结果应包含中文正文、文件命名、图片目录、<code>published/</code> 只读和检查命令等规则。</p>
-<p><img alt="Codex 总结当前规则并列出来源文件" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-06.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Codex 总结当前规则并列出来源文件" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-06.png"></p>
 <h3 id="写法要点">写法要点</h3>
 <p>最小示例：</p>
 <pre><code class="language-markdown"># 项目说明
@@ -185,7 +185,7 @@
 <p><strong>没有神秘语法，就是 Markdown。真正影响效果的是内容够不够具体。</strong></p>
 <p>「注意文档质量」这种话基本等于没说。换成「只能有一个一级标题」「图片统一放进哪个目录」「修改后执行哪条检查命令」，Codex 才知道下一步该做什么，也知道怎么证明自己做完了。</p>
 </blockquote>
-<p><img alt="对比模糊规则与可执行规则：目录、命令和验收标准都要明确" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-07.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="对比模糊规则与可执行规则：目录、命令和验收标准都要明确" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-07.png"></p>
 <h3 id="规则怎么加载">规则怎么加载</h3>
 <pre><code>~/.codex/
 └── AGENTS.md                    # 个人全局规则
@@ -210,7 +210,7 @@ product-docs/
 <p>注意：如果当前打开的是仓库根目录，让 Codex 去改 <code>api/</code>，它不会自动补读更深层的规则。要测试子目录规则，就把该子目录作为本地项目打开，或把通用规则写到根目录。</p>
 </blockquote>
 <p>图示对比了两种打开方式：只打开 <code>product-docs/</code> 时，规则链主要是个人级规则加项目根目录规则；打开 <code>product-docs/api/</code> 时，才会继续合并 <code>api/AGENTS.override.md</code>，并以更近的规则覆盖上层约定。</p>
-<p><img alt="AGENTS.md 规则加载层级：越靠近当前目录优先级越高，override 同层优先" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-08.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="AGENTS.md 规则加载层级：越靠近当前目录优先级越高，override 同层优先" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-08.png"></p>
 <blockquote>
 <p>每次都要遵守的放 <code>AGENTS.md</code>；只有做发布、Review、迁移时才需要的长流程，交给 Skills。</p>
 </blockquote>
@@ -219,7 +219,7 @@ product-docs/
 <h3 id="为什么不能全塞进-agentsmd">为什么不能全塞进 AGENTS.md</h3>
 <p>有些知识很重要，但不是每次任务都用得上（比如发布 Release Notes 的整套流程）。全塞进 <code>AGENTS.md</code> 会让每个任务都背完整份手册，<strong>上下文被占用，注意力被摊薄</strong>。</p>
 <p>那能不能等用到时再读？可以，这就是 <strong>Skill</strong>——渐进式加载。</p>
-<p><img alt="AGENTS.md 是随身薄手册，Skill 则像任务需要时才取出的专业手册" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-09.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="AGENTS.md 是随身薄手册，Skill 则像任务需要时才取出的专业手册" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-09.png"></p>
 <h3 id="怎么创建和使用">怎么创建和使用</h3>
 <p>Codex 内置 <code>$skill-creator</code>，直接描述流程即可生成：</p>
 <pre><code>$skill-creator 为当前项目创建一个 release-notes Skill。
@@ -232,14 +232,14 @@ product-docs/
 同时提供 Release Notes 模板和收集提交的脚本。
 生成项目共享 Skill，先只创建文件，不开始生成发布说明。
 </code></pre>
-<p><img alt="Skill Creator 创建 release-notes Skill 的实际任务界面" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-10.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Skill Creator 创建 release-notes Skill 的实际任务界面" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-10.png"></p>
 <p>图中的一次生成结果还展示了 Skill 的工程化产物：<code>SKILL.md</code> 负责流程正文，模板和收集提交的脚本作为配套资源，另有 <code>openai.yaml</code> 这类 UI 元数据；截图中实际使用的是 <code>assets/release-notes-template.md</code> 和 <code>scripts/collect-commits.py</code>。文章里的 <code>references/</code>、<code>.sh</code> 只是示例，目录名和脚本语言可以按项目约定调整，关键是让 Skill 自包含、可复用、可验证。</p>
 <p>创建后打开侧边栏「Skills」页面即可看到：</p>
-<p><img alt="技能管理页面：已安装的发布说明 Skill 出现在技能列表中" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-11.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="技能管理页面：已安装的发布说明 Skill 出现在技能列表中" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-11.png"></p>
 <p><strong>显式调用</strong>：新建任务输入 <code>$release-notes</code> 即可触发。</p>
-<p><img alt="显式调用 Skill：任务输入框中使用 $release-notes" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-12.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="显式调用 Skill：任务输入框中使用 $release-notes" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-12.png"></p>
 <p><strong>自动匹配</strong>：不写 <code>$release-notes</code>，直接说「根据 v1.4.0 之后的改动生成发布说明」，只要任务与 Skill 描述匹配，Codex 也会自动选中。</p>
-<p><img alt="Skill 自动匹配流程：创建、出现在 Skills 页面，再由新任务调用" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-13.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Skill 自动匹配流程：创建、出现在 Skills 页面，再由新任务调用" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-13.png"></p>
 <h3 id="skill-是怎么工作的">Skill 是怎么工作的</h3>
 <pre><code>release-demo/
 └── .agents/
@@ -277,7 +277,7 @@ description: 准备版本发布说明时使用，根据指定 Git Tag 到当前�
 <blockquote>
 <p>简单来说，Codex 平时只记住「书名和简介」，接到任务后才去书架拿对应的书——这就是 Skill 的渐进式加载。</p>
 </blockquote>
-<p><img alt="Skill 渐进式加载：先读名称和描述，再读 SKILL.md，最后按需读取 references 与 scripts" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-14.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Skill 渐进式加载：先读名称和描述，再读 SKILL.md，最后按需读取 references 与 scripts" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-14.png"></p>
 <h3 id="agentsmd-与-skill-的分工">AGENTS.md 与 Skill 的分工</h3>
 <table>
 <thead>
@@ -324,7 +324,7 @@ migration_researcher 只负责调查旧查询、历史数据和迁移风险。
 每个 Agent 都要区分官方资料、项目现状和自己的推断，并保留来源。
 先只创建 `.codex/agents/` 下的配置文件，不开始调研。
 </code></pre>
-<p><img alt="创建三个只读 Agent 配置：分别负责能力、接入和迁移调研" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-15.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="创建三个只读 Agent 配置：分别负责能力、接入和迁移调研" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-15.png"></p>
 <p>图中的实际结果进一步体现了岗位模板应包含的边界：生成 <code>capability-researcher.toml</code>、<code>integration-researcher.toml</code> 和 <code>migration-researcher.toml</code>，统一设置 <code>sandbox_mode = "read-only"</code>，明确调研范围，区分「官方资料、项目现状、推断」，要求保留可追溯来源，并让模型和任务设置保持可继承。也就是说，自定义 Agent 不只是改一个名字，更重要的是把权限和输出标准固定下来。</p>
 <p>再派发并行任务：</p>
 <pre><code>评估当前项目是否适合采用候选日志平台。
@@ -335,10 +335,10 @@ migration_researcher 只负责调查旧查询、历史数据和迁移风险。
 等三路结果回来后合并去重，输出适用条件、主要风险和待确认问题。
 只做调研，不修改当前项目。
 </code></pre>
-<p><img alt="三个只读 Subagent 同时启动，分别承担能力、接入和迁移调研" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-16.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="三个只读 Subagent 同时启动，分别承担能力、接入和迁移调研" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-16.png"></p>
 <h3 id="subagent-是怎么工作的">Subagent 是怎么工作的</h3>
 <p><strong>独立上下文是核心机制</strong>：Subagent 的调查过程（搜索结果、命令输出、中间笔记）不进入主上下文，主 Agent 拿到的是整理过的结论。Subagent 默认继承主任务权限模式，在当前工作区使用工具。</p>
-<p><img alt="Subagent 工作阶段表：拆分、派发、执行、回传、合并" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-17.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Subagent 工作阶段表：拆分、派发、执行、回传、合并" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-17.png"></p>
 <p>可以把一次并行任务拆成五个阶段：</p>
 <table>
 <thead>
@@ -370,7 +370,7 @@ migration_researcher 只负责调查旧查询、历史数据和迁移风险。
 </tr>
 </tbody>
 </table>
-<p><img alt="Subagent 并行流程图：主 Agent 拆分任务，子 Agent 独立执行并返回结论与证据" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-18.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Subagent 并行流程图：主 Agent 拆分任务，子 Agent 独立执行并返回结论与证据" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-18.png"></p>
 <ul>
 <li><strong>适合并行</strong>：代码探索、资料整理、测试、问题归类等互相独立的任务</li>
 <li><strong>不适合</strong>：多个 Subagent 同时修改同一批文件——可能产生冲突</li>
@@ -378,7 +378,7 @@ migration_researcher 只负责调查旧查询、历史数据和迁移风险。
 <li>Worktree 和 Subagent 解决的不是同一问题：前者是文件隔离，后者是上下文与分工拆分</li>
 </ul>
 <p>图示的关键区别是：Subagent 虽然隔离了各自的上下文，但仍共享同一个工作目录和文件；顶层任务配合 Worktree 则同时隔离上下文与文件目录，适合并行改动代码、避免相互覆盖。</p>
-<p><img alt="Subagent 与 Worktree 对比：前者上下文隔离但共享文件，后者连工作目录也隔离" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-19.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Subagent 与 Worktree 对比：前者上下文隔离但共享文件，后者连工作目录也隔离" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-19.png"></p>
 <blockquote>
 <p>Codex 内置 <code>default</code>、<code>worker</code>、<code>explorer</code> 等通用 Agent。普通并行任务不必先定义岗位，提示词里说「请并行安排三个 Subagent」即可。</p>
 </blockquote>
@@ -387,18 +387,18 @@ migration_researcher 只负责调查旧查询、历史数据和迁移风险。
 <h3 id="为什么需要-mcp">为什么需要 MCP</h3>
 <p>真实任务往往需要仓库之外的信息：云端文档、GitHub Issue、数据库、协作工具……如果每个外部系统都要单独定义工具说明和参数格式，连接方式会非常碎片化。</p>
 <p><strong>MCP（Model Context Protocol）</strong> 提供一套统一通信规则——AI 工具世界的「通用插座」。外部服务通过 MCP 告诉 Codex 自己能提供什么数据和操作，Codex 根据任务选择对应能力。</p>
-<p><img alt="MCP 统一插座示意：Codex 通过 MCP 连接云端文档、GitHub、数据库和协作工具" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-20.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="MCP 统一插座示意：Codex 通过 MCP 连接云端文档、GitHub、数据库和协作工具" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-20.png"></p>
 <h3 id="怎么接入">怎么接入</h3>
 <p>通过插件市场安装常见 MCP 工具，安装完成后即可在新任务中调用。</p>
 <p>以 Google Drive 为例：先创建测试文档 <code>Codex MCP Demo</code>，写入模拟内容（项目：会员中心改版 / 上线时间：8 月 20 日 / 待办：确认页面文案、补充登录异常监控、完成上线前回归测试），然后打开侧边栏「Plugins」搜索 <code>Google Drive</code> 安装并授权。</p>
-<p><img alt="插件市场示例：在 Plugins 页面搜索并安装 Google Drive" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-21.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="插件市场示例：在 Plugins 页面搜索并安装 Google Drive" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-21.png"></p>
 <p>新建任务直接使用：</p>
 <pre><code>使用 Google Drive 工具查找名为「Codex MCP Demo」的文档。
 读取文档内容，输出项目名称、上线时间和待办事项。
 只读取和整理，不要修改或创建任何文件。
 </code></pre>
 <p>Codex 会根据任务内容自动选择 Google Drive 提供的工具，无需额外命令。图示把过程拆成五步：搜索 Google Drive、点击安装、连接 Google 账号、新任务读取 <code>Codex MCP Demo</code>，最后整理出项目名称、上线时间和待办事项。</p>
-<p><img alt="Google Drive MCP 接入流程：搜索、安装、授权、新任务读取、整理结果" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-22.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Google Drive MCP 接入流程：搜索、安装、授权、新任务读取、整理结果" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-22.png"></p>
 <h3 id="mcp-工具是怎么工作的">MCP 工具是怎么工作的</h3>
 <p>MCP 像一套统一的「工具说明书和通信规则」：Google Drive 接入后先告诉 Codex 自己有哪些工具、每个工具能做什么、调用要填什么参数。你说「找到 Codex MCP Demo 并读取内容」时，Codex 会：</p>
 <ol>
@@ -432,7 +432,7 @@ migration_researcher 只负责调查旧查询、历史数据和迁移风险。
 </tbody>
 </table>
 <p>这套流程不限于 Google Drive——换成数据库、GitHub 或其他系统，Codex 都用同一套方式理解和调用。MCP Server 除了提供可执行的 <strong>Tools</strong>，还可以提供可读取的 <strong>Resources</strong> 和可复用的 <strong>Prompts</strong>。</p>
-<p><img alt="MCP 调用链：用户任务 → Codex Host → MCP Client → MCP Server → 外部操作，再原路返回结果" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-23.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="MCP 调用链：用户任务 → Codex Host → MCP Client → MCP Server → 外部操作，再原路返回结果" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-23.png"></p>
 <p>可以用一句话区分 <strong>Skill 和 MCP</strong>：Skill 提供「应该怎样完成任务」的知识与流程，MCP 提供「怎样对外部系统动手」的工具与连接。比如 Skill 规定先审查再回写，真正读取 GitHub PR 或更新工单的动作由 MCP 完成。</p>
 <hr>
 <h2 id="05hooks-固定时机的自动触发">05｜Hooks — 固定时机的自动触发</h2>
@@ -442,7 +442,7 @@ migration_researcher 只负责调查旧查询、历史数据和迁移风险。
 <blockquote>
 <p>Hooks 就像安装在 Codex 工作流程中的感应门。Codex 运行到对应位置，就会触发门后的脚本。</p>
 </blockquote>
-<p><img alt="Hooks 生命周期示意：加载上下文、检查命令、记录结果，并自动执行测试与安全扫描" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-24.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Hooks 生命周期示意：加载上下文、检查命令、记录结果，并自动执行测试与安全扫描" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-24.png"></p>
 <h3 id="一个简单的例子stop-hook">一个简单的例子：Stop Hook</h3>
 <p>已有 <code>python3 scripts/check_docs.py</code> 检查脚本，让 Codex 创建 Stop Hook：</p>
 <pre><code>请为当前项目创建一个 Stop Hook。
@@ -452,7 +452,7 @@ migration_researcher 只负责调查旧查询、历史数据和迁移风险。
 请创建所需的 Hook 配置和 Handler，不修改现有文档。
 </code></pre>
 <p>之后每次任务准备结束，Stop Hook 都会自动运行文档检查，无需在提示词中重复提醒。检查通过就正常结束；检查失败则把失败摘要交回 Codex，Codex 继续处理问题，随后再次经过结束检查。</p>
-<p><img alt="Stop Hook 闭环：任务结束前检查，失败返回摘要让 Codex 继续处理，通过后正常结束" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-25.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Stop Hook 闭环：任务结束前检查，失败返回摘要让 Codex 继续处理，通过后正常结束" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-25.png"></p>
 <h3 id="hooks-是怎么工作的">Hooks 是怎么工作的</h3>
 <p>Hook 配置说明三件事：<strong>监听哪个生命周期事件、什么条件下命中、命中后执行哪个 Handler</strong>。</p>
 <table>
@@ -492,9 +492,9 @@ migration_researcher 只负责调查旧查询、历史数据和迁移风险。
 </tbody>
 </table>
 <p>图示还区分了两个时间尺度：<code>SessionStart</code> 在会话启动时触发一次；每轮任务通常经历 <code>UserPromptSubmit → PreToolUse → PostToolUse → Stop</code>，其中工具调用前后的节点可能在一轮任务中反复触发。以上是常见节点，并非完整事件列表。</p>
-<p><img alt="Hooks 事件时间线：SessionStart 会话级一次触发，每轮任务包含提交、工具前后和 Stop 节点" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-26.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Hooks 事件时间线：SessionStart 会话级一次触发，每轮任务包含提交、工具前后和 Stop 节点" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-26.png"></p>
 <p>运行到节点 → 找到匹配 Hook → 调用 Handler。Codex 通过<strong>标准输入</strong>把当前工作目录、事件名称（工具事件还含工具名称和参数）交给 Handler。Handler 执行后通过<strong>退出码或 JSON 结果</strong>告诉 Codex：继续运行、停止当前动作，或把新上下文交回给模型。</p>
-<p><img alt="Hook 执行链：事件经过 Matcher 命中 command Handler，JSON 通过 stdin 输入，结果决定继续、阻止或补充上下文" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-27.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Hook 执行链：事件经过 Matcher 命中 command Handler，JSON 通过 stdin 输入，结果决定继续、阻止或补充上下文" src="https://gitee.com/cheng-jiaqing/images/raw/master/img-27.png"></p>
 <p>从图中可以把 Handler 的执行链记成四步：</p>
 <ol>
 <li>生命周期事件产生后，由 <strong>Matcher</strong> 判断当前 Hook 是否命中</li>

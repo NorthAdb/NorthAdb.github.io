@@ -116,7 +116,7 @@
 <h2 id="本章导读">本章导读</h2>
 <p>本章从三个层次构建完整的评估体系。第一层是评估设计：为了避免先讨论工具和数据、最后才定义“成功”，正文先建立评估指标体系（“什么算成功”），特别区分技术奇观阶段的能力上限与业务场景要求的连续可靠性；随后展开评估环境与数据集（“在哪里测、测什么”）。第二层是评估方法（“怎么判”）：介绍 LLM-as-a-Judge、配对比较与模型排名。第三层是评估驱动的决策（“测了干什么”）：将结果转化为模型选型、架构优化和持续迭代的行动指南，并借助统计显著性判断观察到的分数差异是否真实可信。此外，本章还会讨论可观测性与生产级Agent 的内部评估基础设施，并在章末介绍连接第八章后训练的仿真环境。</p>
 <p>贯穿全章的核心理念是：评估体系的首要价值不是给当前系统打分，而是让你能快速、可靠地跟上模型的演进。当一个更强或更便宜的模型发布时，拥有完善评估体系的团队能在数小时内得出切换决策，而缺乏评估体系的团队只能凭直觉或等待社区反馈。在竞争激烈的 Agent 市场中，这种速度差距可能决定成败。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/4e4ca3b253b1f15eb75e2e169c9eef43fba563d664c19dca43e0b0997cab10a3.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/4e4ca3b253b1f15eb75e2e169c9eef43fba563d664c19dca43e0b0997cab10a3.jpg"><br>
 图 7-1 评估体系的三个层次</p>
 <h2 id="71-一个具体的评估示例">7.1 一个具体的评估示例</h2>
 <p>在深入方法论之前，先通过一个完整的例子建立直觉。假设我们构建了一个客服 Agent，需要评估它处理退款请求的能力。</p>
@@ -177,7 +177,7 @@ $$</p>
 <p>评分标准（Rubric，评分准则）量化 Agent 的表现，可以是二元的（通过/不通过）、连续的（0 到 100 分）或多维的（分别给准确性、效率、安全性打分）。</p>
 <p>执行协议（Interaction Protocol）规定交互模式和终止条件。</p>
 <p>五个要素合起来，就是一个可重复的评估循环。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/e5ef0a03cf8d69e372379051568d53c367f877a5810798bfab6f95bf3091d24b.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/e5ef0a03cf8d69e372379051568d53c367f877a5810798bfab6f95bf3091d24b.jpg"><br>
 图 7-2 工具调用型与人机交互型评估环境</p>
 <p>根据 Agent 任务的不同，评估环境可以粗略划分为工具调用型和人机交互型。</p>
 <h2 id="732-工具调用型评估环境">7.3.2 工具调用型评估环境</h2>
@@ -200,7 +200,7 @@ $$</p>
 <h2 id="实验-7-1-运行-τ²-bench-并对比-τ-bench-的演进">实验 7-1 ★：运行 τ²-bench 并对比 τ-bench 的演进</h2>
 <p>本实验通过运行 τ²-bench 评估框架，理解人机交互型评估环境的设计要点，并通过对比 τ-bench 与 τ²-bench 的差异，体会评估数据集是如何迭代改进的。</p>
 <p>深入阅读任务定义文件：每个任务包含已知信息（用户的背景知识）、任务指令（指导如何渐进式透露信息和响应策略）以及成功条件（数据库目标状态和对话中必须出现的确认信息）。运行完整评估流程，观察用户模拟器与 Agent 的多轮对话，分析典型的失败模式（政策违规、信息遗漏、过度转接人工等）。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/7717f93789f9657a830816554e7e86dd3834d620f058810d75ec472cceaa634c.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/7717f93789f9657a830816554e7e86dd3834d620f058810d75ec472cceaa634c.jpg"><br>
 图 7-3 τ²-bench 评估架构</p>
 <p>对比 τ-bench 与 τ²-bench 的设计差异：τ-bench 初始版本的用户指令过于简单（Agent 能猜对答案）、成功条件不够精确（导致误判）、用户模拟器过于机械。τ²-bench 针对这些问题做了系统性改进：</p>
 <p>引入更详细的任务指令：包括“事实锚定要求”（Grounding），即必须基于环境真实状态回答</p>
@@ -257,7 +257,7 @@ $$</p>
 <p>有了评估环境、数据集和明确的指标体系，接下来的核心问题是：怎么打分？对于有明确正确答案的任务（如数学题、SQL 查询），简单的二元判定（对/错）已经足够；但对于开放式任务（如客服对话、报告撰写），需要更精细的评估方法。</p>
 <p>代码自动验证只覆盖有标准答案的场景，开放式任务的评分才是本节的主题。其中，奖励信号的密度设计（从二元奖励到过程奖励再到生成式奖励）以及奖励模型的训练方法留待第八章后训练部分系统讨论；本节则回答一个更基础的问题：如何用 LLM 自动化地评判开放式任务的输出质量。</p>
 <h2 id="751-llm-as-a-judge自动化评估的核心">7.5.1 LLM-as-a-Judge：自动化评估的核心</h2>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/4a66800e87e94372ab0720f931e8258261c85369f74520e8ed5daf1bab6b888e.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/4a66800e87e94372ab0720f931e8258261c85369f74520e8ed5daf1bab6b888e.jpg"><br>
 图 7-4 LLM-as-a-Judge 流水线</p>
 <p>为什么需要 LLM-as-a-Judge？对于开放式任务（如生成报告、处理客户投诉、创意内容），没有标准答案可以自动对比，人工评估成本高且难以规模化。LLM-as-a-Judge 通过让语言模型根据专家定义的评分标准（Rubric）进行评判，在自动化规模和人类专业判断之间取得了平衡。但这种方法也有已知的局限：评判模型可能有自己的偏见（最典型的是长度偏差——倾向于给更长、更详尽的回复打高分，哪怕内容并不更正确），相同输入多次评判也可能有波动。长度偏差尤其值得单独防范，常用手段有三种：在 Rubric 里显式惩罚冗长、对同类任务规定回答的长度上限；做配对比较时先把两个候选的长度控制到相近再评；以及定期审计评分与回答长度的相关性——如果高分几乎总是伴随长回答，就说明评判已被长度带偏，需要回炉修订 Rubric。为了系统性地应对这些挑战，Rubric 设计必须遵循以下准则：</p>
 <p>Rubric（评分标准）：LLM 评判的依据。</p>
@@ -382,7 +382,7 @@ name = &quot;status&quot;
 <p>动打分——相关训练方法将在第八章讨论。</p>
 <p>在实际的模型选型中，我们经常面对的问题是：“A 和 B 哪个更好？”配对比较提供了一种不依赖绝对分数的评估方式。</p>
 <h2 id="754-配对比较与模型排名">7.5.4 配对比较与模型排名</h2>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/61db0b6202483f9290984562f9fe7929acc434adea75d075537e78285eedbda6.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/61db0b6202483f9290984562f9fe7929acc434adea75d075537e78285eedbda6.jpg"><br>
 图 7-5 Elo 评分与配对比较排名</p>
 <p>Elo 评分（一种最初用于国际象棋的排名系统）通过大量的两两对决来量化模型的相对能力：分差越大，强者的预期胜率越高。例如，模型 A 得分 1200、模型 B 得分 1000，Elo 系统会预测 A 的胜率约 76%。如果 B 意外获胜，B 加分较多、A 减分较多——爆冷的结果会带来更大的分数调整，这种机制让排名快速收敛到真实水平。其背后的统计基础是 Bradley-Terry 模型：将每个模型抽象为一个潜在的“实力分数”，两两对决胜负的概率由两者分数差决定，Elo 则是该模型在线更新形式的一种工程实现。</p>
 <p>Chatbot Arena 采用匿名随机对决——用户在不知道模型身份的情况下盲选更优回应，通过数百万次投票得出排名。这种方法的优势在于不需要定义“绝对标准”，只需要人类判断“A 和 B 哪个更好”。但也有局限：排名结果取决于用户提了什么问题——如果大量用户恰好都问编程题，擅长编程的模型排名就会偏高，这未必反映它在其他任务上的真实水平。</p>
@@ -466,7 +466,7 @@ return paired_bootstrap_or_mcnemar(all_deltas)
 <p>并行验证多个假设时还要考虑多重比较：收紧显著性阈值，或对正向结果做独立复跑。实务上的判断标准很简单：分差要超过噪声、在配对分析中成立，并且能够复现，才值得据此切换模型或发布改动。</p>
 <h2 id="78-agent-的可观测性">7.8 Agent 的可观测性</h2>
 <p>评估驱动的决策（无论是模型选型还是持续迭代）都依赖于高质量的运行数据。下面先介绍如何系统性地采集这些数据（可观测性），然后讨论如何将评估结果转化为系统改进。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/af805a03f2eacae059bc566343275a11bfc8a25b36f4cc5d73e20cb20b1031b5.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/af805a03f2eacae059bc566343275a11bfc8a25b36f4cc5d73e20cb20b1031b5.jpg"><br>
 图 7-6 可观测性技术栈</p>
 <p>可观测性（Observability）这个概念借自分布式系统领域：你没法直接打开系统内部看它在做什么，只能通过它输出的日志、指标和追踪数据来推断发生了什么，就像医生不能直接看到患者体内的情况，只能通过体温、血压、影像等外部信号来诊断问题。Agent 系统把这件事变得更难：同样的输入可能产生不同的输出，多轮推理和工具调用使执行路径极其复杂，而模型的“思考”过程对外完全不透明。</p>
 <p>可观测性的价值首先在于问题诊断：完整的轨迹让开发者能回放全过程，而非靠猜测。其次是持续优化的基础你能看到哪些任务需要多轮迭代、哪些工具成功率最低、哪些检索查询总是返回空结果。在成本管理上，Agen运行成本在不同任务上可能差一两个数量级，追踪可以识别出异常高成本的案例。最后，积累的轨迹数据也为模型后训练提供了基础。</p>
@@ -477,7 +477,7 @@ return paired_bootstrap_or_mcnemar(all_deltas)
 <p>有了完备的评估体系和数据集之后，关键在于将评估结果转化为切实的系统改进。</p>
 <h2 id="79-从-benchmark-报告到系统改进">7.9 从 Benchmark 报告到系统改进</h2>
 <p>下面来看配套仓库里一次真实的 AndroidWorld 调优过程。实验只跑了 API 35 模拟器上的 4 个 Wi-Fi 设置任务，每项任务做一次配对对照。这个案例的价值不在于证明系统整体提高了多少，而在于展示如何根据一轮结果，决定下一轮只改什么。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/c9c7570a81814164ea477ea5c3413cff6e6c71efd9cb91313bcfbf9e63d2b186.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/c9c7570a81814164ea477ea5c3413cff6e6c71efd9cb91313bcfbf9e63d2b186.jpg"><br>
 图 7-7 Benchmark 到改进闭环</p>
 <p>从 Harness 工程的视角看，这一节本质上讲的是 Harness 迭代优化的方法论——通过评估数据定位 Harness中的薄弱环节（上下文不足？约束缺失？验证不够？反馈不及时？），有针对性地改进，再重新评估，形成 Harness持续进化的闭环。</p>
 <p>在开始分析 Benchmark 报告之前，有一条容易被忽视的原则：看到 Agent 表现下降时，应先检查评测系统本身，再动 Agent。一个常见误区是看到分数下降就立刻修改 Agent 代码，而忽略了评测系统本身可能先出了问题基于失真的信号调整方向，修改方向可能从一开始就是错的。评测系统常见的错误来源包括：运行环境的资源不足导致进程被杀（表现为随机失败）、评分器本身有 bug 把正确答案判为失败、测试用例与生产场景之间存在脱节。这些问题在结果数字上都跟模型退化一模一样，只有审查完整的轨迹才能区分。</p>
@@ -531,13 +531,13 @@ return paired_bootstrap_or_mcnemar(all_deltas)
 <h2 id="711-仿真环境从评估到后训练的桥梁">7.11 仿真环境：从评估到后训练的桥梁</h2>
 <p>评估的终点不是打分，而是改进。本章已经展示了改进的两条路径：调整 Harness（从 Benchmark 报告到系统改进）和把评估嵌入产品工程（内部评估基础设施）。而最深入的改进方式是训练——当目标从“评估现有能力”扩展到“培养新能力”时，特别是通过第八章讨论的后训练技术，评估环境就需要演化为仿真环境：一个能让 Agent 反复练习、自动打分的虚拟操场。仿真环境与评估环境的核心区别在于：交互频率高得多（数百万次 vs 数千次）、需要随机化（防止死记硬背特定配置），而且必须提供即时反馈。从应用领域看，仿真环境分为数字环境（信息处理任务）与具身环境（物理世界感知与操作）两大类。</p>
 <p>这座桥梁的两端是这样接起来的。评估侧已经积累的资产可以近乎无缝地转成训练信号：一套定义清晰的Rubric 或验证器，本质上就是一个可验证奖励（RLVR，Reinforcement Learning with Verifiable Rewards）的奖励函数——判分脚本直接就是奖励脚本，测试是否通过、状态是否达标，既是评估的判据，也是强化学习的回报。但训练会提出评估阶段不必操心的新要求。其一是可靠的 reset 语义：训练要跑数百万个 episode（一个 episod即一次从初始状态到任务结束的完整交互回合），每个 episode 都必须能把环境重置到一个确定、干净的初始状态，否则梯度信号会被上一轮的残留状态污染。其二是远高于评估的吞吐：评估几千次就够出结论，训练则要在可接受的墙钟时间内喂给模型上百万次交互，环境的并行度和单实例开销直接决定训练是否可行。这两点——奖励函数化的验证器、面向训练的 reset 与吞吐——都将在第八章展开。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/9f33c04eb1bb248ae4ef91ea1320e1757ed8ef0c504cab9afca81f516c5ed6e8.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/9f33c04eb1bb248ae4ef91ea1320e1757ed8ef0c504cab9afca81f516c5ed6e8.jpg"><br>
 图 7-8 仿真保真度谱</p>
 <p>数字环境方面，AWorld 框架为 GAIA 任务构建了可控的 MCP 服务器沙盒，提供 26 个 MCP 服务器、涵盖126 个工具函数，避免直接访问真实 API 带来的封禁和不可控副作用。所有工具调用可重放、可审计。AWorld 的分布式架构将传统串行执行的 7695 秒缩短到 525 秒（14.6 倍加速），环境的无状态设计使每个实例完全独立，支持高效并行。</p>
 <p>具身环境方面，RoboTwin2 基于物理引擎构建双臂操作任务，环境随机化物体位置、朝向和外观以提升泛化能力。观测空间包括多相机视觉和关节状态，通过动作分块（Action Chunking）——模型一次规划多个连续动作——实现实时控制（详见第六章）。OSWorld 通过虚拟机快照实现可重置性，AndroidWorld 聚焦移动应用自动化。无论数字环境还是具身环境，仿真环境同样需要第四章讨论的隔离执行环境与虚拟身份机制（VM/容器隔离、住宅代理、Human-in-the-Loop 认证、共享文件系统），此处不再重复。</p>
 <h2 id="实验-7-13-配置-openvla-与-robotwin2-的具身智能环境">实验 7-13 ★★：配置 OpenVLA 与 RoboTwin2 的具身智能环境</h2>
 <p>搭建机器人操作的仿真环境。阅读 ch7/SimpleVLA-RL 和 OpenVLA 文档，理解视觉-语言-动作模型的架构（视觉编码器 + 语言模型 + 动作解码器端到端整合，图像和文本投影到共享语义空间）。配置 RoboTwin2 环境，理解观测空间（三视角 RGB + 14 维关节状态）和动作空间（14 维控制向量）。研究 move_can_pot 中的环境随机化机制和空间约束逻辑。运行预训练模型评估，记录成功率、完成时间和失败模式，重点关注动作分块机制的影响。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/6e0bd5e89e3996af4ffc3880b3d07e5f610a265e3e3b1cf9ec80991432b7cfd3.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/6e0bd5e89e3996af4ffc3880b3d07e5f610a265e3e3b1cf9ec80991432b7cfd3.jpg"><br>
 图 7-9 OpenVLA 与 RoboTwin2 具身智能环境</p>
 <h2 id="7111-保真度权衡与领域随机化">7.11.1 保真度权衡与领域随机化</h2>
 <p>高保真环境能更好地迁移到真实世界，但计算开销大。保真度的另一维度是随机化程度：适度随机化能提升泛化能力，过度随机化则会让任务变得过于困难。领域随机化（Domain Randomization）是缩小仿真与现实差距（sim-to-real gap）的关键技术：在物理参数、视觉外观、传感器噪声等方面引入大范围随机变化——好比在各种光照和角度下都练习过抓取，到了真实环境也不会因为光线变化就失手。在数字环境中，sim-to-real 表现为界面渲染、响应时间等方面的差异，可通过引入延迟和失败的随机化来缓解。</p>

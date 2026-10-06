@@ -102,7 +102,7 @@
 <p><strong>Harness 层：持续执行。</strong> 在每轮结束处检查完成条件，没有完成就继续下一轮。</p>
 </blockquote>
 <hr>
-<p><img alt="Goal Loop 总览" src="https://gitee.com/cheng-jiaqing/images/raw/master/goal-loop-overview.svg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Goal Loop 总览" src="https://gitee.com/cheng-jiaqing/images/raw/master/goal-loop-overview.svg"></p>
 <p>从 s01 开始，Agent Loop 的退出条件一直很简单：模型不再调用工具，程序就返回。</p>
 <p>这对普通对话足够，但对“修到测试全部通过”“完成所有验收项”这样的任务还不够。模型可能认为已经做完，也可能只完成了一部分。没有新的 <code>tool_use</code>，只能说明当前轮次结束了，不能直接证明整个目标已经达成。</p>
 <p><code>/goal</code> 在真正返回之前，再加一次独立判断。</p>

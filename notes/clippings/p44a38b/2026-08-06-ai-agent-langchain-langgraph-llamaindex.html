@@ -128,7 +128,7 @@
 <li>LangGraph → 状态与流程控制</li>
 <li>LlamaIndex → 数据与检索</li>
 </ul>
-<p><img alt="Agent框架解决什么：框架把重复工程抽象为可复用组件" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-fw-01.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Agent框架解决什么：框架把重复工程抽象为可复用组件" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-fw-01.png"></p>
 <blockquote>
 <p>回答时不要只比谁更强，要说清楚<strong>在什么业务约束下，哪个框架更合适</strong>。</p>
 </blockquote>
@@ -146,7 +146,7 @@
 <li><strong>关系</strong>：LangChain 的 Agent 高层接口运行在 LangGraph 之上。可把 LangChain 理解为"常用组件和预制路线"，LangGraph 是"支撑路线的道路系统"</li>
 <li>简单 Agent 优先 LangChain；要精细控制时下沉 LangGraph</li>
 </ul>
-<p><img alt="LangGraph与LangChain是上下层关系" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-fw-02.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="LangGraph与LangChain是上下层关系" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-fw-02.png"></p>
 <ul>
 <li><strong>不是两个互相替代的框架，而是上下层关系，经常组合使用</strong></li>
 </ul>
@@ -157,7 +157,7 @@
 <li>企业知识库 Agent 真正难的不是工具调用循环，而是<strong>整条数据链路</strong>：PDF 表格解析、多源接入、文档切分建索引、召回过滤重排、权限隔离</li>
 <li>尤其适合：企业知识库、文档 Agent、研究助手、复杂 RAG</li>
 </ul>
-<p><img alt="LlamaIndex数据链路：问题沿整条数据链路出现" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-fw-03.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="LlamaIndex数据链路：问题沿整条数据链路出现" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-fw-03.png"></p>
 <ul>
 <li>它也有 Agent / Memory / 多 Agent Pattern / Workflow——只是选型入口不同：LangChain 偏通用 Agent 组装，LlamaIndex 偏数据密集型</li>
 </ul>
@@ -172,7 +172,7 @@ LangGraph 负责这些步骤如何衔接
 <ul>
 <li>三者分别解决：<strong>数据</strong>（LlamaIndex）、<strong>Agent 组装</strong>（LangChain）、<strong>流程控制</strong>（LangGraph），不在同一层重复造轮子</li>
 </ul>
-<p><img alt="三框架配合：数据→Agent组装→流程控制" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-fw-04.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="三框架配合：数据→Agent组装→流程控制" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-fw-04.png"></p>
 <ul>
 <li>但<strong>是否同时引入取决于复杂度</strong>：简单工具调用不必引入 LlamaIndex；普通知识库问答不必上 LangGraph 工作流</li>
 </ul>
@@ -198,7 +198,7 @@ LangGraph 负责这些步骤如何衔接
 </tr>
 </tbody>
 </table>
-<p><img alt="其他框架一览：OpenAI Agents SDK / CrewAI / AutoGen / Dify" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-fw-05.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="其他框架一览：OpenAI Agents SDK / CrewAI / AutoGen / Dify" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-fw-05.png"></p>
 <p>| <strong>AutoGen / Semantic Kernel / Microsoft Agent Framework</strong> | 偏微软生态或存量项目 | 知道定位即可，通用 Python Agent 题不用展开 |
 | <strong>Dify</strong> | 低代码 AI 应用开发平台 | 不和 Python Agent 框架放同一层面比较 |</p>
 <h3 id="到底该怎么选选型方法论">到底该怎么选？（选型方法论）</h3>

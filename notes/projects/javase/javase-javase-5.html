@@ -95,14 +95,14 @@
         </div>
 
         <div class="prose">
-<p><img alt="image-20220922170926093" src="https://s2.loli.net/2022/09/22/lmKBNFc5wPEgjaS.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220922170926093" src="https://s2.loli.net/2022/09/22/lmKBNFc5wPEgjaS.png"></p>
 <h1 id="面向对象高级篇">面向对象高级篇</h1>
 <p>经过前面的学习，我们已经了解了面向对象编程的大部分基础内容，这一部分，我们将继续探索面向对象编程过程中一些常用的东西。</p>
 <h2 id="基本类型包装类">基本类型包装类</h2>
 <p>Java并不是纯面向对象的语言，虽然Java语言是一个面向对象的语言，但是Java中的基本数据类型却不是面向对象的。Java中的基本类型，如果想通过对象的形式去使用他们，Java提供的基本类型包装类，使得Java能够更好的体现面向对象的思想，同时也使得基本类型能够支持对象操作！</p>
 <h3 id="包装类介绍">包装类介绍</h3>
 <p>所有的包装类层次结构如下：</p>
-<p><img alt="5c3a6a27-6370-4c60-9bbc-8039e11e752d" src="https://s2.loli.net/2022/09/22/mulb5VdvBLiWNe2.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="5c3a6a27-6370-4c60-9bbc-8039e11e752d" src="https://s2.loli.net/2022/09/22/mulb5VdvBLiWNe2.png"></p>
 <p>其中能够表示数字的基本类型包装类，继承自Number类，对应关系如下表：</p>
 <ul>
 <li>byte  -&gt;  Byte</li>
@@ -225,7 +225,7 @@ public Integer(int value) {
 }
 </code></pre>
 <p>我们来看看结果：</p>
-<p><img alt="image-20220922211414392" src="https://s2.loli.net/2022/09/22/FTPGhgnAEm1QKkV.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220922211414392" src="https://s2.loli.net/2022/09/22/FTPGhgnAEm1QKkV.png"></p>
 <p>可以看到，此时数值已经非常大了，也可以轻松计算出来。咱们来点更刺激的：</p>
 <pre><code class="language-java">public static void main(String[] args) {
     BigInteger i = BigInteger.valueOf(Long.MAX_VALUE);
@@ -234,7 +234,7 @@ public Integer(int value) {
 }
 </code></pre>
 <p>可以看到，这个数字已经大到一排显示不下了：</p>
-<p><img alt="image-20220922211651719" src="https://s2.loli.net/2022/09/22/w1OoFmbLiJ4rlcV.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220922211651719" src="https://s2.loli.net/2022/09/22/w1OoFmbLiJ4rlcV.png"></p>
 <p>一般情况，对于非常大的整数计算，我们就可以使用BigInteger来完成。</p>
 <p>我们接着来看第二种，前面我们说了，浮点类型精度有限，对于需要精确计算的场景，就没办法了，而BigDecimal可以实现小数的精确计算。</p>
 <pre><code class="language-java">public static void main(String[] args) {
@@ -246,13 +246,13 @@ public Integer(int value) {
 }
 </code></pre>
 <p>可以看到，确实可以精确到这种程度：</p>
-<p><img alt="image-20220922212222762" src="https://s2.loli.net/2022/09/22/IUJ5rwzxonCBMT4.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220922212222762" src="https://s2.loli.net/2022/09/22/IUJ5rwzxonCBMT4.png"></p>
 <p>但是注意，对于这种结果没有终点的，无限循环的小数，我们必须要限制长度，否则会出现异常。</p>
 <hr>
 <h2 id="数组">数组</h2>
 <p>我们接着来看一个比较特殊的类型，数组。</p>
 <p>假设出现一种情况，我们想记录100个数字，要是采用定义100个变量的方式可以吗？是不是有点太累了？这种情况我们就可以使用数组来存放一组相同类型的数据。</p>
-<p><img alt="image-20220922214604430" src="https://s2.loli.net/2022/09/22/y4ISWZLrYE3Pdig.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220922214604430" src="https://s2.loli.net/2022/09/22/y4ISWZLrYE3Pdig.png"></p>
 <h3 id="一维数组">一维数组</h3>
 <p>数组是相同类型数据的有序集合，数组可以代表任何相同类型的一组内容（包括引用类型和基本类型）其中存放的每一个数据称为数组的一个元素，我们来看看如何去定义一个数组变量：</p>
 <pre><code class="language-java">public static void main(String[] args) {
@@ -301,7 +301,7 @@ public Integer(int value) {
 }
 </code></pre>
 <p>但是，很遗憾，除了clone()之外，这些方法并没有被重写，也就是说依然是采用的Object中的默认实现：</p>
-<p><img alt="image-20220922220403391" src="https://s2.loli.net/2022/09/22/UfTGu9sZheW21jB.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220922220403391" src="https://s2.loli.net/2022/09/22/UfTGu9sZheW21jB.png"></p>
 <p>所以说通过<code>toString()</code>打印出来的结果，好丑，只不过我们可以发现，数组类型的类名很奇怪，是<code>[</code>开头的。</p>
 <p>因此，如果我们要打印整个数组中所有的元素，得一个一个访问：</p>
 <pre><code class="language-java">public static void main(String[] args) {
@@ -339,7 +339,7 @@ public Integer(int value) {
 }
 </code></pre>
 <p>还有，由于基本数据类型和引用类型不同，所以说int类型的数组时不能被Object类型的数组变量接收的：</p>
-<p><img alt="image-20220924114859252" src="https://s2.loli.net/2022/09/24/XbfZ9YHkqjv7613.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220924114859252" src="https://s2.loli.net/2022/09/24/XbfZ9YHkqjv7613.png"></p>
 <p>但是如果是引用类型的话，是可以的：</p>
 <pre><code class="language-java">public static void main(String[] args) {
     String[] arr = new String[10];
@@ -358,7 +358,7 @@ public Integer(int value) {
 }
 </code></pre>
 <p>存放数组的数组，相当于将维度进行了提升，比如上面的就是一个2x10的数组：</p>
-<p><img alt="image-20220922221557130" src="https://s2.loli.net/2022/09/22/kRcO1aGY6fMBiu9.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220922221557130" src="https://s2.loli.net/2022/09/22/kRcO1aGY6fMBiu9.png"></p>
 <p>这个中数组一共有2个元素，每个元素都是一个存放10个元素的数组，所以说最后看起来就像一个矩阵一样。甚至可以继续套娃，将其变成一个三维数组，也就是存放数组的数组的数组。</p>
 <pre><code class="language-java">public static void main(String[] args) {
     int[][] arr = { {1, 2},
@@ -425,7 +425,7 @@ public Integer(int value) {
 <pre><code class="language-sh">java com/test/Main lbwnb aaaa xxxxx   #放在包中需要携带主类完整路径才能运行
 </code></pre>
 <p>可以看到，我们在后面随意添加的三个参数，都放到数组中了：</p>
-<p><img alt="image-20220922223152648" src="https://s2.loli.net/2022/09/22/DL3WTMdRwrSYJIl.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220922223152648" src="https://s2.loli.net/2022/09/22/DL3WTMdRwrSYJIl.png"></p>
 <p>这个东西我们作为新手一般也不会用到，只做了解就行了。</p>
 <hr>
 <h2 id="字符串">字符串</h2>
@@ -576,7 +576,7 @@ System.out.println(string.isBlank());  //判断是否只有空格（空串也算
 <pre><code class="language-java">String string = &quot;ABC&quot;;
 System.out.println(string.repeat(5));   //让字符串内容重复5次
 </code></pre>
-<p><img alt="image-20250708215325206" src="https://s2.loli.net/2025/07/08/DNvacpzWjh49EnJ.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20250708215325206" src="https://s2.loli.net/2025/07/08/DNvacpzWjh49EnJ.png"></p>
 <h3 id="java-15-文本块">(Java 15) 文本块</h3>
 <p>如果你学习过Python，一定知道三引号：</p>
 <pre><code class="language-python">#当我们需要使用复杂字符串时，可能字符串中包含了很多需要转义的字符，比如双引号等，这时我们就可以使用三引号来囊括字符串
@@ -815,7 +815,7 @@ public static Integer test(Container object) {
 }
 </code></pre>
 <p>注意，成员内部类也可以使用访问权限控制，如果我们我们将其权限改为<code>private</code>，那么就像我们把成员变量访问权限变成私有一样，外部是无法访问到这个内部类的：</p>
-<p><img alt="image-20220924122217070" src="https://s2.loli.net/2022/09/24/HklipN4uOfK9JrG.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220924122217070" src="https://s2.loli.net/2022/09/24/HklipN4uOfK9JrG.png"></p>
 <p>可以看到这里直接不认识了。</p>
 <p>这里我们需要特别注意一下，在成员内部类中，是可以访问到外层的变量的：</p>
 <pre><code class="language-java">public class Test {
@@ -833,7 +833,7 @@ public static Integer test(Container object) {
     }
 }
 </code></pre>
-<p><img alt="image-20220924123600217" src="https://s2.loli.net/2022/09/24/aQPow8piljRCs2d.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220924123600217" src="https://s2.loli.net/2022/09/24/aQPow8piljRCs2d.png"></p>
 <p>每个类可以创建一个对象，每个对象中都有一个单独的类定义，可以通过这个成员内部类又创建出更多对象，套娃了属于是。</p>
 <p>所以说我们在使用时：</p>
 <pre><code class="language-java">public static void main(String[] args) {
@@ -902,7 +902,7 @@ public static Integer test(Container object) {
 }
 </code></pre>
 <p>静态内部类由于是静态的，所以相对外部来说，整个内部类中都处于静态上下文（注意只是相当于外部来说）是无法访问到外部类的非静态内容的：</p>
-<p><img alt="image-20220924124919135" src="https://s2.loli.net/2022/09/24/cZapwgeATlG2FHn.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220924124919135" src="https://s2.loli.net/2022/09/24/cZapwgeATlG2FHn.png"></p>
 <p>只不过受影响的只是外部内容的使用，内部倒是不受影响，还是跟普通的类一样：</p>
 <pre><code class="language-java">public static class Inner {
 
@@ -1096,7 +1096,7 @@ private static int test(int a, int b){
 }
 </code></pre>
 <p>此时我们可以看到，出现了运算异常：</p>
-<p><img alt="image-20220924164357033" src="https://s2.loli.net/2022/09/24/5PxTJv7M2YFzfg4.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220924164357033" src="https://s2.loli.net/2022/09/24/5PxTJv7M2YFzfg4.png"></p>
 <p>那么这个异常到底是什么样的一种存在呢？当程序运行出现我们没有考虑到的情况时，就有可能出现异常或是错误！</p>
 <h3 id="异常的类型">异常的类型</h3>
 <p>我们在之前其实已经接触过一些异常了，比如数组越界异常，空指针异常，算术异常等，他们其实都是异常类型，我们的每一个异常也是一个类，他们都继承自<code>Exception</code>类！异常类型本质依然类的对象，但是异常类型支持在程序运行出现问题时抛出（也就是上面出现的红色报错）也可以提前声明，告知使用者需要处理可能会出现的异常！</p>
@@ -1106,14 +1106,14 @@ private static int test(int a, int b){
     object.toString();   //这种情况就会出现运行时异常
 }
 </code></pre>
-<p><img alt="image-20220924164637887" src="https://s2.loli.net/2022/09/24/cTAqbZ93HidRIGW.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220924164637887" src="https://s2.loli.net/2022/09/24/cTAqbZ93HidRIGW.png"></p>
 <p>又比如下面的这种情况：</p>
 <pre><code class="language-java">public static void main(String[] args) {
     Object object = new Object();
     Main main = (Main) object;
 }
 </code></pre>
-<p><img alt="image-20220924164844005" src="https://s2.loli.net/2022/09/24/QxMimbjZk19C25d.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220924164844005" src="https://s2.loli.net/2022/09/24/QxMimbjZk19C25d.png"></p>
 <p>异常的另一种类型是编译时异常，编译时异常明确指出可能会出现的异常，在编译阶段就需要进行处理（捕获异常）必须要考虑到出现异常的情况，如果不进行处理，将无法通过编译！默认继承自<code>Exception</code>类的异常都是编译时异常。</p>
 <pre><code class="language-java">protected native Object clone() throws CloneNotSupportedException;
 </code></pre>
@@ -1128,14 +1128,14 @@ private static void test(){
 }
 </code></pre>
 <p>比如这样的一个无限递归的方法，会导致运行过程中无限制地向下调用方法，导致栈溢出：</p>
-<p><img alt="image-20220924165500108" src="https://s2.loli.net/2022/09/24/9YEZV2L73ROQTuA.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220924165500108" src="https://s2.loli.net/2022/09/24/9YEZV2L73ROQTuA.png"></p>
 <p>这种情况就是错误了，已经严重到整个程序都无法正常运行了。又比如：</p>
 <pre><code class="language-java">public static void main(String[] args) {
     Object[] objects = new Object[Integer.MAX_VALUE];   //这里申请一个超级大数组
 }
 </code></pre>
 <p>实际上我们电脑的内存是有限的，不可能无限制地使用内存来存放变量，所以说如果内存不够用了，会直接：</p>
-<p><img alt="image-20220924165657392" src="https://s2.loli.net/2022/09/24/qj8zJnGxdS5IybX.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220924165657392" src="https://s2.loli.net/2022/09/24/qj8zJnGxdS5IybX.png"></p>
 <p>此时没有更多的可用内存供我们的程序使用，那么程序也就没办法继续运行下去了，这同样是一个很严重的错误。</p>
 <p>当然，我们这一块主要讨论的目录依然是异常。</p>
 <h3 id="自定义异常">自定义异常</h3>
@@ -1147,7 +1147,7 @@ private static void test(){
 }
 </code></pre>
 <p>编译时异常只需要继承Exception就行了，编译时异常的子类有很多很多，仅仅是SE中就有700多个。</p>
-<p><img alt="image-20220924202450589" src="https://s2.loli.net/2022/09/24/TzUu5Sk6NycB9An.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220924202450589" src="https://s2.loli.net/2022/09/24/TzUu5Sk6NycB9An.png"></p>
 <p>异常多种多样，不同的异常对应着不同的情况，比如在类型转换时出错那么就是类型转换异常，如果是使用一个值为null的变量调用方法，那么就会出现空指针异常。</p>
 <p>运行时异常只需要继承RuntimeException就行了：</p>
 <pre><code class="language-java">public class TestException extends RuntimeException{
@@ -1157,7 +1157,7 @@ private static void test(){
 }
 </code></pre>
 <p>RuntimeException继承自Exception，Exception继承自Throwable：</p>
-<p><img alt="image-20220924203130042" src="https://s2.loli.net/2022/09/24/RjzWnNDc6TZeSoJ.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220924203130042" src="https://s2.loli.net/2022/09/24/RjzWnNDc6TZeSoJ.png"></p>
 <p>运行时异常同同样也有很多，只不过运行时异常和编译型异常在使用时有一些不同，我们会在后面的学习中慢慢认识。</p>
 <p>当然还有一种类型是Error，它是所有错误的父类，同样是继承自Throwable的。</p>
 <h3 id="抛出异常">抛出异常</h3>
@@ -1170,7 +1170,7 @@ private static void test(){
 </code></pre>
 <p>异常的抛出同样需要创建一个异常对象出来，我们抛出异常实际上就是将这个异常对象抛出，异常对象携带了我们抛出异常时的一些信息，比如是因为什么原因导致的异常，在RuntimeException的构造方法中我们可以写入原因。</p>
 <p>当出现异常时：</p>
-<p><img alt="image-20220924200817314" src="https://s2.loli.net/2022/09/24/Ttr4kZSyodKi3M8.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220924200817314" src="https://s2.loli.net/2022/09/24/Ttr4kZSyodKi3M8.png"></p>
 <p>程序会终止，并且会打印栈追踪信息，因为各位小伙伴才初学，还不知道什么是栈，我们这里就简单介绍一下，实际上方法之间的调用是有层级关系的，而当异常发生时，方法调用的每一层都会在栈追踪信息中打印出来，比如这里有两个<code>at</code>，实际上就是在告诉我们程序运行到哪个位置时出现的异常，位于最上面的就是发生异常的最核心位置，我们代码的第15行。</p>
 <p>并且这里会打印出当前抛出的异常类型和我们刚刚自定义异常信息。</p>
 <p>注意，如果我们在方法中抛出了一个非运行时异常，那么必须告知函数的调用方我们会抛出某个异常，函数调用方必须要对抛出的这个异常进行对应的处理才可以：</p>
@@ -1211,7 +1211,7 @@ protected Object clone() {
 }
 </code></pre>
 <p>我们可以将代码编写到<code>try</code>语句块中，只要是在这个范围内发生的异常，都可以被捕获，使用<code>catch</code>关键字对指定的异常进行捕获，这里我们捕获的是NullPointerException空指针异常：</p>
-<p><img alt="image-20220924195434572" src="https://s2.loli.net/2022/09/24/7Ek5A46QHNKtWoJ.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220924195434572" src="https://s2.loli.net/2022/09/24/7Ek5A46QHNKtWoJ.png"></p>
 <p>可以看到，当我们捕获异常之后，程序可以继续正常运行，并不会像之前一样直接结束掉。</p>
 <p>注意，catch中捕获的类型只能是Throwable的子类，也就是说要么是抛出的异常，要么是错误，不能是其他的任何类型。</p>
 <p>我们可以在<code>catch</code>语句块中对捕获到的异常进行处理：</p>
@@ -1226,7 +1226,7 @@ protected Object clone() {
     System.out.println(&quot;程序继续正常运行！&quot;);
 }
 </code></pre>
-<p><img alt="image-20220924201405697" src="https://s2.loli.net/2022/09/24/d15ns6hQblU8TAS.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220924201405697" src="https://s2.loli.net/2022/09/24/d15ns6hQblU8TAS.png"></p>
 <p>如果某个方法明确指出会抛出哪些异常，除非抛出的异常是一个运行时异常，否则我们必须要使用try-catch语句块进行异常的捕获，不然就无法通过编译：</p>
 <pre><code class="language-java">public static void main(String[] args) {
     test(10);    //必须要进行异常的捕获，否则报错
@@ -1306,7 +1306,7 @@ private static void test(int a) throws IOException {
 <p><strong>思考：</strong> <code>try</code>、<code>catch</code>和<code>finally</code>执行顺序？</p>
 <h3 id="断言表达式">断言表达式</h3>
 <p>我们可以使用断言表达式来对某些东西进行判断，如果判断失败会抛出错误，只不过默认情况下没有开启断言，我们需要在虚拟机参数中手动开启一下：</p>
-<p><img alt="image-20220924220327591" src="https://s2.loli.net/2022/09/24/cAG8kY395fOuTLg.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220924220327591" src="https://s2.loli.net/2022/09/24/cAG8kY395fOuTLg.png"></p>
 <p>开启断言之后，我们就可以开始使用了。</p>
 <p>断言表达式需要使用到<code>assert</code>关键字，如果assert后面的表达式判断结果为false，将抛出AssertionError错误。</p>
 <pre><code class="language-java">public static void main(String[] args) {
@@ -1319,7 +1319,7 @@ private static void test(int a) throws IOException {
     assert a &gt; 10;
 }
 </code></pre>
-<p><img alt="image-20220924220704026" src="https://s2.loli.net/2022/09/24/12b6zRAL3evQ9ZB.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220924220704026" src="https://s2.loli.net/2022/09/24/12b6zRAL3evQ9ZB.png"></p>
 <p>我们可以在表达式的后面添加错误信息：</p>
 <pre><code class="language-java">public static void main(String[] args) {
     int a = 10;
@@ -1327,7 +1327,7 @@ private static void test(int a) throws IOException {
 }
 </code></pre>
 <p>这样就会显示到错误后面了：</p>
-<p><img alt="image-20220924220813609" src="https://s2.loli.net/2022/09/24/NaYk5pFiBPLXVIr.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220924220813609" src="https://s2.loli.net/2022/09/24/NaYk5pFiBPLXVIr.png"></p>
 <p>断言表达式一般只用于测试，我们正常的程序中一般不会使用，这里只做了解就行了。</p>
 <hr>
 <h2 id="常用工具类介绍">常用工具类介绍</h2>
@@ -1358,7 +1358,7 @@ Math.atan(0);
     System.out.println(Math.sin(Math.PI));   //计算 sinπ 的结果
 }
 </code></pre>
-<p><img alt="image-20220923231536032" src="https://s2.loli.net/2022/09/23/fZ6OVRejDXWSalC.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220923231536032" src="https://s2.loli.net/2022/09/23/fZ6OVRejDXWSalC.png"></p>
 <p>正常来说，sinπ的结果应该是0才对，为什么这里得到的是一个很奇怪的数？这个E是干嘛的，这其实是科学计数法的10，后面的数就是指数，上面的结果其实就是：</p>
 <ul>
 <li>$1.2246467991473532 \times 10^{-16}$</li>
@@ -1389,7 +1389,7 @@ Math.atan(0);
 }
 </code></pre>
 <p>结果为，可以看到确实是一堆随机数：</p>
-<p><img alt="image-20220923234642670" src="https://s2.loli.net/2022/09/23/fM8J7zO2qHXhvst.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220923234642670" src="https://s2.loli.net/2022/09/23/fM8J7zO2qHXhvst.png"></p>
 <p>只不过，程序中的随机并不是真随机，而是根据某些东西计算出来的，只不过计算过程非常复杂，能够在一定程度上保证随机性（根据爱因斯坦理论，宏观物质世界不存在真随机，看似随机的事物只是现目前无法计算而已，唯物主义的公理之一就是任何事物都有因果关系）</p>
 <h3 id="数组工具类">数组工具类</h3>
 <p>前面我们介绍了数组，但是我们发现，想要操作数组实在是有点麻烦，比如我们要打印一个数组，还得一个一个元素遍历才可以，那么有没有一个比较方便的方式去使用数组呢？我们可以使用数组工具类Arrays。</p>
@@ -1399,7 +1399,7 @@ Math.atan(0);
     System.out.println(Arrays.toString(arr));
 }
 </code></pre>
-<p><img alt="image-20220923235747731" src="https://s2.loli.net/2022/09/23/fx61nKT7LjdMv5q.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220923235747731" src="https://s2.loli.net/2022/09/23/fx61nKT7LjdMv5q.png"></p>
 <p>是不是感觉非常方便？这样我们直接就可以打印数组了！</p>
 <p>除了这个方法，它还支持将数组进行排序：</p>
 <pre><code class="language-java">public static void main(String[] args) {
@@ -1452,7 +1452,7 @@ Math.atan(0);
     System.out.println(Arrays.toString(array));
 }
 </code></pre>
-<p><img alt="image-20220924114142785" src="https://s2.loli.net/2022/09/24/L2at7HJi3BKf6jF.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220924114142785" src="https://s2.loli.net/2022/09/24/L2at7HJi3BKf6jF.png"></p>
 <p>只不过别担心，Arrays也支持对多维数组进行处理：</p>
 <pre><code class="language-java">public static void main(String[] args) {
     int[][] array = new int[][]{{2, 8, 4, 1}, {9, 2, 0, 3}};
@@ -1468,7 +1468,7 @@ Math.atan(0);
 }
 </code></pre>
 <p>这里肯定有小伙伴疑问了，不是说基本类型的数组不能转换为引用类型的数组吗？为什么这里的deepEquals接受的是<code>Object[]</code>也可以传入参数呢？这是因为现在是二维数组，二维数组每个元素都是一个数组，而数组本身的话就是一个引用类型了，所以说可以转换为Object类型，但是如果是一维数组的话，就报错：</p>
-<p><img alt="image-20220924115440998" src="https://s2.loli.net/2022/09/24/ab94eNcJPERlOYA.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220924115440998" src="https://s2.loli.net/2022/09/24/ab94eNcJPERlOYA.png"></p>
 <p>总体来说，这个工具类对于我们数组的使用还是很方便的。</p>
 <h3 id="日期相关类">日期相关类</h3>
 <p>在开始之前，我们先来介绍一下计算机中的时间是如何进行存储的，如何进行表示的以及时区是如何划分的。</p>
@@ -1476,10 +1476,10 @@ Math.atan(0);
 <p>那么什么又是时区呢？</p>
 <blockquote>
 <p>时区（Time Zone）是地球上划分的区域，用于标准化时间。由于地球自转，全球不同地区的日出日落时间不同，为了方便统一时间的管理和交流，地球被划分为多个时区。</p>
-<p><img alt="image-20250708173054858" src="https://s2.loli.net/2025/07/08/vCtf6e7iMR3caHd.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20250708173054858" src="https://s2.loli.net/2025/07/08/vCtf6e7iMR3caHd.png"></p>
 <p>原则上，全球共分为24个时区，每隔经度15°划分一个时区，时区从英国的本初子午线开始，向东方每增加一个时区则+1，+1则称为东一区，+8就是东八区。向西方每增加一个时区则-1，-1就是西一区。中国相当于是横跨了5个时区，从东五区（西藏）到东九区（吉林），但实际上中国全国统一使用一个标准时间，就是位于东八区的北京时间，当本初子午线的时间为凌晨0点时，中国时间则需要按照规则+8偏移，也就是早上的8点钟，相当于中国已经看到了日出，而英国还在夜晚，这与现实是一致的，其他地区也是一样的计算规则。</p>
 <p>其中位于本初子午线的时间被称为格林威治标准时间GMT，就像周杰伦歌词里写的那样，它是时间的标准起点。</p>
-<p><img alt="image-20250708174926873" src="https://s2.loli.net/2025/07/08/7KHinqC5ON8X3Mo.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20250708174926873" src="https://s2.loli.net/2025/07/08/7KHinqC5ON8X3Mo.png"></p>
 <p>UTC（Coordinated Universal Time，协调世界时）是一种世界标准时间，用于同步全球的时间系统。也是按照标准时区进行计算，其中格林威治时间就是UTC+0，而位于东八区的北京时间，则是UTC+8，称为中国标准时间（CTT），位于西六区的北美中部地区则是UTC-6，是中部标准时间（CST）。</p>
 <p>当然，时区也有一些别名，比如中国标准时区CST也可以使用别名<code>Asia/ShangHai</code>，一般别名格式为<code>州名称/城市名称</code>，比如美国纽约就是<code>America/New_York</code>。</p>
 </blockquote>
@@ -1490,12 +1490,12 @@ Math.atan(0);
 }
 </code></pre>
 <p><code>Date</code>对象代表一个日期，其中包含当前的详细时间，我们直接创建一个新的<code>Date</code>对象其中的时间直接就是创建时的时间，精确到毫秒。打印结果为：</p>
-<p><img alt="image-20250708011705152" src="https://s2.loli.net/2025/07/08/Y7fMZLv3sNXxHUi.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20250708011705152" src="https://s2.loli.net/2025/07/08/Y7fMZLv3sNXxHUi.png"></p>
 <p>可以看到打印的日期结果上有当前的年月日和时分秒信息，以及对应的时区，这里是中国标准时间CST。我们也可以直接传入一个时间戳来为其指定时间：</p>
 <pre><code class="language-java">Date date = new Date(1000);
 System.out.println(date);
 </code></pre>
-<p><img alt="image-20250708175750292" src="https://s2.loli.net/2025/07/08/AVCqyd82YDWOH9L.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20250708175750292" src="https://s2.loli.net/2025/07/08/AVCqyd82YDWOH9L.png"></p>
 <p>时间戳 1000 代表的就是 1970年1月1日 0点0分1秒，注意时间戳代表的是格林威治时间，也就是UTC+0，换算成中国的时间，UTC+8就是早上的8点0分1秒。如果需要得到UTC+0的格林威治时间，可以使用<code>toGMTString</code>打印为格林威治时间的字符串：</p>
 <pre><code class="language-java">Date date = new Date(1000);
 System.out.println(date.toGMTString());
@@ -1517,7 +1517,7 @@ Date date2 = new Date(123, 7, 1, 12, 0, 0);
 System.out.println(date1.compareTo(date2));
 </code></pre>
 <p>其他诸如获取年份、月份、日期等方法，均被标记为过时，它门都指向了一个新的类 —— <code>Calendar</code>类，它用于在日期和时间字段之间进行转换，提供了大量实用方法，相比直接使用Date来说，会方便不少。我们需要通过<code>getInstance</code>来获取其对象实例：</p>
-<p><img alt="image-20250708013055861" src="https://s2.loli.net/2025/07/08/9BfW47dGOgpVm8z.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20250708013055861" src="https://s2.loli.net/2025/07/08/9BfW47dGOgpVm8z.png"></p>
 <p>我们可以通过<code>setTime</code>来直接传入<code>Date</code>对象设置一个日期：</p>
 <pre><code class="language-java">Calendar instance = Calendar.getInstance();
 instance.setTime(new Date());  //实际上默认情况下不设定也是当前时间
@@ -1609,12 +1609,12 @@ SimpleDateFormat format = new SimpleDateFormat(&quot;yyyy-MM-dd HH:mm:ss&quot;);
 <pre><code class="language-java">SimpleDateFormat format = new SimpleDateFormat(&quot;yyyy-MM-dd HH:mm:ss&quot;);
 System.out.println(format.parse(&quot;2025-11-11 21:12:03&quot;));
 </code></pre>
-<p><img alt="image-20250708020545472" src="https://s2.loli.net/2025/07/08/DrzSq6LpAWaPxUl.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20250708020545472" src="https://s2.loli.net/2025/07/08/DrzSq6LpAWaPxUl.png"></p>
 <p>同样的，日期对象也可以按照格式进行反向转换，变回字符串：</p>
 <pre><code class="language-java">SimpleDateFormat format = new SimpleDateFormat(&quot;yyyy-MM-dd HH:mm:ss&quot;);
 System.out.println(format.format(new Date()));
 </code></pre>
-<p><img alt="image-20250708020631733" src="https://s2.loli.net/2025/07/08/p9AdtGCn7DzQaWX.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20250708020631733" src="https://s2.loli.net/2025/07/08/p9AdtGCn7DzQaWX.png"></p>
 <p>不过这些日期工具还是太难用了，在现代化的今天显得很鸡肋，下一部分我们会介绍Java8带来的全新日期类和工具，可以让你的使用体验提升N个档次。</p>
 <h3 id="java-8-新的日期类">(Java 8) 新的日期类</h3>
 <p>Java 8 引入了一套全新的日期和时间 API，主要包括以下几个核心类，它们都位于 <code>java.time</code> 包中，旨在解决旧版 <code>java.util.Date</code> 和 <code>java.util.Calendar</code> 设计上的不足。</p>
@@ -1641,11 +1641,11 @@ System.out.println(&quot;这个月的第几天: &quot; + date.getDayOfMonth());
 System.out.println(&quot;这周的第几天: &quot; + date.getDayOfWeek());
 </code></pre>
 <p>其中，月份返回的是一个<code>Month</code>对象，其中包含大量对于月份的处理方法。除此之外，它还内置了大量计算操作，比如我们希望这个日期向后加7天，可以直接调用<code>plus</code>方法：</p>
-<p><img alt="image-20250708162144958" src="https://s2.loli.net/2025/07/08/5msecNL2D3SlMqO.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20250708162144958" src="https://s2.loli.net/2025/07/08/5msecNL2D3SlMqO.png"></p>
 <p>当然向后减去天数的操作也有：</p>
-<p><img alt="image-20250708162231000" src="https://s2.loli.net/2025/07/08/FupaO5kYCItrUJM.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20250708162231000" src="https://s2.loli.net/2025/07/08/FupaO5kYCItrUJM.png"></p>
 <p>不过需要注意，<code>LocalDate</code>本身的日期是不可变的，我们进行加减操作之后得到的结果是对于原对象的拷贝重新生成的对象，包括我们如果想要单独修改年月日，也只能使用<code>with</code>方法来创建副本：</p>
-<p><img alt="image-20250708162431195" src="https://s2.loli.net/2025/07/08/tmpcT6ZDoQXaRbB.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20250708162431195" src="https://s2.loli.net/2025/07/08/tmpcT6ZDoQXaRbB.png"></p>
 <p>我们接着来看用于表示时间的<code>LocalTime</code>对象，用法也非常简单，支持通过静态方法或是直接使用内置的静态变量：</p>
 <pre><code class="language-java">LocalTime time = LocalTime.now();   //现在的时间
 LocalTime time1 = LocalTime.of(12, 30);   //指定时分
@@ -1660,7 +1660,7 @@ LocalTime time7 = LocalTime.NOON;    //中午，12:00:00.000
 <pre><code class="language-java">LocalTime time = LocalTime.now();
 System.out.println(time);
 </code></pre>
-<p><img alt="image-20250708161914665" src="https://s2.loli.net/2025/07/08/fYGUMJhXO4IjTrV.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20250708161914665" src="https://s2.loli.net/2025/07/08/fYGUMJhXO4IjTrV.png"></p>
 <p>和<code>LocalDate</code>一样，它也内置了很多工具方法，方便我们使用：</p>
 <pre><code class="language-java">LocalTime time = LocalTime.now();
 System.out.println(&quot;小时: &quot; + time.getHour());
@@ -1710,7 +1710,7 @@ System.out.println(formatter.format(LocalDateTime.now()));
 OffsetDateTime time = LocalDateTime.now().atOffset(ZoneOffset.UTC); //也可以直接用LocalDateTime补全信息创建，需要携带时间偏移
 System.out.println(time);
 </code></pre>
-<p><img alt="image-20250708182739301" src="https://s2.loli.net/2025/07/08/v7YAtjEzN8gJaID.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20250708182739301" src="https://s2.loli.net/2025/07/08/v7YAtjEzN8gJaID.png"></p>
 <p>这里的+08:00实际上就是UTC时间的偏移，中国正好是东八区也就是UTC+8，所以默认得到的时间就是+8小时。</p>
 <p>可能细心的小伙伴在之前已经发现，不仅仅是<code>OffsetDateTime</code>，之前的几个类型都可以在创建时指定时区：</p>
 <pre><code class="language-java">LocalDate date = LocalDate.now(ZoneId.of(&quot;UTC+0&quot;));  //直接指定UTC时区
@@ -1731,12 +1731,12 @@ System.out.println(offset);  //2025-07-08T15:52:39.926356+05:00:02
 ZonedDateTime time = LocalDateTime.now().atZone(ZoneOffset.UTC);  //LocalDateTime补全时区信息
 System.out.println(time);
 </code></pre>
-<p><img alt="image-20250708165726855" src="https://s2.loli.net/2025/07/08/kdRn4rBjPoHbtAi.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20250708165726855" src="https://s2.loli.net/2025/07/08/kdRn4rBjPoHbtAi.png"></p>
 <p>默认的时区为系统设定的时区，我们也可以手动指定其他地区。我们可以打印看下当前时区信息：</p>
 <pre><code class="language-java">ZonedDateTime time = ZonedDateTime.now();
 System.out.println(time.getZone());
 </code></pre>
-<p><img alt="image-20250708185807803" src="https://s2.loli.net/2025/07/08/nGu7HgQNSIJKMPU.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20250708185807803" src="https://s2.loli.net/2025/07/08/nGu7HgQNSIJKMPU.png"></p>
 <p>这里的时区信息其实就是时区对应的城市。</p>
 <p>接着需要给大家介绍一个非常特殊的时间类型<code>Instant</code>，它用于表示时间线上的一个点，通常用来表示时间戳（即自1970年1月1日格林威治标准时间（UTC）以来的秒数或毫秒数）可能大家会认为它跟之前的日期一样也是表示时间的，但是从定义来说，它更适合表示某一个时间点的时间戳。构造起来很简单：</p>
 <pre><code class="language-java">Instant instant = Instant.now();
@@ -1790,7 +1790,7 @@ Period period = Period.ofDays(1);   //表示相差时间1天
 <p><strong>汉诺塔</strong>（Tower of Hanoi），又称<strong>河内塔</strong>，是一个源于<a href="https://baike.baidu.com/item/印度/121904">印度</a>古老传说的<a href="https://baike.baidu.com/item/益智玩具/223159">益智玩具</a>。<a href="https://baike.baidu.com/item/大梵天/711550">大梵天</a>创造世界的时候做了三根金刚石柱子，在一根柱子上从下往上按照大小顺序摞着64片黄金圆盘。大梵天命令<a href="https://baike.baidu.com/item/婆罗门/1796550">婆罗门</a>把圆盘从下面开始</p>
 <p><strong>按大小顺序重新摆放在另一根柱子上。并且规定，在小圆盘上不能放大圆盘，在三根柱子之间一次只能移动一个圆盘。</strong></p>
 </blockquote>
-<p><img alt="img" src="https://s2.loli.net/2022/09/24/mMpDNwrKk6z3CIo.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="img" src="https://s2.loli.net/2022/09/24/mMpDNwrKk6z3CIo.png"></p>
 <p>这三根柱子我们就依次命名为A、B、C，现在请你设计一个Java程序，计算N阶（n片圆盘）汉诺塔移动操作的每一步。</p>
 <p>————————————————
 版权声明：本文为柏码知识库版权所有，禁止一切未经授权的转载、发布、出售等行为，违者将被追究法律责任。

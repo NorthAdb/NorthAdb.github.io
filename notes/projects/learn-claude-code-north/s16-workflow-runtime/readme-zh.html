@@ -113,7 +113,7 @@
 <h2 id="计划写在代码里不是靠聊天一轮轮凑">计划写在代码里，不是靠聊天一轮轮凑</h2>
 <p>在 harness 的工具池里加入一个 <code>Workflow</code> 工具。宿主注册由 <code>agent() / parallel() / pipeline() / phase()</code> 组成的可信脚本。模型只提供保存好的 workflow 名称、参数和可选的续跑 run ID，不会提交可执行代码或元数据。</p>
 <p>workflow 以一次 <code>tool_use</code> 进入主循环。脚本运行时，runtime 会发出生命周期和进度事件，并把每一步写进磁盘上的 journal。脚本结束后，这次调用返回启动信息、结果和任务状态。脚本里的中间结果存在变量里，不会塞进对话历史。下次用 <code>resume_from_run_id</code> 重启时，没改过的 <code>agent()</code> 会直接使用 journal 中的结果。</p>
-<p><img alt="Workflow Runtime 总览" src="https://gitee.com/cheng-jiaqing/images/raw/master/workflow-runtime-overview.svg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Workflow Runtime 总览" src="https://gitee.com/cheng-jiaqing/images/raw/master/workflow-runtime-overview.svg"></p>
 <pre><code class="language-python">SAMPLE_META = {&quot;name&quot;: &quot;review-changes&quot;, &quot;description&quot;: &quot;审查代码改动&quot;, &quot;phases&quot;: [&quot;Review&quot;, &quot;Verify&quot;]}
 
 async def sample_workflow(ctx, args):

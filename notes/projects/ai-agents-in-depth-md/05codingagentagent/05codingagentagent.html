@@ -150,7 +150,7 @@ Agent：已整理完毕，共发现 3 个 TODO 项，清单保存在 TODO_LIST.m
 <h2 id="512-案例从-manus-到-openclaw通用-agent-的-coding-内核">5.1.2 案例：从 Manus 到 OpenClaw——通用 Agent 的 Coding 内核</h2>
 <p>以 Manus、OpenClaw 为代表的通用 Agent 产品，把 Deep Research（深度调研）、Computer Use（电脑操控）和 Coding（代码生成）三大能力融合在一个系统中。那么，为什么本章开头说 Coding Agent 是其中的核心，而不是另外两者？</p>
 <p>因为几乎所有高效的内容生成最终都要落到代码上。PPT、Word 文档本质上是 OOXML（Ofice Open XML，微软推出的办公文档开放标准）格式的代码。PDF 报告可以通过 Markdown、HTML 或 LaTeX 生成，数据分析和可视化可以由 Python 脚本完成，甚至 GUI 操作中成功的浏览器操作序列也可以被固化为可复用的代码（详见第九章）。Deep Research 的搜索和信息综合可通过代码驱动的 Web 请求和解析实现。Computer Use 虽然通用性更强，但成本、延迟和稳定性远不如直接通过代码或 API 来完成相同操作。代码生成是效率最高、成本最低、可复用性最强的能力基座。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/fea7def360dcc1f2f87f5833d9eb20d4c895434c0b1db018a1490e06c4c618e6.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/fea7def360dcc1f2f87f5833d9eb20d4c895434c0b1db018a1490e06c4c618e6.jpg"><br>
 图 5-1 OpenClaw 架构中的 Coding Agent 核心</p>
 <p>用一个具体的执行流来理解这个架构。假设用户要求“Help me analyze last quarter’s sales data and create asummary report”：</p>
 <ol>
@@ -175,7 +175,7 @@ Agent：已整理完毕，共发现 3 个 TODO 项，清单保存在 TODO_LIST.m
 <p>更关键的是，Agent 拥有写文件的能力，这意味着它具备了修改自身外部产物的技术条件。当 Agent 首次执行某个任务并发现了之前不知道的关键信息（例如给某银行打电话时，发现对方要求提供开户行地址才能验证身份），它可以先把发现写入记录。记录何时足以成为可靠知识、指令或程序，仍需结合更多轨迹与结果验证；这是第九章将讨论的持续进化问题。</p>
 <p>适用边界：哪些 Agent 以 Coding 为核心架构。“Coding Agent 是通用 Agent 的核心”这一判断主要适用于以开放任务为目标的通用 Agent——深度调研、内容生成、数据处理这类任务边界不确定、产物形态多样的场景。在这些场景中，无法预先枚举所有需要的工具，代码生成作为元能力提供了动态扩展能力边界的最经济路径，因此它是架构的核心。而另一类 Agent——例如垂直领域的客服 Agent——任务空间相对封闭，核心架构围绕固定的业务流程、领域工具和对话策略构建，代码在其中更多是工具箱里的一件工具而非架构中枢。但即便在后者，coding 也是重要的基础能力：精确计算、数据处理、规则校验都离不开它。</p>
 <h2 id="513-coding-agent-的整体流程">5.1.3 Coding Agent 的整体流程</h2>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/b24e01d8c5434499436c7fd4b91acd82eff3e954e8fbaa18bc7aea2cf36485fd.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/b24e01d8c5434499436c7fd4b91acd82eff3e954e8fbaa18bc7aea2cf36485fd.jpg"><br>
 计划先于行动 · 验证贯穿始终 · 文档与代码共同演化<br>
 图 5-2 Coding Agent 工作流程</p>
 <h2 id="项目文档化">项目文档化。</h2>
@@ -281,7 +281,7 @@ Agent：已整理完毕，共发现 3 个 TODO 项，清单保存在 TODO_LIST.m
 <p>这五个实现技巧——并行与流式、上下文管理、环境感知、状态持久化、即时反馈——共同构成了高效 CodingAgent 的技术基础。它们不是孤立的优化点，而是相互配合的设计决策，指向同一个目标：让 Agent 能够像经验丰富的开发者那样流畅地工作。</p>
 <h2 id="517-coding-agent-中的搜索工具">5.1.7 Coding Agent 中的搜索工具</h2>
 <p>在庞大的代码库中定位相关代码是 Coding Agent 工作的起点。图 5-3 对比了几类互补搜索工具，说明成熟Coding Agent 应如何根据任务性质选择检索方式。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/729164e21ffab66508861aff6374b148c0677a3ed51bb30a400dd494ab8d3802.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/729164e21ffab66508861aff6374b148c0677a3ed51bb30a400dd494ab8d3802.jpg"><br>
 图 5-3 Coding Agent 搜索工具对比</p>
 <p>正则表达式内容匹配（grep/ripgrep）：最传统的搜索方式，逐行扫描文件内容进行模式匹配。当 Agent 知道要查找的具体文本（函数名、变量名、错误消息）时，能快速准确地定位所有出现位置。正则表达式（用特殊符号描述文本模式的语法，如 def handle.* 匹配所有以 handle 开头的函数定义）的强大表达能力可以捕捉复杂模式，不仅可以搜索字面文本，还可以搜索符合特定结构的代码片段。在实际使用中还应支持文件类型过滤（只搜索 Python文件）和路径模式过滤（排除测试目录）以减少噪音。其根本局限在于只能找到字面上匹配的内容，无法理解语义——搜索“用户认证”时，无法找到虽然没有“认证”二字但确实处理登录逻辑的函数。</p>
 <p>文件名模式匹配（glob）：不看文件内容，只在文件系统的路径结构中查找符合模式的文件。如 **/*.test.ts 递归找到所有 TypeScript 测试文件，src/components/**/Button.tsx 在 components 下任意深度查找 Button.tsx。速度比内容搜索快得多（不需要打开和读取文件），是 Agent 探索项目结构的第一步——通过快速扫描整个文件系统建立项目的组织框架。</p>
@@ -294,7 +294,7 @@ Agent：已整理完毕，共发现 3 个 TODO 项，清单保存在 TODO_LIST.m
 <p>这四种搜索方式构成互补的工具箱，实践中往往组合使用：先用语义搜索找到相关模块，再用正则匹配精确定位具体代码行，最后通过符号搜索追踪调用链——“从粗到细、从语义到语法”的渐进式策略。</p>
 <h2 id="518-coding-agent-中的文件编辑工具">5.1.8 Coding Agent 中的文件编辑工具</h2>
 <p>文件编辑的难点不在于操作本身，而在于如何让 LLM 以高效又可靠的方式告诉系统“改哪里、怎么改”。图 5-4对比了五种文件编辑方案，展示人类语言表达与机器精确执行之间的根本张力。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/0911d996035f542b69a56379c349074bb639070b13aac3fe67b6200bd2bd0639.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/0911d996035f542b69a56379c349074bb639070b13aac3fe67b6200bd2bd0639.jpg"><br>
 图 5-4 五种文件编辑方案对比</p>
 <p>差异描述 + Apply Model：模型不是直接指定如何编辑文件，而是生成一份变更描述——可以是类似 git dif（即 命令输出的那种“删了哪几行、加了哪几行”的格式）的差异文本，也可以是带省略标记的代码骨架（用“此处保持不变”之类的注释跳过未修改部分）。这份描述随后交给专门的“应用模型”（Apply Model）——通常是另一个更小、更快的 LLM——负责与原文件合并、产出完整的新文件。这种职责分离让主模型专注高层代码逻辑、应用模型专注底层文本操作。朴素实现的脆弱性在于合并环节：变更描述与文件实际代码有微小出入时需判断是否同一位置，存在多个相似代码片段时可能合并到错误的地方。Cursor 是这条路线的代表，但近期由于基础模型能力的提升，也不再使用这条路线了。</p>
 <p>旧字符串到新字符串（Old String → New String）：Claude Code、Codex 和今天 Cursor 采用的方案。模型提供 old string（要被替换的原文）和 new string（替换后的新文本），框架执行简单的字符串查找替换。优势是可预测性和透明性——old string 在文件中存在且唯一则成功，否则失败，不存在模棱两可。代价是删除大段代码时需完整输出所有原始内容，一个字符的偏差就会匹配失败；同一代码出现多次时需提供更长的上下文来消除歧义。</p>
@@ -463,7 +463,7 @@ return {&quot;success&quot;: False, &quot;reason&quot;: &quot;Does not meet canc
 <p>许多复杂文档的创作本质上是结构化数据的组织和呈现。无论是演示文稿、技术报告还是交互式应用，底层都由代码定义——HTML 描述结构，CSS 控制样式，JavaScript 实现交互。传统的文档创作依赖 GUI 界面的所见即所得编辑，但这种方式对 Agent 来说既不直观也不高效，因为 GUI 操作需要视觉理解和精确的坐标定位。通过代码生成，Agent 绕开了视觉定位难题，获得对文档的精确控制能力——每个元素的位置、样式、内容都是明确定义的，可以用程序化的方式修改和优化。</p>
 <h2 id="ppt-生成-agent">PPT 生成 Agent。</h2>
 <p>PPT 创作往往耗时费力。一个典型的学术报告 PPT 可能包含数十页幻灯片，每页都需精心设计布局、提炼要点、选配图表。如果把 PPT 创作转化为代码生成问题，就能极大降低复杂度。现代 PPT 框架（如 Slidev）采用优雅的设计哲学：用 Markdown 和 HTML 定义演示内容。创建一页幻灯片只需编写简洁的标记语言，框架会自动处理渲染、布局和动画。这种方式对掌握了代码生成能力的 Agent 极其友好。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/bdffbe702a8f3e799646dd95b65acb6f15ed0e0aa353c3645ce316b8ca83c54a.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/bdffbe702a8f3e799646dd95b65acb6f15ed0e0aa353c3645ce316b8ca83c54a.jpg"><br>
 图 5-5 PPT 生成的提议者-审核者机制</p>
 <p>仅能生成代码还不够。Agent 编写完代码后并不知道实际渲染效果：内容是否太挤、文字是否溢出、图片尺寸是否合适，这些只有真正渲染出来才能发现。因此需要引入提议者-审核者（Proposer-Reviewer）机制（如图 5-5所示），将代码编写和质量评审解耦为两个独立 Agent：</p>
 <p>Proposer Agent 负责生成 Slidev 代码，理解内容逻辑结构并将其分解为合理的页面</p>
@@ -478,7 +478,7 @@ return {&quot;success&quot;: False, &quot;reason&quot;: &quot;Does not meet canc
 <p>实验目标：扩展 PPT 生成能力，结合视觉和听觉通道实现视频讲解自动生成。</p>
 <p>技术方案：基于实验 5-4 的 PPT 生成流程，Agent 同时生成每页的口语化讲解文字（引导性叙述而非复述），调用 TTS（文本转语音）合成语音，用 fmpeg 将 PPT 截图与音频同步合成视频。</p>
 <p>验收标准：视频 5-15 分钟，每页展示时间与语音时长精确匹配，讲解内容与视觉元素呼应。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/f535aabbc907e6ff317842c5d84b7b65d76b4bac52697f49fbd10431690d284f.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/f535aabbc907e6ff317842c5d84b7b65d76b4bac52697f49fbd10431690d284f.jpg"><br>
 图 5-6 论文到讲解视频的端到端流水线</p>
 <h2 id="视频编辑-agent">视频编辑 Agent。</h2>
 <p>用通用 Computer Use 做视频编辑面临根本挑战：视频剪辑软件 GUI 极其复杂，包含大量时间轴、图层、效果面板，Agent 需要精确定位这些界面元素并通过鼠标键盘操作编辑，精确输出坐标非常困难。</p>
@@ -520,7 +520,7 @@ return {&quot;success&quot;: False, &quot;reason&quot;: &quot;Does not meet canc
 <h2 id="实验-5-9-生产日志的智能诊断系统">实验 5-9 ★★★：生产日志的智能诊断系统</h2>
 <p>实验目标：从生产轨迹中自动发现问题、生成测试用例、创建工作项。</p>
 <p>技术方案：Agent 读取生产环境的轨迹集合，结合系统架构文档和 PRD 进行分析：识别问题模式，定位涉及的模块。生成结构化问题报告（优先级、模块、描述、改进建议）。自动生成回归测试用例（引用轨迹 ID 和交互轮次，由测试框架自动重放验证）。通过 MCP 对接 GitHub 自动创建 Issue。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/b96b2ed9eec562a2bbd81eed149a20becdc406b33494114c60cb377aaf22ad35.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/b96b2ed9eec562a2bbd81eed149a20becdc406b33494114c60cb377aaf22ad35.jpg"><br>
 将人工诊断成本从小时级降低到分钟级<br>
 图 5-7 生产日志智能诊断流水线</p>
 <h2 id="525-代码作为生成式-ui">5.2.5 代码作为生成式 UI</h2>
@@ -535,7 +535,7 @@ return {&quot;success&quot;: False, &quot;reason&quot;: &quot;Does not meet canc
 <h2 id="澄清用户意图">澄清用户意图。</h2>
 <p>当用户需求表达模糊或不完整时，Agent 需要通过澄清问题来收集必要信息。OpenAI Deep Research 等产品通常采用文本问答方式，但这存在明显局限：效率上，每个问题需要一轮对话，十个澄清点就需要十轮交互；表达力上，某些问题之间存在依赖关系（比如“选择旅行目的地”会影响“交通方式”的可选项），纯文本难以表达这种级联关系。</p>
 <p>通过代码生成，Agent 可以创建结构化的交互界面来替代文本问答。图 5-8 展示了动态表单生成流程，说明Agent 如何把澄清问题转化为一次性填写的结构化界面。Agent 生成包含各种输入控件的 HTML 表单——文本框收集开放性信息、下拉菜单让用户在预定义选项中选择、复选框允许多选、日期选择器简化时间输入。更进一步，Agent 可以生成级联表单——通过 JavaScript 实现动态逻辑：选择某选项后自动显示或隐藏后续问题，动态更新可选项。用户一次填完整张表单，无需多轮对话，还能清晰看到所有需填写的信息和问题之间的逻辑关系。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/7f15c5d683a258a749f91352e863ce1b2dff66ee2c588e28acfffb2ab368856c.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/7f15c5d683a258a749f91352e863ce1b2dff66ee2c588e28acfffb2ab368856c.jpg"><br>
 表单代码由 LLM 动态生成 → 级联逻辑: 选"往返"时自动显示返程日期<br>
 图 5-8 动态表单生成流程</p>
 <h2 id="实验-5-10-动态表单生成的意图澄清系统">实验 5-10 ★★：动态表单生成的意图澄清系统</h2>
@@ -546,7 +546,7 @@ return {&quot;success&quot;: False, &quot;reason&quot;: &quot;Does not meet canc
 <p>数据库查询是代码生成能显著提升交互体验的场景。传统的数据库访问依赖 GUI 工具或手写 SQL，前者操作繁琐，后者要求用户具备专业知识。Agent 可以将自然语言转为 SQL，但这里有一个关键的设计选择：是让 Agent执行 SQL 后用自然语言描述结果，还是让 Agent 生成 SQL 代码作为 artifact，交由前端直接执行？</p>
 <p>第一种方案看似更“智能”，但效率极低——查询结果可能包含数千行大表格，让 LLM 阅读后再用文字描述，不仅会消耗大量 token、耗费很长时间，更严重的是，LLM“抄写”数据时非常容易出错。更好的方案是 Artifact 模式。图 5-9 展示了 SQL 查询 Agent 的工作流程：Agent 不自己读数据，而是生成一段 SQL 查询代码，把这段代码作为一个独立的可执行产物（artifact）交给系统。系统拿着这段 SQL 直接去数据库查询，把查到的数据渲染成用户能看到的表格。整个过程中，数据从数据库直达用户界面，完全绕过了 LLM 这个“中间人”——LLM 只负责写查询语句，不需要亲自去读成千上万行数据再复述给用户，既快速又准确。</p>
 <p>生成的 SQL 和可视化代码不能直接执行。执行层应使用只读数据库账号，解析 SQL 并只允许经过批准的SELECT 语句，拒绝 DDL、DML 和多语句查询；用户提供的值应由服务端参数化绑定，同时限制查询时间、返回行数以及可访问的表和时间范围。可视化代码应在隔离网络和文件系统的沙盒中运行，并且只能产生规定格式的结果。Artifact 模式缩短了数据路径，但不能替代权限检查与执行隔离。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/517462e46ca363a694d4fbb1f55749255e63867d31b9d69ae95a80d1f02f7322.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/517462e46ca363a694d4fbb1f55749255e63867d31b9d69ae95a80d1f02f7322.jpg"><br>
 图 5-9 SQL 查询 Agent 流程</p>
 <p>更进一步，Agent 可以生成两个 artifact 形成流水线：SQL 查询 + 可视化代码（如柱状图）。前端将 SQL 结果直接传给可视化代码，LLM 只负责生成代码，不参与数据传递——这正是代码生成作为接口的精髓。</p>
 <h2 id="实验-5-11-自然语言交互的-erp-agent">实验 5-11 ★★：自然语言交互的 ERP Agent</h2>
@@ -600,7 +600,7 @@ return {&quot;success&quot;: False, &quot;reason&quot;: &quot;Does not meet canc
 <p>验收标准：合法的招聘流程更新成功；跳过候选人状态转换、写入超出职位范围的工资和跨租户读取均被数据层拒绝。</p>
 <h2 id="526-代码创造代码agent-自举">5.2.6 代码创造代码：Agent 自举</h2>
 <p>前面几节展示了代码生成在各个领域的应用——从数学思考到文档创作再到界面定制。如果我们把这些能力推向极限，会出现一个自然的问题：Agent 能不能用代码生成能力来创造另一个 Agent？</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/3397c0b2b154f41730525df28c9d1a9d5a83eb364b4e64491df81d5808a2bb9a.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/3397c0b2b154f41730525df28c9d1a9d5a83eb364b4e64491df81d5808a2bb9a.jpg"><br>
 图 5-10 Agent 自举循环</p>
 <p>Agent 的自我修复：OpenClaw Doctor。</p>
 <p>Agent 自举的一个重要前提是自我修复能力。OpenClaw 的 doctor 命令正是这种能力的体现——它能自动检测三类问题：</p>
@@ -630,7 +630,7 @@ return {&quot;success&quot;: False, &quot;reason&quot;: &quot;Does not meet canc
 <p>实验目标：构建具备元编程（Metaprogramming，即编写能生成或修改其他程序的程序）能力的 Coding Agent，能根据用户需求自动创建新 Agent 系统，确保遵循最佳实践。</p>
 <p>技术方案：为 Coding Agent 提供高质量 Agent 实现作为参考范例（可使用 ch5/coding-agent 项目本身）。当接到创建新 Agent 的需求时，Agent 首先复制这个范例代码，然后基于用户的具体需求进行针对性修改。</p>
 <p>验收标准：生成的 Agent 能成功运行并完成基本任务。验证采用标准消息格式和工具调用协议，使用当前推荐的模型和 API。测试多轮对话中上下文和状态管理的正确性。对比从零生成和基于范例修改两种模式，验证后者在质量和效率上的优势。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/ccaabd21db90c9139988e9b3c0084eb9699a63f4fbdd0d71908779417e71349a.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/ccaabd21db90c9139988e9b3c0084eb9699a63f4fbdd0d71908779417e71349a.jpg"><br>
 图 5-11 能创造 Agent 的 Agent 流水线</p>
 <h2 id="53-本章小结">5.3 本章小结</h2>
 <p>本章讨论的核心始终是同一件事：代码不只是写程序的工具，它是 Agent 形式化思考和精确表达的语言。</p>

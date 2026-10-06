@@ -157,14 +157,14 @@
 <p>新建一个根目录 AGENTS.md 是一个简单的开始，但它是一整套「<strong>知识落盘规范</strong>」的锚点：根目录只放<strong>索引</strong>，细节<strong>就近落盘</strong>到模块级 AGENTS.md。</p>
 <h2 id="带着-ai-一起重构教育平台案例">🏗️ 带着 AI 一起重构：教育平台案例</h2>
 <p>作者的小程序教育平台，可理解为面向教育场景的「项目创作 + 课程教学 + 小程序体验/发布」平台，核心功能包括：自由创作/AI Coding、课程学习/课程制作、资源管理。</p>
-<p><img alt="教育平台整体功能" src="https://gitee.com/cheng-jiaqing/images/raw/master/ai-legacy-refactor-20260807-01.png"></p>
-<p><img alt="自由创作界面" src="https://gitee.com/cheng-jiaqing/images/raw/master/ai-legacy-refactor-20260807-02.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="教育平台整体功能" src="https://gitee.com/cheng-jiaqing/images/raw/master/ai-legacy-refactor-20260807-01.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="自由创作界面" src="https://gitee.com/cheng-jiaqing/images/raw/master/ai-legacy-refactor-20260807-02.png"></p>
 <p>系统复杂度拆成两部分：
 1. <strong>前端 WEB 本身的复杂度</strong>：复杂交互设计（宽窄屏+拖拽+动画）+ 需求迭代导致的功能高度耦合（多个复杂交互页面用 if/else 隔离）+ 部分过度设计（代码编辑器设计支持 OT 协同）；
 2. <strong>WEB 外的其他模块</strong>：后端、模拟器预览的代码编译、项目管理和代码拉取的 Node 模块、AI Agent 模块、付费能力、三方能力（腾讯云、混元等）。</p>
 <p>最复杂的自由创作/课程学习/课程制作页面，近半年重构前后对比（AI 分析画的图）：</p>
-<p><img alt="重构前对比" src="https://gitee.com/cheng-jiaqing/images/raw/master/ai-legacy-refactor-20260807-03.png"></p>
-<p><img alt="重构后对比" src="https://gitee.com/cheng-jiaqing/images/raw/master/ai-legacy-refactor-20260807-04.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="重构前对比" src="https://gitee.com/cheng-jiaqing/images/raw/master/ai-legacy-refactor-20260807-03.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="重构后对比" src="https://gitee.com/cheng-jiaqing/images/raw/master/ai-legacy-refactor-20260807-04.png"></p>
 <blockquote>
 <p><strong>AI 怎么知道要怎么做？——我们怎么做，它就怎么做。</strong> AI 自行读代码理解依然可能不准确，前期需要不少引导工作。</p>
 </blockquote>
@@ -217,7 +217,7 @@
 <li><strong>建设统一组件</strong>：把过往设计稿中不符合规范的统一收纳处理；</li>
 <li><strong>建设规范沉淀</strong>：让 AI 自行检查是否遵循规范，并在 MR 过程中进行规则检测。</li>
 </ul>
-<p><img alt="样式规范治理" src="https://gitee.com/cheng-jiaqing/images/raw/master/ai-legacy-refactor-20260807-05.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="样式规范治理" src="https://gitee.com/cheng-jiaqing/images/raw/master/ai-legacy-refactor-20260807-05.png"></p>
 <blockquote>
 <p><strong>屎山清理第三步：让事情的执行有所依据。</strong></p>
 </blockquote>
@@ -265,11 +265,11 @@
 - <strong>大截图</strong>：检测大的布局异常，像素偏差允许范围高（识别不了文字、圆角等小问题）；
 - <strong>组件小视觉用例</strong>：补充各种状态的样式回归，像素偏差限制严格（发现精确问题）。</p>
 <p>好处：即使开发未能准确判断异常是否符合预期、AI 误动其他样式让流水线通过，也能在 MR 过程直接发现。</p>
-<p><img alt="视觉回归发现 AI 误改样式" src="https://gitee.com/cheng-jiaqing/images/raw/master/ai-legacy-refactor-20260807-06.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="视觉回归发现 AI 误改样式" src="https://gitee.com/cheng-jiaqing/images/raw/master/ai-legacy-refactor-20260807-06.png"></p>
 <p><strong>MR 自定义规则（AI 评审）</strong>：确保新增功能遵循规范。用工蜂的 AI 评审能力——在项目里添加 AI 评审规则，在工蜂中选择该规则文件给到 AI（刚上线，还在实践中）。</p>
-<p><img alt="工蜂 AI 评审配置" src="https://gitee.com/cheng-jiaqing/images/raw/master/ai-legacy-refactor-20260807-07.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="工蜂 AI 评审配置" src="https://gitee.com/cheng-jiaqing/images/raw/master/ai-legacy-refactor-20260807-07.png"></p>
 <p>至此每次 MR 合入需要通过的流水线：</p>
-<p><img alt="MR 合入流水线" src="https://gitee.com/cheng-jiaqing/images/raw/master/ai-legacy-refactor-20260807-08.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="MR 合入流水线" src="https://gitee.com/cheng-jiaqing/images/raw/master/ai-legacy-refactor-20260807-08.png"></p>
 <blockquote>
 <p><strong>屎山清理第四步：避免问题反复出现。</strong></p>
 </blockquote>

@@ -111,7 +111,7 @@
 <p>工具是 Agent 的手脚：这里的“工具”指 Agent 用来感知或改变外部世界的接口，包括工具定义、调用协议和适配器——从预定义的工具调用到动态生成代码，从委托子 Agent 协作到主动与用户沟通。</p>
 <p>换一种更直观的说法：Agent = 大脑 + 眼睛 + 手脚。大脑负责思考和决策，眼睛接收环境提供的观察，手脚将决策转化为作用于环境的行动。</p>
 <p>在经典的强化学习和控制论视角下，Agent 与 Environment 是闭环交互的两方，而不是彼此的组成部分。环境不断向 Agent 返回当前观察，Agent 根据已有上下文选择下一步行动；行动改变环境状态，新的状态再产生下一次观察，循环由此继续。这是理解所有 Agent 交互的最小结构。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/dfb3e1806f090184e78a939e44b8fb9349baa0a556d462e6d1a6aab651e6359f.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/dfb3e1806f090184e78a939e44b8fb9349baa0a556d462e6d1a6aab651e6359f.jpg"><br>
 图 1-1 Agent 与 Environment 的闭环交互，以及 Agent 内部的 Model–Harness 结构</p>
 <p>图 1-1 同时给出了两个抽象层次。外层是 Agent 与 Environment 的交互关系：环境包含文件、数据库、网页、用户、其他 Agent 以及物理或仿真世界，Agent 只能通过观察和行动接口与它交互。内层是 Agent 的 Model–Harness 结构：Model 负责策略决策；Harness 是 Agent 边界内环绕模型的运行与治理层，负责构造上下文、暴露工具接口、维护循环和状态，并实施权限、验证与纠正。Harness 可以创建、隔离或代理一个环境，却不因此包含环境自身的状态与转移规律。</p>
 <p>本节开头的工程公式可以据此重新展开：LLM 对应 Model，“上下文 + 工具”构成最小 Harness；生产系统还会在 Harness 中加入约束、验证和纠正。后文所有架构都遵循这条边界。</p>
@@ -176,7 +176,7 @@ assistant: {
 <p>但这里悬着一个更深的问题：如果模型持续变强，今天这些 Harness 会不会最终被模型“吃掉”？Rich Sutton在《苦涩的教训》（The Bitter Lesson）中回顾了 AI 研究七十年间反复上演的一幕<sup>2</sup>：研究者一次次把自己对领域的理解编码进系统，短期见效，长期却总是输给能随算力与数据规模持续扩展的通用方法——搜索与学习。以此衡量，Harness 里的约束、验证与纠正，有多少属于“人类先验”，注定会被模型内化？本书的立场是：方向认同，节奏务实。方向上，本书不怀疑模型会持续吃掉 Harness——工具调用、长程规划都曾靠外部编排，如今已是模型的原生能力；但在节奏上，这个“吃”的过程远比想象中慢：训练以月计，模型也无法一次内化真实业务中所有的约束与偏好，模型此刻的能力边界，就是 Harness 此刻的价值所在。因此 Harness 工程不是对苦涩的教训的抵抗，而是这一教训在工程时间尺度上的实践：模型还做不稳的，Harness 先补上；模型每内化一层，Harness 就卸下一层，转而兜底新的能力前沿。</p>
 <h2 id="1132-agent-的学习机制从上下文适应到持久更新">1.1.3.2 Agent 的学习机制：从上下文适应到持久更新</h2>
 <p>前面讨论了模型可以通过强化学习将工具调用策略内化为原生能力。但 Agent 的行为改变不只发生在训练阶段。按照更新发生的位置和持续时间，可以把它理解为三条互补路径（图 1-2）：任务内的上下文适应、跨任务的外部产物（artifact）更新，以及训练周期中的参数更新。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/eda7f3b9be6d929c8002929453e7c66f8531d18190f2cd43f264e269735ecdc0.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/eda7f3b9be6d929c8002929453e7c66f8531d18190f2cd43f264e269735ecdc0.jpg"><br>
 图 1-2 Agent 能力更新的三个层次</p>
 <p>上下文适应发生在当前任务中。示例、状态和检索结果进入上下文后，模型可以立即调整行为，却不会因此改变下一次会话的持久状态。它的优势是快速、低成本，局限是受上下文窗口和信息组织方式约束；第二章将详细讨论这种适应如何工作。</p>
 <p>要让变化跨越任务保留下来，可以更新外部产物：把事实和经验整理为知识文档，把可语言化的策略写进Prompt 或 Skill，把确定性流程与约束写成程序和 Harness。这些产物可审计、可修订，执行时仍需通过上下文或工具接口被 Agent 使用。第三至五章分别给出知识与程序基础，第九章则讨论如何从已评价的运行轨迹中生成这些更新。</p>
@@ -192,7 +192,7 @@ assistant: {
 <p>要验证每个组件是否都不可或缺，最直接的方法是消融实验（Ablation Study）：就像医生诊断时逐一排除病因先去掉 A 组件看系统是否还正常，再去掉 B 组件，以此类推，从而判断每个组件的贡献。实验 1-1 正是按这个思路，对上述五个组件做了系统性测试。</p>
 <h2 id="实验-1-1-上下文的关键作用">实验 1-1 ★★：上下文的关键作用</h2>
 <p>通过系统性的消融实验（Ablation Study），我们探索了不同上下文组件对 Agent 行为的影响。实验从上述五个部分中选取了四个组件进行测试——系统提示词作为 Agent 的基本身份定义不参与消融，因为没有系统提示词，Agent 连基本的角色认知都没有，测试没有意义。如图 1-3 所示，五组对照实验包括：一组保留全部组件的完整基线，再加上四组各缺失一个组件的对照，以此观察每个组件对 Agent 性能的影响。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/97424fdc404e6a1504d000534c88f12e13146637364cc8de586e0c7c277152e8.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/97424fdc404e6a1504d000534c88f12e13146637364cc8de586e0c7c277152e8.jpg"><br>
 图 1-3 实验 1-1——上下文消融实验设计</p>
 <p>实验结果揭示了每个上下文组件不可替代的作用。工具定义（Tool Definitions，静态前缀的一部分）是 Agent行动能力的基础，没有它，Agent 就无法识别和调用任何工具。工具执行结果（Tool Results）是闭环控制的关键，缺失它会导致 Agent “盲目”执行，陷入无限循环。思考过程（模型回复中的 reasoning 部分）保留了 Agent此前做出决策的原因，使思维流程更加连贯，避免做出前后矛盾的决策。历史消息（之前轮次的用户消息、模型回复和工具执行结果）则防止了冗余操作，保持任务执行的连贯性，避免重复犯同样的错误。</p>
 <p>这个实验的核心洞察是：上下文决定了 Agent 能看到什么，而 Agent 只能基于它看到的信息做决策。就像一个人蒙住眼睛就无法做出合理判断一样，缺失任何一个上下文组件，Agent 的决策能力都会严重退化——看不到工具定义就不知道有哪些工具可用，看不到之前的执行结果就不知道已经做过什么。</p>
@@ -200,7 +200,7 @@ assistant: {
 <p>了解了 Agent 的三大组件后，一个自然的问题是：它们如何协同工作？ReAct 循环就是将 LLM、上下文和工具串联起来的核心机制——让我们看看一个 Agent 是如何一步步思考和行动的。</p>
 <p>Agent 执行任务的核心模式叫做 ReAct（Reasoning + Acting）。虽然名字只体现了思考（Reasoning）和行动（Acting）两个词，但实际循环包含三个环节：模型先思考当前应该做什么，然后调用工具行动，再观察工具返回的结果并继续思考下一步。这个“想 → 做 → 看 → 想 → 做 → 看”的循环不断重复，直到任务完成。</p>
 <p>让我们通过一个多币种收入汇总的具体例子来理解 Agent 的轨迹（trajectory）。轨迹是 Agent 在执行任务过程中不断积累的消息历史——用户消息、模型回复（包括思考过程和工具调用）、工具执行结果。每一次调用 LLM时，它接收的完整上下文由静态前缀（系统提示词 + 工具定义）和轨迹（动态消息历史）两部分组成（图 1-4）。这揭示了一个关键事实：Agent 的上下文 = 静态前缀 + 轨迹。具体地说，静态前缀对应前文五个组件中的前两项（系统提示词 + 工具定义），轨迹对应后三项（用户消息 + 模型回复 + 工具执行结果，随交互不断增长）。基于这个完整上下文，LLM 生成下一步的响应，然后这个响应又追加到轨迹中，供下一次调用使用。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/4ddafb84a951d5ba44b39869bdec6b191e4afd0daa43b0910a65f2763e164190.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/4ddafb84a951d5ba44b39869bdec6b191e4afd0daa43b0910a65f2763e164190.jpg"><br>
 图 1-4 Agent 轨迹——多币种汇总任务的 ReAct 循环</p>
 <p>先看最小运行骨架。它说明的是机制如何运行：Model 只负责决定下一步，Harness 负责组装上下文、校验并执行工具，Environment 负责产生真实状态变化和观察。本书后续也沿用 Python 风格伪代码；伪代码不能直接运行，也不对应某个 SDK。具体的可执行代码在本书配套代码仓库中。</p>
 <pre><code class="language-python">trajectory = [user_request]
@@ -257,7 +257,7 @@ content: &quot;FINAL ANSWER: 总收入 $9,602,895.73...&quot; }
 <p>GPT-5.6 是“模型即 Agent”概念的一个成熟实例：网络搜索、代码解释器作为 Responses API 的内置工具在服务端闭环执行，客户端不必再自行搭建“搜索—阅读—分析”的编排框架。而意图澄清的意义在于，它让“用户说了什么”和“用户真正想要什么”之间的差距，在任务执行之前就得到了弥合。</p>
 <p>需要说明的是，这个实验并不绑定某一家厂商。没有 OpenAI 额度的读者完全可以用具备等价托管工具的提供商复现：例如阿里云百炼 qwen3.7-plus 的 Responses API 同样内置 web_search 与 code_interpreter；KimiK3 的 Formula 托管搜索与 code_runner 也属于同类能力。</p>
 <p>图 1-5 展示了“模型即 Agent”范式下原生工具调用的完整架构，以及 Kimi K3 / GPT-5.6 在实际任务中的ReAct 执行过程。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/7f7687911a241ca129c0c441ac64a59980d3429d25040555371c79c1173deb5e.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/7f7687911a241ca129c0c441ac64a59980d3429d25040555371c79c1173deb5e.jpg"><br>
 图 1-5 “模型即 Agent”架构——原生工具调用</p>
 <h2 id="12-harness-工程模型之外的竞争力">1.2 Harness 工程：模型之外的竞争力</h2>
 <p>到这里你已经理解了 Agent 的核心工作原理——LLM 通过 ReAct 循环，在上下文的辅助下使用工具完成任务。前面的实验证明了这套基本机制是有效的，但同时也暴露了明显的脆弱点：模型可能产生幻觉（编造不存在的工具或参数）、选错工具，或在遇到错误时无法自我恢复。一个能跑的 Demo 和一个可靠的产品之间还有巨大的鸿沟，而这些脆弱点正是 Harness 工程要解决的问题。本章前半部分回答了 Agent 是什么，下半部分回答 Agent 如何在生产环境中可靠运行。</p>
@@ -360,13 +360,13 @@ while true:
 <p>仍以订机票为例：自主 Agent 不需要预定义四个固定节点。用户说“帮我订下周三去上海的机票”，Agent 会自行决定先搜索航班、发现需要登录、于是先核实身份、再回来搜索、发现最便宜的航班需要转机、主动询问用户是否接受、用户说不要转机、Agent 调整搜索条件⋯⋯</p>
 <p>这意味着自主 Agent 需要具备自主规划的能力——自主决定执行步骤，还需要能识别失败、调整策略，而不只是在出错时停下来。但自主性不等于无限制——必须设计明确的停止条件（任务完成、达到最大迭代次数或遭遇不可恢复的错误），否则 Agent 容易陷入死循环或过度执行。</p>
 <p>从实现角度看，自主 Agent 本质上就是在一个循环中使用工具的 LLM，通过持续获取环境反馈来推进任务这正是前面介绍的 ReAct 循环。常见的退出条件包括：调用最终输出工具、模型返回没有任何工具调用的响应，或者遇到错误、达到最大轮数。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/7997fd0a56506e64dce5990ff1ac93e233fb175af40d1f95736a5123e3464a06.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/7997fd0a56506e64dce5990ff1ac93e233fb175af40d1f95736a5123e3464a06.jpg"><br>
 图 1-6 自主 Agent 的执行循环</p>
 <p>自主 Agent 特别适用于开放式的问题——这类问题难以预测所需的步骤数量。典型的应用场景包括：CodingAgent 解决 SWE-bench（Software Engineering Benchmark，一个评估 Agent 自动修复真实 GitHub Issue 能力的基准测试）任务，“计算机使用”（Computer Use）Agent 像人类一样操作计算机界面，以及需要迭代搜索和分析的研究任务。</p>
 <p>不过，自主性也带来了更高的成本和潜在的复合错误风险。因此在部署自主 Agent 时，必须在沙盒环境中进行充分的测试，设置适当的护栏和监控机制，并在关键决策点考虑加入人机协作的检查点。</p>
 <h2 id="1243-两种模式的选择与混合">1.2.4.3 两种模式的选择与混合</h2>
 <p>实践中，工作流和自主 Agent 并非非此即彼——很多系统会混合使用两种模式：关键的、有严格合规要求的流程用工作流来确保可靠性，需要灵活决策的部分切换到自主模式。例如，n8n 是一个成熟的工作流自动化开源框架，开发者通过可视化界面拖拽功能组件来构建 Agent，可以在同一个系统中同时使用工作流节点和自主 Agent 节点。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/fab0612ad7a7334a2b799970eedc14a729be2b906ab45217021e7ec8f67cd4a8.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/fab0612ad7a7334a2b799970eedc14a729be2b906ab45217021e7ec8f67cd4a8.jpg"><br>
 图 1-7 n8n 工作流编辑器界面</p>
 <h2 id="1244-主流-agent-框架简要对比">1.2.4.4 主流 Agent 框架简要对比</h2>
 <p>下表梳理了当前主流的 Agent 框架/平台，帮助读者根据场景快速选型：</p>

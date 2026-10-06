@@ -105,13 +105,13 @@
 <h2 id="问题">问题</h2>
 <p>Agent 开始新会话时，<code>messages</code> 里没有上一次的对话。用户之前说过的编码偏好、项目背景和排查线索，下次任务还可能用到。没有持久存储，这些信息只能由用户重新说一遍。</p>
 <p>把完整 transcript 留下来适合归档，却不适合每次都发给模型。对话会越来越长，当前任务需要的信息很难定位，旧事实也可能已经过期。Memory 要解决的是两个问题：哪些信息值得跨会话保存，以及当前任务应该取回哪几条。</p>
-<p><img alt="Memory Overview" src="https://gitee.com/cheng-jiaqing/images/raw/master/memory-overview.svg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Memory Overview" src="https://gitee.com/cheng-jiaqing/images/raw/master/memory-overview.svg"></p>
 <hr>
 <h2 id="全部写进-system-prompt为什么不合适">全部写进 system prompt，为什么不合适</h2>
 <p>最直接的做法，是把用户偏好和项目事实写进一个固定文件，启动时全部放进 system prompt。这样确实能够记住信息，但每次调用 LLM 都要重新发送全部内容。记忆越多，与当前任务无关的内容就越多，输入 token 和上下文窗口也会被持续占用。</p>
 <p>s07 已经展示过一种更合适的读取方式：保留简短索引，只在需要时加载正文。Skill 由人编写并保持只读；Memory 则允许 Agent 从对话中提取内容，并在后续任务中再次使用。</p>
 <p>因此，本章需要处理四件事：存储、召回、提取和整理。</p>
-<p><img alt="Memory Subsystems" src="https://gitee.com/cheng-jiaqing/images/raw/master/memory-subsystems.svg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Memory Subsystems" src="https://gitee.com/cheng-jiaqing/images/raw/master/memory-subsystems.svg"></p>
 <hr>
 <h2 id="存储一个记忆一个文件">存储：一个记忆一个文件</h2>
 <p>每条记忆是 <code>.memory/</code> 下的一个 Markdown 文件，YAML frontmatter 记录 <code>name</code>、<code>description</code> 和 <code>type</code>：</p>

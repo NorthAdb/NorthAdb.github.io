@@ -122,7 +122,7 @@
 <li>注解式声明；</li>
 <li>依赖注入与主流 JVM 框架集成。</li>
 </ul>
-<p><img alt="LangChain4j 的框架定位" src="https://gitee.com/cheng-jiaqing/images/raw/master/img_001.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="LangChain4j 的框架定位" src="https://gitee.com/cheng-jiaqing/images/raw/master/img_001.png"></p>
 <p>框架提供两个层次：</p>
 <table>
 <thead>
@@ -153,7 +153,7 @@
 <li>向量化：<code>EmbeddingModel</code>；</li>
 <li>向量存储：<code>EmbeddingStore</code>。</li>
 </ul>
-<p><img alt="LangChain4j 的统一接口层" src="https://gitee.com/cheng-jiaqing/images/raw/master/img_002.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="LangChain4j 的统一接口层" src="https://gitee.com/cheng-jiaqing/images/raw/master/img_002.png"></p>
 <p>这带来的实际价值是：业务层可以依赖稳定接口，测试时替换实现，试验不同模型或向量库时减少上层改动。</p>
 <p>但抽象只能覆盖能力交集。更换供应商后，仍需重新验证：</p>
 <ul>
@@ -164,7 +164,7 @@
 </ul>
 <h2 id="三ai-services把-ai-能力包装成-java-服务">三、AI Services：把 AI 能力包装成 Java 服务</h2>
 <p>AI Services 的核心思路类似 Spring Data JPA 或 Retrofit：开发者声明 Java 接口，框架在运行时提供代理，将方法参数转换为模型消息，并把响应解析为返回类型。</p>
-<p><img alt="AI Services 组装 Prompt、Tools、Memory 与 RAG" src="https://gitee.com/cheng-jiaqing/images/raw/master/img_003.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="AI Services 组装 Prompt、Tools、Memory 与 RAG" src="https://gitee.com/cheng-jiaqing/images/raw/master/img_003.png"></p>
 <p>下面是原文案例的精简版本：</p>
 <pre><code class="language-java">record SupportReply(
         @Description(&quot;给用户展示的中文答复&quot;) String answer,
@@ -214,7 +214,7 @@ SupportReply reply = assistant.chat(
 <p>结构化反序列化成功只代表数据形状匹配，不代表金额、权限或订单状态符合业务规则。确定性的业务校验仍应放在 Java 业务层。</p>
 <h2 id="四tools模型提出请求应用执行动作">四、Tools：模型提出请求，应用执行动作</h2>
 <p>LangChain4j 可通过 <code>@Tool</code> 暴露 Java 方法，并将工具说明和参数 Schema 提供给模型。模型决定调用哪个工具及其参数，真正执行方法的仍是应用程序。</p>
-<p><img alt="Tools 的模型与应用调用循环" src="https://gitee.com/cheng-jiaqing/images/raw/master/img_004.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Tools 的模型与应用调用循环" src="https://gitee.com/cheng-jiaqing/images/raw/master/img_004.png"></p>
 <p>生产环境必须保留以下控制：</p>
 <ul>
 <li>用户身份、租户和数据权限校验；</li>
@@ -230,7 +230,7 @@ SupportReply reply = assistant.chat(
 <li><code>MessageWindowChatMemory</code>：按消息数量淘汰；</li>
 <li><code>TokenWindowChatMemory</code>：按 Token 窗口淘汰。</li>
 </ul>
-<p><img alt="Chat Memory 与完整聊天历史的区别" src="https://gitee.com/cheng-jiaqing/images/raw/master/img_005.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Chat Memory 与完整聊天历史的区别" src="https://gitee.com/cheng-jiaqing/images/raw/master/img_005.png"></p>
 <p>需要注意：</p>
 <ul>
 <li>Memory 可被淘汰、压缩或注入，不等同于产品展示和审计所需的完整 history；</li>
@@ -241,7 +241,7 @@ SupportReply reply = assistant.chat(
 </ul>
 <h2 id="六rag框架提供积木效果取决于工程">六、RAG：框架提供积木，效果取决于工程</h2>
 <p>LangChain4j 覆盖文档加载、解析、切分、Embedding、向量存储、在线检索和上下文注入。简单场景可直接配置 <code>ContentRetriever</code>；复杂场景可用 <code>RetrievalAugmentor</code> 组合查询改写、多路检索、融合、重排和注入。</p>
-<p><img alt="LangChain4j 的 RAG 组件" src="https://gitee.com/cheng-jiaqing/images/raw/master/img_006.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="LangChain4j 的 RAG 组件" src="https://gitee.com/cheng-jiaqing/images/raw/master/img_006.png"></p>
 <p>检索来源不限于向量库，还可以接入全文搜索、Web 搜索、知识图谱或业务数据库。但框架不能替代：</p>
 <ul>
 <li>文档清洗与切分策略；</li>
@@ -292,7 +292,7 @@ SupportReply reply = assistant.chat(
 <li>输入输出校验是否生效；</li>
 <li>每阶段耗时、Token 与错误。</li>
 </ol>
-<p><img alt="AI Service 的可观测链路" src="https://gitee.com/cheng-jiaqing/images/raw/master/img_007.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="AI Service 的可观测链路" src="https://gitee.com/cheng-jiaqing/images/raw/master/img_007.png"></p>
 <p><code>ChatModelListener</code> 等监听入口可用于采集请求、响应、耗时和错误。Guardrails 可在模型调用前后检测越界请求、Prompt Injection、格式错误或违反业务规则的回答。</p>
 <p>截至原文调研时间，Guardrails 和 AI Service Observability 仍标为实验性，且仅适用于 AI Services。即便未来功能成熟，也不能替代认证、授权、数据隔离、资金风控与审计。</p>
 <h2 id="九适用与不适用场景">九、适用与不适用场景</h2>

@@ -99,7 +99,7 @@
 <p><strong>主要文章</strong>：腾讯技术工程《Loop Engineering 已死？一文带你了解 Graph Engineering》（作者：lukiexing，2026-07-28）<br>
 <strong>补充材料</strong>：Datawhale 整理的 Codez《Graph Engineering 实操手册》（2026-08-09）</p>
 </blockquote>
-<p><img alt="Graph Engineering 文章封面" src="https://gitee.com/cheng-jiaqing/images/raw/master/graph-engineering-20260728-cover.jpeg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Graph Engineering 文章封面" src="https://gitee.com/cheng-jiaqing/images/raw/master/graph-engineering-20260728-cover.jpeg"></p>
 <hr>
 <h2 id="阅读地图三份材料各自解决什么问题">🧭 阅读地图：三份材料各自解决什么问题</h2>
 <table>
@@ -140,7 +140,7 @@ Harness Engineering →  工具、护栏、状态、重试如何组织
 Loop Engineering    →  单个 Agent 如何持续发现、执行、验证
 Graph Engineering   →  多个节点如何协作、路由、恢复、审计
 </code></pre>
-<p><img alt="Prompt、Context、Harness、Loop 到 Graph 的五层演进" src="https://gitee.com/cheng-jiaqing/images/raw/master/graph-engineering-20260728-02.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Prompt、Context、Harness、Loop 到 Graph 的五层演进" src="https://gitee.com/cheng-jiaqing/images/raw/master/graph-engineering-20260728-02.png"></p>
 <p>这五层不是互相淘汰，而是逐层叠加。<strong>Loop 解决“一个 Agent 如何持续工作”，Graph 解决“多个 Agent、工具和人如何组成可观测、可恢复、可扩展的系统”。</strong></p>
 <h3 id="2-loop-的结构性缺陷">2. Loop 的结构性缺陷</h3>
 <p>当任务变成长时、多角色、需要独立复核时，单循环会暴露出：</p>
@@ -152,8 +152,8 @@ Graph Engineering   →  多个节点如何协作、路由、恢复、审计
 <li><strong>可观测性差</strong>：只能从长对话里反推分支原因，难以复现和审计。</li>
 <li><strong>目标失明</strong>：单一指标被过度优化后，可能偏离真实目标，符合“古德哈特定律”。</li>
 </ul>
-<p><img alt="单个 Agent 的自主循环：观察、行动、检查、修正" src="https://gitee.com/cheng-jiaqing/images/raw/master/graph-engineering-20260728-03.png"></p>
-<p><img alt="指标上升但客户续费率下降：目标失明与古德哈特定律" src="https://gitee.com/cheng-jiaqing/images/raw/master/graph-engineering-20260728-04.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="单个 Agent 的自主循环：观察、行动、检查、修正" src="https://gitee.com/cheng-jiaqing/images/raw/master/graph-engineering-20260728-03.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="指标上升但客户续费率下降：目标失明与古德哈特定律" src="https://gitee.com/cheng-jiaqing/images/raw/master/graph-engineering-20260728-04.png"></p>
 <h3 id="3-graph-的最小模型从四构件到生产级五构件">3. Graph 的最小模型：从四构件到生产级五构件</h3>
 <p>腾讯文章用下面的形式描述 Graph：</p>
 <blockquote>
@@ -190,7 +190,7 @@ Graph Engineering   →  多个节点如何协作、路由、恢复、审计
 <p><strong>学习版 Graph = Nodes + Edges + State；生产版 Graph = 上述三者 + Policy + Failure Routing。</strong></p>
 </blockquote>
 <p>没有失败边的图只是流程图；没有策略约束的动态图则可能把“谁能改数据库、谁能绕过审批”交给模型临场发挥。</p>
-<p><img alt="研究、事实核查、写作与人工审批组成的可恢复图" src="https://gitee.com/cheng-jiaqing/images/raw/master/graph-engineering-20260728-05.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="研究、事实核查、写作与人工审批组成的可恢复图" src="https://gitee.com/cheng-jiaqing/images/raw/master/graph-engineering-20260728-05.png"></p>
 <h3 id="4-三种高频拓扑与-anthropic-五种模式">4. 三种高频拓扑与 Anthropic 五种模式</h3>
 <table>
 <thead>
@@ -229,8 +229,8 @@ Graph Engineering   →  多个节点如何协作、路由、恢复、审计
 </tbody>
 </table>
 <p>Anthropic 的核心建议是：<strong>先用最简单的模式，只有在上下文保护、并行探索或专业化确实带来收益时才增加 Graph 复杂度。</strong></p>
-<p><img alt="Graph 的扇出、扇入：多个来源并行研究后交给写稿人" src="https://gitee.com/cheng-jiaqing/images/raw/master/graph-engineering-20260728-06.png"></p>
-<p><img alt="流水线中的检查点 Gate：不合格的中间结果不能进入下一步" src="https://gitee.com/cheng-jiaqing/images/raw/master/graph-engineering-20260728-07.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Graph 的扇出、扇入：多个来源并行研究后交给写稿人" src="https://gitee.com/cheng-jiaqing/images/raw/master/graph-engineering-20260728-06.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="流水线中的检查点 Gate：不合格的中间结果不能进入下一步" src="https://gitee.com/cheng-jiaqing/images/raw/master/graph-engineering-20260728-07.png"></p>
 <h3 id="5-graph-的真正杠杆确定性而不是-agent-数量">5. Graph 的真正杠杆：确定性，而不是 Agent 数量</h3>
 <ul>
 <li><strong>模型负责判断</strong>：分类、规划、写作、风险判断、候选方案生成。</li>
@@ -241,8 +241,8 @@ Graph Engineering   →  多个节点如何协作、路由、恢复、审计
 <blockquote>
 <p>如果所有节点都只互相引用模型生成的结论，而没有测试、数据库、用户行为或其他现实证据，Graph 只是“更有组织的幻觉”。</p>
 </blockquote>
-<p><img alt="单个 Agent 同时规划、执行、裁判，容易形成自我确认" src="https://gitee.com/cheng-jiaqing/images/raw/master/graph-engineering-20260728-08.png"></p>
-<p><img alt="独立验证器：通过则放行，失败则打回重做" src="https://gitee.com/cheng-jiaqing/images/raw/master/graph-engineering-20260728-09.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="单个 Agent 同时规划、执行、裁判，容易形成自我确认" src="https://gitee.com/cheng-jiaqing/images/raw/master/graph-engineering-20260728-08.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="独立验证器：通过则放行，失败则打回重做" src="https://gitee.com/cheng-jiaqing/images/raw/master/graph-engineering-20260728-09.png"></p>
 <h3 id="6-loop-与-graph同一个每日研究简报任务">6. Loop 与 Graph：同一个每日研究简报任务</h3>
 <table>
 <thead>
@@ -286,8 +286,8 @@ Graph Engineering   →  多个节点如何协作、路由、恢复、审计
 </tbody>
 </table>
 <p><strong>决策原则</strong>：如果任务一次性、目标单一、停止条件清晰，优先保留 Loop；如果需要并行、角色分工、独立验证、持久化或人工审批，Graph 才值得承担额外成本。</p>
-<p><img alt="是否需要 Graph：能否分叉、并行、汇合、兜底和治理" src="https://gitee.com/cheng-jiaqing/images/raw/master/graph-engineering-20260728-11.png"></p>
-<p><img alt="每日研究简报：臃肿 Loop 与三节点 Graph 的对比" src="https://gitee.com/cheng-jiaqing/images/raw/master/graph-engineering-20260728-10.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="是否需要 Graph：能否分叉、并行、汇合、兜底和治理" src="https://gitee.com/cheng-jiaqing/images/raw/master/graph-engineering-20260728-11.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="每日研究简报：臃肿 Loop 与三节点 Graph 的对比" src="https://gitee.com/cheng-jiaqing/images/raw/master/graph-engineering-20260728-10.png"></p>
 <h3 id="7-老工作流react-与-graph-的关系">7. 老工作流、ReAct 与 Graph 的关系</h3>
 <p>三者不是简单的替代关系：</p>
 <ul>
@@ -295,7 +295,7 @@ Graph Engineering   →  多个节点如何协作、路由、恢复、审计
 <li><strong>ReAct Loop</strong>：节点内部足够灵活，但控制流泡在模型对话中，难复现、难审计。</li>
 <li><strong>Graph</strong>：用固定的边和策略框住动态节点，让结构可治理、节点内部仍保留自主推理。</li>
 </ul>
-<p><img alt="老工作流、ReAct 与 Graph：结构确定性和节点自主性的折中" src="https://gitee.com/cheng-jiaqing/images/raw/master/graph-engineering-20260728-12.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="老工作流、ReAct 与 Graph：结构确定性和节点自主性的折中" src="https://gitee.com/cheng-jiaqing/images/raw/master/graph-engineering-20260728-12.png"></p>
 <h3 id="8-生产化信号">8. 生产化信号</h3>
 <p>文章给出的工程判断可以归纳为：</p>
 <ol>
@@ -306,9 +306,9 @@ Graph Engineering   →  多个节点如何协作、路由、恢复、审计
 </ol>
 <h3 id="原文配图补全">原文配图补全</h3>
 <p>以下是原文中的装饰图和公众号尾图，保留在图床中但不参与核心论证：</p>
-<p><img alt="文章装饰图" src="https://gitee.com/cheng-jiaqing/images/raw/master/graph-engineering-20260728-01.gif"></p>
-<p><img alt="腾讯技术工程公众号" src="https://gitee.com/cheng-jiaqing/images/raw/master/graph-engineering-20260728-13.gif"></p>
-<p><img alt="公众号尾图" src="https://gitee.com/cheng-jiaqing/images/raw/master/graph-engineering-20260728-14.jpeg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="文章装饰图" src="https://gitee.com/cheng-jiaqing/images/raw/master/graph-engineering-20260728-01.gif"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="腾讯技术工程公众号" src="https://gitee.com/cheng-jiaqing/images/raw/master/graph-engineering-20260728-13.gif"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="公众号尾图" src="https://gitee.com/cheng-jiaqing/images/raw/master/graph-engineering-20260728-14.jpeg"></p>
 <hr>
 <h2 id="二datawhale-14-步手册如何把认知落成代码">二、Datawhale 14 步手册：如何把认知落成代码</h2>
 <h3 id="核心观点">核心观点</h3>
@@ -325,7 +325,7 @@ Graph Engineering   →  多个节点如何协作、路由、恢复、审计
 <li><strong>7 月初</strong>，OpenClaw 创始人在 X 上发问：我们还在聊 loop，还是已经切到 graph 了？</li>
 <li>随即有人跟帖：<strong>「Loop Engineering 已死，Graph Engineering 永生」</strong></li>
 </ul>
-<p><img alt="Loop Engineering 已死，Graph Engineering 永生——X 上的讨论截图" src="https://gitee.com/cheng-jiaqing/images/raw/master/img1.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Loop Engineering 已死，Graph Engineering 永生——X 上的讨论截图" src="https://gitee.com/cheng-jiaqing/images/raw/master/img1.png"></p>
 <p>这篇文章整理了 Codez（X 博主）总结的 <strong>14 步</strong> 方法论，全网 570w+ 人看过，讲的就是怎么从一个人的 loop，走到一张能自己路由的 graph。</p>
 <hr>
 <h3 id="2-动手前四个问题-一个附加题">2. 动手前：四个问题 + 一个附加题</h3>
@@ -350,7 +350,7 @@ Graph Engineering   →  多个节点如何协作、路由、恢复、审计
    没想清楚重试耗尽后去哪，图会在你看不见的地方卡死或者乱跑。</p>
 </li>
 </ol>
-<p><img alt="So do you actually need a graph?——四问决策图" src="https://gitee.com/cheng-jiaqing/images/raw/master/img2.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="So do you actually need a graph?——四问决策图" src="https://gitee.com/cheng-jiaqing/images/raw/master/img2.png"></p>
 <p><strong>附加题（比上面四个都重要）</strong>：你已经有一个跑得稳的单体 loop 了吗？</p>
 <blockquote>
 <p>没有，先别建图。<strong>图是循环的组织方式，不是循环的替代品。</strong></p>
@@ -422,18 +422,18 @@ Graph Engineering   →  多个节点如何协作、路由、恢复、审计
 <blockquote>
 <p>⚠️ 最容易犯的错：把「然后」当成边。<strong>「总结这个文件，然后告诉我天气」——这两步之间没有边</strong>，天气根本用不到那份总结。这其实是两个互不相干的节点被线性脚本硬凑成先后顺序。<strong>没真用上数据，就没有边。</strong></p>
 </blockquote>
-<p><img alt="节点是任务，边负责传数据" src="https://gitee.com/cheng-jiaqing/images/raw/master/img3.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="节点是任务，边负责传数据" src="https://gitee.com/cheng-jiaqing/images/raw/master/img3.png"></p>
 <p><strong>02 | 你的线性脚本，其实是一张退化的图</strong></p>
 <p>把 agent 写成「先做 A、再做 B、再做 C」——你其实已经画出了一张图，只不过是一条不分岔的单链：每个节点只有一条边进、一条边出。能跑对，但慢、也脆：<strong>C 卡住了 D 就永远轮不到，A 的产出也被困在上游。</strong></p>
 <blockquote>
 <p>图工程的第一项真本事，是<strong>重新画这条链</strong>：对每一根箭头问「有数据真的传过去吗」。大多数链里都有两三根箭头没携带数据，只是当初顺手打的顺序。剪掉这些箭头，链就会塌缩成更宽的东西——几个可同时跑的独立节点，喂给一个需要它们全部到齐的节点。</p>
 </blockquote>
-<p><img alt="你的线性脚本，其实是一张退化的图" src="https://gitee.com/cheng-jiaqing/images/raw/master/img4.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="你的线性脚本，其实是一张退化的图" src="https://gitee.com/cheng-jiaqing/images/raw/master/img4.png"></p>
 <h4 id="第二步给节点和边定契约">第二步：给节点和边定契约</h4>
 <p><strong>03 | 给每个节点定一份契约</strong></p>
 <p>一个没法推理的节点，就没法拿去并行。契约三要素：<strong>输入有边界</strong>（必须显式传进去，不能指望蹭共享窗口）、<strong>输出有边界</strong>（定义好的形状，最好能校验）、<strong>只干一件事</strong>。</p>
 <p>在 workflow 里，契约靠 schema 强制执行——校验发生在工具调用这一层，格式不对 Claude 会自己重试，不会甩给你一堆自由文本自己解析。</p>
-<p><img alt="给每个节点定一份契约" src="https://gitee.com/cheng-jiaqing/images/raw/master/img5.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="给每个节点定一份契约" src="https://gitee.com/cheng-jiaqing/images/raw/master/img5.png"></p>
 <pre><code class="language-js">// 一个有真契约的节点：输入有边界，输出经过校验，只干一件事
 const ITEM = {
   type: 'object',
@@ -458,7 +458,7 @@ const result = await agent(source.prompt, {
 <blockquote>
 <p>按<strong>数据</strong>给边命名（而不是按顺序命名），两件事立刻变简单：① 一眼看出这条边是不是真的存在；② 形状不变的前提下，换掉边两端的节点不会弄坏整张图。</p>
 </blockquote>
-<p><img alt="把边也当成一份数据契约" src="https://gitee.com/cheng-jiaqing/images/raw/master/img6.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="把边也当成一份数据契约" src="https://gitee.com/cheng-jiaqing/images/raw/master/img6.png"></p>
 <p>实际写的时候，边就活在普通 JS 里——派活和合成之间的归约（压平、去重、过滤）就是代码在处理节点返回的形状，不需要 agent。<strong>很多人花模型 token 去做的事，其实就是一条边，而边是免费的。</strong></p>
 <h4 id="第三步构建扇出扇入与菱形最常用的拓扑">第三步：构建扇出、扇入与菱形（最常用的拓扑）</h4>
 <p><strong>05 | 用 parallel() 扇出：把活儿一次性派出去</strong></p>
@@ -466,7 +466,7 @@ const result = await agent(source.prompt, {
 <p>两个决定稳定性的细节：
 1. <strong>parallel() 是一道屏障</strong>——等所有函数跑完才返回，下一阶段看到完整结果集合
 2. <strong>一个抛错的函数被解析成 null</strong>，而不是拖垮整个批次 → 记得 <code>.filter(Boolean)</code></p>
-<p><img alt="用 parallel() 扇出：把活儿一次性派出去" src="https://gitee.com/cheng-jiaqing/images/raw/master/img7.jpg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="用 parallel() 扇出：把活儿一次性派出去" src="https://gitee.com/cheng-jiaqing/images/raw/master/img7.jpg"></p>
 <pre><code class="language-js">phase('Research');
 // 九个信源，九个 agent，同时开工
 const raw = await parallel(
@@ -502,7 +502,7 @@ const curated = await agent(
 </blockquote>
 <p><strong>07 | 菱形：拆分 → 工作 → 合并</strong></p>
 <p>把「派出去」和「拢回来」拼在一起，就是几乎每张正经 agent 图的主力拓扑——<strong>菱形</strong>。一个节点拆任务，多个节点并行干活，一个节点合并。</p>
-<p><img alt="菱形：拆分 → 工作 → 合并" src="https://gitee.com/cheng-jiaqing/images/raw/master/img8.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="菱形：拆分 → 工作 → 合并" src="https://gitee.com/cheng-jiaqing/images/raw/master/img8.png"></p>
 <blockquote>
 <p>市场扫描、依赖审计、代码评审、研究报告，背后都是这个形状。标准写法有个值得记住的名字：<strong>派发 → 归约 → 合成</strong>（先派出去收集广度，用普通代码归约压缩，再用最后一个 agent 合成写出答案）。</p>
 <p>看懂菱形之后，你就不再问「怎么让 agent 多做几步」，而是问<strong>「拆分点在哪，合并点在哪」</strong>——这才是真正能扩展的问题。</p>
@@ -510,7 +510,7 @@ const curated = await agent(
 <h4 id="第四步路由验证与隔离">第四步：路由、验证与隔离</h4>
 <p><strong>08 | 用条件语句在运行时给边选路</strong></p>
 <p>不是每张图都是固定的。路由节点检查结果，决定走哪条下游路径——工单分类后分流、看 diff 大小决定快速评审还是完整审计。在 workflow 里就是一个普通的 <code>if</code> / <code>switch</code>。</p>
-<p><img alt="用条件语句在运行时给边选路" src="https://gitee.com/cheng-jiaqing/images/raw/master/img9.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="用条件语句在运行时给边选路" src="https://gitee.com/cheng-jiaqing/images/raw/master/img9.png"></p>
 <blockquote>
 <p><strong>节点上拿到 Claude 的判断力，边上拿到脚本的可靠性。</strong> 路由判断可以由 Claude 完成，但路由本身是 Claude 写的代码，同样的分类结果每次都走同一条路。不会出现「Claude 自己决定跳过审计」——因为跳过这件事必须写进图里才会发生，而它没被写进去。</p>
 </blockquote>
@@ -537,7 +537,7 @@ if (severity === 'high') {
 </code></pre>
 <p><strong>09 | 在边上放一个验证器</strong></p>
 <p>一张图真正的杠杆不是塞了更多 agent，而是<strong>能围绕结果搭起多少确定性</strong>。验证器节点蹲在结果被放行到下游之前，唯一的工作就是<strong>试图推翻这个发现</strong>——扛住了就放行，扛不住就到不了最终答案。</p>
-<p><img alt="在边上放一个验证器" src="https://gitee.com/cheng-jiaqing/images/raw/master/img10.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="在边上放一个验证器" src="https://gitee.com/cheng-jiaqing/images/raw/master/img10.png"></p>
 <p>三种模式值得掌握：</p>
 <ul>
 <li><strong>对抗式验证</strong>：给每个发现派 N 个独立怀疑者专门反驳它，多数没被驳倒才算站得住</li>
@@ -553,13 +553,13 @@ if (severity === 'high') {
 <li>图里失败该被限制在节点内部：<code>parallel()</code> 抛错的函数解析为 <code>null</code>，<code>.filter(Boolean)</code> 就是那道防线</li>
 <li><strong>把每一次汇入设计成能容忍缺失的输入</strong>，而不是假设总能凑齐全集</li>
 </ul>
-<p><img alt="把节点隔离开，别让一个失败污染整张图" src="https://gitee.com/cheng-jiaqing/images/raw/master/img11.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="把节点隔离开，别让一个失败污染整张图" src="https://gitee.com/cheng-jiaqing/images/raw/master/img11.png"></p>
 <p>更隐蔽的失败：节点之间互相踩到对方（多个 agent 并行写文件会撞车）。解法是<strong>隔离</strong>——用 git worktree 让每个 agent 在自己的一份工作区里干活，在沙盒里完成再干净地合并回去。只在节点真的会并行写入时才用（它是拓扑真正需要的安全带，不是每次运行都要交的税）。</p>
 <h4 id="第五步循环模型分层与拓扑">第五步：循环、模型分层与拓扑</h4>
 <p><strong>11 | 可以加一个循环，但一定要让它收敛</strong></p>
 <p>规模未知的探索（一次漏洞排查发现一个 bug 又带出三个新的）需要一条指回更早节点的受控边。危险：<strong>不收敛的循环 = 不停派 agent 出去、直到预算耗尽才停的死循环机。</strong></p>
 <p>能收敛的写法叫<strong>「跑到干为止」</strong>：持续派出发现者，直到连续 K 轮都没发现新东西才停下。</p>
-<p><img alt="可以加一个循环，但一定要让它收敛" src="https://gitee.com/cheng-jiaqing/images/raw/master/img12.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="可以加一个循环，但一定要让它收敛" src="https://gitee.com/cheng-jiaqing/images/raw/master/img12.png"></p>
 <blockquote>
 <p>⚠️ 几乎每个人第一次都会踩的坑：<strong>拿什么去重比对。</strong> 要对着<strong>「见过的一切」</strong>去重，而不是只对着「已确认的结果」去重——不然被否掉的发现每轮都会重新冒出来，循环永远跑不干，最后搭出一台专门花钱反复发现同一批死胡同的机器。</p>
 </blockquote>
@@ -589,7 +589,7 @@ while (dry &lt; 2) {                       // 连续两轮空手而归就停下
 </code></pre>
 <p><strong>12 | 给不同节点分配不同档位的模型</strong></p>
 <p>不是每个节点都需要最好的模型。图的形状会把这件事摆明白：<strong>有边界、会重复的活</strong>（抽字段、工单分类）放便宜模型；<strong>承载真正判断力的活</strong>（合成报告、裁定发现是否成立）留在高档位。token 花在真正需要判断力的地方。</p>
-<p><img alt="给不同节点分配不同档位的模型" src="https://gitee.com/cheng-jiaqing/images/raw/master/img13.jpg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="给不同节点分配不同档位的模型" src="https://gitee.com/cheng-jiaqing/images/raw/master/img13.jpg"></p>
 <blockquote>
 <p>注意：workflow 里 Claude 派出的每个 subagent <strong>默认继承本次会话的模型</strong>，除非脚本里显式覆盖——所以大规模运行前先看一眼 <code>/model</code>，把重复性节点降到便宜模型、合并节点留在高档位。<strong>能把一张烧 token 的图从贵变便宜，还完全不用动它的形状。</strong></p>
 </blockquote>
@@ -621,7 +621,7 @@ while (dry &lt; 2) {                       // 连续两轮空手而归就停下
 </tr>
 </tbody>
 </table>
-<p><img alt="拓扑结构，就是你的成本和延迟" src="https://gitee.com/cheng-jiaqing/images/raw/master/img14.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="拓扑结构，就是你的成本和延迟" src="https://gitee.com/cheng-jiaqing/images/raw/master/img14.png"></p>
 <blockquote>
 <p><strong>默认用 pipeline()。</strong> 「代码更干净」「这些阶段感觉是分开的」都不是用屏障的理由——屏障带来的延迟是真实的、可测量的、被浪费掉的时间。<strong>分开不代表必须同步。</strong></p>
 </blockquote>
@@ -635,7 +635,7 @@ while (dry &lt; 2) {                       // 连续两轮空手而归就停下
 <li><strong>打开 ultracode</strong> → Claude 给会话里每个像样的任务都规划一次 workflow</li>
 </ol>
 <p>跑得好的时候按 <code>s</code> 把脚本存进 <code>.claude/workflows/</code>，从此可以版本控制、按名字重新运行，谁 clone 了这个仓库都能直接跑起来。</p>
-<p><img alt="让 Claude 自己画图，自我路由" src="https://gitee.com/cheng-jiaqing/images/raw/master/img15.jpg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="让 Claude 自己画图，自我路由" src="https://gitee.com/cheng-jiaqing/images/raw/master/img15.jpg"></p>
 <pre><code>› Run a workflow to audit every route under src/routes/ for missing auth.
   Spawn one agent per route file, then verify each finding before reporting.
 ● Claude wrote an orchestration script · launching in background…

@@ -190,7 +190,7 @@
 <p>只读性带来的工程红利。感知工具不改变外部世界，这一只读特性带来两个天然优势：结果可以安全地缓存（相同查询直接复用，节省时间和费用），多个感知工具调用可以放心地并行执行（如同时读取五个文件、并发发起三个搜索），无需担心相互干扰。执行工具则没有这种自由——调用顺序和副作用都必须严格控制。</p>
 <p>多模态感知的输出形态。对于截图、图表、扫描件等多模态输入，工具需要决定以什么形态交给模型：直接返回图像交给具备视觉能力的模型，还是先用 OCR、图表解析等手段转成文本？前者保留布局和视觉细节但消耗更多 token，后者精简高效但可能丢失关键的空间结构（如表格的行列对应关系）。实践中常按内容类型选择：纯文字内容用文本提取，布局敏感的内容（UI 界面、复杂表格、设计稿）保留图像。</p>
 <p>实验 4-1 ★★：感知工具 MCP 服务器<br>
-<img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/afff30eccd36e3d58a014c465e5aaee81c6ccee58468650bf284241e3a984ad1.jpg"><br>
+<img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/afff30eccd36e3d58a014c465e5aaee81c6ccee58468650bf284241e3a984ad1.jpg"><br>
 图 4-1 MCP 协议交互时序<br>
 本实验构建一套感知工具 MCP 服务器，覆盖以下五类感知场景：<br>
 搜索：网络搜索、本地知识库搜索、文件下载</p>
@@ -300,15 +300,15 @@
 <p>传统做法是把所有工具的 schema 一次性注入系统提示词，但当工具数量达到上千个时，这种做法会迅速失效：上下文被“工具说明书”塞满，模型的选择精度随之下降。本章“工具生态”一节讨论过的检索式预筛选（按语义相似度先筛出一批候选工具）缓解了这个问题，但有一个内在局限——它按用户的初始查询做一次性匹配，而“Debug thefile”这类看似简单的请求，实际可能牵出文件访问、代码分析、命令执行等多步骤、跨领域的工具链，任务开始时无法预见所有需求。</p>
 <p>从被动选择到主动发现。更进一步的思路，是让 Agent 从被动接受者变为主动发现者：在执行过程中意识到能力缺口时，主动用自然语言声明“我需要什么能力”，系统再动态匹配并注入。 $\mathrm { M C P - Z e r o ^ { 5 } }$ 是代表性工作：系统提示词中不预置任何工具 schema，Agent 在思考中生成结构化请求块（如“GitHub 服务器：搜索仓库并返回元数据”），系统通过服务器级 → 工具级的两层语义路由从数千候选中匹配注入，论文报告在约 2800 个工具上比全量注入节省约 98% 的 token。</p>
 <p>工程上更常见的等价方案，是在系统提示词里只保留少数基础工具（web search、code interpreter）外加一个“工具搜索工具”，Agent 用自然语言描述需求即可检索并加载。Anthropic 在 Claude API 中提供的 Tool SearchTool 即属此类。两者的共同点都是“Agent 声明缺口、系统按需注入”。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/dfa4b1e4a320a8b156d59a9cc5582147e42428bfbd24c40d675f0465bb770b6a.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/dfa4b1e4a320a8b156d59a9cc5582147e42428bfbd24c40d675f0465bb770b6a.jpg"><br>
 图 4-2 层次化工具匹配（服务器级 → 工具级两层语义搜索）</p>
 <p>层次化匹配与降级。高效匹配的关键在于工具组织本身具有层次结构：在 MCP 等协议中，工具按服务器分组（类似手机上的 App，每个 App 提供一组相关功能），于是匹配可分两层——先按能力描述定位相关服务器，再在服务器内匹配具体工具，把搜索空间从“数千个工具”缩小为“数十个服务器 × 每个服务器数十个工具”，既省算力也减少跨领域的语义混淆。工程上这依赖一个离线构建、支持增量更新的嵌入索引；若两层匹配的候选相似度都低于阈值，则应明确返回“未找到”，让 Agent 改写需求重试、用基础工具手工实现，或干脆创造一个新工具（创造工具是第九章的主题）。</p>
 <p>首次加载后的 schema 固定在轨迹原位置，静态前缀仍可复用。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/461f6f067d38249a27cc468fac477c0478d677f45176f0d4618bd474b2157499.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/461f6f067d38249a27cc468fac477c0478d677f45176f0d4618bd474b2157499.jpg"><br>
 图 4-3 工具动态加载的 KV Cache 优化</p>
 <p>动态加载与 KV Cache。主动发现有一个微妙的工程代价：动态加载工具会破坏 KV Cache——若把全部工具定义放进静态前缀，每加载一个新工具就使整段缓存失效。破解思路和各大API的原生支持（OpenAI的tool_search与 defer_loading、Anthropic 的 tool_reference、Codex CLI 默认开启的 tool_search）已在第二章“工具定义的设计”一节介绍：把新工具的完整 schema 追加到上下文末尾，静态前缀保持稳定，schema 此后固定在轨迹的原位置，作为普通历史消息继续命中缓存；状态栏则只维护一份简短的工具名列表。</p>
 <p>这里补充两点第二章未展开的工程细节。其一，两个 API 都对“固定在原位置”给出了明确保证：OpenAI 要求后续请求保持 tool_search_output 项的原位置，同一工具无需重复加载；Anthropic 在会话历史的原位置内联展开 tool_reference block，官方文档明确表示后续每一轮都能保持缓存命中。其二，真正会导致重算的只有两种情况：Prompt Cache 的 TTL 过期（整段前缀一起重算，并非工具定义特有的代价），以及修改、移除或重排已加载的工具集（缓存从变动点起失效）。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/8835b7ef5e4a55e67a4edae367558ea127045fef0f1171845f7e52dd7b371a4f.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/8835b7ef5e4a55e67a4edae367558ea127045fef0f1171845f7e52dd7b371a4f.jpg"><br>
 图 4-4 动态发现后的上下文结构：工具 schema 散落在轨迹各处</p>
 <p>图 4-4 展示了多轮动态发现之后的上下文全貌：静态前缀中只保留系统提示词、核心工具与工具搜索元工具，历次发现的工具 schema 散落在轨迹各处，并固定在首次注入的位置，后续轮次作为普通历史命中缓存。这也意味着“工具定义必须在上下文最前面”不再是铁律——前缀依然是静态的、只增不改的，只是工具定义获得了按需进入轨迹的能力；代价是模型必须在后训练中学会理解散落在上下文各处的工具定义。</p>
 <p>不难看出，这一整套“主动声明—语义匹配—动态注入”的机制虽然有效，工程上却相当繁琐：要离线维护嵌入索引、要处理 KV Cache 失效、还要为弱模型做专门训练。它们共同的前提，是把每个工具都当成一份面向模型的正式定义，先注册、再检索、再注入。下一节的 Skills 机制换了一种更轻量的思路。</p>

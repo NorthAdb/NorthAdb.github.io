@@ -134,11 +134,11 @@
 <p>两个真实案例：① 用户让 Agent 改 1200 行核心 ETL，Agent 写到一半略写省略号继续写，提交后下游几十张表当天数据算错；② 用户还在"方案设计"阶段，Agent 就径直调了发布工具把表结构推上生产。</p>
 </blockquote>
 <p><strong>为什么 prompt 管不住？</strong> 这不是 prompt engineering 能解决的问题——长 SQL 是物理超预算，危险操作是模型无法区分可逆性，被动探测是模型追求最短路径的自然倾向。<strong>唯一的解法是在 Agent 框架层</strong>：让偷懒和越权的路径代码级强制走不通，让失忆的已知盲区确定性补齐。</p>
-<p><img alt="三类问题的治理思路" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-governance-hook-20260806-01.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="三类问题的治理思路" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-governance-hook-20260806-01.png"></p>
 <hr>
 <h2 id="一背景数仓-agent-的任务开发流程">一、背景：数仓 Agent 的任务开发流程</h2>
 <p>DECO 的数仓开发 Agent 帮用户把数据需求落成 US 平台上可运行的任务。几个关键名词（DECO 一站式数据工程 Agent 智能协作平台，聚焦数据问询、开发、同步、分析、运维五大环节）：</p>
-<p><img alt="数仓任务开发流程与关键名词" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-governance-hook-20260806-02.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="数仓任务开发流程与关键名词" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-governance-hook-20260806-02.png"></p>
 <hr>
 <h2 id="二hook-链在关键切面挂载护栏逻辑">二、Hook 链：在关键切面挂载护栏逻辑</h2>
 <p>拦截机制的切入口是 Agent 框架普遍提供的 <strong>Hook（Callback）机制</strong>：框架在 Agent 运行的每个关键节点（围绕"模型调用"和"工具调用"，各有执行前/后）暴露切面。拦截逻辑挂到切面上，到点自动回调，同一切面可挂多个、按序执行。</p>
@@ -224,7 +224,7 @@
 <blockquote>
 <p>路径说明：下文为可读性统一写作 <code>/sandbox/</code>，实际代码中只读快照在 <code>/mnt/chat-offload/</code>，可编辑工作副本在 <code>/mnt/user-data/</code>。</p>
 </blockquote>
-<p><img alt="读写两侧 offload 架构" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-governance-hook-20260806-03.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="读写两侧 offload 架构" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-governance-hook-20260806-03.png"></p>
 <p><strong>拉取侧 —— Offload Hook（afterTool）</strong>：Hook 拦截含 <code>scriptContent</code> 的响应，全文写入沙箱<strong>只读快照</strong>，响应替换为引用句柄。句柄明确告诉 LLM "要改先 <code>copy_file</code>，再 <code>str_replace</code>"：</p>
 <pre><code>&lt;offloaded to /sandbox/{taskName}.remote.etl (read-only snapshot, length=N chars).
  To start editing, run copy_file(...) first, then str_replace.&gt;
@@ -245,7 +245,7 @@ SELECT ... FROM dwd_b
 - <strong>响应形态适配</strong>：单条 Map 和数组都要支持；数组下每条 item 独立判定，任一落盘失败仅该条降级，避免"一条出错让整批 SQL 全进上下文"。
 - <strong>失败降级</strong>：落盘失败 → 该条返回原 <code>scriptContent</code>，让 LLM 至少拿到内容（承担自截断风险），不阻断主流程。</p>
 <p><strong>写回侧 —— Onload Hook（beforeTool）</strong>：</p>
-<p><img alt="写回侧 Onload Hook" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-governance-hook-20260806-04.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="写回侧 Onload Hook" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-governance-hook-20260806-04.png"></p>
 <p><strong>同模式延展 —— 表侧 Offload</strong>：同一套 Hook 链上挂了完全对称的 Hook（面向宽表 200–500 列场景），心智模型一致——读侧降级（落盘失败透传）、写侧阻断（文件不存在抛异常）。</p>
 <h3 id="工具协议scriptcontent-与-scriptfilepath-互补参数">工具协议：<code>scriptContent</code> 与 <code>scriptFilePath</code> 互补参数</h3>
 <p>回写工具同时声明两个参数，<code>scriptFilePath</code> 是纯框架契约：</p>
@@ -260,8 +260,8 @@ scriptFilePath: 脚本的沙箱路径（强烈推荐）。框架 OnloadHook 会�
 </blockquote>
 <h3 id="33-多重防线全景对应数仓四阶段">3.3 多重防线全景（对应数仓四阶段）</h3>
 <p>护栏不是单点，而是贯穿 Skills 编排篇那条流水线的多重防线——设计 → 拆解 → 执行 → 验证四阶段，Hook 在框架层做物理兜底：</p>
-<p><img alt="多重防线全景" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-governance-hook-20260806-05.png"></p>
-<p><img alt="四阶段防线对应" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-governance-hook-20260806-06.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="多重防线全景" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-governance-hook-20260806-05.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="四阶段防线对应" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-governance-hook-20260806-06.png"></p>
 <p>图中两条关键分支（未直接绘出以保持主线清晰）：
 - <strong>Onload 阻断（红线）</strong>：若 <code>scriptFilePath</code> 不在白名单路径、身份缺失、文件不存在或内容为空 → 抛异常阻断工具调用，不进入后续。
 - <strong>Offload 降级（橙线）</strong>：若 COS 落盘失败 → 该条原 <code>scriptContent</code> 透传给 LLM（承担自截断风险），不阻塞主流程。</p>
@@ -395,10 +395,10 @@ scriptFilePath: 脚本的沙箱路径（强烈推荐）。框架 OnloadHook 会�
 </code></pre>
 <p>实际配置了多个危险工具，各配不同授权标记：<code>confirm_pack</code>（发布提交）、<code>confirm_deploy</code>（触发发布）、<code>confirm_upsert_datasource</code>（数据源变更）、<code>confirm_transfer_task_upsert</code>（同步任务变更）。</p>
 <p>守门流程——Agent 每次要调工具，框架都会先过一道「门卫」：</p>
-<p><img alt="HITL 守门流程" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-governance-hook-20260806-07.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="HITL 守门流程" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-governance-hook-20260806-07.png"></p>
 <p>无论 Agent 是自作主张还是被诱导，只要没有人工确认这一步，<code>packCommit</code> / <code>deployCommit</code> 在框架层就<strong>物理走不通</strong>。</p>
 <h3 id="43-一次完整的确认过程拦截-弹框-用户选择-放行">4.3 一次完整的确认过程：拦截 → 弹框 → 用户选择 → 放行</h3>
-<p><img alt="确认时序图" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-governance-hook-20260806-08.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="确认时序图" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-governance-hook-20260806-08.png"></p>
 <ul>
 <li>用户点选项后，前端经 REST API 把选择写进会话存储（<code>session.state</code>），再发起一次续跑请求重新驱动同一会话——这一轮 LLM 重调该工具时 state 已就位，守卫放行。</li>
 <li>确认框支持<strong>带输入控件的选项</strong>（<code>hasInput</code> / <code>inputPlaceholder</code> / <code>inputType</code>），承载"填审批人""填回刷日期"这类带参确认——不只是 yes/no。</li>
@@ -512,7 +512,7 @@ scriptFilePath: 脚本的沙箱路径（强烈推荐）。框架 OnloadHook 会�
 </blockquote>
 <h3 id="52-范式hook-管发生了什么attachment-管下一轮告诉模型什么">5.2 范式：Hook 管「发生了什么」，Attachment 管「下一轮告诉模型什么」</h3>
 <p>把「副作用采集」和「上下文注入」解耦成两段：</p>
-<p><img alt="Hook → state → Attachment 范式" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-governance-hook-20260806-09.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Hook → state → Attachment 范式" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-governance-hook-20260806-09.png"></p>
 <p><strong>双重好处</strong>：
 - <strong>采集是确定性的</strong>：工具调用一定触发 Hook，Hook 一定做完检查——不靠 LLM"记得去查"；
 - <strong>注入是时机正确的</strong>：分析结果只在下一轮 prompt 里才需要，不污染当前轮上下文、不增加当前轮 token。</p>
@@ -549,7 +549,7 @@ scriptFilePath: 脚本的沙箱路径（强烈推荐）。框架 OnloadHook 会�
 <h3 id="53-案例一riskanalysishook-改表后自动注入风险分析">5.3 案例一：RiskAnalysisHook —— 改表后自动注入风险分析</h3>
 <p>场景：Agent 调 <code>upsertTable</code> 改了一张表的字段结构，却不会接着查改动影响了谁——下游几十张 ETL 可能因为一个字段重命名而直接报错。</p>
 <p>治理做法：</p>
-<p><img alt="RiskAnalysisHook" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-governance-hook-20260806-10.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="RiskAnalysisHook" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-governance-hook-20260806-10.png"></p>
 <ul>
 <li><strong>判定「改表」语义</strong>：挂在 <code>afterTool</code> 上，<strong>不从工具名硬判断</strong>——看工具调用入参：带了 <code>tableId</code> 参数的 <code>upsertTable</code> 才是改表（新建表不带 <code>tableId</code>，直接跳过）。</li>
 <li><strong>风险结果注入</strong>：LLM 下一轮回复自然输出提示：</li>
@@ -564,7 +564,7 @@ scriptFilePath: 脚本的沙箱路径（强烈推荐）。框架 OnloadHook 会�
 <h3 id="54-案例二pythonimagehook-自动发现并呈现生成产物">5.4 案例二：PythonImageHook —— 自动发现并呈现生成产物</h3>
 <p>场景：Agent 调 Python 脚本做数据分析，产出可视化图表，但 LLM 不知道脚本产出了什么新文件，不会主动告诉用户"生成了 chart.png"。等用户问"图呢"，要么已结束上下文，要么需再调一次工具查文件列表。</p>
 <p>治理做法：</p>
-<p><img alt="PythonImageHook" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-governance-hook-20260806-11.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="PythonImageHook" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-governance-hook-20260806-11.png"></p>
 <ul>
 <li><strong>前后文件快照对比</strong>：<code>beforeTool</code> 加文件快照、<code>afterTool</code> 对比，比让 LLM 用 <code>bash ls</code> 查文件可靠得多；</li>
 <li><strong>只关心图片</strong>：仅关注 <code>.png/.jpg/.svg</code> 等图片格式，避免 state 里塞无关文件列表；</li>
@@ -603,11 +603,11 @@ scriptFilePath: 脚本的沙箱路径（强烈推荐）。框架 OnloadHook 会�
 <blockquote>
 <p><strong>一句话</strong>：Hook → state → Attachment 闭环，把「LLM 需要主动查」的操作降维为「框架主动 push」——LLM 不再是"需要查的就不查"，而是"不管想不想查都会被喂到嘴边"。</p>
 </blockquote>
-<p><img alt="上下文联动闭环总结" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-governance-hook-20260806-12.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="上下文联动闭环总结" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-governance-hook-20260806-12.png"></p>
 <hr>
 <h2 id="六hook-全景上面还挂着十余个横切逻辑">六、Hook 全景：上面还挂着十余个横切逻辑</h2>
 <p>同一套 Hook 链（<code>beforeModel</code>/<code>afterModel</code>/<code>beforeTool</code>/<code>afterTool</code>/<code>onRunEvent</code> 等切面）上，DECO 实际挂了<strong>十余个 Hook</strong>，覆盖可观测、前端实时刷新、上下文联动、业务事件、沙箱环境等横切关注点。它们都遵循同一条原则：<strong>不改业务循环、不动工具实现，把横切逻辑挂在切面上。</strong></p>
-<p><img alt="Hook 全景图" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-governance-hook-20260806-13.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Hook 全景图" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-governance-hook-20260806-13.png"></p>
 <table>
 <thead>
 <tr>

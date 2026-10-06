@@ -107,7 +107,7 @@
 <p>安全边界由代码负责，判断发生在工具执行之前。</p>
 <hr>
 <h2 id="解决方案">解决方案</h2>
-<p><img alt="Permission Overview" src="https://gitee.com/cheng-jiaqing/images/raw/master/permission-overview.svg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Permission Overview" src="https://gitee.com/cheng-jiaqing/images/raw/master/permission-overview.svg"></p>
 <p>s02 的循环完全保留。唯一的变动是在工具执行前插入 <code>check_permission()</code>。每个工具调用依次经过三道闸门：硬拒绝优先，软询问次之，都没命中就放行。</p>
 <p>三道闸门对应三种决策：</p>
 <table>
@@ -139,7 +139,7 @@
 <p>三道都没命中 → 直接执行。大部分日常操作走这条路。</p>
 <hr>
 <h2 id="工作原理">工作原理</h2>
-<p><img alt="Permission Pipeline" src="https://gitee.com/cheng-jiaqing/images/raw/master/permission-pipeline.svg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Permission Pipeline" src="https://gitee.com/cheng-jiaqing/images/raw/master/permission-pipeline.svg"></p>
 <p><strong>闸门 1</strong>：一张硬拒绝表，先查，命中就返回阻止信息。这张表使用简单字符串匹配来说明权限闸门的位置，不能视为完整的安全边界。</p>
 <pre><code class="language-python">DENY_LIST = [
     &quot;rm -rf /&quot;, &quot;sudo&quot;, &quot;shutdown&quot;, &quot;reboot&quot;,

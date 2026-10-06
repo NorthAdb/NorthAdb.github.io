@@ -106,7 +106,7 @@
 <li><strong>LlamaIndex</strong>：偏数据接入、文档解析、索引、检索、重排和上下文增强，适合企业知识库与复杂 RAG。</li>
 <li><strong>两者可以组合</strong>：LlamaIndex 管数据与检索，LangChain 管 Agent 与工具选择，LangGraph 管复杂流程。</li>
 </ul>
-<p><img alt="LangChain 与 LlamaIndex 的设计重心" src="https://gitee.com/cheng-jiaqing/images/raw/master/wx_img_001.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="LangChain 与 LlamaIndex 的设计重心" src="https://gitee.com/cheng-jiaqing/images/raw/master/wx_img_001.png"></p>
 <h2 id="面试版回答">面试版回答</h2>
 <blockquote>
 <p>LangChain 和 LlamaIndex 都能做 Agent、Tool、RAG 和 Workflow。LangChain 的优势重心是统一模型、消息、工具、结构化输出和中间件接口，适合快速组装工具型 Agent；复杂分支、循环、暂停恢复和人工审批可以使用 LangGraph。LlamaIndex 的优势重心是数据与上下文增强，在文档接入、解析、切分、索引、检索、重排和 Query Engine 上更完整，适合企业知识库和复杂 RAG。选型应看项目的主要风险，而不是只看框架标签；两边都复杂时，可以把 LlamaIndex 的检索能力封装成 Tool，再交给 LangChain 或 LangGraph 调度。</p>
@@ -157,7 +157,7 @@
 <p>因此，<strong>工具选择、参数填充、权限和重试</strong>是主要难点时，LangChain 更自然。</p>
 <h3 id="langchain-与-langgraph-的关系">LangChain 与 LangGraph 的关系</h3>
 <p>LangChain Agent 底层运行在 LangGraph 之上。简单的模型-工具循环使用 <code>create_agent</code> 即可；出现复杂分支、并行、循环、暂停恢复或人工审批时，再显式编写状态图，不必推翻已有的模型与工具定义。</p>
-<p><img alt="LangChain Agent 与 LangGraph 的关系" src="https://gitee.com/cheng-jiaqing/images/raw/master/wx_img_002.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="LangChain Agent 与 LangGraph 的关系" src="https://gitee.com/cheng-jiaqing/images/raw/master/wx_img_002.png"></p>
 <h2 id="llamaindex-强在哪里">LlamaIndex 强在哪里？</h2>
 <p>真实 RAG 的难点不只是“把文档放进向量数据库”，而是整条数据链路：</p>
 <pre><code class="language-text">数据接入 → 解析与切分 → 索引 → 检索与重排 → Query Engine → Agent
@@ -171,7 +171,7 @@
 <li>多路结果如何过滤、融合、重排并处理冲突。</li>
 </ul>
 <p>LlamaIndex 把“如何得到高质量上下文”作为核心工程问题，因此<strong>数据处理和检索质量</strong>是主要风险时，应优先评估它。它也提供 Agent、Memory 和事件驱动 Workflow，不能简单说成“只能做 RAG”。</p>
-<p><img alt="LlamaIndex 的数据与检索链路" src="https://gitee.com/cheng-jiaqing/images/raw/master/wx_img_003.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="LlamaIndex 的数据与检索链路" src="https://gitee.com/cheng-jiaqing/images/raw/master/wx_img_003.png"></p>
 <h2 id="如何选型">如何选型？</h2>
 <p>先问一句：<strong>这个项目最怕哪件事做不好？</strong></p>
 <table>
@@ -210,7 +210,7 @@
 </tr>
 </tbody>
 </table>
-<p><img alt="按项目主要风险选择框架" src="https://gitee.com/cheng-jiaqing/images/raw/master/wx_img_004.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="按项目主要风险选择框架" src="https://gitee.com/cheng-jiaqing/images/raw/master/wx_img_004.png"></p>
 <h3 id="组合时的边界">组合时的边界</h3>
 <p>最常见的组合边界是 <strong>Tool</strong>：</p>
 <pre><code class="language-text">LlamaIndex：加载数据、构建索引、实现 Query Engine
@@ -233,7 +233,7 @@ agent = create_agent(
 )
 </code></pre>
 <p>边界清楚时，组合能让每个框架解决自己擅长的问题；但如果只是简单知识库或单工具 Agent，同时引入两套框架会增加依赖、追踪和调试成本。</p>
-<p><img alt="LlamaIndex、LangChain 与 LangGraph 的组合边界" src="https://gitee.com/cheng-jiaqing/images/raw/master/wx_img_005.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="LlamaIndex、LangChain 与 LangGraph 的组合边界" src="https://gitee.com/cheng-jiaqing/images/raw/master/wx_img_005.png"></p>
 <h2 id="常见误区">常见误区</h2>
 <ol>
 <li><strong>“LangChain 只做 Chain”</strong>：这是早期印象。当前主线已覆盖 Agent、Tools、Middleware 和 RAG，固定流程仍可用 Runnable/LCEL。</li>

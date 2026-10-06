@@ -182,7 +182,7 @@ $$</p>
 <p>强化学习（Reinforcement Learning, RL）的核心在于学习如何根据当前情境选择动作，以获得最大的累积奖励（Cumulative Reward）。想象一个学下棋的 AI：每走一步就是一个动作，赢棋得到正奖励、输棋得到负奖励，累积奖励就是整盘棋的总收益。Agent 和环境持续交互：每一步，Agent 观察当前状态，选择一个动作，环境产生新</p>
 <p>状态并给出奖励。</p>
 <p>为了更直观地理解这种交互，下图展示了标准 RL 循环——Agent 在每个时间步观察环境状态，输出动作，环境据此给出奖励并转移到新状态。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/4ee6f7b12a07e3c9ce34fe993fdc89b2b6b1d3e52a48cf4c5df01981a93279ef.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/4ee6f7b12a07e3c9ce34fe993fdc89b2b6b1d3e52a48cf4c5df01981a93279ef.jpg"><br>
 目标：最大化累积奖励 G = R(1) + γR(2) + γ²R(3) + ...（γ=0.99）<br>
 图 8-1 强化学习 Agent-环境交互循环</p>
 <p>交互产生轨迹——即“状态 → 动作 → 奖励 → 新状态 → 动作 → 奖励⋯”的完整记录，策略的优劣最终体现在轨迹质量上。价值函数（Value Function）回答的是这样一个问题：“如果我现在处于这个状态，按照当前策略一直行动下去，最终总共能获得多少奖励？”这就像一位经验丰富的棋手看到一个局面时，不需要算到最后一步，凭直觉就能估计出这盘棋的胜率。Agent 与环境的边界遵循一个简洁的原则：凡是 Agent 无法任意改变的，都属于环境。</p>
@@ -202,7 +202,7 @@ $$</p>
 <p>这里比较的两类设置，最显眼的差异在于动作的表示方式。MDP 本身可以表示有限、无限、离散或连续的动作空间。本节的棋类与 Atari 示例使用有限离散的原始动作，机器人控制使用有界连续动作；LLM 策略则用有限token 词表和工具 schema 构造变长序列。这种组合式表示会显著影响算法设计、样本效率和泛化方式。下面分别展开。</p>
 <p>基础示例：MDP 与表格 Q-learning。</p>
 <p>MDP（Markov Decision Process，马尔可夫决策过程）是强化学习的数学框架，定义了状态、动作、奖励等核心要素。它的核心假设是马尔可夫性质：未来只取决于当前状态，而当前状态必须包含决策所需的全部历史信息。以国际象棋为例，状态不仅包括棋子位置，还应包括轮到哪方、王车易位权、吃过路兵权，以及五十步规则和重复局面判定所需的信息。状态定义充分时，无需每次重读完整棋谱；若观测没有包含必要历史，则应把历史纳入状态，或使用部分可观测模型。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/ddd785fef4c0a9e27e86e680a9e43b5186c90f524bfdfc6c57a8dc3de8e1d0b0.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/ddd785fef4c0a9e27e86e680a9e43b5186c90f524bfdfc6c57a8dc3de8e1d0b0.jpg"><br>
 S=5个状态 A={东,西,南,北,拿,攻击,合成} P(s'|s,a)=确定性 γ=0.99<br>
 图 8-2 马尔可夫决策过程（MDP）示意图</p>
 <p>本节讨论的典型 RL 环境使用预先定义的动作空间。围棋 361 个落子位置虽大但有限，国际象棋动作仍可枚举，Atari 游戏通常只有几个到十几个离散原始动作。机器人 Agent 使用连续但有界的动作空间：关节角度、速度、抓取力度是连续值，但有明确物理边界，维度由机器人自由度决定。</p>
@@ -214,7 +214,7 @@ Q ^ {<em>} (s, a) = r + \gamma \max _ {a ^ {\prime}} Q ^ {</em>} (s ^ {\prime}, 
 $$</p>
 <p>其中 � 是即时奖励， $s ^ { \prime }$ 是执行动作后到达的下一个状态（这里为直觉起见写成确定性形式，随机环境下需对下一个状态 $s ^ { \prime }$ 取期望）， $\gamma \in [ 0 , 1 )$ 是折扣因子——它决定 Agent 有多看重未来： $\gamma$ 越接近 1 越重视长期回报，越接近 0 越只顾眼前。前文反复出现的“累积奖励”，正是各步奖励按 $\gamma$ 逐步折扣后的总和 $\textstyle \sum _ { t } \gamma ^ { t } r _ { t }$ 。算法每次行动后，把旧的估计值往“实际发生的结果”方向微调一点——这种“用一步实际结果修正旧估计”的范式叫时序差分学习（Temporal-Diference Learning, TD learning），经过成千上万次试错，估计值逐渐逼近真实值。</p>
 <p>以下两张图分别展示 $\mathrm { Q } \mathrm { - }$ learning 在网格世界中的探索过程与 $\mathrm { Q }$ 值的逐步收敛。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/37c3b1222568508f52c1c50b565d683032cfbf2f8afaea888d8aec3ed67529c9.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/37c3b1222568508f52c1c50b565d683032cfbf2f8afaea888d8aec3ed67529c9.jpg"><br>
 图 8-3 Q-learning 网格世界</p>
 <p>$$
 \begin{array}{r l} \mathbf {Q} (\mathbf {s}, \mathbf {a}) &amp; \leftarrow \mathbf {Q} (\mathbf {s}, \mathbf {a}) + \alpha [ r + \gamma \max \mathbf {Q} (\mathbf {s} ^ {\prime}, \mathbf {a} ^ {\prime}) - \mathbf {Q} (\mathbf {s}, \mathbf {a}) ] \ &amp; \text {TD目标当前估计} \end{array}
@@ -241,18 +241,18 @@ $$</p>
 <p>最关键的实用创新，是把思考 token 作为特殊动作纳入策略输出空间。典型传统 RL 环境主要使用移动、攻击、拾取等改变环境状态的原始动作，尽管内部计算也可以在 MDP 或层级策略中建模；在 LLM Agent 中，内部思考成为学习到的语言动作空间的核心组成部分。它不直接改变外部环境，也不立即获得环境奖励，但能在 token 成本和上下文上限内表达多种计算路径。</p>
 <p>这种变长组合式动作比原始动作拥有大得多的搜索空间，因此很难在没有先验知识时从零学习。从零开始的Agent 就像蒙着眼睛在沙漠里找宝藏。LLM 则从海量文本预训练中学到了人类留下的问题解决模式——数学问题常按“识别条件 → 回忆公式 → 逐步计算”，编程任务常按“理解需求 → 设计结构 → 实现细节”展开。预训练策略给结构化路径更高先验概率，显著压缩搜索空间。因此即使没有额外 RL，预训练 LLM 也能生成基本的思维链（Chainof Thought, CoT）。这些模式来自数学解题、代码注释、讨论回应等预训练语料，模型通过预测下一个 token 隐式学会“下一步思考应该长什么样”。</p>
 <p>RL 后训练再用外部奖励教会 LLM 在特定任务中更有效地利用这些模式。语言结构不是单独的“内部奖励”，而是预训练策略的先验分布（prior）：训练数据中一致出现的“因为要把外币换算成美元，所以先查汇率”可能具有较高初始生成概率，而“因为要换算货币，所以先查天气”这类无关路径的概率较低。RL 在这个初始分布上用真实任务奖励重新调整各条路径的概率。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/4646dcfef4ec8ab24fb2f6e795b0a47bd540c68bebe778c777b2abe83116a7c6.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/4646dcfef4ec8ab24fb2f6e795b0a47bd540c68bebe778c777b2abe83116a7c6.jpg"><br>
 图 8-5 经典 RL 与现代 LLM Agent 对比</p>
 <p>预训练语言策略使 LLM Agent 能够理解未见过的指令（零样本泛化），并用少量示范适应新任务（少样本适应），这与前述无先验知识的表格 Q-learning 设置形成鲜明对比。</p>
 <p>从预定义原始动作扩展到变长组合式动作，是 AI Agent 范式的重要转变。LLM 的动作仍由有限 token 词表和工具 schema 定义，但内部思考、自然语言查询、程序代码、复杂 JSON 与多模态内容可以组合成数量爆炸的变长序列。代码解释器和搜索工具把这种表示连接到现实环境中的广泛任务与信息。这带来新的机会与挑战：Agen可以组合基础工具处理未见任务，但也需要在巨大的组合空间里定义奖励并高效探索。</p>
 <p>以 Kimi K3 这类面向工具调用和长链思考优化的模型为例，可以看到 LLM+RL 范式的典型方向：在大规模语言预训练基础上，通过后训练强化问题分解、工具调用和自我纠错能力。OpenVLA<sup>1</sup>（详见第六章）则展示了 LLM时代的 VLA（视觉-语言-动作）架构范式：视觉编码器处理环境观察、语言模型理解指令并推理、动作解码器生成控制信号，实现语言条件控制与跨任务泛化。需要澄清的是，OpenVLA 本身是在近百万条机器人演示轨迹上通过模仿学习（行为克隆）训练的，属于 SFT 性质而非 RL；真正把 RL 引入机器人、在这类 VLA 架构之上用奖励进一步优化的代表，是本章后面实验 8-13 的 SimpleVLA-RL。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/d7ba3c898b0e1c8179e1252600791538b09efb56e0a7ef71009a7cb3887f3164.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/d7ba3c898b0e1c8179e1252600791538b09efb56e0a7ef71009a7cb3887f3164.jpg"><br>
 关键洞察：先验知识可通过与 RL 完全无关的方式获得（语言预训练）<br>
 图 8-6 OpenAI 训练范式演进</p>
 <p>姚顺雨在博客《The Second Half》<sup>2</sup>中回顾了 OpenAI 探索之路的认知演变。第一阶段（2015-2016）算法中心主义：相信更好的算法才是关键，在 Atari 等标准环境取得进展，但换一个新环境就得从头训练。第二阶段（2016-2018）环境的重要性：Gym 标准化了各类任务，Universe 和 World of Bits 试图把整个互联网变成 RL 的训练环境，Dota 2 在特定复杂环境中追求超人表现。思路很清晰，但通用计算机使用和网页导航始终无法突破。</p>
 <p>第三阶段（2018 至今）先验的觉醒：GPT-2/GPT-3 展示了语言预训练的强大力量，WebGPT、ChatGPT 证明这些先验知识可以转化为实用 Agent。最重要的发现是：先验知识可以通过与 RL 完全无关的方式获得。这是一个反直觉的真相：几十年来 RL 研究者的优先级可能完全颠倒了——不是算法 &gt; 环境 &gt; 先验，而是先验 &gt; 环境&gt; 算法。</p>
 <h2 id="实验-8-2-传统-rl-与-llm-agent-的对比研究">实验 8-2 ★★：传统 RL 与 LLM Agent 的对比研究</h2>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/2a967e6cce1bc07cdfa0e578ad20ff40155715f2b869ff15299619f910cf0a61.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/2a967e6cce1bc07cdfa0e578ad20ff40155715f2b869ff15299619f910cf0a61.jpg"><br>
 图 8-7 Q-learning 与 LLM Agent 在寻宝游戏中的架构对比</p>
 <p>在同一个寻宝游戏中对比 Q-learning 与 LLM Agent（Kimi K3，维护最多 50 条经验的缓冲区）。结果令人震撼：LLM Agent 第一局就在 18 步内通关。</p>
 <p>前期（有目的的探索）：拿起生锈的剑（“武器总比空手好”），系统探索地图，发现北门被锁后推理“需要找钥匙”，转而探索储藏室，先后取得红钥匙与魔法水晶。中期（机制理解与主动合成）：理解“钥匙自动使用”规则，并预判生锈的剑不足以对付守卫，于是在第 8 步主动合成银剑。后期（执行与纠错）：持银剑向北，第 13 步击败强守卫，其间夹杂一两步无效尝试（重复挥剑/回退），最终在第 18 步取得巨龙宝藏。</p>
@@ -261,7 +261,7 @@ $$</p>
 <p>至于上下文适应、外部产物更新与参数更新如何协同，第一章已经给出概念地图，本章末尾的“完整图景”还会回到这个话题。本章的主线是其中的后训练——把难以由外部规则完整表达的能力写进模型参数。</p>
 <h2 id="83-模型预训练基础-可选阅读">8.3 模型预训练基础 [可选阅读]</h2>
 <p>要理解后续训练技术为什么有效，需要先明白预训练建立了什么。SFT 与 RL 本质上是在基础模型已有的表征空间内进行优化——预训练奠定的知识结构决定了后续阶段的上限。因此，我们通过两个实验考察预训练的核心环节：从头训练小规模语言模型，以及扩展视觉能力。本节的两个实验属于辅助性内容，帮助读者建立对预训练（Pretraining，即在大规模数据上进行初始训练，让模型学会语言的基本规律和世界知识）的直觉；在已有基础模型上注入新语言知识的实验 8-5 则放在紧随其后的 Mid-training 独立小节中。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/ecb4c6819eb11421938c7e220b4935c1404435195f21ca45ddd5d4befaf6d98a.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/ecb4c6819eb11421938c7e220b4935c1404435195f21ca45ddd5d4befaf6d98a.jpg"><br>
 看似简单的目标驱动模型学习：语言规律 → 世界知识 → 基本推理<br>
 图 8-8 预训练的下一个 Token 预测</p>
 <p>语言模型训练一般遵循“词元化—预训练（含按需 Mid-training）—后训练”的流程。词元化（Tokenization）将文本切分为离散单元，比如“我喜欢编程”可能被切分为“我”“喜欢”“编程”三个 token——这些 token 就是模型处理文本的最小单位。预训练的任务在概念上很简单：给模型看一段文本的前半部分，让它预测下一个 token 是什么。模型通过比较自己的预测与正确答案的差距（这个差距叫作损失（Loss），损失越小说明预测越准），不断调整自身参数。在海量文本上反复训练后，模型逐渐学会了语言规律、世界知识与基本推理能力。预训练完成后，模型能生成流畅文本，但输出缺乏结构、难以遵循指令。后训练通过 SFT（用标注好的输入—输出对训练）与偏好优化（如 DPO，让模型学会生成人类更偏好的回答）将其转化为实用助手。</p>
@@ -269,7 +269,7 @@ $$</p>
 <p>以 MiniMind 2（一亿参数）为案例，在消费级 GPU 上完成完整训练流程。通过引入两项算法优化（QK Norm和 Muon 优化器），收敛速度提升 3 倍，生成质量显著改善——实现成本极低，总训练约 14 小时，成本约 34美元。</p>
 <p>各训练阶段的效果：预训练后模型可以回答“世界上最高的山峰”等事实性问题，但格式不规范；SFT 后指令遵循与输出格式显著改善，能按期望方式组织答案；偏好优化进一步减少了事实错误与不自然表达。一亿参数的模型仍有明显局限（复杂问题容易出错），但启示是：在固定的小规模预算下，算法改进比单纯堆规模更具性价比。</p>
 <h2 id="实验-8-4-自己训练-vlm">实验 8-4 ★★：自己训练 VLM</h2>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/ccbd3438e205b66f6a780b71ec397135f3784bdc10d28db535313329be0c6ec5.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/ccbd3438e205b66f6a780b71ec397135f3784bdc10d28db535313329be0c6ec5.jpg"><br>
 策略：冻结 LLM + 训练投影层 → SFT 解冻 LLM（避免灾难性遗忘）<br>
 图 8-9 视觉语言模型（VLM）架构</p>
 <p>VLM 将视觉感知与语言理解统一在一个模型中，核心挑战在于跨模态对齐——让“看到的”和“说出来的”对应起来。架构由三个组件构成：视觉编码器（如 CLIP，参数固定）提取图像的语义特征；投影层（轻量级，唯一从头训练的部分）充当视觉特征与语言模型之间的“翻译官”，将视觉特征映射到语言模型能理解的表示空间；语言模型生成描述文本。训练采用“冻结 LLM + 只训练投影层”的策略，以避免灾难性遗忘（Catastrophic Forgetting，即学了新技能后把旧技能忘了）；预训练对齐后再解冻 LLM，用高质量图像-描述对做 SFT，描述的详细程度与准确性显著改善。</p>
@@ -311,7 +311,7 @@ $$</p>
 <p>以 为基础（主要用英语预训练，对韩语几乎没有理解能力），通过韩语维基百科继续预训练来注入韩语能力——在已完成预训练的模型上用新语言数据继续做语言模型训练，模型已具备通用表征，只需适应新的数据分布，成本远低于从头训练。该实验使用约 80% 韩语 + 20% 英语的数据配比来缓解灾难性遗忘；这只是该实验的选择，不是通用默认值。最后用韩语指令数据做 SFT，获得实用的韩语对话能力。它把两种职责分得很清楚：Mid-training 先补韩语知识与语言能力，SFT 再教模型如何用韩语接受指令和组织回答。本实验也说明继续预训练可能带来的灾难性遗忘问题：韩语最终阶段的盲评分改善，英语能力却有下降。继续预训练可以把目标分布写进参数，但不能免除保留集、事实评估和数据质量审计。</p>
 <p>具备足够的知识与基础能力后，才能使用下面的 SFT、RL 等后训练方法构建实用的 Agent。</p>
 <h2 id="85-sft监督微调">8.5 SFT（监督微调）</h2>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/94914f6402cd0a4ef3b3135b61f3b2294b9fdd467a42ec417f50959ff9cc6346.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/94914f6402cd0a4ef3b3135b61f3b2294b9fdd467a42ec417f50959ff9cc6346.jpg"><br>
 图 8-10 监督微调（SFT）流水线</p>
 <p>“四阶段全景”一节已经讲了 SFT 的本质（换了数据、只在回答上算损失的“预测下一个词”）。这一节用四个实验，看看这套“把稳定映射与协议写进参数”的机制在不同任务上具体固化了什么。SFT 的核心价值不在于注入新知识，而在于固化输出格式：把映射关系、交互格式、风格规范写入参数，使推理时无需冗长提示即可产出符合预期的输出。</p>
 <p>这种高效率可能以依赖训练分布为代价：在需要探索多种正确策略、或部署分布偏离示范数据的任务中，SFT容易偏向复现示范模式，在新场景中性能下降。接下来的四个实验从不同角度展示“固化输出格式”这一过程。</p>
@@ -412,7 +412,7 @@ update(policy, value_model, policy_loss + value_coef * value_loss)
 <p>这里出现的“重要性采样”是统计学常用的方法——在采样分布偏向某一类样本时，通过给样本加权来“纠正”分布，让学习信号能够公平覆盖所有类别。本书后续讨论的 PPO、DAPO 等 RL 算法都会反复用到这一思想。本书对这次历史训练的规范记录是 checkpoint-free 训练报告。公开 W&amp;B 主运行 wubbn5tj 使用 8×NVIDIAH100 80GB；step 0→300 时，MATH500 准确率 0.8100→0.8180（+0.80 pp）、响应长度 4911.46→1576.62（-67.90%），GSM8K 为 0.796816→0.818802（+2.20 pp）、1025.24→477.33（-53.44%），AIME mean@16 则为0.314583→0.310417（-0.42 pp）、12119.51→6402.23（-47.17%）。对应 NoThinking 比例为 83.80%、84.15%、56.25%，说明数据集汇总层面存在与难度一致的路由信号，但不能称为逐题“完美难度感知”，也不能声称准确率普遍提升。</p>
 <p>在报告选取的 step 300 之后，训练继续运行到 step 410，累计耗时 36.92 小时，随后 W&amp;B 状态变为 crashed；配置的 10 epochs / 3,140 steps 并未完成。Step 300 虽有 checkpoint 计时事件，但 checkpoint 不随书分发，也没有独立回执证明其经 run_eval_verl_hf.sh 成功评估或重跑 MMLU。历史源码提交为 9e588202⋯；未来复现固定到其直接子提交 0033ad172⋯，三个入口文件保持不变，但训练脚本生成的 -fl- 路径与评估脚本硬编码的 -fl4096 路径不兼容，需手工修正。</p>
 <p>AdaptThink 可与 Prompt 蒸馏互补，形成“快—慢双系统”：蒸馏降低需要思考的任务比例，AdaptThink 优化剩余任务的触发策略，共同提高思考效率。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/f50f9397133f5ab447742aae38cc1bfd83628c1717300b2d2ed9ae13a5733a72.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/f50f9397133f5ab447742aae38cc1bfd83628c1717300b2d2ed9ae13a5733a72.jpg"><br>
 图 8-12 GeneralPoints 实验架构（GP-L 与 GP-VL 两个变体的训练与测试设计）</p>
 <table><tr><td>GeneralPoints 是 Chu 等人提出的算术思考卡牌游戏a,专门用于评估模型的泛化能力。任务目标类似“24 点”游戏:使用四张卡牌上的数字,通过加减乘除运算,每个数字恰好用一次,凑出目标数字 24。实验设计了纯文本 GP-L 与图像 GP-VL 两个变体,使我们能在同一框架下分别考察规则泛化与视觉泛化。</td></tr><tr><td>规则变体:训练时 J/Q/K 都计为 10,测试时分别计为 11/12/13,确保测试集出现训练未见的数字组合(含 11、12、13 的运算),严格评估泛化能力。视觉变体:训练用黑色花色(♠♣),测试用红色花色(♥♦),评估视觉外观变化下的鲁棒性。基于 Llama-3.2-Vision-11B,遵循标准后训练流程:先 SFT 初始化使其具备基本指令遵循能力,然后在相同计算预算下分别扩展 SFT 与 RL 训练(RL 部分采用带价值网络的 PPO 算法),用单一规则(J/Q/K=10)数据训练,在分布内(ID)与分布外(OOD)测试集上评估。</td></tr><tr><td>结果在这一受控设置中显示出明显差异。规则 OOD:RL 在 GP-L 上 +3.5%(11.5%→15.0%),SFT 下降8.1%(11.5%→3.4%);GP-VL 上 RL +3.0%,SFT 下降 5.6%。视觉 OOD:RL 在 GP-VL 上 +17.6%(23.6%→41.2%),SFT 下降 9.9%(23.6%→13.7%)。</td></tr><tr><td>追踪视觉识别准确率后发现:RL 通过结果导向的优化改善了底层视觉编码器,且这种改善与整体性能提升高度相关;而 SFT 因为过度拟合思考过程中的 token 模式,忽视了对视觉 token 的学习,导致识别准确率反而下降。</td></tr><tr><td>实验还说明,在本实验的设定下(Llama-3.2-Vision-11B 这个量级的基础模型,加上严格的结构化输出要求),RL 需要先用 SFT 初始化:未经 SFT 直接做端到端 RL 完全失败,因为基础模型无法产生结构化输出,奖励根本无法计算。注意这是特定设定下的结论而非普适规律:足够强的基础模型可以跳过 SFT 直接 RL 成功(见前文对 DeepSeek-R1-Zero 的讨论)。另一个值得关注的发现是,在这个实验中,验证迭代次数越多,测得的泛化越好:10 次 +5.99% vs 1 次 +0.48%,表明增加测试阶段的计算量是其泛化提升的重要因素。</td></tr><tr><td>为什么在这个实验的分布偏移下 SFT 性能下降,而 RL 表现更好?一种与观察相符的解释是:有限的 SFT 数据强化了“遇到 J/Q/K 就当 10 用”的固定模式;测试时 J=11,模型仍按 10 计算。结果导向的 RL 分支则更可能强化“重新计算直到得到正确答案”的策略,因而在 J 变成 11 时仍能应用。这解释了本实验中的“记忆”与“泛化”对照,但不是说 SFT 必然只能记忆,或 RL 必然学会通用算法。</td></tr><tr><td>本实验的核心贡献,是在有限的 GeneralPoints 设置中系统量化了 SFT 的过拟合倾向与 RL 更好的分布外表</td></tr></table>
 
@@ -424,7 +424,7 @@ update(policy, value_model, policy_loss + value_coef * value_loss)
 <p>第二步：计算奖励。每条 rollout 结束后，验证器在干净环境中应用补丁并运行测试。假设 16 次尝试中有 4 次通过全部测试且没有修改测试文件，另外 12 次失败，那么前 4 条得到奖励 1，后 12 条得到奖励 0。在这种 coding任务里，“奖励计算”并不神秘，就是用测试和规则判断这次修复到底对不对。开放式任务没有确定测试时，才需要人类偏好或奖励模型来评价。</p>
 <p>第三步：计算相对优势。奖励只说明单条轨迹成功或失败，相对优势则说明它相对于同组其他尝试有多好。这一组的平均成功率是 4/16：通过测试的 4 条高于组内平均，得到正优势；失败的 12 条低于平均，得到负优势。GRPO的核心就是这种组内比较。若 16 条全部失败，或全部成功，大家的奖励完全一样，就比较不出谁更好，相对优势也会消失。RLVP 的路径信号、过程奖励和部分进展奖励，解决的正是如何在这些组里恢复有意义的差异。</p>
 <p>第四步：用梯度下降更新策略。训练程序把相对优势转成训练损失，计算梯度，再由优化器（如 AdamW、Muon）执行梯度下降，提高正优势轨迹中模型所做选择的概率，降低负优势轨迹中选择的概率。它不是把某个成功补丁原样背下来，而是在许多任务和 rollout 上逐步调整；以后遇到类似错误时，“先复现问题、检查边界条件、修改实现并运行测试”会更容易出现，“掩盖异常、改测试、没有验证就提交”会更少出现。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/1a2c8d8690a74e2d0b3ddfa6bb81b06dba8cd65f9765b542b557d36949038b1b.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/1a2c8d8690a74e2d0b3ddfa6bb81b06dba8cd65f9765b542b557d36949038b1b.jpg"><br>
 图 8-13 同一 SWE-bench 任务的 16 次 rollout、验证与相对优势</p>
 <p>这四步合起来构成一次训练迭代，也就是一个 step：第 � 个 step 用当前策略生成一批 rollout，完成奖励、优势和梯度计算，再由优化器更新参数；第 �+1 个 step 随即使用更新后的策略重新 rollout。训练 100 steps，就是把这个闭环重复约 100 轮。具体 RL 训练框架可能把内部的多个 minibatch 更新另行计数，因此看训练日志时仍需确认其 step 定义。</p>
 <p>做一个粗略的时间估算。复杂 Agent rollout 会生成数十轮工具调用，即使 16 条并行运行，一个 rollout 阶段的墙钟时间也由最慢的那条决定。假设最慢 rollout 用时约 2,000 秒，随后梯度下降和优化器更新用时约 600 秒，那么一个 step 大约需要 $2 , 0 0 0 + 6 0 0 = 2 , 6 0 0$ 秒，即约 43 分钟；连续训练 100 steps 就接近 72 小时。</p>
@@ -465,9 +465,9 @@ $$</p>
 <p>确定性验证器“便宜”不等于“没有成本”。Lean kernel、测试运行器或容器执行可能让 CPU 验证速度远慢于 GPU生成速度；这时吞吐量取决于并行的验证器 worker，而不是继续堆 GPU<sup>16</sup>。</p>
 <h2 id="811-从单轮到多轮任务场景与信用分配">8.11 从单轮到多轮：任务场景与信用分配</h2>
 <h2 id="8111-多轮任务的核心挑战">8.11.1 多轮任务的核心挑战</h2>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/75d60f8c57030b8f755fdc780abde2410d162faf7ca7a02f1408ce3cebab2a8e.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/75d60f8c57030b8f755fdc780abde2410d162faf7ca7a02f1408ce3cebab2a8e.jpg"><br>
 图 8-14 单轮 RL 与多轮 RL 对比</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/3e8144ca5c3843dd444b33e07b8538b73c9d7a7e5aa8e4ee07387bd0ae8ac1fb.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/3e8144ca5c3843dd444b33e07b8538b73c9d7a7e5aa8e4ee07387bd0ae8ac1fb.jpg"><br>
 图 8-15 多轮交互中的信用分配</p>
 <p>从单轮到多轮，复杂性发生了质的跃迁。策略不仅要选择当前最优动作，还要考虑未来的状态价值；不仅要处理即时反馈，还要在延迟奖励下进行信用分配（Credit Assignment）——判断多步序列中到底哪一步对最终结果贡献最大。比如一个客服 Agent 用了 10 轮对话解决了用户问题，最终获得好评——但这个好评该归功于第 2 轮的精准提问，还是第 7 轮的耐心解释？</p>
 <p>这里讨论的多轮交互，正是第一章和第四章描述的 ReAct 循环——每一轮就是一次思考 → 行动 → 观察的迭代，奖励延迟即来自“最终结果好坏要在多轮之后才能判断”这一结构性约束。</p>
@@ -481,16 +481,16 @@ $^{a}$ Yang, Jihan et al., “V-IRL: Grounding Virtual Intelligence in Real Life
 <p>SimpleVLA-RL 在 LIBERO 机器人任务中只使用成功/失败结果奖励。每个任务仅用一条演示轨迹做 SFT 冷启动，随后 RL 将成功率从 17.3% 提升到 91.7%，并发现演示中没有出现的“推切”动作。它与 V-IRL 形成对照：过程信号容易定义时能加速学习，最优路径未知时稀疏结果奖励反而保留更大的探索空间。</p>
 <h2 id="8112-工具调用把环境带进-agent">8.11.2 工具调用：把环境带进 Agent</h2>
 <p>多轮任务一旦接入外部工具，动作就不再只是“移动或回答”，而是搜索、执行代码、修改文件、查询数据库和组合多个 API。因此，信用分配、环境工程和安全约束都成了工具调用中的核心问题。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/6fccd9191a3d6400bc9f34ae62601c4d061da9fc73cce0baad37024b67324241.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/6fccd9191a3d6400bc9f34ae62601c4d061da9fc73cce0baad37024b67324241.jpg"><br>
 图 8-16 工具调用 RL 奖励循环</p>
 <p>Search-R1<sup>17</sup>代表检索增强路线：模型自主决定何时搜索、搜索什么，并利用返回结果继续推理。ReTool 则把代码解释器嵌入思考循环，模型需要学会何时执行代码、如何读取反馈、如何根据报错修正。AWorld-train 提供 MCP多工具沙盒，进一步引入工具选择、依赖管理、状态重置和可重放性问题。</p>
 <p>工具轨迹还有一个关键实现细节：环境返回的 token 不是策略生成的，计算策略梯度时应屏蔽这些反馈 token，只对模型自己的思考和工具调用参数回传梯度。否则模型会被训练去预测沙盒输出，而不是学会如何使用工具。</p>
 <h2 id="实验-8-14-retool代码解释器增强数学解题">实验 8-14 ★★★：ReTool——代码解释器增强数学解题</h2>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/12881d651e329791d5767c76bc5075dff1dc75007960b86864e1442f6e91d168.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/12881d651e329791d5767c76bc5075dff1dc75007960b86864e1442f6e91d168.jpg"><br>
 图 8-17 ReTool 交织文本-代码思考与沙盒执行反馈循环</p>
 <p>ReTool 在 SFT 预热后，用交织的文本思考、代码执行和解释器反馈进行 PPO 训练。它展示了工具反馈如何改变思考策略：模型逐渐学会主动执行、读取错误并自我修正。训练数据来自 DAPO-Math-17k，但优化算法仍是标准 PPO<sup>ab</sup>。</p>
 <p>在 AIME 2024 上，训练从约 25% 提升到 67.0%；相比纯文本 RL，代码反馈让模型更快学会精确计算和纠错。详细的训练动态与沙盒配置见实验配套说明。</p>
-<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/16c46df5f300dc9267801ff882a2b9b5da688d5542942488e6d2a938ad8690ca.jpg"><br>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/16c46df5f300dc9267801ff882a2b9b5da688d5542942488e6d2a938ad8690ca.jpg"><br>
 图 8-18 AWorld-train MCP 沙盒训练架构与工具生态</p>
 <p>AWorld-train 使用 MCP 服务器沙盒，提供 Web、文档、多媒体、代码和知识检索等工具。这个开放式实验的重点不是刷新 GAIA 指标，而是跑通可重置、可重放的多工具训练链路，并观察工具调用成功率和组合策略是否随训练改善。</p>
 <p>这些场景共同说明：多轮 Agent 的训练难点不是“有没有一个更复杂的优化器”，而是环境反馈是否可靠、动作链是否可验证，以及最终奖励该如何归因到中间决策。</p>

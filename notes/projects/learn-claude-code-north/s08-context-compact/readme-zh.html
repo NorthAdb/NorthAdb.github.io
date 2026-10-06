@@ -103,7 +103,7 @@
 </blockquote>
 <p>Agent 持续工作时，读过的文件、执行过的命令和模型回复都会留在 <code>messages</code> 中。消息越积越多，最终会超过模型能够接收的上下文长度。</p>
 <p>本节将实现一条四步压缩管线。它先整理可以恢复的工具结果，空间仍然不足时再总结历史。</p>
-<p><img alt="Context Compact 全景" src="https://gitee.com/cheng-jiaqing/images/raw/master/compact-overview.svg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Context Compact 全景" src="https://gitee.com/cheng-jiaqing/images/raw/master/compact-overview.svg"></p>
 <h2 id="先理解上下文">先理解上下文</h2>
 <p>可以把上下文窗口看作模型当前使用的一张草稿纸。用户消息、模型回复、<code>tool_use</code> 和 <code>tool_result</code> 都会按顺序写在这张纸上。模型每次继续工作时，都要重新读取这些内容。</p>
 <p>草稿纸的大小固定。内容超过上限后，API 会拒绝请求并返回 <code>prompt_too_long</code>。在代码任务里，工具结果通常占据最多空间：</p>
@@ -123,14 +123,14 @@
 <li>文本裁剪和结构调整不需要调用模型。</li>
 </ol>
 <p>因此压缩顺序按照信息损失和调用成本排列：先转存，再裁剪，再替换旧结果，最后才生成摘要。</p>
-<p><img alt="四步压缩管线" src="https://gitee.com/cheng-jiaqing/images/raw/master/compaction-layers.svg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="四步压缩管线" src="https://gitee.com/cheng-jiaqing/images/raw/master/compaction-layers.svg"></p>
 <h2 id="第一步toolresultbudget">第一步：tool_result_budget</h2>
 <p>一次模型回复可能同时调用多个工具。执行完成后，这些 <code>tool_result</code> 会一起写进最后一条 user 消息。它们的总大小超过 <code>200_000</code> 字符时，<code>tool_result_budget</code> 从最大的结果开始处理。</p>
 <p>超过 <code>LARGE_RESULT_CHAR_LIMIT = 30000</code> 的结果会完整写入：</p>
 <pre><code class="language-text">.task_outputs/tool-results/&lt;tool_use_id&gt;.txt
 </code></pre>
 <p>上下文中保留文件路径和前 2000 个字符的预览：</p>
-<p><img alt="大结果转存" src="https://gitee.com/cheng-jiaqing/images/raw/master/layer1-budget.svg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="大结果转存" src="https://gitee.com/cheng-jiaqing/images/raw/master/layer1-budget.svg"></p>
 <p>核心循环按照结果大小依次转存：</p>
 <pre><code class="language-python">blocks = [block for block in content
           if isinstance(block, dict)
@@ -177,7 +177,7 @@ messages = [*messages[:head_end], marker, *messages[tail_start:]]
 <p>这一步控制消息数量，但保留下来的旧消息仍可能包含很长的工具结果。</p>
 <h2 id="第三步microcompact">第三步：micro_compact</h2>
 <p>前两步完成后，<code>prepare</code> 会估算剩余上下文的大小，只有超过 <code>CONTEXT_CHAR_LIMIT</code> 时才执行 <code>micro_compact</code>。对于模型已经读取过的结果，它保留最近 3 条，并逐条缩短更早且超过 120 个字符的结果，直到上下文接近阈值的 80%。旧结果被替换前会先完整落盘，因此每个占位都带有可恢复路径：</p>
-<p><img alt="旧结果替换为可恢复路径" src="https://gitee.com/cheng-jiaqing/images/raw/master/micro-compact.svg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="旧结果替换为可恢复路径" src="https://gitee.com/cheng-jiaqing/images/raw/master/micro-compact.svg"></p>
 <pre><code class="language-python">unseen = self.unseen_tool_result_positions(messages)
 consumed = [entry for entry in results if entry[:2] not in unseen]
 
@@ -208,7 +208,7 @@ def estimate_chars(messages):
 <li>将入口处捕获的当前用户请求与摘要明确分开。</li>
 <li>用一条 <code>[Compacted]</code> 消息替换当前历史。</li>
 </ol>
-<p><img alt="历史摘要" src="https://gitee.com/cheng-jiaqing/images/raw/master/auto-compact.svg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="历史摘要" src="https://gitee.com/cheng-jiaqing/images/raw/master/auto-compact.svg"></p>
 <pre><code class="language-python">def compact_history(messages, active_request):
     transcript = self.write_transcript(messages)
     print(f&quot;[transcript saved: {transcript}]&quot;)

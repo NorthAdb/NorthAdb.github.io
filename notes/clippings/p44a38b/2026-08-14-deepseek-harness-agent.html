@@ -101,7 +101,7 @@
 <strong>副题</strong>：DeepSeek 发布了第一款 Agent 产品</p>
 <p><strong>一句话结论：DeepSeek Harness 的竞争力押在运行时这一层——"everything is a plugin"。</strong> 模型接入、工具执行、会话记录、循环本身、界面全部走插件机制，而这一切建立在 Cordis 的「可逆副作用」哲学上：<strong>卸载 = 完整逆转</strong>，让 Agent 能做到热插拔、自进化、失败原子性。</p>
 </blockquote>
-<p><img alt="DeepSeek Harness 架构" src="https://gitee.com/cheng-jiaqing/images/raw/master/deepseek-harness-20260814-01.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="DeepSeek Harness 架构" src="https://gitee.com/cheng-jiaqing/images/raw/master/deepseek-harness-20260814-01.png"></p>
 <h2 id="引子跳过共识只讲不一样的">🎯 引子：跳过共识，只讲不一样的</h2>
 <p>文章跳过 agent 领域已成共识的部分（检测工具调用、执行、回填、循环——每个框架都长一个样），重点放在 DeepSeek Harness 真正与众不同的几处设计：
 - <strong>Cordis 插件运行时</strong>怎么管理生命周期
@@ -235,7 +235,7 @@ export function apply(ctx: Context) {
   })
 }
 </code></pre>
-<p><img alt="插件写法示例" src="https://gitee.com/cheng-jiaqing/images/raw/master/deepseek-harness-20260814-02.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="插件写法示例" src="https://gitee.com/cheng-jiaqing/images/raw/master/deepseek-harness-20260814-02.png"></p>
 <blockquote>
 <p><strong>真的很像 React</strong>：<code>useEffect(() =&gt; { subscribe(); return () =&gt; unsubscribe() }, deps)</code>——副作用和它的逆写在一起，销毁由框架触发。差异：React 在渲染后执行、依赖变化先清理再重建；Cordis 在注册时立即执行、LIFO 保证清理顺序。</p>
 </blockquote>
@@ -406,7 +406,7 @@ while (true) {
 <hr>
 <h2 id="附从进程启动到一次工具调用整条链路">附：从进程启动到一次工具调用，整条链路</h2>
 <p>进程启动 → Profile 决定装哪些插件包 → Cordis 加载器逐个挂载（每插件一个 Fiber）→ host 层准备模型接入、凭据管理、沙箱 → 会话开始，agent 注册表分配实例挂在"全局-预设-会话"scope 链下 → 可见工具/提示词取决于链上位置 + 遮蔽规则 → Agent Loop 接管：读上下文、请求模型、检测工具调用、走统一工具流水线 → 每步发生的事作为事件追加进会话日志，<strong>不删除不覆盖</strong>。这份日志同时是：持久化来源 + 下一次请求的上下文来源 + 网页界面的展示来源（网页界面本身也是插件）。</p>
-<p><img alt="进程启动到工具调用链路" src="https://gitee.com/cheng-jiaqing/images/raw/master/deepseek-harness-20260814-03.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="进程启动到工具调用链路" src="https://gitee.com/cheng-jiaqing/images/raw/master/deepseek-harness-20260814-03.png"></p>
 <p><strong>这套设计解决的四个具体问题</strong>：
 1. <strong>加/改能力的风险</strong> → 风险控制粒度做到插件级，影响范围框定在插件自己的边界里；
 2. <strong>同一套 agent 服务不同场景</strong> → preset 两层 scope 链，一份插件树只挂载一次，多会话靠逻辑父子表复用；
@@ -415,7 +415,7 @@ while (true) {
 <blockquote>
 <p><strong>更大的判断</strong>：agent 产品的竞争力，除了模型效果，还取决于运行时这一层——怎么组织、扩展成本多高、换组件多大代价。DSH 用 Cordis 现成框架 + "可逆副作用"设计哲学，把这一判断落实到具体代码结构上。</p>
 </blockquote>
-<p><img alt="HMR 事故：作者 P.S. 示例插件把 UI 搞崩了" src="https://gitee.com/cheng-jiaqing/images/raw/master/deepseek-harness-20260814-04.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="HMR 事故：作者 P.S. 示例插件把 UI 搞崩了" src="https://gitee.com/cheng-jiaqing/images/raw/master/deepseek-harness-20260814-04.png"></p>
 <hr>
 <h2 id="实战插件开发与安装datawhale-保姆教程">🛠️ 实战：插件开发与安装（Datawhale 保姆教程）</h2>
 <blockquote>
@@ -476,16 +476,16 @@ export function apply(ctx: Context) {
 # 端口被占用时：pnpm dsh web --patch ./scratch-plugin/cordis.yml --port 3082
 </code></pre>
 <p>看到 <code>[greet-tool] loaded; tool name: greet</code> + <code>dsh web: http://127.0.0.1:3082</code> 即就绪。进"设置 → 插件 → 插件列表"，<code>greet-tool.ts</code> 状态应为"已启用"。</p>
-<p><img alt="插件已挂载" src="https://gitee.com/cheng-jiaqing/images/raw/master/deepseek-harness-20260814-05.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="插件已挂载" src="https://gitee.com/cheng-jiaqing/images/raw/master/deepseek-harness-20260814-05.png"></p>
 <p><strong>5. 让 Agent 调用它</strong>：新建标准模式会话，输入「请调用 greet 工具问候 Datawhale。」展开工具调用可见：</p>
 <pre><code>IN   { &quot;name&quot;: &quot;Datawhale&quot; }
 OUT  你好，Datawhale！你的第一个 Harness 插件已经运行。
 </code></pre>
-<p><img alt="greet 工具调用成功" src="https://gitee.com/cheng-jiaqing/images/raw/master/deepseek-harness-20260814-06.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="greet 工具调用成功" src="https://gitee.com/cheng-jiaqing/images/raw/master/deepseek-harness-20260814-06.png"></p>
 <p><strong>至此最小闭环跑通</strong>：加载插件 → 注册工具 → 模型调用 → 返回结果。</p>
 <h3 id="part-2直接安装生产级插件vision-toolkit-为例">Part 2：直接安装生产级插件（Vision Toolkit 为例）</h3>
 <p>写一个完整插件难度较高，日常使用直接装大佬们做好的插件。以 <strong>DSH Vision Toolkit</strong> 为例——DeepSeek 当前 Chat Completions 路由是纯文本模型，不能直接理解图片；Vision Toolkit 把图片交给独立视觉模型，再把文字/坐标/文件产物送回 Harness（提供图片问答、OCR、元素定位、图片裁剪、像素对比、HTML 截图等工具）。</p>
-<p><img alt="Vision Toolkit 示意" src="https://gitee.com/cheng-jiaqing/images/raw/master/deepseek-harness-20260814-07.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Vision Toolkit 示意" src="https://gitee.com/cheng-jiaqing/images/raw/master/deepseek-harness-20260814-07.png"></p>
 <p><strong>1. 安装插件</strong></p>
 <pre><code class="language-bash">dsh plugin --profile web add @dsh-external/dsh-vision-toolkit
 # 或 npx @deepseek-ai/dsh@0.1.0-rc.6 plugin --profile web add @dsh-external/dsh-vision-toolkit

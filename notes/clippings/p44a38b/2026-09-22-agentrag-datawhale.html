@@ -99,7 +99,7 @@
 <p><strong>来源</strong>：公众号「Datawhale」，作者卞一岚，2026-09-22。</p>
 <p><strong>一句话总结</strong>：RAG 的核心不是 retrieval，而是 <strong>context construction</strong>——它只是在推理时补上下文的手段之一。选型应该由「<strong>信息缺口长什么样</strong>」反推技术，而不是先决定「要不要上 RAG」。</p>
 </blockquote>
-<p><img alt="信息缺口驱动的 RAG 技术选型全景：五类 RAG 场景 + 五类 RAG 替代方案" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis/rag-fig8-when-to-use-rag.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="信息缺口驱动的 RAG 技术选型全景：五类 RAG 场景 + 五类 RAG 替代方案" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis/rag-fig8-when-to-use-rag.png"></p>
 <h2 id="0-立论rag-不是固定架构而是一组补信息缺口的技术">0. 立论：RAG 不是固定架构，而是一组补信息缺口的技术</h2>
 <p>给 Agent 的输入往往只有一句话（"这是我领导的要求 xxx""帮我修一下这个报错"），但完成任务真正需要的上下文远不止这一句：<strong>具体目标、验收标准、以及停留在人脑/会议记录/聊天记录/历史决策里的背景知识</strong>。</p>
 <p>现在 Agent 越来越不像"大模型 + 一句 prompt"，而像一个围绕模型搭起来的<strong>上下文系统</strong>。以 Claude Code 为例，Anthropic 官方把可控入口拆成 CLAUDE.md、rules、skills、subagents、hooks、output styles、append system prompt 等[1]——共同点不是"把提示词写长"，而是<strong>把不同类型的信息放到合适的位置</strong>：有些常驻、有些按需加载、有些用 hook 保证执行、有些交给隔离的 subagent。</p>
@@ -131,7 +131,7 @@
 </blockquote>
 <p>VimRAG / MMG 这类多轮检索记忆方案进一步佐证：多轮对话里如果检索系统没有"自己查过什么"的记忆，就会反复召回同一批内容。用图结构记录检索路径，或在工程上用 session 级 <code>consumed_ids</code> 去重，都是在让上下文构建<strong>变得有状态</strong>[2]。</p>
 <p>因此本文不复述一套固定架构，而是给出一组技术选型：经典向量检索 / GraphRAG·LightRAG / Agentic RAG / 知识预编译 / 上下文压缩——<strong>以及什么时候根本不该用 RAG</strong>。</p>
-<p><img alt="Agent 为什么需要 Context System：一句话输入 → Agent 发现信息缺口 → Context System 补齐" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis/rag-fig1-agent-context-system.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Agent 为什么需要 Context System：一句话输入 → Agent 发现信息缺口 → Context System 补齐" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis/rag-fig1-agent-context-system.png"></p>
 <h2 id="1-五类场景选型总览">1. 五类场景选型总览</h2>
 <table>
 <thead>
@@ -187,7 +187,7 @@
 <h2 id="2-经典-ragnaive-advanced-modular">2. 经典 RAG：Naive → Advanced → Modular</h2>
 <h3 id="21-naive-rag两条链路">2.1 Naive RAG：两条链路</h3>
 <p>适合从"我有一堆文档，想让大模型别瞎编"这个朴素需求起步。好处是<strong>便宜、快、工程闭环短</strong>；RAG 最早的核心思想也是把参数化记忆与外部非参数化记忆结合[3]。</p>
-<p><img alt="经典 RAG 全链路：离线索引（Load → Split → Embed → Store）+ 在线查询（Query → Retrieve → Rerank → Generate）" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis/rag-fig2-classic-rag-pipeline.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="经典 RAG 全链路：离线索引（Load → Split → Embed → Store）+ 在线查询（Query → Retrieve → Rerank → Generate）" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis/rag-fig2-classic-rag-pipeline.png"></p>
 <table>
 <thead>
 <tr>
@@ -346,7 +346,7 @@
 <ul>
 <li>淘宝答疑案例：用 CoT 做意图识别，再按排查步骤生成多组查询并行召回——用户问"小程序上线后白屏"，不是只搜"白屏原因"，而是拆成<strong>环境差异 / 资源加载 / 渲染链路 / 监控日志</strong>几条线同时找证据。</li>
 </ul>
-<p><img alt="从 Naive RAG 到 Advanced RAG：Query Rewrite → Hybrid Retrieval → Rerank → Context Optimization → LLM" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis/rag-fig3-naive-to-advanced-rag.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="从 Naive RAG 到 Advanced RAG：Query Rewrite → Hybrid Retrieval → Rerank → Context Optimization → LLM" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis/rag-fig3-naive-to-advanced-rag.png"></p>
 <p><strong>适合</strong>：知识库规模已起来、用户问法很飘、领域术语多、召回质量不稳定（企业内部文档、工单系统、研发答疑、售后知识库）。</p>
 <blockquote>
 <p><strong>最值得落地的不是"上最贵的 embedding"，而是先做最小评测集</strong>：十几条 golden queries 覆盖<strong>精确词 / 多跳 / 长尾 / 不可回答问题</strong>；每次改 chunk、embedding、rerank、rewrite，都看 Recall@k、Context Precision、Faithfulness、Relevance 有没有变好。</p>
@@ -392,7 +392,7 @@
 </blockquote>
 <h2 id="3-graphrag-lightrag当知识不再是一堆孤立-chunk">3. GraphRAG / LightRAG：当知识不再是一堆孤立 chunk</h2>
 <p>经典 RAG 最怕：答案不在某一个 chunk 里，而<strong>散落在一堆文档的关系里</strong>——"这个系统的核心设计模式是什么""A 组件和 B 组件为什么耦合""上线白屏可能涉及哪些链路"。向量检索能把相似片段捞出来，但它不知道这些片段之间<strong>谁依赖谁、谁解释谁、谁只是同名路人</strong>。最后模型拿到一盘散沙，只能硬拼：拼得好叫推理，拼不好就是一本正经地猜。</p>
-<p><img alt="RAG 演进：从文本检索（Naive）到知识关系网络（GraphRAG）再到轻量图 + 向量（LightRAG）" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis/rag-fig4-graphrag-lightrag-evolution.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="RAG 演进：从文本检索（Naive）到知识关系网络（GraphRAG）再到轻量图 + 向量（LightRAG）" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis/rag-fig4-graphrag-lightrag-evolution.png"></p>
 <table>
 <thead>
 <tr>
@@ -439,7 +439,7 @@
 <h2 id="4-agentic-rag让-agent-决定要不要再查一次">4. Agentic RAG：让 Agent 决定要不要再查一次</h2>
 <p>传统 RAG 像一个"<strong>只准搜一次的实习生</strong>"：拿到问题，查一把，拼上下文，开始回答。但很多真实问题不是一跳能解决的——问"项目 X 用的服务器规格是什么"，第一次检索可能只找到项目文档里的<strong>服务器 ID</strong>，真正的规格藏在另一套资产库里。</p>
 <p><strong>Agentic RAG 的核心价值</strong>：让 Agent 在发现信息不够时，自己决定——<strong>拆问题、换 query、换数据源、再查一次</strong>，直到上下文足够或明确不可答。</p>
-<p><img alt="Agentic RAG：让 AI 主动寻找缺失信息（Planner → Retrieve → Context Check → Enough Context? → 再检索 / 生成）" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis/rag-fig5-agentic-rag-loop.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Agentic RAG：让 AI 主动寻找缺失信息（Planner → Retrieve → Context Check → Enough Context? → 再检索 / 生成）" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis/rag-fig5-agentic-rag-loop.png"></p>
 <p>Google 的 Agentic RAG 方案把检索拆进 Agent workflow：Orchestrator 判断是否一跳可做 → Planner 规划信息路径 → Query Rewriter 改写多个可检索问题 → Search Fanout Agent 分发到不同语料/系统 → 综合回答。</p>
 <blockquote>
 <p><strong>真正有意思的不是"多 Agent"，而是引入了 sufficient context agent</strong>[9]：先看召回片段、草稿答案和原始问题，判断"现在的信息够不够回答"。如果缺关键信息，<strong>就别急着生成答案</strong>，而是带着明确缺口回去搜更具体的线索。</p>
@@ -487,7 +487,7 @@
 </blockquote>
 <h2 id="5-llm-wiki-知识预编译稳定知识不要每次从头检索">5. LLM Wiki / 知识预编译：稳定知识不要每次从头检索</h2>
 <p>经典 RAG 像"<strong>开卷考试</strong>"：问题来了先去翻书，翻到几个相似片段再临场组织答案。适合事实查询，但遇到稳定、长期、反复使用的知识就显得浪费——每次问跨文档问题都让模型重新检索、拼接、综合，<strong>等于每次都把同一锅汤从生水开始煮</strong>。真正缺的不是再多一个向量库，而是把已经读过的材料<strong>沉淀成可复用的中间层</strong>。</p>
-<p><img alt="LLM Wiki 三层架构：Raw Sources / Schema → Wiki 层（concepts、entities、synthesis、journal、index.md、log.md…）" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis/rag-fig6-llm-wiki-three-layers.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="LLM Wiki 三层架构：Raw Sources / Schema → Wiki 层（concepts、entities、synthesis、journal、index.md、log.md…）" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis/rag-fig6-llm-wiki-three-layers.png"></p>
 <p>Karpathy 的 LLM Wiki 设计有三层[11]：</p>
 <table>
 <thead>
@@ -579,7 +579,7 @@
 <h2 id="7-rag-的评估没有指标就没有优化方向">7. RAG 的评估：没有指标，就没有优化方向</h2>
 <p>落地时最容易掉进的坑：<strong>系统答错了，第一反应是"再调一下 prompt"</strong>。这很危险，因为 RAG 的错误不一定发生在生成端——很多时候模型不是不会答，而是<strong>检索阶段根本没召回正确材料</strong>；也有时候材料召回对了但模型没有忠实使用；还有时候答案看起来相关，但夹杂了冗余和幻觉。</p>
 <h3 id="71-第一原则把检索层和生成层拆开看">7.1 第一原则：把检索层和生成层拆开看</h3>
-<p><img alt="RAGAS Score：Generation（Faithfulness / Answer Relevancy）+ Retrieval（Context Precision / Context Recall）" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis/rag-fig7-ragas-score.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="RAGAS Score：Generation（Faithfulness / Answer Relevancy）+ Retrieval（Context Precision / Context Recall）" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis/rag-fig7-ragas-score.png"></p>
 <table>
 <thead>
 <tr>

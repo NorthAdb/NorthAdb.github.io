@@ -103,7 +103,7 @@
 </div>
 <h2 id="一句话结论">一句话结论</h2>
 <p><strong>当 AI 让编码速度大幅提升，软件工程的瓶颈会转移到需求澄清、方案审查、测试验证、发布授权和安全治理。</strong> AI Native SDLC 的重点不是让 AI 独立完成更多代码，而是用版本化产物、持续反馈、最小权限和明确的人类责任，重新设计整个开发闭环。</p>
-<p><img alt="Anthropic AI Native SDLC 概览" src="https://gitee.com/cheng-jiaqing/images/raw/master/anthropic-ai-native-sdlc-01.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Anthropic AI Native SDLC 概览" src="https://gitee.com/cheng-jiaqing/images/raw/master/anthropic-ai-native-sdlc-01.png"></p>
 <h2 id="核心变化">核心变化</h2>
 <p>原文提到，Anthropic 内部约 80% 的合入代码由 Claude 完成，工程师人均产出相较 2021—2025 年间约增长 8 倍。无论具体数字如何理解，它揭示了一个关键变化：<strong>代码生成不再是最慢的环节。</strong></p>
 <p>传统流程围绕“编码稀缺”设计：产品、架构、开发、测试、发布、运维依次交接，通过长文档、工单、会议和层层签批控制风险。当 AI 一次生成大量代码后，这套线性流程会出现三个问题：</p>
@@ -112,17 +112,17 @@
 <li><strong>逐行审查失效</strong>：AI 生成量超过人的阅读能力，审查队列持续积压；</li>
 <li><strong>治理跟不上变化</strong>：周会、月会和委员会审批无法匹配持续变化的代码。</li>
 </ol>
-<p><img alt="传统开发流程的角色交接" src="https://gitee.com/cheng-jiaqing/images/raw/master/anthropic-ai-native-sdlc-02.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="传统开发流程的角色交接" src="https://gitee.com/cheng-jiaqing/images/raw/master/anthropic-ai-native-sdlc-02.png"></p>
 <p>Anthropic 的做法是把线性流水线改造成闭环，并让每个阶段输出标准、可版本控制的产物：</p>
 <pre><code class="language-text">intent.md → spec.md → plan.md → 代码/测试 → 审查记录 → 发布
     ↑                                              ↓
     └──────────── 事故诊断与维护反馈 ──────────────┘
 </code></pre>
 <p>提交历史因此成为追溯链：需求由谁提出、AI 生成了什么、人在哪个节点批准、为何修改，都可以回溯。</p>
-<p><img alt="由版本化产物驱动的开发闭环" src="https://gitee.com/cheng-jiaqing/images/raw/master/anthropic-ai-native-sdlc-04.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="由版本化产物驱动的开发闭环" src="https://gitee.com/cheng-jiaqing/images/raw/master/anthropic-ai-native-sdlc-04.png"></p>
 <h2 id="六阶段-ai-native-sdlc">六阶段 AI Native SDLC</h2>
 <p>六个阶段分别是 <strong>Plan、Design、Build、Test、Deploy、Maintain</strong>。AI 负责推动流程和执行，人负责意图、判断、风险与最终授权。</p>
-<p><img alt="六阶段 AI Native SDLC" src="https://gitee.com/cheng-jiaqing/images/raw/master/anthropic-ai-native-sdlc-05.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="六阶段 AI Native SDLC" src="https://gitee.com/cheng-jiaqing/images/raw/master/anthropic-ai-native-sdlc-05.png"></p>
 <table>
 <thead>
 <tr>
@@ -179,7 +179,7 @@
 <li>范围、约束和未知项有哪些。</li>
 </ul>
 <p>AI 像分析师一样继续追问并生成 <code>intent.md</code>，提出者校对、确认后提交到版本控制。</p>
-<p><img alt="Plan 阶段生成 intent.md" src="https://gitee.com/cheng-jiaqing/images/raw/master/anthropic-ai-native-sdlc-06.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Plan 阶段生成 intent.md" src="https://gitee.com/cheng-jiaqing/images/raw/master/anthropic-ai-native-sdlc-06.png"></p>
 <p>安全评审也应提前进入需求发生的位置。AI 可以读取设计材料，并结合组织政策、历史决策和相关系统信息分析潜在风险。相较于为了过审临时补写的长文档，真实对话、历史评审和代码库上下文更有判断价值。</p>
 
 <div class="callout" data-callout="tip"><p class="callout-title">关键原则</p>
@@ -212,7 +212,7 @@
 <p>针对数据库迁移、创建服务、安全检查等重复任务，沉淀操作步骤、工具用法和常见陷阱，并与代码一起分发。</p>
 <h4 id="3-hooks执行不可绕过的硬约束">3. Hooks：执行不可绕过的硬约束</h4>
 <p>当 AI 修改受保护文件、读取敏感信息或运行发布命令时立即检查；不满足条件就阻止执行。</p>
-<p><img alt="CLAUDE.md、Skills 与 Hooks 的约束关系" src="https://gitee.com/cheng-jiaqing/images/raw/master/anthropic-ai-native-sdlc-07.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="CLAUDE.md、Skills 与 Hooks 的约束关系" src="https://gitee.com/cheng-jiaqing/images/raw/master/anthropic-ai-native-sdlc-07.png"></p>
 <table>
 <thead>
 <tr>
@@ -242,7 +242,7 @@
 <p>工程师还可通过多个 Git 工作副本并行运行独立 AI 会话，让每条任务保持独立上下文和清晰边界。</p>
 <h3 id="指导规则不能替代安全隔离">指导规则不能替代安全隔离</h3>
 <p>Anthropic 将部分开发环境迁至远程虚拟机，并对 AI 的出站网络使用白名单。这样即使网页或文件包含提示词注入，数据也无法被任意发送到互联网。</p>
-<p><img alt="远程环境与出站流量限制" src="https://gitee.com/cheng-jiaqing/images/raw/master/anthropic-ai-native-sdlc-08.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="远程环境与出站流量限制" src="https://gitee.com/cheng-jiaqing/images/raw/master/anthropic-ai-native-sdlc-08.png"></p>
 
 <div class="callout" data-callout="warning"><p class="callout-title">安全边界</p>
 <p>Prompt、<code>CLAUDE.md</code> 和 Skills 都属于指导性控制。敏感数据保护、网络隔离、权限和发布限制必须依靠确定性机制。</p>
@@ -336,7 +336,7 @@
 </tr>
 </tbody>
 </table>
-<p><img alt="AI Native SDLC 的五层落地路径" src="https://gitee.com/cheng-jiaqing/images/raw/master/anthropic-ai-native-sdlc-09.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="AI Native SDLC 的五层落地路径" src="https://gitee.com/cheng-jiaqing/images/raw/master/anthropic-ai-native-sdlc-09.png"></p>
 <p>成熟后再逐步推进：</p>
 <ol>
 <li>把验证过的方法整理为 Skills；</li>

@@ -102,22 +102,22 @@
 <table width="100%">
 <tr>
 <td><a href="https://github.com/NorthAdb/north-my-note/tree/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc">← 返回 Claude Code 最佳实践</a></td>
-<td align="right"><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/%21/claude-jumping.svg" alt="Claude" width="60" /></td>
+<td align="right"><span class="img-missing" title="附件未提交到仓库">🖼️ claude-jumping.svg<small>（附件未入库）</small></span></td>
 </tr>
 </table>
 
 <hr>
 <h2 id="背景">背景</h2>
 <p>借助100万token的上下文窗口，Claude Code可以更可靠地处理更长的任务——但如果你不刻意管理会话，它也为上下文污染打开了大门。会话管理比以往任何时候都重要：何时重新开始、何时压缩、何时回退、何时委托给子代理。</p>
-<p><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/thariq-26-4-16/1.png" alt="Thariq 介绍推文" width="50%" /></p>
-<p><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/thariq-26-4-16/2.png" alt="会话管理介绍" width="50%" /></p>
+<p><span class="img-missing" title="附件未提交到仓库">🖼️ 1.png<small>（附件未入库）</small></span></p>
+<p><span class="img-missing" title="附件未提交到仓库">🖼️ 2.png<small>（附件未入库）</small></span></p>
 <hr>
 <h2 id="关于上下文压缩和上下文腐败的快速入门">关于上下文、压缩和上下文腐败的快速入门</h2>
 <p>上下文窗口是模型在生成下一次响应时能够同时"看到"的所有内容。它包含系统提示、迄今为止的对话、每次工具调用及其输出，以及所有已读取的文件。Claude Code的上下文窗口为<strong>一百万个token</strong>。</p>
 <p>不幸的是，使用上下文有一点代价——<strong>上下文腐败</strong>。随着上下文的增长，模型性能会下降，因为注意力分散在更多的token上，而较旧的、不相关的内容开始干扰当前任务。对于100万上下文模型，某种程度的上下文腐败大约发生在 <strong>~300-400k tokens</strong> 时，但这高度依赖于具体任务——不是硬性规定。</p>
 <p>上下文窗口是一个硬性截断点。当你接近末尾时，你需要总结任务并在一个新的上下文窗口中继续——这就是<strong>压缩</strong>。你也可以自己触发压缩。</p>
-<p><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/thariq-26-4-16/3.png" alt="上下文窗口示意图" width="50%" /></p>
-<p><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/thariq-26-4-16/4.png" alt="上下文腐败说明" width="50%" /></p>
+<p><span class="img-missing" title="附件未提交到仓库">🖼️ 3.png<small>（附件未入库）</small></span></p>
+<p><span class="img-missing" title="附件未提交到仓库">🖼️ 4.png<small>（附件未入库）</small></span></p>
 <hr>
 <h2 id="每一轮都是分支点">每一轮都是分支点</h2>
 <p>在Claude完成一轮后，你有多种选择来决定接下来做什么：</p>
@@ -129,8 +129,8 @@
 <li><strong>子代理（Subagents）</strong> —— 将下一部分工作委托给一个拥有自己清晰上下文的代理，只将其结果拉回来</li>
 </ul>
 <p>虽然最自然的做法是继续，但其他四个选项的存在是为了帮助你管理上下文。</p>
-<p><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/thariq-26-4-16/5.png" alt="压缩和分支示意图" width="50%" /></p>
-<p><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/thariq-26-4-16/6.png" alt="一轮之后的五个选项" width="50%" /></p>
+<p><span class="img-missing" title="附件未提交到仓库">🖼️ 5.png<small>（附件未入库）</small></span></p>
+<p><span class="img-missing" title="附件未提交到仓库">🖼️ 6.png<small>（附件未入库）</small></span></p>
 <p>每个选项将不同程度的现有上下文带入下一步：</p>
 <table>
 <thead>
@@ -159,13 +159,13 @@
 </tr>
 </tbody>
 </table>
-<p><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/thariq-26-4-16/7.png" alt="上下文延续光谱" width="50%" /></p>
+<p><span class="img-missing" title="附件未提交到仓库">🖼️ 7.png<small>（附件未入库）</small></span></p>
 <hr>
 <h2 id="何时开始新会话">何时开始新会话</h2>
 <p>新的100万上下文窗口意味着你现在可以更可靠地完成更长的任务——例如，从头开始构建一个全栈应用。但仅仅因为你的模型没有耗尽上下文，并不意味着你不应该开始新会话。</p>
 <p><strong>一般经验法则：当你开始一个新任务时，你也应该开始一个新会话。</strong></p>
 <p>一个灰色区域是，你可能想做相关的任务，其中部分上下文仍然必要，但不是全部。例如，为你刚实现的功能编写文档。虽然你可以开始一个新会话，但Claude必须重新读取文件，这会更慢且更昂贵。由于文档可能不是高度智能敏感型任务，额外的上下文可能值得效率的提升。</p>
-<p><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/thariq-26-4-16/8.png" alt="何时开始新会话" width="50%" /></p>
+<p><span class="img-missing" title="附件未提交到仓库">🖼️ 8.png<small>（附件未入库）</small></span></p>
 <hr>
 <h2 id="回退而非纠正">回退而非纠正</h2>
 <p>如果Thariq要选出一个标志着良好上下文管理的习惯，那就是<strong>回退</strong>。</p>
@@ -180,8 +180,8 @@
 </blockquote>
 <p>回退通常是更好的方法。例如，Claude读取了五个文件，尝试了一种方法，但不起作用。你的本能可能是输入"那没起作用，试试X吧。"但更好的做法是回退到刚刚读完文件的时候，然后用你学到的东西重新提示："不要使用方法A，foo模块没有暴露那个——直接使用B。"</p>
 <p>你也可以使用 <strong>"summarize from here"</strong> 让Claude总结它的学习成果并创建一条交接消息，有点像未来的自己——那个尝试了某种方法但没成功——给前一个迭代的Claude的消息。</p>
-<p><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/thariq-26-4-16/9.png" alt="纠正与回退示意图" width="50%" /></p>
-<p><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/thariq-26-4-16/10.png" alt="使用summarize from here回退" width="50%" /></p>
+<p><span class="img-missing" title="附件未提交到仓库">🖼️ 9.png<small>（附件未入库）</small></span></p>
+<p><span class="img-missing" title="附件未提交到仓库">🖼️ 10.png<small>（附件未入库）</small></span></p>
 <hr>
 <h2 id="压缩-vs-全新会话">压缩 vs. 全新会话</h2>
 <p>一旦会话变长，你有两种方式来减轻负担：<code>/compact</code> 或 <code>/clear</code>（并重新开始）。它们感觉相似但行为非常不同。</p>
@@ -195,15 +195,15 @@
 <li><strong>高风险</strong>下一步——在10万token的探索中找到了一条关键信息</li>
 <li>更多工作，更精确</li>
 </ul>
-<p><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/thariq-26-4-16/11.png" alt="压缩 vs 全新会话" width="50%" /></p>
-<p><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/thariq-26-4-16/12.png" alt="压缩 vs 全新示意图" width="50%" /></p>
+<p><span class="img-missing" title="附件未提交到仓库">🖼️ 11.png<small>（附件未入库）</small></span></p>
+<p><span class="img-missing" title="附件未提交到仓库">🖼️ 12.png<small>（附件未入库）</small></span></p>
 <hr>
 <h2 id="什么导致压缩效果差">什么导致压缩效果差？</h2>
 <p>如果你运行大量长时间运行的会话，你可能已经注意到有时压缩效果特别差。当模型无法预测你的工作方向时，可能会发生糟糕的压缩。</p>
 <p>例如，自动压缩在长时间调试会话后触发并总结了调查过程。你的下一条消息是"现在修复我们在bar.ts中看到的那个其他警告。"但由于会话集中在调试上，那个其他警告可能已经从总结中被删除了。</p>
 <p>这特别棘手，因为由于上下文腐败，模型在压缩时正处于其最不智能的时刻。有了100万上下文，你有更多时间主动使用 <code>/compact</code> 并附上你想做什么的描述。</p>
-<p><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/thariq-26-4-16/13.png" alt="糟糕的压缩示意图" width="50%" /></p>
-<p><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/thariq-26-4-16/14.png" alt="糟糕的压缩说明" width="50%" /></p>
+<p><span class="img-missing" title="附件未提交到仓库">🖼️ 13.png<small>（附件未入库）</small></span></p>
+<p><span class="img-missing" title="附件未提交到仓库">🖼️ 14.png<small>（附件未入库）</small></span></p>
 <hr>
 <h2 id="子代理和全新的上下文窗口">子代理和全新的上下文窗口</h2>
 <p>子代理是上下文管理的一种形式，当你预先知道某部分工作会产生大量你不再需要的中间输出时，非常有用。</p>
@@ -216,9 +216,9 @@
 <li>"启动一个子代理，阅读那个其他代码库并总结它是如何实现auth流程的，然后你以同样的方式实现它"</li>
 <li>"启动一个子代理，根据我的git变更为此功能编写文档"</li>
 </ul>
-<p><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/thariq-26-4-16/15.png" alt="子代理上下文示意图" width="50%" /></p>
-<p><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/thariq-26-4-16/16.png" alt="子代理说明" width="50%" /></p>
-<p><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/thariq-26-4-16/17.png" alt="何时使用子代理" width="50%" /></p>
+<p><span class="img-missing" title="附件未提交到仓库">🖼️ 15.png<small>（附件未入库）</small></span></p>
+<p><span class="img-missing" title="附件未提交到仓库">🖼️ 16.png<small>（附件未入库）</small></span></p>
+<p><span class="img-missing" title="附件未提交到仓库">🖼️ 17.png<small>（附件未入库）</small></span></p>
 <hr>
 <h2 id="总结">总结</h2>
 <p>当Claude完成一轮而你将发送新消息时，你面临一个决策点。随着时间的推移，Claude会自己处理这个问题，但目前这是你可以引导Claude输出的方式之一。</p>
@@ -258,8 +258,8 @@
 </tr>
 </tbody>
 </table>
-<p><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/thariq-26-4-16/18.png" alt="总结" width="50%" /></p>
-<p><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/thariq-26-4-16/19.png" alt="决策表" width="50%" /></p>
+<p><span class="img-missing" title="附件未提交到仓库">🖼️ 18.png<small>（附件未入库）</small></span></p>
+<p><span class="img-missing" title="附件未提交到仓库">🖼️ 19.png<small>（附件未入库）</small></span></p>
 <hr>
 <h2 id="来源">来源</h2>
 <ul>

@@ -104,7 +104,7 @@
 <h2 id="一传统-rag-的边界">一、传统 RAG 的边界</h2>
 <pre><code class="language-text">文档 → 切块 → Embedding → 向量库 → Top-K 检索 → LLM 生成
 </code></pre>
-<p><img alt="传统 RAG 流程" src="https://gitee.com/cheng-jiaqing/images/raw/master/graphrag-01-traditional.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="传统 RAG 流程" src="https://gitee.com/cheng-jiaqing/images/raw/master/graphrag-01-traditional.png"></p>
 <h3 id="主要痛点">主要痛点</h3>
 <ol>
 <li><strong>多跳推理弱</strong>：只能召回相似文本，没有显式的 A→B→C 关系路径。</li>
@@ -125,7 +125,7 @@
  → Local / Global Search
  → LLM 回答
 </code></pre>
-<p><img alt="GraphRAG 索引与查询流程" src="https://gitee.com/cheng-jiaqing/images/raw/master/graphrag-02-pipeline.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="GraphRAG 索引与查询流程" src="https://gitee.com/cheng-jiaqing/images/raw/master/graphrag-02-pipeline.png"></p>
 <table>
 <thead>
 <tr>
@@ -170,7 +170,7 @@
 <p>适合具体实体和局部关系问题。</p>
 <pre><code class="language-text">问题 → 定位入口实体 → 扩展邻居和关系 → 关联原文/社区报告 → LLM 回答
 </code></pre>
-<p><img alt="GraphRAG Local Search" src="https://gitee.com/cheng-jiaqing/images/raw/master/graphrag-03-local.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="GraphRAG Local Search" src="https://gitee.com/cheng-jiaqing/images/raw/master/graphrag-03-local.png"></p>
 <h3 id="3-global-search">3. Global Search</h3>
 <p>适合整体趋势、主题归纳和跨文档总结。</p>
 <pre><code class="language-text">选择社区层级
@@ -178,7 +178,7 @@
  → Reduce：汇总并排序中间答案
  → 生成最终回答
 </code></pre>
-<p><img alt="GraphRAG Global Search" src="https://gitee.com/cheng-jiaqing/images/raw/master/graphrag-04-global.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="GraphRAG Global Search" src="https://gitee.com/cheng-jiaqing/images/raw/master/graphrag-04-global.png"></p>
 <p>Global Search 的代价是需要处理大量社区报告，调用量和延迟都可能较高。</p>
 <blockquote>
 <p>原文还提到 DRIFT Search，作为 Local 与 Global 的混合方式；具体实现应参考 GraphRAG 官方版本。</p>
@@ -242,7 +242,7 @@
 </tbody>
 </table>
 <p>可将其记为：<strong>低层找“点”，高层找“线”</strong>。</p>
-<p><img alt="LightRAG 双层检索" src="https://gitee.com/cheng-jiaqing/images/raw/master/lightrag-01-dual.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="LightRAG 双层检索" src="https://gitee.com/cheng-jiaqing/images/raw/master/lightrag-01-dual.png"></p>
 <h3 id="查询模式">查询模式</h3>
 <table>
 <thead>
@@ -338,7 +338,7 @@
 <blockquote>
 <p>GraphRAG 通过社区检测和社区摘要预计算全局视角；LightRAG 放弃这层预计算，在查询时动态检索和拼装。</p>
 </blockquote>
-<p><img alt="GraphRAG 与 LightRAG 对比" src="https://gitee.com/cheng-jiaqing/images/raw/master/lightrag-02-compare.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="GraphRAG 与 LightRAG 对比" src="https://gitee.com/cheng-jiaqing/images/raw/master/lightrag-02-compare.png"></p>
 <h2 id="七如何选型">七、如何选型</h2>
 <h3 id="选择传统-rag">选择传统 RAG</h3>
 <ul>
@@ -353,7 +353,7 @@
 <li>需要一定的实体关系理解；</li>
 <li>中小规模知识库或轻量部署。</li>
 </ul>
-<p><img alt="LightRAG 适用场景" src="https://gitee.com/cheng-jiaqing/images/raw/master/lightrag-03-scenarios.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="LightRAG 适用场景" src="https://gitee.com/cheng-jiaqing/images/raw/master/lightrag-03-scenarios.png"></p>
 <h3 id="选择-graphrag">选择 GraphRAG</h3>
 <ul>
 <li>数据相对静态；</li>
@@ -369,7 +369,7 @@
   → 对稳定、高价值语料引入 GraphRAG
   → 用 Query Router 按问题类型分流
 </code></pre>
-<p><img alt="GraphRAG 与 LightRAG 选型决策" src="https://gitee.com/cheng-jiaqing/images/raw/master/lightrag-04-decision.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="GraphRAG 与 LightRAG 选型决策" src="https://gitee.com/cheng-jiaqing/images/raw/master/lightrag-04-decision.png"></p>
 <h2 id="八面试版回答">八、面试版回答</h2>
 <h3 id="什么是-graphrag">什么是 GraphRAG？</h3>
 <p>GraphRAG 将文档中的实体和关系抽取成知识图谱，再结合图遍历、向量检索和社区摘要完成 RAG。相比只检索相似文本的传统 RAG，它更适合跨文档多跳推理和全局性问题，但代价是索引成本高、实体消歧难、Global Search 延迟高、增量维护复杂。</p>

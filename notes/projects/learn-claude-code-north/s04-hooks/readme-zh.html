@@ -121,7 +121,7 @@
 <p>你想扩展的是 Agent 的行为，但你改的却是循环本身。循环应该是一个稳定的核心，扩展应该挂在外面。</p>
 <hr>
 <h2 id="解决方案">解决方案</h2>
-<p><img alt="Hooks Overview" src="https://gitee.com/cheng-jiaqing/images/raw/master/hooks-overview.svg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Hooks Overview" src="https://gitee.com/cheng-jiaqing/images/raw/master/hooks-overview.svg"></p>
 <p>s03 的循环和权限逻辑完全保留。唯一的变动是把 <code>check_permission()</code> 从循环体内移到了 hook 上，循环不再直接调用任何检查函数，改为 <code>trigger_hooks("PreToolUse", block)</code>，由注册表决定跑什么。</p>
 <p>四个事件，覆盖一个完整的 agent cycle：</p>
 <table>

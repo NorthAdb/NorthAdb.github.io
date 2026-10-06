@@ -176,7 +176,7 @@
 <p>Koishi 2020 年 1 月发布首个正式版；2022 年 4 月 <code>cordis</code> 包登上 npm；2023 年底进入 3.x；2024 年 11 月起迭代 Cordis 4（彻底重构，引入基于 fiber 的生命周期体系）。<strong>Cordis 是拉丁语"心"（cor）的所有格</strong>——它是 Koishi 的心脏，如今也是 DeepSeek Harness 的心脏。</p>
 <h3 id="定位元框架">定位：元框架</h3>
 <p>不是机器人框架（Koishi 才是），也不是传统 DI 容器。传统 DI 回答"谁创建谁"，Cordis 回答更难的："<strong>谁在什么时候活着</strong>"。论文定位为 meta-framework：规定"副作用如何组合、依赖如何解析"，但不预设业务领域。</p>
-<p><img alt="Shigma 的 GitHub 主页" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis-20260904-01.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Shigma 的 GitHub 主页" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis-20260904-01.png"></p>
 <h2 id="五个核心概念">五个核心概念</h2>
 <h3 id="1-插件三种形态">1. 插件：三种形态</h3>
 <p>写插件完全不需要框架启动代码，<code>apply(ctx)</code> 就是全部：</p>
@@ -221,7 +221,7 @@ ctx.get('someService')          // 读服务（没有则 undefined）
 ctx.provide('someValue', 42)    // 提供服务
 </code></pre>
 <p><code>ctx.plugin(child)</code> 不是"注册"，而是<strong>派生一个子上下文</strong>。插件因此是一棵树：子上下文继承父上下文的一切，卸载按层级递归（父卸载 → 子全卸；子卸载 → 不动兄弟和父级）。DSH 里每个功能（工具、模型、会话、面板）都是树上的一次 <code>ctx.plugin()</code>。</p>
-<p><img alt="插件树：Context 派生结构" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis-20260904-02.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="插件树：Context 派生结构" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis-20260904-02.png"></p>
 <h3 id="3-fiber插件的生命周期">3. fiber：插件的生命周期</h3>
 <p>Cordis 4 为每个已加载插件实例维护一个 fiber（纤维）：</p>
 <pre><code>PENDING → LOADING → ACTIVE → UNLOADING → DISPOSED
@@ -229,7 +229,7 @@ ctx.provide('someValue', 42)    // 提供服务
             FAILED（apply 抛异常 / 配置校验失败）
 </code></pre>
 <p>插件会因配置修改、热重载、显式 <code>dispose()</code> 或依赖服务消失而卸载，<strong>无论何种原因，清理都是自动的</strong>。DSH 里 <code>cordis_inspect</code> 巡检的就是每个 fiber 的状态；"插件加载了却没反应"，多半蹲在 PENDING。</p>
-<p><img alt="fiber 状态机" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis-20260904-03.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="fiber 状态机" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis-20260904-03.png"></p>
 <h3 id="4-effect可逆的副作用核心机制一">4. effect：可逆的副作用（核心机制一）</h3>
 <pre><code class="language-ts">ctx.effect(() =&gt; {
   const conn = createConnection()
@@ -283,7 +283,7 @@ export function apply(ctx: Context) {
 </tbody>
 </table>
 <p>waterfall 本质是把 Koa/Express 中间件搬进事件系统：不调 <code>next()</code> = 否决短路；调 <code>next()</code> = 放行。<strong>多个互不相识的插件由此组成一条决策链。</strong> DSH 明文纪律：只负责观察记录的 waterfall 监听器必须调用 <code>next()</code>，否则会无声吞掉下游所有默认行为。DSH 的工具执行管道 <code>tools/pre-execute → tools/execute → tools/post-execute</code>、<code>approval/request</code>、<code>agent/request</code> 都是 waterfall 链。</p>
-<p><img alt="waterfall 决策链" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis-20260904-04.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="waterfall 决策链" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis-20260904-04.png"></p>
 <h3 id="schema-与声明式组合配置即程序">Schema 与声明式组合：配置即程序</h3>
 <p><code>cordis.yml</code> 每条 entry 可带元数据：<code>id</code>（稳定身份，loader 靠它区分"修改"与"删了重加"）、<code>group</code>（整组装卸）、<code>disabled</code>（保留但不挂载）、Schema 校验（schemastery，apply 前校验，配置非法则精确报错，插件绝不会半启动）、<code>!!js</code> 表达式（DSH Loader 扩展，运行时求值，如 <code>!!js process.env.X ?? 'default'</code>）。</p>
 <h2 id="在-deepseek-harness-中一切皆插件">在 DeepSeek Harness 中：一切皆插件</h2>
@@ -299,7 +299,7 @@ await assertEntriesActivated(ctx, binName)   // 审计：不允许条目半死�
 <p>根 Context 只做三件小事，<strong>其余一切来自配置树</strong>。</p>
 <h3 id="profile应用被拆成可叠加的层">Profile：应用被拆成可叠加的层</h3>
 <p><code>$DSH_HOME/profiles/&lt;名字&gt;/</code> 含 manifest（<code>dsh.profile.bundles</code> 按顺序应用的组合包）+ 用户 <code>cordis.patch.yml</code>。Bundle 是一个 npm 包，<code>package.json</code> 声明 <code>"dsh": { "bundle": { "patch": "./cordis.patch.yml" } }</code>。核心组合包 <code>@deepseek-ai/dsh-base</code> 的 patch 就是一次 insert 几十个插件（timer、hmr、llm、session、agent、jobs…）。部署方改默认行为无需改源码，在自己的 patch 层按 <code>id</code> 覆盖一行即可——<strong>"应用由哪些插件组成、各是什么配置"本身，就是可叠加、可覆盖、可审计的声明</strong>。</p>
-<p><img alt="Profile / Bundle / Patch 叠加组装" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis-20260904-05.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Profile / Bundle / Patch 叠加组装" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis-20260904-05.png"></p>
 <h3 id="工具流水线agent-的每一项能力">工具流水线：Agent 的每一项能力</h3>
 <p><code>ctx.tools</code> 是 Agent 能力边界，注册工具本质就是一个 Cordis 插件：<code>inject: ['tools']</code> 等注册表就绪 → <code>ctx.tools.register(...)</code> 注册<strong>即 effect</strong>（插件卸载工具自动注销）→ <code>tools/result</code> 事件让任何插件观察每次调用。本文写作用到的 bash、read、grep、subagent 全部挂在 <code>ctx.tools</code> 上。</p>
 <h3 id="自指的设计agent-检查并改装自己的运行时">自指的设计：Agent 检查并改装自己的运行时</h3>
@@ -370,10 +370,10 @@ await assertEntriesActivated(ctx, binName)   // 审计：不允许条目半死�
 </tr>
 </tbody>
 </table>
-<p><img alt="DSH 设置页插件清单" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis-20260904-06.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="DSH 设置页插件清单" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis-20260904-06.png"></p>
 <h3 id="槽位背后的设计三种角色">槽位背后的设计：三种角色</h3>
 <p>以 <code>shell</code> 为例：<strong>Service Definition</strong>（只声明服务与类型，几乎不变）/ <strong>Service Provider</strong>（可独立替换，改一行配置，Definition 和所有 Consumer 不变）/ <strong>Consumer</strong>（与 Provider 互不依赖）。每一项能力都是一个 seam（接缝），两侧独立演进。</p>
-<p><img alt="Definition / Provider / Consumer 三种角色" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis-20260904-07.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Definition / Provider / Consumer 三种角色" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis-20260904-07.png"></p>
 <h3 id="三种开发入口">三种开发入口</h3>
 <ol>
 <li><strong>patch 覆盖层（最快）</strong>：<code>dsh web --patch ./my-plugins.yml</code> 启动时插入条目；</li>
@@ -396,8 +396,8 @@ await assertEntriesActivated(ctx, binName)   // 审计：不允许条目半死�
 <li>自进化：dsh-evolve（会话内热挂载/卸载持久化插件）、dsh-continual-evolve（从轨迹沉淀可审计可回滚的 harness 状态）；</li>
 <li>插件基建：dsh-find-plugin（会话内搜索并安装插件）、dsh-plugin-manager（<code>dsh pm</code> 多源管理）。</li>
 </ul>
-<p><img alt="社区插件：dsh-agent-teams 截图" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis-20260904-08.png"></p>
-<p><img alt="DeepSeek Harness 工作区（原文配图）" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis-20260904-09.jpg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="社区插件：dsh-agent-teams 截图" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis-20260904-08.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="DeepSeek Harness 工作区（原文配图）" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis-20260904-09.jpg"></p>
 <h3 id="可能的插件常规与惊艳">可能的插件：常规与"惊艳"</h3>
 <p><strong>常规</strong>：新工具（数据库查询、浏览器自动化、Docker/K8s、MCP 客户端、Git、部署测试）、新提供方（任意 LLM 适配器、远程/容器 shell、新搜索源、持久化后端）、治理与可观测（审批策略、权限预设、审计日志、token 预算、OTel）、UI（Web 面板、命令面板、HTTP API）。</p>
 <p><strong>惊艳</strong>（每一步都落在现成机制上）：</p>
@@ -435,7 +435,7 @@ await assertEntriesActivated(ctx, binName)   // 审计：不允许条目半死�
 <li><strong>性质 2 独立性</strong>（Corollary 21）：两两独立的 effect 可按任意顺序撤销——"从交错运行的多个组件中单独撤掉一个"的理论基础。不同 key 上的操作天然独立（Theorem 40），这正是事件监听器、路由注册可任意增删的数学解释；有序链（中间件顺序）不独立，所以需要 <code>{ prepend }</code> 和 waterfall 显式顺序语义。</li>
 <li><strong>性质 3 观察等价 ≃</strong>：恢复不是字面相等（free 不恢复堆布局），而是"任何观察者都看不出区别"（Definition 33）。观察手段即 coeffect，每个依赖键自带等价关系。</li>
 </ul>
-<p><img alt="论文：effect 与逆的累加（LIFO）" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis-20260904-10.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="论文：effect 与逆的累加（LIFO）" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis-20260904-10.png"></p>
 <h3 id="响应式余效应把依赖做成结构保证空间维">响应式余效应：把"依赖"做成结构保证（空间维）</h3>
 <ul>
 <li><strong>依赖表 Σ</strong>：类型化部分函数，依赖键 k → 类型 V_k 的值；<code>set(k, v)</code> 的类型恰好是 effect 函数——<strong>注册依赖本身是可逆 effect</strong>，撤销提供方时依赖自动消失。</li>
@@ -444,7 +444,7 @@ await assertEntriesActivated(ctx, binName)   // 审计：不允许条目半死�
 <li><strong>隔离</strong>：realm 表，<code>get(k)</code> 先解析 realm；同键不同上下文解析到不同值（运行时 ad-hoc 多态）；派生实现，回收时直接丢弃无需逆。</li>
 <li><strong>拦截</strong>：<code>get(k, μ)</code> 实际调用 <code>σ(k)(μ ⊕ ι(k))</code>，外层可约束内层如何使用依赖——沙箱策略给 shell 键附加元数据，约束所有使用方。</li>
 </ul>
-<p><img alt="论文：依赖变化的 activating / deactivating" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis-20260904-11.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="论文：依赖变化的 activating / deactivating" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis-20260904-11.png"></p>
 <h3 id="统一上下文context-即范式">统一上下文：Context 即范式</h3>
 <p><strong>一个自相似的递归类型</strong>：<code>Γ∞ = μΓ. Γ × (Γ→Γ) × Σ</code>（当前状态 / 累加器 / 依赖表）。三个投影把"效果"与"余效应"收进同一个 ctx，每个操作可归因到具体组件；Σ 值类型无约束 → <strong>任何需要共享的状态都能编码成依赖</strong>。层次组合 = 递归结构直接推论：加载=插电，卸载=拔电，父聚合子 effect，任意嵌套——这就是插件树。</p>
 <p><strong>观察等价供给独立性</strong>：在 coeffect 上定义观察等价并商掉，独立性变得可达（Theorem 42）——"把计算的可交换部分与对顺序敏感的部分分开"：可交换的交给 effect（任意顺序），顺序敏感的交给 coeffect（依赖强制顺序）。</p>
@@ -480,7 +480,7 @@ await assertEntriesActivated(ctx, binName)   // 审计：不允许条目半死�
 </tbody>
 </table>
 <p>"对于可逆副作用，开发者提供每个原子操作的逆，复合的逆由组合自动得出，teardown 从 loading 推导，而不是另写；对于响应式余效应，组件只声明所需依赖，运行时自动解析与重接线。"——<strong>原本依赖开发者纪律的正确性，变成了范式的结构性质。</strong></p>
-<p><img alt="论文：Γ∞ 递归类型与统一上下文" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis-20260904-12.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="论文：Γ∞ 递归类型与统一上下文" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis-20260904-12.png"></p>
 <h3 id="动态组合演算与元理论从局部保证到全局保证">动态组合演算与元理论：从局部保证到全局保证</h3>
 <p>组件 = 三元组 (d, p, e)：声明依赖、声明提供、带见证的 effect 函数；fiber 是一次实例化（携带生命周期状态、累加器、committed view）。系统状态是 fiber 树；coeffect 上下文不是存储的，而是从所有活跃 fiber 的提供表<strong>联合推导</strong>（每个键有且仅有一个提供方，由声明决定）。</p>
 <p>五条元理论性质：</p>
@@ -672,7 +672,7 @@ await assertEntriesActivated(ctx, binName)   // 审计：不允许条目半死�
 </tr>
 </tbody>
 </table>
-<p><img alt="Koishi 插件市场：生态起源" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis-20260904-13.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Koishi 插件市场：生态起源" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis-20260904-13.png"></p>
 <h2 id="记忆卡">记忆卡</h2>
 <pre><code class="language-text">Cordis = 元框架：管&quot;谁在什么时候活着&quot;，不预设业务
 五个概念：插件（3 形态）/ ctx（树）/ fiber（状态机）/ effect（可逆副作用）/ Service+inject（响应式依赖）

@@ -106,13 +106,13 @@
 - 你说过 PPT 用 HTML 写、别给 pptx，下次开新会话它照样给你 pptx；
 - 你纠正过一次的毛病，它下次照犯；你提过的偏好，它下次清零。</p>
 <p>本质都一样：<strong>对话一结束，上下文就被销毁，模型没有任何跨会话的持久状态。</strong></p>
-<p><img alt="TencentDB Agent Memory GitHub 仓库" src="https://gitee.com/cheng-jiaqing/images/raw/master/tencentdb-agent-memory-20260803-01.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="TencentDB Agent Memory GitHub 仓库" src="https://gitee.com/cheng-jiaqing/images/raw/master/tencentdb-agent-memory-20260803-01.png"></p>
 <hr>
 <h2 id="一从个人记忆到团队记忆">一、从个人记忆到团队记忆</h2>
 <h3 id="agent-memory-个人记忆的四个维度">Agent Memory 个人记忆的四个维度</h3>
 <p>一条记忆从产生到被用上，要经过 <strong>写入、提炼、检索、更新</strong> 四步。这四步在链路上前后依赖，前一步的输出就是后一步的输入——哪一步掉链子，结果都是这一轮拿不到该有的记忆。而且掉链子的方式往往不是报错，是<strong>安静地返回空结果</strong>。</p>
 <p>写入、提炼、检索都走公开接口，整条链都可见：写进去什么、提炼成什么、召回了什么、各环节耗时多少。</p>
-<p><img alt="记忆生命周期：写入 → 提炼 → 检索 → 更新" src="https://gitee.com/cheng-jiaqing/images/raw/master/tencentdb-agent-memory-20260803-02.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="记忆生命周期：写入 → 提炼 → 检索 → 更新" src="https://gitee.com/cheng-jiaqing/images/raw/master/tencentdb-agent-memory-20260803-02.png"></p>
 <h3 id="memory-hub-把个人记忆推到团队层">Memory Hub 把个人记忆推到团队层</h3>
 <p>腾讯云数据库 7 月发布的 Team Memory 版本把关注点拉到团队层面。多个 Agent、多个成员共用一套记忆时，知识怎么迁移、权限怎么划分、资产归谁所有，是另一组系统性问题。</p>
 <p>官方方案是把四类资产汇入同一个池子：</p>
@@ -146,7 +146,7 @@
 <blockquote>
 <p><strong>团队记忆不是个人记忆的放大版</strong>：个人记忆错了自己纠正，团队记忆错了会被所有人继承；个人记忆没有权限边界，团队记忆里存着谁能看、谁能改、谁能删。</p>
 </blockquote>
-<p><img alt="Memory Hub 团队记忆" src="https://gitee.com/cheng-jiaqing/images/raw/master/tencentdb-agent-memory-20260803-03.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Memory Hub 团队记忆" src="https://gitee.com/cheng-jiaqing/images/raw/master/tencentdb-agent-memory-20260803-03.png"></p>
 <hr>
 <h2 id="二四层实测从时效性到更新演化">二、四层实测：从时效性到更新演化</h2>
 <h3 id="第一层实测时效性写入多久能被查到">第一层：实测时效性（写入多久能被查到）</h3>
@@ -154,25 +154,25 @@
 1. <strong>落盘</strong>：你的话说完，原文当场原样存进本地流水账，<strong>毫秒级</strong>完成——这一层保证"不丢"；
 2. <strong>提炼</strong>：系统后台调一次模型，通读对话、分出场景、抽出重点、做成结构化卡片——这一层保证"能查"。</p>
 <p>实测：写入"我习惯早上 6 点起床跑步，晚上 11 点前睡觉"，每 5 秒查一次。<strong>第 5 秒还查不到，第 10 秒卡片出现</strong>。后台日志显示提炼任务耗时约 6 秒。</p>
-<p><img alt="时效性测试截图" src="https://gitee.com/cheng-jiaqing/images/raw/master/tencentdb-agent-memory-20260803-04.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="时效性测试截图" src="https://gitee.com/cheng-jiaqing/images/raw/master/tencentdb-agent-memory-20260803-04.png"></p>
 <p><strong>结论</strong>：从一句话到一条可检索的结构化记忆全程约 10 秒，自然聊天几乎无感。⚠️ 唯一要注意<strong>批量场景</strong>：写脚本载入历史对话时，空窗期得算进去，写完不能立刻查。</p>
 <h3 id="第二层实测提炼质量一口气说完-vs-分多次说">第二层：实测提炼质量（一口气说完 vs 分多次说）</h3>
 <p>设计两组对照（主题刻意不同，避免去重机制干扰）：
 - <strong>A 组</strong>：一次性说完三条项目规范（pnpm 不用 npm、代码注释用中文、提交记录以中文动词开头）→ 提炼出 <strong>1 张</strong>卡片，三条全写入；
 - <strong>B 组</strong>：分三轮说另外三条文档格式规范（避免第一人称、标题用陈述句、统一 Markdown 不用 Word）→ 提炼出 <strong>2 张</strong>卡片，共享同一场景名。</p>
-<p><img alt="提炼质量测试 A 组" src="https://gitee.com/cheng-jiaqing/images/raw/master/tencentdb-agent-memory-20260803-05.png"></p>
-<p><img alt="提炼质量测试 B 组" src="https://gitee.com/cheng-jiaqing/images/raw/master/tencentdb-agent-memory-20260803-06.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="提炼质量测试 A 组" src="https://gitee.com/cheng-jiaqing/images/raw/master/tencentdb-agent-memory-20260803-05.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="提炼质量测试 B 组" src="https://gitee.com/cheng-jiaqing/images/raw/master/tencentdb-agent-memory-20260803-06.png"></p>
 <p><strong>结论</strong>：一次说完倾向合成一张卡片；分多轮说按提炼批次拆成多张，但<strong>仍落在同一场景下，检索时一起被召回</strong>。两种说法的信息完整度没有差别——不必为了"让系统记得准"而刻意憋着一次说完。</p>
 <h3 id="第三层实测检索命中换个说法还认不认得">第三层：实测检索命中（换个说法还认不认得）</h3>
 <p>先把"用户完全不能吃辣，对辣味食物有严格禁忌"存进记忆库，用八种不同说法查询：
 - 带"辣"字的说法都能查到；
 - <strong>"川菜""忌口""spicy food"一条都召不回</strong>。</p>
 <p>原因：<strong>语义召回默认是关着的</strong>。打开语义召回后，系统会同时跑第二条路——把问题和卡片各自转成"语义指纹"（文字含义 → 数字坐标），按语义距离判断是否相关。</p>
-<p><img alt="检索命中测试截图" src="https://gitee.com/cheng-jiaqing/images/raw/master/tencentdb-agent-memory-20260803-07.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="检索命中测试截图" src="https://gitee.com/cheng-jiaqing/images/raw/master/tencentdb-agent-memory-20260803-07.png"></p>
 <h3 id="第四层实测更新演化旧偏好怎么处理">第四层：实测更新演化（旧偏好怎么处理）</h3>
 <p>写入四轮对话：①"项目数据库必须使用 PostgreSQL" ②③无关内容 ④"改用 MySQL"。</p>
 <p>查库后发现<strong>旧卡片和新卡片都还在</strong>：旧卡片原封不动保留；新卡片明确记录"决定将数据库从 PostgreSQL 切换到 MySQL"，时间顺序和变更动因都被保留。</p>
-<p><img alt="更新演化测试截图" src="https://gitee.com/cheng-jiaqing/images/raw/master/tencentdb-agent-memory-20260803-08.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="更新演化测试截图" src="https://gitee.com/cheng-jiaqing/images/raw/master/tencentdb-agent-memory-20260803-08.png"></p>
 <p>写新卡片前系统会做<strong>冲突仲裁</strong>：先在现有记忆里找出相似的候选卡片，再交给模型判断该<strong>新增、跳过、覆盖还是合并</strong>。这次语义召回没开，新旧两条记录字面几乎无重叠（只共享"数据库"三字），没能找到候选，新内容直接存成新的变更记录。后续 Agent 同时看到两张卡片，可从时间线判断哪条是现行偏好。</p>
 <hr>
 <h2 id="三背后的核心机制设计">三、背后的核心机制设计</h2>
@@ -210,7 +210,7 @@
 </tr>
 </tbody>
 </table>
-<p><img alt="记忆金字塔 L0 → L3" src="https://gitee.com/cheng-jiaqing/images/raw/master/tencentdb-agent-memory-20260803-09.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="记忆金字塔 L0 → L3" src="https://gitee.com/cheng-jiaqing/images/raw/master/tencentdb-agent-memory-20260803-09.png"></p>
 <blockquote>
 <p><strong>四层各管一段：L0 留证据，L1 保精度，L2 保情境，L3 保效率。</strong> 底层存数据库全量可检索；高层写 Markdown，人能直接读、直接改。四层可串起来：人格摘要 → 场景档案 → 记忆卡片 → 原始对话，平时给高密度摘要，纠错时给完整证据链。</p>
 </blockquote>
@@ -275,7 +275,7 @@
 <blockquote>
 <p><strong>官方基准（WideSearch 长任务）</strong>：Token 消耗从 <strong>2.21 亿降到 8500 万</strong>，通过率从 <strong>33% 提升到 50%</strong>。</p>
 </blockquote>
-<p><img alt="任务地图 / WideSearch 基准" src="https://gitee.com/cheng-jiaqing/images/raw/master/tencentdb-agent-memory-20260803-10.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="任务地图 / WideSearch 基准" src="https://gitee.com/cheng-jiaqing/images/raw/master/tencentdb-agent-memory-20260803-10.png"></p>
 <hr>
 <h2 id="写在最后上手建议">写在最后：上手建议</h2>
 <p><strong>安装</strong>：默认配置用本地 SQLite 存储，装完即用；想换自己的大模型做提炼和画像生成，只需填三项：模型访问凭证、服务地址、模型名称。</p>

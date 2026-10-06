@@ -107,7 +107,7 @@
 <li><strong>减少重复上下文</strong>。</li>
 </ol>
 <p>在一个由 1 个 TL（调度器）+ 6 个子 Agent 组成的前后端开发 Harness 中，作者通过 10 个方向改造，主 Agent 端到端 token 从 <strong>708,783（17 轮）降至 315,266（9 轮）</strong>，下降 <strong>55.5%</strong>；完整中型需求预计降本 <strong>50%～65%</strong>。</p>
-<p><img alt="Token 优化的三条原则与十个方向" src="https://gitee.com/cheng-jiaqing/images/raw/master/multi-agent-cost-03-principles.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Token 优化的三条原则与十个方向" src="https://gitee.com/cheng-jiaqing/images/raw/master/multi-agent-cost-03-principles.png"></p>
 <h2 id="1-背景为什么-multi-agent-很容易烧-token">1. 背景：为什么 Multi-Agent 很容易烧 token</h2>
 <p>典型工作流由 TL 统一调度：</p>
 <pre><code class="language-text">TL
@@ -164,14 +164,14 @@
 <div class="callout" data-callout="tip"><p class="callout-title">先度量，再优化</p>
 <p>通过 AgentLens 按 TraceId 追踪调用链、按 SessionId 聚合完整需求，先定位成本主要落在哪些 Wave 和上下文来源，再做针对性压缩。</p>
 </div>
-<p><img alt="AgentLens 中各 Wave 的 token 消耗分布" src="https://gitee.com/cheng-jiaqing/images/raw/master/multi-agent-cost-02-agentlens.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="AgentLens 中各 Wave 的 token 消耗分布" src="https://gitee.com/cheng-jiaqing/images/raw/master/multi-agent-cost-02-agentlens.png"></p>
 <h2 id="2-总体架构与规模预判">2. 总体架构与规模预判</h2>
 <p>拆分 Agent 本身有成本：每个 Agent 都会产生一份系统提示词开销。因此先做 <strong>S/M/L 规模预判</strong>：</p>
 <ul>
 <li><strong>S（小需求）</strong>：单 Agent 直接处理，避免无谓的编排开销；</li>
 <li><strong>M/L（中大型需求）</strong>：进入多 Agent 并行调度，利用短生命周期、角色隔离和并行执行控制上下文增长。</li>
 </ul>
-<p><img alt="Multi-Agent Harness 工作流" src="https://gitee.com/cheng-jiaqing/images/raw/master/multi-agent-cost-01-workflow.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Multi-Agent Harness 工作流" src="https://gitee.com/cheng-jiaqing/images/raw/master/multi-agent-cost-01-workflow.png"></p>
 <h2 id="3-十个优化方向">3. 十个优化方向</h2>
 <h3 id="31-渐进式披露skill-分层按需加载">3.1 渐进式披露：Skill 分层按需加载</h3>
 <p>采用 Skill 的三层结构：</p>
@@ -187,7 +187,7 @@
 <li>将 TL 的 S/M 工作流、Wave 派发 prompt 等细节移出正文，只保留“下一步怎么决定”；</li>
 <li>正文从 198 行降至 128 行（约 <strong>-35%</strong>）。</li>
 </ul>
-<p><img alt="渐进式披露：Skill 三层加载架构" src="https://gitee.com/cheng-jiaqing/images/raw/master/multi-agent-cost-04-progressive-disclosure.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="渐进式披露：Skill 三层加载架构" src="https://gitee.com/cheng-jiaqing/images/raw/master/multi-agent-cost-04-progressive-disclosure.png"></p>
 <h3 id="32-确定性操作交给脚本能用-cli-就不用-mcp">3.2 确定性操作交给脚本，能用 CLI 就不用 MCP</h3>
 <p>大模型适合推理，不适合反复拼接和试错命令。将数据库迁移、编译、服务启动、健康检查等固化到 <code>dev-env.sh</code> 等脚本中，让 AI 只传参数。</p>
 <p>Playwright MCP → Playwright CLI 的改造尤其典型：</p>
@@ -203,7 +203,7 @@
 <li>子 Agent 完成即销毁；</li>
 <li>实测单轮 input token 从 <strong>1,030,000 降至 634,905（-38.4%）</strong>。</li>
 </ul>
-<p><img alt="MCP 数据获取子 Agent 化" src="https://gitee.com/cheng-jiaqing/images/raw/master/multi-agent-cost-05-mcp-subagent.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="MCP 数据获取子 Agent 化" src="https://gitee.com/cheng-jiaqing/images/raw/master/multi-agent-cost-05-mcp-subagent.png"></p>
 <h3 id="34-长期记忆先索引后读正文">3.4 长期记忆：先索引，后读正文</h3>
 <p>为历史经验和技术方案建立轻量 <code>INDEX.md</code>：</p>
 <ol>
@@ -266,11 +266,11 @@ tools: list_dir, search_file, search_content, read_file,
 <pre><code class="language-bash">uv tool install graphifyy
 graphify hook install   # 绑定 post-commit + post-checkout 增量更新
 </code></pre>
-<p><img alt="代码图谱与 graphify 输出" src="https://gitee.com/cheng-jiaqing/images/raw/master/multi-agent-cost-07-graphify.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="代码图谱与 graphify 输出" src="https://gitee.com/cheng-jiaqing/images/raw/master/multi-agent-cost-07-graphify.png"></p>
 <h3 id="38-稳定前缀设计让-prompt-cache-命中">3.8 稳定前缀设计：让 Prompt Cache 命中</h3>
 <p>把稳定指令和动态内容分离：<strong>稳定部分前置，动态内容统一后置</strong>，避免每次派发时改变前缀。</p>
 <p>另外，把会话中的完整进度看板外化到进度文件：Agent 唤醒时读取文件，阶段切换只输出一行。这样既保护缓存前缀，也支持会话中断后的现场恢复。</p>
-<p><img alt="稳定前缀与上下文优化示意" src="https://gitee.com/cheng-jiaqing/images/raw/master/multi-agent-cost-06-context-optimization.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="稳定前缀与上下文优化示意" src="https://gitee.com/cheng-jiaqing/images/raw/master/multi-agent-cost-06-context-optimization.png"></p>
 <h3 id="39-避免重复加载-skill">3.9 避免重复加载 Skill</h3>
 <p>信息应在上游收集一次，再通过文档传递给下游。比如 TL 已经加载历史经验并产出技术方案，前端 Agent 直接读方案即可，不必再次 <code>use_skill</code> 加载同一份 200 行 Skill。</p>
 <h3 id="310-用-rtk-压缩-cli-输出并行化无依赖调用">3.10 用 rtk 压缩 CLI 输出，并行化无依赖调用</h3>
@@ -281,7 +281,7 @@ graphify hook install   # 绑定 post-commit + post-checkout 增量更新
 <li><code>updatedInput</code> 要转换为 CodeBuddy 需要的 <code>modifiedInput</code>，否则会静默失效；</li>
 <li>用 <code>rtk gain</code> 或命令行对比评估，不要用两次完整工作流 A/B（模型路径波动会淹没工具效果）。</li>
 </ul>
-<p><img alt="rtk CLI 输出压缩效果" src="https://gitee.com/cheng-jiaqing/images/raw/master/multi-agent-cost-08-rtk.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="rtk CLI 输出压缩效果" src="https://gitee.com/cheng-jiaqing/images/raw/master/multi-agent-cost-08-rtk.png"></p>
 <p>无数据依赖的调用必须并行：TAPD 摘要和 Figma 摘要放在同一轮派发；多个 Playwright spec 交给 CLI 多 worker 批量执行。省下的不只是等待时间，更是后续轮次重复打包历史的成本。</p>
 <h2 id="4-效果汇总">4. 效果汇总</h2>
 <table>

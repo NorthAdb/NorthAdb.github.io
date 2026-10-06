@@ -100,7 +100,7 @@
 <p><strong>来源</strong>：公众号「Datawhale」，《重磅！Google发布多智能体最佳实践！》（2026-09-11），解读 Google Research / DeepMind / MIT 联合论文 <em>Towards a Science of Scaling Agent Systems</em>（<a href="https://arxiv.org/abs/2512.08296">arXiv:2512.08296</a>）。</p>
 <p><strong>一句话总结</strong>：多智能体好不好用，不取决于模型多强，取决于<strong>任务结构适不适合分工</strong>——论文把"什么时候该上多智能体"从经验直觉，换成了<strong>三条判据 + 一条约束</strong>的可计算预测模型。</p>
 </blockquote>
-<p><img alt="论文首页：Towards a Science of Scaling Agent Systems" src="https://gitee.com/cheng-jiaqing/images/raw/master/google-mas-01-paper-title.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="论文首页：Towards a Science of Scaling Agent Systems" src="https://gitee.com/cheng-jiaqing/images/raw/master/google-mas-01-paper-title.png"></p>
 <h2 id="0-论文速览">0. 论文速览</h2>
 <table>
 <thead>
@@ -212,9 +212,9 @@
 </tbody>
 </table>
 <p><strong>架构选得对不对，取决于任务长什么样、单智能体已经做到哪。</strong></p>
-<p><img alt="六基准上的多智能体增益（−为下降，+为提升）" src="https://gitee.com/cheng-jiaqing/images/raw/master/google-mas-05-benchmarks.png"></p>
-<p><img alt="Centralized：orchestrator 层级协调 + 汇总前交叉核验" src="https://gitee.com/cheng-jiaqing/images/raw/master/google-mas-03-centralized.png"></p>
-<p><img alt="Independent：智能体并行无通信，最后多数投票取平均" src="https://gitee.com/cheng-jiaqing/images/raw/master/google-mas-04-independent.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="六基准上的多智能体增益（−为下降，+为提升）" src="https://gitee.com/cheng-jiaqing/images/raw/master/google-mas-05-benchmarks.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Centralized：orchestrator 层级协调 + 汇总前交叉核验" src="https://gitee.com/cheng-jiaqing/images/raw/master/google-mas-03-centralized.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Independent：智能体并行无通信，最后多数投票取平均" src="https://gitee.com/cheng-jiaqing/images/raw/master/google-mas-04-independent.png"></p>
 <h2 id="3-五种架构的完整对比">3. 五种架构的完整对比</h2>
 <p>从表中可以看到几种架构的核心差异：</p>
 <table>
@@ -287,7 +287,7 @@
 </tr>
 </tbody>
 </table>
-<p><img alt="五种架构对比表（原论文 Table）" src="https://gitee.com/cheng-jiaqing/images/raw/master/google-mas-06-architecture-compare.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="五种架构对比表（原论文 Table）" src="https://gitee.com/cheng-jiaqing/images/raw/master/google-mas-06-architecture-compare.png"></p>
 <p>五种架构不是随意选的，它们覆盖了<strong>协调的两个关键维度</strong>：</p>
 <ul>
 <li><strong>Independent</strong>：只有并行，没有通信（实现最简单，收益最低）</li>
@@ -296,7 +296,7 @@
 <li><strong>Hybrid</strong>：两者都有（既有层级控制又有横向通信，最复杂、成本最高，但在顺序任务上退化最少）</li>
 <li><strong>SAS</strong>：作为基线，用来衡量多智能体到底带来多少收益</li>
 </ul>
-<p><img alt="模型能力（Intelligence Index）vs 性能：换更强模型 ≠ 多智能体涨点" src="https://gitee.com/cheng-jiaqing/images/raw/master/google-mas-02-intelligence-index.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="模型能力（Intelligence Index）vs 性能：换更强模型 ≠ 多智能体涨点" src="https://gitee.com/cheng-jiaqing/images/raw/master/google-mas-02-intelligence-index.png"></p>
 <h2 id="4-贯穿约束智能体数量有最优值">4. 贯穿约束：智能体数量有最优值</h2>
 <ul>
 <li><strong>超线性增长</strong>：推理轮次随智能体数超线性增长。对照神经网络参数缩放的经典指数 <strong>0.76</strong>，智能体数的指数是它的<strong>两倍多</strong>。</li>
@@ -305,7 +305,7 @@
 <li><strong>代价是累加的</strong>：每多一个智能体，都要参与同步、接受验证，还可能传播错误——<strong>不是一次性付清</strong>。</li>
 <li><strong>错误会滚雪球</strong>：一个智能体的错误输出会成为另一个智能体的输入。Independent 在工具少时只有 2~4 pp 收益，正是因为它不通信、不验证，错误直接带进最终结果；Centralized / Decentralized 收益更高，不是因为并行度更高，而是因为<strong>在结果汇总前插入了验证，把错误拦在传播路上</strong>。</li>
 </ul>
-<p><img alt="成本 vs 性能：协调开销要从推理预算里出" src="https://gitee.com/cheng-jiaqing/images/raw/master/google-mas-07-cost.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="成本 vs 性能：协调开销要从推理预算里出" src="https://gitee.com/cheng-jiaqing/images/raw/master/google-mas-07-cost.png"></p>
 <p><strong>操作原则：先证明小规模有效，再决定要不要扩展。</strong></p>
 <ol>
 <li>不要一上来就设计 10 个智能体，先用 <strong>2~3 个</strong>验证核心逻辑；</li>

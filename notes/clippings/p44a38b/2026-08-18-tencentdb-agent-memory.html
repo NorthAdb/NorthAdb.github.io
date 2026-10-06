@@ -107,7 +107,7 @@
 <blockquote>
 <p><strong>协作带宽的操作性定义</strong>：单位时间内，能够在正确权限边界下，被相关人或 Agent 正确理解并直接用于任务的有效上下文。</p>
 </blockquote>
-<p><img alt="协作带宽定义" src="https://gitee.com/cheng-jiaqing/images/raw/master/tencentdb-agent-memory-20260818-02.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="协作带宽定义" src="https://gitee.com/cheng-jiaqing/images/raw/master/tencentdb-agent-memory-20260818-02.png"></p>
 <p><strong>协作成本公式</strong>（不是财务模型，是区分三件混在一起的事）：</p>
 <pre><code>协作成本 ≈ 交接次数 × 单次交接成本
          + 冲突消解成本
@@ -136,12 +136,12 @@
 <p>企业落地不能只取 branch 的比喻，而忽略 GitHub 真正支撑多人协作的版本、权限、Review、合并、冲突处理和回滚。原始轨迹可能含密钥、客户数据、无效尝试和未确认判断——<strong>轨迹可见 ≠ 结论可信 ≠ 所有人都该看到</strong>。</p>
 </blockquote>
 <p>本文对三层架构的翻译：<strong>上层治理信息边界，中层承接真实任务，底层保存可继承的组织资产</strong>——三层是一条从任务到资产、再回到任务的信息链路。</p>
-<p><img alt="三层 AI 组织架构" src="https://gitee.com/cheng-jiaqing/images/raw/master/tencentdb-agent-memory-20260818-03.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="三层 AI 组织架构" src="https://gitee.com/cheng-jiaqing/images/raw/master/tencentdb-agent-memory-20260818-03.png"></p>
 <h3 id="spec-为什么会火agent-时代需要可溯源的任务状态">Spec 为什么会火：Agent 时代需要可溯源的任务状态</h3>
 <p>Spec-driven Development 的流行说明：当 Agent 实现越来越快，任务中最花时间的工作从"如何写出代码"转向<strong>"怎样准确表达意图、约束、方案和验收标准"</strong>以及留存任务资产。GitHub Spec Kit 把任务组织为 <code>Specify → Plan → Tasks → Implement</code>，Spec 是<strong>持续更新的共享事实来源</strong>，而非写完即失效的静态文档。</p>
 <p>Spec 说明四类需求变强：① 人的意图需要被机器准确理解；② 方案和约束需要从聊天框中外显；③ 任务状态需要跨 Session、跨 Agent 延续；④ 评审需要依据明确契约。</p>
 <p><strong>但 Spec 仍有边界</strong>：它服务当前任务，不会回答"类似问题过去是否发生过、某方案为什么被放弃、哪模块出过同类故障、当前 Spec 是否与另一分支冲突"。Spec 让一次任务<strong>可表达</strong>，团队记忆让已验证的任务状态<strong>可继承</strong>——前后相接的两个问题。</p>
-<p><img alt="Spec 流行说明的需求" src="https://gitee.com/cheng-jiaqing/images/raw/master/tencentdb-agent-memory-20260818-04.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Spec 流行说明的需求" src="https://gitee.com/cheng-jiaqing/images/raw/master/tencentdb-agent-memory-20260818-04.png"></p>
 <hr>
 <h2 id="一tencentdb-agent-memory-的基本结构">一、TencentDB Agent Memory 的基本结构</h2>
 <h3 id="团队记忆的定义">团队记忆的定义</h3>
@@ -153,7 +153,7 @@
 <blockquote>
 <p>内部一句话：<strong>完整属于资产池，相关属于当前任务。</strong></p>
 </blockquote>
-<p><img alt="产品链路" src="https://gitee.com/cheng-jiaqing/images/raw/master/tencentdb-agent-memory-20260818-01.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="产品链路" src="https://gitee.com/cheng-jiaqing/images/raw/master/tencentdb-agent-memory-20260818-01.png"></p>
 <h3 id="四类资产分别保存四种可继承状态">四类资产：分别保存四种可继承状态</h3>
 <table>
 <thead>
@@ -242,7 +242,7 @@
 <li><strong>相关性融合层</strong>：错误码/文件名/符号用 <strong>BM25</strong> 精确检索，意图/故障模式/相似任务用<strong>向量检索</strong>，两路经 <strong>RRF 融合</strong>；</li>
 <li><strong>上下文装配层</strong>：按角色、优先级、绑定方式、版本、Token 预算生成 Memory Pack；任务期间可<strong>锁定资产版本</strong>，避免前后读到不一致规则。</li>
 </ol>
-<p><img alt="路由分层" src="https://gitee.com/cheng-jiaqing/images/raw/master/tencentdb-agent-memory-20260818-05.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="路由分层" src="https://gitee.com/cheng-jiaqing/images/raw/master/tencentdb-agent-memory-20260818-05.png"></p>
 <p><strong>③ 渐进式暴露</strong>：不是把选中资产全部复制进 Prompt。
 - Chat Memory：先给场景摘要，再按需回到原始 Turn；
 - Skill：先暴露名称/触发条件/用途，确定适用后再加载完整步骤；
@@ -273,7 +273,7 @@
 <h3 id="一个任务怎样读档codegraph-impact-查询案例">一个任务怎样"读档"：CodeGraph impact 查询案例</h3>
 <p>真实需求链路：外部短名 <code>impact</code> 进入只读白名单 → <code>toCodeGraphToolName()</code> 映射为 <code>codegraph_impact</code> → <code>routes/code-graph.ts</code> 注册直接查询路由并校验字段 → <code>bridge.ts</code> 进入 CodeGraph 引擎。漏掉映射会 403 unknown tool；绕开统一路由单独加接口会漏掉租户隔离、参数白名单和 ready 状态——典型的"<strong>局部修改正确，系统行为不完整</strong>"。</p>
 <p>团队已形成的约束（不会自然出现在同一个源文件里）：Agent 只能调查询工具、管理操作不进白名单；短名统一映射；service_id 必须从 <code>x-tdai-service-id</code> 请求头获得、跨租户返回 404；非 ready 返回安全空结果；工具定义/直接路由/统一路由/MCP 暴露面必须一致。</p>
-<p><img alt="读档案例 Memory Pack" src="https://gitee.com/cheng-jiaqing/images/raw/master/tencentdb-agent-memory-20260818-06.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="读档案例 Memory Pack" src="https://gitee.com/cheng-jiaqing/images/raw/master/tencentdb-agent-memory-20260818-06.png"></p>
 <p><strong>有/无团队记忆的体感对比</strong>：</p>
 <table>
 <thead>
@@ -324,7 +324,7 @@
 <li>第一轮 48,114 个候选 Pair → 筛选 23,134 → 严格二裁、独立重分类、原始 Turn 证据检查；</li>
 <li><strong>Relation 只用于扩大召回，不能直接证明经验有效</strong>；高置信结论必须回到原文，且只能使用卡点前已存在的信息。</li>
 </ul>
-<p><img alt="Task-only 分析流程" src="https://gitee.com/cheng-jiaqing/images/raw/master/tencentdb-agent-memory-20260818-07.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Task-only 分析流程" src="https://gitee.com/cheng-jiaqing/images/raw/master/tencentdb-agent-memory-20260818-07.png"></p>
 <h3 id="38-真正说明了什么">"38%" 真正说明了什么</h3>
 <p>早期分层抽样：<code>same_problem</code> 精确类型正确率 38%（但样本中存在某种具体关系的比例 95%）；<code>reusable_sop</code> 精确类型正确率 62%（存在关系的比例 96%）。</p>
 <blockquote>
@@ -485,7 +485,7 @@
 </tr>
 </tbody>
 </table>
-<p><img alt="Redis 真实 Case 环境" src="https://gitee.com/cheng-jiaqing/images/raw/master/tencentdb-agent-memory-20260818-08.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Redis 真实 Case 环境" src="https://gitee.com/cheng-jiaqing/images/raw/master/tencentdb-agent-memory-20260818-08.png"></p>
 <p>这套环境优化的不是"多召回几条"，而是<strong>资产的工程边界</strong>：
 - <strong>Scope 必须足够细</strong>：Repo 相同不代表 Branch/Path/配置/运行环境相同，工单、版本、时间都要进入作用域；
 - <strong>强关系和背景关系不能混用</strong>：强资产进任务计划和 Skill，弱关系提示风险，Shadow 只帮助发现不自动驱动执行；
@@ -501,7 +501,7 @@
 <h3 id="swe-bench-经验继承测试">SWE-bench 经验继承测试</h3>
 <p>SWE-bench Original 含 12 个流行 Python 仓库的 2,294 个真实 issue/PR 任务；Verified 含 500 个经工程师确认可解决的任务。测试不是把人工"标准答案"塞给 Agent，而是<strong>模拟团队经验随任务逐步形成</strong>。</p>
 <p>三个关键约束：① 只在同仓库或确有关系的任务间迁移经验；② 严格遵守时间顺序（后序 Case 不能用自己答案或未来信息）；③ 成功标准由任务测试决定，不让模型自评"是否得到帮助"。</p>
-<p><img alt="SWE-bench 经验继承测试设计" src="https://gitee.com/cheng-jiaqing/images/raw/master/tencentdb-agent-memory-20260818-09.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="SWE-bench 经验继承测试设计" src="https://gitee.com/cheng-jiaqing/images/raw/master/tencentdb-agent-memory-20260818-09.png"></p>
 <p><strong>结果：加入团队记忆后，任务完成率从 60% 提升到 80%</strong>——绝对提升 20 个百分点，相对提升约 33.3%（四类资产组合使用的整体结果）。</p>
 <h3 id="超长难任务集测试">超长难任务集测试</h3>
 <p>选 SWE-bench 最难的 50 个案例拼成 session 内连续超长问题：</p>

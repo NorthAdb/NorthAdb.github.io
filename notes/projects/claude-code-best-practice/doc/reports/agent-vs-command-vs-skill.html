@@ -98,7 +98,7 @@
 <blockquote>
 <p>Claude Code 三种扩展机制（子代理、命令、技能）的深度对比。</p>
 </blockquote>
-<p><img alt="显示 time-skill、time-command 和 time-agent 的斜杠菜单" src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/reports/assets/agent-command-skill-1.jpg"></p>
+<p><span class="img-missing" title="附件未提交到仓库">🖼️ agent-command-skill-1.jpg<small>（附件未入库）</small></span></p>
 <hr>
 <h2 id="一图概览">一图概览</h2>
 <table>
@@ -396,7 +396,7 @@ agent: general-purpose
 <p>那么 Claude <strong>不能</strong>自动调用该 skill。Agent 成为唯一可自动调用的选项，所以 Claude 会改为启动 <code>time-agent</code>——代价是为一个单行 bash 命令启动一个独立的上下文窗口。</p>
 <h3 id="如果-skill-和-agent-都禁用了自动调用会怎样">如果 skill 和 agent 都禁用了自动调用会怎样？</h3>
 <p>那么<strong>什么都不会自动触发</strong>。Claude 会退回到自己的通用知识，很可能直接运行 <code>TZ='Asia/Karachi' date</code>——不涉及任何扩展机制。用户需要显式输入 <code>/time-command</code> 或 <code>/time-skill</code> 来使用它们。</p>
-<p><img alt="Claude 在用户问&quot;现在几点？&quot;时自动调用 time-skill" src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/reports/assets/agent-command-skill-2.png"></p>
+<p><span class="img-missing" title="附件未提交到仓库">🖼️ agent-command-skill-2.png<small>（附件未入库）</small></span></p>
 <hr>
 <h2 id="相关阅读">相关阅读</h2>
 <ul>

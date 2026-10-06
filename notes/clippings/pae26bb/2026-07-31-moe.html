@@ -118,7 +118,7 @@
 <li>将被选专家的输出按路由权重加权求和，作为 MoE 层输出传给下一层。</li>
 </ol>
 <p>示意图中的专家得分为 <code>0.45 / 0.19 / 0.05 / 0.31</code>；若采用 Top-1，则只激活 Expert 1，输出按 <code>p = 0.45</code> 加权。</p>
-<p><img alt="xhs-moe-01" src="https://gitee.com/cheng-jiaqing/images/raw/master/xhs-moe-01.jpg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="xhs-moe-01" src="https://gitee.com/cheng-jiaqing/images/raw/master/xhs-moe-01.jpg"></p>
 <h3 id="2-为什么大模型越来越需要-moe">2. 为什么大模型越来越需要 MoE？</h3>
 <p>Dense 模型的参数基本每次都参与计算：模型越大，能力和容量可能越强，但训练成本、推理成本、显存占用与通信开销也同步上升。MoE 则把一个巨大的通用 FFN 拆成多个分工不同的专家：</p>
 <ul>
@@ -127,7 +127,7 @@
 <li>模型从「每次都把全部参数算一遍」变成「按需调用」，即<strong>按需变大</strong>。</li>
 </ul>
 <p>因此，MoE 解决的不是简单的「堆更多参数」，而是模型容量与单次计算成本之间的矛盾。</p>
-<p><img alt="xhs-moe-02" src="https://gitee.com/cheng-jiaqing/images/raw/master/xhs-moe-02.jpg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="xhs-moe-02" src="https://gitee.com/cheng-jiaqing/images/raw/master/xhs-moe-02.jpg"></p>
 <h3 id="3-用医院分诊理解-moe">3. 用医院分诊理解 MoE</h3>
 <p>图片给出的类比是：</p>
 <table>
@@ -161,7 +161,7 @@
 </tbody>
 </table>
 <p>在 Transformer 中，MoE 通常替换的是 <strong>FeedForward/MLP（FFN）模块</strong>，不是 Attention 模块。Attention 一般保留，FFN 则变成 Router 加多个并行的 Expert FFN。</p>
-<p><img alt="xhs-moe-03" src="https://gitee.com/cheng-jiaqing/images/raw/master/xhs-moe-03.jpg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="xhs-moe-03" src="https://gitee.com/cheng-jiaqing/images/raw/master/xhs-moe-03.jpg"></p>
 <h3 id="4-dense-decoder-与-moe-decoder-的结构差异">4. Dense Decoder 与 MoE Decoder 的结构差异</h3>
 <p>传统 Decoder Layer 大致是：</p>
 <pre><code class="language-text">LayerNorm → Masked Self-Attention → 残差连接
@@ -171,7 +171,7 @@
 <pre><code class="language-text">LayerNorm → Router → 多个 Expert FFN → Weighted Sum/Combine → 残差连接
 </code></pre>
 <p>所以读模型结构图时，看到 MoE 出现在 FeedForward/MLP 那一块是正常的；它并不意味着整个 Transformer 层都被专家化。</p>
-<p><img alt="xhs-moe-04" src="https://gitee.com/cheng-jiaqing/images/raw/master/xhs-moe-04.jpg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="xhs-moe-04" src="https://gitee.com/cheng-jiaqing/images/raw/master/xhs-moe-04.jpg"></p>
 <h3 id="5-moe-的核心优势与工程难点">5. MoE 的核心优势与工程难点</h3>
 <p><strong>三个核心优势：</strong></p>
 <ol>
@@ -189,7 +189,7 @@
 <blockquote>
 <p><strong>结论</strong>：MoE 不是「天然收益」，而是需要路由、负载均衡、并行通信、训练稳定性和部署系统共同支撑的工程方案。</p>
 </blockquote>
-<p><img alt="xhs-moe-05" src="https://gitee.com/cheng-jiaqing/images/raw/master/xhs-moe-05.jpg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="xhs-moe-05" src="https://gitee.com/cheng-jiaqing/images/raw/master/xhs-moe-05.jpg"></p>
 <h3 id="6-deepseek-v4moe-系统工程-长上下文">6. DeepSeek V4：MoE + 系统工程 + 长上下文</h3>
 <p>图片将 DeepSeek V4 的路线概括为：<strong>MoE 扩容、系统工程提效、面向 1M context 设计</strong>。图中列出的对比数据如下：</p>
 <table>
@@ -229,7 +229,7 @@
 <li>目标不是单纯把模型做大，而是让大模型在百万上下文中保持可用的推理效率。</li>
 </ul>
 <p>图片还列出 CSA（Compressed Sparse Attention）、HCA（Heavily Compressed Attention）、混合注意力架构和 mHC（Manifold-Constrained Hyper-Connections）等系统组件，用于降低长上下文中的 Attention/KV Cache/通信压力。这里应将 MoE 理解为容量方案，而不是完整的长上下文解决方案。</p>
-<p><img alt="xhs-moe-06" src="https://gitee.com/cheng-jiaqing/images/raw/master/xhs-moe-06.jpg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="xhs-moe-06" src="https://gitee.com/cheng-jiaqing/images/raw/master/xhs-moe-06.jpg"></p>
 <h4 id="deepseek-v4-pro-与-v4-flash-架构对照按图整理">DeepSeek V4-Pro 与 V4-Flash 架构对照（按图整理）</h4>
 <table>
 <thead>
@@ -288,7 +288,7 @@
 </tbody>
 </table>
 <p>两者共同体现「总参数很大，但每次只激活少量参数」；Pro 更大、更深、激活参数更多，Flash 则以更低推理成本为目标。</p>
-<p><img alt="xhs-moe-07" src="https://gitee.com/cheng-jiaqing/images/raw/master/xhs-moe-07.jpg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="xhs-moe-07" src="https://gitee.com/cheng-jiaqing/images/raw/master/xhs-moe-07.jpg"></p>
 <h3 id="7-glm-51面向-agent-tool-use-的国产-moe-路线">7. GLM-5.1：面向 Agent / Tool-use 的国产 MoE 路线</h3>
 <p>图片给出的关键信息：</p>
 <ul>
@@ -299,8 +299,8 @@
 <li>图片将 DeepSeek V4 概括为「长上下文 / 系统效率」侧重，将 GLM-5.1 概括为「旗舰开源能力 / agentic 任务表现」侧重。</li>
 </ul>
 <p>其结构示意中的参数包括：词表 155k、上下文长度 202k、78 层、Embedding 维度 6,144；前 3 层使用 Dense FFN（隐藏维度 12,288），MoE 层包含 256 个专家，每个 token 激活 8 个 routed experts 加 1 个 shared expert。</p>
-<p><img alt="xhs-moe-08" src="https://gitee.com/cheng-jiaqing/images/raw/master/xhs-moe-08.jpg"></p>
-<p><img alt="xhs-moe-09" src="https://gitee.com/cheng-jiaqing/images/raw/master/xhs-moe-09.jpg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="xhs-moe-08" src="https://gitee.com/cheng-jiaqing/images/raw/master/xhs-moe-08.jpg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="xhs-moe-09" src="https://gitee.com/cheng-jiaqing/images/raw/master/xhs-moe-09.jpg"></p>
 <h3 id="8-gemma-4dense-与-moe-并存">8. Gemma 4：Dense 与 MoE 并存</h3>
 <p>Gemma 4 的启发不是「所有模型都必须 MoE」，而是同一模型家族同时提供 Dense 和 MoE 两种答案：</p>
 <ul>
@@ -308,8 +308,8 @@
 <li><strong>Gemma 4 MoE</strong>：总参数较大，但 active parameters 更可控；在性能接近时，具有更好的性能/成本比、硬件部署灵活性和边缘设备适配性。</li>
 </ul>
 <p>图中 Gemma 4 MoE（26B-A4B）的结构数据：词表 262k、上下文 256k、Embedding 维度 2,816、前 30 层重复模块、128 个专家；每个 token 激活 8 个专家加 1 个 shared expert，总参数约 25.2B，单步激活约 3.8B，FFN 中间隐藏维度 704，使用 GEGLU。</p>
-<p><img alt="xhs-moe-10" src="https://gitee.com/cheng-jiaqing/images/raw/master/xhs-moe-10.jpg"></p>
-<p><img alt="xhs-moe-11" src="https://gitee.com/cheng-jiaqing/images/raw/master/xhs-moe-11.jpg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="xhs-moe-10" src="https://gitee.com/cheng-jiaqing/images/raw/master/xhs-moe-10.jpg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="xhs-moe-11" src="https://gitee.com/cheng-jiaqing/images/raw/master/xhs-moe-11.jpg"></p>
 <h3 id="9-三个模型放在一起看moe-正从结构技巧变成系统路线">9. 三个模型放在一起看：MoE 正从结构技巧变成系统路线</h3>
 <p>三组案例的共同点是：未来评价旗舰模型不能只看总参数，还要看：</p>
 <ul>
@@ -320,7 +320,7 @@
 <li><strong>Agent / tool-use 能力</strong>：决定模型在浏览器、终端、代码和复杂任务链中的实际价值。</li>
 </ul>
 <p>Dense 不会消失：中等规模模型、训练配方成熟、部署简单或硬件适配更重要时，Dense 仍然有优势。更准确的结论是：<strong>当模型继续扩大、又要求控制单次计算时，MoE 会越来越接近旗舰模型的主流扩展路线。</strong></p>
-<p><img alt="xhs-moe-12" src="https://gitee.com/cheng-jiaqing/images/raw/master/xhs-moe-12.jpg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="xhs-moe-12" src="https://gitee.com/cheng-jiaqing/images/raw/master/xhs-moe-12.jpg"></p>
 <hr>
 <h2 id="moe-知识补充非帖子原文供学习参考">📌 MoE 知识补充（非帖子原文，供学习参考）</h2>
 <blockquote>

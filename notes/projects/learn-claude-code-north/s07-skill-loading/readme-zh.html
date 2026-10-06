@@ -114,7 +114,7 @@
 <p>这种做法能让 Agent 读到所有规范，但问题在于，三份文档被固定放进了 system prompt，无法根据当前任务只选择需要的那一份。每次调用 LLM 时，三份文档的全文都会一起发送给模型。当前任务只修改 React 组件时，实际需要的只有 React 组件规范；SQL 风格指南和 API 设计文档与任务无关，却仍然占用输入 token 和上下文窗口，留给代码、对话和工具结果的空间也会变少。</p>
 <hr>
 <h2 id="解决方案">解决方案</h2>
-<p><img alt="Skill Overview" src="https://gitee.com/cheng-jiaqing/images/raw/master/skill-overview.svg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Skill Overview" src="https://gitee.com/cheng-jiaqing/images/raw/master/skill-overview.svg"></p>
 <p>启动时，<code>SkillLoader</code> 扫描 <code>skills/*/SKILL.md</code>，读取 YAML frontmatter 中的 <code>name</code> 和 <code>description</code>，并把这份目录加入 system prompt。模型需要完整说明时，调用 <code>load_skill(name)</code>；返回的 <code>SKILL.md</code> 作为 <code>tool_result</code> 追加到消息列表。</p>
 <table>
 <thead>

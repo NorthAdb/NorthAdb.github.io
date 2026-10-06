@@ -99,7 +99,7 @@
         </div>
 
         <div class="prose">
-<p><img alt="image-20250707174514052" src="https://s2.loli.net/2025/07/07/Bw79W6q8zEyXmUR.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20250707174514052" src="https://s2.loli.net/2025/07/07/Bw79W6q8zEyXmUR.png"></p>
 <h1 id="面向过程篇">面向过程篇</h1>
 <p>前面我们已经认识了Java语言的相关特性，并且已经成功配置好了开发环境，从这节课开始，我们就可以正式进入到Java语言的学习当中了。Java语言是一门面向对象的语言，但是在面向对象之前，我们还得先学会如何面向过程编程。</p>
 <h2 id="java程序基础">Java程序基础</h2>
@@ -119,9 +119,9 @@
 }
 </code></pre>
 <p>注意需要区分大小写，Java语言严格区分大小写，如果我们没有按照规则来编写，那么就会出现红色波浪线报错：</p>
-<p><img alt="image-20220916213529426" src="https://s2.loli.net/2022/09/16/5mpBD1JyjCMGgnO.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220916213529426" src="https://s2.loli.net/2022/09/16/5mpBD1JyjCMGgnO.png"></p>
 <p>只要源代码中存在报错的地方，就无法正常完成编译得到二进制文件，会提示构建失败：</p>
-<p><img alt="image-20220916213641899" src="https://s2.loli.net/2022/09/16/x5PjR9OAGMCQtS6.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220916213641899" src="https://s2.loli.net/2022/09/16/x5PjR9OAGMCQtS6.png"></p>
 <p>注意最后还有一个花括号，并且此花括号是成对出现的，一一对应。</p>
 <p>所以说各位小伙伴在编写代码时一定要注意大小写。然后第二行，准确的说是最外层花括号内部就是：</p>
 <pre><code class="language-java">public static void main(String[] args) {
@@ -142,25 +142,25 @@
 }
 </code></pre>
 <p>效果如下：</p>
-<p><img alt="image-20220916214557378" src="https://s2.loli.net/2022/09/16/GLZdxf6B3Agu98N.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220916214557378" src="https://s2.loli.net/2022/09/16/GLZdxf6B3Agu98N.png"></p>
 <p>如果两段代码没有加上分号分割，那么编译器会认为这两段代码是同一句代码中的，即使出现换行或者是空格：</p>
-<p><img alt="image-20220916214736541" src="https://s2.loli.net/2022/09/16/ErQnpo2DVw7mJks.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220916214736541" src="https://s2.loli.net/2022/09/16/ErQnpo2DVw7mJks.png"></p>
 <p>这里IDEA很聪明，会提醒我们这里少加了分号，所以说这个IDEA能够在初期尽可能地帮助新手。</p>
 <p>再比如下面的代码：</p>
-<p><img alt="image-20220916214822072" src="https://s2.loli.net/2022/09/16/sDcuan8MJ92l3P1.png"></p>
-<p><img alt="image-20220916214929651" src="https://s2.loli.net/2022/09/16/i1VFk6RUtp8XfMr.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220916214822072" src="https://s2.loli.net/2022/09/16/sDcuan8MJ92l3P1.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220916214929651" src="https://s2.loli.net/2022/09/16/i1VFk6RUtp8XfMr.png"></p>
 <p>这里我们尝试在中途换行和添加空格，因为没有添加分号，所以说编译器依然会认为是一行代码，因此编译不会出现错误，能够正常通过。当然，为了代码写得工整和规范，我们一般不会随意进行换行编写或者是添加没必要的空格。</p>
 <p>同样的，如果添加了分号，即使在同一行，也会被认为是两句代码：</p>
-<p><img alt="image-20220916221833145" src="https://s2.loli.net/2022/09/16/XopC59keJiMWjmd.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220916221833145" src="https://s2.loli.net/2022/09/16/XopC59keJiMWjmd.png"></p>
 <p>如果在同一行就是从左往右的顺序，得到的结果跟上面是一样的。</p>
 <h3 id="注释">注释</h3>
 <p>我们在编写代码时，可能有些时候需要标记一下这段代码表示什么意思：</p>
-<p><img alt="image-20220916221711430" src="https://s2.loli.net/2022/09/16/8Mzo36BbYVuRgm9.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220916221711430" src="https://s2.loli.net/2022/09/16/8Mzo36BbYVuRgm9.png"></p>
 <p>但是如果直接写上文字的话，会导致编译不通过，因为这段文字也会被认为是程序的一部分。</p>
 <p>这种情况，我们就可以告诉编译器，这段文字是我们做的笔记，并不是程序的一部分，那么要怎么告诉编译器这不是代码呢？很简单，我们只需要在前面加上双斜杠就可以了：</p>
-<p><img alt="image-20220916222035778" src="https://s2.loli.net/2022/09/16/N4rZHt6onGfXuhg.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220916222035778" src="https://s2.loli.net/2022/09/16/N4rZHt6onGfXuhg.png"></p>
 <p>添加双斜杠之后（自动变成了灰色），后续的文本内容只要没有发生换行，那么都会被认为是一段注释，并不属于程序，在编译时会被直接忽略，之后这段注释也不会存在于程序中。但是一旦发生换行那就不行了：</p>
-<p><img alt="image-20220916222225047" src="https://s2.loli.net/2022/09/16/GiUMCmXewanWJSN.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220916222225047" src="https://s2.loli.net/2022/09/16/GiUMCmXewanWJSN.png"></p>
 <p>那要是此时注释很多，一行写不完，我们想要编写很多行的注释呢？我们可以使用多行注释标记：</p>
 <pre><code class="language-java">public class Main {
     public static void main(String[] args) {
@@ -175,7 +175,7 @@
 </code></pre>
 <p>多行可以使用<code>/*</code>和<code>*/</code>的组合来囊括需要编写的注释内容。</p>
 <p>当然还有一种方式就是使用<code>/**</code>来进行更加详细的文档注释：</p>
-<p><img alt="image-20220916222636943" src="https://s2.loli.net/2022/09/16/sFhkS2ezONjZvMK.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220916222636943" src="https://s2.loli.net/2022/09/16/sFhkS2ezONjZvMK.png"></p>
 <p>这种注释可以用来自动生成文档，当我们鼠标移动到Main上时，会显示相关的信息，我们可以自由添加一些特殊的注释，比如作者、时间等信息，也可以是普通的文字信息。</p>
 <p>当然，如果你更喜欢编写Markdown格式的注释，在Java 23之后，我们也可以使用三斜杠来表示这是一个Markdown格式的注释：</p>
 <pre><code class="language-java">/// # 这个是主类
@@ -184,7 +184,7 @@
 public class Main { 
 }
 </code></pre>
-<p><img alt="image-20250709184634286" src="https://s2.loli.net/2025/07/09/yJCnG2o1KEe3dZq.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20250709184634286" src="https://s2.loli.net/2025/07/09/yJCnG2o1KEe3dZq.png"></p>
 <h3 id="变量与常量">变量与常量</h3>
 <p>我们的程序不可能永远都只进行上面那样的简单打印操作，有些时候可能需要计算某些数据，此时我们就需要用到变量了。</p>
 <p>那么，什么是变量呢？我们在数学中其实已经学习过变量了：</p>
@@ -204,9 +204,9 @@ public class Main {
 <li>不可以是 true 和 false。</li>
 <li>不能与Java语言的关键字或是基本数据类型重名，关键字列表如下：</li>
 </ul>
-<p><img alt="image-20230301113525814" src="https://s2.loli.net/2023/03/01/I6nCh49qzyvoZBm.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20230301113525814" src="https://s2.loli.net/2023/03/01/I6nCh49qzyvoZBm.png"></p>
 <p>当然各位小伙伴没必要刻意去进行记忆，我们会在学习的过程中逐步认识到这些关键字。新手要辨别一个单词是否为关键字，只需要通过IDEA的高亮颜色进行区分即可，比如：</p>
-<p><img alt="image-20220916224129597" src="https://s2.loli.net/2022/09/16/qtsjIhSGQoxBYVM.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220916224129597" src="https://s2.loli.net/2022/09/16/qtsjIhSGQoxBYVM.png"></p>
 <p>深色模式下，关键字会高亮为橙色，浅色模式下会高亮为深蓝色，普通的代码都是正常的灰白色。</p>
 <p>比如现在我们想要定义一个变量<code>a</code>，那么就可以这样编写：</p>
 <pre><code class="language-java">public class Main {
@@ -246,7 +246,7 @@ public class Main {
 }
 </code></pre>
 <p>得到结果：</p>
-<p><img alt="image-20220916225037221" src="https://s2.loli.net/2022/09/16/3nUAHINdXMmlxvJ.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220916225037221" src="https://s2.loli.net/2022/09/16/3nUAHINdXMmlxvJ.png"></p>
 <p>变量的值也可以在中途进行修改：</p>
 <pre><code class="language-java">public static void main(String[] args) {
     int a = 666;
@@ -275,7 +275,7 @@ public class Main {
 }
 </code></pre>
 <p>编译时出现：</p>
-<p><img alt="image-20220916225429474" src="https://s2.loli.net/2022/09/16/kT46yi8KNOLWlp3.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220916225429474" src="https://s2.loli.net/2022/09/16/kT46yi8KNOLWlp3.png"></p>
 <p>常量的值只有第一次赋值可以修改，其他任何情况下都不行：</p>
 <pre><code class="language-java">public static void main(String[] args) {
     final int a;
@@ -336,7 +336,7 @@ public class Main {
 <li><strong>每只小白鼠对应二进制中的一位</strong>。</li>
 <li><strong>设计实验</strong>：每只小白鼠喝那些在其对应位为1的编号的药水。</li>
 </ul>
-<p><img alt="image-20250708114912279" src="https://s2.loli.net/2025/07/08/o9SlyRZKm8HjMAp.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20250708114912279" src="https://s2.loli.net/2025/07/08/o9SlyRZKm8HjMAp.png"></p>
 <p>由于药水只喂给了对应二进制位置为1的小白鼠，一周后，哪些位置上的小白鼠死了，那么其对应的十进制编号的药水就是毒药了。比如2、3号小白鼠死亡，其二进制为 0 0 0 0 0 0 0 1 1 0 对应的十进制数字为 6，判定6号药水有毒。</p>
 <h3 id="整数类形">整数类形</h3>
 <p>整数类型是最容易理解的类型！既然我们知道了计算机中的二进制数字是如何表示的，那么我们就可以很轻松的以二进制的形式来表达我们十进制的内容了。</p>
@@ -361,7 +361,7 @@ public class Main {
 }
 </code></pre>
 <p>反之会出现报错：</p>
-<p><img alt="image-20220916231650085" src="https://s2.loli.net/2022/09/16/NLZlDgxz3ci5Idr.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220916231650085" src="https://s2.loli.net/2022/09/16/NLZlDgxz3ci5Idr.png"></p>
 <p>这是由于我们在将小的整数类型传递给大的整数类型时发生了<strong>隐式类型转换</strong>，只要是从存储范围小的类型到存储范围大的类型，都支持隐式类型转换，它可以自动将某种类型的值，转换为另一种类型，比如上面就是将short类型的值转换为了int类型的值。</p>
 <p>隐式类型转换不仅可以发生在整数之间，也可以是其他基本数据类型之间，我们后面会逐步介绍。</p>
 <p>实际上我们在为变量赋一个常量数值时，也发生了隐式类型转换，比如：</p>
@@ -370,7 +370,7 @@ public class Main {
 }
 </code></pre>
 <p>由于直接编写的整数常量值默认为<code>int</code>，这里需要特别注意一下，比如下面这种情况：</p>
-<p><img alt="image-20220916232420547" src="https://s2.loli.net/2022/09/16/76GgjWYz4DPBy1p.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220916232420547" src="https://s2.loli.net/2022/09/16/76GgjWYz4DPBy1p.png"></p>
 <p>按照<code>long</code>类型的规定，实际上是可以表示这么大的数字的，但是为什么这里报错了呢？这是因为我们直接在代码中写的常量数字，默认情况下就是<code>int</code>类型，这么大肯定是表示不下的，如果需要将其表示为一个long类型的常量数字，那么需要在后面添加大写或是小写的<code>L</code>才可以。</p>
 <pre><code class="language-java">public static void main(String[] args) {
     long a = 922337203685477580L;   //这样就可以正常编译通过了
@@ -399,7 +399,7 @@ public class Main {
 }
 </code></pre>
 <p>此时a的值已经来到了<code>int</code>类型所能表示的最大值了，那么如果此时再继续<code>+1</code>，各位小伙伴觉得会发生什么？可以看到结果很奇怪：</p>
-<p><img alt="image-20220916234540720" src="https://s2.loli.net/2022/09/16/YztefPIvLE6y94u.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220916234540720" src="https://s2.loli.net/2022/09/16/YztefPIvLE6y94u.png"></p>
 <p>什么情况？？？怎么正数加1还变成负数了？请各位小伙伴回想一下我们之前讲解的原码、反码和补码。</p>
 <p>我们先来看看，当int为最大值时，二进制表示形式为什么：</p>
 <ul>
@@ -419,7 +419,7 @@ public class Main {
 <li>double 双精度浮点型（64bit，8字节）</li>
 </ul>
 <p>那么小数在计算机中又是如何存放的呢？</p>
-<p><img alt="image-20220917102209246" src="https://s2.loli.net/2022/09/17/CpI5jaWgR9nqTbc.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220917102209246" src="https://s2.loli.net/2022/09/17/CpI5jaWgR9nqTbc.png"></p>
 <p>根据国际标准 IEEE 754，任意一个二进制浮点数 V 可以表示成下面的形式：
 $$
 V = (-1)^S \times M \times 2^E
@@ -440,7 +440,7 @@ $$</p>
 }
 </code></pre>
 <p>注意，跟整数类型常量一样，小数类型常量默认都是<code>double</code>类型，所以说如果我们直接给一个float类型赋值：</p>
-<p><img alt="image-20220917105141288" src="https://s2.loli.net/2022/09/17/x7bOzyIacpDowKk.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220917105141288" src="https://s2.loli.net/2022/09/17/x7bOzyIacpDowKk.png"></p>
 <p>由于<code>float</code>类型的精度不如<code>double</code>，如果直接给其赋一个double类型的值，会直接出现错误。</p>
 <p>同样的，我们可以给常量后面添加大写或小写的F来表示这是一个<code>float</code>类型的常量值：</p>
 <pre><code class="language-java">public static void main(String[] args) {
@@ -455,7 +455,7 @@ $$</p>
 }
 </code></pre>
 <p>只不过由于精度问题，最后的打印结果：</p>
-<p><img alt="image-20220917105849862" src="https://s2.loli.net/2022/09/17/1JqHY2so6Qwz4WX.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220917105849862" src="https://s2.loli.net/2022/09/17/1JqHY2so6Qwz4WX.png"></p>
 <p>这种情况是正常的，因为浮点类型并不保证能够精确计算，我们会在下一章介绍 BigDecimal 和 BigInteger，其中BigDecimal更适合需要精确计算的场景。</p>
 <p>我们最后来看看下面的例子：</p>
 <pre><code class="language-java">public static void main(String[] args) {
@@ -472,7 +472,7 @@ $$</p>
 <li>char 字符型（16个bit，也就是2字节，它不带符号）范围是0 ~ 65535</li>
 </ul>
 <p>可以看到char类型依然存储的是数字，那么它是如何表示每一个字符的呢？实际上每个数字在计算机中都会对应一个字符，首先我们需要介绍ASCII码：</p>
-<p><img alt="img" src="https://s2.loli.net/2022/09/17/Z7AiBPNO6ylML4z.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="img" src="https://s2.loli.net/2022/09/17/Z7AiBPNO6ylML4z.png"></p>
 <p>比如我们的英文字母<code>A</code>要展示出来，那就是一个字符的形式，而其对应的ASCII码值为65，所以说当char为65时，打印出来的结果就是大写的字母A了：</p>
 <pre><code class="language-java">public static void main(String[] args) {
     char c = 65;
@@ -480,7 +480,7 @@ $$</p>
 }
 </code></pre>
 <p>得到结果为：</p>
-<p><img alt="image-20220917110854266" src="https://s2.loli.net/2022/09/17/dvizHYa2fCOKhA3.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220917110854266" src="https://s2.loli.net/2022/09/17/dvizHYa2fCOKhA3.png"></p>
 <p>或者我们也可以直接写一个字符常量值赋值：</p>
 <pre><code class="language-java">public static void main(String[] args) {
     char c = 'A';    //字符常量值需要使用单引号囊括，并且内部只能有一个字符
@@ -555,11 +555,11 @@ $$</p>
 }
 </code></pre>
 <p>得到结果为：</p>
-<p><img alt="image-20220917111838629" src="https://s2.loli.net/2022/09/17/ZgzMUafmYAKoOXt.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220917111838629" src="https://s2.loli.net/2022/09/17/ZgzMUafmYAKoOXt.png"></p>
 <p>Java程序在编译为<code>.class</code>文件之后，会采用UTF-8的编码格式，支持的字符也非常多，所以你甚至可以直接把变量名写成中文，依然可以编译通过：</p>
-<p><img alt="image-20220917112033102" src="https://s2.loli.net/2022/09/17/vAnPCgx5ThEUBHe.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220917112033102" src="https://s2.loli.net/2022/09/17/vAnPCgx5ThEUBHe.png"></p>
 <p>介绍完了字符之后，我们接着来看看字符串，其实字符串我们在一开始就已经接触到了。字符虽然可以表示一个中文，但是它没办法表示多个字符：</p>
-<p><img alt="image-20220917114628564" src="https://s2.loli.net/2022/09/17/JmdQkSw2qc4ZTuW.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220917114628564" src="https://s2.loli.net/2022/09/17/JmdQkSw2qc4ZTuW.png"></p>
 <p>但是实际上我们使用率最高的还是多个字符的情况，我们需要打印一连串的字符。这个时候，我们就可以使用字符串了：</p>
 <pre><code class="language-java">public static void main(String[] args) {
     String str = &quot;啊这&quot;;    //字符串需要使用双引号囊括，字符串中可以包含0-N个字符
@@ -579,7 +579,7 @@ $$</p>
 }
 </code></pre>
 <p>如果给一个其他的值，会无法编译通过：</p>
-<p><img alt="image-20220917115424504" src="https://s2.loli.net/2022/09/17/1TtJdKcvRWPfAI2.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220917115424504" src="https://s2.loli.net/2022/09/17/1TtJdKcvRWPfAI2.png"></p>
 <p>至此，基本数据类型的介绍就结束了。</p>
 <h3 id="java-10-局部变量类型推断">(Java 10) 局部变量类型推断</h3>
 <p>Java 10 引入了 <code>var</code> 关键字，可以在局部变量声明时自动推断变量类型，从而简化代码。</p>
@@ -591,7 +591,7 @@ $$</p>
 <pre><code class="language-java">var a = 10;
 </code></pre>
 <p>此时，无论我们修改后面的变量值为什么类型的值，都可以自动进行推断：</p>
-<p><img alt="image-20250707180952852" src="https://s2.loli.net/2025/07/07/JKZYc2uUHswqhEF.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20250707180952852" src="https://s2.loli.net/2025/07/07/JKZYc2uUHswqhEF.png"></p>
 <p>实际上这个特性很多语言都有，Java选择在Java10才上线此功能，有点为时已晚。由于Java社区普遍较为保守，很多开发者在刚推出时倾向于继续使用显式类型声明，特别是在代码稳定性和可读性方面。所以，这种用法在很多项目里面并不常见，这里只做了解即可。</p>
 <hr>
 <h2 id="运算符">运算符</h2>
@@ -645,9 +645,9 @@ $$</p>
 }
 </code></pre>
 <p>因为运算时会发生隐式类型转换，所以说这里b自动转换为了int类型进行计算，所以说最后得到结果也一定是转换后的类型：</p>
-<p><img alt="image-20220917141359260" src="https://s2.loli.net/2022/09/17/KovME45pl2sPiBN.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220917141359260" src="https://s2.loli.net/2022/09/17/KovME45pl2sPiBN.png"></p>
 <p>小数和整数一起计算同样会发生隐式类型转换：</p>
-<p><img alt="image-20220917141955891" src="https://s2.loli.net/2022/09/17/jxW3KfwBACidyMY.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220917141955891" src="https://s2.loli.net/2022/09/17/jxW3KfwBACidyMY.png"></p>
 <p>因为小数表示范围更广，所以说整数会被转换为小数再进行计算，而最后的结果也肯定是小数了。</p>
 <p>我们也可以将加减号作为正负符号使用，比如我们现在需要让a变成自己的相反数：</p>
 <pre><code class="language-java">public static void main(String[] args) {
@@ -670,7 +670,7 @@ $$</p>
 }
 </code></pre>
 <p>最后这个字符串就变成了拼接后的结果了：</p>
-<p><img alt="image-20220917145901135" src="https://s2.loli.net/2022/09/17/TeUCBM9ZzINuoa8.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220917145901135" src="https://s2.loli.net/2022/09/17/TeUCBM9ZzINuoa8.png"></p>
 <p>字符串不仅可以跟字符串拼接，也可以跟基本数据类型拼接：</p>
 <pre><code class="language-java">public static void main(String[] args) {
     String str = &quot;伞兵&quot; + true + 1.5 + 'A';
@@ -678,7 +678,7 @@ $$</p>
 }
 </code></pre>
 <p>最后就可以得到对应的结果了：</p>
-<p><img alt="image-20220917150010919" src="https://s2.loli.net/2022/09/17/URJxsgXvzYMQh8t.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220917150010919" src="https://s2.loli.net/2022/09/17/URJxsgXvzYMQh8t.png"></p>
 <p>当然，除了加减法之外乘除法也是支持的：</p>
 <pre><code class="language-java">public static void main(String[] args) {
     int a = 8, b = 2;
@@ -693,14 +693,14 @@ $$</p>
 }
 </code></pre>
 <p>上面是两个int类型的值进行的除法运算，正常情况下8除以5应该得到1.6，但是由于结果也是整数，所以说最后小数部分被丢弃：</p>
-<p><img alt="image-20220917141816599" src="https://s2.loli.net/2022/09/17/TdhHPN64UnyFozq.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220917141816599" src="https://s2.loli.net/2022/09/17/TdhHPN64UnyFozq.png"></p>
 <p>但是如果是两个小数一起计算的话，因为结果也是小数，所以说就可以准确得到结果：</p>
 <pre><code class="language-java">public static void main(String[] args) {
     double a = 8.0, b = 5.0;
     System.out.println(a / b);
 }
 </code></pre>
-<p><img alt="image-20220917142201392" src="https://s2.loli.net/2022/09/17/3zjJoeL6bgdRqNA.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220917142201392" src="https://s2.loli.net/2022/09/17/3zjJoeL6bgdRqNA.png"></p>
 <p>同样的，整数和小数一起计算，由于所有的整数范围都比小数小，根据我们上一部分介绍的转换规则，整数和小数一起计算时，所有的整数都会变成小数参与运算，所以说最后的结果也就是小数了，同样可以得到正确的结果：</p>
 <pre><code class="language-java">public static void main(String[] args) {
     double a = 8.0;
@@ -810,7 +810,7 @@ $$</p>
 </code></pre>
 <p>这里会优先计算 3 + 1的结果，然后由于第二层都在一个括号中，所以说按照正常优先级计算，2 + 4 * 3  = 14，最后来到最外层14*2 = 28，计算结束。</p>
 <p>括号除了可以用来提升运算优先级，也可以用作<strong>强制类型转换</strong>，前面我们介绍了隐式类型转换，但是隐式类型转换存在局限性，比如此时我们希望将一个大的类型转换为一个小的类型：</p>
-<p><img alt="image-20220917150256987" src="https://s2.loli.net/2022/09/17/En2uzTl5PFgKeNX.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220917150256987" src="https://s2.loli.net/2022/09/17/En2uzTl5PFgKeNX.png"></p>
 <p>正常情况下无法编译通过，但是实际上a的值并没有超出<code>short</code>的范围，理论上是可以直接给到b存放的，此时我们就可以使用强制类型转换：</p>
 <pre><code class="language-java">public static void main(String[] args) {
     int a = 10;
@@ -829,7 +829,7 @@ $$</p>
 <li>00000000 00000000 00000000 10000000  -&gt;  byte只有一个字节，所以说只保留最后8位 -&gt; 10000000</li>
 </ul>
 <p>这里的10000000，由于第一个位置是符号位，导致此时直接变成了byte的最小值：</p>
-<p><img alt="image-20220917151028191" src="https://s2.loli.net/2022/09/17/Kt6rfkYE1HSvNnl.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220917151028191" src="https://s2.loli.net/2022/09/17/Kt6rfkYE1HSvNnl.png"></p>
 <p>所以说强制类型转换只有在明确不会出现问题的情况下，才可以使用。当然，强制类型转换也可以用在后面的类中，我们将会在下一章继续探讨。</p>
 <p>有了强制类型转换，我们就可以很轻松地让两个整数计算出小数的结果了：</p>
 <pre><code class="language-java">public static void main(String[] args) {
@@ -1197,7 +1197,7 @@ $$</p>
 <p>关系运算符的计算还是比较简单的。</p>
 <h3 id="逻辑运算符">逻辑运算符</h3>
 <p>前面我们介绍了简单的关系运算符，我们可以通过对关系的判断得到真或是假的结果，但是只能进行简单的判断，如果此时我们想要判断a是否小于等于100且大于等于60，就没办法了：</p>
-<p><img alt="image-20220917223047110" src="https://s2.loli.net/2022/09/17/Z1yAPOKe8IVvFUt.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220917223047110" src="https://s2.loli.net/2022/09/17/Z1yAPOKe8IVvFUt.png"></p>
 <p>注意不能像这样进行判断，这是错误的语法，同时只能使用其中一种关系判断运算符。</p>
 <p>为了解决这种问题，我们可以使用逻辑运算符，逻辑运算符包括：</p>
 <pre><code class="language-java">&amp;&amp;     与运算，要求两边同时为true才能返回true
@@ -1239,7 +1239,7 @@ $$</p>
 }
 </code></pre>
 <p>得到结果为：</p>
-<p><img alt="image-20220917224320699" src="https://s2.loli.net/2022/09/17/tJQxnace7y4VdlY.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220917224320699" src="https://s2.loli.net/2022/09/17/tJQxnace7y4VdlY.png"></p>
 <p>这是为什么呢？很明显我们的判断中a进行了两次自增操作，但是最后a的结果却是11，这是因为第一个表达式判断的结果为<code>false</code>，由于此时进行的是与运算，所以说直接短路，不会再继续判断了，因此第二个表达式就不会执行。</p>
 <p>当然，除了与运算和或运算，还有一个非运算，这个就比较简单了，它可以将结果变成相反的样子，比如：</p>
 <pre><code class="language-java">public static void main(String[] args) {
@@ -1372,7 +1372,7 @@ $$</p>
 </code></pre>
 <p>虽然创建了代码块，但实际上程序依然是按照从上到下的顺序在进行的，所以说这里还是在逐行运行，即使使用花括号囊括。那咋一看这不就是没什么卵用吗？我们来看看变量。</p>
 <p>我们创建的变量，实际上是有作用域的，并不是在任何地方都可以使用，比如：</p>
-<p><img alt="image-20220917231014796" src="https://s2.loli.net/2022/09/17/DdvU3aQmE25KbxM.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220917231014796" src="https://s2.loli.net/2022/09/17/DdvU3aQmE25KbxM.png"></p>
 <p>变量的使用范围，仅限于其定义时所处的代码块，一旦超出对应的代码块区域，那么就相当于没有这个变量了。</p>
 <pre><code class="language-java">public static void main(String[] args) {
     int a = 10;   //此时变量在最外层定义
@@ -1621,15 +1621,15 @@ System.out.println(&quot;学生等级为: &quot; + grade);
 }
 </code></pre>
 <p>我们可以使用调试来观察每一轮的变化，调试模式跟普通的运行一样，也会执行我们的Java程序，但是我们可以添加断点，也就是说当代码运行到断点位置时，会在这里暂停，我们可以观察当代码执行到这个位置时各个变量的值：</p>
-<p><img alt="image-20220918112006020" src="https://s2.loli.net/2022/09/18/A8lRmNZCqxLStwQ.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220918112006020" src="https://s2.loli.net/2022/09/18/A8lRmNZCqxLStwQ.png"></p>
 <p>调试模式在我们后面的学习中非常重要，影响深远，所以说各位小伙伴一定要学会。调试也很简单，我们只需要点击右上角的调试选项即可（图标像一个小虫子一样，因为调试的英文名称是Debug）</p>
-<p><img alt="image-20220918112101677" src="https://s2.loli.net/2022/09/18/VKMGoJazvXAnh2k.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220918112101677" src="https://s2.loli.net/2022/09/18/VKMGoJazvXAnh2k.png"></p>
 <p>调试开始时，我们可以看到程序在断点位置暂停了：</p>
-<p><img alt="image-20220918112227207" src="https://s2.loli.net/2022/09/18/Cdq1ifFvHwMuO29.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220918112227207" src="https://s2.loli.net/2022/09/18/Cdq1ifFvHwMuO29.png"></p>
 <p>此时我们可以观察到当前的局部变量<code>i</code>的值，也可以直接在下方的调试窗口中查看：</p>
-<p><img alt="image-20220918112409944" src="https://s2.loli.net/2022/09/18/e6AODRMCgqmGwTy.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220918112409944" src="https://s2.loli.net/2022/09/18/e6AODRMCgqmGwTy.png"></p>
 <p>随着循环的进行，i的值也会逐渐自增：</p>
-<p><img alt="image-20220918112628585" src="https://s2.loli.net/2022/09/18/bS1DxpgwOfWhujy.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220918112628585" src="https://s2.loli.net/2022/09/18/bS1DxpgwOfWhujy.png"></p>
 <p>当<code>i</code>增长到2时，此时来到最后一轮循环，再继续向下运行，就不再满足循环条件了，所以说此时就会结束循环。</p>
 <p>当然，如果要执行多条语句的话，只需要使用花括号囊括就行了：</p>
 <pre><code class="language-java">for (int i = 0; i &lt; 3; i++) {
@@ -1638,7 +1638,7 @@ System.out.println(&quot;学生等级为: &quot; + grade);
 }
 </code></pre>
 <p>注意这里的<code>i</code>仅仅是for循环语句中创建的变量，所以说其作用域被限制在了循环体中，一旦离开循环体，那么就无法使用了：</p>
-<p><img alt="image-20220918112923978" src="https://s2.loli.net/2022/09/18/2aO9Ro5yfMUvhNc.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20220918112923978" src="https://s2.loli.net/2022/09/18/2aO9Ro5yfMUvhNc.png"></p>
 <p>但是我们可以将<code>i</code>的创建放到外面：</p>
 <pre><code class="language-java">public static void main(String[] args) {
     int i = 0;   //在外面创建变量i，这样全部范围内都可以使用了
@@ -1754,18 +1754,18 @@ System.out.println(&quot;学生等级为: &quot; + grade);
 <p>至此，面向过程相关的内容就讲解完毕了，从下一章开始，我们将进入面向对象编程的学习（类、数组、字符串）</p>
 <h3 id="java-9-交互式编程">(Java 9) 交互式编程</h3>
 <p>如果各位小伙伴学习过其他语言，比如Python、JavaScript这类解释型语言，应该能够体验到命令行交互编程的快捷。而Java9同样推出了相似的功能，让我们能够在命令行中直接编写和运行Java代码，我们可以使用<code>jshell</code>命令打开交互式编程工具：</p>
-<p><img alt="image-20250707201630991" src="https://s2.loli.net/2025/07/07/rxw9BcNRTPpgIm6.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20250707201630991" src="https://s2.loli.net/2025/07/07/rxw9BcNRTPpgIm6.png"></p>
 <p>我们可以尝试在其中编写Java代码，比如打印HelloWorld，在敲击过程中，可以使用<code>Tab</code>键进行代码补全操作：</p>
-<p><img alt="image-20250707201736343" src="https://s2.loli.net/2025/07/07/YncSrxbGpdPOD3E.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20250707201736343" src="https://s2.loli.net/2025/07/07/YncSrxbGpdPOD3E.png"></p>
 <p>编写完成后输入回车即可执行：</p>
-<p><img alt="image-20250707201831042" src="https://s2.loli.net/2025/07/07/iyeVHrOKcRvgBMw.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20250707201831042" src="https://s2.loli.net/2025/07/07/iyeVHrOKcRvgBMw.png"></p>
 <p>当然我们还可以提前创建一个变量，在后续代码中使用也是没有问题的：</p>
-<p><img alt="image-20250707202005720" src="https://s2.loli.net/2025/07/07/jX2hmE8kPxAJUMF.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20250707202005720" src="https://s2.loli.net/2025/07/07/jX2hmE8kPxAJUMF.png"></p>
 <p>包括我们在编写<code>if</code>或是<code>for</code>这种结构性代码（包括后面会学习的类声明等）的时候，会自动进入多行编辑状态：</p>
-<p><img alt="image-20250707202135192" src="https://s2.loli.net/2025/07/07/OaVCdpK8nRztxbB.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20250707202135192" src="https://s2.loli.net/2025/07/07/OaVCdpK8nRztxbB.png"></p>
 <p>直到我们输入完成整个<code>if</code>代码块的结尾花括号，对于一些简单的计算操作，可以尝试使用此交互式编程工具来完成。</p>
 <p>当不需要使用时，输入<code>/exit</code>指令即可退出：</p>
-<p><img alt="image-20250707202517718" src="https://s2.loli.net/2025/07/07/aWF92KYwqhPDgcz.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="image-20250707202517718" src="https://s2.loli.net/2025/07/07/aWF92KYwqhPDgcz.png"></p>
 <hr>
 <h2 id="实战练习">实战练习</h2>
 <p>面向过程的内容全部学习完成，我们来做几个练习题吧！</p>
@@ -1775,9 +1775,9 @@ System.out.println(&quot;学生等级为: &quot; + grade);
 </blockquote>
 <p>现在请你设计一个Java程序，打印出所有1000以内的水仙花数。</p>
 <h3 id="打印九九乘法表">打印九九乘法表</h3>
-<p><img alt="img" src="https://s2.loli.net/2022/09/18/zy1wuvj6gfHmAZS.jpg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="img" src="https://s2.loli.net/2022/09/18/zy1wuvj6gfHmAZS.jpg"></p>
 <p>现在我们要做的是在我们的程序中，也打印出这样的一个乘法表出来，请你设计一个Java程序来实现它。</p>
-<p><img alt="img" src="https://s2.loli.net/2022/09/18/Iek7OnbRoTw46Cl.jpg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="img" src="https://s2.loli.net/2022/09/18/Iek7OnbRoTw46Cl.jpg"></p>
 <h3 id="斐波那契数列">斐波那契数列</h3>
 <blockquote>
 <p>斐波那契数列（Fibonacci sequence），又称<a href="https://baike.baidu.com/item/黄金分割/115896">黄金分割</a>数列，因数学家莱昂纳多·斐波那契（Leonardo Fibonacci）以兔子繁殖为例子而引入，故又称为“兔子数列”，指的是这样一个数列：<strong>1、1、2、3、5、8、13、21、34、……</strong>在数学上，斐波那契数列以如下被以递推的方法定义：<em>F</em>(0)=0，<em>F</em>(1)=1, <em>F</em>(n)=<em>F</em>(n - 1)+<em>F</em>(n - 2)（<em>n</em> ≥ 2，<em>n</em> ∈ N*）在现代物理、准<a href="https://baike.baidu.com/item/晶体结构/10401467">晶体结构</a>、化学等领域，斐波纳契数列都有直接的应用，为此，美国数学会从 1963 年起出版了以《斐波纳契数列季刊》为名的一份数学杂志，用于专门刊载这方面的研究成果。</p>

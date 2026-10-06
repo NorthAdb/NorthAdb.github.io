@@ -109,9 +109,9 @@
 <li><strong>双向</strong>：可以向另一个会话提问，并在当前会话收到回复；</li>
 <li><strong>主动</strong>：当它的改动影响到另一个会话的工作时，Claude 能主动向其他会话发消息。</li>
 </ul>
-<p><img alt="Claude Code 跨会话更新" src="https://gitee.com/cheng-jiaqing/images/raw/master/multi-agent-comm-20260808-01.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Claude Code 跨会话更新" src="https://gitee.com/cheng-jiaqing/images/raw/master/multi-agent-comm-20260808-01.png"></p>
 <p>背后是两个新工具：<strong><code>ListAgents</code></strong>（找到能联系上的会话）+ <strong><code>SendMessage</code></strong>（把消息发过去）。</p>
-<p><img alt="SendMessage 演示" src="https://gitee.com/cheng-jiaqing/images/raw/master/multi-agent-comm-20260808-02.gif"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="SendMessage 演示" src="https://gitee.com/cheng-jiaqing/images/raw/master/multi-agent-comm-20260808-02.gif"></p>
 <blockquote>
 <p>⚠️ <strong>限制</strong>：传的是 Claude 自己写的一段文字——<strong>不是完整对话历史，也不带文件</strong>；改不了接收方配置，也批不了对方权限申请。想搬整个上下文，官方建议用 <code>resume</code>（恢复会话），不是发消息。</p>
 </blockquote>
@@ -143,11 +143,11 @@
 </tr>
 </tbody>
 </table>
-<p><img alt="Agent Teams 模式" src="https://gitee.com/cheng-jiaqing/images/raw/master/multi-agent-comm-20260808-03.png"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Agent Teams 模式" src="https://gitee.com/cheng-jiaqing/images/raw/master/multi-agent-comm-20260808-03.png"></p>
 <h3 id="codex-一个月前的-multi-agent-v2">Codex 一个月前的 Multi-agent v2</h3>
 <p>Codex CLI 一个月前转正了 Multi-agent v2：有 <code>send_message</code> 工具，<code>/root</code> 主会话用 <code>spawn_agent</code> 生成 <code>/root/researcher</code>、<code>/root/builder</code> 挂在路径树上，<strong>兄弟节点之间可以直接 send_message，不绕回 <code>/root</code></strong>。但这棵树从头到尾仍由同一个 orchestrator 派生——本质上和 subagent / Agent Teams 是同一类机制。</p>
 <p>真正对应"两个用户自己开的、互不隶属的终端会话"的，是 Codex 原生的多会话用法：两个终端各敲一遍 <code>codex</code>，就是两个完全独立的进程，<strong>没有内置通信通道</strong>——要互通得靠 tmux、把 Codex 当 MCP server 外接（<code>codex-reply</code> 续接线程）、或手动复制粘贴。</p>
-<p><img alt="Codex Multi-agent v2" src="https://gitee.com/cheng-jiaqing/images/raw/master/multi-agent-comm-20260808-04.jpg"></p>
+<p><img referrerpolicy="no-referrer" loading="lazy" alt="Codex Multi-agent v2" src="https://gitee.com/cheng-jiaqing/images/raw/master/multi-agent-comm-20260808-04.jpg"></p>
 <hr>
 <h2 id="一多-agent-通信的-4-种架构范式">一、多 Agent 通信的 4 种架构范式</h2>
 <h3 id="1-编排式-中心化orchestrator-worker-supervisor-当前绝对主流">1️⃣ 编排式 / 中心化（Orchestrator-Worker / Supervisor）— 当前绝对主流</h3>

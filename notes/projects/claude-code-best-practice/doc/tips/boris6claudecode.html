@@ -102,14 +102,14 @@
 <table width="100%">
 <tr>
 <td><a href="https://github.com/NorthAdb/north-my-note/tree/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc">← 返回 Claude Code 最佳实践</a></td>
-<td align="right"><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/%21/claude-jumping.svg" alt="Claude" width="60" /></td>
+<td align="right"><span class="img-missing" title="附件未提交到仓库">🖼️ claude-jumping.svg<small>（附件未入库）</small></span></td>
 </tr>
 </table>
 
 <hr>
 <h2 id="背景">背景</h2>
 <p>在亲身使用Opus 4.7几周后，Boris感觉"生产力爆棚"，并分享了从新模型中获得更多价值的六种方式——从权限自动化到精力调节再到验证模式。</p>
-<p><a href="https://x.com/bcherny"><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/boris-26-4-16/0.png" alt="Boris Cherny 介绍推文——亲身使用Opus 4.7" width="50%" /></a></p>
+<p><a href="https://x.com/bcherny"><span class="img-missing" title="附件未提交到仓库">🖼️ 0.png<small>（附件未入库）</small></span></a></p>
 <hr>
 <h2 id="1-自动模式不再有权限提示">1/ 自动模式——不再有权限提示</h2>
 <p>Opus 4.7喜欢执行复杂、长时间运行的任务：深度研究、重构代码、构建复杂功能、迭代直到达到性能基准。过去，你要么需要在模型执行这类长任务时"保姆式"照看，要么使用 <code>--dangerously-skip-permissions</code>。</p>
@@ -120,12 +120,12 @@
 </ul>
 <p>这意味着模型运行时不再需要照看。更重要的是，这意味着你可以并行运行更多Claude——如果安全，你可以将注意力切换到下一个Claude。</p>
 <p>自动模式现在可供Max、Teams和企业用户用于Opus 4.7。在CLI中按 <strong>Shift+Tab</strong> 在 <code>Ask permissions</code> → <code>Plan mode</code> → <code>Auto mode</code> 之间切换，或在桌面版或VS Code的下拉菜单中选择。</p>
-<p><a href="https://x.com/bcherny"><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/boris-26-4-16/1.png" alt="Boris Cherny 关于自动模式" width="50%" /></a></p>
+<p><a href="https://x.com/bcherny"><span class="img-missing" title="附件未提交到仓库">🖼️ 1.png<small>（附件未入库）</small></span></a></p>
 <hr>
 <h2 id="2-新的-fewer-permission-prompts-技能">2/ 新的 /fewer-permission-prompts 技能</h2>
 <p>Anthropic发布了一个新的 <code>/fewer-permission-prompts</code> 技能。它会扫描你的会话历史，找出那些安全但反复提示权限的常见bash和MCP命令。然后它会推荐一个命令列表，供你添加到权限允许列表中。</p>
 <p>使用这个来优化你的权限设置，避免不必要的权限提示，尤其是如果你不使用自动模式的话。</p>
-<p><a href="https://x.com/bcherny"><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/boris-26-4-16/2.png" alt="Boris Cherny 关于 /fewer-permission-prompts 技能" width="50%" /></a></p>
+<p><a href="https://x.com/bcherny"><span class="img-missing" title="附件未提交到仓库">🖼️ 2.png<small>（附件未入库）</small></span></a></p>
 <hr>
 <h2 id="3-回顾recaps">3/ 回顾（Recaps）</h2>
 <p>Anthropic本周早些时候推出了<strong>回顾</strong>功能，为Opus 4.7做准备。回顾是代理做了什么以及下一步做什么的简短摘要。</p>
@@ -138,12 +138,12 @@
   以针对那个单独的原因进行处理。（在 /config 中禁用回顾）
 </code></pre>
 <p>如果你不需要回顾，可以在 <code>/config</code> 中禁用。</p>
-<p><a href="https://x.com/bcherny"><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/boris-26-4-16/3.png" alt="Boris Cherny 关于回顾" width="50%" /></a></p>
+<p><a href="https://x.com/bcherny"><span class="img-missing" title="附件未提交到仓库">🖼️ 3.png<small>（附件未入库）</small></span></a></p>
 <hr>
 <h2 id="4-专注模式">4/ 专注模式</h2>
 <p>Boris非常喜欢CLI中新的<strong>专注模式</strong>，它隐藏所有中间工作，只关注最终结果。模型已经达到了他通常可以信任它执行正确命令和做出正确编辑的程度。他只看最终结果。</p>
 <p>使用 <code>/focus</code> 切换开关。</p>
-<p><a href="https://x.com/bcherny"><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/boris-26-4-16/4.png" alt="Boris Cherny 关于专注模式" width="50%" /></a></p>
+<p><a href="https://x.com/bcherny"><span class="img-missing" title="附件未提交到仓库">🖼️ 4.png<small>（附件未入库）</small></span></a></p>
 <hr>
 <h2 id="5-配置你的effort精力级别">5/ 配置你的Effort（精力）级别</h2>
 <p>Opus 4.7使用<strong>自适应思考</strong>而不是固定的思考预算。要调整模型思考更多或更少，调节effort即可。</p>
@@ -152,7 +152,7 @@
 <li><strong>较高的effort</strong> —— 最高的智能和能力</li>
 </ul>
 <p>滑块提供五个级别：<code>low</code> · <code>medium</code> · <code>high</code> · <code>xhigh</code> · <code>max</code> —— 左边是速度，右边是智能。</p>
-<p><a href="https://x.com/bcherny"><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/boris-26-4-16/5.png" alt="Boris Cherny 关于精力级别" width="50%" /></a></p>
+<p><a href="https://x.com/bcherny"><span class="img-missing" title="附件未提交到仓库">🖼️ 5.png<small>（附件未入库）</small></span></a></p>
 <hr>
 <h2 id="6-给claude一种验证其工作的方法">6/ 给Claude一种验证其工作的方法</h2>
 <p>最后，确保Claude有一种验证其工作的方法。这一点一直很重要——现在4.7的输出质量是之前的2-3倍，所以比以往任何时候都更重要。</p>
@@ -169,7 +169,7 @@
 <li>提交一个PR</li>
 </ol>
 <p>对于长时间运行的工作，验证更加重要——当你回到任务时，你知道代码是能用的。</p>
-<p><a href="https://x.com/bcherny"><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/boris-26-4-16/6.png" alt="Boris Cherny 关于验证" width="50%" /></a></p>
+<p><a href="https://x.com/bcherny"><span class="img-missing" title="附件未提交到仓库">🖼️ 6.png<small>（附件未入库）</small></span></a></p>
 <hr>
 <h2 id="来源">来源</h2>
 <ul>
