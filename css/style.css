@@ -137,7 +137,10 @@ body {
   line-height: 1.75;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  /* clip (not hidden): hidden turns body into a scroll container,
+     which silently breaks position:sticky (the article TOC) */
   overflow-x: hidden;
+  overflow-x: clip;
   transition: background-color 0.25s ease, color 0.25s ease;
 }
 
@@ -925,9 +928,14 @@ section.block { padding: 44px 0; }
   font-size: 13px;
   max-height: calc(100vh - var(--nav-h) - 80px);
   overflow-y: auto;
-  scrollbar-width: none;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+  overscroll-behavior: contain;
 }
-.toc::-webkit-scrollbar { display: none; }
+.toc::-webkit-scrollbar { width: 3px; }
+.toc::-webkit-scrollbar-track { background: transparent; }
+.toc::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+.toc::-webkit-scrollbar-thumb:hover { background: var(--text-3); }
 .toc .toc-title {
   font-size: 11.5px;
   font-weight: 600;

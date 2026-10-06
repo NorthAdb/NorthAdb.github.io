@@ -109,16 +109,40 @@
         host.appendChild(ul);
       });
 
-      var links = document.querySelectorAll(".toc-build a");
+      var linkLists = Array.prototype.map.call(
+        document.querySelectorAll(".toc-build"),
+        function (host) { return Array.prototype.slice.call(host.querySelectorAll("a")); }
+      );
+      var lastCurrent = -1;
       var spy = function () {
         var y = window.scrollY + 120;
         var current = -1;
         heads.forEach(function (h, i) {
           if (h.offsetTop <= y) current = i;
         });
-        links.forEach(function (a, i) {
-          a.classList.toggle("current", i === current);
+        linkLists.forEach(function (list) {
+          list.forEach(function (a, i) {
+            a.classList.toggle("current", i === current);
+          });
         });
+        /* long TOCs: keep the current item inside each visible sidebar viewport */
+        if (current >= 0 && current !== lastCurrent) {
+          lastCurrent = current;
+          linkLists.forEach(function (list) {
+            var a = list[current];
+            if (!a) return;
+            var host = a.closest(".toc");
+            if (!host || host.clientHeight <= 0 || host.scrollHeight <= host.clientHeight + 4) return;
+            var rect = host.getBoundingClientRect();
+            var top = a.getBoundingClientRect().top - rect.top + host.scrollTop;
+            var bottom = top + a.offsetHeight;
+            if (top < host.scrollTop + 32) {
+              host.scrollTo({ top: Math.max(0, top - 32), behavior: "smooth" });
+            } else if (bottom > host.scrollTop + host.clientHeight - 32) {
+              host.scrollTo({ top: bottom - host.clientHeight + 32, behavior: "smooth" });
+            }
+          });
+        }
       };
       window.addEventListener("scroll", spy, { passive: true });
       spy();
