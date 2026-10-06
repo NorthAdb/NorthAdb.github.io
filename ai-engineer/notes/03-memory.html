@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>一、文档核心对Agent Memory的整体见解 · AI Agent 面试宝典 — NorthAdb 的博客</title>
+<meta name="description" content="大模型本身记忆能力极弱，仅靠原生上下文窗口如同金鱼记忆；单纯拼接对话历史存在致命缺陷： 1. 上下文长度有限，多轮对话、大量工具调用极易超限； 2. 超长历史会产生上下文漂移，模型丢失早期关键信息； 3. 多会话/新对话线程无记忆隔离，每次…">
+<link rel="canonical" href="https://northadb.github.io/ai-engineer/notes/03-memory.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="一、文档核心对Agent Memory的整体见解 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta property="og:description" content="大模型本身记忆能力极弱，仅靠原生上下文窗口如同金鱼记忆；单纯拼接对话历史存在致命缺陷： 1. 上下文长度有限，多轮对话、大量工具调用极易超限； 2. 超长历史会产生上下文漂移，模型丢失早期关键信息； 3. 多会话/新对话线程无记忆隔离，每次…">
+<meta property="og:url" content="https://northadb.github.io/ai-engineer/notes/03-memory.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="一、文档核心对Agent Memory的整体见解 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta name="twitter:description" content="大模型本身记忆能力极弱，仅靠原生上下文窗口如同金鱼记忆；单纯拼接对话历史存在致命缺陷： 1. 上下文长度有限，多轮对话、大量工具调用极易超限； 2. 超长历史会产生上下文漂移，模型丢失早期关键信息； 3. 多会话/新对话线程无记忆隔离，每次…">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../feed.xml">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../ai-engineer/assets/course.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "一、文档核心对Agent Memory的整体见解", "description": "大模型本身记忆能力极弱，仅靠原生上下文窗口如同金鱼记忆；单纯拼接对话历史存在致命缺陷： 1. 上下文长度有限，多轮对话、大量工具调用极易超限； 2. 超长历史会产生上下文漂移，模型丢失早期关键信息； 3. 多会话/新对话线程无记忆隔离，每次…", "author": {"@type": "Person", "name": "juliepy", "url": "https://github.com/juliepy/AI-Engineer-from-scrach"}, "mainEntityOfPage": "https://northadb.github.io/ai-engineer/notes/03-memory.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../index.html">首页</a><span>/</span><a href="../../learn.html">课件</a><span>/</span><a href="../../ai-engineer/index.html">AI Agent 面试宝典</a><span>/</span><a href="../../ai-engineer/notes/index.html">学习笔记与思考</a></div>
+          <h1>一、文档核心对Agent Memory的整体见解</h1>
+          <p class="post-sub">大模型本身记忆能力极弱，仅靠原生上下文窗口如同金鱼记忆；单纯拼接对话历史存在致命缺陷： 1. 上下文长度有限，多轮对话、大量工具调用极易超限； 2. 超长历史会产生上下文漂移，模型丢失早期关键信息； 3. 多会话/新对话线程无记忆隔离，每次…</p>
+          <div class="post-meta">
+            <span class="avatar">AI</span>
+            <span>AI Agent 面试宝典</span><span class="sep"></span>
+            <span>学习笔记与思考</span><span class="sep"></span>
+            <span>阅读约 8 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<h2 id="1-llm">1. LLM原生内存短板</h2>
+<p>大模型本身记忆能力极弱，仅靠原生上下文窗口如同金鱼记忆；单纯拼接对话历史存在致命缺陷：
+1. 上下文长度有限，多轮对话、大量工具调用极易超限；
+2. 超长历史会产生<strong>上下文漂移</strong>，模型丢失早期关键信息；
+3. 多会话/新对话线程无记忆隔离，每次对话从零开始，缺乏智能连续性。</p>
+<pre><code class="language-mermaid">flowchart LR
+    U[用户多轮输入] --&gt; Concat[拼接全部历史 → Prompt]
+    Concat --&gt; LLM[LLM]
+    Concat --&gt;|轮次变多| Cap[上下文窗口打满]
+    Concat --&gt;|超长历史| Drift[上下文漂移&lt;br/&gt;早期关键信息丢失]
+    Concat --&gt;|新开线程| Zero[记忆归零&lt;br/&gt;无跨会话连续性]
+</code></pre>
+<h2 id="2-agent">2. 四层递进式Agent内存体系（从简单到高级）</h2>
+<p>作者把Agent内存划分为4个层级，逐层解决长会话、跨会话、长期记忆、信息压缩遗忘问题，也是面试区分短记忆、长记忆、RAG类记忆的核心框架：</p>
+<pre><code class="language-mermaid">flowchart TB
+    L1[层级1 Conversation History&lt;br/&gt;对话历史 · 短时记忆]
+    L2[层级2 Working Memory&lt;br/&gt;工作内存 · 短时增强]
+    L3[层级3 Semantic Recall&lt;br/&gt;语义检索 · RAG 长记忆]
+    L4[层级4 Observational Memory&lt;br/&gt;观测记忆 · 压缩+遗忘]
+    L1 --&gt;|补强核心事实| L2
+    L2 --&gt;|跨会话按需召回| L3
+    L3 --&gt;|海量文本分层压缩| L4
+
+    subgraph Short[&quot;短 Memory&quot;]
+        L1
+        L2
+    end
+    subgraph Long[&quot;长 Memory&quot;]
+        L3
+        L4
+    end
+</code></pre>
+<h3 id="1conversation-history">层级1：Conversation History 对话历史（最基础·短时记忆）</h3>
+<h4 id="memory">定位：原生短时对话内存，基础短Memory</h4>
+<ul>
+<li>实现方式：每次请求把历史消息列表拼入Prompt送入LLM；</li>
+<li>适用场景：10~30轮以内短对话；</li>
+<li>缺点：
+  1. 上下文窗口天花板，长对话直接超限；
+  2. 滑动窗口会丢弃最早期核心需求、用户偏好；
+  3. 跨线程/新会话完全丢失记忆；
+  4. 工具返回大量文本时上下文膨胀速度极快。</li>
+</ul>
+<h3 id="2working-memory">层级2：Working Memory 工作内存（短时关键信息增强，补充短记忆）</h3>
+<h4 id="_1">定位：短时记忆辅助方案，补强对话历史，存储稳定不变的少量关键信息</h4>
+<ul>
+<li>实现逻辑：预定义固定字段模板（用户姓名、需求目标、输出偏好等），通过<code>update working memory</code>工具更新字段；字段内容永久注入系统指令，全程伴随对话；</li>
+<li>优势：
+  1. 几百轮对话仍保留固定核心事实，弥补滑动窗口丢失早期信息问题；
+  2. 轻量化，适合长任务持续执行（代码Agent、多步骤任务）；</li>
+<li>局限：
+  1. 需要人工提前定义记忆字段，不够自主智能；
+  2. 仅存少量静态信息，无法承载大量历史细节；
+  3. 不支持跨会话长期存储，属于短期增强记忆，不是长记忆。</li>
+</ul>
+<pre><code class="language-mermaid">flowchart TD
+    U[用户输入] --&gt; H[对话历史 Message List]
+    H --&gt; W{是否超滑动窗口?}
+    W --&gt;|是| Cut[截断最早消息&lt;br/&gt;保留最近 N 轮]
+    W --&gt;|否| Keep[保留全部近期历史]
+    Cut --&gt; WM
+    Keep --&gt; WM
+    U --&gt; ToolWM[update working memory]
+    ToolWM --&gt; Store[Working Memory 固定字段&lt;br/&gt;姓名 / 目标 / 偏好]
+    Store --&gt; WM[常驻 System Prompt&lt;br/&gt;不参与截断]
+    WM --&gt; LLM[拼装 Prompt → LLM]
+    Cut -.-&gt;|风险| Risk[早期细节可能丢失]
+    Store -.-&gt;|兜底| Risk
+</code></pre>
+<h3 id="3semantic-recall-rag-memory">层级3：Semantic Recall 语义检索内存（对应RAG Memory，中长期跨会话记忆）</h3>
+<h4 id="ragmemoryrag-memory">定位：类RAG向量检索记忆，标准长Memory/RAG Memory方案</h4>
+<ul>
+<li>本质就是Agent场景下的RAG：
+  1. 每轮对话消息向量化存入向量库；
+  2. 用户新提问时生成Embedding，向量检索Top-K语义匹配历史记录，把相关片段注入上下文；</li>
+<li>核心亮点：
+  1. <strong>跨线程长期记忆</strong>：新开对话也能召回过往信息，真正实现长记忆；
+  2. 无需预定义字段，自动识别、存储、检索各类对话内容；
+  3. 只拉取相关片段，不用全量加载历史，解决上下文膨胀；</li>
+<li>缺点（RAG内存通用痛点）：
+  1. 召回精度不稳定，Top-K、检索范围需要反复调参；
+  2. 新增向量库、嵌入模型，带来额外成本、延迟；
+  3. 每轮注入的检索内容动态改变系统Prompt前缀，无法做Token缓存，生产成本更高。</li>
+</ul>
+<pre><code class="language-mermaid">flowchart TD
+    U[用户输入 / 新会话] --&gt; Emb[Query Embedding]
+    Hist[每轮对话原文] --&gt; Vec[(向量库&lt;br/&gt;全量持久化)]
+    Emb --&gt; Retr[语义检索 Top-K]
+    Vec --&gt; Retr
+    Retr --&gt; Ctx[相关历史片段]
+    U --&gt; WM[Working Memory&lt;br/&gt;高频固定信息]
+    WM --&gt; Prompt[拼装上下文]
+    Ctx --&gt; Prompt
+    Prompt --&gt; LLM[LLM 生成回答]
+    LLM --&gt; Hist
+    Hist -.-&gt;|跨线程可召回| Vec
+</code></pre>
+<h3 id="4observational-memory">层级4：Observational Memory 观测记忆（顶级长期记忆，模拟人类记忆+遗忘机制）</h3>
+<h4 id="_2">定位：下一代高级长时记忆，整合前三者优势，解决海量长会话、大量工具返回文本场景</h4>
+<p>模仿人脑<strong>记忆压缩、分级存储、主动遗忘不重要信息</strong>，双后台异步Agent自动处理，不阻塞对话：
+1. <strong>Observer观测器</strong>：对话Token超过阈值（如2K）后台自动运行，把完整对话/工具返回的海量文本压缩成精简观测摘要，几十倍缩减Token；只保留关键事实，丢弃冗余无效内容；
+2. <strong>Reflector反射器</strong>：观测摘要累积再次超限后，二次聚合压缩，剔除低优先级、过时信息，合并重复用户偏好，实现“选择性遗忘”；
+3. 核心优势：
+   - 观测摘要稳定不变，支持Prompt缓存，解决语义检索无法缓存的痛点；
+   - 异步后台执行，不打断用户对话；
+   - 完美适配工具调用返回超大文本场景；
+   - 跨会话长期留存用户稳定习惯、历史项目细节；
+   - Long Mem Eval行业长记忆基准测试表现最优，同模型远超语义检索；
+- 定位：可完全替代前三种内存体系，是长期深度Agent最优方案。</p>
+<pre><code class="language-mermaid">flowchart TD
+    U[用户实时对话] --&gt; Agent[主对话 Agent]
+    Agent --&gt; Ans[回复用户]
+    Agent --&gt;|对话 + 工具返回| Buf[原始消息缓冲]
+
+    Buf --&gt;|Token &gt; 阈值| Obs[Observer 观测器&lt;br/&gt;异步压缩]
+    Obs --&gt; ObsMem[观测摘要&lt;br/&gt;关键事实 / 精简记录]
+    ObsMem --&gt;|摘要再超限| Ref[Reflector 反射器&lt;br/&gt;二次聚合]
+    Ref --&gt; Forget[选择性遗忘&lt;br/&gt;剔除过时 / 低优 / 重复]
+    Forget --&gt; Final[稳定观测记忆&lt;br/&gt;可 Prompt 缓存]
+    Final --&gt;|注入上下文| Agent
+    Final -.-&gt;|可选| Vec[(向量库&lt;br/&gt;跨会话归档)]
+</code></pre>
+<h2 id="3">3. 文档对「长会话内存处理」统一思路</h2>
+<ol>
+<li>拒绝单纯无限拼接对话历史，避免上下文漂移与超限；</li>
+<li>短对话：对话历史+工作内存组合，留存核心偏好；</li>
+<li>多轮长对话、跨会话：语义检索（RAG Memory）做基础长期存储；</li>
+<li>超长周期、高频工具调用、多周持续交互：观测记忆分层压缩+分级遗忘，持续控制上下文长度，同时永久沉淀关键信息；</li>
+<li>分层压缩逻辑：完整原始消息 → Observer压缩观测记录 → Reflector二次聚合精简，循环往复，持续降低上下文负载。</li>
+</ol>
+<pre><code class="language-mermaid">flowchart LR
+    Raw[完整原始消息] --&gt; Obs[Observer&lt;br/&gt;压缩观测记录]
+    Obs --&gt; Ref[Reflector&lt;br/&gt;二次聚合精简]
+    Ref --&gt;|循环| Obs
+    Ref --&gt; Keep[关键信息沉淀]
+    Ref --&gt; Drop[低价值信息遗忘]
+</code></pre>
+<pre><code class="language-mermaid">flowchart TD
+    Q{会话特征?}
+    Q --&gt;|一次性短交互| S1[只用对话历史]
+    Q --&gt;|单会话多轮长任务| S2[对话历史 + 工作内存]
+    Q --&gt;|多会话 / 反复新建线程| S3[RAG 语义检索记忆]
+    Q --&gt;|超长期 + 高频工具长文本| S4[观测记忆分层压缩]
+</code></pre>
+<h1 id="memory-memory-rag-memory">二、面试标准答案：分场景回答（短memory / 长memory / RAG memory / 长会话处理）</h1>
+<h2 id="1-memorymemoryrag-memory">1. 分别说明短Memory、长Memory、RAG Memory</h2>
+<pre><code class="language-mermaid">mindmap
+  root((Agent Memory))
+    Short Memory 短时记忆
+      Conversation History
+        滑动窗口拼接
+        单会话 / 易丢早期信息
+      Working Memory
+        固定字段常驻 System
+        补强核心偏好
+    Long Memory 长时记忆
+      RAG Semantic Recall
+        向量化 + Top-K 召回
+        跨会话 / 动态 Prompt 难缓存
+      Observational Memory
+        Observer 压缩
+        Reflector 遗忘
+        稳定摘要可缓存
+</code></pre>
+<h3 id="1short-memory">（1）Short Memory 短时记忆</h3>
+<p>包含两种实现：原始对话历史、工作内存
+1. 对话历史：直接拼接最近N轮消息，滑动窗口截断，仅适合少量轮次短对话；缺陷是早期信息易丢失、不支持跨会话；
+2. 工作内存：作为补充，预定义字段存储静态关键信息（姓名、需求、输出偏好），全程注入系统提示词，几百轮对话不会丢失核心目标；但存储容量有限、需要人工预设字段，不能独立承担长期记忆。
+整体短时记忆局限：仅单会话生效，无法跨对话，无法承载海量历史。</p>
+<h3 id="2long-memory">（2）Long Memory 长时记忆</h3>
+<p>能够跨会话、长期留存用户全部交互信息的内存方案，主流两类：
+1. 基础版：语义检索（RAG Memory）；
+2. 高阶版：观测记忆；
+核心目标：突破单一会话窗口限制，用户新开对话、间隔数天交互仍能调取过往全部信息。</p>
+<h3 id="3rag-memory">（3）RAG Memory（语义检索内存，长记忆主流实现）</h3>
+<p>本质是把RAG架构嵌入Agent记忆链路：
+1. 存储层：每轮对话向量化存入向量数据库；
+2. 推理层：用户提问时Embedding检索语义相似历史片段，仅把相关内容送入LLM上下文；
+3. 优缺点：自动存储、跨会话长记忆、按需加载减少上下文占用；但召回存在误差，引入向量库带来延迟与成本，动态Prompt无法缓存。</p>
+<h2 id="2-memory">2. 面试官提问：如何处理超长回话/长期持续对话的Memory？</h2>
+<p>分三层递进方案，工程落地分层选型：</p>
+<h3 id="1">方案1：轻量长对话（几十轮、少量工具调用）</h3>
+<p>对话历史滑动窗口 + 工作内存组合
+- 滑动窗口保留近期对话保证上下文流畅；
+- 工作内存固化用户核心目标、固定偏好，防止窗口截断丢失早期需求。</p>
+<h3 id="2">方案2：中长周期、多会话切换（标准业务场景）</h3>
+<p>采用RAG语义检索记忆作为底层长存储
+1. 全量对话持久化向量化入库，实现跨线程记忆；
+2. 每轮查询只召回语义相关历史，控制输入上下文长度，避免超限；
+3. 搭配工作内存存储高频固定信息，减少检索依赖，降低召回误差影响。</p>
+<h3 id="3agentagent">方案3：超长期会话、高频工具调用、海量返回文本（深度Agent/代码Agent）</h3>
+<p>使用观测记忆架构（文档最优方案）
+1. 设置Token阈值，后台异步Observer自动压缩对话与工具返回冗余内容，大幅降低上下文Token数量；
+2. 观测记录累积超限后，Reflector二次聚合精简，自动淘汰低价值过时信息，模拟人脑遗忘；
+3. 压缩后的观测摘要稳定可缓存，降低推理成本；
+4. 底层搭配向量库实现跨会话长期存储，兼顾短期对话流畅性与长期记忆完整性；
+5. 全程异步执行压缩逻辑，不会阻塞用户实时对话。</p>
+<h2 id="3_1">3. 拔高总结（面试加分收尾）</h2>
+<p>四层内存是递进迭代关系，没有绝对最优，需要根据业务对话长度、是否跨会话、工具调用频次选型：
+1. 一次性短交互：只用对话历史；
+2. 单会话多轮长任务：对话历史+工作内存；
+3. 多会话、用户反复新建对话线程：RAG语义检索记忆；
+4. 长期深度Agent、大量工具返回长文本、追求顶尖长记忆能力：观测记忆分层压缩架构。
+底层核心解决两个LLM原生痛点：上下文窗口限制、无法自主长期存储跨会话信息。</p>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags">
+            <span class="chip">学习笔记与思考</span>
+            <span class="chip">AI Agent</span>
+            <span class="chip">面试宝典</span>
+          </div>
+          <a class="t-meta" href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/99-My%20idea/memory/03_memory.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../ai-engineer/notes/memory-02.html"><span class="dir">← 上一篇</span><span class="t">Agentic AI 面试精简问答（背诵版，分基础/架构/多智能体/工程落地/安全伦理）</span></a><a class="next" href="../../ai-engineer/notes/04-memory.html"><span class="dir">下一篇 →</span><span class="t">面试完整回答：长对话摘要丢失关键信息怎么解决</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../rag/index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+
+<script src="../../ai-engineer/assets/mermaid-init.js" defer></script>
+<script src="../../js/main.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DeepSeek Harness 架构解析 -- 到底改变了什么， 值得思考 · AI Agent 面试宝典 — NorthAdb 的博客</title>
+<meta name="description" content="DeepSeek Harness 刚出来不久，星数已经很高，仓库里大约有 12,000 次提交。题目偏进阶，但下面会用尽量简单的视角讲：既看清这个 Harness 为什么特别，也把「编码 Agent 到底是什么」过一遍。">
+<link rel="canonical" href="https://northadb.github.io/ai-engineer/deepseek/01-arch.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="DeepSeek Harness 架构解析 -- 到底改变了什么， 值得思考 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta property="og:description" content="DeepSeek Harness 刚出来不久，星数已经很高，仓库里大约有 12,000 次提交。题目偏进阶，但下面会用尽量简单的视角讲：既看清这个 Harness 为什么特别，也把「编码 Agent 到底是什么」过一遍。">
+<meta property="og:url" content="https://northadb.github.io/ai-engineer/deepseek/01-arch.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="DeepSeek Harness 架构解析 -- 到底改变了什么， 值得思考 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta name="twitter:description" content="DeepSeek Harness 刚出来不久，星数已经很高，仓库里大约有 12,000 次提交。题目偏进阶，但下面会用尽量简单的视角讲：既看清这个 Harness 为什么特别，也把「编码 Agent 到底是什么」过一遍。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../feed.xml">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../ai-engineer/assets/course.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "DeepSeek Harness 架构解析 -- 到底改变了什么， 值得思考", "description": "DeepSeek Harness 刚出来不久，星数已经很高，仓库里大约有 12,000 次提交。题目偏进阶，但下面会用尽量简单的视角讲：既看清这个 Harness 为什么特别，也把「编码 Agent 到底是什么」过一遍。", "author": {"@type": "Person", "name": "juliepy", "url": "https://github.com/juliepy/AI-Engineer-from-scrach"}, "mainEntityOfPage": "https://northadb.github.io/ai-engineer/deepseek/01-arch.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../index.html">首页</a><span>/</span><a href="../../learn.html">课件</a><span>/</span><a href="../../ai-engineer/index.html">AI Agent 面试宝典</a><span>/</span><a href="../../ai-engineer/deepseek/index.html">DeepSeek Harness</a></div>
+          <h1>DeepSeek Harness 架构解析 -- 到底改变了什么， 值得思考</h1>
+          <p class="post-sub">DeepSeek Harness 刚出来不久，星数已经很高，仓库里大约有 12,000 次提交。题目偏进阶，但下面会用尽量简单的视角讲：既看清这个 Harness 为什么特别，也把「编码 Agent 到底是什么」过一遍。</p>
+          <div class="post-meta">
+            <span class="avatar">AI</span>
+            <span>AI Agent 面试宝典</span><span class="sep"></span>
+            <span>DeepSeek Harness</span><span class="sep"></span>
+            <span>阅读约 9 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<p>DeepSeek Harness 刚出来不久，星数已经很高，仓库里大约有 12,000 次提交。题目偏进阶，但下面会用尽量简单的视角讲：既看清这个 Harness 为什么特别，也把「编码 Agent 到底是什么」过一遍。</p>
+<p>适合两类人：</p>
+<ul>
+<li>已经在用 Claude Code、Codex、Cursor，想弄清底层细节</li>
+<li>想给自己的 AI 产品里嵌一套 Agent</li>
+</ul>
+<p>Vibe coding 让很多人第一次能做出 SaaS 和软件。默认路径往往是：把已经用过的东西再做一遍，普通 App、普通 SaaS。AI 开发真正往前走的方向，是把 Agent 做进产品里。</p>
+<hr>
+<h2 id="harness-agent-loop">所有 Harness 共用的 Agent Loop</h2>
+<p>DeepSeek Harness 和别的 Harness 一样，底层模型几乎相同。Claude Code、Hermes、DeepSeek Harness（以及讲者自己的 Shockwave）都走这一套：</p>
+<p>这就是所有 Agent Loop 的骨架。</p>
+<p><strong>Agent Loop</strong></p>
+<p>模型不再要工具时，环就停。</p>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;flowchart&quot;: {&quot;curve&quot;: &quot;basis&quot;, &quot;rankSpacing&quot;: 56, &quot;nodeSpacing&quot;: 48, &quot;padding&quot;: 16, &quot;useMaxWidth&quot;: false, &quot;htmlLabels&quot;: true}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;22px&quot;, &quot;background&quot;: &quot;#020617&quot;, &quot;lineColor&quot;: &quot;#7DD3FC&quot;, &quot;clusterBkg&quot;: &quot;#020617&quot;, &quot;clusterBorder&quot;: &quot;#020617&quot;, &quot;titleColor&quot;: &quot;#94A3B8&quot;, &quot;edgeLabelBackground&quot;: &quot;#020617&quot;}, &quot;themeCSS&quot;: &quot;.nodeLabel,.label,.cluster-label,span{font-size:22px!important}&quot;}}%%
+flowchart TB
+    YOU[&quot;你&lt;br/&gt;「把测试修好」&quot;] --&gt; MODEL[&quot;模型&quot;]
+    MODEL --&gt;|纯文本| ANSWER[&quot;纯文本回答&lt;br/&gt;环结束&quot;]
+
+    L[&quot; &quot;] ~~~ MODEL ~~~ ANSWER
+    RESULT[&quot;结果&quot;] ~~~ MID[&quot;一直转，直到它不再要工具&quot;] ~~~ TOOLCALL[&quot;工具调用&quot;]
+    BL[&quot; &quot;] ~~~ RUNIT[&quot;执行&quot;] ~~~ BR[&quot; &quot;]
+
+    RESULT --&gt;|下一步| MODEL
+    MODEL --&gt;|读这个文件| TOOLCALL
+    TOOLCALL --&gt;|bash · 读 · 改| RUNIT
+    RUNIT --&gt;|交回去| RESULT
+
+    class YOU you
+    class MODEL model
+    class TOOLCALL tool
+    class RUNIT run
+    class RESULT result
+    class ANSWER exit
+    class MID ghost
+    class L,BL,BR spacer
+    classDef you fill:#BFDBFE,stroke:#93C5FD,color:#1E3A8A,font-size:22px
+    classDef model fill:#E9D5FF,stroke:#D8B4FE,color:#6B21A8,font-size:22px
+    classDef tool fill:#A5F3FC,stroke:#67E8F9,color:#155E75,font-size:22px
+    classDef run fill:#FEF08A,stroke:#FDE047,color:#713F12,font-size:22px
+    classDef result fill:#FBCFE8,stroke:#F9A8D4,color:#831843,font-size:22px
+    classDef exit fill:#BBF7D0,stroke:#86EFAC,color:#14532D,font-size:22px
+    classDef ghost fill:#0000,stroke:#0000,color:#94A3B8,font-size:22px
+    classDef spacer fill:#0000,stroke:#0000,color:#0000,font-size:1px
+</code></pre>
+<ul>
+<li>Step — 绕一圈。</li>
+<li>Turn — 一直绕到出环。</li>
+<li>Tool — 它可以调用的函数。</li>
+</ul>
+<p>Agent 并不因为模型更好才聪明。环只是转得更久，工具更好。</p>
+<p>一眼看去像一大坨 JSON，其实可以拆开。Agent 真正「是」的东西只有两块：</p>
+<ul>
+<li><strong>模型</strong>：一次次被调用的 LLM</li>
+<li><strong>本机循环</strong>：驱动 loop、执行工具、拼上下文——跑在你电脑上</li>
+</ul>
+<p>一次「发消息」里，真正打到 Anthropic / OpenAI 的，只有那一次 API；其余编排全在本地。</p>
+<hr>
+<h2 id="api">一次 API 调用里到底有什么</h2>
+<p>以 Claude Opus 为例，发给模型的不是「一句话」，而是一次打包：</p>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;flowchart&quot;: {&quot;curve&quot;: &quot;linear&quot;, &quot;rankSpacing&quot;: 32, &quot;nodeSpacing&quot;: 24, &quot;padding&quot;: 12, &quot;useMaxWidth&quot;: false, &quot;htmlLabels&quot;: true}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;22px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;lineColor&quot;: &quot;#CBD5E1&quot;, &quot;edgeLabelBackground&quot;: &quot;#111111&quot;}, &quot;themeCSS&quot;: &quot;.nodeLabel,.label,span{font-size:22px!important}&quot;}}%%
+flowchart LR
+    SYS[&quot;system prompt&quot;] --&gt; TOOLS[&quot;tools&quot;] --&gt; MSGS[&quot;messages&quot;] --&gt; LLM[&quot;单次 API&quot;]
+    class SYS start
+    class TOOLS,MSGS step
+    class LLM prod
+    classDef start fill:#BFDBFE,stroke:#93C5FD,color:#1E3A8A,font-size:22px
+    classDef step fill:#A5F3FC,stroke:#67E8F9,color:#155E75,font-size:22px
+    classDef prod fill:#E9D5FF,stroke:#D8B4FE,color:#6B21A8,font-size:22px
+</code></pre>
+<p>对话比直觉更「事务化」。第一轮：用户消息进模型 → 可能走工具 → 回复你。下一轮并不是「模型自己记得」，而是 <strong>把整段历史再发一次</strong>。每一次都是独立 API，只是 <code>messages</code> 越攒越长。</p>
+<hr>
+<h2 id="coding-agent">Coding Agent 其实只有四块</h2>
+<p>Loop 拆开后，Coding Agent 就是：</p>
+<ol>
+<li><strong>模型</strong>：你选的那颗 LLM</li>
+<li><strong>工具注册表</strong>：塞进 API 的 tools（示例里的两个天气/机票工具）</li>
+<li><strong>Prompt 组装</strong>：那份 system prompt</li>
+<li><strong>Session</strong>：本机负责记住 messages，每轮把更长的对话送回去，让模型只「回答最新一条」</li>
+</ol>
+<p><strong>Harness 到底是什么</strong></p>
+<p>模型是租的。Harness 才是你自己的。</p>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;flowchart&quot;: {&quot;curve&quot;: &quot;linear&quot;, &quot;rankSpacing&quot;: 36, &quot;nodeSpacing&quot;: 28, &quot;padding&quot;: 12, &quot;useMaxWidth&quot;: false, &quot;htmlLabels&quot;: true}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;22px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;lineColor&quot;: &quot;#CBD5E1&quot;, &quot;edgeLabelBackground&quot;: &quot;#111111&quot;}, &quot;themeCSS&quot;: &quot;.nodeLabel,.label,span{font-size:22px!important}&quot;}}%%
+flowchart TB
+    LOOP[&quot;Loop — 调模型、跑工具、再循环&quot;]
+
+    LOOP --&gt; MA[&quot;模型适配器&quot;]
+    LOOP --&gt; TR[&quot;工具注册表&quot;]
+    LOOP --&gt; PA[&quot;Prompt 组装&quot;]
+    LOOP --&gt; SL[&quot;Session 日志&quot;]
+
+    MA ~~~ MAD[&quot;对接供应商&lt;br/&gt;流式吐 token&quot;]
+    TR ~~~ TRD[&quot;模型能调什么&lt;br/&gt;不能调什么&quot;]
+    PA ~~~ PAD[&quot;每一步&lt;br/&gt;它看见什么&quot;]
+    SL ~~~ SLD[&quot;它记得什么&lt;br/&gt;能否接着跑&quot;]
+
+    class LOOP dec
+    class MA,TR,PA,SL start
+    class MAD,TRD,PAD,SLD ghost
+    classDef start fill:#BFDBFE,stroke:#93C5FD,color:#1E3A8A,font-size:22px
+    classDef dec fill:#FEF08A,stroke:#FDE047,color:#713F12,font-size:22px
+    classDef ghost fill:#0000,stroke:#0000,color:#94A3B8,font-size:22px
+</code></pre>
+<p>每个编码 Agent 都有这四块，只是不一定这么命名。</p>
+<p>把不同 Harness 分开的那一问：</p>
+<p><strong>哪几块可以换掉，而不必 fork 整个项目？</strong></p>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;flowchart&quot;: {&quot;curve&quot;: &quot;linear&quot;, &quot;rankSpacing&quot;: 28, &quot;nodeSpacing&quot;: 16, &quot;padding&quot;: 12, &quot;useMaxWidth&quot;: false, &quot;htmlLabels&quot;: true}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;22px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;lineColor&quot;: &quot;#86EFAC&quot;, &quot;edgeLabelBackground&quot;: &quot;#111111&quot;}, &quot;themeCSS&quot;: &quot;.nodeLabel,.label,span{font-size:22px!important}&quot;}}%%
+flowchart LR
+    A[&quot;DeepSeek Harness：全都能换。&quot;] --- B[&quot;每一块都是插件——包括 Loop。&quot;] --- C[&quot;没有受保护的核心要打补丁。&quot;] --- D[&quot;把插件挂到其它插件旁边即可。&quot;]
+    class A,B,C,D ok
+    classDef ok fill:#BBF7D0,stroke:#86EFAC,color:#14532D,font-size:22px
+</code></pre>
+<p>到这里，编码 Agent 的基本盘就齐了。接下来才是：既然大家都这么干，DeepSeek Harness 差在哪？</p>
+<hr>
+<h2 id="vs">真正的分水岭：代码 vs 配置</h2>
+<p>核心概念是 <strong>code vs config</strong>。讲者提到 Forcel 的 Eve 项目也走类似路线（未深挖）。</p>
+<p>此前大多数 Harness 把「怎么跑、有哪些工具」全写在 <strong>代码</strong> 里。以 Shockwave 为例：里面有 AI Agent、有 tools。问「你有哪些工具？」——工具定义、整份 system prompt，全在代码里。这不一定是坏事。</p>
+<p>Shockwave 的 system prompt 在代码里拼出来：SOUL.md（各家 Agent 都有这类 soul 文件）再加上其它片段。工具、提示、人设，全是代码。Agent <strong>理论上</strong>能改自己：去下源码、改文件。但它 <strong>没法自己走完「构建 → 重新部署」</strong>。代码要经过编译/打包才变成程序。Next.js 网站同理：改完还要 build、还要部署。代码必须被构建并发布，Agent 很难原地改自己。</p>
+<p>DeepSeek 的做法：把「Agent 是谁、system prompt、模型、甚至 loop」全部变成 <strong>配置</strong>。代码仍在跑，但 <strong>指引代码的是配置</strong>。配置不是正在执行的程序，Agent 可以直接改配置，从而改自己。</p>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;flowchart&quot;: {&quot;curve&quot;: &quot;linear&quot;, &quot;rankSpacing&quot;: 32, &quot;nodeSpacing&quot;: 24, &quot;padding&quot;: 12, &quot;useMaxWidth&quot;: false, &quot;htmlLabels&quot;: true}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;22px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;lineColor&quot;: &quot;#CBD5E1&quot;, &quot;clusterBkg&quot;: &quot;#111111&quot;, &quot;clusterBorder&quot;: &quot;#C4B5FD&quot;, &quot;titleColor&quot;: &quot;#FDE68A&quot;, &quot;edgeLabelBackground&quot;: &quot;#111111&quot;}, &quot;themeCSS&quot;: &quot;.nodeLabel,.label,.cluster-label,span{font-size:22px!important}&quot;}}%%
+flowchart TB
+    ASK[&quot;要改 Agent 自己&quot;] --&gt; Q{&quot;写在配置里?&quot;}
+    Q --&gt;|否| C1[&quot;改源码&quot;]
+    C1 --&gt; C2[&quot;构建并发布&quot;]
+    Q --&gt;|是| F1[&quot;改配置文件&quot;]
+    F1 --&gt; F2[&quot;热重载后继续跑&quot;]
+    class ASK start
+    class Q dec
+    class C1,C2 bad
+    class F1 step
+    class F2 ok
+    classDef start fill:#BFDBFE,stroke:#93C5FD,color:#1E3A8A,font-size:22px
+    classDef dec fill:#FEF08A,stroke:#FDE047,color:#713F12,font-size:22px
+    classDef bad fill:#FBCFE8,stroke:#F9A8D4,color:#831843,font-size:22px
+    classDef step fill:#A5F3FC,stroke:#67E8F9,color:#155E75,font-size:22px
+    classDef ok fill:#BBF7D0,stroke:#86EFAC,color:#14532D,font-size:22px
+</code></pre>
+<p><strong>为什么改配置零成本</strong></p>
+<p>两条路每一轮都会把 Agent 再组一遍。差别只在于：用什么来组。</p>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;flowchart&quot;: {&quot;curve&quot;: &quot;linear&quot;, &quot;rankSpacing&quot;: 32, &quot;nodeSpacing&quot;: 28, &quot;padding&quot;: 12, &quot;useMaxWidth&quot;: false, &quot;htmlLabels&quot;: true}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;22px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;lineColor&quot;: &quot;#CBD5E1&quot;, &quot;clusterBkg&quot;: &quot;#111111&quot;, &quot;clusterBorder&quot;: &quot;#C4B5FD&quot;, &quot;titleColor&quot;: &quot;#FDE68A&quot;, &quot;edgeLabelBackground&quot;: &quot;#111111&quot;}, &quot;themeCSS&quot;: &quot;.nodeLabel,.label,.cluster-label,span{font-size:22px!important}&quot;}}%%
+flowchart LR
+    subgraph codeCol[&quot;代码&quot;]
+        direction TB
+        CDEF[&quot;你的代码&lt;br/&gt;Agent 就是程序&quot;]
+        CDEF --&gt; CTURNS[&quot;第 1 轮 · 第 2 轮 · 第 3 轮&quot;]
+        CTURNS --&gt; CSAME[&quot;每一轮都是同一份程序&quot;]
+        CSAME --&gt; CWANT[&quot;你想要一个新工具&quot;]
+        CWANT --&gt; CREB[&quot;重建程序&lt;br/&gt;改源码 · 构建 · 停 · 启&quot;]
+        CREB --&gt; CAFT[&quot;第 3 轮 — 重启之后&quot;]
+    end
+    subgraph cfgCol[&quot;配置&quot;]
+        direction TB
+        FDEF[&quot;零件清单&lt;br/&gt;模型 · 工具 · prompt · 日志&quot;]
+        FDEF --&gt; FTURNS[&quot;第 1 轮 · 第 2 轮 · 第 3 轮&quot;]
+        FTURNS --&gt; FSAME[&quot;每一轮都是一次新组装&quot;]
+        FSAME --&gt; FWANT[&quot;你想要一个新工具&quot;]
+        FWANT --&gt; FADD[&quot;清单里加一行&lt;br/&gt;完事&quot;]
+        FADD --&gt; FAFT[&quot;第 3 轮 — 工具已经在那&quot;]
+    end
+    CDEF ~~~ FDEF
+    CTURNS ~~~ FTURNS
+    CSAME ~~~ FSAME
+    CWANT ~~~ FWANT
+    CREB ~~~ FADD
+    CAFT ~~~ FAFT
+    class codeCol,cfgCol wrap
+    class CDEF,CTURNS,CSAME,CWANT,CAFT prod
+    class CREB bad
+    class FDEF,FTURNS,FSAME,FWANT,FADD,FAFT ok
+    classDef prod fill:#E9D5FF,stroke:#D8B4FE,color:#6B21A8,font-size:22px
+    classDef bad fill:#FBCFE8,stroke:#F9A8D4,color:#831843,font-size:22px
+    classDef ok fill:#BBF7D0,stroke:#86EFAC,color:#14532D,font-size:22px
+    classDef wrap fill:#111111,stroke:#C4B5FD,color:#FDE68A,font-size:22px
+</code></pre>
+<p>代码列：进程启动时构建一次。配置列：每一步开始时重新组装。</p>
+<p>重建反正都会发生。你不是在触发一次重建，而是在改下一次用什么来组。</p>
+<p>现场跑过：Agent 在对话中途给自己加了一个 tool，下一步就调了。什么都没重启。</p>
+<hr>
+<h2 id="tool-skill">Tool 和 Skill 不是一回事</h2>
+<p>Agent 能写 Skill，这大家都知道。Hermes、Shockwave 一类工具里，你可以说「做个做 XYZ 的 skill」，之后它就多了一种能力。但 <strong>tools 和 skills 并不等价</strong>。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Tool</th>
+<th>Skill</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>本质</td>
+<td>函数 / 代码 / 能力，挂在 Agent 上</td>
+<td>由 Agent <strong>自己执行</strong> 的流程</td>
+</tr>
+<tr>
+<td>谁干活</td>
+<td>计算机跑代码，路径确定</td>
+<td>Agent 在想、跑脚本、烧 token</td>
+</tr>
+<tr>
+<td>例子</td>
+<td>「今天天气？」→ 调天气 API → 原样返回</td>
+<td>读 skill → 看里面有什么脚本 → 再决定怎么跑</td>
+</tr>
+</tbody>
+</table>
+<p>天气查询是直路：调 API，天气是多少就是多少，确定性返回。Skill 则是 LLM 在干活，不是电脑替它把结果算完。</p>
+<p>若 Agent 能 <strong>自己造 tool、当场装进自己的 loop、改 Harness、改工具、再 reboot</strong>，而且不用重新编译——它就可以改自己的运行方式。</p>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;flowchart&quot;: {&quot;curve&quot;: &quot;linear&quot;, &quot;rankSpacing&quot;: 32, &quot;nodeSpacing&quot;: 28, &quot;padding&quot;: 12, &quot;useMaxWidth&quot;: false, &quot;htmlLabels&quot;: true}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;22px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;lineColor&quot;: &quot;#CBD5E1&quot;, &quot;clusterBkg&quot;: &quot;#111111&quot;, &quot;clusterBorder&quot;: &quot;#C4B5FD&quot;, &quot;titleColor&quot;: &quot;#FDE68A&quot;, &quot;edgeLabelBackground&quot;: &quot;#111111&quot;}, &quot;themeCSS&quot;: &quot;.nodeLabel,.label,.cluster-label,span{font-size:22px!important}&quot;}}%%
+flowchart LR
+    subgraph toolCol[&quot;Tool&quot;]
+        direction TB
+        T1[&quot;发出调用&quot;] --&gt; T2[&quot;计算机跑代码&quot;] --&gt; T3[&quot;确定性返回&quot;]
+    end
+    subgraph skillCol[&quot;Skill&quot;]
+        direction TB
+        S1[&quot;加载技能&quot;] --&gt; S2[&quot;Agent 自己想&quot;] --&gt; S3[&quot;烧 token 干活&quot;]
+    end
+    T1 ~~~ S1
+    T2 ~~~ S2
+    T3 ~~~ S3
+    class toolCol,skillCol wrap
+    class T1,T2,S1,S2 step
+    class T3 ok
+    class S3 prod
+    classDef wrap fill:#111111,stroke:#C4B5FD,color:#FDE68A,font-size:22px
+    classDef step fill:#A5F3FC,stroke:#67E8F9,color:#155E75,font-size:22px
+    classDef ok fill:#BBF7D0,stroke:#86EFAC,color:#14532D,font-size:22px
+    classDef prod fill:#E9D5FF,stroke:#D8B4FE,color:#6B21A8,font-size:22px
+</code></pre>
+<p>天气查询更能说明差别：</p>
+<ul>
+<li><strong>Skill 路径</strong>：Agent 想「上海现在什么天气」→ 加载 skill → 看到有查天气脚本 → 再跑脚本。LLM 在中间推理。</li>
+<li><strong>Tool 路径</strong>：模型直接 <code>get_weather_data("Shanghai")</code> → 代码打 WeatherStack → 返回温度 / 天气 / 湿度 → 模型只负责把结果说出来。</li>
+</ul>
+<p>天气必须落在接口里，数字才是测出来的；不能靠模型「感觉」今天多少度。</p>
+<hr>
+<h2 id="ai-sdk-vs-deepseek">对照：AI SDK 写死代码 vs DeepSeek 读配置</h2>
+<p>讲者并排了两个项目。</p>
+<p><strong>AI SDK Hello World</strong>：有一点配置（模型、provider、base URL、system prompt），但 <strong>定义 Agent 的主体是代码</strong>。两个工具 <code>list_directory</code>、<code>read_file</code> 写在代码里。引擎一启动，这些代码进内存，<strong>运行期间改不了</strong>。</p>
+<p><strong>DeepSeek Harness</strong>：几乎全是 settings / 配置文件。不是「写代码再启动 Agent」，而是 <strong>Agent 先跑起来，再去读配置决定自己怎么工作</strong>。配置一改就热重载，Agent 接着干：自己定义工具、重定义自己、改配置。文件变了，它 reload，从新配置继续。</p>
+<p>部署形态：</p>
+<ul>
+<li><strong>SDK</strong>：嵌进你自己的 App。Shockwave 这类桌面应用也可以接这套 SDK，自己做界面。</li>
+<li><strong>Web 门户</strong>：Harness 自带一套网页，直接叠在 DeepSeek Harness 上面，开箱就能聊。</li>
+</ul>
+<hr>
+<h2 id="_1">这意味着什么</h2>
+<p>做软件时，可以做一个 <strong>能改自己的 Agent</strong>，而不必事先穷尽它能做的每一件事。</p>
+<p>讲者承认：落地场景还要再想。你可能 <strong>并不希望</strong> 它什么都能改。怎么用、边界在哪，目前还开放。但方向上这是一大步：Agent 可以在自己的递归 loop 里改自己、重造自己，<strong>不必等外部的人重新构建、重测、再发版</strong>。</p>
+<hr>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags">
+            <span class="chip">DeepSeek Harness</span>
+            <span class="chip">AI Agent</span>
+            <span class="chip">面试宝典</span>
+          </div>
+          <a class="t-meta" href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/14-deepseek-harness/01.arch.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../ai-engineer/pi/09-the-end.html"><span class="dir">← 上一篇</span><span class="t">Pi 最终复习</span></a><a class="next" href="../../ai-engineer/edge/01-edge-agent.html"><span class="dir">下一篇 →</span><span class="t">端侧 Agent（On-device Agent）</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../rag/index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+
+<script src="../../ai-engineer/assets/mermaid-init.js" defer></script>
+<script src="../../js/main.js" defer></script>
+</body>
+</html>

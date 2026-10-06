@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pi Capability at the Edges · AI Agent 面试宝典 — NorthAdb 的博客</title>
+<meta name="description" content="- 一、总图一总图 - 二、工具怎么进循环二工具怎么进循环 - 四、扩展怎么接上四扩展怎么接上">
+<link rel="canonical" href="https://northadb.github.io/ai-engineer/pi/07-capability.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Pi Capability at the Edges · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta property="og:description" content="- 一、总图一总图 - 二、工具怎么进循环二工具怎么进循环 - 四、扩展怎么接上四扩展怎么接上">
+<meta property="og:url" content="https://northadb.github.io/ai-engineer/pi/07-capability.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Pi Capability at the Edges · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta name="twitter:description" content="- 一、总图一总图 - 二、工具怎么进循环二工具怎么进循环 - 四、扩展怎么接上四扩展怎么接上">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../feed.xml">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../ai-engineer/assets/course.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Pi Capability at the Edges", "description": "- 一、总图一总图 - 二、工具怎么进循环二工具怎么进循环 - 四、扩展怎么接上四扩展怎么接上", "author": {"@type": "Person", "name": "juliepy", "url": "https://github.com/juliepy/AI-Engineer-from-scrach"}, "mainEntityOfPage": "https://northadb.github.io/ai-engineer/pi/07-capability.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../index.html">首页</a><span>/</span><a href="../../learn.html">课件</a><span>/</span><a href="../../ai-engineer/index.html">AI Agent 面试宝典</a><span>/</span><a href="../../ai-engineer/pi/index.html">Pi 架构与上手</a></div>
+          <h1>Pi Capability at the Edges</h1>
+          <p class="post-sub">- 一、总图一总图 - 二、工具怎么进循环二工具怎么进循环 - 四、扩展怎么接上四扩展怎么接上</p>
+          <div class="post-meta">
+            <span class="avatar">AI</span>
+            <span>AI Agent 面试宝典</span><span class="sep"></span>
+            <span>Pi 架构与上手</span><span class="sep"></span>
+            <span>阅读约 8 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<hr>
+<h2 id="_1">目录</h2>
+<ul>
+<li><a href="#一总图">一、总图</a></li>
+<li><a href="#二工具怎么进循环">二、工具怎么进循环</a></li>
+<li><a href="#四扩展怎么接上">四、扩展怎么接上</a></li>
+</ul>
+<p>循环只认眼前这份工具表。默认四个，没有联网搜索，没有 MCP。要加能力：改开哪些工具、写 skill、装扩展、装 package。扩展改行为，不改循环本身。循环怎么跑工具见 <a href="../pi/02-agent-loop.html"><code>02-agent-loop.md</code></a> 第三节。</p>
+<p>缺的不是疏漏。日常流程做成模板 / skill / 扩展 / package，不把 Core 变重。开箱不做：MCP 客户端、子智能体、权限弹窗、plan mode、todos、后台 bash。对照 examples 里用扩展补上的同一套：<code>subagent/</code>、<code>plan-mode/</code>、<code>todo.ts</code>、<code>permission-gate.ts</code>。</p>
+<hr>
+<h2 id="_2">一、总图</h2>
+<p>左 UI，中 Interactive，右 Core。名单在 Interactive 凑好再交给 Core；循环只复印眼前这份表。斜杠命令停在 Interactive，不进 Core。</p>
+<p>路径默认 <code>packages/coding-agent/src/</code>。Core 在 <code>packages/agent/src/</code>。Interactive 用<strong>名字名单</strong>选工具，不调用 <code>createCodingTools</code>（那是 SDK 助手）。</p>
+<pre><code class="language-text">function flow（Capability 三层 · 文件 → 函数）
+
+┌────────── UI ──────────┐  ┌──────── Interactive ────────┐  ┌──────── Pi Core ────────┐
+│                        │  │                             │  │                         │
+│  启动选工具             │  │  cli.ts → main.ts           │  │                         │
+│  --tools / settings    │─&gt;│    parseArgs                 │  │                         │
+│  --no-tools / -ne      │  │    createAgentSessionServices│  │                         │
+│                        │  │    createAgentSession        │  │  new Agent              │
+│                        │  │      _buildRuntime           │  │                         │
+│                        │  │      _refreshToolRegistry ───┼─&gt;│  Agent.state.tools      │
+│                        │  │                             │  │                         │
+│  装扩展                 │  │  resource-loader.ts          │  │                         │
+│  目录 / pi install / -e│─&gt;│    reload → loadExtensions   │  │                         │
+│                        │  │  loader.ts factory(pi)       │  │                         │
+│                        │  │    registerTool ─────────────┼─&gt;│  写进工具表              │
+│                        │  │    registerCommand           │  │  Core 看不见命令         │
+│  Editor /plan          │─&gt;│  agent-session.ts prompt     │  │                         │
+│                        │  │    _tryExecuteExtensionCmd   │  │                         │
+│                        │  │  _installAgentToolHooks ─────┼─&gt;│  beforeToolCall         │
+│                        │  │                             │  │                         │
+│                        │  │  _installAgentNextTurnRefresh│  │  agent-loop.ts runLoop  │
+│                        │  │    prepareNextTurnWithContext┼─&gt;│    context.tools=slice  │
+│                        │  │                             │  │    executeToolCalls     │
+└────────────────────────┘  └─────────────────────────────┘  └─────────────────────────┘
+
+启动整条链:
+  cli.ts:main
+    → cli/args.ts:parseArgs                         # --tools / --no-tools / -e / -ne
+    → main.ts:main
+      buildSessionOptions                           # 把 CLI 工具旗标写进 session options
+      createAgentSessionServices                    # agent-session-services.ts
+        DefaultResourceLoader.reload                # resource-loader.ts；factory 在这里跑
+      createAgentSessionFromServices                # → sdk.ts:createAgentSession
+        算 initialActiveToolNames                   # --tools ?? settings.defaultTools ?? 开箱 4 个
+        new Agent                                   # packages/agent/src/agent.ts
+        new AgentSession                            # agent-session.ts 构造里 _buildRuntime
+      createAgentSessionRuntime                     # agent-session-runtime.ts
+      InteractiveMode.run                           # modes/interactive/interactive-mode.ts
+        bindCurrentSessionExtensions
+          AgentSession.bindExtensions               # emit session_start
+
+每轮:
+  packages/agent/src/agent-loop.ts:runLoop
+    AgentSession._installAgentNextTurnRefresh
+      prepareNextTurnWithContext
+        context.tools = agent.state.tools.slice()
+    executeToolCalls
+      Agent.beforeToolCall → runner.emitToolCall    # agent-session.ts _installAgentToolHooks
+</code></pre>
+<hr>
+<h2 id="_3">二、工具怎么进循环</h2>
+<p>建 session 时先凑一份名单：开箱四个，或你用 <code>--tools</code> 点名，或设置里的默认。只读模式换成另一套。扩展注册的工具也并进来，再交给循环。每一轮开始，循环复印当前这份表，不在 system prompt 正文里抄工具说明。</p>
+<p><code>--tools</code> 是名字白名单：内置和扩展都要写进去才启用。没写 <code>--tools</code> 时：开箱四个，加上全部扩展工具。</p>
+<pre><code class="language-text">function flow（谁提供工具 · 文件 → 函数）
+  cli/args.ts:parseArgs
+    --tools / -t → parsed.tools
+    --no-tools → parsed.noTools
+    --no-builtin-tools → parsed.noBuiltinTools
+    --exclude-tools → parsed.excludeTools
+  main.ts:buildSessionOptions
+    noTools=&quot;all&quot; | &quot;builtin&quot;；tools / excludeTools 原样传下去
+
+  sdk.ts:createAgentSession
+    defaultActive = [&quot;read&quot;,&quot;bash&quot;,&quot;edit&quot;,&quot;write&quot;]   # 名字，不是 createCodingTools()
+    initialActive = options.tools                    # --tools 白名单
+                  ?? settings.defaultTools           # settings-manager.ts:getDefaultTools
+                  ?? defaultActive
+    filter excludeTools
+    new AgentSession → 构造里 _buildRuntime          # agent-session.ts
+      详见第四节 function flow（_buildRuntime）
+
+  agent-session.ts:_refreshToolRegistry
+    builtin = _baseToolDefinitions                   # tools/index.ts:createAllToolDefinitions（7 个都有定义）
+    ext     = runner.getAllRegisteredTools()         # extensions/runner.ts；factory 里 registerTool 留下的
+    custom  = options.customTools
+    wrapRegisteredTools                              # extensions/wrapper.ts
+    setActiveToolsByName → agent.state.tools         # 默认启用 4 个；无 --tools 时扩展全开
+
+  agent-session.ts:_installAgentNextTurnRefresh
+  packages/agent/src/agent-loop.ts:runLoop 每轮:
+    prepareNextTurnWithContext:
+      context.tools = agent.state.tools.slice()
+      context.systemPrompt = _systemPromptOverride ?? _baseSystemPrompt
+</code></pre>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;flowchart&quot;: {&quot;curve&quot;: &quot;linear&quot;, &quot;rankSpacing&quot;: 28, &quot;nodeSpacing&quot;: 24, &quot;padding&quot;: 12, &quot;useMaxWidth&quot;: false, &quot;htmlLabels&quot;: true}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;22px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;lineColor&quot;: &quot;#CBD5E1&quot;, &quot;edgeLabelBackground&quot;: &quot;#111111&quot;}, &quot;themeCSS&quot;: &quot;.nodeLabel,.label,span{font-size:22px!important}&quot;}}%%
+flowchart TB
+    SES[&quot;组装 session&quot;] --&gt; RO{&quot;只要只读?&quot;}
+    RO --&gt;|是| RONLY[&quot;read grep find ls&quot;]
+    RO --&gt;|否| WL{&quot;有白名单?&quot;}
+    WL --&gt;|有| W[&quot;只启用名单里的&quot;]
+    WL --&gt;|无| DFL[&quot;开箱 4 个加扩展&quot;]
+    RONLY --&gt; ACT1[&quot;交给循环&quot;]
+    W --&gt; ACT2[&quot;交给循环&quot;]
+    DFL --&gt; ACT3[&quot;交给循环&quot;]
+
+    classDef start fill:#BFDBFE,stroke:#93C5FD,color:#1E3A8A,font-size:22px
+    classDef dec fill:#FEF08A,stroke:#FDE047,color:#713F12,font-size:22px
+    classDef prod fill:#E9D5FF,stroke:#D8B4FE,color:#6B21A8,font-size:22px
+    classDef ok fill:#BBF7D0,stroke:#86EFAC,color:#14532D,font-size:22px
+
+    class SES start
+    class RO,WL dec
+    class W,DFL prod
+    class RONLY ok
+    class ACT1,ACT2,ACT3 ok
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>文件</th>
+<th>函数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CLI 旗标</td>
+<td><code>packages/coding-agent/src/cli/args.ts</code></td>
+<td><code>parseArgs</code></td>
+</tr>
+<tr>
+<td>旗标 → session</td>
+<td><code>packages/coding-agent/src/main.ts</code></td>
+<td><code>buildSessionOptions</code> / <code>main</code></td>
+</tr>
+<tr>
+<td>先加载再组 session</td>
+<td><code>packages/coding-agent/src/core/agent-session-services.ts</code></td>
+<td><code>createAgentSessionServices</code> / <code>createAgentSessionFromServices</code></td>
+</tr>
+<tr>
+<td>算名单 + new Agent</td>
+<td><code>packages/coding-agent/src/core/sdk.ts</code></td>
+<td><code>createAgentSession</code></td>
+</tr>
+<tr>
+<td>内置工具定义</td>
+<td><code>packages/coding-agent/src/core/tools/index.ts</code></td>
+<td><code>createAllToolDefinitions</code>（Interactive 真路径）；<code>createCodingTools</code> / <code>createReadOnlyTools</code> 是 SDK 助手</td>
+</tr>
+<tr>
+<td>Core 执行</td>
+<td><code>packages/agent/src/harness/tools/</code></td>
+<td><code>read</code> / <code>bash</code> / <code>edit</code> / <code>write</code></td>
+</tr>
+<tr>
+<td>扩展契约</td>
+<td><code>packages/coding-agent/src/core/extensions/types.ts</code></td>
+<td><code>ExtensionAPI</code>：<code>registerTool</code> / <code>registerCommand</code> / <code>on</code></td>
+</tr>
+<tr>
+<td>凑路径</td>
+<td><code>packages/coding-agent/src/core/resource-loader.ts</code></td>
+<td><code>DefaultResourceLoader.reload</code>；<code>_buildRuntime</code> 只 <code>getExtensions()</code></td>
+</tr>
+<tr>
+<td>目录 / package</td>
+<td><code>packages/coding-agent/src/core/package-manager.ts</code></td>
+<td><code>resolve</code> / <code>resolveExtensionSources</code></td>
+</tr>
+<tr>
+<td>加载 factory</td>
+<td><code>packages/coding-agent/src/core/extensions/loader.ts</code></td>
+<td><code>loadExtensionsCached</code> → <code>createExtensionAPI</code>；<code>discoverAndLoadExtensions</code> 只给测试 / SDK</td>
+</tr>
+<tr>
+<td>绑到 session</td>
+<td><code>packages/coding-agent/src/core/agent-session.ts</code></td>
+<td><code>_buildRuntime</code> → <code>_bindExtensionCore</code> → <code>_refreshToolRegistry</code> → <code>setActiveToolsByName</code></td>
+</tr>
+<tr>
+<td>包一层钩子</td>
+<td><code>packages/coding-agent/src/core/extensions/wrapper.ts</code></td>
+<td><code>wrapRegisteredTools</code></td>
+</tr>
+<tr>
+<td>事件</td>
+<td><code>packages/coding-agent/src/core/extensions/runner.ts</code></td>
+<td><code>bindCore</code> / <code>getAllRegisteredTools</code> / <code>emitToolCall</code></td>
+</tr>
+<tr>
+<td>每轮复印表</td>
+<td><code>packages/agent/src/agent-loop.ts</code></td>
+<td><code>runLoop</code> → <code>executeToolCalls</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<hr>
+<h2 id="_4">四、扩展怎么接上</h2>
+<p>扩展是进程里跑的 TS 模块（<code>export default function (pi: ExtensionAPI)</code>）。package 是分发盒：可以带 extension、skill、prompt、theme。<code>pi install</code> 装的是 package，不会写进 <code>extensions/</code> 目录。不要装不信任的源。</p>
+<p>Interactive 先凑齐文件路径，再 <code>jiti</code> 加载，最后绑到当前 session。用户输入以 <code>/</code> 开头且命中扩展命令则 <strong>不进循环</strong>。<code>tool_call</code> / <code>tool_result</code> 对应循环里工具前 / 工具后拦截（见 <a href="../pi/06-hitl.html"><code>06-HITL.md</code></a>）。压上下文时，扩展可以取消或自己交摘要。</p>
+<table>
+<thead>
+<tr>
+<th>渠道</th>
+<th>落盘</th>
+<th>怎么启用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>本地 TS</td>
+<td><code>.pi/extensions/</code>、<code>~/.pi/agent/extensions/</code></td>
+<td>自动扫；项目目录要先信任</td>
+</tr>
+<tr>
+<td>package</td>
+<td><code>~/.pi/agent/npm/</code> 或 <code>.pi/npm/</code></td>
+<td><code>pi install</code> 写入 <code>settings.packages</code>，再读包内 <code>pi.extensions</code></td>
+</tr>
+<tr>
+<td>CLI 试跑</td>
+<td>临时目录或本地路径</td>
+<td><code>pi -e ./foo.ts</code>；本次进程有效</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-text">function flow（加载 · 文件 → 函数）
+  agent-session-services.ts:createAgentSessionServices
+    new DefaultResourceLoader
+    await resourceLoader.reload()                # 先加载，再 createAgentSession
+  sdk.ts:createAgentSession
+    若调用方没传 loader：自己 new DefaultResourceLoader + reload
+    new AgentSession(...) → 构造里 _buildRuntime  # agent-session.ts
+
+  resource-loader.ts:DefaultResourceLoader.reload
+    package-manager.ts:resolve:
+      settings.packages                          # pi install；不进 extensions/ 目录
+        读 package.json pi.extensions
+      cwd/.pi/extensions                         # 项目 drop-in；信任后才加载
+      ~/.pi/agent/extensions                     # 用户 drop-in
+      settings.extensions                        # 显式本地路径
+    package-manager.ts:resolveExtensionSources   # CLI -e / --extension；本次临时
+    loadFinalExtensionSet
+      extensions/loader.ts:loadExtensionsCached
+        loadExtensionModule                      # jiti 执行 *.ts
+        createExtensionAPI                       # factory(pi) 写进 Extension
+          pi.registerTool / on / registerCommand
+        runtime.refreshTools = () =&gt; {}          # 加载时还没有 session，刷新是空操作
+        registerProvider 先排队 pending*
+
+  extensions/loader.ts:discoverAndLoadExtensions # 测试 / SDK 助手，Interactive 不用
+    只扫两个 drop-in 目录 + 显式路径
+    不读 settings.packages
+</code></pre>
+<pre><code class="language-text">function flow（_buildRuntime · 文件 → 函数）
+  # 全在 agent-session.ts；不扫目录、不再跑 factory
+  谁调用:
+    构造: _buildRuntime({ activeToolNames: initialActive, includeAllExtensionTools: true })
+    reload: emitSessionShutdownEvent             # extensions/runner.ts
+            → resource-loader.ts:reload
+            → _buildRuntime({ 当前名单, 旧 flagValues, includeAllExtensionTools: true })
+
+  AgentSession._buildRuntime:
+    1. tools/index.ts:createAllToolDefinitions(cwd)   # 7 个名字都有定义；默认启用另说
+       或 _baseToolsOverride 从 SDK 工具生成定义
+       → _baseToolDefinitions
+    2. resource-loader.ts:getExtensions()
+       可选：把 reload 前的 flagValues 写回 runtime
+    3. new ExtensionRunner(...)                  # extensions/runner.ts
+       extensionRunnerRef.current = runner       # Agent.onPayload / transformContext 用
+    4. _bindExtensionCore(runner)
+         runner.bindCore:                        # extensions/runner.ts:bindCore
+           refreshTools    → _refreshToolRegistry
+           setActiveTools  → setActiveToolsByName
+           getActiveTools / getAllTools / getCommands
+           sendMessage / sendUserMessage / appendEntry / setSessionName / ...
+           compact / getSystemPrompt / abort / shutdown
+           冲掉 pendingProviderRegistrations
+             → model-runtime.ts:registerProvider
+    5. _applyExtensionBindings(runner)
+         runner.setUIContext / bindCommandContext / onError
+         构造时 UI 往往还没有；后面 bindExtensions() 再绑一次
+    6. _refreshToolRegistry({ activeToolNames, includeAllExtensionTools })
+         builtin = _baseToolDefinitions
+         ext     = runner.getAllRegisteredTools()
+         custom  = options.customTools
+         wrapRegisteredTools                     # extensions/wrapper.ts
+         合并进 _toolRegistry                    # 扩展同名覆盖内置
+         --tools 有白名单: 内置和扩展都要写进去才启用
+         无 --tools: 默认 4 个 + 全部扩展工具
+         setActiveToolsByName:
+           agent.state.tools = 名单里能在表里找到的
+           _rebuildSystemPrompt                  # agent-session.ts
+
+  之后（不在 _buildRuntime 里）:
+    interactive-mode.ts:bindCurrentSessionExtensions
+      AgentSession.bindExtensions
+        _applyExtensionBindings
+        runner.emit(session_start)
+        extendResourcesFromExtensions
+    扩展后来 registerTool → runtime.refreshTools → 再走一遍 _refreshToolRegistry
+
+  斜杠命令（不进循环）:
+    agent-session.ts:prompt
+      _tryExecuteExtensionCommand
+        runner.getCommand → command.handler      # Core 看不见
+</code></pre>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;flowchart&quot;: {&quot;curve&quot;: &quot;linear&quot;, &quot;rankSpacing&quot;: 28, &quot;nodeSpacing&quot;: 24, &quot;padding&quot;: 12, &quot;useMaxWidth&quot;: false, &quot;htmlLabels&quot;: true}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;22px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;lineColor&quot;: &quot;#CBD5E1&quot;, &quot;edgeLabelBackground&quot;: &quot;#111111&quot;}, &quot;themeCSS&quot;: &quot;.nodeLabel,.label,span{font-size:22px!important}&quot;}}%%
+flowchart TB
+    DISC[&quot;目录、package、CLI&quot;] --&gt; LOADTS[&quot;加载 TS&quot;]
+    LOADTS --&gt; BIND[&quot;buildRuntime 绑 session&quot;]
+    BIND --&gt; WHAT{&quot;注册了什么?&quot;}
+    WHAT --&gt;|工具| TBL[&quot;写进工具表&quot;]
+    WHAT --&gt;|斜杠命令| CMD[&quot;就地执行，不进循环&quot;]
+    WHAT --&gt;|钩子| HOOK[&quot;工具前拦截&quot;]
+
+    classDef start fill:#BFDBFE,stroke:#93C5FD,color:#1E3A8A,font-size:22px
+    classDef step fill:#A5F3FC,stroke:#67E8F9,color:#155E75,font-size:22px
+    classDef dec fill:#FEF08A,stroke:#FDE047,color:#713F12,font-size:22px
+    classDef prod fill:#E9D5FF,stroke:#D8B4FE,color:#6B21A8,font-size:22px
+    classDef ok fill:#BBF7D0,stroke:#86EFAC,color:#14532D,font-size:22px
+    classDef bad fill:#FBCFE8,stroke:#F9A8D4,color:#831843,font-size:22px
+
+    class DISC start
+    class LOADTS,BIND step
+    class WHAT dec
+    class TBL prod
+    class CMD ok
+    class HOOK bad
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>钩子</th>
+<th>典型用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>registerTool</code></td>
+<td>联网搜索、自定义函数</td>
+</tr>
+<tr>
+<td><code>registerCommand</code></td>
+<td><code>/plan</code>、<code>/todo</code> 这类斜杠流程</td>
+</tr>
+<tr>
+<td><code>on("tool_call")</code></td>
+<td>权限确认、拦截危险调用</td>
+</tr>
+<tr>
+<td><code>on("agent_end")</code></td>
+<td>记状态、改下一轮工具集</td>
+</tr>
+<tr>
+<td><code>registerProvider</code></td>
+<td>公司代理、本地模型</td>
+</tr>
+<tr>
+<td><code>ui.confirm</code></td>
+<td>权限弹窗（Core 不内置）</td>
+</tr>
+</tbody>
+</table>
+<p><code>pi -ne</code> 跳过目录和 package，仍加载 <code>-e</code>。换 session / 重载之后，旧的 <code>pi</code> 上下文作废，后续工作放到 <code>withSession</code> 回调里。</p>
+<p>官方例子在 <code>packages/coding-agent/examples/extensions/</code>：<code>tools.ts</code>、<code>commands.ts</code>、<code>event-bus.ts</code>、<code>question.ts</code>、<code>session-name.ts</code>、<code>custom-provider-anthropic/</code>。</p>
+<p>读源码（文件 → 函数）：</p>
+<pre><code class="language-text">cli.ts:main
+  → cli/args.ts:parseArgs
+  → main.ts:main / buildSessionOptions
+  → agent-session-services.ts:createAgentSessionServices
+      resource-loader.ts:reload
+        package-manager.ts:resolve
+        extensions/loader.ts:loadExtensionsCached → createExtensionAPI
+  → sdk.ts:createAgentSession
+      tools/index.ts:createAllToolDefinitions     # 定义；启用名单在 sdk 里算
+      new Agent                                   # packages/agent/src/agent.ts
+      agent-session.ts 构造
+        _installAgentToolHooks                    # beforeToolCall / afterToolCall
+        _installAgentNextTurnRefresh
+        _buildRuntime
+          extensions/runner.ts:bindCore
+          _refreshToolRegistry → setActiveToolsByName
+  → interactive-mode.ts:bindCurrentSessionExtensions
+      agent-session.ts:bindExtensions / prompt / _tryExecuteExtensionCommand
+  → packages/agent/src/agent-loop.ts:runLoop / executeToolCalls
+</code></pre>
+<p><code>docs/extensions.md</code> / <code>docs/packages.md</code> → <code>packages/coding-agent/examples/extensions/</code>。</p>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags">
+            <span class="chip">Pi 架构与上手</span>
+            <span class="chip">AI Agent</span>
+            <span class="chip">面试宝典</span>
+          </div>
+          <a class="t-meta" href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/13-pi-agent/07-Capability.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../ai-engineer/pi/06-hitl.html"><span class="dir">← 上一篇</span><span class="t">Pi HITL</span></a><a class="next" href="../../ai-engineer/pi/08-pi-interactive.html"><span class="dir">下一篇 →</span><span class="t">Pi Interactive</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../rag/index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+
+<script src="../../ai-engineer/assets/mermaid-init.js" defer></script>
+<script src="../../js/main.js" defer></script>
+</body>
+</html>

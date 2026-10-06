@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Evaluate 方法整理 · AI Agent 面试宝典 — NorthAdb 的博客</title>
+<meta name="description" content="来源：Hugging Face Agentic Evals Workshop 讲者：Abhijit（HF / Eval）、Arvind（Princeton）、Pierre（Meta / Gaia 2）、Mahesh（Bespoke Labs…">
+<link rel="canonical" href="https://northadb.github.io/ai-engineer/notes/01-eval.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Agent Evaluate 方法整理 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta property="og:description" content="来源：Hugging Face Agentic Evals Workshop 讲者：Abhijit（HF / Eval）、Arvind（Princeton）、Pierre（Meta / Gaia 2）、Mahesh（Bespoke Labs…">
+<meta property="og:url" content="https://northadb.github.io/ai-engineer/notes/01-eval.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Agent Evaluate 方法整理 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta name="twitter:description" content="来源：Hugging Face Agentic Evals Workshop 讲者：Abhijit（HF / Eval）、Arvind（Princeton）、Pierre（Meta / Gaia 2）、Mahesh（Bespoke Labs…">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../feed.xml">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../ai-engineer/assets/course.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Agent Evaluate 方法整理", "description": "来源：Hugging Face Agentic Evals Workshop 讲者：Abhijit（HF / Eval）、Arvind（Princeton）、Pierre（Meta / Gaia 2）、Mahesh（Bespoke Labs…", "author": {"@type": "Person", "name": "juliepy", "url": "https://github.com/juliepy/AI-Engineer-from-scrach"}, "mainEntityOfPage": "https://northadb.github.io/ai-engineer/notes/01-eval.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../index.html">首页</a><span>/</span><a href="../../learn.html">课件</a><span>/</span><a href="../../ai-engineer/index.html">AI Agent 面试宝典</a><span>/</span><a href="../../ai-engineer/notes/index.html">学习笔记与思考</a></div>
+          <h1>Agent Evaluate 方法整理</h1>
+          <p class="post-sub">来源：Hugging Face Agentic Evals Workshop 讲者：Abhijit（HF / Eval）、Arvind（Princeton）、Pierre（Meta / Gaia 2）、Mahesh（Bespoke Labs…</p>
+          <div class="post-meta">
+            <span class="avatar">AI</span>
+            <span>AI Agent 面试宝典</span><span class="sep"></span>
+            <span>学习笔记与思考</span><span class="sep"></span>
+            <span>阅读约 7 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p>来源：Hugging Face Agentic Evals Workshop<br>
+讲者：Abhijit（HF / Eval）、Arvind（Princeton）、Pierre（Meta / Gaia 2）、Mahesh（Bespoke Labs）、Nathan（HF Community Eval）<br>
+一句话：<strong>Agent Eval ≠ 看一个 Pass Rate；要报系统组成、会话轨迹、可靠性与成本，并在可复现的 Environment 里打分。</strong></p>
+</blockquote>
+<hr>
+<h2 id="0">0. 核心结论（先记住）</h2>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>LLM Eval</th>
+<th>Agent Eval</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>输入输出</td>
+<td>Prompt → Text</td>
+<td>Task → 多步 Action → 环境状态变化</td>
+</tr>
+<tr>
+<td>同分含义</td>
+<td>答案对/错</td>
+<td>步数、成本、崩溃、轨迹可以完全不同</td>
+</tr>
+<tr>
+<td>评什么</td>
+<td>Capability 为主</td>
+<td>Capability + Reliability + Cost + Safety</td>
+</tr>
+<tr>
+<td>可复现</td>
+<td>相对容易</td>
+<td>必须隔离 Environment / Session / Harness</td>
+</tr>
+</tbody>
+</table>
+<p>Capability 涨得快，Reliability 涨得慢——这是「基准刷分很猛、生产用不起来」的重要解释。</p>
+<hr>
+<h2 id="1-agent-eval">1. 为什么 Agent Eval 难</h2>
+<ol>
+<li><strong>随机性</strong>：同一任务多次 Run，结果可差很多（Consistency 问题）。</li>
+<li><strong>多步因果</strong>：失败可能在 LLM、Tool、Harness、环境噪声任一环。</li>
+<li><strong>环境会变</strong>：邮件、价格、日历、外部事件会在任务中途注入。</li>
+<li><strong>副作用贵/危险</strong>：删库、错下单、乱发消息——不能在真生产上试错。</li>
+<li><strong>人机交互欠测</strong>：用户插话、模糊需求、多 Actor 场景测得少。</li>
+<li><strong>基准互不兼容</strong>：TauBench（用户对话）≠ WebArena（网页）≠ TerminalBench（终端）。</li>
+</ol>
+<pre><code>同一 Pass Rate 的两个 Agent：
+
+Agent A：步数少、便宜、无崩溃
+Agent B：步数多、贵、中途报错但仍「碰巧」答对
+
+→ 只报 aggregate score = 信息严重不足
+</code></pre>
+<hr>
+<h2 id="2">2. 评测报告：诚实与可复现（文档层）</h2>
+<h3 id="21">2.1 常见坏实践</h3>
+<ul>
+<li><strong>小字省略题</strong>：如 SWE 报高分，但脚注删掉大量题目。</li>
+<li><strong>Benchmark maxing</strong>：不同变体刷不同榜。</li>
+<li><strong>图表误导</strong>：柱高不按真实比例、不报 error bar。</li>
+<li><strong>只报模型名</strong>：Agent ≠ Model；缺 harness / MCP / memory / 子 Agent 信息。</li>
+</ul>
+<h3 id="22-agent">2.2 应报告的字段（Agent 扩展）</h3>
+<table>
+<thead>
+<tr>
+<th>字段类</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>System composition</strong></td>
+<td>模型列表与角色、子 Agent、MCP、Memory 配置、Harness</td>
+</tr>
+<tr>
+<td><strong>Session semantics</strong></td>
+<td>一次 Run / Session 如何界定；种子、温度、重试</td>
+</tr>
+<tr>
+<td><strong>Interaction accounting</strong></td>
+<td>工具调用序列、人类介入、环境事件</td>
+</tr>
+<tr>
+<td><strong>Eval conditions</strong></td>
+<td>环境版本、量化、评测库、可第三方复现的参数</td>
+</tr>
+<tr>
+<td><strong>Instance-level</strong></td>
+<td>不只 aggregate；尽量有逐条结果</td>
+</tr>
+</tbody>
+</table>
+<p>基础设施方向：<strong>Every Eval Ever</strong>（统一 schema）→ <strong>Eval Cards</strong>（一模型看齐所有一/三方评测）。</p>
+<p>原则：<strong>白盒系统记录</strong> &gt; 只贴一个分数；治理与追责需要 Session 级数据。</p>
+<hr>
+<h2 id="3-capability-vs-reliability">3. Capability vs Reliability（可靠性科学）</h2>
+<p>Capability 高 ≠ 能部署。可靠性可拆成四维（可挂在任意 benchmark 上测，不必另造新榜）：</p>
+<h3 id="31">3.1 四个维度</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>含义</th>
+<th>典型指标</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Consistency</strong></td>
+<td>同一任务是否稳定</td>
+<td>Outcome consistency；Trajectory consistency；Cost 稳定性</td>
+</tr>
+<tr>
+<td><strong>Robustness</strong></td>
+<td>轻微扰动是否崩</td>
+<td>Prompt 改写；环境/API 故障注入</td>
+</tr>
+<tr>
+<td><strong>Predictability / Calibration</strong></td>
+<td>能否知道自己做对了没</td>
+<td>置信度校准；成功/失败区分度（discrimination）</td>
+</tr>
+<tr>
+<td><strong>Failure severity（Safety）</strong></td>
+<td>错了有多严重</td>
+<td>格式错 vs 删库/错扣款（常单独计，不进综合指数）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="32">3.2 关键发现（访谈口径）</h3>
+<ul>
+<li>近 18 个月：准确率斜率陡，<strong>Reliability 综合分涨得很慢</strong>。</li>
+<li>Accuracy 与 Reliability 近似线性相关，但 Reliability 斜率远小于 Capability。</li>
+<li><strong>增强（人在环）</strong> vs <strong>自动化（无人值守）</strong>：后者对 Reliability 门槛高得多。</li>
+<li>发布决策应设 <strong>Reliability threshold</strong>，不能只看 Capability。</li>
+</ul>
+<h3 id="33">3.3 实践建议</h3>
+<ul>
+<li>每个 benchmark 默认附带 Reliability 指标（Pass@k、多次 rollout、扰动）。</li>
+<li>不要假设「模型变聪明，可靠性自动好」——要专门优化。</li>
+<li>开源任务若需「多样性」（如写诗），Consistency 未必是好目标——按任务取舍。</li>
+</ul>
+<hr>
+<h2 id="4-gaia-2">4. 动态环境基准：Gaia 2 方法</h2>
+<p>核心问题：真实 Agent 活在<strong>会变的世界</strong>（新邮件、价格变动、他人取消会议），旧式「Prompt→答案」或静态沙箱不够。</p>
+<h3 id="41-are-meta-agent-research-environment">4.1 仿真四件套（ARE / Meta Agent Research Environment）</h3>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Apps</strong></td>
+<td>类手机 App：有状态 + API/工具面（邮件、日历、文件系统等）</td>
+</tr>
+<tr>
+<td><strong>Universe</strong></td>
+<td>一组 App 的初始世界状态（历史邮件、人设对话等）</td>
+</tr>
+<tr>
+<td><strong>Events</strong></td>
+<td>用户 / Agent / 环境注入的事件</td>
+</tr>
+<tr>
+<td><strong>Scenarios</strong></td>
+<td>任务 = 初始状态 + 事件序列 + 期望动作，不是单条 Prompt</td>
+</tr>
+</tbody>
+</table>
+<p>为何仿真：可复现、可观测、可做破坏性动作、便宜（不依赖真实外网 API）。</p>
+<h3 id="42">4.2 五类能力</h3>
+<table>
+<thead>
+<tr>
+<th>能力</th>
+<th>测什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Execution</strong></td>
+<td>单轮多工具写操作（取消会议、回邮件）</td>
+</tr>
+<tr>
+<td><strong>Search</strong></td>
+<td>跨 App API 检索（非纯网页关键词）</td>
+</tr>
+<tr>
+<td><strong>Adaptability</strong></td>
+<td>行动后环境变化，能否重规划</td>
+</tr>
+<tr>
+<td><strong>Time</strong></td>
+<td>时间触发事件（等机票降价）；评测时<strong>时间快进</strong></td>
+</tr>
+<tr>
+<td><strong>Ambiguity</strong></td>
+<td>必须追问用户，否则不该盲干</td>
+</tr>
+</tbody>
+</table>
+<h3 id="43">4.3 抗过拟合 / 压力测试</h3>
+<ul>
+<li>Tool failure 注入  </li>
+<li>API 签名改名（防死记工具面）  </li>
+<li>Environment noise（无关外部事件）  </li>
+<li>Agent-to-Agent：主 Agent 只能自然语言调子 Agent，无直接工具</li>
+</ul>
+<h3 id="44">4.4 打分方式（硬 + 软）</h3>
+<pre><code>期望动作 DAG  ⟷  实际动作 DAG
+        │
+   Hard verifier：参数/顺序用确定性比较（便宜、可复现）
+   Soft verifier：邮件正文等用 LLM 判语义（仅必要时）
+</code></pre>
+<p>相对 Rubric-only LLM Judge：更稳、更便宜、更可复现。</p>
+<p>现状观察：Search / Execution 相对强；<strong>Time ≈ 0%、Adaptability / Ambiguity 仍弱</strong>。</p>
+<hr>
+<h2 id="5-environment-first-eval">5. 工业实践：Environment-first Eval（怎么落地）</h2>
+<h3 id="51-how-not-to">5.1 反模式（How not to）</h3>
+<ul>
+<li>只盯最终输出，改完不知哪坏了  </li>
+<li>一上来过度抠「Planner 对不对、这个 function call 对不对」  </li>
+<li><strong>先上线再生产里评</strong>  </li>
+<li>Agent 能接触 grader / 标准答案 → Reward hacking</li>
+</ul>
+<h3 id="52">5.2 分级：可验证 → 不可验证</h3>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>场景</th>
+<th>打分</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>L0 Verifiable</strong></td>
+<td>Coding / Math</td>
+<td>单测、编译、数值相等；注意测例权重与「改测试过关」</td>
+</tr>
+<tr>
+<td><strong>L1 Non-verifiable</strong></td>
+<td>长文检索报告等</td>
+<td><strong>Rubrics</strong> + LLM-as-Judge（多条 0/1 × 权重 → 总分）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="53-environment">5.3 Environment 设计要点</h3>
+<pre><code>Task  →  Agent ⟷ Environment(sandbox)  →  Output / 世界状态
+                              │
+                           Grader
+                    （单测 / Rubric / Hard+Soft）
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>决策</th>
+<th>要点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>逼真度</td>
+<td>尽量贴近生产（数据、工具、失败模式）</td>
+</tr>
+<tr>
+<td>隔离</td>
+<td>Sandbox；Agent <strong>禁止</strong>访问 grader / solution</td>
+</tr>
+<tr>
+<td>Task 覆盖</td>
+<td>任务里要求的每一点都要被 grade，否则被钻空子</td>
+</tr>
+<tr>
+<td>格式</td>
+<td>Harbor、OpenEnv 等；任务 + 环境 + grader 一体</td>
+</tr>
+</tbody>
+</table>
+<p>Sim-to-real：用 mock/wire 复刻 Slack、GitHub 等关键表面，逐步缩小与生产差距。</p>
+<h3 id="54">5.4 测什么指标</h3>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>指标</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>主成功</td>
+<td>Success rate（N 次 rollout 平均）；Pass@k</td>
+</tr>
+<tr>
+<td>效率</td>
+<td>步数、Token、Latency、Cost</td>
+</tr>
+<tr>
+<td>系统</td>
+<td>同一模型不同 <strong>Harness</strong> 分数可差很多（见 Terminal Bench）</td>
+</tr>
+<tr>
+<td>安全</td>
+<td>删数、乱消费等 → 可作惩罚项 / 专项任务</td>
+</tr>
+<tr>
+<td>诊断</td>
+<td>读 Trace；自动失败聚类（某类场景成功率骤降）</td>
+</tr>
+</tbody>
+</table>
+<p>流程：<strong>Environment → Tasks → Grader → Metrics → Trace 分析 → 改 Harness/模型 → 再评 → 再上线</strong>。<br>
+Eval 也可喂给优化（如 GEPA 等）做自动改进。</p>
+<hr>
+<h2 id="6-community-eval-living-benchmark">6. 活的基准：Community Eval / Living Benchmark</h2>
+<p>问题：分数碎片化、维护贵、无单一真相源、基准散落难跑。</p>
+<p>做法（HF Hub）：</p>
+<ol>
+<li>Dataset + <code>eval.yaml</code>（框架、solver、scorer）  </li>
+<li>优先复用现成框架（如 Inspect AI），少自造评测引擎  </li>
+<li>本地 / HF Jobs 跑（慎用不明后端的 Inference Provider——评的是 Provider 不是模型）  </li>
+<li>结果以 PR 形式挂到模型仓 → Dataset 页自动出 Leaderboard  </li>
+<li>社区可在 PR 讨论争议分；作者可隐藏不合理分数</li>
+</ol>
+<p>Agent 场景：Terminal Bench 等已挂在 Hub；solver 可写成完整 Agent scaffolding。</p>
+<hr>
+<h2 id="7">7. 方法总览（面试 / 落地一张图）</h2>
+<pre><code>                 ┌─ Capability（任务成功率 / Pass@k）
+                 ├─ Reliability（一致 / 鲁棒 / 校准 / 失败严重度）
+ Agent Eval ────┼─ Efficiency（步数 / Token / 延迟 / 成本）
+                 ├─ Process（轨迹、工具调用、人机交互）
+                 └─ Safety / Social（误操作、注入、社会影响）
+
+落地三件套：
+  1. Environment（可复现 sandbox）
+  2. Tasks / Scenarios（含动态事件）
+  3. Grader（Hard 优先，Soft/Rubric 补位）
+
+报告三件套：
+  1. System composition（Agent 白盒）
+  2. Session + Instance 结果
+  3. Eval conditions（可第三方复现）
+</code></pre>
+<h3 id="_1">面试一句话版本</h3>
+<blockquote>
+<p>LLM Eval 看答案；Agent Eval 看「在什么系统、什么环境、什么轨迹下、以多大成本、多稳地完成任务」。先 Environment + Grader，再报 Capability 与 Reliability，禁止只贴一个榜分数。</p>
+</blockquote>
+<hr>
+<h2 id="8">8. 仍开放的问题</h2>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Long-horizon</td>
+<td>数小时～数天任务：贵、慢；指标易「饱和」而任务未饱和（SWE-CI 等方向）</td>
+</tr>
+<tr>
+<td>Multi-agent / Multi-user</td>
+<td>多 Actor 对齐谁、参数组合爆炸</td>
+</tr>
+<tr>
+<td>Harness-agnostic Eval</td>
+<td>错误来自模型还是工具栈；需白盒 + 可比较 harness（如 Exgenic 方向）</td>
+</tr>
+<tr>
+<td>Human–Agent 交互</td>
+<td>噪声、追问、授权边界仍欠测</td>
+</tr>
+<tr>
+<td>Open vs Gaming</td>
+<td>公开数据集利于验证；防刷靠披露与严格 checker，而非一味私有</td>
+</tr>
+<tr>
+<td>Enterprise 民主化</td>
+<td>Gaia 2 级复杂环境如何变成企业可自建的方法论与工具</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="9-agent-eval">9. 行动清单（做自己的 Agent Eval）</h2>
+<ol>
+<li><strong>Eval-first</strong>：上线前先定义任务、环境、grader、指标。  </li>
+<li><strong>多次 rollout</strong>：报 Success rate + Pass@k + 方差/error bar。  </li>
+<li><strong>挂 Reliability</strong>：至少做 prompt 扰动 + 故障注入 + 轨迹抽检。  </li>
+<li><strong>Hard 能验则硬验</strong>；开放生成再用 Rubric / Soft judge。  </li>
+<li><strong>隔离 grader</strong>；任务要求写进评分，防 reward hacking。  </li>
+<li><strong>记录 Agent 身份</strong>：模型 + harness + 工具 + memory，不只模型名。  </li>
+<li><strong>读 Trace</strong>：分数只告诉好坏，轨迹告诉为什么。  </li>
+<li><strong>自动化场景用更高 Reliability 门槛</strong>；增强场景可略松但仍要测。</li>
+</ol>
+<hr>
+<h2 id="_2">参考锚点（讲者 → 关键词）</h2>
+<table>
+<thead>
+<tr>
+<th>讲者</th>
+<th>关键词</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Abhijit</td>
+<td>Eval 报告诚实性、Every Eval Ever、Agent schema 扩展</td>
+</tr>
+<tr>
+<td>Arvind</td>
+<td>Capability–Reliability gap、四维可靠性、Reliability Index</td>
+</tr>
+<tr>
+<td>Pierre</td>
+<td>Gaia 2、动态多 App 仿真、Hard/Soft verifier</td>
+</tr>
+<tr>
+<td>Mahesh</td>
+<td>Environment-first、Rubric、Pass@k、防 hacking</td>
+</tr>
+<tr>
+<td>Nathan</td>
+<td>Community Eval、eval.yaml、Living Leaderboard</td>
+</tr>
+</tbody>
+</table>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags">
+            <span class="chip">学习笔记与思考</span>
+            <span class="chip">AI Agent</span>
+            <span class="chip">面试宝典</span>
+          </div>
+          <a class="t-meta" href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/99-My%20idea/Agent%20eval/01-eval.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../ai-engineer/notes/interview-workflow.html"><span class="dir">← 上一篇</span><span class="t">AI Coding Agent 完整 Workflow（面试版）</span></a><a class="next" href="../../ai-engineer/notes/memory-01.html"><span class="dir">下一篇 →</span><span class="t">Agentic AI 智能体面试精简问答（面试口述版，好记、直接背诵）</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../rag/index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+
+<script src="../../js/main.js" defer></script>
+</body>
+</html>

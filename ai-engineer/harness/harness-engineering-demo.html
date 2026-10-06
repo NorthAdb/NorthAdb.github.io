@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Harness Engineering Demo · AI Agent 面试宝典 — NorthAdb 的博客</title>
+<meta name="description" content="Companion repo for the YouTube video &quot;What is Harness Engineering?&quot;">
+<link rel="canonical" href="https://northadb.github.io/ai-engineer/harness/harness-engineering-demo.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Harness Engineering Demo · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta property="og:description" content="Companion repo for the YouTube video &quot;What is Harness Engineering?&quot;">
+<meta property="og:url" content="https://northadb.github.io/ai-engineer/harness/harness-engineering-demo.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Harness Engineering Demo · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta name="twitter:description" content="Companion repo for the YouTube video &quot;What is Harness Engineering?&quot;">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../feed.xml">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../ai-engineer/assets/course.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Harness Engineering Demo", "description": "Companion repo for the YouTube video \"What is Harness Engineering?\"", "author": {"@type": "Person", "name": "juliepy", "url": "https://github.com/juliepy/AI-Engineer-from-scrach"}, "mainEntityOfPage": "https://northadb.github.io/ai-engineer/harness/harness-engineering-demo.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../index.html">首页</a><span>/</span><a href="../../learn.html">课件</a><span>/</span><a href="../../ai-engineer/index.html">AI Agent 面试宝典</a><span>/</span><a href="../../ai-engineer/harness/index.html">Harness 工程化</a></div>
+          <h1>Harness Engineering Demo</h1>
+          <p class="post-sub">Companion repo for the YouTube video &quot;What is Harness Engineering?&quot;</p>
+          <div class="post-meta">
+            <span class="avatar">AI</span>
+            <span>AI Agent 面试宝典</span><span class="sep"></span>
+            <span>Harness 工程化</span><span class="sep"></span>
+            <span>阅读约 7 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<p>Companion repo for the YouTube video <strong>"What is Harness Engineering?"</strong></p>
+<p>A minimal, real <strong>harness</strong> built with the primitives already inside Claude Code —
+no framework required. It wraps the <a href="https://github.com/coleam00/schedulr">Schedulr</a>
+brownfield app with a <strong>PIV loop</strong> (Plan → Implement → Validate) so you can see
+what "building your own harness" actually looks like in production.</p>
+<blockquote>
+<p><strong>Harness engineering</strong> = building the context and workflows that wrap a coding
+agent — the ecosystem it operates in — so it works the way <em>you</em> work: your
+processes enforced, your standards applied, building like another engineer on
+your team instead of a clever stranger guessing at your codebase.</p>
+</blockquote>
+<hr>
+<h2 id="whats-in-here">What's in here</h2>
+<table>
+<thead>
+<tr>
+<th>Piece</th>
+<th>What it shows</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CLAUDE.md</code> + <code>.claude/context/</code></td>
+<td>Rules + on-demand context derived from the real codebase (the "AI Layer")</td>
+</tr>
+<tr>
+<td><code>.claude/skills/plan/SKILL.md</code></td>
+<td>PIV step 1: analyze codebase + ticket, write <code>plans/&lt;feature&gt;-plan.md</code></td>
+</tr>
+<tr>
+<td><code>.claude/skills/implement/SKILL.md</code></td>
+<td>PIV step 2: read plan, execute tasks, run per-task validation, write <code>reports/&lt;feature&gt;-implementation-report.md</code></td>
+</tr>
+<tr>
+<td><code>.claude/skills/validate/SKILL.md</code></td>
+<td>PIV step 3: run the full gate (ruff + mypy + pytest + tsc + vitest)</td>
+</tr>
+<tr>
+<td><code>.claude/skills/review/SKILL.md</code></td>
+<td>PIV step 4: delegate diff to the code-reviewer sub-agent, write <code>reports/&lt;feature&gt;-review.md</code></td>
+</tr>
+<tr>
+<td><code>.claude/agents/code-reviewer.md</code></td>
+<td>Sub-agent that reviews diffs against CLAUDE.md rules using codebase-search MCP tools</td>
+</tr>
+<tr>
+<td><code>.claude/hooks/post_tool_use_lint.py</code></td>
+<td>PostToolUse hook: runs ruff (Python) or <code>tsc --noEmit</code> typecheck (TS) after every file edit</td>
+</tr>
+<tr>
+<td><code>.claude/hooks/stop_validate.py</code></td>
+<td>Stop hook: blocks Claude from stopping until ruff + pytest are green</td>
+</tr>
+<tr>
+<td><code>.claude/hooks/security_guard.py</code></td>
+<td>PreToolUse hook: denies reading/editing/writing any real <code>.env</code> and recursive directory deletion (rm -rf, rmdir, find -delete, git clean -d)</td>
+</tr>
+<tr>
+<td><code>.claude/settings.json</code></td>
+<td>Wires both hooks into Claude Code</td>
+</tr>
+<tr>
+<td><code>.mcp.json</code></td>
+<td>Registers the <code>codebase-search</code> MCP server (AST-based symbol navigation)</td>
+</tr>
+<tr>
+<td><code>tooling/mcp/codebase_search.py</code></td>
+<td>FastMCP server exposing <code>where_is</code>, <code>find_references</code>, <code>outline</code> over the project's Python AST</td>
+</tr>
+<tr>
+<td><code>tooling/pyproject.toml</code></td>
+<td>Isolated uv project declaring the <code>mcp</code> dependency for the tooling layer</td>
+</tr>
+<tr>
+<td><code>ralph/ralph.sh</code> + <code>ralph/ralph.py</code></td>
+<td>The Ralph loop: strings headless Claude sessions together by re-feeding a spec each iteration</td>
+</tr>
+<tr>
+<td><code>app/</code></td>
+<td>Schedulr brownfield app (FastAPI + Next.js) — what the harness operates on</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="the-two-halves-of-a-harness">The two halves of a harness</h2>
+<ol>
+<li><strong>Within a session (the AI Layer):</strong> <code>CLAUDE.md</code>, context modules, commands, hooks — everything that shapes how Claude behaves inside one Claude Code session.</li>
+<li><strong>Across sessions (orchestration):</strong> plan in one session → implement+validate in another → review in a third. Handed off via markdown files in <code>plans/</code> and <code>reports/</code>. Automated with the Ralph loop.</li>
+</ol>
+<hr>
+<h2 id="setup">Setup</h2>
+<p>You can let the agent do this. In a fresh Claude Code session, just ask it to read this section and get the app running. Or run it yourself:</p>
+<pre><code class="language-bash"># Prerequisites: Claude Code CLI, uv (Python), npm (Node 20+)
+cd app &amp;&amp; docker compose up -d                                        # Postgres on host port 5433
+cd app/backend &amp;&amp; uv sync --extra dev &amp;&amp; uv run alembic upgrade head  # backend deps + migrations
+cd app/frontend &amp;&amp; npm install                                        # frontend deps
+</code></pre>
+<h2 id="running-the-piv-loop">Running the PIV loop</h2>
+<p>The loop is two commands. Validation is not a step you run, it is enforced for you: <code>/implement</code> validates each task as it goes, and the Stop hook blocks the agent from finishing until the full gate is green. That is what makes the loop self-validating.</p>
+<p><strong>0. Let the agent set up the app.</strong> In a fresh Claude Code session at the repo root:</p>
+<pre><code>Read the README and get the app running for me: Postgres, backend deps, frontend deps, and migrations.
+</code></pre>
+<p><strong>1. Plan</strong></p>
+<pre><code>/plan &quot;add your feature request here&quot;
+</code></pre>
+<p>Claude reads the codebase, loads the relevant <code>.claude/context/</code> modules, and writes <code>plans/&lt;feature-slug&gt;-plan.md</code>.</p>
+<p><strong>2. Implement</strong></p>
+<pre><code>/implement plans/your-plan.md
+</code></pre>
+<p>Claude reads the plan, executes each task with per-task validation, and writes <code>reports/&lt;feature-slug&gt;-implementation-report.md</code>. When it finishes, the Stop hook runs the full gate (ruff + mypy + pytest + tsc + vitest) and blocks until it is green.</p>
+<blockquote>
+<p><code>/validate</code> still exists if you want to run the gate explicitly (it is the same gate the Stop hook runs), but you do not need to call it as part of the loop.</p>
+</blockquote>
+<hr>
+<h2 id="hooks">Hooks</h2>
+<p>Hooks run automatically, no invocation needed. Three are wired in <code>.claude/settings.json</code>:</p>
+<ul>
+<li><strong>PostToolUse lint</strong> runs ruff (or a TS typecheck) after every file edit.</li>
+<li><strong>Stop gate</strong> blocks the agent from finishing until ruff + pytest are green. This is the hook that makes the PIV loop self-validating.</li>
+<li><strong>PreToolUse security guard</strong> denies access to real <code>.env</code> files and recursive deletes, even under <code>--dangerously-skip-permissions</code>.</li>
+</ul>
+<details>
+<summary>Full hook details</summary>
+
+**PostToolUse (static check):** After every `Edit`/`Write`/`MultiEdit`, `.claude/hooks/post_tool_use_lint.py` runs:
+- Python files under `app/backend/` run `uv run ruff check <file>`
+- TS/TSX files under `app/frontend/` run `npx tsc --noEmit` (typecheck; this brownfield app has no ESLint configured, and `next lint` would prompt interactively)
+
+Non-blocking (always exits 0), so it surfaces issues without stopping work. Binaries are resolved via `shutil.which` so it works under Windows cmd.exe too.
+
+**Stop (validate gate):** Before Claude ends its turn, `.claude/hooks/stop_validate.py` runs ruff + pytest. If either fails it prints a JSON block decision and Claude is asked to fix the issue. It checks `stop_hook_active` in the hook JSON to avoid infinite loops.
+
+**PreToolUse (security guard):** Before any tool runs, `.claude/hooks/security_guard.py` hard-denies two things:
+- Reading, editing, or writing a real `.env` file. It covers the Read/Edit/Write/MultiEdit/NotebookEdit tools, Bash commands (cat, grep, sed, awk, xxd, base64, `python -c`, `source`/`.`, `cp`, `find -exec cat`, obfuscated globs like `.e*` and `.??v`), and Glob/Grep file targeting. Template files (`.env.example`, `.sample`, `.template`, `.dist`, `.defaults`) stay allowed so config scaffolding still works.
+- Recursive directory deletion: `rm -r`/`-rf`/`-fr`/`-Rf`/`--recursive`, `rmdir`, `find -delete`, `find -exec rm`, and `git clean -d`. Single-file `rm` is still allowed.
+
+It returns a PreToolUse `permissionDecision: deny` with a reason (exit 0) so Claude gets the explanation and adapts, and fails open on malformed input so it can never brick a session. It still fires under `--dangerously-skip-permissions`, so it holds even during unattended Ralph runs.
+
+</details>
+
+<hr>
+<h2 id="ralph-loop">Ralph loop</h2>
+<p>Ralph strings together headless Claude sessions, re-feeding a spec to a fresh <code>claude -p</code> process each iteration until a <code>DONE.txt</code> sentinel appears. It commits after each iteration, so every step is reversible.</p>
+<pre><code class="language-bash">python ralph/ralph.py             # in-place (sandbox / dedicated branch only)
+python ralph/ralph.py --worktree  # self-isolating: Ralph makes its own worktree + branch
+</code></pre>
+<p>See <strong><code>ralph/example-run/</code></strong> for a complete captured run of the CSV-export spec: the spec it was given, the iteration log, the fix plan with every spec item checked off, and the code it produced. Point here for what a finished loop looks like.</p>
+<details>
+<summary>Full Ralph details (spec format, flags, worktree mode, parallel runs, guardrails)</summary>
+
+**Example spec:** `ralph/PROMPT.md` instructs Claude to add CSV export (SCH-142), with 8 verifiable spec items.
+
+
+<pre><code class="language-bash"># From repo root
+python ralph/ralph.py             # Python driver (cross-platform)
+bash ralph/ralph.sh               # Bash driver (Linux/macOS)
+
+# Tune limits
+RALPH_MAX_ITER=10 RALPH_ITER_TIMEOUT=900 python ralph/ralph.py
+
+# Self-isolating: Ralph creates its OWN worktree + branch and runs there
+python ralph/ralph.py --worktree --branch ralph/csv-export --cleanup
+
+# Parallel agents: several isolated runs at once, each its own branch + database
+python ralph/ralph.py --worktree --branch ralph/feature-a --db-isolate &amp;
+python ralph/ralph.py --worktree --branch ralph/feature-b --db-isolate &amp;
+</code></pre>
+
+
+See `ralph/README.md` for full documentation, the worktree mode, and the parallel/DB-isolation pattern.
+
+**Important:** `--dangerously-skip-permissions` is used by Ralph to allow unattended file writes. Run Ralph in a sandbox or dedicated worktree, never on your main branch. The `--worktree` flag gives you that isolation automatically.
+
+**Credit note (2026-06-15):** `claude -p` draws from a separate Agent SDK credit pool, not your interactive Claude Code subscription.
+
+</details>
+
+<hr>
+<h2 id="repo-layout">Repo layout</h2>
+<pre><code>harness-engineering-demo/
+├── CLAUDE.md                      # Global rules (the AI Layer)
+├── .mcp.json                      # Registers codebase-search MCP server
+├── .claude/
+│   ├── settings.json              # Hook wiring
+│   ├── agents/
+│   │   └── code-reviewer.md       # Sub-agent: reviews diffs against CLAUDE.md rules
+│   ├── skills/
+│   │   ├── plan/SKILL.md          # /plan skill (PIV step 1)
+│   │   ├── implement/SKILL.md     # /implement skill (PIV step 2)
+│   │   ├── validate/SKILL.md      # /validate skill (PIV step 3)
+│   │   └── review/SKILL.md        # /review skill (PIV step 4 — sub-agent delegation)
+│   ├── context/
+│   │   ├── architecture.md        # Module map + add-resource pattern
+│   │   ├── auth.md                # JWT vs legacy session
+│   │   ├── codebase-search.md     # MCP tool descriptions (where_is / find_references / outline)
+│   │   ├── export-pattern.md      # ExportService protocol + CSV escaping
+│   │   ├── testing.md             # pytest + vitest patterns
+│   │   └── timezones.md           # TimezoneAwareTime + UTC storage rules
+│   └── hooks/
+│       ├── post_tool_use_lint.py  # PostToolUse: lint on edit
+│       ├── stop_validate.py       # Stop: validation gate
+│       └── security_guard.py      # PreToolUse: block .env access + recursive deletes
+├── tooling/
+│   ├── pyproject.toml             # Isolated uv project for tooling deps (mcp)
+│   └── mcp/
+│       └── codebase_search.py     # FastMCP AST server: where_is / find_references / outline
+├── plans/                         # /plan outputs land here
+├── reports/                       # /implement + /review outputs land here
+├── ralph/
+│   ├── PROMPT.md                  # Example spec (CSV export)
+│   ├── ralph.sh                   # Bash loop driver
+│   ├── ralph.py                   # Python loop driver (cross-platform)
+│   ├── example-run/               # A complete captured run (reference): log, fix plan, produced code
+│   └── README.md                  # Ralph documentation
+└── app/                           # Schedulr brownfield app
+    ├── backend/                   # FastAPI + SQLAlchemy 2.0, Python 3.12, uv
+    ├── frontend/                  # Next.js 15 App Router, TypeScript
+    └── docker-compose.yml         # Postgres 16 (host 5433)
+</code></pre>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags">
+            <span class="chip">Harness 工程化</span>
+            <span class="chip">AI Agent</span>
+            <span class="chip">面试宝典</span>
+          </div>
+          <a class="t-meta" href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/06-harnes/harness-engineering-demo/README.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../ai-engineer/harness/02-rag-harness-demo.html"><span class="dir">← 上一篇</span><span class="t">RAG Harness Demo</span></a><a class="next" href="../../ai-engineer/harness/ralph.html"><span class="dir">下一篇 →</span><span class="t">Ralph — Autonomous Spec-Driven Loop</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../rag/index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+
+<script src="../../js/main.js" defer></script>
+</body>
+</html>

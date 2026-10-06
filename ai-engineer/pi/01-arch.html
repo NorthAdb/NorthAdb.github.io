@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pi 架构全解析 · AI Agent 面试宝典 — NorthAdb 的博客</title>
+<meta name="description" content="Pi 是一套极简、模块化的智能体系统。本文按源码结构拆解其两层设计，说明每次对话实际执行的步骤，以及如何自行扩展或复刻。">
+<link rel="canonical" href="https://northadb.github.io/ai-engineer/pi/01-arch.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Pi 架构全解析 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta property="og:description" content="Pi 是一套极简、模块化的智能体系统。本文按源码结构拆解其两层设计，说明每次对话实际执行的步骤，以及如何自行扩展或复刻。">
+<meta property="og:url" content="https://northadb.github.io/ai-engineer/pi/01-arch.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Pi 架构全解析 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta name="twitter:description" content="Pi 是一套极简、模块化的智能体系统。本文按源码结构拆解其两层设计，说明每次对话实际执行的步骤，以及如何自行扩展或复刻。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../feed.xml">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../ai-engineer/assets/course.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Pi 架构全解析", "description": "Pi 是一套极简、模块化的智能体系统。本文按源码结构拆解其两层设计，说明每次对话实际执行的步骤，以及如何自行扩展或复刻。", "author": {"@type": "Person", "name": "juliepy", "url": "https://github.com/juliepy/AI-Engineer-from-scrach"}, "mainEntityOfPage": "https://northadb.github.io/ai-engineer/pi/01-arch.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../index.html">首页</a><span>/</span><a href="../../learn.html">课件</a><span>/</span><a href="../../ai-engineer/index.html">AI Agent 面试宝典</a><span>/</span><a href="../../ai-engineer/pi/index.html">Pi 架构与上手</a></div>
+          <h1>Pi 架构全解析</h1>
+          <p class="post-sub">Pi 是一套极简、模块化的智能体系统。本文按源码结构拆解其两层设计，说明每次对话实际执行的步骤，以及如何自行扩展或复刻。</p>
+          <div class="post-meta">
+            <span class="avatar">AI</span>
+            <span>AI Agent 面试宝典</span><span class="sep"></span>
+            <span>Pi 架构与上手</span><span class="sep"></span>
+            <span>阅读约 26 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<p>Pi 是一套极简、模块化的智能体系统。本文按源码结构拆解其两层设计，说明每次对话实际执行的步骤，以及如何自行扩展或复刻。</p>
+<p>系统分为两层：</p>
+<ol>
+<li><strong>Agent Core（智能体核心）</strong>：幕后运行的智能体循环（agentic loop）。可通过 <strong>RPC</strong> 或 <strong>SDK</strong> 以编程方式调用。</li>
+<li><strong>Pi Interactive</strong>：独立包。在 Core 之上提供 CLI / TUI，以及技能、斜杠命令等编码智能体能力。</li>
+</ol>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;16px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;lineColor&quot;: &quot;#CBD5E1&quot;, &quot;clusterBkg&quot;: &quot;#111111&quot;, &quot;clusterBorder&quot;: &quot;#C4B5FD&quot;, &quot;titleColor&quot;: &quot;#FDE68A&quot;, &quot;edgeLabelBackground&quot;: &quot;#111111&quot;}}}%%
+flowchart LR
+    subgraph entry[&quot;调用入口&quot;]
+        TUI[&quot;TUI / CLI&quot;]
+        RPC[&quot;RPC&quot;]
+        SDK[&quot;SDK 编程调用&quot;]
+    end
+
+    subgraph interactive[&quot;Pi Interactive（独立包）&quot;]
+        CLI[&quot;CLI / TUI / 编码智能体&quot;]
+    end
+
+    subgraph core[&quot;Pi Core&quot;]
+        LOOP[&quot;Agent Loop&lt;br/&gt;智能体循环&quot;]
+    end
+
+    TUI --&gt; CLI
+    CLI --&gt; LOOP
+    RPC --&gt; LOOP
+    SDK --&gt; LOOP
+
+    classDef entry fill:#BFDBFE,stroke:#93C5FD,color:#1E3A8A
+    classDef inter fill:#E9D5FF,stroke:#D8B4FE,color:#6B21A8
+    classDef core fill:#FBCFE8,stroke:#F9A8D4,color:#831843
+    classDef wrap fill:#111111,stroke:#C4B5FD,color:#FDE68A
+
+    class TUI,RPC,SDK entry
+    class CLI inter
+    class LOOP core
+    class entry,interactive,core wrap
+</code></pre>
+<p>源码根目录：<code>D:\workspace\doc\面试狂魔\人工智能面试题\pi</code>。下文路径相对该根目录。</p>
+<p>文档里的 <strong>Pi Core</strong> = <code>packages/agent</code>（<code>@earendil-works/pi-agent-core</code>）。<strong>Pi Interactive</strong> = <code>packages/coding-agent</code>（<code>@earendil-works/pi-coding-agent</code>）。LLM 适配在 <code>packages/ai</code>，终端渲染在 <code>packages/tui</code>。</p>
+<hr>
+<h2 id="_1">源码目录</h2>
+<pre><code class="language-text">pi/
+├── packages/
+│   ├── agent/                 Core：agent loop、session 树、compaction
+│   ├── ai/                    多提供商 LLM API（Anthropic / OpenAI / Gemini / ...）
+│   ├── coding-agent/          Interactive：CLI、TUI 组装、tools、skills、extensions
+│   ├── tui/                   自研终端 UI（差分渲染、主屏 / 备用屏）
+│   ├── telemetry/             遥测契约
+│   ├── protocol/              RPC 编解码
+│   ├── client/ · server/      进程间协议客户端 / 服务端
+│   ├── evals/                 评测
+│   └── session-backends/      session 存储后端（如 sqlite-node）
+└── packages/coding-agent/examples/extensions/   官方扩展示例
+</code></pre>
+<p>核心包展开：</p>
+<pre><code class="language-text">packages/agent/src/
+├── agent-loop.ts              循环：LLM ↔ tool call
+├── agent.ts                   Agent 封装
+├── stream-fn.ts               流式调用边界
+└── harness/
+    ├── agent-harness.ts       harness 组装
+    ├── system-prompt.ts       skills 段落格式化
+    ├── skills.ts · prompt-templates.ts
+    ├── compaction/compaction.ts
+    ├── session/               parentId 树、JSONL fork
+    └── tools/                 Core 侧工具实现
+
+packages/coding-agent/src/
+├── cli.ts                     `pi` 入口（设 process.title，再调 main）
+├── main.ts                    解析参数、加载扩展、创建 session、选模式
+├── config.ts                  ~/.pi/agent、.pi
+├── core/
+│   ├── agent-session.ts       Interactive 侧 session / navigateTree
+│   ├── agent-session-runtime.ts  fork / clone / 换 session
+│   ├── session-manager.ts     JSONL 树、branch、createBranchedSession
+│   ├── system-prompt.ts       buildSystemPrompt()
+│   ├── resource-loader.ts     SYSTEM.md / AGENTS.md / skills / extensions
+│   ├── skills.ts · prompt-templates.ts · slash-commands.ts
+│   ├── settings-manager.ts
+│   ├── tools/                 read bash edit write grep find ls
+│   ├── extensions/            types / loader / runner
+│   └── compaction/
+└── modes/
+    ├── interactive/           TUI 交互（interactive-mode.ts）
+    ├── rpc/                   stdin/stdout JSONL
+    └── print-mode.ts          `pi -p`
+
+packages/tui/src/
+├── tui.ts · tui-main-screen.ts · tui-alt-screen.ts
+├── components/                editor、markdown、scroll-view、v-stack、...
+└── layout.ts
+
+packages/ai/src/
+├── providers/                 每个后端一个文件（openai.ts、anthropic.ts、...）
+└── models.generated.ts        由脚本生成，不要手改
+</code></pre>
+<p>运行时数据（不在仓库里）：<code>~/.pi/agent/</code>（<code>settings.json</code>、<code>AGENTS.md</code>、<code>SYSTEM.md</code>、<code>sessions/</code>、<code>extensions/</code>、<code>skills/</code>、<code>prompts/</code>）。</p>
+<hr>
+<h2 id="_2">目录</h2>
+<ul>
+<li><a href="#pi-架构全解析">Pi 架构全解析</a></li>
+<li><a href="#源码目录">源码目录</a></li>
+<li><a href="#一pi-core智能体循环agent-loop">一、Pi Core：智能体循环（Agent Loop）</a></li>
+<li><a href="#1-初始化上下文initialize-context">1. 初始化上下文（Initialize Context）</a></li>
+<li><a href="#2-变换上下文transformation">2. 变换上下文（Transformation）</a></li>
+<li><a href="#3-调用大语言模型llm-call">3. 调用大语言模型（LLM Call）</a></li>
+<li><a href="#二session-与-memory会话与记忆">二、Session 与 Memory（会话与记忆）</a></li>
+<li><a href="#存储位置">存储位置</a></li>
+<li><a href="#为何使用-jsonl-而非-json">为何使用 JSONL 而非 JSON</a></li>
+<li><a href="#session-是树不是列表">Session 是树，不是列表</a></li>
+<li><a href="#tree-导航与分叉"><code>/tree</code> 导航与分叉</a></li>
+<li><a href="#磁盘路径与消息字段">磁盘路径与消息字段</a></li>
+<li><a href="#三tools工具">三、Tools（工具）</a></li>
+<li><a href="#四extensions扩展">四、Extensions（扩展）</a></li>
+<li><a href="#五skills-与-system-prompt技能与系统提示">五、Skills 与 System Prompt（技能与系统提示）</a></li>
+<li><a href="#六pi-core-与-interactive--其他-ui-的关系">六、Pi Core 与 Interactive / 其他 UI 的关系</a></li>
+<li><a href="#七cli-入口cli-entry-point">七、CLI 入口（CLI Entry Point）</a></li>
+<li><a href="#八terminal-user-interface终端用户界面">八、Terminal User Interface（终端用户界面）</a></li>
+<li><a href="#九compaction上下文压缩">九、Compaction（上下文压缩）</a></li>
+<li><a href="#触发时机与-token-计量">触发时机与 token 计量</a></li>
+<li><a href="#摘要-prompt-结构">摘要 prompt 结构</a></li>
+<li><a href="#十skills-与-custom-prompts-的处理差异">十、Skills 与 Custom Prompts 的处理差异</a></li>
+<li><a href="#skills">Skills</a></li>
+<li><a href="#custom-prompts">Custom prompts</a></li>
+<li><a href="#skills-工作流">Skills 工作流</a></li>
+<li><a href="#十一为什么用-typescript-而不是-python">十一、为什么用 TypeScript 而不是 Python</a></li>
+<li><a href="#小结">小结</a></li>
+</ul>
+<hr>
+<h2 id="pi-coreagent-loop">一、Pi Core：智能体循环（Agent Loop）</h2>
+<p>Pi 的设计核心是 <strong>agent core</strong>，即 <strong>agent loop（智能体循环）</strong>：每次与 Pi 开始对话时按固定步骤执行。</p>
+<p>打开 Pi 并发送第一条消息后，流程如下。</p>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;16px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;lineColor&quot;: &quot;#CBD5E1&quot;, &quot;clusterBkg&quot;: &quot;#111111&quot;, &quot;clusterBorder&quot;: &quot;#C4B5FD&quot;, &quot;titleColor&quot;: &quot;#FDE68A&quot;, &quot;edgeLabelBackground&quot;: &quot;#111111&quot;}}}%%
+flowchart TD
+    A[&quot;用户发送消息&quot;] --&gt; B[&quot;1. 初始化上下文&lt;br/&gt;Initialize Context&quot;]
+    B --&gt; C[&quot;2. 变换上下文 Transformation&lt;br/&gt;判断是否需要 compact&quot;]
+    C --&gt; D[&quot;3. 调用大语言模型&lt;br/&gt;LLM Call&quot;]
+    D --&gt; E{&quot;模型返回什么？&quot;}
+    E --&gt;|&quot;tool call&quot;| F[&quot;执行工具&quot;]
+    F --&gt; G[&quot;工具把结果返回给 LLM&quot;]
+    G --&gt; D
+    E --&gt;|&quot;纯文本回复&quot;| H[&quot;把回复交给用户&quot;]
+
+    classDef start fill:#BFDBFE,stroke:#93C5FD,color:#1E3A8A
+    classDef step fill:#A5F3FC,stroke:#67E8F9,color:#155E75
+    classDef llm fill:#E9D5FF,stroke:#D8B4FE,color:#6B21A8
+    classDef decision fill:#FEF08A,stroke:#FDE047,color:#713F12
+    classDef tool fill:#FBCFE8,stroke:#F9A8D4,color:#831843
+    classDef ok fill:#BBF7D0,stroke:#86EFAC,color:#14532D
+
+    class A start
+    class B,C step
+    class D llm
+    class E decision
+    class F,G tool
+    class H ok
+</code></pre>
+<p>工具调用可循环多次：复杂任务可达上百次；仅搜索网页时通常几次。模型决定不再调用工具时，直接给出文本回复。以上即每次向 Pi 发送消息时的全部过程。</p>
+<p>步骤看起来简单，实现并不简单。Pi 的循环是 <strong>从零手写</strong>，没有依赖现成 agent 库。对比：</p>
+<ul>
+<li>OpenAI Agents SDK</li>
+<li>Vercel AI SDK</li>
+<li>其他预装 agentic loop 的库（import 即可使用）</li>
+</ul>
+<p>Pi 这一套完全自研。</p>
+<table>
+<thead>
+<tr>
+<th>路径</th>
+<th>看什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>packages/agent/src/agent-loop.ts</code></td>
+<td><code>agentLoop()</code>：LLM 调用与 tool 循环</td>
+</tr>
+<tr>
+<td><code>packages/agent/src/agent.ts</code></td>
+<td>Agent 封装</td>
+</tr>
+<tr>
+<td><code>packages/agent/src/harness/agent-harness.ts</code></td>
+<td>Core harness 组装</td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/src/core/agent-session.ts</code></td>
+<td>Interactive 把 prompt 送进 Core</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="1-initialize-context">1. 初始化上下文（Initialize Context）</h3>
+<p>发送第一条消息后，第一步是 <strong>初始化上下文</strong>：按固定顺序拼接下列内容。</p>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;16px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;lineColor&quot;: &quot;#CBD5E1&quot;, &quot;clusterBkg&quot;: &quot;#111111&quot;, &quot;clusterBorder&quot;: &quot;#C4B5FD&quot;, &quot;titleColor&quot;: &quot;#FDE68A&quot;, &quot;edgeLabelBackground&quot;: &quot;#111111&quot;}}}%%
+flowchart TB
+    subgraph ctx[&quot;初始化后的上下文（自上而下拼接）&quot;]
+        SP[&quot;System Prompt&lt;br/&gt;系统提示（硬编码；可用 workspace 的 system.md 覆盖）&quot;]
+        AG[&quot;agents.md&lt;br/&gt;home + 当前工作目录&quot;]
+        SK[&quot;Skills descriptions&lt;br/&gt;已加载技能的描述&quot;]
+        TD[&quot;Tool descriptions&lt;br/&gt;工具描述&quot;]
+        MH[&quot;Message History&lt;br/&gt;消息历史 / compact 后的摘要&quot;]
+        CM[&quot;Current Message&lt;br/&gt;当前用户消息&quot;]
+    end
+
+    SP --&gt; AG --&gt; SK --&gt; TD --&gt; MH --&gt; CM
+
+    classDef prompt fill:#BFDBFE,stroke:#93C5FD,color:#1E3A8A
+    classDef docs fill:#A5F3FC,stroke:#67E8F9,color:#155E75
+    classDef skill fill:#E9D5FF,stroke:#D8B4FE,color:#6B21A8
+    classDef tool fill:#FEF08A,stroke:#FDE047,color:#713F12
+    classDef hist fill:#FBCFE8,stroke:#F9A8D4,color:#831843
+    classDef msg fill:#BBF7D0,stroke:#86EFAC,color:#14532D
+    classDef wrap fill:#111111,stroke:#C4B5FD,color:#FDE68A
+
+    class SP prompt
+    class AG docs
+    class SK skill
+    class TD tool
+    class MH hist
+    class CM msg
+    class ctx wrap
+</code></pre>
+<p>拼装顺序：</p>
+<p><strong>（1）系统提示（system prompt）</strong></p>
+<p>硬编码在 Pi 中。可在 workspace 创建 <code>system.md</code> 覆盖。默认加载预置系统提示：极简，仅数行指令。</p>
+<p><strong>（2）追加全部 <code>agents.md</code></strong></p>
+<p>来源包括 <strong>home</strong> 与 <strong>当前工作目录</strong>。文件名是 <code>agents.md</code>，不是 <code>.agents.md</code>。文件过多会膨胀系统提示，应控制数量。</p>
+<p><strong>（3）追加技能描述（skills descriptions）</strong></p>
+<p>所有已加载技能的 <strong>description</strong> 进入上下文。</p>
+<p><strong>（4）追加工具描述</strong></p>
+<p>全部工具描述进入初始化上下文。</p>
+<p><strong>（5）追加消息历史 + 当前消息</strong></p>
+<ul>
+<li><strong>新对话</strong>：无消息历史。</li>
+<li><strong>进行中的对话</strong>：包含消息历史。</li>
+<li><strong>已被 compact 的对话</strong>：消息历史可被 <strong>上一轮历史的摘要（summary）</strong> 替换。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>路径</th>
+<th>看什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>packages/coding-agent/src/core/system-prompt.ts</code></td>
+<td><code>buildSystemPrompt()</code>：default / SYSTEM.md / APPEND / AGENTS / skills / cwd</td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/src/core/resource-loader.ts</code></td>
+<td>发现 <code>SYSTEM.md</code>、<code>APPEND_SYSTEM.md</code>、<code>AGENTS.md</code> / <code>CLAUDE.md</code></td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/src/core/skills.ts</code></td>
+<td><code>formatSkillsForPrompt()</code>：系统提示里只放 description</td>
+</tr>
+<tr>
+<td><code>packages/agent/src/harness/system-prompt.ts</code></td>
+<td>Core 侧 skills XML 块</td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/src/core/tools/index.ts</code></td>
+<td>工具 schema 进入模型 tool 列表</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="2-transformation">2. 变换上下文（Transformation）</h3>
+<p>第二步每次都会执行：<strong>transformation（变换）</strong>。</p>
+<p>系统检查刚拼好的上下文是否需要 <strong>compact</strong>。若需要，则执行 compact，并用结果 <strong>替换消息历史</strong>。</p>
+<p>Compact 的含义：把历史中的全部消息交给 LLM <strong>做摘要</strong>。</p>
+<table>
+<thead>
+<tr>
+<th>路径</th>
+<th>看什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>packages/agent/src/harness/compaction/compaction.ts</code></td>
+<td><code>shouldCompact()</code>、<code>compact()</code>、<code>generateSummary()</code></td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/src/core/compaction/</code></td>
+<td>Interactive 侧压缩入口</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="3-llm-call">3. 调用大语言模型（LLM Call）</h3>
+<p>Pi 可对接三类后端：<strong>订阅账号</strong>、<strong>API Key</strong>、<strong>自定义 / 本地模型</strong>。调用当前配置的提供商上的模型后，模型可能返回 <strong>tool call</strong>（更新文件、读文件、搜索互联网等）。工具把结果返回给 LLM；LLM 可再次发起 tool call，循环直到不再需要工具，再给出文本回复。</p>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;16px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;lineColor&quot;: &quot;#CBD5E1&quot;, &quot;clusterBkg&quot;: &quot;#111111&quot;, &quot;clusterBorder&quot;: &quot;#C4B5FD&quot;, &quot;titleColor&quot;: &quot;#FDE68A&quot;, &quot;edgeLabelBackground&quot;: &quot;#111111&quot;}}}%%
+flowchart TB
+    PI[&quot;Pi 可对接订阅、API Key 与本地模型&quot;]
+
+    PI --&gt; SUB
+    PI --&gt; API
+    PI --&gt; CUS
+
+    subgraph SUB[&quot;订阅 SUBSCRIPTION&quot;]
+        S1[&quot;ChatGPT Plus / Pro&quot;]
+        S2[&quot;GitHub Copilot&quot;]
+        S3[&quot;Claude Pro / Max&lt;br/&gt;不支持&quot;]
+    end
+
+    subgraph API[&quot;API Key&quot;]
+        A1[&quot;Anthropic · OpenAI · Gemini&quot;]
+        A2[&quot;Groq · Mistral · xAI&quot;]
+        A3[&quot;OpenRouter · Fireworks&quot;]
+        A4[&quot;DeepSeek · MiniMax&quot;]
+        A5[&quot;Kimi / Moonshot · GLM · 通义千问&quot;]
+    end
+
+    subgraph CUS[&quot;自定义 CUSTOM&quot;]
+        C1[&quot;Ollama · LM Studio · vLLM&quot;]
+        C2[&quot;OpenAI 兼容代理&quot;]
+        C3[&quot;扩展自定义 Provider&quot;]
+    end
+
+    classDef pi fill:#FBCFE8,stroke:#F9A8D4,color:#831843
+    classDef sub fill:#FEF08A,stroke:#FDE047,color:#713F12
+    classDef api fill:#BFDBFE,stroke:#93C5FD,color:#1E3A8A
+    classDef cus fill:#E9D5FF,stroke:#D8B4FE,color:#6B21A8
+    classDef nosup fill:#FED7AA,stroke:#FDBA74,color:#9A3412
+    classDef wrap fill:#111111,stroke:#C4B5FD,color:#FDE68A
+
+    class PI pi
+    class S1,S2 sub
+    class S3 nosup
+    class A1,A2,A3,A4,A5 api
+    class C1,C2,C3 cus
+    class SUB,API,CUS wrap
+</code></pre>
+<p>三类接入：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>说明</th>
+<th>代表</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>订阅</strong></td>
+<td>用现有会员账号，不必另开 API</td>
+<td>ChatGPT Plus/Pro、GitHub Copilot。Claude Pro/Max <strong>不支持</strong></td>
+</tr>
+<tr>
+<td><strong>API Key</strong></td>
+<td>官方或聚合网关的密钥</td>
+<td>Anthropic、OpenAI、Gemini、Groq、Mistral、xAI、OpenRouter、Fireworks；国产 <strong>DeepSeek、MiniMax、Kimi（Moonshot）、智谱 GLM、通义千问</strong></td>
+</tr>
+<tr>
+<td><strong>自定义</strong></td>
+<td>本地推理或自建兼容端点</td>
+<td>Ollama、LM Studio、vLLM、OpenAI 兼容代理；也可通过扩展注册自定义 Provider</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>复杂任务：可达 <strong>上百次</strong> tool call。</li>
+<li>仅搜索网页：通常几次。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>路径</th>
+<th>看什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>packages/ai/src/providers/</code></td>
+<td>各提供商适配（<code>openai.ts</code>、<code>anthropic.ts</code>、<code>google.ts</code>、<code>github-copilot.ts</code>、<code>deepseek.ts</code>、<code>ollama</code> 走 OpenAI 兼容）</td>
+</tr>
+<tr>
+<td><code>packages/agent/src/stream-fn.ts</code></td>
+<td>循环与 LLM 流的边界</td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/src/core/model-registry.ts</code></td>
+<td>Interactive 侧模型注册</td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/examples/extensions/custom-provider-anthropic/</code></td>
+<td>用 extension 注册自定义 Provider</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="session-memory">二、Session 与 Memory（会话与记忆）</h2>
+<p>Session 的导出、导航、回退到某一步、fork（分叉）设计简单、一致。</p>
+<h3 id="_3">存储位置</h3>
+<p>Session 位于 <strong>home 目录</strong> 下，路径为：</p>
+<p><code>home</code> → 相关目录 → <code>agent</code> → <code>sessions</code></p>
+<p><code>sessions</code> 下的子目录 <strong>一一映射到工作目录</strong>。例如：</p>
+<ul>
+<li>在 <code>dashboard</code> 应用中工作 → <code>dashboard/</code> 目录</li>
+<li>在 <code>weather app</code> 应用中工作 → <code>weather-app/</code> 目录</li>
+</ul>
+<p>每个工作目录下存放带 ID 的 session 文件，格式为 <strong>JSONL</strong>。</p>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;16px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;lineColor&quot;: &quot;#CBD5E1&quot;, &quot;clusterBkg&quot;: &quot;#111111&quot;, &quot;clusterBorder&quot;: &quot;#C4B5FD&quot;, &quot;titleColor&quot;: &quot;#FDE68A&quot;, &quot;edgeLabelBackground&quot;: &quot;#111111&quot;}}}%%
+flowchart TB
+    HOME[&quot;~ / home&quot;]
+    AGENT[&quot;agent&quot;]
+    SESS[&quot;sessions&quot;]
+    D1[&quot;dashboard/&quot;]
+    D2[&quot;weather-app/&quot;]
+    D3[&quot;其他工作目录&quot;]
+    S1[&quot;session-id-1.jsonl&quot;]
+    S2[&quot;session-id-2.jsonl&quot;]
+    S3[&quot;session-id-a.jsonl&quot;]
+
+    HOME --&gt; AGENT --&gt; SESS
+    SESS --&gt; D1
+    SESS --&gt; D2
+    SESS --&gt; D3
+    D1 --&gt; S1
+    D1 --&gt; S2
+    D2 --&gt; S3
+
+    classDef root fill:#BFDBFE,stroke:#93C5FD,color:#1E3A8A
+    classDef mid fill:#A5F3FC,stroke:#67E8F9,color:#155E75
+    classDef store fill:#E9D5FF,stroke:#D8B4FE,color:#6B21A8
+    classDef dir fill:#FEF08A,stroke:#FDE047,color:#713F12
+    classDef file fill:#FBCFE8,stroke:#F9A8D4,color:#831843
+
+    class HOME root
+    class AGENT mid
+    class SESS store
+    class D1,D2,D3 dir
+    class S1,S2,S3 file
+</code></pre>
+<h3 id="jsonl-json">为何使用 JSONL 而非 JSON</h3>
+<p>JSONL 不是单个 JSON 对象，而是 <strong>每行一个 JSON 对象</strong> 的文本文件。</p>
+<p>新消息只需 <strong>在文件末尾 append 一行</strong>。每行对象包含 <code>role</code>、<code>message</code> 等字段。</p>
+<p>Session 按 <strong>启动时的工作目录</strong> 归类；每条消息是独立 JSON 对象。若使用单个 JSON 数组，更新时需要改写整份文件中的某一段。JSONL 的追加成本更低。</p>
+<h3 id="session">Session 是树，不是列表</h3>
+<p>Session <strong>不是线性 list</strong>，而是 <strong>session tree（会话树）</strong>。</p>
+<p>在 Pi 中导航到更早的命令或 prompt，使用 <strong><code>/tree</code></strong>。每条消息除 <code>role</code>、<code>message</code> 外还有：</p>
+<ul>
+<li><code>parent</code>：父消息 ID</li>
+<li><code>id</code>：本条消息 ID</li>
+</ul>
+<p><code>parent</code> 表示该消息可能从更早的消息 <strong>分叉（bifurcate）</strong>。例如：一条消息的 <code>parent</code> 为 <code>111</code>，另一条的 <code>id</code> 为 <code>111</code>，则后者在前者之前。</p>
+<p>从同一条消息再分出另一条，即 <strong>fork 对话</strong>。两条消息可以共享 <code>parent: 111</code>。树结构由单文件中的 <code>id</code> / <code>parent</code> 关系构成：同一父消息可引出两段独立对话。</p>
+<p>该设计正在被更多 AI agent 采用，替代「一条接一条」的线性列表。</p>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;16px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;lineColor&quot;: &quot;#CBD5E1&quot;, &quot;clusterBkg&quot;: &quot;#111111&quot;, &quot;clusterBorder&quot;: &quot;#C4B5FD&quot;, &quot;titleColor&quot;: &quot;#FDE68A&quot;, &quot;edgeLabelBackground&quot;: &quot;#111111&quot;}}}%%
+flowchart TD
+    P[&quot;id: 111&lt;br/&gt;父消息&quot;]
+    A[&quot;parent: 111&lt;br/&gt;分叉 A：继续原对话&quot;]
+    B[&quot;parent: 111&lt;br/&gt;分叉 B：fork 出的新对话&lt;br/&gt;例如：总结此前对话&quot;]
+
+    P --&gt; A
+    P --&gt; B
+
+    classDef parent fill:#E9D5FF,stroke:#D8B4FE,color:#6B21A8
+    classDef branchA fill:#BFDBFE,stroke:#93C5FD,color:#1E3A8A
+    classDef branchB fill:#FBCFE8,stroke:#F9A8D4,color:#831843
+
+    class P parent
+    class A branchA
+    class B branchB
+</code></pre>
+<p>JSONL 中 <strong>所有分叉消息仍在同一文件、同一目录</strong>。树是逻辑结构，不是物理拆文件。</p>
+<h3 id="tree"><code>/tree</code> 导航与分叉</h3>
+<p>执行 <strong><code>/tree</code></strong> 后，沿 JSONL <strong>纵向</strong> 浏览消息。消息类型包括 <strong>tool call</strong>、user message、assistant message 等。</p>
+<p>若回到某条消息并要求 <strong>总结对话前半部分</strong>：系统在 JSONL 中 <strong>新建一条消息</strong>，将其挂到分叉点之前那条消息的 <strong>parent / child</strong> 关系上。其余消息仍在同一目录、同一 JSONL 中。</p>
+<p>再次打开 <code>/tree</code> 可见分叉：一侧是 summary，一侧是原对话，可从任一侧继续。</p>
+<h3 id="_4">磁盘路径与消息字段</h3>
+<p>路径形态：<code>Pi</code> → <code>Agent</code> → <code>Sessions</code>。其下按曾运行 Pi 的工作目录存放 session。目录名是路径的标准化形式，不是原始显示名。例如：</p>
+<p><code>Users / Alejandro / Agent Skills / Video Tool</code></p>
+<p>某一工作目录下可有多个 session 文件。每个文件是 JSONL：每行一对花括号 <code>{ ... }</code>，记录一条事件。</p>
+<p>用编辑器打开可见：</p>
+<ul>
+<li><strong>每一行 = 一条消息</strong></li>
+<li>字段包括：消息类型（可为 message）、<strong>id</strong>、<strong>parent id</strong>（建树）、<strong>timestamp</strong>、消息正文</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>路径</th>
+<th>看什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>packages/coding-agent/src/core/session-manager.ts</code></td>
+<td>JSONL 树：<code>id</code> / <code>parentId</code>、<code>branch()</code>、<code>getTree()</code>、<code>createBranchedSession()</code>、<code>continueRecent()</code></td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/src/core/agent-session.ts</code></td>
+<td><code>navigateTree()</code>：同文件切枝（<code>/tree</code>）</td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/src/core/agent-session-runtime.ts</code></td>
+<td><code>fork()</code>：新开 session 文件（<code>/fork</code>、<code>/clone</code>）</td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/src/modes/interactive/components/tree-selector.ts</code></td>
+<td><code>/tree</code> UI</td>
+</tr>
+<tr>
+<td><code>packages/agent/src/harness/session/types.ts</code></td>
+<td>Core 侧 <code>parentId</code>、<code>ForkOptions</code></td>
+</tr>
+<tr>
+<td><code>packages/agent/src/harness/session/jsonl/</code></td>
+<td>Core 侧 JSONL 持久化与 <code>fork()</code></td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/src/config.ts</code></td>
+<td><code>getAgentDir()</code> → <code>~/.pi/agent</code>；session 目录在其下 <code>sessions/</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="tools">三、Tools（工具）</h2>
+<p>Pi 默认工具集同样极简，开箱仅 <strong>四个</strong>：</p>
+<ol>
+<li><strong>read</strong></li>
+<li><strong>bash</strong></li>
+<li><strong>edit</strong></li>
+<li><strong>write</strong></li>
+</ol>
+<p>可自行增加工具：让 Pi 创建新工具，或通过安装包注册。默认只有上述四个。常见加装项是 <strong>web search</strong>。</p>
+<p>另有两个额外工具：<strong>grep</strong> 与 <strong>find</strong>。二者能力可用 bash 复现，<strong>默认禁用</strong>，仅在 <strong>只读模式（read-only mode）</strong> 下启用。</p>
+<p>只读场景通常不授予 bash。启动示例：</p>
+<pre><code class="language-text">pi --tools read,grep,find
+</code></pre>
+<p>参数为 <strong><code>--tools</code></strong>，后接工具列表。结果是只读 Pi（例如仅 read、grep、find）。适用于 <strong>编程调用</strong>（如 <strong>RPC</strong>）与自动化工作流：不需要写文件时，不应暴露 edit / write / bash。</p>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;16px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;lineColor&quot;: &quot;#CBD5E1&quot;, &quot;clusterBkg&quot;: &quot;#111111&quot;, &quot;clusterBorder&quot;: &quot;#C4B5FD&quot;, &quot;titleColor&quot;: &quot;#FDE68A&quot;, &quot;edgeLabelBackground&quot;: &quot;#111111&quot;}}}%%
+flowchart LR
+    subgraph builtin[&quot;开箱四个工具&quot;]
+        R[&quot;read&quot;]
+        B[&quot;bash&quot;]
+        E[&quot;edit&quot;]
+        W[&quot;write&quot;]
+    end
+
+    subgraph extra[&quot;额外工具（默认禁用）&quot;]
+        G[&quot;grep&quot;]
+        F[&quot;find&quot;]
+    end
+
+    subgraph optional[&quot;常见自行加装&quot;]
+        WS[&quot;web search&quot;]
+    end
+
+    subgraph readonly[&quot;只读模式&quot;]
+        RO[&quot;--tools read,grep,find&lt;br/&gt;无 bash / edit / write&quot;]
+    end
+
+    classDef read fill:#BFDBFE,stroke:#93C5FD,color:#1E3A8A
+    classDef write fill:#FBCFE8,stroke:#F9A8D4,color:#831843
+    classDef extra fill:#FEF08A,stroke:#FDE047,color:#713F12
+    classDef opt fill:#E9D5FF,stroke:#D8B4FE,color:#6B21A8
+    classDef ro fill:#BBF7D0,stroke:#86EFAC,color:#14532D
+    classDef wrap fill:#111111,stroke:#C4B5FD,color:#FDE68A
+
+    class R read
+    class B,E,W write
+    class G,F extra
+    class WS opt
+    class RO ro
+    class builtin,extra,optional,readonly wrap
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>路径</th>
+<th>看什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>packages/coding-agent/src/core/tools/index.ts</code></td>
+<td><code>allToolNames</code>、<code>createCodingTools()</code>、<code>createReadOnlyTools()</code></td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/src/core/tools/read.ts</code></td>
+<td>read</td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/src/core/tools/bash.ts</code></td>
+<td>bash</td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/src/core/tools/edit.ts</code></td>
+<td>edit</td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/src/core/tools/write.ts</code></td>
+<td>write</td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/src/core/tools/grep.ts</code> · <code>find.ts</code> · <code>ls.ts</code></td>
+<td>额外工具；只读模式才默认启用</td>
+</tr>
+<tr>
+<td><code>packages/agent/src/harness/tools/</code></td>
+<td>Core 侧对应实现</td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/src/cli/args.ts</code></td>
+<td><code>--tools</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="extensions">四、Extensions（扩展）</h2>
+<p>扩展是可安装的包，用于 <strong>修改 Pi 的行为</strong>。默认极简：四个工具，<strong>不内置 MCP</strong>，<strong>不内置 web search</strong>。安装扩展后即可获得这些能力。</p>
+<p>扩展能力包括：</p>
+<ul>
+<li><strong>Register new tools</strong>：注册新工具</li>
+<li><strong>Subscribe to events</strong>：订阅事件</li>
+<li><strong>Register commands</strong>：注册命令</li>
+<li><strong>Add keyboard shortcuts</strong>：添加键盘快捷键</li>
+<li><strong>Add CLI flags</strong>：添加 CLI 参数</li>
+<li><strong>Update the system prompt</strong>：更新系统提示</li>
+<li><strong>Render custom messages</strong>：渲染自定义消息</li>
+</ul>
+<p>对话工作流的 <strong>每个环节都会触发事件</strong>，例如 tool call、agent response、user message。扩展可订阅这些事件，在循环的 <strong>特定时刻</strong> 执行动作。</p>
+<p>扩展用 <strong>TypeScript</strong> 编写。Pi 模块化：接入扩展即可改变行为。官方网站的 <strong>packages</strong> 列出可用扩展。</p>
+<p>扩展会在本机 <strong>加载并执行代码</strong>。不要安装不可信的第三方来源；使用前应用 Pi 阅读该包源码并确认安全。</p>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;16px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;lineColor&quot;: &quot;#CBD5E1&quot;, &quot;clusterBkg&quot;: &quot;#111111&quot;, &quot;clusterBorder&quot;: &quot;#C4B5FD&quot;, &quot;titleColor&quot;: &quot;#FDE68A&quot;, &quot;edgeLabelBackground&quot;: &quot;#111111&quot;}}}%%
+flowchart TB
+    LOOP[&quot;Agent Loop 各阶段&quot;]
+    EV[&quot;事件：user message / tool call / agent response / ...&quot;]
+    EXT[&quot;Extension&quot;]
+
+    LOOP --&gt; EV
+    EV --&gt; EXT
+
+    EXT --&gt; T[&quot;注册工具&quot;]
+    EXT --&gt; C[&quot;注册命令&quot;]
+    EXT --&gt; K[&quot;键盘快捷键&quot;]
+    EXT --&gt; F[&quot;CLI flags&quot;]
+    EXT --&gt; S[&quot;改系统提示&quot;]
+    EXT --&gt; M[&quot;自定义渲染&quot;]
+
+    classDef loop fill:#BFDBFE,stroke:#93C5FD,color:#1E3A8A
+    classDef event fill:#FEF08A,stroke:#FDE047,color:#713F12
+    classDef ext fill:#E9D5FF,stroke:#D8B4FE,color:#6B21A8
+    classDef cap fill:#FBCFE8,stroke:#F9A8D4,color:#831843
+
+    class LOOP loop
+    class EV event
+    class EXT ext
+    class T,C,K,F,S,M cap
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>路径</th>
+<th>看什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>packages/coding-agent/src/core/extensions/types.ts</code></td>
+<td><code>ExtensionAPI</code>：<code>registerTool</code> / <code>registerCommand</code> / <code>on(...)</code> / <code>ui</code> / <code>registerProvider</code></td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/src/core/extensions/loader.ts</code></td>
+<td>jiti 加载 <code>extensions/*.ts</code>，无需先编译</td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/src/core/extensions/runner.ts</code></td>
+<td>事件分发</td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/docs/extensions.md</code></td>
+<td>用法</td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/examples/extensions/</code></td>
+<td>官方示例（tools、commands、plan-mode、subagent、...）</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="skills-system-prompt">五、Skills 与 System Prompt（技能与系统提示）</h2>
+<p>默认系统提示约 <strong>20 行</strong>，结构如下：</p>
+<ul>
+<li>角色说明：helpful assistant，身份为 Pi</li>
+<li><strong>appended sections（追加段）</strong></li>
+<li>自定义追加：在 <strong><code>.pi</code> 目录</strong> 创建 <strong><code>append-system.md</code></strong>，追加到 “you are Pi” 段 <strong>之后</strong></li>
+<li>Skills 列表：使用 <strong>markup</strong> 包裹每个技能的 name、description、用途等</li>
+</ul>
+<p>技能使用 markup 的原因：后续 <strong>TUI 会解析</strong> 这些标签。</p>
+<p>其后包含 <strong>当前日期</strong> 与 <strong>当前工作目录</strong>。</p>
+<p>覆盖系统提示的两种方式：</p>
+<ol>
+<li>在 <code>.pi</code> 中创建 <strong><code>system.md</code></strong></li>
+<li>启动时使用 <strong><code>--system-prompt</code></strong> 传入完整提示</li>
+</ol>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;16px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;lineColor&quot;: &quot;#CBD5E1&quot;, &quot;clusterBkg&quot;: &quot;#111111&quot;, &quot;clusterBorder&quot;: &quot;#C4B5FD&quot;, &quot;titleColor&quot;: &quot;#FDE68A&quot;, &quot;edgeLabelBackground&quot;: &quot;#111111&quot;}}}%%
+flowchart TD
+    A[&quot;硬编码：You are Pi, a helpful assistant&quot;] --&gt; B[&quot;append-system.md&lt;br/&gt;.pi 目录，追加在 You are Pi 段之后&quot;]
+    B --&gt; C[&quot;Skills 列表&lt;br/&gt;markup：name / description / ...&quot;]
+    C --&gt; D[&quot;当前日期 + 当前工作目录&quot;]
+
+    O1[&quot;覆盖：.pi/system.md&quot;]
+    O2[&quot;覆盖：--system-prompt ...&quot;]
+    O1 -.-&gt; A
+    O2 -.-&gt; A
+
+    classDef base fill:#BFDBFE,stroke:#93C5FD,color:#1E3A8A
+    classDef append fill:#A5F3FC,stroke:#67E8F9,color:#155E75
+    classDef skill fill:#E9D5FF,stroke:#D8B4FE,color:#6B21A8
+    classDef meta fill:#BBF7D0,stroke:#86EFAC,color:#14532D
+    classDef override fill:#FBCFE8,stroke:#F9A8D4,color:#831843
+
+    class A base
+    class B append
+    class C skill
+    class D meta
+    class O1,O2 override
+</code></pre>
+<p>以上为 Pi Core 的默认系统提示组装方式。掌握这些即可理解并复刻 Core 层。</p>
+<p>磁盘上的文件名是 <strong><code>SYSTEM.md</code> / <code>APPEND_SYSTEM.md</code></strong>（大写），不是 <code>system.md</code>。</p>
+<table>
+<thead>
+<tr>
+<th>路径</th>
+<th>看什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>packages/coding-agent/src/core/system-prompt.ts</code></td>
+<td><code>buildSystemPrompt()</code></td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/src/core/resource-loader.ts</code></td>
+<td><code>discoverSystemPromptFile()</code>、<code>discoverAppendSystemPromptFile()</code>、<code>loadContextFileFromDir()</code></td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/src/core/skills.ts</code></td>
+<td><code>loadSkills()</code>、<code>formatSkillsForPrompt()</code></td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/src/cli/args.ts</code></td>
+<td><code>--system-prompt</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="pi-core-interactive-ui">六、Pi Core 与 Interactive / 其他 UI 的关系</h2>
+<p>Pi Interactive 是 <strong>独立包</strong>，不在 pi-core 中。分工：</p>
+<ul>
+<li><strong>Pi Core</strong>：智能体本身（循环、会话、工具、提示）</li>
+<li><strong>Pi Interactive</strong>：编码智能体（CLI 入口、TUI、Skills / Slash 处理）</li>
+</ul>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;16px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;lineColor&quot;: &quot;#CBD5E1&quot;, &quot;clusterBkg&quot;: &quot;#111111&quot;, &quot;clusterBorder&quot;: &quot;#C4B5FD&quot;, &quot;titleColor&quot;: &quot;#FDE68A&quot;, &quot;edgeLabelBackground&quot;: &quot;#111111&quot;}}}%%
+flowchart LR
+    subgraph pkg2[&quot;pi-interactive 包&quot;]
+        INT[&quot;Coding Agent&lt;br/&gt;CLI 入口 + TUI + Skills/Slash 处理&quot;]
+    end
+
+    subgraph pkg1[&quot;pi-core 包&quot;]
+        CORE[&quot;Agent / Loop / Session / Tools / Prompt&quot;]
+    end
+
+    INT --&gt; CORE
+    OTHER[&quot;其他 GUI / 另一套 TUI&quot;] --&gt; CORE
+
+    classDef inter fill:#E9D5FF,stroke:#D8B4FE,color:#6B21A8
+    classDef core fill:#BFDBFE,stroke:#93C5FD,color:#1E3A8A
+    classDef other fill:#FEF08A,stroke:#FDE047,color:#713F12
+    classDef wrap fill:#111111,stroke:#C4B5FD,color:#FDE68A
+
+    class INT inter
+    class CORE core
+    class OTHER other
+    class pkg1,pkg2 wrap
+</code></pre>
+<p>开箱 TUI 为 Pi 定制实现。可以在 Core 之上接入自定义 GUI 或另一套 TUI。</p>
+<table>
+<thead>
+<tr>
+<th>路径</th>
+<th>看什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>packages/agent/</code></td>
+<td>Core：loop / session / compaction</td>
+</tr>
+<tr>
+<td><code>packages/ai/</code></td>
+<td>LLM 提供商</td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/</code></td>
+<td>Interactive：CLI + TUI 组装 + skills/slash</td>
+</tr>
+<tr>
+<td><code>packages/tui/</code></td>
+<td>可替换的终端渲染库</td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/src/modes/rpc/</code></td>
+<td>给 Python / Go / 其他 UI 用的 JSONL RPC</td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/src/core/sdk.ts</code></td>
+<td>Node 进程内 SDK</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="cli-cli-entry-point">七、CLI 入口（CLI Entry Point）</h2>
+<p>新建 session、进入 CLI 时，逻辑分布在两个文件：</p>
+<ol>
+<li><strong><code>cli.ts</code></strong></li>
+<li><strong><code>main.ts</code></strong></li>
+</ol>
+<p><strong><code>cli.ts</code></strong>：接收 <code>pi</code> 命令，设置 process title 等，然后 <strong>调用 <code>main</code></strong>。</p>
+<p><strong><code>main.ts</code></strong>：</p>
+<ul>
+<li>解析参数（arguments）</li>
+<li>解析配置（configuration）：自定义工作目录等</li>
+<li><strong>加载扩展</strong>（extensions）</li>
+<li><strong>创建 agent session</strong>：至此才初始化 Pi Core</li>
+<li>按所选模式运行：</li>
+<li><strong>interactive</strong></li>
+<li><strong>RPC</strong></li>
+<li><strong>print to STDIO</strong>：命令行 <code>pi</code> 后直接跟 prompt</li>
+</ul>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;16px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;lineColor&quot;: &quot;#CBD5E1&quot;, &quot;clusterBkg&quot;: &quot;#111111&quot;, &quot;clusterBorder&quot;: &quot;#C4B5FD&quot;, &quot;titleColor&quot;: &quot;#FDE68A&quot;, &quot;edgeLabelBackground&quot;: &quot;#111111&quot;}}}%%
+flowchart TD
+    CMD[&quot;pi 命令&quot;] --&gt; CLIENT[&quot;cli.ts&lt;br/&gt;接收命令、设置 process title&quot;]
+    CLIENT --&gt; MAIN[&quot;main.ts&quot;]
+    MAIN --&gt; P[&quot;解析 arguments&quot;]
+    P --&gt; CFG[&quot;resolve configuration&lt;br/&gt;工作目录等&quot;]
+    CFG --&gt; EXT[&quot;load extensions&quot;]
+    EXT --&gt; SES[&quot;create agent session&lt;br/&gt;此时初始化 Pi Core&quot;]
+    SES --&gt; MODE{&quot;运行模式&quot;}
+    MODE --&gt; I[&quot;interactive&quot;]
+    MODE --&gt; R[&quot;RPC&quot;]
+    MODE --&gt; S[&quot;print to STDIO&quot;]
+
+    classDef cmd fill:#BFDBFE,stroke:#93C5FD,color:#1E3A8A
+    classDef file fill:#A5F3FC,stroke:#67E8F9,color:#155E75
+    classDef step fill:#E9D5FF,stroke:#D8B4FE,color:#6B21A8
+    classDef core fill:#FEF08A,stroke:#FDE047,color:#713F12
+    classDef decision fill:#FED7AA,stroke:#FDBA74,color:#9A3412
+    classDef modeI fill:#BBF7D0,stroke:#86EFAC,color:#14532D
+    classDef modeR fill:#FBCFE8,stroke:#F9A8D4,color:#831843
+    classDef modeS fill:#DDD6FE,stroke:#C4B5FD,color:#5B21B6
+
+    class CMD cmd
+    class CLIENT,MAIN file
+    class P,CFG,EXT step
+    class SES core
+    class MODE decision
+    class I modeI
+    class R modeR
+    class S modeS
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>路径</th>
+<th>看什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>packages/coding-agent/src/cli.ts</code></td>
+<td>shebang + <code>process.title</code> + <code>main(argv)</code></td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/src/main.ts</code></td>
+<td>参数、配置、扩展、<code>createAgentSession</code>、分发模式</td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/src/cli/args.ts</code></td>
+<td><code>-c</code> / <code>-r</code> / <code>--tools</code> / <code>--mode</code></td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/src/modes/interactive/interactive-mode.ts</code></td>
+<td>interactive</td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/src/modes/rpc/rpc-mode.ts</code></td>
+<td>RPC</td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/src/modes/print-mode.ts</code></td>
+<td>print / STDIO</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="terminal-user-interface">八、Terminal User Interface（终端用户界面）</h2>
+<p>TUI 模块化布局：</p>
+<ul>
+<li>下方：<strong>input（输入）</strong></li>
+<li>上方：<strong>messages（消息）</strong></li>
+<li>底部状态栏：会话与运行信息</li>
+</ul>
+<p>特点：极简、<strong>不闪烁（does not flicker）</strong>。</p>
+<p>实现要点：</p>
+<ol>
+<li><strong>完全自研</strong>，不使用 Textual 等库。</li>
+<li><strong>Component-based（基于组件）</strong>：每个组件负责自身 <strong>rendering（渲染）</strong>、<strong>inputs（输入）</strong>，并可 <strong>动态更新</strong>。</li>
+<li>可订阅 agent core 发出的事件。</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>路径</th>
+<th>看什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>packages/tui/src/tui.ts</code></td>
+<td>共享 <code>TUI</code> 接口</td>
+</tr>
+<tr>
+<td><code>packages/tui/src/tui-main-screen.ts</code></td>
+<td>主屏：保留终端 scrollback</td>
+</tr>
+<tr>
+<td><code>packages/tui/src/tui-alt-screen.ts</code></td>
+<td>备用屏：应用自己管滚动</td>
+</tr>
+<tr>
+<td><code>packages/tui/src/components/editor.ts</code></td>
+<td>输入框</td>
+</tr>
+<tr>
+<td><code>packages/tui/src/components/markdown.ts</code></td>
+<td>消息 Markdown</td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/src/modes/interactive/interactive-mode.ts</code></td>
+<td>把 Core 事件接到 TUI 组件</td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/src/modes/interactive/components/assistant-message.ts</code></td>
+<td>上方消息</td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/src/modes/interactive/components/footer.ts</code></td>
+<td>底部状态栏</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="compaction">九、Compaction（上下文压缩）</h2>
+<p>各 agent 的 compaction 策略不同。Pi 的策略是：不估算，只使用 LLM 响应中的用量信息。</p>
+<p>部分实现用 <strong>上下文总字符数 ÷ 4</strong> 估算 token，尤其在尚未收到 LLM 响应时。Pi <strong>不采用该估算</strong>。它依赖响应中的 usage，并假定首条用户消息通常不会超长。</p>
+<h3 id="token">触发时机与 token 计量</h3>
+<p>Pi 调用 <strong><code>check compaction</code></strong>，时机有两处：</p>
+<ol>
+<li><strong>When an agent ends</strong>：一轮 turn 结束，给出回复（含 tool call 结果之后）</li>
+<li><strong>Before the prompt</strong>：真正发送消息之前</li>
+</ol>
+<p>目的：避免回复时或启动时撑满 context window。</p>
+<p>智能体响应后计量 token。部分提供商在响应中直接返回 <strong>context tokens</strong>，有则直接使用；无则按下式加总：</p>
+<ul>
+<li><strong><code>usage.input</code></strong>：输入 token</li>
+<li><strong><code>usage.output</code></strong>：生成 token</li>
+<li><strong><code>cache.read</code></strong></li>
+<li><strong><code>cache.write</code></strong></li>
+</ul>
+<p>在每轮结束或用户发 prompt 之前，用上述结果判断是否 compact。</p>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;16px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;lineColor&quot;: &quot;#CBD5E1&quot;, &quot;clusterBkg&quot;: &quot;#111111&quot;, &quot;clusterBorder&quot;: &quot;#C4B5FD&quot;, &quot;titleColor&quot;: &quot;#FDE68A&quot;, &quot;edgeLabelBackground&quot;: &quot;#111111&quot;}}}%%
+flowchart TD
+    T1[&quot;时机 1：agent ends（一轮结束）&quot;] --&gt; CHK[&quot;check compaction&quot;]
+    T2[&quot;时机 2：before the prompt&quot;] --&gt; CHK
+
+    CHK --&gt; HAS{&quot;响应里有 context tokens？&quot;}
+    HAS --&gt;|&quot;有&quot;| USE[&quot;直接使用提供商返回的 context tokens&quot;]
+    HAS --&gt;|&quot;没有&quot;| SUM[&quot;usage.input + usage.output&lt;br/&gt;+ cache.read + cache.write&quot;]
+
+    USE --&gt; DEC{&quot;是否超过窗口 / 需要压缩？&quot;}
+    SUM --&gt; DEC
+    DEC --&gt;|&quot;是&quot;| CMP[&quot;用 LLM 摘要替换 message history&quot;]
+    DEC --&gt;|&quot;否&quot;| OK[&quot;继续&quot;]
+
+    classDef time fill:#BFDBFE,stroke:#93C5FD,color:#1E3A8A
+    classDef chk fill:#E9D5FF,stroke:#D8B4FE,color:#6B21A8
+    classDef decision fill:#FEF08A,stroke:#FDE047,color:#713F12
+    classDef calc fill:#A5F3FC,stroke:#67E8F9,color:#155E75
+    classDef compact fill:#FBCFE8,stroke:#F9A8D4,color:#831843
+    classDef ok fill:#BBF7D0,stroke:#86EFAC,color:#14532D
+
+    class T1,T2 time
+    class CHK chk
+    class HAS,DEC decision
+    class USE,SUM calc
+    class CMP compact
+    class OK ok
+</code></pre>
+<h3 id="prompt">摘要 prompt 结构</h3>
+<p>代码路径：</p>
+<p><code>packages/agent/src/harness/compaction/compaction.ts</code></p>
+<p>其中的 <strong>summarization system prompt</strong> 大意：</p>
+<blockquote>
+<p>You are a context summarization assistant. Your task is to read a conversation between a user and an AI assistant, ...</p>
+<p>The messages above are a conversation to summarize. Create a structured context checkpoint summary that another LLM will use to continue the work.</p>
+</blockquote>
+<p>要求的结构：</p>
+<ul>
+<li><strong>Goal（目标）</strong></li>
+<li><strong>Constraints and preferences（约束与偏好）</strong></li>
+<li><strong>Progress</strong>：what is done / what is in progress / what is blocked（已完成 / 进行中 / 被阻塞）</li>
+<li><strong>Key decisions（关键决策）</strong></li>
+<li><strong>Next steps（下一步）</strong></li>
+<li><strong>Critical context（关键上下文）</strong></li>
+</ul>
+<p>各段保持简洁；<strong>保留精确的文件路径、函数名和错误信息</strong>。</p>
+<p>更新已有摘要时（<strong>update existing summary</strong>），使用另一套略有差异的 prompt。</p>
+<p>在仓库中 resume session 并执行 compact 后，用 <strong>Ctrl-O</strong> 展开，可见与上述结构一致的输出：goal、constraints and preferences、progress（done / in progress / blocked）、key decisions、next steps、critical context、original request、early progress 等。</p>
+<table>
+<thead>
+<tr>
+<th>路径</th>
+<th>看什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>packages/agent/src/harness/compaction/compaction.ts</code></td>
+<td><code>shouldCompact()</code>、<code>compact()</code>、<code>generateSummary()</code>、摘要 prompt</td>
+</tr>
+<tr>
+<td><code>packages/agent/src/harness/compaction/utils.ts</code></td>
+<td>会话序列化、文件操作列表</td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/src/core/compaction/</code></td>
+<td>Interactive 侧触发</td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/src/modes/interactive/components/compaction-summary-message.ts</code></td>
+<td>Ctrl-O 展开摘要</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="skills-custom-prompts">十、Skills 与 Custom Prompts 的处理差异</h2>
+<p>Skills 与 <strong>custom prompts（自定义斜杠命令）</strong> 是两套机制，处理位置相近但语义不同。</p>
+<h3 id="skills">Skills</h3>
+<p>Skills 是 <strong>Markdown（<code>.md</code>）文件</strong>，正文为详细指令。文件头（header）含 <strong>name</strong> 与 <strong>description</strong>；description 进入系统提示。</p>
+<h3 id="custom-prompts">Custom prompts</h3>
+<p>Custom prompts 即 <strong>自定义 slash 命令</strong>。输入 <code>/命令名</code> 后，在 <strong>Pi Interactive 层</strong>替换为已存储的完整 prompt。<strong>该原始斜杠命令不会到达 Pi Core。</strong></p>
+<p>CLI 读取 slash 命令，展开为 custom prompts 中保存的文本，再交给 Core。</p>
+<h3 id="skills_1">Skills 工作流</h3>
+<p>系统提示中有一节 <strong>可用 skills 列表</strong>。LLM 因此 <strong>知道存在 skills</strong>。</p>
+<p>LLM <strong>不知道</strong> custom slash commands 的存在：它们到达 Core 时已是 <strong>渲染完成的 prompt</strong>。Skills <strong>不会</strong>在到达 Core 前被展开为全文。</p>
+<p>用户发送：</p>
+<pre><code class="language-text">/skill: 自定义工作流名
+</code></pre>
+<p>该命令由 <strong>interactive 层拦截</strong>。<strong>Agent core 看不到</strong> <code>/skill:</code> 这一原始形式。其他 CLI / TUI 可用不同前缀（例如 Codex 的 <code>$</code>，或 Claude Code 的 slash）。</p>
+<p>Interactive 层将其替换为带 <strong>markup 标签</strong> 的 skill 块，包含：</p>
+<ul>
+<li><strong>name</strong></li>
+<li><strong>description</strong></li>
+<li><strong>location（路径，关键字段）</strong></li>
+</ul>
+<p>location 示例：</p>
+<ul>
+<li><code>pi/agent/skills</code></li>
+<li><code>.agents/skills</code></li>
+</ul>
+<p>路径可在 <strong>当前工作目录</strong> 或 <strong>home 目录</strong>。上述字段进入 <strong>发给模型的 message</strong>，LLM 可见。</p>
+<p>系统提示中有一条指令：<strong>若调用了 skill，使用 read 工具读取该文件。</strong> 模型随后调用 <strong>read</strong>，读取 location，取得全文后再继续。</p>
+<p>Pi <strong>不会</strong>在 interactive 层把 skill 全文粘贴进消息。部分其他 agent 会立刻内联全文。Pi Interactive 只发送 <strong>name、description、location</strong>，由模型通过 <strong>一次 tool call</strong> 自行打开。该逻辑在 Core 之外，可替换实现。</p>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;16px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;actorBkg&quot;: &quot;#BFDBFE&quot;, &quot;actorTextColor&quot;: &quot;#1E3A8A&quot;, &quot;actorBorder&quot;: &quot;#93C5FD&quot;, &quot;actorLineColor&quot;: &quot;#C4B5FD&quot;, &quot;signalColor&quot;: &quot;#CBD5E1&quot;, &quot;signalTextColor&quot;: &quot;#FDE68A&quot;, &quot;noteBkgColor&quot;: &quot;#FEF08A&quot;, &quot;noteTextColor&quot;: &quot;#713F12&quot;, &quot;noteBorderColor&quot;: &quot;#FDE047&quot;, &quot;sequenceNumberColor&quot;: &quot;#1E3A8A&quot;}}}%%
+sequenceDiagram
+    autonumber
+    participant U as 用户
+    participant I as Pi Interactive&lt;br/&gt;CLI / TUI
+    participant C as Pi Core / LLM
+    participant R as read 工具
+
+    Note over U,C: Custom slash：Interactive 展开为完整 prompt，Core 看不到原始 /命令
+    U-&gt;&gt;I: /my-custom-prompt
+    I-&gt;&gt;C: 已渲染的完整 prompt
+
+    Note over U,C: Skill：只注入 name / description / location，由模型自行 read
+    U-&gt;&gt;I: /skill: custom-workflow
+    I-&gt;&gt;C: markup：name + description + location&lt;br/&gt;指令：调用 skill 时用 read 读取
+    C-&gt;&gt;R: read(location)
+    R--&gt;&gt;C: SKILL.md 全文
+    C--&gt;&gt;U: 按技能继续工作
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>路径</th>
+<th>看什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>packages/coding-agent/src/core/skills.ts</code></td>
+<td>加载 <code>SKILL.md</code>；系统提示只挂 description</td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/src/core/prompt-templates.ts</code></td>
+<td><code>expandPromptTemplate()</code>：斜杠命令在 Interactive 展开</td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/src/core/slash-commands.ts</code></td>
+<td><code>SlashCommandSource = "extension" \| "prompt" \| "skill"</code></td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/src/modes/interactive/interactive-mode.ts</code></td>
+<td>拦截 <code>/skill:</code> 与自定义 <code>/命令</code></td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/src/modes/interactive/components/skill-invocation-message.ts</code></td>
+<td>skill 块渲染</td>
+</tr>
+<tr>
+<td><code>packages/agent/src/harness/skills.ts</code></td>
+<td>Core 侧 skills 列表</td>
+</tr>
+<tr>
+<td><code>packages/agent/src/harness/prompt-templates.ts</code></td>
+<td>Core 侧 template（若走 harness）</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="typescript-python">十一、为什么用 TypeScript 而不是 Python</h2>
+<p>Pi 用 TypeScript，不是因为「TS 比 Python 更适合 AI」。Python 赢在训练、数值计算、数据管线。Pi 做的是另一类工作：<strong>编码 harness + 终端 UI + 可热加载扩展</strong>。</p>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;16px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;lineColor&quot;: &quot;#CBD5E1&quot;, &quot;clusterBkg&quot;: &quot;#111111&quot;, &quot;clusterBorder&quot;: &quot;#C4B5FD&quot;, &quot;titleColor&quot;: &quot;#FDE68A&quot;, &quot;edgeLabelBackground&quot;: &quot;#111111&quot;}}}%%
+flowchart LR
+    subgraph py[&quot;Python 更合适&quot;]
+        P1[&quot;训练 / numpy&quot;]
+        P2[&quot;数据管线&quot;]
+        P3[&quot;LangChain 编排&quot;]
+    end
+
+    subgraph ts[&quot;Pi 实际在做&quot;]
+        T1[&quot;同时等 LLM 流、工具、键盘、子进程&quot;]
+        T2[&quot;自研 TUI&quot;]
+        T3[&quot;Agent 写 .ts 扩展，立刻 /reload&quot;]
+    end
+
+    classDef py fill:#FEF08A,stroke:#FDE047,color:#713F12
+    classDef ts fill:#A5F3FC,stroke:#67E8F9,color:#155E75
+    classDef wrap fill:#111111,stroke:#C4B5FD,color:#FDE68A
+
+    class P1,P2,P3 py
+    class T1,T2,T3 ts
+    class py,ts wrap
+</code></pre>
+<p><strong>（1）扩展必须和宿主同语言</strong></p>
+<p>这是最硬的约束。Pi 的卖点是：缺功能就让它自己写 extension，然后 <code>/reload</code>。</p>
+<p>扩展是 <strong>TypeScript 模块</strong>，用 <code>jiti</code> 直接加载 <code>.ts</code>，不用先编译。Agent 改 <code>~/.pi/agent/extensions/*.ts</code>，宿主立刻执行同一份代码。若核心是 Python，要么再做一套插件 ABI，要么把 CPython 嵌进去——和「让 agent 改自己」相反。</p>
+<p><strong>（2）产品是 TUI，不是 notebook</strong></p>
+<p>作者在 Node 上自研 <code>pi-tui</code>：差分渲染、主屏 / 备用屏、流式 Markdown。TUI 与 extension 共享类型（<code>ctx.ui</code>、widget、confirm）。Python 也能做 TUI，但 Pi 把终端渲染当成一等包，和 loop、扩展 API 绑在一起。</p>
+<p><strong>（3）分发和类型对得上</strong></p>
+<ul>
+<li>用户：<code>npm i -g</code>；Pi Package 走 npm / git</li>
+<li>模型列表生成进 <code>models.generated.ts</code>；工具 schema 用 Typebox</li>
+<li>发布：Bun 打独立二进制</li>
+<li>同类产品（Claude Code、OpenCode、Amp）也是 TS</li>
+</ul>
+<p><strong>（4）需要 Python 时走 RPC，不重写核心</strong></p>
+<p><code>pi --mode rpc</code> 用 stdin/stdout JSONL。文档里有 Python 客户端示例。Python 当 <strong>调用方</strong>，TypeScript 当 <strong>harness</strong>。Node 进程内嵌入走 SDK。</p>
+<table>
+<thead>
+<tr>
+<th>路径</th>
+<th>看什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>packages/coding-agent/src/core/extensions/loader.ts</code></td>
+<td>jiti 加载 <code>.ts</code>，无需编译</td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/docs/extensions.md</code></td>
+<td>「pi can create extensions」</td>
+</tr>
+<tr>
+<td><code>packages/tui/src/</code></td>
+<td>自研 TUI</td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/src/modes/rpc/</code></td>
+<td>给 Python / Go 用的 JSONL RPC</td>
+</tr>
+<tr>
+<td><code>packages/coding-agent/docs/rpc.md</code></td>
+<td>含 Python 客户端示例</td>
+</tr>
+<tr>
+<td><code>packages/ai/src/models.generated.ts</code></td>
+<td>模型目录生成成 TS 类型（不要手改）</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="_5">小结</h2>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>职责</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Pi Core</strong></td>
+<td>上下文初始化、变换 / compact、LLM 循环、工具执行、JSONL 会话树</td>
+</tr>
+<tr>
+<td><strong>Pi Interactive</strong></td>
+<td>CLI 入口、自研 TUI、扩展加载、slash / skill 拦截与展开</td>
+</tr>
+<tr>
+<td><strong>语言选择</strong></td>
+<td>TS 服务 harness / TUI / 热加载扩展；Python 通过 RPC 调用，不进 Core</td>
+</tr>
+</tbody>
+</table>
+<p>Core 可被 TUI、RPC、SDK 及其他 UI 复用。Interactive 负责人机界面与「命令到消息」的翻译，不把 skill 全文提前塞进 Core。</p>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags">
+            <span class="chip">Pi 架构与上手</span>
+            <span class="chip">AI Agent</span>
+            <span class="chip">面试宝典</span>
+          </div>
+          <a class="t-meta" href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/13-pi-agent/01-arch.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../ai-engineer/pi/00-learn-guide.html"><span class="dir">← 上一篇</span><span class="t">Pi 上手指南</span></a><a class="next" href="../../ai-engineer/pi/02-agent-loop.html"><span class="dir">下一篇 →</span><span class="t">Pi Agent Loop</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../rag/index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+
+<script src="../../ai-engineer/assets/mermaid-init.js" defer></script>
+<script src="../../js/main.js" defer></script>
+</body>
+</html>

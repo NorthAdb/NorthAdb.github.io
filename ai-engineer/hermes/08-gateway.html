@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hermes Gateway · 源码学习 · AI Agent 面试宝典 — NorthAdb 的博客</title>
+<meta name="description" content="目标：按消息路径搞清 Gateway 怎么把 Telegram/Discord/… 接到同一套 Agent Core——不是只背「常驻进程」四个字。">
+<link rel="canonical" href="https://northadb.github.io/ai-engineer/hermes/08-gateway.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Hermes Gateway · 源码学习 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta property="og:description" content="目标：按消息路径搞清 Gateway 怎么把 Telegram/Discord/… 接到同一套 Agent Core——不是只背「常驻进程」四个字。">
+<meta property="og:url" content="https://northadb.github.io/ai-engineer/hermes/08-gateway.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Hermes Gateway · 源码学习 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta name="twitter:description" content="目标：按消息路径搞清 Gateway 怎么把 Telegram/Discord/… 接到同一套 Agent Core——不是只背「常驻进程」四个字。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../feed.xml">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../ai-engineer/assets/course.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Hermes Gateway · 源码学习", "description": "目标：按消息路径搞清 Gateway 怎么把 Telegram/Discord/… 接到同一套 Agent Core——不是只背「常驻进程」四个字。", "author": {"@type": "Person", "name": "juliepy", "url": "https://github.com/juliepy/AI-Engineer-from-scrach"}, "mainEntityOfPage": "https://northadb.github.io/ai-engineer/hermes/08-gateway.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../index.html">首页</a><span>/</span><a href="../../learn.html">课件</a><span>/</span><a href="../../ai-engineer/index.html">AI Agent 面试宝典</a><span>/</span><a href="../../ai-engineer/hermes/index.html">Hermes 源码精读</a></div>
+          <h1>Hermes Gateway · 源码学习</h1>
+          <p class="post-sub">目标：按消息路径搞清 Gateway 怎么把 Telegram/Discord/… 接到同一套 Agent Core——不是只背「常驻进程」四个字。</p>
+          <div class="post-meta">
+            <span class="avatar">AI</span>
+            <span>AI Agent 面试宝典</span><span class="sep"></span>
+            <span>Hermes 源码精读</span><span class="sep"></span>
+            <span>阅读约 4 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<p>目标：按<strong>消息路径</strong>搞清 Gateway 怎么把 Telegram/Discord/… 接到同一套 Agent Core——不是只背「常驻进程」四个字。</p>
+<p><strong>完整源码仓</strong>：<code>面试狂魔/人工智能面试题/hermes-agent/</code>（<code>gateway/</code> 包）。<br>
+<strong>先读模块地图</strong>：<a href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/08-hermes-agent/08-gateway/notes/0_module_gateway_map.md"><code>notes/0_module_gateway_map.md</code></a>。<br>
+<strong>鸟瞰长文</strong>：<a href="../hermes/01-arch.html"><code>../01-arch.md</code></a> §5。<br>
+<strong>结构对齐</strong>：本目录对齐 <a href="https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/08-hermes-agent/04-prompt"><code>../04-prompt/</code></a>——<code>notes/</code> + <code>catalog/</code> + <code>hermes_src/</code> + <code>scripts/</code>。</p>
+<p>Catalog / excerpts 由 <code>scripts/extract_gateway_map.py</code> 从完整仓刷新；讲稿在 <code>notes/</code>，索引在 <code>catalog/</code>。</p>
+<hr>
+<h2 id="5">先建立心智模型（5 分钟）</h2>
+<p>Gateway = <strong>常驻桥</strong>：平台适配器收消息 → 统一 <code>MessageEvent</code> → Session Key 拉历史 → <code>AIAgent</code> 跑一轮 → 回写渠道。相对 CLI 多了三件硬活：</p>
+<table>
+<thead>
+<tr>
+<th>硬活</th>
+<th>为什么 CLI 没有 / 更轻</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>按 Session Key 拼历史</strong></td>
+<td>入站往往只有「最新一条」；必须从 SQLite 拉齐 transcript</td>
+</tr>
+<tr>
+<td><strong>并发 Turn 排队 / 打断</strong></td>
+<td>用户连发、审批、clarify 时 Agent 可能还在跑</td>
+</tr>
+<tr>
+<td><strong>Home / Delivery 路由</strong></td>
+<td>Cron / 后台结果要投到指定 chat，不是「当前 stdin」</td>
+</tr>
+</tbody>
+</table>
+<p>两条<strong>必须同时绕过</strong>的守卫（面试必背，见 AGENTS.md）：</p>
+<pre><code class="language-text">① Adapter 层  _active_sessions + _pending_messages
+   → 忙时默认排队；/stop /approve /deny /clarify 答复必须 bypass 直达 runner
+
+② Runner 层   _running_agents + busy handler
+   → 再拦一层；控制命令仍要 inline dispatch，不能再进 _process_message_background
+</code></pre>
+<p>Prompt Cache 仍神圣：Gateway <strong>按 session 缓存 AIAgent</strong>（<code>_agent_cache</code>），避免每条消息重建 system prompt。</p>
+<hr>
+<h2 id="_1">推荐学习顺序</h2>
+<table>
+<thead>
+<tr>
+<th>顺序</th>
+<th>读什么</th>
+<th>学什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td><a href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/08-hermes-agent/08-gateway/notes/0_module_gateway_map.md"><code>notes/0_module_gateway_map.md</code></a></td>
+<td>包地图：谁管配置 / session / 适配器 / runner</td>
+</tr>
+<tr>
+<td>1</td>
+<td><a href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/08-hermes-agent/08-gateway/notes/1_message_pipeline.md"><code>notes/1_message_pipeline.md</code></a></td>
+<td>一条入站消息 → Turn 的热路径</td>
+</tr>
+<tr>
+<td>2</td>
+<td><a href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/08-hermes-agent/08-gateway/catalog/00_index.md"><code>catalog/00_index.md</code></a> → <code>02</code> / <code>03</code></td>
+<td><code>handle_message</code> + <code>_handle_message</code> 摘录</td>
+</tr>
+<tr>
+<td>3</td>
+<td><a href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/08-hermes-agent/08-gateway/notes/2_session_and_history.md"><code>notes/2_session_and_history.md</code></a></td>
+<td><code>build_session_key</code> + <code>get_or_create_session</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td><a href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/08-hermes-agent/08-gateway/notes/3_concurrency_guards.md"><code>notes/3_concurrency_guards.md</code></a></td>
+<td>双守卫 + bypass 集合</td>
+</tr>
+<tr>
+<td>5</td>
+<td><a href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/08-hermes-agent/08-gateway/notes/4_delivery_and_cron.md"><code>notes/4_delivery_and_cron.md</code></a></td>
+<td>Home channel、DeliveryRouter、gateway 内 cron</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>catalog/08</code> + <code>ADDING_A_PLATFORM.md</code></td>
+<td>新平台：plugin 优先，不要改 core</td>
+</tr>
+<tr>
+<td>7</td>
+<td>真仓对 <code>GatewayRunner._handle_message</code> / <code>BasePlatformAdapter.handle_message</code> 打断点</td>
+<td>眼见为实</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="_2">目录</h2>
+<pre><code class="language-text">08-gateway/
+├── README.md
+├── hermes_src/
+│   ├── README.md
+│   └── gateway/
+│       ├── __init__.py / config.py / session.py / delivery.py
+│       ├── platform_registry.py / session_context.py
+│       ├── platforms/ADDING_A_PLATFORM.md
+│       └── excerpts/                 # run.py / base.py 等巨文件摘录
+├── catalog/                          # ★ 索引 + 热路径讲义（对照 excerpts）
+│   ├── 00_index.md
+│   ├── 01_package_map.md
+│   ├── 02_message_path.md
+│   ├── 03_session_key.md
+│   ├── 04_dual_guards.md
+│   ├── 05_slash_bypass.md
+│   ├── 06_delivery_home.md
+│   ├── 07_cron_in_gateway.md
+│   └── 08_platform_adapter.md
+├── notes/                            # 讲稿
+│   ├── 0_module_gateway_map.md
+│   ├── 1_message_pipeline.md
+│   ├── 2_session_and_history.md
+│   ├── 3_concurrency_guards.md
+│   └── 4_delivery_and_cron.md
+└── scripts/
+    └── extract_gateway_map.py        # 重新拷贝 + 刷新 excerpts
+</code></pre>
+<h3 id="_3">重新抽取</h3>
+<p>上游更新后：</p>
+<pre><code class="language-powershell">cd 08-hermes-agent/08-gateway
+python scripts/extract_gateway_map.py
+</code></pre>
+<blockquote>
+<p><code>hermes_src/</code> 只读对照，<strong>勿直接 import 跑</strong>。断点请开完整 <code>hermes-agent</code>。</p>
+</blockquote>
+<hr>
+<h2 id="gateway">Gateway 地图（一张图）</h2>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;:&quot;base&quot;,&quot;themeVariables&quot;:{&quot;primaryTextColor&quot;:&quot;#111111&quot;,&quot;secondaryTextColor&quot;:&quot;#111111&quot;,&quot;tertiaryTextColor&quot;:&quot;#111111&quot;,&quot;lineColor&quot;:&quot;#90CAF9&quot;,&quot;fontSize&quot;:&quot;15px&quot;},&quot;themeCSS&quot;:&quot;.edgeLabel,.edgeLabel p{color:#FFFFFF!important;fill:#FFFFFF!important}&quot;}}%%
+flowchart TB
+  subgraph platforms [&quot;Platform adapters&quot;]
+    TG[Telegram plugin]
+    DC[Discord plugin]
+    BUILTIN[&quot;builtin: signal / weixin / webhook / …&quot;]
+  end
+
+  subgraph adapter [&quot;BasePlatformAdapter&quot;]
+    HM[&quot;handle_message&quot;]
+    G1[&quot;_active_sessions?\nqueue or bypass&quot;]
+    BG[&quot;_process_message_background&quot;]
+  end
+
+  subgraph runner [&quot;GatewayRunner&quot;]
+    AUTH[&quot;auth + pre_gateway_dispatch&quot;]
+    CMD[&quot;slash / control commands&quot;]
+    G2[&quot;_running_agents?\nbusy: queue/interrupt/steer&quot;]
+    SES[&quot;get_or_create_session&quot;]
+    AGENT[&quot;AIAgent cache + run_conversation&quot;]
+  end
+
+  subgraph side [&quot;同进程旁路&quot;]
+    CRON[&quot;CronScheduler provider&quot;]
+    DEL[&quot;DeliveryRouter → Home / targets&quot;]
+  end
+
+  TG &amp; DC &amp; BUILTIN --&gt; HM --&gt; G1
+  G1 --&gt;|idle| BG --&gt; AUTH
+  G1 --&gt;|bypass /stop /approve| AUTH
+  AUTH --&gt; CMD --&gt; G2 --&gt; SES --&gt; AGENT
+  AGENT --&gt;|reply| platforms
+  CRON --&gt; DEL --&gt; platforms
+
+  style TG fill:#90CAF9,stroke:#0D47A1,stroke-width:2px,color:#111111
+  style DC fill:#90CAF9,stroke:#0D47A1,stroke-width:2px,color:#111111
+  style BUILTIN fill:#BBDEFB,stroke:#1565C0,stroke-width:2px,color:#111111
+  style HM fill:#C8E6C9,stroke:#2E7D32,stroke-width:2px,color:#111111
+  style G1 fill:#FFCC80,stroke:#E65100,stroke-width:2px,color:#111111
+  style BG fill:#A5D6A7,stroke:#1B5E20,stroke-width:2px,color:#111111
+  style AUTH fill:#FFE082,stroke:#F57F17,stroke-width:2px,color:#111111
+  style CMD fill:#FFE082,stroke:#F57F17,stroke-width:2px,color:#111111
+  style G2 fill:#FFCC80,stroke:#E65100,stroke-width:2px,color:#111111
+  style SES fill:#CE93D8,stroke:#6A1B9A,stroke-width:2px,color:#111111
+  style AGENT fill:#C8E6C9,stroke:#2E7D32,stroke-width:2px,color:#111111
+  style CRON fill:#B39DDB,stroke:#4527A0,stroke-width:2px,color:#111111
+  style DEL fill:#80DEEA,stroke:#006064,stroke-width:2px,color:#111111
+</code></pre>
+<hr>
+<h2 id="_4">和相邻模块的关系</h2>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>交接面</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/08-hermes-agent/02-run-agent"><code>02-run-agent</code></a></td>
+<td>Gateway 最终调的就是 <code>AIAgent.run_conversation</code></td>
+</tr>
+<tr>
+<td><a href="https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/08-hermes-agent/04-prompt"><code>04-prompt</code></a></td>
+<td>Session 启动 freeze SP；gateway 注入 platform / session context</td>
+</tr>
+<tr>
+<td><a href="https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/08-hermes-agent/06-cron"><code>06-cron</code></a></td>
+<td>tick 跑在 gateway 进程；投递走 DeliveryRouter / Home</td>
+</tr>
+<tr>
+<td><a href="https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/08-hermes-agent/07-mem-provider"><code>07-mem-provider</code></a></td>
+<td>同一套 prefetch/sync；cron 默认 <code>skip_memory</code></td>
+</tr>
+<tr>
+<td><a href="../hermes/01-arch.html"><code>01-arch.md</code></a> §5</td>
+<td>鸟瞰：Session Key、Hygiene、Session Manager</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="_5">面试一句话</h2>
+<p>Gateway 不是「多写几个 HTTP handler」，而是：<strong>统一 MessageEvent + Session Key 拉历史 + 双层忙时守卫（控制命令必须 bypass）+ 同进程 cron/delivery</strong>，让所有渠道共用一个带 prompt cache 的 Agent Core。</p>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags">
+            <span class="chip">Hermes 源码精读</span>
+            <span class="chip">AI Agent</span>
+            <span class="chip">面试宝典</span>
+          </div>
+          <a class="t-meta" href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/08-hermes-agent/08-gateway/README.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../ai-engineer/hermes/07-mem-provider.html"><span class="dir">← 上一篇</span><span class="t">07-mem-provider</span></a><a class="next" href="../../ai-engineer/hermes/09-lang-serial-not.html"><span class="dir">下一篇 →</span><span class="t">Hermes 没用 LangChain / LangGraph —— 以及面试为什么总问</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../rag/index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+
+<script src="../../ai-engineer/assets/mermaid-init.js" defer></script>
+<script src="../../js/main.js" defer></script>
+</body>
+</html>

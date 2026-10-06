@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agentic AI 面试精简问答（背诵版，分基础/架构/多智能体/工程落地/安全伦理） · AI Agent 面试宝典 — NorthAdb 的博客</title>
+<meta name="description" content="A：AI智能体可以感知环境、自主决策、执行动作达成目标，存在感知-思考-行动反馈闭环，能根据结果自适应调整。 传统AI只做单一静态预测任务，无自主行动与迭代优化能力。">
+<link rel="canonical" href="https://northadb.github.io/ai-engineer/notes/memory-02.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Agentic AI 面试精简问答（背诵版，分基础/架构/多智能体/工程落地/安全伦理） · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta property="og:description" content="A：AI智能体可以感知环境、自主决策、执行动作达成目标，存在感知-思考-行动反馈闭环，能根据结果自适应调整。 传统AI只做单一静态预测任务，无自主行动与迭代优化能力。">
+<meta property="og:url" content="https://northadb.github.io/ai-engineer/notes/memory-02.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Agentic AI 面试精简问答（背诵版，分基础/架构/多智能体/工程落地/安全伦理） · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta name="twitter:description" content="A：AI智能体可以感知环境、自主决策、执行动作达成目标，存在感知-思考-行动反馈闭环，能根据结果自适应调整。 传统AI只做单一静态预测任务，无自主行动与迭代优化能力。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../feed.xml">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../ai-engineer/assets/course.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Agentic AI 面试精简问答（背诵版，分基础/架构/多智能体/工程落地/安全伦理）", "description": "A：AI智能体可以感知环境、自主决策、执行动作达成目标，存在感知-思考-行动反馈闭环，能根据结果自适应调整。 传统AI只做单一静态预测任务，无自主行动与迭代优化能力。", "author": {"@type": "Person", "name": "juliepy", "url": "https://github.com/juliepy/AI-Engineer-from-scrach"}, "mainEntityOfPage": "https://northadb.github.io/ai-engineer/notes/memory-02.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../index.html">首页</a><span>/</span><a href="../../learn.html">课件</a><span>/</span><a href="../../ai-engineer/index.html">AI Agent 面试宝典</a><span>/</span><a href="../../ai-engineer/notes/index.html">学习笔记与思考</a></div>
+          <h1>Agentic AI 面试精简问答（背诵版，分基础/架构/多智能体/工程落地/安全伦理）</h1>
+          <p class="post-sub">A：AI智能体可以感知环境、自主决策、执行动作达成目标，存在感知-思考-行动反馈闭环，能根据结果自适应调整。 传统AI只做单一静态预测任务，无自主行动与迭代优化能力。</p>
+          <div class="post-meta">
+            <span class="avatar">AI</span>
+            <span>AI Agent 面试宝典</span><span class="sep"></span>
+            <span>学习笔记与思考</span><span class="sep"></span>
+            <span>阅读约 9 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<h2 id="_1">一、基础概念类</h2>
+<h3 id="q1aiai">Q1：什么是AI智能体？和传统AI系统区别在哪？</h3>
+<p>A：AI智能体可以感知环境、自主决策、执行动作达成目标，存在感知-思考-行动反馈闭环，能根据结果自适应调整。
+传统AI只做单一静态预测任务，无自主行动与迭代优化能力。</p>
+<h3 id="q2-">Q2：解释智能体感知-思考-行动闭环，举例子</h3>
+<p>A：感知：采集API、用户、传感器输入；思考：推理、规划行动方案；行动：调用工具改变环境；循环往复持续调整。
+例：自动驾驶，识别路况→判断加减速/变道→控制车辆，实时循环。</p>
+<h3 id="q3bdi">Q3：四类智能体（反应式/慎思式/混合式/BDI）分别是什么，适用场景？</h3>
+<p>A：
+1. 反应式：无记忆，输入直接输出，如恒温器；高频简单场景
+2. 慎思式：内置世界模型，提前推演规划，如下棋AI；复杂多步骤任务
+3. 混合式：兼具即时响应+长期规划，企业系统主流方案
+4. BDI（信念-欲望-意图）：模拟人类思考，信念=已知信息，欲望=目标，意图=执行计划；个人助理类智能体</p>
+<h3 id="q4">Q4：自主智能体和普通智能助手的差异</h3>
+<p>A：智能助手被动等待指令，只完成单次请求；自主智能体主动监控目标、后台持续运行、自动调整方案，无需频繁下发指令。</p>
+<h3 id="q5ai-agent-agentic-ai">Q5：AI Agent 和 Agentic AI 的核心区别</h3>
+<p>A：普通AI Agent多为被动、单任务工具；Agentic AI具备长程规划、自我反思、持续自主迭代、多步骤主动执行能力，是主动协作伙伴。</p>
+<h3 id="q6">Q6：记忆对对话智能体的作用</h3>
+<p>A：短期记忆留存单轮会话上下文；长期记忆跨会话存储用户偏好、历史交互；保证对话连贯、个性化，避免每次重置上下文。</p>
+<h3 id="q7bdi">Q7：BDI模型怎么映射到大模型智能体</h3>
+<p>A：信念=大模型基础知识+RAG实时检索信息；欲望=用户顶层目标；意图=CoT/ReAct生成的分步执行计划，用来规范智能体规划逻辑。</p>
+<h3 id="q8">Q8：智能体、工作流自动化、普通聊天机器人三者区别</h3>
+<p>A：聊天机器人仅被动问答，无执行规划；自动化是固定硬编码流程，无法应对异常；智能体可动态自主规划、环境变化时重新制定方案，具备不确定性处理能力。</p>
+<h2 id="_2">二、环境、数学理论基础</h2>
+<h3 id="q9-vs">Q9：环境的分类：完全可观测 vs 部分可观测</h3>
+<p>A：完全可观测：掌握环境全部状态（国际象棋），规划简单；
+部分可观测：信息不全、存在噪声（股市、自动驾驶），需要概率推理、状态预估。</p>
+<h3 id="q10mdp">Q10：马尔可夫决策过程MDP在智能体中的意义</h3>
+<p>A：MDP是智能体决策数学框架，定义状态、动作、状态转移、奖励，满足马尔可夫性；支撑强化学习，用来计算最优行动策略最大化长期收益。</p>
+<h3 id="q11-vs">Q11：无模型智能体 vs 基于模型智能体</h3>
+<p>A：无模型：纯试错学习，不构建环境模型，实现简单、复杂环境适用，但效率低；
+基于模型：搭建环境虚拟模型，提前推演行动结果，规划高效，但前期设计成本高。</p>
+<h3 id="q12">Q12：规划和反应式执行的取舍</h3>
+<p>A：规划适合复杂长期任务，但是速度慢；反应式响应快、适合实时场景，但缺乏长远判断；工业系统一般混合两者。</p>
+<h2 id="ragagentic-rag">三、工具调用与RAG、Agentic RAG</h2>
+<h3 id="q13">Q13：支持工具调用的智能体架构怎么设计？</h3>
+<p>A：内置工具描述库；推理模块自主判断是否调用API/数据库；执行工具后把结果并入上下文继续推理；配套参数校验、异常捕获。</p>
+<h3 id="q14rag-agentic-rag">Q14：普通RAG 和 Agentic RAG 区别</h3>
+<p>A：普通RAG单次检索直接生成答案；Agentic RAG形成推理闭环，可多次改写检索词、校验结果、多轮迭代，减少幻觉，适配复杂问题。</p>
+<h3 id="q15">Q15：如何减少大模型智能体幻觉</h3>
+<p>A：1. RAG检索权威资料做事实锚定；2. 自我反思校验输出；3. 强制调用工具获取真实数据；4. 输出必须标注引用来源。</p>
+<h3 id="q16sql">Q16：查询规划器如何区分SQL结构化数据与向量知识库</h3>
+<p>A：路由模块读取用户问题、数据库表结构、知识库文档类型；通过大模型判断需求：结构化数值查询走SQL，语义模糊、文本知识查询走向量库。</p>
+<h2 id="_3">四、多智能体系统</h2>
+<h3 id="q17">Q17：单智能体与多智能体系统差异</h3>
+<p>A：单智能体独立完成任务，无协作；多智能体多个智能体交互，存在通信、协商、分工，会涌现单体不存在的系统行为，难点是冲突协调。</p>
+<h3 id="q18">Q18：多智能体合作与竞争的场景</h3>
+<p>A：合作：救灾无人机集群、仓库机器人，共享共同目标；
+竞争：量化交易机器人，目标互相冲突；多数业务系统是混合模式。</p>
+<h3 id="q19contract-net">Q19：合同网协议Contract Net作用</h3>
+<p>A：去中心化任务分配机制：管理者发布任务，其他智能体投标，择优分配；适合动态分布式场景，均衡负载、避免资源冲突。</p>
+<h3 id="q20">Q20：多智能体冲突怎么解决</h3>
+<p>A：协商谈判、优先级规则、上报调度中介、信任评分机制、资源互斥锁，防止死锁和资源抢占。</p>
+<h3 id="q21">Q21：多智能体通信方式</h3>
+<p>A：1. 直接消息传递；2. 环境间接通信（信息素）；标准化JSON/Protobuf通信协议。</p>
+<h3 id="q22">Q22：分层智能体架构优势</h3>
+<p>A：顶层调度器拆解复杂大目标为细分子任务，下发专业工作智能体并行执行；解耦业务、易维护、支持横向扩展。</p>
+<h3 id="q23">Q23：多智能体涌现行为是什么？举例</h3>
+<p>A：单体仅遵循简单规则，群体产生复杂协同行为，无顶层预设。例：机器人群同步编队、鸟类集群。</p>
+<h2 id="cottot">五、推理技术（CoT/ToT/自我反思）</h2>
+<h3 id="q24cottotgot">Q24：思维链CoT、思维树ToT、图思维GoT区别</h3>
+<p>A：CoT线性分步推理，简单高效，但一步错全盘失败；
+ToT并行多条推理分支，评估择优、支持回溯纠错；
+GoT适配多关联复杂任务，建模事物网状关系。</p>
+<h3 id="q25">Q25：自我反思/自我修正循环的价值</h3>
+<p>A：智能体生成方案后自行审查漏洞、错误，重新生成优化结果；大幅降低工具调用失败、逻辑错误，减少人工介入。</p>
+<h3 id="q26">Q26：递归提示在智能体工作流的作用</h3>
+<p>A：将自身输出作为输入迭代优化，实现自我校正，不用人工反复调整提示词。</p>
+<h2 id="_4">六、工程框架、开发落地</h2>
+<h3 id="q27langchain-autogen-crewai">Q27：LangChain / AutoGen / CrewAI 各自定位</h3>
+<p>A：LangChain：快速原型搭建，封装记忆、工具、RAG基础组件；
+AutoGen：主打多智能体对话交互；
+CrewAI：面向多角色团队智能体，适合分层任务编排。</p>
+<h3 id="q28">Q28：自研智能体还是用框架？如何选择</h3>
+<p>A：原型、快速验证选LangChain；生产级高可控场景自研核心循环，规避框架黑盒、性能损耗。</p>
+<h3 id="q29">Q29：智能体三类内存优缺点（短期草稿/向量库/结构化数据库）</h3>
+<p>A：短期草稿：速度快，受上下文窗口限制；
+向量库：语义检索长期记忆，存在延迟、无关检索风险；
+SQL结构化库：精准查询结构化数据，无法处理模糊语义。</p>
+<h3 id="q30">Q30：如何管理大模型无状态问题，持久化流程状态</h3>
+<p>A：1. 上下文内存储临时状态；2. Redis缓存会话；3. SQL/向量库持久化长期业务数据；4. 文件存储复杂任务产出物。</p>
+<h3 id="q31-vs-react">Q31：原生函数调用 vs ReAct提示式工具调用</h3>
+<p>A：原生函数调用输出标准JSON，解析稳定、生产可靠；ReAct依靠提示约束文本格式，易解析失败，仅适合快速Demo。</p>
+<h3 id="q32">Q32：目标拆解模块实现思路</h3>
+<p>A：递归规划：高层目标拆解为子任务；判断子任务是否可直接调用工具，不可则继续拆分，直到全部为可执行动作，设置递归深度防死循环。</p>
+<h3 id="q33">Q33：工具执行失败怎么自动恢复重规划</h3>
+<p>A：捕获异常→错误信息写入上下文→智能体基于失败原因重新生成替代方案，切换其他工具或调整执行步骤。</p>
+<h3 id="q34mcp">Q34：MCP模型上下文协议作用</h3>
+<p>A：工具通用标准化对接协议，无需为每个服务单独开发连接器，智能体可动态发现、调用外部工具，提升模块化、可扩展性。</p>
+<h3 id="q35">Q35：智能体可观测性栈包含什么</h3>
+<p>A：完整调用链路日志、工具调用指标、错误告警、token消耗统计、推理步骤记录，用于调试、监控智能体漂移。</p>
+<h3 id="q36agent-drift">Q36：什么是智能体漂移Agent Drift，怎么监控缓解</h3>
+<p>A：外部环境变更（API接口、业务数据变化）导致智能体效果持续下滑；搭建标准测试集定时巡检，指标下跌自动告警。</p>
+<h3 id="q37">Q37：大规模部署数百智能体如何保证可扩展性</h3>
+<p>A：去中心化通信、仅与邻近节点交互、模块化设计、标准化任务分配协议，避免中心瓶颈，系统复杂度线性增长。</p>
+<h3 id="q38-vs">Q38：单一大模型 vs 混合小专用模型优缺点</h3>
+<p>A：单一大模型架构简单，但成本、延迟高；混合专家模型用轻量模型处理简单任务，大模型仅负责复杂推理，节约算力，架构复杂度上升。</p>
+<h2 id="_5">七、安全、人机协同、生产风险</h2>
+<h3 id="q39api">Q39：工具开放API权限的安全风险，如何设计安全沙箱</h3>
+<p>A：风险：越权操作、提示注入、恶意指令；
+沙箱方案：参数强校验、最小权限分配、高危操作强制人工审批、完整不可篡改审计日志。</p>
+<h3 id="q40">Q40：两种人在回路设计模式</h3>
+<p>A：1. 确认模式：高风险操作执行前人工审批；2. 纠错模式：智能体模糊/失败时转交人工获取指引。</p>
+<h3 id="q41">Q41：企业部署智能体核心挑战</h3>
+<p>A：老旧系统集成难、可靠性不足、员工信任度低、安全管控缺失；解决方案：权限隔离、人工升级通道、完善审计、分灰度上线。</p>
+<h3 id="q42">Q42：提示注入攻击怎么防御</h3>
+<p>A：输入过滤、工具调用沙箱隔离、权限边界限制、区分系统提示与用户输入、异常工具调用行为实时监控。</p>
+<h3 id="q43">Q43：智能体对齐（匹配人类意图）怎么做</h3>
+<p>A：明确行为约束、高风险流程人工介入、推理过程透明可解释、持续监控偏见与有害行为、建立反馈迭代机制。</p>
+<h3 id="q44">Q44：自治智能体独有的伦理风险</h3>
+<p>A：自主行动带来不可控后果、过度放权导致监督缺失、事故责任界定模糊；必须配套安全熔断、完整审计、分级权限。</p>
+<h3 id="q45">Q45：智能体紧急熔断开关设计要点</h3>
+<p>A：不止单纯终止进程，需完成三件事：优雅终止在途操作、事务回滚到安全状态、完整记录当前全流程日志用于事后排查。</p>
+<h2 id="_6">八、评估、测试、业务指标</h2>
+<h3 id="q46">Q46：如何评估智能体性能（非文本匹配场景）</h3>
+<p>A：三层评估：1. 任务完成成功率；2. 输出质量打分（LLM评估/人工打分）；3. 效率指标：调用步数、token消耗、延迟。</p>
+<h3 id="q47">Q47：非确定性智能体如何单元测试</h3>
+<p>A：分层测试：1. 工具代码全量单元测试；2. 状态、流程集成测试；3. 大模型推理用标准测试集校验输出合规性，不严格匹配文本。</p>
+<h3 id="q48ab">Q48：智能体AB测试框架设计</h3>
+<p>A：流量分层，新旧系统分流；监控业务核心指标（解决率、满意度）与安全兜底指标（人工升级率），统计显著后再全量上线。</p>
+<h2 id="_7">九、高阶拓展问题</h2>
+<h3 id="q49">Q49：什么时候适合反应式智能体，什么时候用慎思式？</h3>
+<p>A：高频低风险简单场景（工单路由）选反应式；多步骤复杂决策（金融分析、行程规划）用慎思式；生产主流混合架构。</p>
+<h3 id="q50">Q50：设计人机混合智能系统的思路</h3>
+<p>A：AI负责数据运算、重复执行、信息检索；人类把控战略、模糊主观判断、最终决策；系统共享记忆、异常自动升级人工。</p>
+<h3 id="q51agentic-ai">Q51：当前Agentic AI的局限</h3>
+<p>A：长上下文规划薄弱、推理可靠性不足、算力成本高、长期记忆效率低、目标对齐难，容易出现无意义循环。</p>
+<h3 id="q525">Q52：未来5年智能体核心发展方向</h3>
+<p>A：自主目标规划、无监督自主学习、标准化智能体操作系统、跨平台多智能体协作、轻量化长记忆架构。</p>
+<h3 id="q53">Q53：落地业务智能体，最先问业务方三个问题</h3>
+<p>A：1. 自动化成功的核心可量化指标；2. 流程中哪些环节需要人工主观判断；3. 每一步操作出错带来的损失风险。</p>
+<h3 id="q54-vs">Q54：单体智能体 vs 多专业智能体团队如何选型</h3>
+<p>A：线性单一简单业务用单体；跨领域、复杂多分支流程采用分层多智能体，便于独立迭代、并行处理。</p>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags">
+            <span class="chip">学习笔记与思考</span>
+            <span class="chip">AI Agent</span>
+            <span class="chip">面试宝典</span>
+          </div>
+          <a class="t-meta" href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/99-My%20idea/memory/02.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../ai-engineer/notes/memory-01.html"><span class="dir">← 上一篇</span><span class="t">Agentic AI 智能体面试精简问答（面试口述版，好记、直接背诵）</span></a><a class="next" href="../../ai-engineer/notes/03-memory.html"><span class="dir">下一篇 →</span><span class="t">一、文档核心对Agent Memory的整体见解</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../rag/index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+
+<script src="../../js/main.js" defer></script>
+</body>
+</html>

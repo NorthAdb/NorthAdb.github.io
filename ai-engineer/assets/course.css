@@ -1,0 +1,40 @@
+/* ============================================================
+   AI Agent 面试宝典 — course-zone overlay
+   Built on the site design tokens (css/style.css). No new colors.
+   ============================================================ */
+
+/* mermaid host: appears only after a successful render replaces the code block */
+.mermaid {
+  display: flex;
+  justify-content: center;
+  padding: 1.4em 1.2em;
+  margin: 1.8em 0;
+  background: var(--code-bg);
+  border: 1px solid var(--code-border);
+  border-radius: var(--r-md);
+  overflow-x: auto;
+}
+.mermaid svg { max-width: 100%; height: auto; }
+
+/* chapter index: give every row a readable excerpt */
+.post-list .row-desc {
+  margin: 6px 0 0;
+  font-size: 13.5px;
+  color: var(--text-3);
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* prev/next chapter strip on chapter pages */
+.chapter-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* hub: slightly denser grid now that there are 17 cards */
+.ae-path .course-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }

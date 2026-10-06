@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>s17: Autonomous Agents — 自己看板，自己认领 · AI Agent 面试宝典 — NorthAdb 的博客</title>
+<meta name="description" content="&quot;自己看板，自己认领&quot; — 空闲时轮询，有活就干。 Harness 层: 自治 — 队友自组织，不依赖 Lead 分配。">
+<link rel="canonical" href="https://northadb.github.io/ai-engineer/harness/s17-autonomous-agents.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="s17: Autonomous Agents — 自己看板，自己认领 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta property="og:description" content="&quot;自己看板，自己认领&quot; — 空闲时轮询，有活就干。 Harness 层: 自治 — 队友自组织，不依赖 Lead 分配。">
+<meta property="og:url" content="https://northadb.github.io/ai-engineer/harness/s17-autonomous-agents.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="s17: Autonomous Agents — 自己看板，自己认领 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta name="twitter:description" content="&quot;自己看板，自己认领&quot; — 空闲时轮询，有活就干。 Harness 层: 自治 — 队友自组织，不依赖 Lead 分配。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../feed.xml">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../ai-engineer/assets/course.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "s17: Autonomous Agents — 自己看板，自己认领", "description": "\"自己看板，自己认领\" — 空闲时轮询，有活就干。 Harness 层: 自治 — 队友自组织，不依赖 Lead 分配。", "author": {"@type": "Person", "name": "juliepy", "url": "https://github.com/juliepy/AI-Engineer-from-scrach"}, "mainEntityOfPage": "https://northadb.github.io/ai-engineer/harness/s17-autonomous-agents.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../index.html">首页</a><span>/</span><a href="../../learn.html">课件</a><span>/</span><a href="../../ai-engineer/index.html">AI Agent 面试宝典</a><span>/</span><a href="../../ai-engineer/harness/index.html">Harness 工程化</a></div>
+          <h1>s17: Autonomous Agents — 自己看板，自己认领</h1>
+          <p class="post-sub">&quot;自己看板，自己认领&quot; — 空闲时轮询，有活就干。 Harness 层: 自治 — 队友自组织，不依赖 Lead 分配。</p>
+          <div class="post-meta">
+            <span class="avatar">AI</span>
+            <span>AI Agent 面试宝典</span><span class="sep"></span>
+            <span>Harness 工程化</span><span class="sep"></span>
+            <span>阅读约 8 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<p><a href="../harness/s17-autonomous-agents.html">中文</a> · <a href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/06-harnes/learn-claude-code/s17_autonomous_agents/README.en.md">English</a> · <a href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/06-harnes/learn-claude-code/s17_autonomous_agents/README.ja.md">日本語</a></p>
+<p>s01 → ... → s15 → s16 → <code>s17</code> → <a href="https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/06-harnes/learn-claude-code/s18_worktree_isolation">s18</a> → s19 → s20</p>
+<blockquote>
+<p><em>"自己看板，自己认领"</em> — 空闲时轮询，有活就干。</p>
+<p><strong>Harness 层</strong>: 自治 — 队友自组织，不依赖 Lead 分配。</p>
+</blockquote>
+<hr>
+<h2 id="_1">问题</h2>
+<p>s16 的队友能通信、能握手关机。但每个队友等 Lead 分配任务——如果任务看板上有 10 个未认领任务，Lead 得手动 assign 10 次。这不能扩展。队友应该自己看任务看板，发现没人做的任务就认领，做完再找下一个。</p>
+<hr>
+<h2 id="_2">解决方案</h2>
+<p><img alt="Autonomous Agents Overview" src="../assets/img/22bd23ef9b.svg"></p>
+<p>沿用 S16 的教学版 MessageBus 和协议工具。本章新增：<strong>idle_poll</strong>（空闲时每 5 秒轮询一次）、<strong>scan_unclaimed_tasks</strong>（扫描看板上可认领的任务）、<strong>自动认领</strong>（找到任务就 claim，不用 Lead 操心）。</p>
+<p>队友生命周期从两阶段变成三阶段：</p>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>行为</th>
+<th>退出条件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>WORK</td>
+<td>inbox → LLM → 工具循环</td>
+<td><code>stop_reason != tool_use</code></td>
+</tr>
+<tr>
+<td>IDLE</td>
+<td>每 5s 轮询 inbox + 任务板</td>
+<td>60s 超时</td>
+</tr>
+<tr>
+<td>SHUTDOWN</td>
+<td>发 summary，退出</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="_3">工作原理</h2>
+<h3 id="idle_poll">idle_poll: 空闲轮询</h3>
+<p>队友完成当前任务后不退出，进入 IDLE 阶段——每 5 秒检查一次有没有新工作：</p>
+<pre><code class="language-python">IDLE_POLL_INTERVAL = 5   # seconds
+IDLE_TIMEOUT = 60         # seconds
+
+def idle_poll(agent_name, messages, name, role) -&gt; str:
+    &quot;&quot;&quot;Return 'work', 'shutdown', or 'timeout'.&quot;&quot;&quot;
+    for _ in range(IDLE_TIMEOUT // IDLE_POLL_INTERVAL):
+        time.sleep(IDLE_POLL_INTERVAL)
+
+        # ① 检查收件箱（优先）
+        inbox = BUS.read_inbox(agent_name)
+        if inbox:
+            # shutdown_request 立即处理
+            for msg in inbox:
+                if msg.get(&quot;type&quot;) == &quot;shutdown_request&quot;:
+                    # ... 回复 shutdown_response
+                    return &quot;shutdown&quot;
+            # 普通消息注入上下文，回到 WORK
+            messages.append(...)
+            return &quot;work&quot;
+
+        # ② 扫描任务看板
+        unclaimed = scan_unclaimed_tasks()
+        if unclaimed:
+            task = unclaimed[0]
+            result = claim_task(task[&quot;id&quot;], agent_name)
+            if &quot;Claimed&quot; in result:
+                messages.append(...)
+                return &quot;work&quot;
+    return &quot;timeout&quot;
+</code></pre>
+<p>inbox 优先（可能包含 shutdown_request 等协议消息），任务板其次。IDLE 阶段收到 shutdown_request 会直接回复并退出，不等到下一轮 WORK。</p>
+<h3 id="scan_unclaimed_tasks">scan_unclaimed_tasks: 扫描任务看板</h3>
+<p>找 pending 状态、无 owner、所有依赖已完成（<code>can_start</code>）的任务：</p>
+<pre><code class="language-python">def scan_unclaimed_tasks() -&gt; list[dict]:
+    unclaimed = []
+    for f in sorted(TASKS_DIR.glob(&quot;task_*.json&quot;)):
+        task = json.loads(f.read_text())
+        if (task.get(&quot;status&quot;) == &quot;pending&quot;
+                and not task.get(&quot;owner&quot;)
+                and can_start(task[&quot;id&quot;])):
+            unclaimed.append(task)
+    return unclaimed
+</code></pre>
+<p>三个条件：必须是 pending、没有 owner、所有 blockedBy 依赖已完成。<code>can_start</code> 检查依赖任务的状态——有依赖不代表不能做，只有被未完成的任务阻塞才不能做。教学版按文件名排序取第一个；CC 用文件锁防止多个队友同时认领同一个任务。</p>
+<h3 id="claim_task-owner">claim_task: owner 检查</h3>
+<p>自动认领时检查 claim 结果，不把失败当成功：</p>
+<pre><code class="language-python">def claim_task(task_id: str, owner: str = &quot;agent&quot;) -&gt; str:
+    task = load_task(task_id)
+    if task.status != &quot;pending&quot;:
+        return f&quot;Task {task_id} is {task.status}, cannot claim&quot;
+    if task.owner:
+        return f&quot;Task {task_id} already owned by {task.owner}&quot;
+    if not can_start(task_id):
+        return f&quot;Blocked by: {deps}&quot;
+    task.owner = owner
+    task.status = &quot;in_progress&quot;
+    save_task(task)
+    return f&quot;Claimed {task.id} ({task.subject})&quot;
+</code></pre>
+<p>教学版没有文件锁，并发认领可能出现竞争。但至少 <code>task.owner</code> 检查避免了最明显的"后写覆盖"问题。CC 用 <code>proper-lockfile</code> 保护任务文件，<code>claimTask</code> 在文件锁内完成读-改-写（<code>utils/tasks.ts:541-612</code>）。</p>
+<h3 id="work-idle-shutdown">队友生命周期: WORK → IDLE → SHUTDOWN</h3>
+<p>s16 的队友做完任务就退出。s17 加了 IDLE 阶段，队友在外层循环中反复 WORK → IDLE：</p>
+<pre><code class="language-python"># Outer loop: WORK → IDLE cycle
+while True:
+    # WORK phase: 内层循环（最多 10 轮 LLM 调用）
+    for _ in range(10):
+        # 检查 inbox、处理协议消息、调 LLM、执行工具
+        ...
+        if response.stop_reason != &quot;tool_use&quot;:
+            break  # WORK 阶段结束
+
+    # IDLE phase
+    idle_result = idle_poll(name, messages, name, role)
+    if idle_result == &quot;shutdown&quot;:
+        break
+    if idle_result == &quot;timeout&quot;:
+        break  # 60s 超时 → SHUTDOWN
+
+# SHUTDOWN: 发 summary 给 Lead
+BUS.send(name, &quot;lead&quot;, summary, &quot;result&quot;)
+</code></pre>
+<p>关键设计：
+- <strong>外层 while True</strong>：WORK 和 IDLE 交替进行，直到超时或收到关机请求
+- <strong>内层 for 10</strong>：WORK 阶段最多 10 轮 LLM 调用（防止无限循环）
+- <strong>IDLE 超时 60 秒</strong>：12 次轮询 × 5 秒 = 60 秒。超时后发送 summary 并退出
+- <strong>shutdown_request 两阶段都能响应</strong>：WORK 阶段通过 <code>handle_inbox_message</code> 分发；IDLE 阶段 <code>idle_poll</code> 直接检查并回复</p>
+<h3 id="_4">身份重注入</h3>
+<p>autoCompact（s08）之后，队友的 messages 列表可能被压缩成一段摘要。每次进入新的 WORK 阶段时检查：</p>
+<pre><code class="language-python">if len(messages) &lt;= 3:
+    messages.insert(0, {&quot;role&quot;: &quot;user&quot;,
+        &quot;content&quot;: f&quot;&lt;identity&gt;You are '{name}', role: {role}. &quot;
+                   f&quot;Continue your work.&lt;/identity&gt;&quot;})
+</code></pre>
+<p>消息过短说明发生了压缩，此时重新注入身份信息。真实 CC 中 context compaction 会保留 system prompt，教学版的简化实现需要手动处理。</p>
+<h3 id="consume_lead_inbox-inbox">consume_lead_inbox: 统一 inbox 消费</h3>
+<p><code>check_inbox</code> 工具和主循环末尾都调用同一个 <code>consume_lead_inbox()</code> 函数：先路由协议 response 更新状态，再把所有消息注入 Lead 的对话历史。队友发来的 summary/result 不会只打印在终端，Lead 的 LLM 能看到并协调下一步。</p>
+<h3 id="_5">合起来跑</h3>
+<pre><code>1. Lead: &quot;搭建后端——任务太多，让队友自己认领&quot;
+2. Lead → create_task(&quot;创建数据库 schema&quot;)
+3. Lead → create_task(&quot;写 API 路由&quot;)
+4. Lead → create_task(&quot;写单元测试&quot;)
+5. Lead → spawn_teammate(&quot;alice&quot;, &quot;backend&quot;, &quot;你是后端开发者&quot;)
+6. Lead → spawn_teammate(&quot;bob&quot;, &quot;backend&quot;, &quot;你是后端开发者&quot;)
+
+7. alice 线程启动 → WORK: 没有初始 inbox → 空转 → IDLE
+8. bob 线程启动 → WORK: 没有初始 inbox → 空转 → IDLE
+
+9. alice IDLE 第 1 次轮询 → scan_unclaimed → 发现&quot;创建数据库 schema&quot;
+10. alice → claim_task → &quot;创建数据库 schema&quot; → 回到 WORK
+11. bob IDLE 第 1 次轮询 → scan_unclaimed → 发现&quot;写 API 路由&quot;
+12. bob → claim_task → &quot;写 API 路由&quot; → 回到 WORK
+
+13. alice WORK: write_file(&quot;schema.sql&quot;, ...) → complete_task → WORK 结束
+14. alice IDLE → scan → &quot;写单元测试&quot; → claim → WORK
+15. alice WORK: write_file(&quot;test_api.py&quot;, ...) → complete_task → WORK 结束
+16. alice IDLE → 60s 无新任务 → SHUTDOWN
+
+17. bob 类似流程 → 做完 → SHUTDOWN
+18. Lead consume_lead_inbox → 看到 alice 和 bob 的 summary
+</code></pre>
+<p>两个队友并行认领、并行工作。Lead 只需要创建任务和启动队友，不需要手动分配。</p>
+<hr>
+<h2 id="s16">相对 s16 的变更</h2>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>之前 (s16)</th>
+<th>之后 (s17)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>任务分配</td>
+<td>Lead 手动 assign</td>
+<td>队友自动认领（can_start 检查依赖）</td>
+</tr>
+<tr>
+<td>队友状态</td>
+<td>WORK 或退出</td>
+<td>WORK → IDLE（轮询 60s） → SHUTDOWN</td>
+</tr>
+<tr>
+<td>claim_task</td>
+<td>无 owner 检查</td>
+<td>拒绝已有 owner 的任务</td>
+</tr>
+<tr>
+<td>IDLE 阶段关机</td>
+<td>不处理 shutdown_request</td>
+<td>直接 dispatch shutdown 并退出</td>
+</tr>
+<tr>
+<td>Lead inbox</td>
+<td>只打印，不进上下文</td>
+<td>consume_lead_inbox 统一注入 history</td>
+</tr>
+<tr>
+<td>新函数</td>
+<td>—</td>
+<td>idle_poll, scan_unclaimed_tasks, consume_lead_inbox</td>
+</tr>
+<tr>
+<td>身份保持</td>
+<td>仅 system prompt</td>
+<td>压缩后自动重注入</td>
+</tr>
+<tr>
+<td>Lead 工具</td>
+<td>14 (s16)</td>
+<td>14（不变）</td>
+</tr>
+<tr>
+<td>队友工具</td>
+<td>5</td>
+<td>8（+ list_tasks, claim_task, complete_task）</td>
+</tr>
+<tr>
+<td>队友退出条件</td>
+<td>完成任务即退出</td>
+<td>60s 无新任务才退出</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="_6">试一下</h2>
+<pre><code class="language-sh">cd learn-claude-code
+python s17_autonomous_agents/code.py
+</code></pre>
+<p>试试这个 prompt：</p>
+<p><code>Create 3 tasks on the board, then spawn alice and bob. Watch them auto-claim and work.</code></p>
+<p>观察重点：队友是否自动认领了未分配的任务？有 blockedBy 依赖的任务是否在前置完成后被正确认领？空闲超时后是否自动关机？IDLE 阶段收到 shutdown_request 是否立即响应？<code>.tasks/</code> 目录下的任务状态如何变化？</p>
+<hr>
+<h2 id="_7">接下来</h2>
+<p>队友自组织了。但 Alice 和 Bob 都在同一个目录下工作——Alice 改 <code>config.py</code>，Bob 也改 <code>config.py</code>，互相覆盖。</p>
+<p>s18 Worktree Isolation → 每个任务有自己的工作目录，互不干扰。</p>
+<details>
+<summary>深入 CC 源码</summary>
+
+> 教学说明：本章的 idle_poll + auto-claim 机制是教学设计，用统一的轮询函数演示"空闲后找活干"。CC 的实际实现是多个机制的组合，但目标一致——减少 Lead 的手动分配负担。
+
+### 一、CC 的空闲机制：组合路径，不是单一轮询
+
+教学版用一个 `idle_poll()` 统一处理空闲时的 inbox 检查和任务认领。CC 的实际实现是四个机制的组合：
+
+**idle_notification**：队友完成一轮工作后，`sendIdleNotification()`（`inProcessRunner.ts:569-589`）向 Lead 发送空闲通知。Lead 知道队友可用了，可以分配新任务或请求关机。
+
+**mailbox 轮询**：`waitForNextPromptOrShutdown()`（`inProcessRunner.ts:689-868`）是一个 **500ms 轮询循环**，持续检查三类来源：pending user messages、mailbox 文件消息、task list。shutdown_request 被优先处理（`inProcessRunner.ts:768-804`），不会被普通消息饿死。
+
+**task watcher**：`useTaskListWatcher`（`hooks/useTaskListWatcher.ts:34-189`）用 `fs.watch()` 监听 `.claude/tasks/` 目录变化，1 秒 debounce，当新任务创建或依赖解锁时触发检查。依赖判断（`L197-207`）是"blockedBy 中没有未完成的任务"，不是"blockedBy 为空"。
+
+**主动 claim**：轮询循环内部也会调用 `tryClaimNextTask()`（`inProcessRunner.ts:853-860`）——在等待期间主动从 task list 领取任务。所以"队友不主动轮询任务"不准确，CC 同时有被动通知和主动认领。
+
+### 二、任务认领：文件锁 + 原子操作
+
+`claimTask()`（`utils/tasks.ts:541-612`）用 `proper-lockfile` 的任务文件锁，在锁内完成读-检查-改-写。检查项：owner 是否已存在（`L575-576`）、是否已完成（`L580-581`）、blockedBy 中是否有未完成任务（`L585-594`）。`claimTaskWithBusyCheck()`（`utils/tasks.ts:614-692`）用 task-list 级别锁，把 busy check 和 claim 做成原子操作，避免 TOCTOU。
+
+`findAvailableTask()`（`inProcessRunner.ts:595-604`）的依赖判断也是"所有 blockedBy 已完成"，用 `task.blockedBy.every(id => !unresolvedTaskIds.has(id))` 实现。`tryClaimNextTask()`（`inProcessRunner.ts:624-657`）在认领后把状态更新为 `in_progress`，让 UI 立即反映变化。
+
+### 三、教学版 vs CC 对比
+
+| 维度 | 教学版 (s17) | CC |
+|------|-------------|-----|
+| 空闲机制 | idle_poll 统一轮询（5s） | idle_notification + 500ms mailbox 轮询 + task watcher |
+| 任务发现 | scan_unclaimed_tasks（轮询） | useTaskListWatcher（文件监听）+ tryClaimNextTask（主动轮询） |
+| 依赖判断 | can_start（所有 blockedBy 已完成） | findAvailableTask（同样语义） |
+| 并发安全 | owner 检查（无文件锁） | proper-lockfile 任务锁 + task-list 锁 |
+| shutdown 处理 | IDLE 直接分发，WORK 通过 handle_inbox_message | 500ms 轮询中优先处理 shutdown_request |
+| 超时退出 | 60s 无新任务 | 无固定超时，Lead 手动 shutdown |
+| 身份保持 | messages 长度检测 | context compaction 保留 system prompt |
+| claim 失败处理 | 检查返回值，失败不注入 | 文件锁保证原子性 |
+
+教学版的 `idle_poll()` 把 CC 的四个机制合并成一个轮询函数——简化合理，因为核心语义（空闲时找活干、依赖解锁后可认领、shutdown 优先）是一致的。
+
+</details>
+
+<!-- translation-sync: zh@v1, en@v1, ja@v1 -->
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags">
+            <span class="chip">Harness 工程化</span>
+            <span class="chip">AI Agent</span>
+            <span class="chip">面试宝典</span>
+          </div>
+          <a class="t-meta" href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/06-harnes/learn-claude-code/s17_autonomous_agents/README.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../ai-engineer/harness/s16-team-protocols.html"><span class="dir">← 上一篇</span><span class="t">s16: Team Protocols — 队友之间要有约定</span></a><a class="next" href="../../ai-engineer/harness/s18-worktree-isolation.html"><span class="dir">下一篇 →</span><span class="t">s18: Worktree Isolation — 各干各的，互不干扰</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../rag/index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+
+<script src="../../js/main.js" defer></script>
+</body>
+</html>

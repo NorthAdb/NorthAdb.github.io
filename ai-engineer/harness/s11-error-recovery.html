@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>s11: Error Recovery — 错误不是结束，是重试的开始 · AI Agent 面试宝典 — NorthAdb 的博客</title>
+<meta name="description" content="&quot;错误不是终点, 是重试的起点&quot; — 升级 token、压缩上下文、切换模型。 Harness 层: 韧性 — 主循环遇到错误时分类并恢复。">
+<link rel="canonical" href="https://northadb.github.io/ai-engineer/harness/s11-error-recovery.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="s11: Error Recovery — 错误不是结束，是重试的开始 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta property="og:description" content="&quot;错误不是终点, 是重试的起点&quot; — 升级 token、压缩上下文、切换模型。 Harness 层: 韧性 — 主循环遇到错误时分类并恢复。">
+<meta property="og:url" content="https://northadb.github.io/ai-engineer/harness/s11-error-recovery.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="s11: Error Recovery — 错误不是结束，是重试的开始 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta name="twitter:description" content="&quot;错误不是终点, 是重试的起点&quot; — 升级 token、压缩上下文、切换模型。 Harness 层: 韧性 — 主循环遇到错误时分类并恢复。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../feed.xml">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../ai-engineer/assets/course.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "s11: Error Recovery — 错误不是结束，是重试的开始", "description": "\"错误不是终点, 是重试的起点\" — 升级 token、压缩上下文、切换模型。 Harness 层: 韧性 — 主循环遇到错误时分类并恢复。", "author": {"@type": "Person", "name": "juliepy", "url": "https://github.com/juliepy/AI-Engineer-from-scrach"}, "mainEntityOfPage": "https://northadb.github.io/ai-engineer/harness/s11-error-recovery.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../index.html">首页</a><span>/</span><a href="../../learn.html">课件</a><span>/</span><a href="../../ai-engineer/index.html">AI Agent 面试宝典</a><span>/</span><a href="../../ai-engineer/harness/index.html">Harness 工程化</a></div>
+          <h1>s11: Error Recovery — 错误不是结束，是重试的开始</h1>
+          <p class="post-sub">&quot;错误不是终点, 是重试的起点&quot; — 升级 token、压缩上下文、切换模型。 Harness 层: 韧性 — 主循环遇到错误时分类并恢复。</p>
+          <div class="post-meta">
+            <span class="avatar">AI</span>
+            <span>AI Agent 面试宝典</span><span class="sep"></span>
+            <span>Harness 工程化</span><span class="sep"></span>
+            <span>阅读约 7 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<p><a href="../harness/s11-error-recovery.html">中文</a> · <a href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/06-harnes/learn-claude-code/s11_error_recovery/README.en.md">English</a> · <a href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/06-harnes/learn-claude-code/s11_error_recovery/README.ja.md">日本語</a></p>
+<p>s01 → ... → s09 → s10 → <code>s11</code> → <a href="https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/06-harnes/learn-claude-code/s12_task_system">s12</a> → s13 → ... → s20</p>
+<blockquote>
+<p><em>"错误不是终点, 是重试的起点"</em> — 升级 token、压缩上下文、切换模型。</p>
+<p><strong>Harness 层</strong>: 韧性 — 主循环遇到错误时分类并恢复。</p>
+</blockquote>
+<hr>
+<h2 id="_1">问题</h2>
+<p>Agent 跑着跑着报错了：</p>
+<pre><code>Error: 529 overloaded
+</code></pre>
+<p>Agent 崩溃了。它没有重试，没有换模型，没有减少上下文——直接崩溃。</p>
+<p>生产环境中 API 错误是常态。三种最常见的故障模式：<strong>输出被截断</strong>（模型话说一半 token 用完了）、<strong>上下文超限</strong>（压缩后还是太长）、<strong>临时故障</strong>（429 限流 / 529 过载）。一个不处理错误的 Agent 就像一个一碰就熄火的车。</p>
+<hr>
+<h2 id="_2">解决方案</h2>
+<p><img alt="Error Recovery Overview" src="../assets/img/256b4597b0.svg"></p>
+<p>s10 的循环、prompt 组装全部保留。唯一的变动：LLM 调用包裹在 try/except 里，根据错误类型走不同的恢复路径。恢复后 <code>continue</code> 回到循环开头重新调用 LLM。</p>
+<p>三种最常见的恢复模式（教学版只处理 429/529；真实系统还覆盖连接错误、超时、云厂商认证缓存等。CC 实际有 13+ reason code，其余见 Deep dive）：</p>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>触发</th>
+<th>恢复动作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>输出截断</td>
+<td><code>max_tokens</code></td>
+<td>升级 8K→64K / 续写提示</td>
+</tr>
+<tr>
+<td>上下文超限</td>
+<td><code>prompt_too_long</code></td>
+<td>reactive compact → 重试</td>
+</tr>
+<tr>
+<td>临时故障</td>
+<td>429 / 529</td>
+<td>指数退避 + 抖动，连续 529 可切换备用模型</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="_3">工作原理</h2>
+<h3 id="1">路径 1: 输出被截断</h3>
+<p>模型话说一半，<code>max_tokens</code> 用完了。默认 8000 token 不够它输出完整回答。</p>
+<p>第一次发生时，直接把 <code>max_tokens</code> 从 8K 升级到 64K（8 倍空间），重试同一请求——此时不追加截断输出到 messages，保持原始请求不变。如果 64K 还是不够，才保存截断输出并注入续写提示让模型接着刚才的话继续说，最多 3 次：</p>
+<pre><code class="language-python">if response.stop_reason == &quot;max_tokens&quot;:
+    # First escalation: don't append truncated output, retry same request
+    if not state.has_escalated:
+        max_tokens = ESCALATED_MAX_TOKENS
+        state.has_escalated = True
+        continue  # messages unchanged, same request with more tokens
+    # 64K still truncated: save output + continuation prompt
+    messages.append({&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: response.content})
+    if state.recovery_count &lt; MAX_RECOVERY_RETRIES:
+        messages.append({&quot;role&quot;: &quot;user&quot;, &quot;content&quot;:
+            &quot;Output token limit hit. Resume directly — &quot;
+            &quot;no apology, no recap. Pick up mid-thought.&quot;})
+        state.recovery_count += 1
+        continue
+    return  # still truncated after 3 continuations
+# Normal: append after max_tokens check
+messages.append({&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: response.content})
+</code></pre>
+<p>升级只有一次机会，续写最多 3 次。超过就退出——继续续写也不会有实质产出。</p>
+<h3 id="2">路径 2: 上下文超限</h3>
+<p>LLM 说"你的上下文太长了"（<code>prompt_too_long</code>）。s08 的四层压缩全跑过了，还是超。</p>
+<p>触发 reactive compact——比 auto compact 更激进。教学版只保留最后 5 条消息模拟压缩效果；真实实现会调用 LLM 生成 compact 摘要再重试。压缩后重试。但如果压缩过一次还是超限，只能退出——再压缩也不会变小：</p>
+<pre><code class="language-python">except PromptTooLongError:
+    if not state.has_attempted_reactive_compact:
+        messages[:] = reactive_compact(messages)
+        state.has_attempted_reactive_compact = True
+        continue
+    return  # 压缩过了还是超限，只能退出
+</code></pre>
+<h3 id="3">路径 3: 临时故障</h3>
+<p>网络抖动、429 限流、529 过载——这些不是 bug，是分布式系统的常态。</p>
+<p>429 和 529 统一走指数退避 + 抖动：第一次等 0.5 秒，第二次等 1 秒，第三次等 2 秒，最多 10 次。加随机抖动让并发请求不在同一时刻重试。连续 3 次 529 过载 → 切换到备用模型（若配置了 <code>FALLBACK_MODEL_ID</code> 环境变量）：</p>
+<pre><code class="language-python">def retry_delay(attempt, retry_after=None):
+    if retry_after:
+        return retry_after
+    base = min(500 * (2 ** attempt), 32000) / 1000
+    return base + random.uniform(0, base * 0.25)
+
+def with_retry(fn, state, max_retries=10):
+    for attempt in range(max_retries):
+        try:
+            return fn()
+        except (RateLimitError, OverloadedError):
+            delay = retry_delay(attempt)
+            time.sleep(delay)
+            if is_overloaded:
+                state.consecutive_529 += 1
+                if state.consecutive_529 &gt;= 3 and FALLBACK_MODEL:
+                    state.current_model = FALLBACK_MODEL
+    raise MaxRetriesExceeded()
+</code></pre>
+<p>退避公式：<code>min(500 × 2^attempt, 32000) + random(0~25%)</code>。如果服务器返回 <code>Retry-After</code> header，优先用那个值。</p>
+<h3 id="_4">合起来跑</h3>
+<pre><code class="language-python">def agent_loop(messages, context):
+    system = get_system_prompt(context)
+    state = RecoveryState()
+    max_tokens = 8000
+
+    while True:
+        try:
+            response = with_retry(
+                lambda: client.messages.create(
+                    model=state.current_model, system=system,
+                    messages=messages, tools=TOOLS,
+                    max_tokens=max_tokens),
+                state)
+        except Exception as e:
+            if is_prompt_too_long_error(e):
+                if not state.has_attempted_reactive_compact:
+                    messages[:] = reactive_compact(messages)
+                    state.has_attempted_reactive_compact = True
+                    continue
+                return
+            log_error(e)
+            return
+
+        # max_tokens check BEFORE appending to messages
+        if response.stop_reason == &quot;max_tokens&quot;:
+            if not state.has_escalated:
+                max_tokens = 64000
+                state.has_escalated = True
+                continue  # retry same request, messages unchanged
+            # save truncated output + continuation prompt
+            messages.append({&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: response.content})
+            messages.append({&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: CONTINUATION_PROMPT})
+            continue
+        # Normal completion
+        messages.append({&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: response.content})
+
+        if response.stop_reason != &quot;tool_use&quot;:
+            return
+        # ... tool execution ...
+</code></pre>
+<p>外层 try/except 捕获 API 异常（prompt_too_long 等），<code>with_retry</code> 处理瞬态错误（429/529），<code>stop_reason</code> 检查处理截断。三种恢复机制各管各的错误类型。</p>
+<hr>
+<h2 id="s10">相对 s10 的变更</h2>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>之前 (s10)</th>
+<th>之后 (s11)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>错误处理</td>
+<td>无（一碰就崩溃）</td>
+<td>三种恢复模式 + 指数退避</td>
+</tr>
+<tr>
+<td>新常量</td>
+<td>—</td>
+<td>ESCALATED_MAX_TOKENS=64000, MAX_RETRIES=10, BASE_DELAY_MS=500, FALLBACK_MODEL</td>
+</tr>
+<tr>
+<td>新函数</td>
+<td>—</td>
+<td>with_retry, retry_delay, reactive_compact, is_prompt_too_long_error, RecoveryState</td>
+</tr>
+<tr>
+<td>工具</td>
+<td>bash, read_file, write_file (3)</td>
+<td>bash, read_file, write_file (3) — 不变</td>
+</tr>
+<tr>
+<td>循环</td>
+<td>裸调用 LLM</td>
+<td>try/except 包裹 + continue 重试</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="_5">试一下</h2>
+<pre><code class="language-sh">cd learn-claude-code
+python s11_error_recovery/code.py
+</code></pre>
+<p>试试这些 prompt：</p>
+<ol>
+<li>让 Agent 生成一段很长的代码，观察截断后是否自动续写（看 <code>[max_tokens] escalating</code> 日志）</li>
+<li>连续读取大量文件撑大上下文，观察 reactive compact</li>
+<li>如果遇到 429/529，观察指数退避的日志输出</li>
+</ol>
+<hr>
+<h2 id="_6">接下来</h2>
+<p>Agent 现在能在错误中自动恢复了。但它处理的任务仍然是"一次性"的——你给它一个任务，它做完，结束。</p>
+<p>能不能让 Agent 管理一个<strong>任务列表</strong>——有依赖关系、持久化到磁盘、跨会话能恢复？TODO 列表不是任务系统。</p>
+<p>s12 Task System → 任务是有依赖、有状态、持久化的图。这是多 Agent 协作的基础。</p>
+<details>
+<summary>深入 CC 源码</summary>
+
+> 以下基于 CC 源码 `query.ts`（1729 行）、`services/api/withRetry.ts`（822 行）、`query/tokenBudget.ts`（93 行）、`utils/tokenBudget.ts`（73 行）的分析。
+
+### 一、十几种 reason/transition（不只是 3 条）
+
+教学版讲了 3 种最常见的恢复模式。CC 实际有十几种 reason/transition，每轮 LLM 调用后都会判断：
+
+| reason/transition | 教学版对应 | CC 行为 |
+|---|---|---|
+| `completed` | 正常完成 | 返回结果 |
+| `next_turn` | 正常工具调用 | 继续下一轮工具执行 |
+| `max_output_tokens_escalate` | 路径 1 | 8K→64K 升级 |
+| `max_output_tokens_recovery` | 路径 1 续写 | 续写提示（最多 3 次） |
+| `reactive_compact_retry` | 路径 2 | reactive compact → 重试 |
+| `prompt_too_long` | 路径 2 | 同上 |
+| `collapse_drain_retry` | 未展开 | context collapse 先提交暂存 |
+| `model_error` | 未展开 | 重试 |
+| `image_error` | 未展开 | `ImageSizeError` / `ImageResizeError` 专门处理 |
+| `aborted_streaming` | 未展开 | 流式中止恢复 |
+| `aborted_tools` | 未展开 | 工具中止 |
+| `stop_hook_blocking` | 未展开 | 注入 blocking error → 模型自纠 |
+| `stop_hook_prevented` | 未展开 | hooks 阻止 |
+| `hook_stopped` | 未展开 | hook 停止执行 |
+| `token_budget_continuation` | 未展开 | token 用量 < 90% 时继续 |
+| `blocking_limit` | 未展开 | 阻塞限制 |
+| `max_turns` | 未展开 | 达到最大轮次 |
+
+教学版只展开了前 5 种（最常见的），其余各有专门处理逻辑。
+
+### 二、指数退避的精确公式
+
+CC 的退避延迟（`withRetry.ts:530-548`）：
+
+
+<pre><code>delay = min(500 × 2^(attempt-1), 32000) + random(0~25%)
+</code></pre>
+
+
+| 尝试 | 基础延迟 | + 抖动 |
+|------|---------|--------|
+| 1 | 500ms | 0-125ms |
+| 2 | 1000ms | 0-250ms |
+| 4 | 4000ms | 0-1000ms |
+| 7+ | 32000ms（上限） | 0-8000ms |
+
+如果服务器返回 `Retry-After` header，优先用那个值。
+
+### 三、CONTINUATION 提示原文
+
+CC 的续写提示（`query.ts:1225-1227`）：
+
+
+<pre><code>Output token limit hit. Resume directly — no apology, no recap of what
+you were doing. Pick up mid-thought if that is where the cut happened.
+Break remaining work into smaller pieces.
+</code></pre>
+
+
+Token budget 的 nudge 提示（`tokenBudget.ts:72`）：
+
+
+<pre><code>Stopped at {pct}% of token target. Keep working — do not summarize.
+</code></pre>
+
+
+### 四、流式错误处理
+
+CC 的流式路径中，可恢复的错误（413、max_tokens、media error）在 streaming 期间**被暂扣不展示**（`query.ts:788-822`）——SDK 消费者看不到，只有恢复逻辑能看到。等 streaming 结束后才判断是否需要恢复。
+
+### 五、529 → Fallback Model 切换
+
+连续 3 次 529 过载错误后（`MAX_529_RETRIES = 3`），CC 自动切换到 fallback model（如 Opus → Sonnet）。切换时清除所有 pending 消息和 tool 结果，给用户展示 "Switched to {model} due to high demand"。
+
+### 六、Diminishing Returns 检测
+
+Token budget 的"继续"不是无限的。当连续 3 次 continuation 且 token 增量 < 500 时，系统判断"继续也没有实质性产出"，停止 continuation（`tokenBudget.ts:60-62`）。
+
+</details>
+
+<!-- translation-sync: zh@v1, en@v1, ja@v1 -->
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags">
+            <span class="chip">Harness 工程化</span>
+            <span class="chip">AI Agent</span>
+            <span class="chip">面试宝典</span>
+          </div>
+          <a class="t-meta" href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/06-harnes/learn-claude-code/s11_error_recovery/README.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../ai-engineer/harness/s10-system-prompt.html"><span class="dir">← 上一篇</span><span class="t">s10: System Prompt — 运行时组装，不硬编码</span></a><a class="next" href="../../ai-engineer/harness/s12-task-system.html"><span class="dir">下一篇 →</span><span class="t">s12: Task System — 目标太大，拆成小任务</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../rag/index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+
+<script src="../../js/main.js" defer></script>
+</body>
+</html>

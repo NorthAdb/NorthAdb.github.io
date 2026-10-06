@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pi 最终复习 · AI Agent 面试宝典 — NorthAdb 的博客</title>
+<meta name="description" content="四块拼成一套系统：LOOP 是循环本身，Runtime &amp; memory 是记什么、发给模型什么，Extension 在循环外加能力，HITL 是人怎么插进去（steer / follow-up、挡工具），不单开一节。">
+<link rel="canonical" href="https://northadb.github.io/ai-engineer/pi/09-the-end.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Pi 最终复习 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta property="og:description" content="四块拼成一套系统：LOOP 是循环本身，Runtime &amp; memory 是记什么、发给模型什么，Extension 在循环外加能力，HITL 是人怎么插进去（steer / follow-up、挡工具），不单开一节。">
+<meta property="og:url" content="https://northadb.github.io/ai-engineer/pi/09-the-end.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Pi 最终复习 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta name="twitter:description" content="四块拼成一套系统：LOOP 是循环本身，Runtime &amp; memory 是记什么、发给模型什么，Extension 在循环外加能力，HITL 是人怎么插进去（steer / follow-up、挡工具），不单开一节。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../feed.xml">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../ai-engineer/assets/course.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Pi 最终复习", "description": "四块拼成一套系统：LOOP 是循环本身，Runtime & memory 是记什么、发给模型什么，Extension 在循环外加能力，HITL 是人怎么插进去（steer / follow-up、挡工具），不单开一节。", "author": {"@type": "Person", "name": "juliepy", "url": "https://github.com/juliepy/AI-Engineer-from-scrach"}, "mainEntityOfPage": "https://northadb.github.io/ai-engineer/pi/09-the-end.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../index.html">首页</a><span>/</span><a href="../../learn.html">课件</a><span>/</span><a href="../../ai-engineer/index.html">AI Agent 面试宝典</a><span>/</span><a href="../../ai-engineer/pi/index.html">Pi 架构与上手</a></div>
+          <h1>Pi 最终复习</h1>
+          <p class="post-sub">四块拼成一套系统：LOOP 是循环本身，Runtime &amp; memory 是记什么、发给模型什么，Extension 在循环外加能力，HITL 是人怎么插进去（steer / follow-up、挡工具），不单开一节。</p>
+          <div class="post-meta">
+            <span class="avatar">AI</span>
+            <span>AI Agent 面试宝典</span><span class="sep"></span>
+            <span>Pi 架构与上手</span><span class="sep"></span>
+            <span>阅读约 12 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<p>四块拼成一套系统：<strong>LOOP</strong> 是循环本身，<strong>Runtime &amp; memory</strong> 是记什么、发给模型什么，<strong>Extension</strong> 在循环外加能力，<strong>HITL</strong> 是人怎么插进去（steer / follow-up、挡工具），不单开一节。</p>
+<p>入口进 Pi Interactive（slash / compact / 落盘），循环在 Pi Core（LLM ↔ tool）。compact <strong>不进</strong> <code>runLoop</code>。落盘发生在 <code>message_end</code>，不是等整轮结束。</p>
+<hr>
+<h2 id="_1">目录</h2>
+<ul>
+<li><a href="#系统全景">系统全景</a></li>
+<li><a href="#runtime-分层">Runtime 分层</a></li>
+<li><a href="#一loop">一、LOOP</a></li>
+<li><a href="#二runtime--memory">二、Runtime &amp; memory</a></li>
+<li><a href="#两份记忆">两份记忆</a></li>
+<li><a href="#事件">事件</a></li>
+<li><a href="#session-树">Session 树</a></li>
+<li><a href="#compaction">Compaction</a></li>
+<li><a href="#system-prompt">System prompt</a></li>
+<li><a href="#三extension">三、Extension</a></li>
+</ul>
+<hr>
+<h2 id="_2">系统全景</h2>
+<p>黄是入口，只做 I/O。窄腰上下两块：上面 <strong>Pi Interactive</strong>（<code>coding-agent</code>）做 slash、compact、兜底；下面 <strong>Pi Core</strong>（<code>agent</code>）做队列和 <code>runLoop</code>。绿是 JSONL 树；蓝是开箱工具和扩展 / skill。</p>
+<p><code>registerCommand</code> 停在 Interactive。<code>registerTool</code> 写进 Core 每轮复印的工具表。</p>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;base&quot;, &quot;flowchart&quot;: {&quot;curve&quot;: &quot;linear&quot;, &quot;useMaxWidth&quot;: false}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;15px&quot;, &quot;primaryColor&quot;: &quot;#FFF3B0&quot;, &quot;primaryTextColor&quot;: &quot;#1a1a1a&quot;, &quot;primaryBorderColor&quot;: &quot;#E6B800&quot;, &quot;lineColor&quot;: &quot;#90CAF9&quot;, &quot;clusterBkg&quot;: &quot;transparent&quot;, &quot;clusterBorder&quot;: &quot;#78909C&quot;, &quot;titleColor&quot;: &quot;#ECEFF1&quot;, &quot;edgeLabelBackground&quot;: &quot;#BBDEFB&quot;}}}%%
+flowchart TB
+    subgraph Entry[&quot;Entry 接入层&quot;]
+        TUI[&quot;TUI / CLI&quot;]
+        RPC[&quot;RPC&quot;]
+        PRT[&quot;print  pi -p&quot;]
+        SDK[&quot;SDK&quot;]
+    end
+
+    subgraph Waist[&quot;窄腰 · Agent.prompt&quot;]
+        direction TB
+        subgraph piInteractive[&quot;Pi Interactive&quot;]
+            SES[&quot;AgentSession&lt;br/&gt;slash · compact · 兜底&quot;]
+        end
+        subgraph piCore[&quot;Pi Core&quot;]
+            AG[&quot;Agent&lt;br/&gt;steer / followUp 队列&quot;]
+            LOOP[&quot;runLoop&lt;br/&gt;LLM ↔ tool · emit&quot;]
+            AG --&gt; LOOP
+        end
+        SES --&gt; AG
+    end
+
+    subgraph Persist[&quot;Persistence&quot;]
+        JSONL[&quot;JSONL 会话树&quot;]
+        CMP[&quot;compaction 行&quot;]
+    end
+
+    subgraph Edge[&quot;Capability Edges&quot;]
+        TOOLS[&quot;read bash edit write&quot;]
+        EXT[&quot;Extensions&quot;]
+        SK[&quot;Skills&quot;]
+        TPL[&quot;Prompt templates&quot;]
+    end
+
+    TUI &amp; RPC &amp; PRT &amp; SDK --&gt; SES
+    SES --&gt; JSONL
+    SES --&gt; CMP
+    LOOP --&gt; TOOLS
+    EXT -.-&gt; TOOLS
+    EXT -.-&gt; SES
+
+    style TUI fill:#FFF59D,stroke:#F9A825,color:#212121
+    style RPC fill:#FFF59D,stroke:#F9A825,color:#212121
+    style PRT fill:#FFF59D,stroke:#F9A825,color:#212121
+    style SDK fill:#FFF59D,stroke:#F9A825,color:#212121
+    style SES fill:#FFCC80,stroke:#EF6C00,color:#212121
+    style AG fill:#EF9A9A,stroke:#C62828,color:#212121
+    style LOOP fill:#EF9A9A,stroke:#C62828,color:#212121
+    style JSONL fill:#A5D6A7,stroke:#2E7D32,color:#212121
+    style CMP fill:#A5D6A7,stroke:#2E7D32,color:#212121
+    style TOOLS fill:#90CAF9,stroke:#1565C0,color:#212121
+    style EXT fill:#90CAF9,stroke:#1565C0,color:#212121
+    style SK fill:#90CAF9,stroke:#1565C0,color:#212121
+    style TPL fill:#90CAF9,stroke:#1565C0,color:#212121
+</code></pre>
+<hr>
+<h2 id="runtime">Runtime 分层</h2>
+<p>源码主链：<code>cli.ts</code> → <code>AgentSession.prompt</code> → <code>Agent.prompt</code> → <code>runLoop</code>。</p>
+<p>一条用户消息 = <strong>1 次进循环前</strong> + <strong>N 次 LLM/Tool</strong> + <strong>1 次兜底</strong>。compact 在 ① 和 ③，不进 ②。落盘在循环中的 <code>message_end</code>，不是 Finalize。兜底再 <code>continue()</code> 就是新的一次 <code>runLoop</code>。</p>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;base&quot;, &quot;flowchart&quot;: {&quot;curve&quot;: &quot;linear&quot;, &quot;useMaxWidth&quot;: false}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;14px&quot;, &quot;primaryColor&quot;: &quot;#FFCDD2&quot;, &quot;primaryTextColor&quot;: &quot;#212121&quot;, &quot;lineColor&quot;: &quot;#90CAF9&quot;, &quot;clusterBkg&quot;: &quot;transparent&quot;, &quot;clusterBorder&quot;: &quot;#78909C&quot;, &quot;titleColor&quot;: &quot;#ECEFF1&quot;}}}%%
+flowchart TB
+    subgraph row[&quot; &quot;]
+        direction LR
+        subgraph Entry[&quot;入口壳&quot;]
+            direction TB
+            E1[&quot;TUI / RPC / print / SDK&quot;]
+        end
+
+        subgraph Runtime[&quot;Agent Runtime&quot;]
+            direction TB
+            SES[&quot;AgentSession.prompt&quot;]
+            TC[&quot;① 进循环前&lt;br/&gt;slash / skill / compact&quot;]
+            CL[&quot;② runLoop&lt;br/&gt;while LLM ↔ Tools&quot;]
+            TF[&quot;③ 兜底&lt;br/&gt;retry / compact / 队列&quot;]
+            SES --&gt; TC --&gt; CL --&gt; TF
+        end
+
+        subgraph Support[&quot;支撑&quot;]
+            direction TB
+            SP[&quot;system-prompt 栈&quot;]
+            EXR[&quot;extensions runner&quot;]
+            CMP[&quot;compaction 循环外&quot;]
+            MR[&quot;model-runtime streamFn&quot;]
+            SP --&gt; EXR --&gt; CMP --&gt; MR
+        end
+
+        subgraph Out[&quot;出口&quot;]
+            direction TB
+            DB[&quot;JSONL append&quot;]
+            UI[&quot;handleEvent 画&quot;]
+            DB --&gt; UI
+        end
+    end
+
+    Entry --&gt; Runtime
+    Runtime -.-&gt; Support
+    Runtime --&gt; Out
+
+    style E1 fill:#FFF59D,stroke:#F9A825,color:#212121
+    style SES fill:#EF9A9A,stroke:#C62828,color:#212121
+    style TC fill:#FFF59D,stroke:#F9A825,color:#212121
+    style CL fill:#FFCC80,stroke:#EF6C00,color:#212121
+    style TF fill:#A5D6A7,stroke:#2E7D32,color:#212121
+    style SP fill:#CE93D8,stroke:#8E24AA,color:#212121
+    style EXR fill:#CE93D8,stroke:#8E24AA,color:#212121
+    style CMP fill:#CE93D8,stroke:#8E24AA,color:#212121
+    style MR fill:#CE93D8,stroke:#8E24AA,color:#212121
+    style DB fill:#A5D6A7,stroke:#2E7D32,color:#212121
+    style UI fill:#A5D6A7,stroke:#2E7D32,color:#212121
+</code></pre>
+<hr>
+<h2 id="loop">一、LOOP</h2>
+<p>一次 <code>prompt</code> 不是调一次 LLM。内层消化 tool 和 steering（中途纠偏，当前这批工具不跳过）；外层消化 follow-up（没有 tool、也没有 steering、本要停了才加一句）。有 tool 时内层会再调 LLM，不先看 follow-up。续跑不连回起点：那是同一轮再调 LLM，或兜底开的<strong>新</strong>一次 <code>runLoop</code>。人插进去就是这两条队列，挡工具走 <code>beforeToolCall</code>（扩展 <code>on("tool_call")</code>）。</p>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;base&quot;, &quot;flowchart&quot;: {&quot;curve&quot;: &quot;linear&quot;, &quot;useMaxWidth&quot;: false}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;14px&quot;, &quot;primaryColor&quot;: &quot;#FFCDD2&quot;, &quot;primaryTextColor&quot;: &quot;#212121&quot;, &quot;lineColor&quot;: &quot;#90CAF9&quot;, &quot;edgeLabelBackground&quot;: &quot;#BBDEFB&quot;}}}%%
+flowchart TD
+    U[&quot;User Message&quot;] --&gt; P[&quot;① Interactive&lt;br/&gt;slash / skill / compact&quot;]
+    P --&gt; SL{&quot;扩展命令?&quot;}
+    SL --&gt;|是| CMD[&quot;handler 结束&quot;]
+    SL --&gt;|否| BUSY{&quot;正在跑?&quot;}
+    BUSY --&gt;|是| Q[&quot;steer / followUp 入队&quot;]
+    BUSY --&gt;|否| W[&quot;② runLoop&quot;]
+
+    W --&gt; LLM[&quot;stream LLM&quot;]
+    LLM --&gt; ERR{&quot;error / abort?&quot;}
+    ERR --&gt;|是| AE1[&quot;立刻 agent_end&quot;]
+    ERR --&gt;|否| TC{&quot;有 tool?&quot;}
+
+    TC --&gt;|有| BTC{&quot;beforeToolCall 挡?&quot;}
+    BTC --&gt;|是| FAIL[&quot;error result&quot;]
+    BTC --&gt;|否| EX[&quot;executeToolCalls&quot;]
+    FAIL --&gt; NEXT1[&quot;续跑 LLM&quot;]
+    EX --&gt; NEXT2[&quot;续跑 LLM&quot;]
+
+    TC --&gt;|无| ST{&quot;steering?&quot;}
+    ST --&gt;|有| NEXT3[&quot;续跑 LLM&quot;]
+    ST --&gt;|无| FU{&quot;follow-up?&quot;}
+    FU --&gt;|有| NEXT4[&quot;续跑 LLM&quot;]
+    FU --&gt;|无| AE2[&quot;agent_end&quot;]
+
+    AE1 --&gt; F1[&quot;③ 兜底&quot;]
+    AE2 --&gt; F2[&quot;③ 兜底&quot;]
+    F1 --&gt; CONT1{&quot;retry / compact / 新入队?&quot;}
+    F2 --&gt; CONT2{&quot;retry / compact / 新入队?&quot;}
+    CONT1 --&gt;|是| C1[&quot;continue 新 runLoop&quot;]
+    CONT1 --&gt;|否| DONE1[&quot;settled&quot;]
+    CONT2 --&gt;|是| C2[&quot;continue 新 runLoop&quot;]
+    CONT2 --&gt;|否| DONE2[&quot;settled&quot;]
+
+    style U fill:#90CAF9,stroke:#1565C0,color:#212121
+    style P fill:#FFF59D,stroke:#F9A825,color:#212121
+    style W fill:#FFCC80,stroke:#EF6C00,color:#212121
+    style LLM fill:#FFAB91,stroke:#D84315,color:#212121
+    style EX fill:#A5D6A7,stroke:#43A047,color:#212121
+    style F1 fill:#A5D6A7,stroke:#2E7D32,color:#212121
+    style F2 fill:#A5D6A7,stroke:#2E7D32,color:#212121
+    style DONE1 fill:#E0E0E0,stroke:#616161,color:#212121
+    style DONE2 fill:#E0E0E0,stroke:#616161,color:#212121
+    style SL fill:#BBDEFB,stroke:#1565C0,color:#212121
+    style BUSY fill:#BBDEFB,stroke:#1565C0,color:#212121
+    style ERR fill:#BBDEFB,stroke:#1565C0,color:#212121
+    style TC fill:#BBDEFB,stroke:#1565C0,color:#212121
+    style BTC fill:#BBDEFB,stroke:#1565C0,color:#212121
+    style ST fill:#BBDEFB,stroke:#1565C0,color:#212121
+    style FU fill:#BBDEFB,stroke:#1565C0,color:#212121
+    style CONT1 fill:#BBDEFB,stroke:#1565C0,color:#212121
+    style CONT2 fill:#BBDEFB,stroke:#1565C0,color:#212121
+</code></pre>
+<hr>
+<h2 id="runtime-memory">二、Runtime &amp; memory</h2>
+<p>磁盘上是整棵树，发给模型的是当前这条 path。循环不画 UI、不写盘，只 <code>await emit</code>。UI 被踢出 await，不挡循环。</p>
+<h3 id="_3">两份记忆</h3>
+<p>旁支、旧原文、custom 条目都还在文件里。<code>runLoop</code> 只吃 <code>AgentContext</code>：循环外叠好的 system prompt、按 compaction 裁过的当前 path、tools schema（不写进 prompt 正文）。</p>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;flowchart&quot;: {&quot;curve&quot;: &quot;linear&quot;, &quot;rankSpacing&quot;: 32, &quot;nodeSpacing&quot;: 24, &quot;padding&quot;: 12, &quot;useMaxWidth&quot;: false, &quot;htmlLabels&quot;: true}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;22px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;lineColor&quot;: &quot;#CBD5E1&quot;, &quot;clusterBkg&quot;: &quot;#111111&quot;, &quot;clusterBorder&quot;: &quot;#C4B5FD&quot;, &quot;titleColor&quot;: &quot;#FDE68A&quot;, &quot;edgeLabelBackground&quot;: &quot;#111111&quot;}, &quot;themeCSS&quot;: &quot;.nodeLabel,.label,.cluster-label,span{font-size:22px!important}&quot;}}%%
+flowchart LR
+    DISK[&quot;磁盘：整棵 JSONL&quot;] --&gt; PATH[&quot;当前 leaf 回溯&quot;]
+    PATH --&gt; CUT[&quot;按摘要裁&quot;]
+    CUT --&gt; CTX[&quot;AgentContext&quot;]
+
+    classDef start fill:#BFDBFE,stroke:#93C5FD,color:#1E3A8A,font-size:22px
+    classDef step fill:#A5F3FC,stroke:#67E8F9,color:#155E75,font-size:22px
+    classDef prod fill:#E9D5FF,stroke:#D8B4FE,color:#6B21A8,font-size:22px
+    classDef ok fill:#BBF7D0,stroke:#86EFAC,color:#14532D,font-size:22px
+
+    class DISK start
+    class PATH step
+    class CUT prod
+    class CTX ok
+</code></pre>
+<h3 id="_4">事件</h3>
+<p><code>await emit</code> 等的是 Interactive 做完（扩展钩子 + <code>message_end</code> 落盘），不是等 TUI。TUI 订 <code>session.subscribe</code>，<code>_emit</code> 不等待。文件只 append。<code>message_update</code> 只改 <code>streamingMessage</code>，不写盘。</p>
+<p><code>Agent.waitForIdle</code> 等的是 <code>agent_end</code> 的 listener。<code>AgentSession.waitForIdle</code> 等的是兜底之后的 <code>agent_settled</code>。</p>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;flowchart&quot;: {&quot;curve&quot;: &quot;linear&quot;, &quot;rankSpacing&quot;: 32, &quot;nodeSpacing&quot;: 24, &quot;padding&quot;: 12, &quot;useMaxWidth&quot;: false, &quot;htmlLabels&quot;: true}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;22px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;lineColor&quot;: &quot;#CBD5E1&quot;, &quot;clusterBkg&quot;: &quot;#111111&quot;, &quot;clusterBorder&quot;: &quot;#C4B5FD&quot;, &quot;titleColor&quot;: &quot;#FDE68A&quot;, &quot;edgeLabelBackground&quot;: &quot;#111111&quot;}, &quot;themeCSS&quot;: &quot;.nodeLabel,.label,.cluster-label,span{font-size:22px!important}&quot;}}%%
+flowchart RL
+    subgraph uiLayer[&quot;UI&quot;]
+        direction TB
+        HEV[&quot;handleEvent&lt;br/&gt;订 session.subscribe&quot;]
+        DRAW[&quot;requestRender&quot;]
+        HEV --&gt; DRAW
+    end
+
+    subgraph interactiveLayer[&quot;Interactive&quot;]
+        direction TB
+        HA[&quot;_handleAgentEvent&lt;br/&gt;订 agent.subscribe&quot;]
+        EXT[&quot;① await pi.on&quot;]
+        UIEMIT[&quot;② _emit 不等待&quot;]
+        DISK[&quot;③ message_end 落盘&quot;]
+        HA --&gt; EXT
+        EXT --&gt; UIEMIT
+        UIEMIT --&gt; DISK
+    end
+
+    subgraph coreLayer[&quot;Pi Core&quot;]
+        direction TB
+        LOOP[&quot;runLoop emit&quot;]
+        ST[&quot;processEvents&lt;br/&gt;先改 state&quot;]
+        LIS[&quot;再 await listeners&quot;]
+        LOOP --&gt; ST
+        ST --&gt; LIS
+    end
+
+    LIS --&gt; HA
+    UIEMIT --&gt; HEV
+
+    classDef start fill:#BFDBFE,stroke:#93C5FD,color:#1E3A8A,font-size:22px
+    classDef step fill:#A5F3FC,stroke:#67E8F9,color:#155E75,font-size:22px
+    classDef prod fill:#E9D5FF,stroke:#D8B4FE,color:#6B21A8,font-size:22px
+    classDef ok fill:#BBF7D0,stroke:#86EFAC,color:#14532D,font-size:22px
+    classDef wrap fill:#111111,stroke:#C4B5FD,color:#FDE68A,font-size:22px
+
+    class LOOP start
+    class ST,LIS,HA,EXT,UIEMIT step
+    class HEV prod
+    class DISK,DRAW ok
+    class uiLayer,interactiveLayer,coreLayer wrap
+</code></pre>
+<h3 id="session">Session 树</h3>
+<p>按 cwd 落到 <code>~/.pi/agent/sessions/&lt;safe-cwd&gt;/</code>。第一行是 <code>type: session</code> 的 header，之后每行一个 entry：<code>id</code> / <code>parentId</code>。当前对话位置是 <code>leafId</code>。绿是当前 path，紫的旁支仍在同一个文件里。</p>
+<p><code>/tree</code> 是同文件切枝（<code>navigateTree</code>）；<code>/fork</code> <code>/clone</code> 开新 JSONL。streaming 时 <code>navigateTree</code> 会抛错，界面要先 abort 再切。</p>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;flowchart&quot;: {&quot;curve&quot;: &quot;linear&quot;, &quot;rankSpacing&quot;: 32, &quot;nodeSpacing&quot;: 24, &quot;padding&quot;: 12, &quot;useMaxWidth&quot;: false, &quot;htmlLabels&quot;: true}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;22px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;lineColor&quot;: &quot;#CBD5E1&quot;, &quot;edgeLabelBackground&quot;: &quot;#111111&quot;}, &quot;themeCSS&quot;: &quot;.nodeLabel,.label,span{font-size:22px!important}&quot;}}%%
+flowchart TB
+    R[&quot;根&quot;] --&gt; A[&quot;leaf A&quot;]
+    R --&gt; B[&quot;leaf B 当前&quot;]
+    A --&gt; A2[&quot;A 的后续&quot;]
+    B --&gt; B2[&quot;B 的后续&quot;]
+
+    classDef start fill:#BFDBFE,stroke:#93C5FD,color:#1E3A8A,font-size:22px
+    classDef ok fill:#BBF7D0,stroke:#86EFAC,color:#14532D,font-size:22px
+    classDef prod fill:#E9D5FF,stroke:#D8B4FE,color:#6B21A8,font-size:22px
+
+    class R start
+    class B,B2 ok
+    class A,A2 prod
+</code></pre>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;flowchart&quot;: {&quot;curve&quot;: &quot;linear&quot;, &quot;rankSpacing&quot;: 28, &quot;nodeSpacing&quot;: 24, &quot;padding&quot;: 12, &quot;useMaxWidth&quot;: false, &quot;htmlLabels&quot;: true}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;22px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;lineColor&quot;: &quot;#CBD5E1&quot;, &quot;edgeLabelBackground&quot;: &quot;#111111&quot;}, &quot;themeCSS&quot;: &quot;.nodeLabel,.label,span{font-size:22px!important}&quot;}}%%
+flowchart TB
+    NOW[&quot;当前 leaf&quot;] --&gt; Q{&quot;同文件切枝?&quot;}
+    Q --&gt;|是| T[&quot;/tree navigateTree&quot;]
+    T --&gt; B[&quot;branch，旧枝仍在&quot;]
+    Q --&gt;|否| F[&quot;/fork /clone&quot;]
+    F --&gt; C[&quot;新 JSONL&quot;]
+
+    classDef start fill:#BFDBFE,stroke:#93C5FD,color:#1E3A8A,font-size:22px
+    classDef dec fill:#FEF08A,stroke:#FDE047,color:#713F12,font-size:22px
+    classDef step fill:#A5F3FC,stroke:#67E8F9,color:#155E75,font-size:22px
+    classDef bad fill:#FBCFE8,stroke:#F9A8D4,color:#831843,font-size:22px
+
+    class NOW start
+    class Q dec
+    class T,B step
+    class F,C bad
+</code></pre>
+<h3 id="compaction">Compaction</h3>
+<p>两处检查：发消息前、一轮结束后。模型正在说话时不压。已经撑爆可以丢掉失败回复再跑；快满了只压不重跑。磁盘旧行不改，末尾多一条 <code>compaction</code>。下次发给模型时换成 <code>&lt;summary&gt;</code>。</p>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;flowchart&quot;: {&quot;curve&quot;: &quot;linear&quot;, &quot;rankSpacing&quot;: 28, &quot;nodeSpacing&quot;: 24, &quot;padding&quot;: 12, &quot;useMaxWidth&quot;: false, &quot;htmlLabels&quot;: true}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;22px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;lineColor&quot;: &quot;#CBD5E1&quot;, &quot;edgeLabelBackground&quot;: &quot;#111111&quot;}, &quot;themeCSS&quot;: &quot;.nodeLabel,.label,span{font-size:22px!important}&quot;}}%%
+flowchart TB
+    IN[&quot;_checkCompaction&quot;] --&gt; SKIP{&quot;skip gate?&quot;}
+    SKIP --&gt;|是| N1[&quot;return&quot;]
+    SKIP --&gt;|否| OV{&quot;overflow / length?&quot;}
+    OV --&gt;|是| SR{&quot;willRetry?&quot;}
+    SR --&gt;|是| Y1[&quot;_runAutoCompaction&lt;br/&gt;overflow retry&quot;]
+    SR --&gt;|否| Y2[&quot;_runAutoCompaction&lt;br/&gt;overflow&quot;]
+    OV --&gt;|否| U{&quot;usage valid?&quot;}
+    U --&gt;|否| N2[&quot;return&quot;]
+    U --&gt;|是| TH{&quot;over reserve?&quot;}
+    TH --&gt;|是| Y3[&quot;_runAutoCompaction&lt;br/&gt;threshold&quot;]
+    TH --&gt;|否| N3[&quot;return&quot;]
+
+    classDef start fill:#BFDBFE,stroke:#93C5FD,color:#1E3A8A,font-size:22px
+    classDef dec fill:#FEF08A,stroke:#FDE047,color:#713F12,font-size:22px
+    classDef prod fill:#E9D5FF,stroke:#D8B4FE,color:#6B21A8,font-size:22px
+    classDef bad fill:#FBCFE8,stroke:#F9A8D4,color:#831843,font-size:22px
+    classDef ok fill:#BBF7D0,stroke:#86EFAC,color:#14532D,font-size:22px
+
+    class IN start
+    class SKIP,OV,SR,U,TH dec
+    class Y1 bad
+    class Y2,Y3 prod
+    class N1,N2,N3 ok
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>门</th>
+<th>源码条件</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>skip gate</td>
+<td><code>enabled==false</code> / 一轮结束后遇到 <code>aborted</code> / assistant 早于最近 compaction</td>
+<td>这一轮根本不该压</td>
+</tr>
+<tr>
+<td>overflow / length</td>
+<td><strong>同模型</strong>且 <code>isContextOverflow</code> 或 <code>isRecoverableLength</code></td>
+<td>这一句已经撑爆或被截断。换过模型则跳过这门，仍可走 threshold</td>
+</tr>
+<tr>
+<td>willRetry</td>
+<td>overflow 分支里 <code>stopReason != stop</code></td>
+<td>摘掉失败 assistant，压完 <code>continue</code>；<code>stop</code> 则只压不重跑</td>
+</tr>
+<tr>
+<td>usage valid</td>
+<td><code>calculateContextTokens</code> 或 <code>estimateContextTokens</code> 能拿到数</td>
+<td>没有有效 usage 就不走 threshold</td>
+</tr>
+<tr>
+<td>over reserve</td>
+<td><code>tokens &gt; contextWindow - reserveTokens</code></td>
+<td>还没爆，但留给下一句的空位不够</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;flowchart&quot;: {&quot;curve&quot;: &quot;linear&quot;, &quot;rankSpacing&quot;: 28, &quot;nodeSpacing&quot;: 24, &quot;padding&quot;: 12, &quot;useMaxWidth&quot;: false, &quot;htmlLabels&quot;: true}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;22px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;lineColor&quot;: &quot;#CBD5E1&quot;, &quot;edgeLabelBackground&quot;: &quot;#111111&quot;}, &quot;themeCSS&quot;: &quot;.nodeLabel,.label,span{font-size:22px!important}&quot;}}%%
+flowchart TB
+    PATH[&quot;buildSessionPath&quot;] --&gt; HAS{&quot;compaction?&quot;}
+    HAS --&gt;|无| ALL[&quot;整段原文&quot;]
+    HAS --&gt;|有| KEEP[&quot;摘要 + 切点之后&quot;]
+    ALL --&gt; LLM1[&quot;AgentContext.messages&quot;]
+    KEEP --&gt; LLM2[&quot;摘要包进 summary 再送&quot;]
+
+    classDef start fill:#BFDBFE,stroke:#93C5FD,color:#1E3A8A,font-size:22px
+    classDef dec fill:#FEF08A,stroke:#FDE047,color:#713F12,font-size:22px
+    classDef prod fill:#E9D5FF,stroke:#D8B4FE,color:#6B21A8,font-size:22px
+    classDef ok fill:#BBF7D0,stroke:#86EFAC,color:#14532D,font-size:22px
+
+    class PATH start
+    class HAS dec
+    class ALL,KEEP prod
+    class LLM1,LLM2 ok
+</code></pre>
+<h3 id="system-prompt">System prompt</h3>
+<p>tools schema 走 <code>context.tools</code>。system prompt 是栈，不是单文件覆盖。项目 <code>.pi/SYSTEM.md</code> 替换全局那份；<code>AGENTS.md</code> / <code>CLAUDE.md</code> 可以从 <code>~/.pi/agent/</code> 叠到 cwd。skill 列表要有 <code>read</code> 才挂，只写 name / description / location，模型用 <code>read</code> 去拉正文；用户打 <code>/skill:name</code> 会把 SKILL.md <strong>全文</strong>塞进这一句。自定义 <code>/template</code> 同样在 Interactive 展开成全文。</p>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;flowchart&quot;: {&quot;curve&quot;: &quot;linear&quot;, &quot;rankSpacing&quot;: 28, &quot;nodeSpacing&quot;: 24, &quot;padding&quot;: 12, &quot;useMaxWidth&quot;: false, &quot;htmlLabels&quot;: true}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;22px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;lineColor&quot;: &quot;#CBD5E1&quot;, &quot;edgeLabelBackground&quot;: &quot;#111111&quot;}, &quot;themeCSS&quot;: &quot;.nodeLabel,.label,span{font-size:22px!important}&quot;}}%%
+flowchart TB
+    L1[&quot;default / SYSTEM.md&quot;] --&gt; L2[&quot;APPEND_SYSTEM.md&quot;]
+    L2 --&gt; L3[&quot;AGENTS.md / CLAUDE.md&quot;]
+    L3 --&gt; L4[&quot;skills listing&lt;br/&gt;有 read 才挂&quot;]
+    L4 --&gt; L5[&quot;cwd&quot;]
+
+    classDef a fill:#BBF7D0,stroke:#86EFAC,color:#14532D,font-size:22px
+    classDef b fill:#BFDBFE,stroke:#93C5FD,color:#1E3A8A,font-size:22px
+    classDef c fill:#E9D5FF,stroke:#D8B4FE,color:#6B21A8,font-size:22px
+    classDef d fill:#FEF08A,stroke:#FDE047,color:#713F12,font-size:22px
+    classDef e fill:#FBCFE8,stroke:#F9A8D4,color:#831843,font-size:22px
+
+    class L1 a
+    class L2 b
+    class L3 c
+    class L4 d
+    class L5 e
+</code></pre>
+<hr>
+<h2 id="extension">三、Extension</h2>
+<p>循环只认眼前这份工具表。缺的能力写 TS 扩展，不改 Core。默认启用四个工具（read / bash / edit / write），另有 grep / find / ls 定义但不默认打开。没有 MCP、子智能体、权限弹窗。</p>
+<p><code>registerTool</code> 进工具表；<code>registerCommand</code> 就地执行、不进 <code>Agent.prompt</code>；<code>on("tool_call")</code> 接到 Core 的 <code>beforeToolCall</code>，可以挡住一次工具。<code>pi -ne</code> 跳过目录和 package，仍加载 <code>-e</code>。<code>pi install</code> 写的是 <code>settings.packages</code>，不会出现在 <code>extensions/</code> 里。</p>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;flowchart&quot;: {&quot;curve&quot;: &quot;linear&quot;, &quot;rankSpacing&quot;: 28, &quot;nodeSpacing&quot;: 24, &quot;padding&quot;: 12, &quot;useMaxWidth&quot;: false, &quot;htmlLabels&quot;: true}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;22px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;lineColor&quot;: &quot;#CBD5E1&quot;, &quot;edgeLabelBackground&quot;: &quot;#111111&quot;}, &quot;themeCSS&quot;: &quot;.nodeLabel,.label,span{font-size:22px!important}&quot;}}%%
+flowchart TB
+    RELOAD[&quot;resourceLoader.reload&quot;] --&gt; NE{&quot;-ne?&quot;}
+    NE --&gt;|是| E1[&quot;只加载 -e&quot;]
+    NE --&gt;|否| SRC[&quot;packages + 目录 + settings.extensions + -e&quot;]
+    E1 --&gt; J1[&quot;jiti 加载&quot;]
+    SRC --&gt; J2[&quot;jiti 加载&quot;]
+    J1 --&gt; W1{&quot;注册了什么?&quot;}
+    J2 --&gt; W2{&quot;注册了什么?&quot;}
+    W1 --&gt;|工具| T1[&quot;registerTool&quot;]
+    W1 --&gt;|斜杠命令| C1[&quot;registerCommand&quot;]
+    W1 --&gt;|钩子| H1[&quot;on tool_call&quot;]
+    W1 --&gt;|provider| P1[&quot;registerProvider&quot;]
+    W2 --&gt;|工具| T2[&quot;registerTool&quot;]
+    W2 --&gt;|斜杠命令| C2[&quot;registerCommand&quot;]
+    W2 --&gt;|钩子| H2[&quot;on tool_call&quot;]
+    W2 --&gt;|provider| P2[&quot;registerProvider&quot;]
+
+    classDef start fill:#BFDBFE,stroke:#93C5FD,color:#1E3A8A,font-size:22px
+    classDef step fill:#A5F3FC,stroke:#67E8F9,color:#155E75,font-size:22px
+    classDef dec fill:#FEF08A,stroke:#FDE047,color:#713F12,font-size:22px
+    classDef prod fill:#E9D5FF,stroke:#D8B4FE,color:#6B21A8,font-size:22px
+    classDef ok fill:#BBF7D0,stroke:#86EFAC,color:#14532D,font-size:22px
+    classDef bad fill:#FBCFE8,stroke:#F9A8D4,color:#831843,font-size:22px
+
+    class RELOAD start
+    class E1,SRC,J1,J2 step
+    class NE,W1,W2 dec
+    class T1,T2 prod
+    class C1,C2 ok
+    class H1,H2,P1,P2 bad
+</code></pre>
+<hr>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags">
+            <span class="chip">Pi 架构与上手</span>
+            <span class="chip">AI Agent</span>
+            <span class="chip">面试宝典</span>
+          </div>
+          <a class="t-meta" href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/13-pi-agent/09-the_end.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../ai-engineer/pi/08-pi-interactive.html"><span class="dir">← 上一篇</span><span class="t">Pi Interactive</span></a><a class="next" href="../../ai-engineer/deepseek/01-arch.html"><span class="dir">下一篇 →</span><span class="t">DeepSeek Harness 架构解析 -- 到底改变了什么， 值得思考</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../rag/index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+
+<script src="../../ai-engineer/assets/mermaid-init.js" defer></script>
+<script src="../../js/main.js" defer></script>
+</body>
+</html>

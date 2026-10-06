@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hermes Prompt · 系统学习 · AI Agent 面试宝典 — NorthAdb 的博客</title>
+<meta name="description" content="目标：按模块搞清 Hermes 用什么 prompt，并对照宏全文学习——不是只看最终拼出来的 system 字符串。">
+<link rel="canonical" href="https://northadb.github.io/ai-engineer/hermes/04-prompt.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Hermes Prompt · 系统学习 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta property="og:description" content="目标：按模块搞清 Hermes 用什么 prompt，并对照宏全文学习——不是只看最终拼出来的 system 字符串。">
+<meta property="og:url" content="https://northadb.github.io/ai-engineer/hermes/04-prompt.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Hermes Prompt · 系统学习 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta name="twitter:description" content="目标：按模块搞清 Hermes 用什么 prompt，并对照宏全文学习——不是只看最终拼出来的 system 字符串。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../feed.xml">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../ai-engineer/assets/course.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Hermes Prompt · 系统学习", "description": "目标：按模块搞清 Hermes 用什么 prompt，并对照宏全文学习——不是只看最终拼出来的 system 字符串。", "author": {"@type": "Person", "name": "juliepy", "url": "https://github.com/juliepy/AI-Engineer-from-scrach"}, "mainEntityOfPage": "https://northadb.github.io/ai-engineer/hermes/04-prompt.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../index.html">首页</a><span>/</span><a href="../../learn.html">课件</a><span>/</span><a href="../../ai-engineer/index.html">AI Agent 面试宝典</a><span>/</span><a href="../../ai-engineer/hermes/index.html">Hermes 源码精读</a></div>
+          <h1>Hermes Prompt · 系统学习</h1>
+          <p class="post-sub">目标：按模块搞清 Hermes 用什么 prompt，并对照宏全文学习——不是只看最终拼出来的 system 字符串。</p>
+          <div class="post-meta">
+            <span class="avatar">AI</span>
+            <span>AI Agent 面试宝典</span><span class="sep"></span>
+            <span>Hermes 源码精读</span><span class="sep"></span>
+            <span>阅读约 4 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<p>目标：按<strong>模块</strong>搞清 Hermes 用什么 prompt，并对照宏全文学习——不是只看最终拼出来的 system 字符串。</p>
+<p><strong>完整源码仓</strong>：<code>面试狂魔/人工智能面试题/hermes-agent/</code>（你打开的 <code>setup.py</code> 所在工程）。<br>
+<strong>注意</strong>：<code>setup.py</code> 只负责打包 <code>skills/</code>，<strong>不含任何 prompt</strong>。<br>
+<strong>先读模块地图</strong>：<a href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/08-hermes-agent/04-prompt/notes/0_module_prompt_map.md"><code>notes/0_module_prompt_map.md</code></a>（各模块分别用什么 prompt）。</p>
+<p>Catalog 由 <code>scripts/extract_prompts.py</code> 直接扫描完整仓生成，并同步副本到 <code>hermes_src/</code>。</p>
+<hr>
+<h2 id="5">先建立心智模型（5 分钟）</h2>
+<p>Hermes 的 prompt 分三类（别混）：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>生命周期</th>
+<th>能不能中途改</th>
+<th>代表</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>① Cached System Prompt</strong></td>
+<td>会话启动组装一次，前缀复用</td>
+<td><strong>禁止</strong>（唯一例外：压缩重建）</td>
+<td>identity / skills / MEMORY / platform</td>
+</tr>
+<tr>
+<td><strong>② Auxiliary LLM</strong></td>
+<td>旁路调用</td>
+<td>可变，<strong>不进</strong>缓存前缀</td>
+<td>压缩、标题、Judge、Curator、MoA</td>
+</tr>
+<tr>
+<td><strong>③ User-turn injection</strong></td>
+<td>拼进当前 user</td>
+<td>可变</td>
+<td><code>/learn</code>、skill slash、background review</td>
+</tr>
+</tbody>
+</table>
+<p>三层缓存结构（面试必背）：</p>
+<pre><code class="language-text">stable   → SOUL/DEFAULT_IDENTITY + tool/skills/env/platform guidance
+context  → caller system_message + AGENTS.md / .hermes.md / …
+volatile → MEMORY.md + USER.md + memory-provider block + timestamp
+最终     → &quot;\n\n&quot;.join([stable, context, volatile])
+</code></pre>
+<p>官方说明：<a href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/08-hermes-agent/04-prompt/hermes_src/prompt-assembly.md"><code>hermes_src/prompt-assembly.md</code></a></p>
+<hr>
+<h2 id="_1">推荐学习顺序</h2>
+<table>
+<thead>
+<tr>
+<th>顺序</th>
+<th>读什么</th>
+<th>学什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td><a href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/08-hermes-agent/04-prompt/notes/0_module_prompt_map.md"><code>notes/0_module_prompt_map.md</code></a></td>
+<td><strong>整仓模块→prompt 地图</strong>（先建立全局观）</td>
+</tr>
+<tr>
+<td>1</td>
+<td><a href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/08-hermes-agent/04-prompt/notes/1_assembly_map.md"><code>notes/1_assembly_map.md</code></a></td>
+<td>System 三层组装顺序</td>
+</tr>
+<tr>
+<td>2</td>
+<td><a href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/08-hermes-agent/04-prompt/catalog/00_index.md"><code>catalog/00_index.md</code></a> → <code>01</code> / <code>06</code> / <code>10</code></td>
+<td>System 宏全文</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>catalog/03*</code></td>
+<td>压缩：aux summarizer vs 主模型护栏</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>catalog/07</code> / <code>08</code></td>
+<td>User-turn：background review、<code>/learn</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>catalog/09</code> / <code>11</code>–<code>15</code></td>
+<td>旁路：MoA、goal Judge、Kanban、vision</td>
+</tr>
+<tr>
+<td>6</td>
+<td><a href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/08-hermes-agent/04-prompt/notes/2_customization_surfaces.md"><code>notes/2_customization_surfaces.md</code></a></td>
+<td>改 SOUL/AGENTS，还是改代码</td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>../02-run-agent/demo/exports/agent_loop/01_system.md</code></td>
+<td>宏 → 真实拼装结果</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="_2">目录</h2>
+<pre><code class="language-text">04-prompt/
+├── README.md                         # 本文件
+├── hermes_src/                       # 真源码（对照用）
+│   ├── prompt-assembly.md            # 上游官方 Prompt Assembly 文档
+│   └── agent/
+│       ├── prompt_builder.py         # ★ 几乎所有 system prompt 宏
+│       ├── system_prompt.py          # ★ stable/context/volatile 组装
+│       ├── context_compressor.py     # 压缩：SUMMARY_PREFIX + summarizer
+│       ├── title_generator.py        # session title aux prompt
+│       ├── curator.py                # CURATOR_REVIEW_PROMPT
+│       ├── skill_commands.py         # skill slash → user message 注入
+│       ├── subdirectory_hints.py     # 子目录 AGENTS.md 渐进注入
+│       └── prompt_template_teaching.py  # 01-memory 教学拆解副本
+├── catalog/                          # ★ 抽出的宏全文（可直接读）
+│   ├── 00_index.md
+│   ├── 01_prompt_builder_macros.md
+│   ├── 02_system_prompt_assembly.md
+│   ├── 03_compression_prompts.md
+│   ├── 03b_compression_teaching.md
+│   ├── 03c_summarizer_runtime.md     # 函数内拼装的 summarizer（非模块常量）
+│   ├── 04_title_generation.md
+│   └── 05_curator_prompts.md
+├── notes/                            # 讲稿
+│   ├── 1_assembly_map.md
+│   └── 2_customization_surfaces.md
+└── scripts/
+    └── extract_prompts.py            # 重新扫描宏 → 刷新 catalog/
+</code></pre>
+<h3 id="_3">重新抽取宏</h3>
+<p>上游更新后：</p>
+<pre><code class="language-powershell">cd 08-hermes-agent/04-prompt
+# 可重新 Invoke-WebRequest 拉取 hermes_src/agent/*.py
+python scripts/extract_prompts.py
+</code></pre>
+<hr>
+<h2 id="prompt">Prompt 地图（一张图）</h2>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;:&quot;base&quot;,&quot;themeVariables&quot;:{&quot;primaryTextColor&quot;:&quot;#111111&quot;,&quot;secondaryTextColor&quot;:&quot;#111111&quot;,&quot;tertiaryTextColor&quot;:&quot;#111111&quot;,&quot;lineColor&quot;:&quot;#90CAF9&quot;,&quot;fontSize&quot;:&quot;15px&quot;},&quot;themeCSS&quot;:&quot;.edgeLabel,.edgeLabel p{color:#FFFFFF!important;fill:#FFFFFF!important}&quot;}}%%
+flowchart TB
+  subgraph cached [&quot;Cached System Prompt（会话内字节稳定）&quot;]
+    S[&quot;stable&lt;br/&gt;SOUL / DEFAULT_IDENTITY&lt;br/&gt;TASK/PARALLEL/MEMORY/SKILLS guidance&lt;br/&gt;skills index / env / platform&quot;]
+    C[&quot;context&lt;br/&gt;system_message&lt;br/&gt;AGENTS.md / .hermes.md / …&quot;]
+    V[&quot;volatile&lt;br/&gt;MEMORY.md / USER.md&lt;br/&gt;provider block / timestamp&quot;]
+    S --&gt; C --&gt; V
+  end
+
+  subgraph aux [&quot;Auxiliary Prompts（旁路，不进缓存前缀）&quot;]
+    COMP[&quot;context_compressor&lt;br/&gt;SUMMARIZER_PREAMBLE + template&quot;]
+    TITLE[&quot;title_generator&lt;br/&gt;_TITLE_PROMPT&quot;]
+    CUR[&quot;curator&lt;br/&gt;CURATOR_REVIEW_PROMPT&quot;]
+  end
+
+  subgraph eph [&quot;Ephemeral / turn overlays&quot;]
+    E1[&quot;HERMES_EPHEMERAL_SYSTEM_PROMPT&quot;]
+    E2[&quot;pre_llm_call plugin → 拼进当前 user&quot;]
+    E3[&quot;SUMMARY_PREFIX 摘要消息 → history 中间&quot;]
+  end
+
+  cached --&gt; MAIN[&quot;主模型 chat.completions&quot;]
+  COMP --&gt; E3
+  E3 --&gt; MAIN
+  TITLE --&gt; AUXLLM[&quot;辅助模型&quot;]
+  CUR --&gt; AUXLLM
+  E1 --&gt; MAIN
+  E2 --&gt; MAIN
+
+  style S fill:#90CAF9,stroke:#0D47A1,stroke-width:2px,color:#111111
+  style C fill:#BBDEFB,stroke:#1565C0,stroke-width:2px,color:#111111
+  style V fill:#CE93D8,stroke:#6A1B9A,stroke-width:2px,color:#111111
+  style COMP fill:#FFCC80,stroke:#E65100,stroke-width:2px,color:#111111
+  style TITLE fill:#FFCC80,stroke:#E65100,stroke-width:2px,color:#111111
+  style CUR fill:#FFCC80,stroke:#E65100,stroke-width:2px,color:#111111
+  style E1 fill:#FFE082,stroke:#F57F17,stroke-width:2px,color:#111111
+  style E2 fill:#FFE082,stroke:#F57F17,stroke-width:2px,color:#111111
+  style E3 fill:#FFE082,stroke:#F57F17,stroke-width:2px,color:#111111
+  style MAIN fill:#C8E6C9,stroke:#2E7D32,stroke-width:2px,color:#111111
+  style AUXLLM fill:#FFAB91,stroke:#BF360C,stroke-width:2px,color:#111111
+</code></pre>
+<hr>
+<h2 id="_4">与其它模块的关系</h2>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>关系</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/08-hermes-agent/01-memory"><code>01-memory</code></a></td>
+<td>MEMORY/USER 快照如何进 volatile；压缩护栏已在 <code>prompt_template.py</code> 拆过</td>
+</tr>
+<tr>
+<td><a href="https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/08-hermes-agent/02-run-agent"><code>02-run-agent</code></a></td>
+<td><code>run_conversation</code> → <code>_build_system_prompt</code>；demo 导出 <code>01_system.md</code></td>
+</tr>
+<tr>
+<td>Prompt Cache</td>
+<td>中途改 system / 换 toolset = 废缓存；见 <code>AGENTS.md</code>「Prompt Caching Must Not Break」</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="_5">面试可说的一句话</h2>
+<blockquote>
+<p>Hermes 的 prompt 不是一大段硬编码，而是 <strong>宏积木（prompt_builder）+ 三层组装（system_prompt）+ 旁路辅助 prompt（压缩/标题/curator）</strong>；主会话前缀必须字节稳定以保住 prompt cache，动态内容要么进 volatile 快照，要么走 ephemeral / user-message overlay。</p>
+</blockquote>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags">
+            <span class="chip">Hermes 源码精读</span>
+            <span class="chip">AI Agent</span>
+            <span class="chip">面试宝典</span>
+          </div>
+          <a class="t-meta" href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/08-hermes-agent/04-prompt/README.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../ai-engineer/hermes/03-eval.html"><span class="dir">← 上一篇</span><span class="t">Hermes Eval + Trace · 如何学习</span></a><a class="next" href="../../ai-engineer/hermes/05-env.html"><span class="dir">下一篇 →</span><span class="t">Hermes Tools · Environments（执行环境）</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../rag/index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+
+<script src="../../ai-engineer/assets/mermaid-init.js" defer></script>
+<script src="../../js/main.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hermes Eval + Trace · 如何学习 · AI Agent 面试宝典 — NorthAdb 的博客</title>
+<meta name="description" content="目标：讲清 评测维度设计、行为契约测试 vs 变更检测测试，以及如何用 Trace / session 日志做根因分析。">
+<link rel="canonical" href="https://northadb.github.io/ai-engineer/hermes/03-eval.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Hermes Eval + Trace · 如何学习 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta property="og:description" content="目标：讲清 评测维度设计、行为契约测试 vs 变更检测测试，以及如何用 Trace / session 日志做根因分析。">
+<meta property="og:url" content="https://northadb.github.io/ai-engineer/hermes/03-eval.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Hermes Eval + Trace · 如何学习 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta name="twitter:description" content="目标：讲清 评测维度设计、行为契约测试 vs 变更检测测试，以及如何用 Trace / session 日志做根因分析。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../feed.xml">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../ai-engineer/assets/course.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Hermes Eval + Trace · 如何学习", "description": "目标：讲清 评测维度设计、行为契约测试 vs 变更检测测试，以及如何用 Trace / session 日志做根因分析。", "author": {"@type": "Person", "name": "juliepy", "url": "https://github.com/juliepy/AI-Engineer-from-scrach"}, "mainEntityOfPage": "https://northadb.github.io/ai-engineer/hermes/03-eval.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../index.html">首页</a><span>/</span><a href="../../learn.html">课件</a><span>/</span><a href="../../ai-engineer/index.html">AI Agent 面试宝典</a><span>/</span><a href="../../ai-engineer/hermes/index.html">Hermes 源码精读</a></div>
+          <h1>Hermes Eval + Trace · 如何学习</h1>
+          <p class="post-sub">目标：讲清 评测维度设计、行为契约测试 vs 变更检测测试，以及如何用 Trace / session 日志做根因分析。</p>
+          <div class="post-meta">
+            <span class="avatar">AI</span>
+            <span>AI Agent 面试宝典</span><span class="sep"></span>
+            <span>Hermes 源码精读</span><span class="sep"></span>
+            <span>阅读约 6 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<p>目标：讲清 <strong>评测维度设计</strong>、<strong>行为契约测试 vs 变更检测测试</strong>，以及如何用 Trace / session 日志做根因分析。</p>
+<p>对照大纲：<a href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/08-hermes-agent/03-hermes%2520Agent%2520%2520%E5%AD%A6%E4%B9%A0%E5%A4%A7%E7%BA%B2.md"><code>../03-hermes Agent  学习大纲.md</code></a> <strong>模块二</strong>（目录名按现仓库为 <code>03-eval</code>，在 <code>02-run-agent</code> 之后）。</p>
+<p>学法：</p>
+<ol>
+<li>读 <a href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/08-hermes-agent/03-eval/notes/README.md"><code>notes/</code></a> 讲稿（先建立心智模型，按 01→07）  </li>
+<li>打开 <code>hermes_src/</code> / <a href="https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/08-hermes-agent/hermes-study"><code>../hermes-study/</code></a> 按文件对照  </li>
+<li><strong>跑 <code>demo/</code></strong>（离线，无需 API Key）：<br>
+   - Layer A：<code>pytest …/test_agent_loop_contracts.py</code>（近 Hermes CI）<br>
+   - Layer B：<code>run_eval_suite.py</code>（正例+负例打分 + session_tag + RCA）  </li>
+<li>真仓库：<code>scripts/run_tests.sh tests/agent/test_prompt_caching.py</code>；<code>hermes logs --session …</code></li>
+</ol>
+<blockquote>
+<p><code>hermes_src/</code> 只读剪枝，缺 <code>run_tests_parallel.py</code> 等依赖，<strong>不要在剪枝树里冒充 CI</strong>。<br>
+正例轨迹来自 <a href="https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/08-hermes-agent/02-run-agent/demo/exports/agent_loop"><code>../02-run-agent/demo/exports/agent_loop/</code></a>；负例为 <code>demo/fixtures/failure_run.json</code>（合成）。</p>
+</blockquote>
+<p><strong>何时 Eval / 评什么</strong>：先跑通主循环留下 Trace，再对<strong>冻结轨迹</strong>做契约断言与规则打分（工具、步数、退出、role/system 不变量）——不是当场再调模型，也不是金标全文比对。详见 <a href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/08-hermes-agent/03-eval/demo/README.md"><code>demo/README.md</code></a>。</p>
+<hr>
+<h2 id="eval-hermes">Eval 在 Hermes 里属于哪一步</h2>
+<p>Eval <strong>不在</strong>热路径里的某次迭代（不是 <code>conversation_loop</code> while 中的一个阶段），而是挂在主循环<strong>之外</strong>的观测 / 评测层。</p>
+<p>一句话：<strong>Runtime 负责跑；Trace 负责记；Eval 负责评。</strong></p>
+<h3 id="_1">运行时位置</h3>
+<pre><code class="language-mermaid">flowchart TB
+    subgraph HotPath[&quot;热路径 · Agent Runtime（一次用户消息）&quot;]
+        U[User message] --&gt; P[Turn prologue&lt;br/&gt;Memory / Context / system 冻结]
+        P --&gt; L[&quot;while：思考 → 工具 → 观察&lt;br/&gt;conversation_loop&quot;]
+        L --&gt; R[final_response]
+    end
+
+    subgraph Side[&quot;旁路 · 随跑随记（Observability）&quot;]
+        L -.-&gt;|每步 API / tool| T[Trace / span 事件]
+        L -.-&gt;|session_tag| LOG[agent.log / errors.log]
+    end
+
+    subgraph After[&quot;事后 · Eval / Benchmark（不在 while 内）&quot;]
+        T --&gt; E[冻结 run / Trace]
+        LOG --&gt; E
+        R --&gt; E
+        E --&gt; S[规则打分&lt;br/&gt;工具 / 步数 / exit / 不变量]
+        S --&gt; RCA[FAIL → RCA]
+        S --&gt; CI[CI：run_tests.sh&lt;br/&gt;契约测试]
+    end
+
+    style After fill:#fff3e0,stroke:#e65100
+    style HotPath fill:#e3f2fd,stroke:#1565c0
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>属于哪一步</th>
+<th>做什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>主循环</td>
+<td>Runtime 核心</td>
+<td>真正「干活」</td>
+</tr>
+<tr>
+<td>Logging / Trace</td>
+<td><strong>跑的时候旁路写出</strong></td>
+<td>留下可复放轨迹</td>
+</tr>
+<tr>
+<td>Eval</td>
+<td><strong>跑完之后 / CI</strong></td>
+<td>对轨迹打分，不回头再调模型</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_2">与本仓库学习顺序</h3>
+<p>教材目录是 <code>01-memory → 02-run-agent → 03-eval</code>：先有 loop 产物，才有东西可评。</p>
+<pre><code class="language-mermaid">flowchart LR
+    subgraph Learn[&quot;学习顺序（教材目录）&quot;]
+        M[01 Memory&lt;br/&gt;Context Policy] --&gt; A[02 Run-agent&lt;br/&gt;主循环出 Trace]
+        A --&gt; V[03 Eval&lt;br/&gt;pytest 契约 + 打分/RCA]
+    end
+
+    subgraph Runtime[&quot;真 Hermes 架构位置&quot;]
+        CORE[Memory + Loop + Tools + Env] --&gt;|旁路| OBS[Logging / Trace]
+        OBS --&gt;|事后| EVAL[Eval / Tests / Benchmark]
+    end
+
+    A -.-&gt;|from_02 / 06_trace| V
+</code></pre>
+<hr>
+<h2 id="eval-agent">Eval 对整个 Agent 的优化作用</h2>
+<p>Eval 本身不改模型权重，它提供的是 <strong>可度量的反馈闭环</strong>：让你知道改 Memory / 工具 / 预算 / Prompt 之后，系统变好了还是变坏了。</p>
+<pre><code class="language-mermaid">flowchart LR
+    RUN[跑 Agent&lt;br/&gt;出 Trace] --&gt; SCORE[Eval 打分]
+    SCORE --&gt; INSIGHT[定位弱点&lt;br/&gt;wrong_tool / cache_break / 空转]
+    INSIGHT --&gt; FIX[改 Runtime&lt;br/&gt;工具 / Prompt / 预算 / Memory]
+    FIX --&gt; RUN
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>优化方向</th>
+<th>Eval 怎么帮你</th>
+<th>典型信号</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>工具与策略</strong></td>
+<td>工具选对率、禁区工具</td>
+<td>总调错 <code>execute_code</code> → 收紧 schema / 指引 / toolset</td>
+</tr>
+<tr>
+<td><strong>成本与收敛</strong></td>
+<td>步数、budget、exit_reason</td>
+<td>大量 <code>budget_exhausted</code> / 无 final → 砍空转、加 grace、降 max_steps</td>
+</tr>
+<tr>
+<td><strong>Context / Cache</strong></td>
+<td>system 稳定、tools 冻结、role 交替</td>
+<td>cache_break / role_break → 守住「中途不改 system/toolset」</td>
+</tr>
+<tr>
+<td><strong>Memory / 压缩</strong></td>
+<td>完成率 + 忠实度相关 case</td>
+<td>压缩后答非所问 → 调 head/tail/摘要策略</td>
+</tr>
+<tr>
+<td><strong>防回归</strong></td>
+<td>固定 case 集 + CI 不变量</td>
+<td>修 A 坏 B 时分数掉下来，立刻可见</td>
+</tr>
+<tr>
+<td><strong>事故复盘</strong></td>
+<td>Trace RCA</td>
+<td>线上坏 session 冻成 fixture，根因可复现、可讲</td>
+</tr>
+</tbody>
+</table>
+<p>对面试 / 工程的定位：</p>
+<ul>
+<li><strong>没有 Eval</strong>：优化靠感觉（「感觉这次答案更好」），无法证明。</li>
+<li><strong>有 Eval</strong>：优化变成「改一刀 → 重跑 case → 看维度分与不变量」——Agent 工程的质量门，和传统软件的测试套件同级。</li>
+</ul>
+<p>本 demo 的最小闭环：<code>02-run-agent</code> 出 Trace → <code>03-eval</code>（pytest 契约 + 打分/RCA）→ 带着结论回去改循环或工具，再评一轮。</p>
+<hr>
+<h2 id="_3">目录</h2>
+<pre><code class="language-text">03-eval/
+├── README.md
+├── notes/                       # ★ 讲稿（见 notes/README.md 顺序）
+│   ├── README.md                # 讲解顺序总览
+│   ├── 01_eval_invariants.md    # 主线：不变量 vs 变更检测
+│   ├── 02_logging_trace.md      # 主线：session_tag / Trace
+│   ├── 03_eval_harness.md       # 主线：离线打分 + RCA
+│   ├── 04_tests_and_eval.md     # 桥：契约测试 ↔ Eval
+│   ├── 05_test_prompt_caching.md
+│   ├── 06_test_context_compressor.md
+│   └── 07_test_memory_provider.md
+│
+├── demo/                        # ★ 可跑通教学 demo
+│   ├── README.md                # 双层结构 / 打分标准 / 跑法 / 产物
+│   ├── run_eval_suite.py        # pytest → score → 日志 → RCA
+│   ├── requirements.txt         # pytest&gt;=8,&lt;9
+│   ├── fixtures/
+│   │   ├── from_02_agent_loop.json   # 正例（02 实跑）
+│   │   ├── failure_run.json          # 负例（合成，应 FAIL）
+│   │   ├── eval_cases.json           # 两条期望（人改）
+│   │   ├── eval_cases.jsonl          # suite 同步
+│   │   └── eval_cases.md
+│   ├── teaching/
+│   │   ├── invariants/
+│   │   │   ├── checkers.py
+│   │   │   ├── test_agent_loop_contracts.py  # ★ Layer A
+│   │   │   └── test_checkers.py              # 兼容入口
+│   │   ├── logging/session_logger.py
+│   │   └── harness/                 # scorer / rca / load_agent_loop_export
+│   └── exports/eval_run/            # 跑完后的报告
+│
+└── hermes_src/                  # 只读剪枝对照
+    ├── AGENTS.md                # Don't write change-detector tests
+    ├── hermes_logging.py
+    ├── scripts/run_tests.sh
+    ├── agent/prompt_caching.py
+    └── tests/agent/test_prompt_caching.py
+</code></pre>
+<p>关联：</p>
+<ul>
+<li><a href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/08-hermes-agent/03-eval/demo/README.md"><code>demo/README.md</code></a> — demo 细节（打分标准、产物表）  </li>
+<li><a href="https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/08-hermes-agent/02-run-agent/demo"><code>../02-run-agent/demo/</code></a> — 主循环实跑 + <code>06_trace.md</code>  </li>
+<li><a href="https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/08-hermes-agent/01-memory/demo"><code>../01-memory/demo/</code></a> — turn prologue / 压缩  </li>
+<li><a href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/08-hermes-agent/hermes-study/tests/agent/test_prompt_caching.py"><code>../hermes-study/tests/agent/test_prompt_caching.py</code></a> — 真仓契约范例</li>
+</ul>
+<hr>
+<h2 id="eval-call-flow">一轮 Eval Call Flow</h2>
+<pre><code class="language-text">Layer A  pytest test_agent_loop_contracts.py   # 近 Hermes CI（Test* + 关系断言）
+        │
+Layer B  冻结轨迹：from_02（正例）+ failure_run（负例）
+        │
+        ▼
+① eval_cases.json           # 期望关系：tools ⊆ … / max_steps / allowed_exits
+        │
+        ▼
+② score_suite               # 维度分 + 不变量
+        │
+        ├─ tools_subset / no_forbidden / steps / exit / final_text
+        └─ role_alternation / system_stable / tools_frozen / budget_consistent
+        │
+        ▼
+③ session_logger            # [session_id] 注入 + component 分流
+        │
+        ▼
+④ RCA（负例 FAIL）          # wrong_tool / cache_break / budget_exhaustion
+</code></pre>
+<h3 id="_4">逐步对照</h3>
+<table>
+<thead>
+<tr>
+<th>步</th>
+<th>发生什么</th>
+<th>看哪里</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>pytest 契约（最像真仓）</td>
+<td><code>demo/teaching/invariants/test_agent_loop_contracts.py</code></td>
+</tr>
+<tr>
+<td>①</td>
+<td>评测集写「关系」不写全文快照</td>
+<td><code>notes/03</code> · <code>fixtures/eval_cases.json</code></td>
+</tr>
+<tr>
+<td>②</td>
+<td>不变量 + 完成率/步数/工具选对率</td>
+<td><code>notes/01</code> · <code>checkers</code> · <code>scorer</code></td>
+</tr>
+<tr>
+<td>③</td>
+<td>session_tag / agent.log / errors.log</td>
+<td><code>notes/02</code> · <code>hermes_logging.py</code></td>
+</tr>
+<tr>
+<td>④</td>
+<td>Trace 根因（负例）</td>
+<td><code>harness/rca.py</code> · <code>exports/eval_run/03_trace_rca.md</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="_5">建议阅读顺序</h2>
+<p>完整表见 <a href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/08-hermes-agent/03-eval/notes/README.md"><code>notes/README.md</code></a>。摘要：</p>
+<table>
+<thead>
+<tr>
+<th>顺序</th>
+<th>材料</th>
+<th>重点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>notes/01_eval_invariants.md</code></td>
+<td>change-detector 反模式</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>notes/02_logging_trace.md</code></td>
+<td>session_tag / Trace</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>notes/03_eval_harness.md</code></td>
+<td>维度与 RCA</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>demo/</code> 动手</td>
+<td>pytest + <code>run_eval_suite.py</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>notes/04</code> → <code>05</code>→<code>07</code></td>
+<td>契约测试 ↔ Eval + 范例深挖</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>02-run-agent</code> 的 <code>06_trace.md</code></td>
+<td>真 loop Trace</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="_6">动手（对齐大纲产出）</h2>
+<ol>
+<li>先跑 Layer A：<code>pytest teaching/invariants/test_agent_loop_contracts.py -q</code>。  </li>
+<li>再跑 <code>run_eval_suite.py</code>，对照正例 PASS / 负例 FAIL + <code>03_trace_rca.md</code>。  </li>
+<li>面试一句话：好测试/好评测断言 <strong>不变量</strong>；一条 Trace 能定位「工具选错 / 缓存击穿 / 预算耗尽」。</li>
+</ol>
+<hr>
+<h2 id="_7">与其它模块</h2>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>关系</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/08-hermes-agent/01-memory"><code>../01-memory/</code></a></td>
+<td>Context Policy；压缩是唯一允许改上下文的场景</td>
+</tr>
+<tr>
+<td><a href="https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/08-hermes-agent/02-run-agent"><code>../02-run-agent/</code></a></td>
+<td>提供可评测的 loop Trace；Eval 验证循环每一步契约</td>
+</tr>
+</tbody>
+</table>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags">
+            <span class="chip">Hermes 源码精读</span>
+            <span class="chip">AI Agent</span>
+            <span class="chip">面试宝典</span>
+          </div>
+          <a class="t-meta" href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/08-hermes-agent/03-eval/README.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../ai-engineer/hermes/02-run-agent.html"><span class="dir">← 上一篇</span><span class="t">Hermes Run Agent · 主循环如何学习</span></a><a class="next" href="../../ai-engineer/hermes/04-prompt.html"><span class="dir">下一篇 →</span><span class="t">Hermes Prompt · 系统学习</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../rag/index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+
+<script src="../../ai-engineer/assets/mermaid-init.js" defer></script>
+<script src="../../js/main.js" defer></script>
+</body>
+</html>

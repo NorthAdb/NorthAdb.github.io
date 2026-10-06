@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Model comparison — the Waku benchmark battery · AI Agent 面试宝典 — NorthAdb 的博客</title>
+<meta name="description" content="How Waku compares models, what each test measures, and how to read the result. This is the Eval / LLM-Ops pillar pointed…">
+<link rel="canonical" href="https://northadb.github.io/ai-engineer/waku/benchmarks.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Model comparison — the Waku benchmark battery · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta property="og:description" content="How Waku compares models, what each test measures, and how to read the result. This is the Eval / LLM-Ops pillar pointed…">
+<meta property="og:url" content="https://northadb.github.io/ai-engineer/waku/benchmarks.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Model comparison — the Waku benchmark battery · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta name="twitter:description" content="How Waku compares models, what each test measures, and how to read the result. This is the Eval / LLM-Ops pillar pointed…">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../feed.xml">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../ai-engineer/assets/course.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Model comparison — the Waku benchmark battery", "description": "How Waku compares models, what each test measures, and how to read the result. This is the Eval / LLM-Ops pillar pointed…", "author": {"@type": "Person", "name": "juliepy", "url": "https://github.com/juliepy/AI-Engineer-from-scrach"}, "mainEntityOfPage": "https://northadb.github.io/ai-engineer/waku/benchmarks.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../index.html">首页</a><span>/</span><a href="../../learn.html">课件</a><span>/</span><a href="../../ai-engineer/index.html">AI Agent 面试宝典</a><span>/</span><a href="../../ai-engineer/waku/index.html">waku 精简四支柱</a></div>
+          <h1>Model comparison — the Waku benchmark battery</h1>
+          <p class="post-sub">How Waku compares models, what each test measures, and how to read the result. This is the Eval / LLM-Ops pillar pointed…</p>
+          <div class="post-meta">
+            <span class="avatar">AI</span>
+            <span>AI Agent 面试宝典</span><span class="sep"></span>
+            <span>waku 精简四支柱</span><span class="sep"></span>
+            <span>阅读约 18 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<p>How Waku compares models, what each test measures, and how to read the result.
+This is the <strong>Eval / LLM-Ops</strong> pillar pointed sideways: instead of grading one
+agent over time, we run the <em>same task through many brains at once</em> and score
+the outcome — not just the receipts.</p>
+<blockquote>
+<p><strong>The honest framing.</strong> The Compare arena (dashboard <code>#compare</code>) and
+<code>scripts/shootout.py</code> both measure <em>live task-solving on one shared harness</em>.
+They do <strong>not</strong> reproduce standardized leaderboards (SWE-bench, τ-bench,
+Terminal-Bench, GPQA) — those need their own datasets and official harnesses.
+Published leaderboard numbers per model live in <a href="#6-published-benchmarks-reference">§6</a>.
+Our battery is the <strong>local, reproducible mirror</strong>: watch every model do the
+same real assistant job in an isolated sandbox, then score whether it actually
+got done.</p>
+</blockquote>
+<hr>
+<h2 id="0-for-the-video-the-eval-scoring-arc">0. For the video — the eval &amp; scoring arc</h2>
+<p>This doc doubles as the shot list. The video's spine is <strong>eval and scoring</strong>, not
+"model X is best": the point is <em>how you decide</em>, honestly, with receipts. The
+list of tests you'll run on camera is <a href="#3-battery-sections">§3</a> — that's the
+battery, grouped so you can shoot one section at a time. Suggested arc:</p>
+<ol>
+<li><strong>The naive scoreboard (the setup).</strong> Show the arena racing 11 models on one
+   prompt. Speed, tokens, cost. Then the turn: <em>"this only tells me who was cheap
+   and fast — not who actually did the job."</em> (This is the gap that motivated the
+   whole video.)</li>
+<li><strong>Scoring, axis by axis.</strong> Introduce the four axes (<a href="#1-the-four-axes">§1</a>):
+   speed, cost, <strong>Completion</strong> (did the tools actually fire / events get made),
+   <strong>Quality</strong> (K3 as neutral referee). Emphasize Completion is <em>deterministic</em> —
+   no vibes, it's the τ-bench/SWE-bench idea done locally.</li>
+<li><strong>The hard cases (where cheap models break).</strong> Run Battery A's four hard cases
+   (<a href="#a-agentic-tool-calling--the-assistants-real-job">§3.A</a>) — over-eagerness,
+   count precision, completeness, state-awareness. This is the money segment:
+   a model answers fluently and <em>still fails the checklist</em>.</li>
+<li><strong>K3 as the referee.</strong> K3 grades the whole field's transcripts, including
+   itself, out loud (<a href="#5-the-judge--k3-as-neutral-referee">§5</a>). The sponsor's
+   model doing the judging is the hook — surfaced honestly, not hidden.</li>
+<li><strong>The reveal — cost vs. quality.</strong> The Pareto scatter (<a href="#1-the-four-axes">§1</a>):
+   "opus is 20× the price of gemini-flash — is it 20× better?" The answer is a
+   <em>picture</em>, and it's the thumbnail.</li>
+<li><strong>(Optional) coding round.</strong> Delegate a real coding task to pi across models
+   (<a href="#b-coding--delegate-to-a-sub-agent">§3.B</a>) — scored by tests passing.</li>
+</ol>
+<p>Everything below is the reference the arc draws on.</p>
+<hr>
+<h2 id="1-the-four-axes">1. The four axes</h2>
+<p>Every race column produces four independent signals. Cost/speed are cheap to
+read; the last two are the "did it actually work" that a receipt can't show.</p>
+<table>
+<thead>
+<tr>
+<th>Axis</th>
+<th>What it answers</th>
+<th>Where it comes from</th>
+<th>Cost to compute</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Speed</strong></td>
+<td>Wall-clock to finish</td>
+<td><code>latency_ms</code> from the loop</td>
+<td>free</td>
+</tr>
+<tr>
+<td><strong>Cost</strong></td>
+<td>Dollars for the attempt</td>
+<td>tokens × per-model price table</td>
+<td>free</td>
+</tr>
+<tr>
+<td><strong>Completion</strong></td>
+<td><em>Did it do the job?</em></td>
+<td>deterministic check of tool calls + sandbox state vs the task's expected outcome</td>
+<td>free</td>
+</tr>
+<tr>
+<td><strong>Quality</strong></td>
+<td><em>How good was the answer?</em></td>
+<td>LLM-as-judge (K3 as neutral referee) scores the transcript 0–10 + reason</td>
+<td>1 judge call/column</td>
+</tr>
+</tbody>
+</table>
+<p>The story the arena is built to tell: <strong>plot Cost against Completion/Quality.</strong>
+"Opus is 20× the price of gemini-flash — is it 20× better at finishing the
+task?" Two models with the same completion score and a 20× cost gap is the whole
+point of the video.</p>
+<hr>
+<h2 id="2-how-a-task-is-scored-the-contract">2. How a task is scored (the contract)</h2>
+<p>Battery cases live in <code>evals/dataset.jsonl</code>, one JSON object per line. The same
+file drives three consumers, so a case written once is scored identically
+everywhere:</p>
+<ul>
+<li>the deterministic eval tier (<code>evals/deterministic/</code>, pytest, 0/1),</li>
+<li>the CLI shootout (<code>scripts/shootout.py</code>, cross-model table),</li>
+<li>the live arena's <strong>Completion</strong> column.</li>
+</ul>
+<p><strong>Completion fields</strong> (all optional except <code>id</code> + <code>input</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>input</code></td>
+<td>the user message sent to every model</td>
+</tr>
+<tr>
+<td><code>expect_tool</code></td>
+<td>tool that must fire (<code>null</code> = must NOT call any tool)</td>
+</tr>
+<tr>
+<td><code>expect_in_args</code></td>
+<td>substrings that must appear in that tool's args (case-insensitive)</td>
+</tr>
+<tr>
+<td><code>expect_min_tool_calls</code></td>
+<td>floor on total tool calls (multi-step tasks)</td>
+</tr>
+<tr>
+<td><code>setup_fact</code></td>
+<td>a memory pre-loaded into the sandbox before the run</td>
+</tr>
+</tbody>
+</table>
+<p>Completion score = fraction of a case's expectations met (0.0–1.0). This is the
+deterministic axis: no judge, no vibes — <em>did the right tool fire with the right
+arguments, and (for multi-step) enough of them.</em></p>
+<p><strong>Quality</strong> is separate and additive: the judge (§5) reads the final transcript
+and scores it against a rubric. A model can complete the task (Completion 1.0)
+and still get a mediocre Quality score for a clumsy or verbose answer — and vice
+versa, a fluent reply that skipped a tool scores Quality-high / Completion-low.
+Keeping the two apart is deliberate; collapsing them hides exactly the failure
+we want to see.</p>
+<hr>
+<h2 id="3-battery-sections">3. Battery sections</h2>
+<p>The battery is grouped so you can race one section at a time. Cases marked
+<strong>[seeded]</strong> already exist in <code>evals/dataset.jsonl</code>; <strong>[proposed]</strong> are the next
+ones to add.</p>
+<h3 id="a-agentic-tool-calling-the-assistants-real-job">A. Agentic tool-calling — the assistant's real job</h3>
+<p>Multi-step orchestration over Waku's flagship tools (<code>create_event</code>,
+<code>save_note</code>, <code>send_message</code>, read-only <code>search_web</code>). This is the axis K3 is
+built to win (its headline is Terminal-Bench / agentic tool use).</p>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>task</th>
+<th>expected outcome</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>schedule-basic</code> <strong>[seeded]</strong></td>
+<td>"Schedule a coffee with Alex next Tuesday at 9am"</td>
+<td><code>create_event</code>, title~alex, start~09:00</td>
+</tr>
+<tr>
+<td><code>schedule-applies-memory</code> <strong>[seeded]</strong></td>
+<td>(fact: Alex prefers mornings) "Book a catch-up with Alex on Friday"</td>
+<td><code>create_event</code>, applies the fact</td>
+</tr>
+<tr>
+<td><code>remember-preference</code> <strong>[seeded]</strong></td>
+<td>"Remember that Alex prefers morning meetings"</td>
+<td><code>save_note</code>, content~morning</td>
+</tr>
+<tr>
+<td><code>draft-message</code> <strong>[seeded]</strong></td>
+<td>"Send Alex a message that the demo moved to Friday"</td>
+<td><code>send_message</code>, body~friday</td>
+</tr>
+<tr>
+<td><code>pokemon-team</code> <strong>[seeded]</strong></td>
+<td>"…search picks, remember Pikachu is my starter, schedule two training sessions"</td>
+<td>≥3 tool calls: search + save_note + 2× create_event</td>
+</tr>
+<tr>
+<td><code>worldcup-final</code> <strong>[seeded]</strong></td>
+<td>"…search the result, remember who won, draft a message to Raj"</td>
+<td>≥3 tool calls, send_message to~raj</td>
+</tr>
+<tr>
+<td><code>chitchat-no-action</code> <strong>[seeded]</strong></td>
+<td>"I might grab coffee with Alex sometime, we'll see."</td>
+<td><code>expect_tool: null</code> — musing isn't a command; must NOT schedule</td>
+</tr>
+<tr>
+<td><code>exact-count-sessions</code> <strong>[seeded]</strong></td>
+<td>"Block three 25-minute focus sessions tomorrow morning"</td>
+<td>≥3 <code>create_event</code> — count precision, weak models make one</td>
+</tr>
+<tr>
+<td><code>remember-and-book</code> <strong>[seeded]</strong></td>
+<td>"Remember I'm vegetarian, then book dinner with Sam Thursday 7pm"</td>
+<td>≥2 calls: must do BOTH save_note + create_event(sam)</td>
+</tr>
+<tr>
+<td><code>read-before-write</code> <strong>[seeded]</strong></td>
+<td>"Check my calendar for a free 30 min this afternoon and schedule a walk"</td>
+<td>≥2 calls: list_events (read state) then create_event</td>
+</tr>
+</tbody>
+</table>
+<p>The last four are the <em>hard</em> ones, each a distinct failure mode: <strong>over-eagerness</strong>
+(acts on musing), <strong>count precision</strong> (does exactly three, not one),
+<strong>completeness</strong> (does both halves, not just the memorable one), and
+<strong>state-awareness</strong> (reads the calendar before scheduling blind). This is
+precisely what a fluency-only judge misses and a Completion score catches.</p>
+<h3 id="b-coding-cross-model-via-pi-built-cli">B. Coding — cross-model, via pi   <strong>[built — CLI]</strong></h3>
+<p>Waku is the orchestrator; <strong>pi</strong> is the coding contractor — but for a <em>coding</em>
+benchmark we point pi at each <strong>contestant's</strong> model, so one fixed harness
+auditions every brain. A coding case seeds a sandbox, hands pi the task, then
+scores by <strong>running the produced code's <code>verify</code> command</strong> — SWE-bench style
+(tests pass, exit 0), never by reading the reply.</p>
+<p>Cases live in their own file, <code>evals/coding.jsonl</code> (separate from the agentic
+dataset so they never run through the tool-calling tier), with <code>input</code>, optional
+<code>files</code> (seeded into the sandbox), and <code>verify</code> (the command whose exit code is
+the score):</p>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>task</th>
+<th>verify</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>code-fizzbuzz</code> <strong>[seeded]</strong></td>
+<td>"Create fizzbuzz.py with fizzbuzz(n)…"</td>
+<td>imports it, asserts Fizz/Buzz/FizzBuzz/str(n)</td>
+</tr>
+<tr>
+<td><code>code-bugfix</code> <strong>[seeded]</strong></td>
+<td>seeded <code>calc.py</code> with a wrong <code>add()</code> → "fix it, don't touch check.py"</td>
+<td>runs <code>check.py</code></td>
+</tr>
+</tbody>
+</table>
+<p>Run it:</p>
+<pre><code class="language-bash">make shootout-coding RUNS=&quot;kimi:kimi-k3 anthropic:claude-opus-4-8&quot;
+</code></pre>
+<p>pi natively speaks every provider we pin (anthropic, openai, google/gemini,
+<strong>moonshotai/kimi</strong>, xai/grok, zai/glm) — the runner maps Waku's provider id to
+pi's and passes the key with <code>--api-key</code>, so K3 races the field on identical
+footing. Verified live: opus-4-8 and kimi-k3 both solve <code>code-fizzbuzz</code> (scored
+by real test execution). The scorer lives in
+<a href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/12-hermes-agent-small/waku/ops/coding_eval.py"><code>waku/ops/coding_eval.py</code></a>.</p>
+<p><strong>In the live arena too — through the LOOP, not around it:</strong> turn on the
+<strong>"coding (pi)"</strong> toggle and race. This registers <code>delegate_task</code> for the race,
+so each card runs the <strong>full harness</strong> (gate → memory → tools) and the model
+<em>decides</em> to call <code>delegate_task</code>, which spawns a pi sub-agent <strong>on that card's
+own model</strong> to write and run the code. It's autonomous — the loop runs
+model → delegate_task → model finalizes, no stopping to wait — and the card shows
+the real receipts: the gate badge, the <code>delegate_task</code> tool chip, tokens, and
+cost (the loop's own; pi's internal tokens aren't captured). A free-form prompt
+("build snake and run it") works because pi has a bash tool, so "run it" happens
+inside the delegated sub-agent. (Reasoning models are slow here — kimi-k3 as the
+loop brain + pi can take minutes; film 2-3 models.)</p>
+<p><strong>Where the code lands + auto-run:</strong> a scratch coding task doesn't vanish in a
+temp dir — <code>delegate_task</code> saves it to a dated, self-documenting workspace
+(<code>./waku_workspace/&lt;date&gt;/&lt;time&gt;-&lt;model&gt;-&lt;slug&gt;/</code>, git-ignored) with a
+<code>MANIFEST.md</code> (date, model, task, files, run result), the files pi wrote, the pi
+transcript, and <code>run.log</code>. After pi finishes, the harness <strong>auto-runs</strong> the entry
+script (headless, captured, 30s timeout) and feeds the result back into the loop,
+so the model sees whether its own code actually ran. Config:
+<code>WAKU_WORKSPACE</code> (root), <code>WAKU_DELEGATE_AUTORUN=0</code> (disable), <code>WAKU_AUTORUN_TIMEOUT</code>.
+See <a href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/12-hermes-agent-small/waku/tools/workspace.py"><code>waku/tools/workspace.py</code></a>.</p>
+<h3 id="c-memory-context">C. Memory &amp; context</h3>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>task</th>
+<th>expected outcome</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>recall-across-session</code> <strong>[proposed]</strong></td>
+<td>save a fact, new session, ask for it</td>
+<td>fact retrieved into working memory</td>
+</tr>
+<tr>
+<td><code>retrieval-gate-negative</code> <strong>[proposed]</strong></td>
+<td>irrelevant query after saving a fact</td>
+<td>the gate does NOT pull the fact (hero-1 behavior)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="d-reasoning-knowledge-judge-only">D. Reasoning / knowledge — judge-only</h3>
+<p>No tools; grades the answer itself with the K3 judge. A couple of GPQA-flavored
+or "explain X precisely" prompts, scored 0–10. These exist to show the Quality
+axis moving independently of Completion.</p>
+<hr>
+<h2 id="4-sub-agent-spawning-already-built-delegate_task-pi">4. Sub-agent spawning — already built (<code>delegate_task</code> → pi)</h2>
+<p>Yes, Waku already does Hermes / Claude-Code-style sub-agent spawning. It lives in
+<a href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/12-hermes-agent-small/waku/tools/experimental.py"><code>waku/tools/experimental.py</code></a> as <code>delegate_task</code>
+and is <strong>off by default</strong> — set <code>WAKU_EXPERIMENTAL=1</code> to register it.</p>
+<ul>
+<li><strong>What it is:</strong> the "Sub-Agents" box on the architecture whiteboard, wired for
+  real. It hands a coding job to <strong>pi</strong> (Mario Zechner's minimal open-source
+  coding agent, <code>github.com/earendil-works/pi</code>) via its headless print mode
+  (<code>pi -p "task"</code>).</li>
+<li><strong>The division of labor is the teaching point:</strong> Waku is the orchestrator
+  (memory, working-memory assembly, the human's context, the release gate); pi
+  is the specialist contractor (read / bash / edit / write). Waku hires; pi
+  codes; Waku's gate inspects the work.</li>
+<li><strong>Honesty contract:</strong> the tool's return string says exactly what happened
+  (done / failed / timed-out / pi-not-installed); the full pi transcript goes to
+  <code>.waku/outbox/delegate-*.log</code>.</li>
+<li><strong>Requires:</strong> <code>npm install -g --ignore-scripts @earendil-works/pi-coding-agent</code>.</li>
+<li><strong>This is the substrate for Battery B</strong> — each coding case is a <code>delegate_task</code>
+  scored by whether pi's output passes tests.</li>
+</ul>
+<p>Three sibling boxes are still honest skeletons (return "coming soon"):
+<code>run_command</code> (Terminal), <code>browse_web</code> (Browser), <code>schedule_task</code> (Cron) — each
+needs a real sandbox + safety surface before it goes live.</p>
+<p><em>v2 idea already noted in the source:</em> run <code>pi --mode json</code> and stream its
+per-turn events into the dashboard's Loop tab, so a delegated coding run animates
+the same way a normal loop does.</p>
+<hr>
+<h2 id="5-the-judge-a-switchable-neutral-referee">5. The judge — a switchable, neutral referee</h2>
+<p>The Quality axis grades each reply 0–10 + a one-line reason via
+<a href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/12-hermes-agent-small/waku/ops/judge.py"><code>waku/ops/judge.py</code></a>. The referee is <strong>switchable from the
+arena</strong> (the dropdown next to the "grade" toggle) and defaults to <strong>gpt-5.6-sol</strong>.</p>
+<p><strong>Why not K3 as the judge:</strong> you can't test K3 with K3 as the grader — a
+contestant judging its own round isn't credible, and (we hit this live) K3 was
+also <em>racing</em>, so judging every column at once hammered its own endpoint and
+429'd, blanking most grades. The referee should be a model that <strong>isn't racing</strong>.
+gpt-5.6-sol is the natural pick: a strong reasoning model that makes a poor
+<em>contestant</em> here (it can't call tools on the chat endpoint) but a fine <em>judge</em>
+(grading is pure text). Any provider works — Waku's OpenAI-compat client gives
+the judge the same interface as the anthropic wire.</p>
+<p><strong>What the grade means (say this on camera):</strong> 0–10 for how well the reply serves
+the request — correct, honest, concise. 9–10 fully addresses it; 5–8 minor gaps;
+0 hallucinates or claims an action it didn't take.</p>
+<p><strong>The fairness fix that matters:</strong> the judge sees only the reply <em>text</em>, so a
+truthful "I saved that" looked like a hallucination and scored 0 even though
+<code>save_note</code> really fired. The judge is now handed the <strong>list of tools that
+actually ran</strong> as ground truth, so a real action backed by a real tool call
+scores correctly (verified: same reply → 0 without the tool context, 10 with it).</p>
+<p>Best practice this mirrors: MT-Bench / Chatbot-Arena-style LLM-as-judge for
+open-ended quality, paired with programmatic outcome checks (τ-bench / SWE-bench
+style) for anything with a checkable end-state. We do both, side by side.</p>
+<hr>
+<h2 id="6-published-benchmarks-reference">6. Published benchmarks reference</h2>
+<p>Standardized leaderboard numbers per pinned model, for context — framed neutrally,
+no ranking of our own. Sources are third-party trackers + vendor cards; verify
+before quoting on camera.</p>
+<p><strong>Kimi K3</strong> (2.8T params, 1M context, $3/$15 per Mtok):
+- Terminal-Bench 2.1: <strong>88.3</strong> · Program Bench: <strong>77.8</strong> · FrontierSWE: <strong>81.2</strong>
+  (KimiCode harness) · DeepSWE: <strong>67.5</strong>
+- GPQA Diamond: <strong>93.5%</strong> (best open-weight published) · BrowseComp: <strong>91.2%</strong>
+- Overall agentic-tool-use rank ~#4 / 119, avg 66.6</p>
+<p><em>(Add the other pinned models' cards here as we confirm each — Opus 4.8, GPT-5.6
+Sol, Gemini 3.1 Pro, Grok 4.5 — with the same source discipline.)</em></p>
+<p>Sources: BenchLM, NxCode, OfficeChai, Trilogy AI (see chat log for links). These
+are <strong>external</strong> benchmarks; our battery (§3) is the reproducible local
+complement, not a substitute.</p>
+<hr>
+<h2 id="7-how-to-run">7. How to run</h2>
+<pre><code class="language-bash"># CLI shootout — deterministic Completion across models, prints a markdown table
+make shootout RUNS=&quot;kimi:kimi-k3 anthropic:claude-opus-4-8&quot;
+#   → also writes a timestamped .md + .json to .waku/shootout/
+
+# Live arena — race every pinned model on one prompt, watch it stream
+make dashboard            # localhost:7777 → Compare tab
+
+# Judged answer quality (never let a contestant judge itself)
+make eval-judge
+</code></pre>
+<p><strong>Reading the scoreboard:</strong> the cumulative table sums Cost / Time / Tokens across
+races and (once built) shows Completion and Quality per model. Sort by any column
+to reorder; the cheapest-that-actually-completed is usually the interesting row,
+not the cheapest overall (a model that errors every race is $0.00 and useless).</p>
+<hr>
+<h2 id="8-best-practice-and-what-we-still-owe">8. Best practice, and what we still owe</h2>
+<p><strong>On the market</strong>, agentic model comparison splits into two families, and the
+serious setups use both:</p>
+<ol>
+<li><strong>Programmatic outcome checks</strong> — score the <em>end state</em>, not the prose.
+   SWE-bench (does the patch apply and tests pass), τ-bench (did the tool-agent
+   leave the database in the right state), Terminal-Bench, BFCL (function-call
+   accuracy). Objective, reproducible, cheap. → <strong>our Completion axis.</strong></li>
+<li><strong>LLM-as-judge + Elo</strong> — for open-ended quality where there's no single right
+   answer. MT-Bench, Chatbot Arena. Subjective but scales. → <strong>our Quality axis.</strong></li>
+</ol>
+<p><strong>What Waku already has:</strong> the case format (<code>dataset.jsonl</code>), deterministic
+scoring, a cross-model CLI (<code>shootout.py</code>), a judge harness, and a live arena for
+Speed/Cost/Tokens.</p>
+<p><strong>What's still owed (the gap this doc names):</strong>
+- ~~Completion column wired into the live arena~~ — <strong>done</strong>: a race on a known
+  battery case now scores each column live (green "solved" / red "failed · why"
+  badge + a "solved" scoreboard column), via the one scorer in
+  <a href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/12-hermes-agent-small/waku/ops/scoring.py"><code>waku/ops/scoring.py</code></a> shared with <code>shootout.py</code>.
+- ~~Battery section B (coding) + cross-model pi~~ — <strong>done, CLI <em>and</em> live arena</strong>:
+  <code>make shootout-coding</code> for the table; in the arena, the "coding (pi)" toggle
+  runs each card through pi on its own model with the terminal streaming live,
+  scored by tests.
+- ~~Quality column (K3-as-judge) in the arena~~ — <strong>done</strong>: the "grade with K3"
+  toggle judges each reply 0-10 (<a href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/12-hermes-agent-small/waku/ops/judge.py"><code>waku/ops/judge.py</code></a>);
+  per-column badge + a "K3 grade" scoreboard column.
+- ~~A cost-vs-quality visualization~~ — <strong>done</strong>: the scoreboard leads with a
+  cost-vs-(quality|completion) scatter — cheap &amp; good is top-left.
+- Remaining: a coding column in the live arena; more battery cases as the video
+  script firms up.</p>
+<hr>
+<h2 id="9-dry-run-simulate-the-whole-thing-before-filming">9. Dry run — simulate the whole thing before filming</h2>
+<p>A full rehearsal of every axis. Copy each prompt <strong>verbatim</strong> into the arena's
+message box — the arena matches it to its battery case by exact text and scores
+it automatically (a typo → it races but shows "—" for Completion).</p>
+<h3 id="setup">Setup</h3>
+<ol>
+<li><code>make dashboard</code> → open <code>localhost:7777</code> → <strong>Compare</strong> tab.</li>
+<li>Pick the models you'll film (click the chips). For the full field, all 11.</li>
+<li>Hit <strong>clear</strong> on the scoreboard to start from zero.</li>
+<li>Turn ON <strong>"grade with K3"</strong> (top-right, next to Race) so every column also
+   gets a Quality score. (Costs one extra K3 call per column — expected.)</li>
+</ol>
+<h3 id="act-1-the-easy-cases-everyone-should-pass">Act 1 — the easy cases (everyone should pass)</h3>
+<p>Paste each, click Race, watch the columns fill:</p>
+<ul>
+<li><code>Schedule a coffee with Alex next Tuesday at 9am</code></li>
+<li><code>Remember that Alex prefers morning meetings</code></li>
+<li><code>Send Alex a message that the demo moved to Friday</code></li>
+<li><code>What is the capital of France?</code>  ← the honest <strong>no-tool</strong> case: a good model
+  answers WITHOUT calling a tool (green "solved" = it correctly stayed hands-off)</li>
+</ul>
+<h3 id="act-2-the-hard-cases-where-cheap-models-break-the-money-segment">Act 2 — the hard cases (where cheap models break — the money segment)</h3>
+<ul>
+<li><code>I might grab coffee with Alex sometime, we'll see.</code>  ← must NOT schedule (over-eager trap)</li>
+<li><code>Block three 25-minute focus sessions tomorrow morning</code>  ← must make <strong>three</strong> events</li>
+<li><code>Remember that I'm vegetarian, then book dinner with Sam this Thursday at 7pm</code>  ← must do <strong>both</strong></li>
+<li><code>Check my calendar for a free 30 minutes this afternoon and schedule a short walk</code>  ← must <strong>read</strong> then write</li>
+</ul>
+<p>Watch for: a model that replies fluently but gets a red <strong>"failed · <why>"</strong> badge.
+That's the whole thesis on screen.</p>
+<h3 id="act-3-the-multi-tool-showcase">Act 3 — the multi-tool showcase</h3>
+<ul>
+<li><code>Build me a Kanto starter team around Pikachu: search current competitive picks for a balanced six, remember that Pikachu is my starter, and schedule two team-training sessions this week</code></li>
+<li><code>Search for the result of the Spain vs Argentina World Cup final, remember who won, and draft a message to Raj about watching the highlights together</code></li>
+</ul>
+<h3 id="act-4-the-reveal">Act 4 — the reveal</h3>
+<p>Scroll to the <strong>Scoreboard</strong>: the cost-vs-quality <strong>scatter</strong> at the top (cheap &amp;
+good = top-left), then the table — sort by <strong>solved</strong>, <strong>K3 grade</strong>, or <strong>total
+cost</strong> by clicking the headers. This is the "is opus 2× the price 2× better?" shot.</p>
+<h3 id="act-5-the-coding-round-terminal-not-the-dashboard-yet">Act 5 — the coding round (terminal, not the dashboard yet)</h3>
+<pre><code class="language-bash">make shootout-coding RUNS=&quot;kimi:kimi-k3 anthropic:claude-opus-4-8 gemini:gemini-3.5-flash&quot;
+</code></pre>
+<p>Each model's pi writes real code, scored by tests passing. Report saved to
+<code>.waku/shootout/coding-*.md</code>.</p>
+<h3 id="optional-the-reproducible-cli-table-all-agentic-cases-all-models">Optional — the reproducible CLI table (all agentic cases, all models)</h3>
+<pre><code class="language-bash">make shootout RUNS=&quot;kimi:kimi-k3 anthropic:claude-opus-4-8 gemini:gemini-3.5-flash openai:gpt-5.3-chat-latest xai:grok-4.5&quot;
+</code></pre>
+<p><code>--trials 3</code> for stable pass-RATES (tool-calling is nondeterministic); saves a
+markdown + json report to <code>.waku/shootout/</code> anyone can reproduce with their keys.</p>
+<h3 id="gotchas-to-rehearse-around">Gotchas to rehearse around</h3>
+<ul>
+<li><strong>gpt-5.6-sol</strong> errors every race on purpose (reasoning model, can't tool-call
+  on /v1/chat) — leave it in to show the honest error, or drop the chip.</li>
+<li><strong>grok</strong> needs xAI credits or it 403s.</li>
+<li>Judging the whole field at once can 429 the K3 endpoint; a column may show "—"
+  for grade (one retry is built in). Re-race that one if you need it on camera.</li>
+<li><strong>kimi-k3 is slow</strong> (reasoning) — its column finishes last; the scoreboard folds
+  each model in as it lands, so the board isn't frozen waiting for it.</li>
+</ul>
+<hr>
+<h2 id="10-metrics-what-every-scoreboard-column-means-and-the-exact-math">10. Metrics — what every scoreboard column means (and the exact math)</h2>
+<p>The on-camera legend. Every number is computed one way, in one place, and
+<strong>verified against a hand calculation</strong> (worked example below — all fields match).</p>
+<table>
+<thead>
+<tr>
+<th>column</th>
+<th>what it means</th>
+<th>exact formula</th>
+<th>good =</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>solved</strong></td>
+<td>Completion — did it actually do the task</td>
+<td><code>passed / scored</code>, per the case checklist (right tool, right args, enough calls)</td>
+<td>as close to <code>scored/scored</code> as possible</td>
+</tr>
+<tr>
+<td><strong>K3 grade</strong></td>
+<td>Quality — how good the reply is</td>
+<td>mean of kimi-k3's 0-10 scores over judged replies</td>
+<td>higher (7+ is strong)</td>
+</tr>
+<tr>
+<td><strong>races</strong></td>
+<td>how many times this model ran</td>
+<td>count of the model's rows across all races</td>
+<td>— (denominator)</td>
+</tr>
+<tr>
+<td><strong>ok</strong></td>
+<td>non-errored runs</td>
+<td><code>ok / races</code> (an error = a model that couldn't even run)</td>
+<td><code>races/races</code></td>
+</tr>
+<tr>
+<td><strong>total time</strong></td>
+<td>cumulative wall-clock</td>
+<td>Σ <code>latency_ms</code> over <strong>successful</strong> runs</td>
+<td>lower</td>
+</tr>
+<tr>
+<td><strong>in tok / out tok</strong></td>
+<td>cumulative prompt / completion tokens</td>
+<td>Σ <code>tokens_in</code>, Σ <code>tokens_out</code> over successful runs</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>total tok</strong></td>
+<td>in + out</td>
+<td><code>in tok + out tok</code></td>
+<td>lower for same work</td>
+</tr>
+<tr>
+<td><strong>rate $/M</strong></td>
+<td>the model's list price</td>
+<td><code>$in / $out</code> per million tokens (per-model, fact-checked)</td>
+<td>— (reference)</td>
+</tr>
+<tr>
+<td><strong>total cost</strong></td>
+<td>cumulative dollars</td>
+<td>Σ over successful runs of <code>(tokens_in × rate_in + tokens_out × rate_out) / 1,000,000</code></td>
+<td>lower for same quality</td>
+</tr>
+</tbody>
+</table>
+<h3 id="the-rules-that-decide-the-edge-cases-say-these-out-loud-on-camera">The rules that decide the edge cases (say these out loud on camera)</h3>
+<ul>
+<li><strong>Cost is repriced from tokens on every read</strong>, so a pricing correction fixes
+  past races too — the number is never stale.</li>
+<li><strong>Output tokens cost 3-5× input</strong> — that's why in/out are split. A "cheap" model
+  that's verbose can cost more than a pricier terse one.</li>
+<li><strong>Errored races count in <code>races</code> and against <code>ok</code>, but add nothing</strong> to tokens,
+  cost, or completion. A model that only errors is <code>$0.00</code> — and useless. Read the
+  cheapest-that-actually-<em>completed</em>, not the cheapest overall.</li>
+<li><strong>Only a known battery-case prompt gets a <code>solved</code> score</strong> (exact-text match);
+  a free-form prompt races but shows <code>—</code>.</li>
+<li><strong><code>K3 grade</code> only appears when "grade with K3" was on</strong>; unjudged races show <code>—</code>.</li>
+</ul>
+<h3 id="worked-example-this-is-the-calculation-double-check">Worked example (this is the calculation double-check)</h3>
+<p>Two races, two models, known token counts:</p>
+<table>
+<thead>
+<tr>
+<th>model (rate)</th>
+<th>race 1</th>
+<th>race 2</th>
+<th>→ solved</th>
+<th>K3 grade</th>
+<th>total tok</th>
+<th>total cost</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>kimi-k3 ($3/$15)</td>
+<td>1000 in / 500 out · passed · q8</td>
+<td>2000 in / 1000 out · failed · q6</td>
+<td><strong>1/2</strong></td>
+<td><strong>7.0</strong> = (8+6)/2</td>
+<td><strong>4500</strong></td>
+<td><strong>$0.0315</strong> = (3000·3 + 1500·15)/1M</td>
+</tr>
+<tr>
+<td>gemini-3.5-flash ($1.5/$9)</td>
+<td>1000 in / 200 out · passed · q5</td>
+<td><strong>errored</strong></td>
+<td><strong>1/1</strong> (errored race not scored)</td>
+<td><strong>5.0</strong> (only race 1 judged)</td>
+<td><strong>1200</strong></td>
+<td><strong>$0.0033</strong> = (1000·1.5 + 200·9)/1M</td>
+</tr>
+</tbody>
+</table>
+<p>Running <code>aggregate()</code> on these inputs reproduces every bold number exactly — the
+scoreboard math is correct. (Re-verify anytime with the worked-example script in
+the commit that added this section.)</p>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags">
+            <span class="chip">waku 精简四支柱</span>
+            <span class="chip">AI Agent</span>
+            <span class="chip">面试宝典</span>
+          </div>
+          <a class="t-meta" href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/12-hermes-agent-small/docs/benchmarks.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../ai-engineer/waku/architecture.html"><span class="dir">← 上一篇</span><span class="t">Architecture — the whiteboard, refreshed</span></a><a class="next" href="../../ai-engineer/waku/stack-report.html"><span class="dir">下一篇 →</span><span class="t">Stack report — verified 2026-07-10</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../rag/index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+
+<script src="../../js/main.js" defer></script>
+</body>
+</html>

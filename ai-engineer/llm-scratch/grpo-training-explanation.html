@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GRPO (Group Relative Policy Optimization) 训练方法详解 · AI Agent 面试宝典 — NorthAdb 的博客</title>
+<meta name="description" content="GRPO（Group Relative Policy Optimization）是 PPO（Proximal Policy Optimization）的一个变体，专门设计用于语言模型的强化学习训练。与标准 PPO 相比，GRPO 的核心创新…">
+<link rel="canonical" href="https://northadb.github.io/ai-engineer/llm-scratch/grpo-training-explanation.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="GRPO (Group Relative Policy Optimization) 训练方法详解 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta property="og:description" content="GRPO（Group Relative Policy Optimization）是 PPO（Proximal Policy Optimization）的一个变体，专门设计用于语言模型的强化学习训练。与标准 PPO 相比，GRPO 的核心创新…">
+<meta property="og:url" content="https://northadb.github.io/ai-engineer/llm-scratch/grpo-training-explanation.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="GRPO (Group Relative Policy Optimization) 训练方法详解 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta name="twitter:description" content="GRPO（Group Relative Policy Optimization）是 PPO（Proximal Policy Optimization）的一个变体，专门设计用于语言模型的强化学习训练。与标准 PPO 相比，GRPO 的核心创新…">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../feed.xml">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../ai-engineer/assets/course.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "GRPO (Group Relative Policy Optimization) 训练方法详解", "description": "GRPO（Group Relative Policy Optimization）是 PPO（Proximal Policy Optimization）的一个变体，专门设计用于语言模型的强化学习训练。与标准 PPO 相比，GRPO 的核心创新…", "author": {"@type": "Person", "name": "juliepy", "url": "https://github.com/juliepy/AI-Engineer-from-scrach"}, "mainEntityOfPage": "https://northadb.github.io/ai-engineer/llm-scratch/grpo-training-explanation.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../index.html">首页</a><span>/</span><a href="../../learn.html">课件</a><span>/</span><a href="../../ai-engineer/index.html">AI Agent 面试宝典</a><span>/</span><a href="../../ai-engineer/llm-scratch/index.html">从零实现 LLM</a></div>
+          <h1>GRPO (Group Relative Policy Optimization) 训练方法详解</h1>
+          <p class="post-sub">GRPO（Group Relative Policy Optimization）是 PPO（Proximal Policy Optimization）的一个变体，专门设计用于语言模型的强化学习训练。与标准 PPO 相比，GRPO 的核心创新…</p>
+          <div class="post-meta">
+            <span class="avatar">AI</span>
+            <span>AI Agent 面试宝典</span><span class="sep"></span>
+            <span>从零实现 LLM</span><span class="sep"></span>
+            <span>阅读约 7 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<h2 id="grpo">一、GRPO 概述</h2>
+<p>GRPO（Group Relative Policy Optimization）是 PPO（Proximal Policy Optimization）的一个变体，专门设计用于语言模型的强化学习训练。与标准 PPO 相比，GRPO 的核心创新在于：</p>
+<ol>
+<li><strong>轨迹级别的优势估计</strong>：不需要价值函数头（Value Head）</li>
+<li><strong>组内相对优势</strong>：使用组内平均奖励作为基线，计算相对优势</li>
+<li><strong>简化架构</strong>：减少了模型复杂度，提高了训练效率</li>
+</ol>
+<h2 id="grpo_1">二、GRPO 架构流程（对应架构图）</h2>
+<p>根据架构图，GRPO 的训练流程如下：</p>
+<pre><code>输入 q → Policy Model → [o₁, o₂, ..., o_G] → Reference Model + Reward Model → [r₁, r₂, ..., r_G]
+                                                                                      ↓
+Policy Model ← KL散度反馈 ← [A₁, A₂, ..., A_G] ← Group Computation
+</code></pre>
+<h3 id="_1">详细步骤解析：</h3>
+<h4 id="1-query-q">1. <strong>输入阶段（Query q）</strong></h4>
+<ul>
+<li><strong>代码位置</strong>：<code>train_grpo.py:114-124</code></li>
+<li><strong>功能</strong>：从提示池中选择 P 个提示，每个提示将生成 G 个完成</li>
+<li><strong>关键参数</strong>：</li>
+<li><code>batch_prompts</code> (P)：每步的提示数量</li>
+<li><code>group_size</code> (G)：每个提示的完成数量</li>
+</ul>
+<pre><code class="language-python"># 选择P个提示，每个提示生成G个完成 → B = P*G 个轨迹
+P = max(1, args.batch_prompts)
+batch_prompts = prompts_pool[pool_idx: pool_idx + P]
+prompt_texts = [format_prompt_only(p).replace(&quot;&lt;/s&gt;&quot;, &quot;&quot;) for p in batch_prompts]
+</code></pre>
+<h4 id="2-policy-model-o1o_g">2. <strong>生成阶段（Policy Model → o₁...o_G）</strong></h4>
+<ul>
+<li><strong>代码位置</strong>：<code>train_grpo.py:126-153</code></li>
+<li><strong>功能</strong>：使用当前策略模型为每个提示生成 G 个不同的响应</li>
+<li><strong>关键点</strong>：</li>
+<li>使用 <code>policy.generate()</code> 生成响应</li>
+<li>每个响应都是独立的采样结果</li>
+<li>记录每个轨迹的边界位置（提示/响应分离点）</li>
+</ul>
+<pre><code class="language-python">for pid, p_ids in enumerate(prompt_in_ids):
+    for g in range(G):  # 为每个提示生成G个完成
+        idx = torch.tensor([p_ids], dtype=torch.long, device=device)
+        out = policy.generate(idx, max_new_tokens=args.resp_len, temperature=2, top_k=3)
+        full_ids = out[0].tolist()
+        resp_ids = full_ids[boundary:]  # 提取响应部分
+</code></pre>
+<h4 id="3-reference-model-reward-model">3. <strong>评估阶段（Reference Model + Reward Model）</strong></h4>
+<ul>
+<li><strong>代码位置</strong>：</li>
+<li>Reference Model：<code>train_grpo.py:85-91</code>（初始化），<code>train_grpo.py:180</code>（计算对数概率）</li>
+<li>Reward Model：<code>train_grpo.py:93-101</code>（初始化），<code>train_grpo.py:146</code>（计算奖励）</li>
+<li><strong>功能</strong>：</li>
+<li><strong>Reference Model</strong>：冻结的参考策略，用于计算 KL 散度，防止策略偏离太远</li>
+<li><strong>Reward Model</strong>：评估生成响应的质量，给出标量奖励分数</li>
+</ul>
+<pre><code class="language-python"># 初始化冻结的参考策略
+ref = PolicyWithValue(...).to(device)
+ref.lm.load_state_dict(ckpt['model'])
+for p_ in ref.parameters():
+    p_.requires_grad_(False)  # 冻结所有参数
+
+# 计算奖励
+r_scalar = compute_reward(rm, tok, batch_prompts[pid], resp_ids, device)
+</code></pre>
+<h4 id="4-r1r_g">4. <strong>奖励计算（r₁...r_G）</strong></h4>
+<ul>
+<li><strong>代码位置</strong>：<code>train_grpo.py:24-45</code>（compute_reward 函数）</li>
+<li><strong>功能</strong>：对每个生成的响应计算奖励分数</li>
+<li><strong>关键点</strong>：</li>
+<li>使用完整格式化的文本（提示+响应）</li>
+<li>奖励模型输出标量分数</li>
+</ul>
+<pre><code class="language-python">def compute_reward(reward_model, tok, prompt_text, response_ids, device):
+    resp_text = tok.decode(response_ids)
+    text = format_example(Example(prompt_text, resp_text))
+    ids = tok.encode(text)
+    x = torch.tensor([ids[:tok.block_size]], dtype=torch.long, device=device)
+    r = reward_model(x)
+    return float(r[0].item())
+</code></pre>
+<h4 id="5-group-computation">5. <strong>组计算（Group Computation）</strong></h4>
+<ul>
+<li><strong>代码位置</strong>：<code>train_grpo.py:190-231</code></li>
+<li><strong>功能</strong>：<strong>GRPO 的核心创新</strong> - 使用组内平均作为基线计算优势</li>
+<li><strong>关键公式</strong>：
+  <code>组内平均奖励：μ_g = mean(r_i for i in group_g)
+  优势值：A_i = r_i - μ_g</code></li>
+<li><strong>优势</strong>：</li>
+<li>不需要价值函数头</li>
+<li>基线是自适应的（每个组有自己的基线）</li>
+<li>减少了方差，提高了训练稳定性</li>
+</ul>
+<pre><code class="language-python"># 计算每个提示组的形状化奖励的平均值
+# GRPO的核心：使用组内平均作为基线
+group_mean = torch.zeros(B, dtype=torch.float, device=device)
+for pid in range(P):
+    idxs = [i for i in range(B) if prompt_id_of[i] == pid]
+    mean_val = raw_rewards_t[idxs_t].mean()  # 组内平均奖励
+    group_mean[idxs_t] = mean_val
+
+# 每个轨迹的优势，广播到其动作token
+traj_adv = raw_rewards_t - group_mean  # (B,) GRPO的优势计算
+</code></pre>
+<h4 id="6-kl">6. <strong>KL 散度计算与反馈</strong></h4>
+<ul>
+<li><strong>代码位置</strong>：<code>train_grpo.py:176-188</code>, <code>train_grpo.py:241-242</code></li>
+<li><strong>功能</strong>：</li>
+<li>计算当前策略与参考策略的 KL 散度</li>
+<li>作为正则化项防止策略偏离太远</li>
+<li><strong>公式</strong>：
+  <code>KL(π_new || π_ref) = E[log π_new(a|s) - log π_ref(a|s)]</code></li>
+</ul>
+<pre><code class="language-python"># 计算策略和参考策略的对数概率
+pol_lp_full = model_logprobs(policy, seq)  # (B, T-1)
+ref_lp_full = model_logprobs(ref, seq)     # (B, T-1)
+
+# 动作token上的每token KL散度
+kl_tok = (old_logp - ref_logp)  # (N_act,)
+kl_now_ref_mean = (new_logp - ref_logp).mean()  # 平均KL散度
+</code></pre>
+<h4 id="7-a1a_g-policy-model">7. <strong>损失计算与更新（A₁...A_G → Policy Model）</strong></h4>
+<ul>
+<li><strong>代码位置</strong>：<code>train_grpo.py:233-260</code>, <code>grpo_loss.py:21-65</code></li>
+<li><strong>功能</strong>：计算 PPO 风格的裁剪损失并更新策略</li>
+<li><strong>损失函数</strong>：
+  ```
+  L_total = L_PPO + λ_KL * KL(π_new || π_ref)</li>
+</ul>
+<p>其中：
+  L_PPO = -E[min(ratio * A, clip(ratio, 1-ε, 1+ε) * A)]
+  ratio = π_new(a|s) / π_old(a|s)
+  ```</p>
+<pre><code class="language-python"># 计算GRPO损失
+out_loss = ppo_policy_only_losses(
+    new_logp=new_logp,
+    old_logp=old_logp,
+    adv=adv_flat,
+    clip_ratio=0.2,
+    kl_coef=args.kl_coef,
+    kl_mean=kl_now_ref_mean,
+)
+loss = out_loss.total_loss
+
+# 反向传播和优化
+opt.zero_grad(set_to_none=True)
+loss.backward()
+torch.nn.utils.clip_grad_norm_(policy.parameters(), 1.0)
+opt.step()
+</code></pre>
+<h2 id="grpo-vs-ppo">三、GRPO vs PPO 的关键区别</h2>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>PPO</th>
+<th>GRPO</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>价值函数</strong></td>
+<td>需要价值头（Value Head）</td>
+<td>不需要价值头</td>
+</tr>
+<tr>
+<td><strong>优势估计</strong></td>
+<td>使用 GAE（Generalized Advantage Estimation）</td>
+<td>使用组内相对优势</td>
+</tr>
+<tr>
+<td><strong>基线</strong></td>
+<td>价值函数估计</td>
+<td>组内平均奖励</td>
+</tr>
+<tr>
+<td><strong>计算复杂度</strong></td>
+<td>较高（需要价值函数训练）</td>
+<td>较低（无需价值函数）</td>
+</tr>
+<tr>
+<td><strong>适用场景</strong></td>
+<td>通用强化学习</td>
+<td>语言模型 RLHF</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_2">四、代码关键组件解析</h2>
+<h3 id="1-train_grpopy154-174">1. <strong>轨迹收集与填充</strong>（<code>train_grpo.py:154-174</code>）</h3>
+<pre><code class="language-python"># 填充为批次
+B = len(seq_list)  # B = P*G
+max_len = min(policy_ctx, max(s.numel() for s in seq_list))
+seq = torch.zeros(B, max_len, dtype=torch.long, device=device)
+mask = torch.zeros(B, max_len, dtype=torch.bool, device=device)
+
+# 动作位置掩码：只对响应token计算损失
+for i, (ids, bnd) in enumerate(zip(seq_list, boundary_list)):
+    # ... 填充逻辑 ...
+    mask[i, b:L] = True  # 只对响应部分计算损失
+</code></pre>
+<p><strong>关键点</strong>：
+- 只对响应 token 计算损失（忽略提示部分）
+- 使用掩码标记动作位置
+- 右对齐填充，保留最后 L 个 token</p>
+<h3 id="2-train_grpopy195-227">2. <strong>优势广播</strong>（<code>train_grpo.py:195-227</code>）</h3>
+<pre><code class="language-python"># 构建从展平的动作token回到轨迹ID的索引映射
+traj_id_for_token = []
+for i in range(B):
+    mrow = act_mask[i]
+    n_i = int(mrow.sum().item())
+    if n_i &gt; 0:
+        traj_id_for_token.extend([i] * n_i)
+
+# 将轨迹级别的优势广播到token级别
+adv_flat = traj_adv[traj_id_for_token]
+</code></pre>
+<p><strong>关键点</strong>：
+- 优势是轨迹级别的（每个响应一个优势值）
+- 需要广播到该轨迹的所有动作 token
+- 使用索引映射实现广播</p>
+<h3 id="3-ppo-grpo_losspy45-51">3. <strong>PPO 裁剪损失</strong>（<code>grpo_loss.py:45-51</code>）</h3>
+<pre><code class="language-python"># 计算重要性采样比率
+ratio = torch.exp(new_logp - old_logp)  # (N,)
+
+# PPO裁剪：取未裁剪和裁剪后的最小值
+unclipped = ratio * adv
+clipped = torch.clamp(ratio, 1.0 - clip_ratio, 1.0 + clip_ratio) * adv
+policy_loss = -torch.mean(torch.min(unclipped, clipped))
+</code></pre>
+<p><strong>关键点</strong>：
+- 限制策略更新幅度（防止过大更新）
+- 使用 <code>clip_ratio=0.2</code> 限制比率在 [0.8, 1.2] 范围内
+- 取裁剪前后的最小值，确保保守更新</p>
+<h2 id="_3">五、训练流程总结</h2>
+<ol>
+<li>
+<p><strong>初始化</strong>：
+   - 加载 SFT 策略作为初始策略和参考策略
+   - 加载奖励模型
+   - 初始化优化器</p>
+</li>
+<li>
+<p><strong>每个训练步骤</strong>：
+   <code>a. 选择 P 个提示
+   b. 为每个提示生成 G 个响应（共 P*G 个轨迹）
+   c. 使用奖励模型计算每个响应的奖励
+   d. 计算组内平均奖励作为基线
+   e. 计算优势：A_i = r_i - μ_group
+   f. 计算当前策略和参考策略的对数概率
+   g. 计算 KL 散度
+   h. 计算 PPO 损失（裁剪 + KL 惩罚）
+   i. 反向传播并更新策略</code></p>
+</li>
+<li>
+<p><strong>监控指标</strong>：
+   - <code>KL_move</code>：策略移动幅度（旧策略 vs 新策略）
+   - <code>KL_ref</code>：与参考策略的偏离程度
+   - <code>loss</code>：总损失值</p>
+</li>
+</ol>
+<h2 id="_4">六、关键超参数</h2>
+<ul>
+<li><code>group_size</code> (G)：每个提示的完成数量，影响基线计算的稳定性</li>
+<li><code>kl_coef</code>：KL 散度惩罚系数，控制策略偏离参考策略的程度</li>
+<li><code>clip_ratio</code>：PPO 裁剪比例，默认 0.2</li>
+<li><code>lr</code>：学习率，通常较小（1e-5）</li>
+<li><code>resp_len</code>：响应长度，影响生成文本的长度</li>
+</ul>
+<h2 id="_5">七、优势与局限</h2>
+<h3 id="_6">优势：</h3>
+<ol>
+<li><strong>简化架构</strong>：无需价值函数头，减少模型复杂度</li>
+<li><strong>自适应基线</strong>：组内平均作为基线，适应不同提示的奖励分布</li>
+<li><strong>训练稳定</strong>：相对优势减少了方差</li>
+<li><strong>计算高效</strong>：减少了需要训练的参数</li>
+</ol>
+<h3 id="_7">局限：</h3>
+<ol>
+<li><strong>需要组采样</strong>：必须为每个提示生成多个响应</li>
+<li><strong>组大小敏感</strong>：组大小影响基线质量</li>
+<li><strong>不适合单样本场景</strong>：需要多个样本才能计算组内平均</li>
+</ol>
+<h2 id="_8">八、实际应用建议</h2>
+<ol>
+<li><strong>组大小选择</strong>：通常 G=4 到 G=8，太小基线不稳定，太大计算开销大</li>
+<li><strong>KL 系数调整</strong>：从 0.01 开始，根据训练稳定性调整</li>
+<li><strong>监控指标</strong>：关注 KL_ref，确保策略不会偏离参考策略太远</li>
+<li><strong>奖励模型质量</strong>：奖励模型的质量直接影响训练效果</li>
+</ol>
+<hr>
+<p><strong>总结</strong>：GRPO 通过组内相对优势估计，简化了 PPO 的训练流程，特别适合语言模型的 RLHF 训练。其核心思想是用组内平均作为自适应基线，避免了价值函数的需求，同时保持了训练稳定性。</p>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags">
+            <span class="chip">从零实现 LLM</span>
+            <span class="chip">AI Agent</span>
+            <span class="chip">面试宝典</span>
+          </div>
+          <a class="t-meta" href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/07-llm_from_scrach/part_9/GRPO_TRAINING_EXPLANATION.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../ai-engineer/llm-scratch/part-5.html"><span class="dir">← 上一篇</span><span class="t">Part 5 — Mixture-of-Experts (MoE)</span></a><a class="next" href="../../ai-engineer/llm-scratch/tinymodeltraining.html"><span class="dir">下一篇 →</span><span class="t">Tiny GPT 训练示例</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../rag/index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+
+<script src="../../js/main.js" defer></script>
+</body>
+</html>

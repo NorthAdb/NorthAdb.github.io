@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loop Engineering：什么是 Loop，以及如何写好一个 · AI Agent 面试宝典 — NorthAdb 的博客</title>
+<meta name="description" content="核心主张很简单：">
+<link rel="canonical" href="https://northadb.github.io/ai-engineer/loop/02-loop-engineering.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Loop Engineering：什么是 Loop，以及如何写好一个 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta property="og:description" content="核心主张很简单：">
+<meta property="og:url" content="https://northadb.github.io/ai-engineer/loop/02-loop-engineering.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Loop Engineering：什么是 Loop，以及如何写好一个 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta name="twitter:description" content="核心主张很简单：">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../feed.xml">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../ai-engineer/assets/course.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Loop Engineering：什么是 Loop，以及如何写好一个", "description": "核心主张很简单：", "author": {"@type": "Person", "name": "juliepy", "url": "https://github.com/juliepy/AI-Engineer-from-scrach"}, "mainEntityOfPage": "https://northadb.github.io/ai-engineer/loop/02-loop-engineering.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../index.html">首页</a><span>/</span><a href="../../learn.html">课件</a><span>/</span><a href="../../ai-engineer/index.html">AI Agent 面试宝典</a><span>/</span><a href="../../ai-engineer/loop/index.html">Loop Engineering</a></div>
+          <h1>Loop Engineering：什么是 Loop，以及如何写好一个</h1>
+          <p class="post-sub">核心主张很简单：</p>
+          <div class="post-meta">
+            <span class="avatar">AI</span>
+            <span>AI Agent 面试宝典</span><span class="sep"></span>
+            <span>Loop Engineering</span><span class="sep"></span>
+            <span>阅读约 9 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<p>核心主张很简单：</p>
+<blockquote>
+<p>你不该再不停地 prompt coding agent。<br>
+你该设计 <strong>会去 prompt agent 的 loop</strong>。</p>
+</blockquote>
+<p>职责没有消失，只是上移了一层：人定义目标与停机条件；orchestrator 根据状态持续发起下一轮。</p>
+<hr>
+<h2 id="1">1. 问题从哪里来</h2>
+<p>传统工作流里，<strong>人是瓶颈</strong>：</p>
+<pre><code class="language-mermaid">%%{init: {'theme': 'dark', 'themeVariables': {
+  'lineColor': '#FCD34D',
+  'primaryTextColor': '#F8FAFC',
+  'edgeLabelBackground': '#0F172A'
+}}}%%
+flowchart LR
+    H[人类写 Prompt] --&gt; A[Agent 产出]
+    A --&gt; E[人类评估]
+    E --&gt; H
+
+    linkStyle default stroke:#FCD34D,stroke-width:2.5px
+
+    classDef human fill:#EF4444,stroke:#FCA5A5,color:#FFF,stroke-width:2px
+    classDef agent fill:#0891B2,stroke:#67E8F9,color:#FFF,stroke-width:2px
+
+    class H,E human
+    class A agent
+</code></pre>
+<p>这是串行的：人给指令 → Agent 产出 → 人评价 → 人再给下一轮指令。<br>
+对短问答可以；对长时任务，人跟不上，系统也撑不住。</p>
+<p>长时任务需要另一种模式：</p>
+<pre><code class="language-mermaid">%%{init: {'theme': 'dark', 'themeVariables': {
+  'lineColor': '#38BDF8',
+  'primaryTextColor': '#F8FAFC',
+  'clusterBkg': '#1E293B',
+  'clusterBorder': '#FCD34D',
+  'titleColor': '#FDE68A',
+  'edgeLabelBackground': '#0F172A'
+}}}%%
+flowchart TB
+    USER[&quot;人类：目标 + 停机条件&quot;] --&gt; ORCH
+
+    subgraph LOOP[&quot;Agentic Loop&quot;]
+        ORCH[&quot;Orchestrator&lt;br/&gt;按当前状态发起下一轮 Prompt&quot;]
+        ORCH --&gt; WORK[Agent 执行]
+        WORK --&gt; CHECK{&quot;是否达到停机条件？&quot;}
+        CHECK --&gt;|&quot;否&quot;| ORCH
+        CHECK --&gt;|&quot;是&quot;| STOP[停止]
+    end
+
+    linkStyle default stroke:#38BDF8,stroke-width:2.5px
+
+    classDef user fill:#4F46E5,stroke:#A5B4FC,color:#FFF,stroke-width:2px
+    classDef orch fill:#D97706,stroke:#FCD34D,color:#FFF,stroke-width:2px
+    classDef work fill:#0891B2,stroke:#67E8F9,color:#FFF,stroke-width:2px
+    classDef check fill:#8B5CF6,stroke:#C4B5FD,color:#FFF,stroke-width:2px
+    classDef stop fill:#059669,stroke:#6EE7B7,color:#FFF,stroke-width:2px
+    classDef box fill:#422006,stroke:#FCD34D,color:#FDE68A,stroke-width:2px
+
+    class USER user
+    class ORCH orch
+    class WORK work
+    class CHECK check
+    class STOP stop
+    class LOOP box
+</code></pre>
+<p>停机条件可以是：单测通过、达到最大迭代次数，或任意你预先定义的判据。</p>
+<p>关键点：<strong>Prompting 没有死，它只是搬到了最开始。</strong><br>
+即便是全自动 loop，仍在被 prompt——只是 prompt 来自你的初始目标与规格，而不是你每一轮手动敲字。</p>
+<hr>
+<h2 id="2-loop">2. Loop 是新词，还是旧轮子？</h2>
+<p>Loop 不是全新发明。把它放回时间线更清楚：</p>
+<pre><code class="language-mermaid">%%{init: {'theme': 'dark', 'themeVariables': {
+  'lineColor': '#A78BFA',
+  'primaryTextColor': '#F8FAFC',
+  'edgeLabelBackground': '#0F172A'
+}}}%%
+flowchart LR
+    W[&quot;最早期&lt;br/&gt;while 循环里塞模型&quot;] --&gt; R[&quot;2022&lt;br/&gt;ReAct&lt;br/&gt;推理 → 行动 → 读结果 → 重复&quot;]
+    R --&gt; A[&quot;2023&lt;br/&gt;AutoGPT&lt;br/&gt;给目标，让它自己 prompt 自己&quot;]
+    A --&gt; D[&quot;近期&lt;br/&gt;纪律型 Loop&lt;br/&gt;固定指令 + 每轮重置上下文&lt;br/&gt;独立检查决定是否结束&quot;]
+
+    linkStyle default stroke:#A78BFA,stroke-width:2.5px
+
+    classDef old fill:#334155,stroke:#94A3B8,color:#F8FAFC,stroke-width:2px
+    classDef react fill:#4F46E5,stroke:#A5B4FC,color:#FFF,stroke-width:2px
+    classDef auto fill:#EF4444,stroke:#FCA5A5,color:#FFF,stroke-width:2px
+    classDef now fill:#059669,stroke:#6EE7B7,color:#FFF,stroke-width:2px
+
+    class W old
+    class R react
+    class A auto
+    class D now
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>特征</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>while + model</td>
+<td>最朴素的环</td>
+<td>概念上成立</td>
+</tr>
+<tr>
+<td>ReAct（2022）</td>
+<td>推理、行动、读结果、再循环</td>
+<td>Agent 范式成型</td>
+</tr>
+<tr>
+<td>AutoGPT（2023）</td>
+<td>目标驱动、自我 prompt</td>
+<td>常空转烧 token，几乎不交付</td>
+</tr>
+<tr>
+<td>纪律型 Loop（今）</td>
+<td>同指令反复喂入，但每轮重置上下文；独立检查说停才停</td>
+<td>Claude Code / Codex 一类产品的主流形态</td>
+</tr>
+</tbody>
+</table>
+<p>所以当有人说「design loops」时，真正该问的是：<strong>哪一种 loop？</strong></p>
+<hr>
+<h2 id="3-loop-cron">3. Loop ≠ Cron（但也不完全不是）</h2>
+<p>最尖锐的质疑是：</p>
+<blockquote>
+<p>这不就是换了个名字的 cron 吗？</p>
+</blockquote>
+<p>他们说对了一半。</p>
+<pre><code class="language-mermaid">%%{init: {'theme': 'dark', 'themeVariables': {
+  'lineColor': '#FBBF24',
+  'primaryTextColor': '#F8FAFC',
+  'edgeLabelBackground': '#0F172A'
+}}}%%
+flowchart TB
+    subgraph CRON[&quot;Cron&quot;]
+        C1[定时触发] --&gt; C2[跑固定脚本]
+        C2 --&gt; C3[结束]
+    end
+
+    subgraph LOOP[&quot;Loop = Cron + 决策体&quot;]
+        L1[定时 / 事件触发] --&gt; L2[读当前状态]
+        L2 --&gt; L3[模型决定下一步]
+        L3 --&gt; L4[执行]
+        L4 --&gt; L5[检查]
+        L5 --&gt; L6{继续？}
+        L6 --&gt;|是| L2
+        L6 --&gt;|否| L7[停止]
+    end
+
+    linkStyle default stroke:#FBBF24,stroke-width:2.5px
+
+    classDef cron fill:#334155,stroke:#94A3B8,color:#F8FAFC,stroke-width:2px
+    classDef loop fill:#422006,stroke:#FCD34D,color:#FDE68A,stroke-width:2px
+    classDef cnode fill:#64748B,stroke:#CBD5E1,color:#FFF,stroke-width:2px
+    classDef trigger fill:#D97706,stroke:#FCD34D,color:#FFF,stroke-width:2px
+    classDef decide fill:#8B5CF6,stroke:#C4B5FD,color:#FFF,stroke-width:2px
+    classDef act fill:#0891B2,stroke:#67E8F9,color:#FFF,stroke-width:2px
+    classDef check fill:#2563EB,stroke:#93C5FD,color:#FFF,stroke-width:2px
+    classDef stop fill:#059669,stroke:#6EE7B7,color:#FFF,stroke-width:2px
+
+    class CRON cron
+    class LOOP loop
+    class C1,C2,C3 cnode
+    class L1 trigger
+    class L2,L3 decide
+    class L4 act
+    class L5,L6 check
+    class L7 stop
+</code></pre>
+<ul>
+<li><strong>Cron</strong>：调度固定脚本  </li>
+<li><strong>Loop</strong>：调度 + 中间的决策体——看状态、决定下一步、执行、检查、再决定是否继续</li>
+</ul>
+<p>一句话：<strong>Loop = Cron + decision maker in the body。</strong></p>
+<hr>
+<h2 id="4-loop">4. 怎么搭一个认真的 Loop</h2>
+<p>以 Claude Code 为例，入口可以极简：</p>
+<blockquote>
+<p><code>/loop</code> —— 写出意图与停机条件，而不是写出每一步。</p>
+</blockquote>
+<p>但严肃的 loop 需要外围零件，而不只是一条命令：</p>
+<pre><code class="language-mermaid">%%{init: {'theme': 'dark', 'themeVariables': {
+  'lineColor': '#FCD34D',
+  'primaryTextColor': '#F8FAFC',
+  'edgeLabelBackground': '#0F172A'
+}}}%%
+flowchart TB
+    INTENT[&quot;意图 + 停机条件&quot;] --&gt; CORE
+
+    subgraph CORE[&quot;Loop 核心&quot;]
+        RUN[按状态执行] --&gt; VERIFY[独立验证]
+        VERIFY --&gt; MEM[磁盘 Memory]
+        MEM --&gt; RUN
+    end
+
+    WT[&quot;Worktrees&lt;br/&gt;隔离仓库副本，避免碰撞&quot;] --&gt; CORE
+    SK[&quot;Skills&lt;br/&gt;可复用命名指令，避免每轮重学约定&quot;] --&gt; CORE
+    CONN[&quot;Connectors&lt;br/&gt;开 PR、更新工单&quot;] --&gt; CORE
+    DYN[&quot;Dynamic Workflows&lt;br/&gt;一任务扇出多 Agent&quot;] --&gt; CORE
+
+    linkStyle default stroke:#FCD34D,stroke-width:2.5px
+
+    classDef intent fill:#4F46E5,stroke:#A5B4FC,color:#FFF,stroke-width:2px
+    classDef core fill:#422006,stroke:#FCD34D,color:#FDE68A,stroke-width:2px
+    classDef run fill:#D97706,stroke:#FCD34D,color:#FFF,stroke-width:2px
+    classDef verify fill:#2563EB,stroke:#93C5FD,color:#FFF,stroke-width:2px
+    classDef mem fill:#D97706,stroke:#FDE68A,color:#FFF,stroke-width:2px
+    classDef side fill:#0891B2,stroke:#67E8F9,color:#FFF,stroke-width:2px
+    classDef dyn fill:#EF4444,stroke:#FCA5A5,color:#FFF,stroke-width:2px
+
+    class INTENT intent
+    class CORE core
+    class RUN run
+    class VERIFY verify
+    class MEM mem
+    class WT,SK,CONN side
+    class DYN dyn
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>零件</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Worktrees</strong></td>
+<td>隔离副本，并行 Agent 不互相踩踏</td>
+</tr>
+<tr>
+<td><strong>Skills</strong></td>
+<td>可复用命名指令，避免每轮重学项目约定</td>
+</tr>
+<tr>
+<td><strong>Connectors</strong></td>
+<td>接入真实工具链：开 PR、更新工单</td>
+</tr>
+<tr>
+<td><strong>Verifier</strong></td>
+<td>写代码的与打分的不能是同一个</td>
+</tr>
+<tr>
+<td><strong>Memory on disk</strong></td>
+<td>模型跨 run 会忘；失败时要能回到上一状态</td>
+</tr>
+<tr>
+<td><strong>Dynamic Workflows</strong></td>
+<td>单 loop 可扇出大量并行 Agent——很强，也最容易把成本跑飞</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="5-verification">5. 最重要的一步：Verification</h2>
+<p>一个只写代码、从不检查自己的 loop，是最快制造「自信错误」并烧光 token 的方式。</p>
+<p>好的 loop 需要反馈机制：</p>
+<pre><code class="language-mermaid">%%{init: {'theme': 'dark', 'themeVariables': {
+  'lineColor': '#34D399',
+  'primaryTextColor': '#F8FAFC',
+  'edgeLabelBackground': '#0F172A'
+}}}%%
+flowchart LR
+    IMPL[实现 Agent] --&gt; TESTS[跑测试 / 读结果]
+    TESTS --&gt; VER[独立 Verifier]
+    VER --&gt; OK{通过？}
+    OK --&gt;|否| IMPL
+    OK --&gt;|是| DONE[本轮可接受]
+
+    linkStyle default stroke:#34D399,stroke-width:2.5px
+
+    classDef impl fill:#0891B2,stroke:#67E8F9,color:#FFF,stroke-width:2px
+    classDef test fill:#F59E0B,stroke:#FDE68A,color:#1F2937,stroke-width:2px
+    classDef ver fill:#2563EB,stroke:#93C5FD,color:#FFF,stroke-width:2px
+    classDef gate fill:#8B5CF6,stroke:#C4B5FD,color:#FFF,stroke-width:2px
+    classDef done fill:#059669,stroke:#6EE7B7,color:#FFF,stroke-width:2px
+
+    class IMPL impl
+    class TESTS test
+    class VER ver
+    class OK gate
+    class DONE done
+</code></pre>
+<p><strong>Verification 才是让 loop 可信的部分；plumbing 只是水管。</strong></p>
+<hr>
+<h2 id="6-orchestration-tax">6. Orchestration Tax：并行的天花板是人</h2>
+<p>Loop 可以拉起成百上千个并行 Agent。但有一个天花板谁也拆不掉：</p>
+<p><strong>你自己。</strong></p>
+<p>真正能跑多少 loop，由 <strong>review bandwidth</strong> 决定，不由工具决定。这就是 orchestration tax。</p>
+<pre><code class="language-mermaid">%%{init: {'theme': 'dark', 'themeVariables': {
+  'lineColor': '#F87171',
+  'primaryTextColor': '#F8FAFC',
+  'edgeLabelBackground': '#0F172A'
+}}}%%
+flowchart TB
+    TOOL[&quot;工具能力：可启动 N 个 Agent&quot;] --&gt; TAX[&quot;Orchestration Tax&quot;]
+    YOU[&quot;人类：理解 · 评审 · 合并&quot;] --&gt; TAX
+    TAX --&gt; REAL[&quot;真实吞吐 ≈ min(工具并行, 你的带宽)&quot;]
+
+    linkStyle default stroke:#F87171,stroke-width:2.5px
+
+    classDef tool fill:#0891B2,stroke:#67E8F9,color:#FFF,stroke-width:2px
+    classDef you fill:#EF4444,stroke:#FCA5A5,color:#FFF,stroke-width:2px
+    classDef tax fill:#D97706,stroke:#FCD34D,color:#FFF,stroke-width:2px
+    classDef real fill:#8B5CF6,stroke:#C4B5FD,color:#FFF,stroke-width:2px
+
+    class TOOL tool
+    class YOU you
+    class TAX tax
+    class REAL real
+</code></pre>
+<p>更危险的不是「失败得很吵」，而是「成功得很安静」：</p>
+<ul>
+<li>你只看到最终结果</li>
+<li>已交付内容与你理解之间的鸿沟持续扩大</li>
+<li>三百个 commit 之后，你已经跟不上自己系统在做什么</li>
+</ul>
+<p>两种结果 loop 都分不清：</p>
+<table>
+<thead>
+<tr>
+<th>结果</th>
+<th>表现</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>人在自己理解的代码上跑得更快</td>
+</tr>
+<tr>
+<td>B</td>
+<td>人开始回避理解，只收结果</td>
+</tr>
+</tbody>
+</table>
+<p>无论哪种，<strong>责任仍在人</strong>。小项目或许还能赌；大项目与关键系统不行。</p>
+<hr>
+<h2 id="7-prompt">7. 种子 Prompt 比以前更重要</h2>
+<p>Loop 跑在「由你的规格拼出来的 prompt」上。<br>
+因此 <strong>第一条 prompt 不是更不重要，而是更重要</strong>：</p>
+<ul>
+<li>它不再是你可以边走边改的一轮对话</li>
+<li>它是你看不见的成百上千步的种子</li>
+</ul>
+<pre><code class="language-mermaid">%%{init: {'theme': 'dark', 'themeVariables': {
+  'lineColor': '#FCD34D',
+  'primaryTextColor': '#F8FAFC',
+  'edgeLabelBackground': '#0F172A'
+}}}%%
+flowchart TB
+    SEED[&quot;种子：规格 · 停机条件 · 测试用例&quot;]
+
+    SEED --&gt; GOOD[&quot;清晰&quot;]
+    SEED --&gt; BAD[&quot;模糊&quot;]
+
+    GOOD --&gt; G1[方向一致地推进]
+    BAD --&gt; B1[自信地朝错误方向&lt;br/&gt;反复猜测]
+
+    linkStyle default stroke:#FCD34D,stroke-width:2.5px
+
+    classDef seed fill:#4F46E5,stroke:#A5B4FC,color:#FFF,stroke-width:2px
+    classDef good fill:#059669,stroke:#6EE7B7,color:#FFF,stroke-width:2px
+    classDef bad fill:#EF4444,stroke:#FCA5A5,color:#FFF,stroke-width:2px
+    classDef gout fill:#065F46,stroke:#34D399,color:#ECFDF5,stroke-width:2px
+    classDef bout fill:#7F1D1D,stroke:#FCA5A5,color:#FEE2E2,stroke-width:2px
+
+    class SEED seed
+    class GOOD good
+    class BAD bad
+    class G1 gout
+    class B1 bout
+</code></pre>
+<p>模糊的规格、停机条件、测试用例，会让系统做大量假设——而这些假设多数是错的。<br>
+对长时 loop，这不是小问题，是灾难级问题。</p>
+<hr>
+<h2 id="8">8. 第二笔真实成本：钱</h2>
+<p>每一个 token 都在烧钱。浪漫版故事是：</p>
+<blockquote>
+<p>写好 loop，然后去睡觉。</p>
+</blockquote>
+<p>诚实版是：</p>
+<blockquote>
+<p>你很大一部分工作，是确保它会停下来。</p>
+</blockquote>
+<p>必备护栏：</p>
+<ul>
+<li>进度停滞时的停止判断</li>
+<li><strong>硬性花费上限（hard spending limit）</strong></li>
+</ul>
+<p>没有这些，钱包上会出现一个洞。</p>
+<hr>
+<h2 id="9-skill-loop">9. 真正会复利的是 Skill，不是 Loop 本身</h2>
+<p>如果 loop 多半是水管，verification 负责可信，那么长期复利的不是环本身，而是环里沉淀下来的能力：</p>
+<pre><code class="language-mermaid">%%{init: {'theme': 'dark', 'themeVariables': {
+  'lineColor': '#67E8F9',
+  'primaryTextColor': '#F8FAFC',
+  'edgeLabelBackground': '#0F172A'
+}}}%%
+flowchart LR
+    LOOP[Loop 迭代] --&gt; LEARN[本轮教训]
+    LEARN --&gt; SKILL[写入 / 改进 Skills]
+    SKILL --&gt; LOOP
+
+    linkStyle default stroke:#67E8F9,stroke-width:2.5px
+
+    classDef loop fill:#D97706,stroke:#FCD34D,color:#FFF,stroke-width:2px
+    classDef learn fill:#8B5CF6,stroke:#C4B5FD,color:#FFF,stroke-width:2px
+    classDef skill fill:#0891B2,stroke:#67E8F9,color:#FFF,stroke-width:2px
+
+    class LOOP loop
+    class LEARN learn
+    class SKILL skill
+</code></pre>
+<p>每一轮都要把学习写回 Skills，让 Agent 能从上一轮的错误里长出来。<br>
+<strong>Loop 负责运转；Skills 负责复利。</strong></p>
+<hr>
+<h2 id="10">10. 总结：何时用，如何用</h2>
+<p>Agentic Loop 有价值，但前提是护栏齐全：</p>
+<ol>
+<li><strong>清晰的种子 Prompt</strong> —— 规格、指令、测试用例要扎实  </li>
+<li><strong>明确的停机条件</strong> —— 否则它会空转  </li>
+<li><strong>独立 Verification</strong> —— 写的人不打分  </li>
+<li><strong>花费与进度上限</strong> —— 浪漫睡眠前先装刹车  </li>
+<li><strong>可复利的 Skills</strong> —— 让教训留下，而不是每轮归零  </li>
+<li><strong>尊重 Orchestration Tax</strong> —— 并行上限是你的理解与评审带宽</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>适合</th>
+<th>不适合</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>可验证、可重复、停机条件清晰的任务</td>
+<td>目标模糊、无法客观验收的探索</td>
+</tr>
+<tr>
+<td>有独立检查与花费上限的维护类工作</td>
+<td>「开了几百个 Agent 就当交付」的幻想</td>
+</tr>
+</tbody>
+</table>
+<p>前段工程时间花得越多，后面结果越稳。<br>
+否则，你得到的只是长时间运转的 gibberish。</p>
+<hr>
+<h2 id="_1">参考</h2>
+<ul>
+<li>Peter Steinberger：设计会 prompt agent 的 loops，而不是自己不停 prompt  </li>
+<li>Boris Cherny（Claude Code）：工作是写 loops；由 loops 去 prompt Claude  </li>
+<li>相关专题：<code>01.context-looop-engineering.md</code>（四层演进）、<code>06-harnes/</code>、<code>08-hermes-agent/</code></li>
+</ul>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags">
+            <span class="chip">Loop Engineering</span>
+            <span class="chip">AI Agent</span>
+            <span class="chip">面试宝典</span>
+          </div>
+          <a class="t-meta" href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/09-loop-engineering/02.loop-engineering.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../ai-engineer/loop/01-context-looop-engineering.html"><span class="dir">← 上一篇</span><span class="t">Loop Engineering：从 Prompt 到自我驱动的 Agent</span></a><a class="next" href="../../ai-engineer/loop/03-loop-engineering.html"><span class="dir">下一篇 →</span><span class="t">Loop Engineering：定义澄清、质量曲线与落地形态</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../rag/index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+
+<script src="../../ai-engineer/assets/mermaid-init.js" defer></script>
+<script src="../../js/main.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>s19: MCP Tools — 外接工具，标准协议 · AI Agent 面试宝典 — NorthAdb 的博客</title>
+<meta name="description" content="&quot;外接工具, 标准协议&quot; — 发现、组装、调用，Agent 不需要知道工具是谁写的。 Harness 层: 插件 — 外部能力通过标准协议接入。">
+<link rel="canonical" href="https://northadb.github.io/ai-engineer/harness/s19-mcp-plugin.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="s19: MCP Tools — 外接工具，标准协议 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta property="og:description" content="&quot;外接工具, 标准协议&quot; — 发现、组装、调用，Agent 不需要知道工具是谁写的。 Harness 层: 插件 — 外部能力通过标准协议接入。">
+<meta property="og:url" content="https://northadb.github.io/ai-engineer/harness/s19-mcp-plugin.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="s19: MCP Tools — 外接工具，标准协议 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta name="twitter:description" content="&quot;外接工具, 标准协议&quot; — 发现、组装、调用，Agent 不需要知道工具是谁写的。 Harness 层: 插件 — 外部能力通过标准协议接入。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../feed.xml">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../ai-engineer/assets/course.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "s19: MCP Tools — 外接工具，标准协议", "description": "\"外接工具, 标准协议\" — 发现、组装、调用，Agent 不需要知道工具是谁写的。 Harness 层: 插件 — 外部能力通过标准协议接入。", "author": {"@type": "Person", "name": "juliepy", "url": "https://github.com/juliepy/AI-Engineer-from-scrach"}, "mainEntityOfPage": "https://northadb.github.io/ai-engineer/harness/s19-mcp-plugin.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../index.html">首页</a><span>/</span><a href="../../learn.html">课件</a><span>/</span><a href="../../ai-engineer/index.html">AI Agent 面试宝典</a><span>/</span><a href="../../ai-engineer/harness/index.html">Harness 工程化</a></div>
+          <h1>s19: MCP Tools — 外接工具，标准协议</h1>
+          <p class="post-sub">&quot;外接工具, 标准协议&quot; — 发现、组装、调用，Agent 不需要知道工具是谁写的。 Harness 层: 插件 — 外部能力通过标准协议接入。</p>
+          <div class="post-meta">
+            <span class="avatar">AI</span>
+            <span>AI Agent 面试宝典</span><span class="sep"></span>
+            <span>Harness 工程化</span><span class="sep"></span>
+            <span>阅读约 7 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<p><a href="../harness/s19-mcp-plugin.html">中文</a> · <a href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/06-harnes/learn-claude-code/s19_mcp_plugin/README.en.md">English</a> · <a href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/06-harnes/learn-claude-code/s19_mcp_plugin/README.ja.md">日本語</a></p>
+<p>s01 → ... → s17 → s18 → <code>s19</code> → <a href="https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/06-harnes/learn-claude-code/s20_comprehensive">s20</a></p>
+<blockquote>
+<p><em>"外接工具, 标准协议"</em> — 发现、组装、调用，Agent 不需要知道工具是谁写的。</p>
+<p><strong>Harness 层</strong>: 插件 — 外部能力通过标准协议接入。</p>
+</blockquote>
+<hr>
+<h2 id="_1">问题</h2>
+<p>s01 到 s18，Agent 的所有工具都是手写的——bash、read、write、task、worktree。每个工具的输入验证、执行逻辑、错误处理，都是你一行行写的。</p>
+<p>现在你有 3 个外部服务想接入：公司的 Jira API（查 issue、建 ticket）、自建的部署系统（触发 deploy、看日志）、团队的 Notion 知识库（搜文档、建页面）。你不想为每个服务重写一套工具代码。</p>
+<p>你需要一个标准协议——外部服务只要实现它，Agent 就能直接调用，不管服务用什么语言写的。</p>
+<hr>
+<h2 id="_2">解决方案</h2>
+<p><img alt="MCP Architecture" src="../assets/img/06451ce267.svg"></p>
+<p>MCP（Model Context Protocol）定义了 Agent 如何发现和调用外部工具。核心概念：</p>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MCPClient</td>
+<td>Agent 端的客户端，连接 server、发现工具、调用工具</td>
+</tr>
+<tr>
+<td>MCP Server</td>
+<td>外部服务，实现 <code>tools/list</code> + <code>tools/call</code></td>
+</tr>
+<tr>
+<td>assemble_tool_pool</td>
+<td>把内置工具和 MCP 工具组装成一个工具池</td>
+</tr>
+<tr>
+<td>mcp__server__tool 命名</td>
+<td>避免不同 server 的工具名冲突</td>
+</tr>
+</tbody>
+</table>
+<p>沿用 s18 的教学版 worktree 隔离、自主认领、空闲轮询、协议系统。本章新增：<code>connect_mcp</code> 工具——连接外部服务，发现工具，加入工具池。</p>
+<p>教学版用 mock handler 模拟外部 server。真实版会启动子进程，通过 stdin/stdout 发送 JSON-RPC 请求。mock 的好处是不依赖外部服务就能跑完整流程；代价是你看不到真正的网络通信和进程管理。</p>
+<hr>
+<h2 id="_3">工作原理</h2>
+<h3 id="mcpclient">MCPClient：发现 + 调用</h3>
+<pre><code class="language-python">class MCPClient:
+    def __init__(self, name: str):
+        self.name = name
+        self.tools: list[dict] = []
+        self._handlers: dict[str, callable] = {}
+
+    def register(self, tool_defs, handlers):
+        &quot;&quot;&quot;Simulates tools/list discovery.&quot;&quot;&quot;
+        self.tools = tool_defs
+        self._handlers = handlers
+
+    def call_tool(self, tool_name: str, args: dict) -&gt; str:
+        &quot;&quot;&quot;Simulates tools/call.&quot;&quot;&quot;
+        handler = self._handlers.get(tool_name)
+        if not handler:
+            return f&quot;MCP error: unknown tool '{tool_name}'&quot;
+        return handler(**args)
+</code></pre>
+<p>教学版用 Python 函数模拟 server 的工具实现。真实版通过 stdio JSON-RPC 与子进程通信。</p>
+<h3 id="connect_mcp">connect_mcp：连接 + 发现</h3>
+<pre><code class="language-python">def connect_mcp(name: str) -&gt; str:
+    if name in mcp_clients:
+        return f&quot;MCP server '{name}' already connected&quot;
+    factory = MOCK_SERVERS.get(name)
+    if not factory:
+        return f&quot;Unknown server '{name}'. Available: ...&quot;
+    mcp_client = factory()
+    mcp_clients[name] = mcp_client
+    return f&quot;Connected to '{name}'. Discovered: ...&quot;
+</code></pre>
+<p>连接后，server 提供的工具立即可用。</p>
+<h3 id="normalize_mcp_name">normalize_mcp_name：名称规范化</h3>
+<pre><code class="language-python">_DISALLOWED_CHARS = re.compile(r'[^a-zA-Z0-9_-]')
+
+def normalize_mcp_name(name: str) -&gt; str:
+    return _DISALLOWED_CHARS.sub('_', name)
+</code></pre>
+<p>所有非 <code>[a-zA-Z0-9_-]</code> 的字符替换为 <code>_</code>。防止 server 名或工具名中包含特殊字符导致命名冲突或注入问题。</p>
+<h3 id="assemble_tool_pool">assemble_tool_pool：组装工具池</h3>
+<pre><code class="language-python">def assemble_tool_pool() -&gt; tuple[list[dict], dict]:
+    tools = list(BUILTIN_TOOLS)
+    handlers = dict(BUILTIN_HANDLERS)
+    for server_name, mcp_client in mcp_clients.items():
+        safe_server = normalize_mcp_name(server_name)
+        for tool_def in mcp_client.tools:
+            safe_tool = normalize_mcp_name(tool_def[&quot;name&quot;])
+            prefixed = f&quot;mcp__{safe_server}__{safe_tool}&quot;
+            tools.append(...)
+            handlers[prefixed] = (
+                lambda *, c=mcp_client, t=tool_def[&quot;name&quot;], **kw:
+                    c.call_tool(t, kw))
+    return tools, handlers
+</code></pre>
+<p>前缀 <code>mcp__{server}__{tool}</code> 避免不同 server 的工具名冲突。名称经过 <code>normalize_mcp_name</code> 规范化。</p>
+<p>MCP 工具的 description 带 <code>(readOnly)</code> 或 <code>(destructive)</code> 标注——教学版用文本标注，真实 CC 用 tool annotations 结构体让权限系统判断。</p>
+<h3 id="prompt">无缓存：工具池变了，prompt 也变</h3>
+<p>s10-s18 的 agent_loop 用 prompt cache 避免重复序列化。s19 去掉了缓存：</p>
+<pre><code class="language-python">def agent_loop(messages, context):
+    tools, handlers = assemble_tool_pool()     # 每次重新构建
+    system = assemble_system_prompt(context)    # 每次重新生成
+    ...
+    if any(b.name == &quot;connect_mcp&quot; ...):
+        tools, handlers = assemble_tool_pool()  # 连接后重建
+        system = assemble_system_prompt(context)
+</code></pre>
+<p>原因：<code>connect_mcp</code> 之后工具池变化了——新增了 <code>mcp__docs__search</code> 等工具。缓存中的工具列表是旧的，继续用会导致模型调用不到新工具。教学版直接去掉缓存，代价是多花一点序列化时间。</p>
+<h3 id="mcp-lead">MCP 工具只有 Lead 可用</h3>
+<p>教学版中，<code>connect_mcp</code> 是 Lead 工具，<code>assemble_tool_pool</code> 也只服务于 Lead 的 agent_loop。Teammate 仍使用固定的 8 个子集工具（bash、read_file、write_file、send_message、submit_plan、list_tasks、claim_task、complete_task）。</p>
+<p>这是教学简化。真实 CC 中，MCP 工具对主 agent 和子 agent 都可用——子 agent 继承父级的 MCP 配置。</p>
+<hr>
+<h2 id="s18">相对 s18 的变更</h2>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>之前 (s18)</th>
+<th>之后 (s19)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>工具来源</td>
+<td>全部手写 builtin</td>
+<td>手写 + MCP 外部工具动态发现</td>
+</tr>
+<tr>
+<td>工具池</td>
+<td>固定 BUILTIN_TOOLS</td>
+<td>assemble_tool_pool 动态组装 mcp__ 前缀工具</td>
+</tr>
+<tr>
+<td>名称安全</td>
+<td>无</td>
+<td>normalize_mcp_name 规范化</td>
+</tr>
+<tr>
+<td>新类型</td>
+<td>—</td>
+<td>MCPClient 类（模拟 tools/list + tools/call）</td>
+</tr>
+<tr>
+<td>命名空间</td>
+<td>—</td>
+<td>mcp__server__tool 避免冲突</td>
+</tr>
+<tr>
+<td>工具描述</td>
+<td>无标注</td>
+<td>(readOnly)/(destructive) 标注</td>
+</tr>
+<tr>
+<td>prompt 缓存</td>
+<td>有（s10 起）</td>
+<td>去掉——工具池动态变化后缓存失效</td>
+</tr>
+<tr>
+<td>Lead 工具</td>
+<td>17 (s18)</td>
+<td>18 (+connect_mcp)</td>
+</tr>
+<tr>
+<td>Teammate 工具</td>
+<td>8 (s18)</td>
+<td>8（不变，MCP 工具仅 Lead 可用）</td>
+</tr>
+<tr>
+<td>扩展方式</td>
+<td>写代码加工具</td>
+<td>标准协议，任意语言实现 server</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="_4">试一下</h2>
+<pre><code class="language-sh">cd learn-claude-code
+python s19_mcp_plugin/code.py
+</code></pre>
+<p>试试这些 prompt：</p>
+<ol>
+<li><code>Connect to the docs MCP server and search for something</code></li>
+<li><code>Connect to the deploy server and trigger a deployment</code></li>
+<li><code>Connect both servers — what tools are now available?</code></li>
+</ol>
+<p>观察重点：连接 MCP server 后，工具名是否带 <code>mcp__docs__</code> 或 <code>mcp__deploy__</code> 前缀？两个 server 的工具是否同时可用？MCP 工具的 description 是否带 (readOnly)/(destructive) 标注？</p>
+<hr>
+<h2 id="_5">接下来</h2>
+<p>现在 Agent 可以通过标准协议接入外部工具了。但前面 19 章每章都只加一个机制，真实 Agent 不会这样拆开运行。</p>
+<p>工具、权限、hooks、todo、任务图、记忆、压缩、后台、cron、团队、worktree、MCP 这些机制应该挂在同一个循环上，而不是散在 19 个 demo 里。</p>
+<p>s20 Comprehensive Agent → 把前 19 章的机制合回一个完整 harness。机制很多，循环一个。</p>
+<details>
+<summary>深入 CC 源码</summary>
+
+> 以下基于 CC 源码 `services/mcp/client.ts`、`auth.ts`、`config.ts`、`channelNotification.ts` 的分析。
+
+### 一、6 种 Transport 类型
+
+教学版只展示了 stdio mock。CC 支持 6 种传输（`types.ts:23-25`）：
+
+| Transport | 通信方式 |
+|-----------|---------|
+| `stdio` | 子进程 stdin/stdout（跨平台默认） |
+| `sse` | HTTP Server-Sent Events |
+| `http` | Streamable HTTP（POST/SSE 双向） |
+| `ws` | WebSocket |
+| `sse-ide` | IDE 内嵌 SSE 传输 |
+| `sdk` | 进程内 SDK 传输 |
+
+连接时本地（stdio）和远程（http/sse/ws）服务器分批并发：本地批量 3 个，远程批量 20 个。
+
+### 二、工具池组装算法
+
+`assembleToolPool()`（`tools.ts:345-364`）：
+
+
+<pre><code class="language-typescript">// 去重时优先保留内置工具（name 相同时内置在前）
+return uniqBy(
+  [...builtInTools.sort(byName), ...filteredMcpTools.sort(byName)],
+  'name',
+)
+</code></pre>
+
+
+内置工具和 MCP 工具分开排序，不是合起来排。原因是 CC 的 `claude_code_system_cache_policy` 在最后一个内置工具之后的某个位置放全局缓存断点——混排会破坏这个设计。
+
+### 三、命名规则：`mcp__server__tool`
+
+`buildMcpToolName()`（`mcpStringUtils.ts:50-52`）：
+
+
+<pre><code>mcp__&lt;normalizedServerName&gt;__&lt;normalizedToolName&gt;
+</code></pre>
+
+
+所有非 `[a-zA-Z0-9_-]` 字符替换为 `_`（`normalization.ts:17-23`）。教学版的 `normalize_mcp_name` 用同样的规则。
+
+### 四、权限检查
+
+CC 对 MCP 工具有独立的权限系统。`checkPermissions()` 对 MCP 工具的检查逻辑不同于内置工具——MCP 工具可以声明自己的权限需求（readOnly、destructive 等），CC 根据声明决定是否需要用户确认。教学版只在 description 中用文本标注 `(readOnly)` / `(destructive)`，不做权限拦截。
+
+### 五、配置来源与优先级
+
+MCP 服务器配置来自多个来源。CC 的配置优先级从低到高：
+
+
+<pre><code>claude.ai 连接器 &lt; plugin &lt; user settings.json &lt; approved project .mcp.json &lt; local settings.local.json
+</code></pre>
+
+
+`claude.ai` 连接器单独拉取、按内容签名去重，以最低优先级合并（`config.ts:1267-1289`）。企业 `managed-mcp.json` 存在时完全排除其他配置。
+
+教学版直接传 server name 给 `MOCK_SERVERS` 字典，不做配置合并。
+
+### 六、Channel 通知：服务器反向推消息
+
+教学版只讲了 Agent → MCP Server 的单向调用。CC 还支持反向通知（`channelNotification.ts`）：
+
+1. Server 声明 `capabilities.experimental['claude/channel']`
+2. Server 通过 MCP 通知 `notifications/claude/channel` 给 Agent 发消息
+3. 消息包装在 `<channel source="serverName">...</channel>` XML 标签中
+4. Agent 被 SleepTool 唤醒（1 秒内）
+
+Server 还可以请求权限：`notifications/claude/channel/permission_request` → Agent 回复 `notifications/claude/channel/permission`。用户通过 5 字母短 ID 确认/拒绝。
+
+### 七、OAuth 认证流程
+
+CC 的 MCP 认证（`auth.ts`）支持完整的 OAuth 2.0 + PKCE 流程：
+- 通过公钥客户端 + PKCE 发现 OAuth 元数据（RFC 8414 / RFC 9728）
+- 本地回调服务器接收授权码
+- 令牌通过 `getSecureStorage()` 持久化（macOS Keychain / Linux 加密文件 / Windows 凭据管理器）
+- 过期前 5 分钟自动刷新
+- 支持跨应用访问（XAA）：浏览器获取 id_token → RFC 8693 + RFC 7523 交换 → 无需反复弹浏览器
+
+### 八、连接生命周期的错误处理
+
+CC 对 MCP 连接有精细的错误分类和重试（`client.ts:1266-1402`）：
+- 终局性错误（ECONNRESET、ETIMEDOUT、EPIPE 等）：连续 3 次 → 关闭 + 重连
+- 工具调用 401：令牌过期 → 抛出 `McpAuthError` → 触发重认证
+- 工具调用超时：`Promise.race` 超时（可配置，默认约 28 小时）
+- Stdio 断连：按 SIGINT → SIGTERM → SIGKILL 顺序杀进程
+
+### 教学版的简化
+
+- 6 种 transport → 1 种（mock stdio）：概念量可控
+- Channel 反向通知 → 省略：教学版 Agent 是主动方
+- OAuth 流程 → 省略：教学版假设 server 不需要认证
+- 多层配置优先级 → 省略：教学版直接传 server name
+- 复杂的错误分类 → 省略：教学版用 try/except 兜底
+- MCP 工具只给 Lead → 省略子 agent 继承：简化代码结构
+
+</details>
+
+<!-- translation-sync: zh@v2, en@v0, ja@v0 -->
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags">
+            <span class="chip">Harness 工程化</span>
+            <span class="chip">AI Agent</span>
+            <span class="chip">面试宝典</span>
+          </div>
+          <a class="t-meta" href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/06-harnes/learn-claude-code/s19_mcp_plugin/README.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../ai-engineer/harness/s18-worktree-isolation.html"><span class="dir">← 上一篇</span><span class="t">s18: Worktree Isolation — 各干各的，互不干扰</span></a><a class="next" href="../../ai-engineer/harness/s20-comprehensive.html"><span class="dir">下一篇 →</span><span class="t">s20: Comprehensive Agent — 全部机制，归到一个循环</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../rag/index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+
+<script src="../../js/main.js" defer></script>
+</body>
+</html>

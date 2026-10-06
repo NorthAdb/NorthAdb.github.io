@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hermes 没用 LangChain / LangGraph —— 以及面试为什么总问 · AI Agent 面试宝典 — NorthAdb 的博客</title>
+<meta name="description" content="研究结论：Hermes Agent 核心编排不依赖 LangChain / LangGraph。 面试高频问「有没有用 LC/LG 编排过」，测的多半是 Agent 概念标签，不是「生产必须用这个库」。">
+<link rel="canonical" href="https://northadb.github.io/ai-engineer/hermes/09-lang-serial-not.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Hermes 没用 LangChain / LangGraph —— 以及面试为什么总问 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta property="og:description" content="研究结论：Hermes Agent 核心编排不依赖 LangChain / LangGraph。 面试高频问「有没有用 LC/LG 编排过」，测的多半是 Agent 概念标签，不是「生产必须用这个库」。">
+<meta property="og:url" content="https://northadb.github.io/ai-engineer/hermes/09-lang-serial-not.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Hermes 没用 LangChain / LangGraph —— 以及面试为什么总问 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta name="twitter:description" content="研究结论：Hermes Agent 核心编排不依赖 LangChain / LangGraph。 面试高频问「有没有用 LC/LG 编排过」，测的多半是 Agent 概念标签，不是「生产必须用这个库」。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../feed.xml">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../ai-engineer/assets/course.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Hermes 没用 LangChain / LangGraph —— 以及面试为什么总问", "description": "研究结论：Hermes Agent 核心编排不依赖 LangChain / LangGraph。 面试高频问「有没有用 LC/LG 编排过」，测的多半是 Agent 概念标签，不是「生产必须用这个库」。", "author": {"@type": "Person", "name": "juliepy", "url": "https://github.com/juliepy/AI-Engineer-from-scrach"}, "mainEntityOfPage": "https://northadb.github.io/ai-engineer/hermes/09-lang-serial-not.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../index.html">首页</a><span>/</span><a href="../../learn.html">课件</a><span>/</span><a href="../../ai-engineer/index.html">AI Agent 面试宝典</a><span>/</span><a href="../../ai-engineer/hermes/index.html">Hermes 源码精读</a></div>
+          <h1>Hermes 没用 LangChain / LangGraph —— 以及面试为什么总问</h1>
+          <p class="post-sub">研究结论：Hermes Agent 核心编排不依赖 LangChain / LangGraph。 面试高频问「有没有用 LC/LG 编排过」，测的多半是 Agent 概念标签，不是「生产必须用这个库」。</p>
+          <div class="post-meta">
+            <span class="avatar">AI</span>
+            <span>AI Agent 面试宝典</span><span class="sep"></span>
+            <span>Hermes 源码精读</span><span class="sep"></span>
+            <span>阅读约 8 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p>研究结论：Hermes Agent <strong>核心编排不依赖</strong> LangChain / LangGraph。<br>
+面试高频问「有没有用 LC/LG 编排过」，测的多半是 <strong>Agent 概念标签</strong>，不是「生产必须用这个库」。</p>
+</blockquote>
+<p>对照源码仓库：<code>hermes-agent</code>（Nous Research）。</p>
+<hr>
+<h2 id="1">1. 结论（先说清楚）</h2>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>答案</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hermes 用了 LangGraph 吗？</td>
+<td><strong>没有</strong></td>
+</tr>
+<tr>
+<td>Hermes 用了 LangChain 吗？</td>
+<td><strong>核心没有</strong>；仅在可选 skill / 文档示例里出现集成片段</td>
+</tr>
+<tr>
+<td>Agent 怎么编排？</td>
+<td>自研：<code>run_agent.py</code> 里同步 tool-calling loop + <code>model_tools.py</code> / <code>tools/registry.py</code></td>
+</tr>
+<tr>
+<td>主依赖是什么？</td>
+<td><code>openai</code> SDK（<code>pyproject.toml</code> 精确 pin），不是 LC/LG</td>
+</tr>
+</tbody>
+</table>
+<p>一句话：<strong>生产级 Agent 可以完全不用 LC/LG；手写 OpenAI 兼容 API + messages + tools 循环就够。</strong></p>
+<h3 id="_1">总览图：两条编排路径（概念等价，实现不同）</h3>
+<pre><code class="language-mermaid">flowchart LR
+    subgraph LC[&quot;LangChain / LangGraph 路径&quot;]
+        direction TB
+        A1[&quot;Chain / Graph 抽象&quot;] --&gt; A2[&quot;ToolNode / AgentExecutor&quot;]
+        A2 --&gt; A3[&quot;Checkpoint / State&quot;]
+        A3 --&gt; A4[&quot;LangSmith 等观测&quot;]
+    end
+
+    subgraph HM[&quot;Hermes 自研路径&quot;]
+        direction TB
+        B1[&quot;run_agent while loop&quot;] --&gt; B2[&quot;registry + handle_function_call&quot;]
+        B2 --&gt; B3[&quot;Session DB + compression&quot;]
+        B3 --&gt; B4[&quot;agent.log / gateway / plugins&quot;]
+    end
+
+    Q[&quot;同一类问题：&lt;br/&gt;LLM → Tool → Observe → 再调&quot;] -.-&gt; LC
+    Q -.-&gt; HM
+
+    classDef q fill:#FFF3CD,stroke:#E6A817,color:#333,stroke-width:2px
+    classDef lc fill:#E8F4FC,stroke:#2E86AB,color:#1a1a1a,stroke-width:2px
+    classDef hm fill:#E8F8F0,stroke:#2A9D6E,color:#1a1a1a,stroke-width:2px
+    class Q q
+    class A1,A2,A3,A4 lc
+    class B1,B2,B3,B4 hm
+</code></pre>
+<hr>
+<h2 id="2-langchain-langgraph">2. LangChain 和 LangGraph 主要是干什么的</h2>
+<p>两者都来自 LangChain 生态，但<strong>职责分层不同</strong>，面试里经常被混着问。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>LangChain</th>
+<th>LangGraph</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>一句话</td>
+<td><strong>LLM 应用积木箱</strong>：把模型、提示、检索、工具、输出解析拼成流水线</td>
+<td><strong>有状态的 Agent / 工作流编排</strong>：用图（节点+边）表达分支、循环、人机审批</td>
+</tr>
+<tr>
+<td>典型对象</td>
+<td>Chain、Retriever、Tool、PromptTemplate、OutputParser</td>
+<td>StateGraph、Node、Edge、Checkpoint、interrupt</td>
+</tr>
+<tr>
+<td>擅长</td>
+<td>RAG 拼装、多厂商模型适配、快速接向量库/工具</td>
+<td>多步 Agent、条件分支、循环重试、暂停等人确认后再继续</td>
+</tr>
+<tr>
+<td>不擅长 / 代价</td>
+<td>抽象层厚，版本与 API 变动快，深度定制时易「绕框架」</td>
+<td>状态图建模有学习成本；简单问答/单次 tool call 会显得过重</td>
+</tr>
+</tbody>
+</table>
+<h3 id="21-langchain">2.1 LangChain：主要干什么</h3>
+<p><strong>把「调用大模型」升级成「可组装的应用组件」。</strong></p>
+<p>常见能力：</p>
+<ol>
+<li><strong>模型统一接口</strong>：OpenAI / Anthropic / 本地模型换一层封装  </li>
+<li><strong>Prompt + Chain</strong>：提示模板 → 模型 → 解析器，串成固定流水线  </li>
+<li><strong>RAG 积木</strong>：文档加载、切分、Embedding、向量库、Retriever、拼进 prompt  </li>
+<li><strong>Tools</strong>：给 LLM 可调用的函数/API 包装  </li>
+<li><strong>早期 Agent</strong>：如 ReAct / AgentExecutor（后来更重的编排逐渐交给 LangGraph）</li>
+</ol>
+<p>适合：Demo、PoC、内部工具、标准 RAG、「先跑通再谈架构」。</p>
+<h3 id="22-langgraph">2.2 LangGraph：主要干什么</h3>
+<p><strong>把 Agent / 业务工作流建成一张可控的状态图。</strong></p>
+<p>常见能力：</p>
+<ol>
+<li><strong>显式状态（State）</strong>：每步读写共享 state（消息、中间结果、标志位）  </li>
+<li><strong>节点 + 边</strong>：节点=一步（调模型 / 调工具 / 写库）；边=顺序或条件跳转  </li>
+<li><strong>循环</strong>：模型继续调工具直到结束 —— 对应手写 <code>while tool_calls</code>  </li>
+<li><strong>人机协同（HITL）</strong>：图中途 <code>interrupt</code>，等人审批再 resume  </li>
+<li><strong>Checkpoint</strong>：中断可恢复、可回放，偏生产工作流</li>
+</ol>
+<p>适合：多步决策、审批流、复杂分支、需要「停下来问人」的 Agent。</p>
+<h3 id="23">2.3 关系与分工（一张图）</h3>
+<pre><code class="language-mermaid">flowchart TB
+    APP[&quot;你要做的 LLM 应用&quot;]
+
+    APP --&gt; LC[&quot;LangChain&lt;br/&gt;积木：模型 / Prompt / RAG / Tools&quot;]
+    APP --&gt; LG[&quot;LangGraph&lt;br/&gt;编排：State + 图 + 循环 + HITL&quot;]
+
+    LC --&gt; JOIN[&quot;常一起用：&lt;br/&gt;LC 提供节点里的实现&lt;br/&gt;LG 决定节点怎么走&quot;]
+    LG --&gt; JOIN
+
+    JOIN --&gt; ALT[&quot;也可以都不用：&lt;br/&gt;openai SDK + 自研 loop&lt;br/&gt;（Hermes 路径）&quot;]
+
+    classDef app fill:#FFF3CD,stroke:#E6A817,color:#333,stroke-width:2px
+    classDef lc fill:#E8F4FC,stroke:#2E86AB,color:#1a1a1a,stroke-width:2px
+    classDef lg fill:#F0E6FA,stroke:#7D3C98,color:#1a1a1a,stroke-width:2px
+    classDef join fill:#FDEBD0,stroke:#D68910,color:#333,stroke-width:2px
+    classDef alt fill:#E8F8F0,stroke:#2A9D6E,color:#1a1a1a,stroke-width:2px
+
+    class APP app
+    class LC lc
+    class LG lg
+    class JOIN join
+    class ALT alt
+</code></pre>
+<p>记忆口诀：</p>
+<ul>
+<li><strong>LangChain = 零件与胶水</strong>（怎么接模型、检索、工具）  </li>
+<li><strong>LangGraph = 流程与状态机</strong>（步骤怎么走、何时停、如何恢复）  </li>
+<li><strong>Hermes = 自研零件 + 自研流程</strong>（不买这套积木/图框架）</li>
+</ul>
+<hr>
+<h2 id="3">3. 证据：依赖与代码</h2>
+<h3 id="31-pyprojecttoml">3.1 <code>pyproject.toml</code></h3>
+<p>核心 <code>dependencies</code> 可见：</p>
+<ul>
+<li>有：<code>openai==2.24.0</code>、<code>httpx</code>、<code>pydantic</code>、<code>fastapi</code> 等</li>
+<li><strong>没有</strong>：<code>langchain</code>、<code>langgraph</code>、<code>langsmith</code>、<code>llama-index</code>、<code>crewai</code>、<code>autogen</code> 等 Agent 框架</li>
+</ul>
+<p>策略也很明确：只把「每个 session 都用到」的包装进默认依赖；框架型编排库不在列。</p>
+<h3 id="32-import">3.2 源码 import</h3>
+<p>在 <code>*.py</code> / <code>*.ts</code> 中检索：</p>
+<pre><code class="language-text">from langchain / import langchain
+from langgraph / import langgraph
+</code></pre>
+<p>→ <strong>零命中</strong>。</p>
+<p><code>langgraph</code> 在整个仓库几乎无引用。</p>
+<h3 id="33-langchain">3.3 LangChain 出现在哪里？</h3>
+<p>只出现在 <strong>文档 / optional skills</strong>，例如：</p>
+<ul>
+<li><code>optional-skills/mlops/chroma</code>、<code>pinecone</code>、<code>faiss</code>、<code>whisper</code> 等 SKILL.md<br>
+  → 「如何与 LangChain 集成」的示例代码  </li>
+<li>网站文档里对应的 mlops 指南、与 DSPy/Instructor 的对比表</li>
+</ul>
+<p>性质：<strong>教用户把某个向量库接到 LC 生态</strong>，不是 Hermes runtime 的依赖。</p>
+<h3 id="34-hermes">3.4 Hermes 自己的编排长什么样</h3>
+<p>核心不在图框架，而在自研 Agent Loop：</p>
+<pre><code class="language-mermaid">flowchart TD
+    START([用户消息进入]) --&gt; BUDGET{&quot;迭代预算 / 未中断?&quot;}
+    BUDGET --&gt;|否| END1([结束或 graceful 收尾])
+    BUDGET --&gt;|是| API[&quot;openai SDK&lt;br/&gt;chat.completions.create&lt;br/&gt;messages + tool schemas&quot;]
+    API --&gt; HAS{&quot;有 tool_calls?&quot;}
+    HAS --&gt;|是| EXEC[&quot;handle_function_call&lt;br/&gt;tools/registry&quot;]
+    EXEC --&gt; APPEND[&quot;messages.append(tool_result)&quot;]
+    APPEND --&gt; BUDGET
+    HAS --&gt;|否| FINAL([返回 final_content])
+
+    classDef start fill:#FFF3CD,stroke:#E6A817,color:#333,stroke-width:2px
+    classDef api fill:#E8F4FC,stroke:#2E86AB,color:#1a1a1a,stroke-width:2px
+    classDef decide fill:#FDEBD0,stroke:#D68910,color:#333,stroke-width:2px
+    classDef tool fill:#E8F8F0,stroke:#2A9D6E,color:#1a1a1a,stroke-width:2px
+    classDef endn fill:#F5E6E8,stroke:#C0392B,color:#333,stroke-width:2px
+
+    class START start
+    class API api
+    class BUDGET,HAS decide
+    class EXEC,APPEND tool
+    class END1,FINAL endn
+</code></pre>
+<p>伪代码等价于：</p>
+<pre><code class="language-text">while 未超迭代预算 and 未中断:
+    response = client.chat.completions.create(messages, tools=schemas)
+    if response.tool_calls:
+        for each tool_call:
+            result = handle_function_call(...)
+            messages.append(tool_result)
+    else:
+        return final_content
+</code></pre>
+<p>负载能力在边缘：tools / skills / plugins / gateway / memory providers —— <strong>不是</strong> LangGraph StateGraph。</p>
+<p>设计约束（与「为何不用重框架」直接相关）：</p>
+<ul>
+<li><strong>Prompt caching 神圣</strong>：会话中途改 system prompt / toolset 会废缓存、烧钱  </li>
+<li><strong>核心工具面要窄</strong>：每个 tool schema 每轮 API 都要带上  </li>
+<li>能力优先 CLI command + skill / 插件 / MCP，而不是再叠一层编排框架</li>
+</ul>
+<hr>
+<h2 id="4-lclg">4. 为什么「学了半天觉得 LC/LG 非用不可」——你的直觉是对的</h2>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>LC / LG 合不合适</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>教程、Demo、Hackathon</td>
+<td>合适：抽象多、上手快、和文档同构</td>
+</tr>
+<tr>
+<td>内部 PoC、快速验证工具链</td>
+<td>常合适</td>
+</tr>
+<tr>
+<td>长会话、要控缓存/成本、多平台 Gateway</td>
+<td>框架层常碍事 → 自研更常见</td>
+</tr>
+<tr>
+<td>Hermes / Cursor 类产品核心</td>
+<td>典型自研 loop，不用 LC/LG</td>
+</tr>
+</tbody>
+</table>
+<p><strong>非用不可的是「Agent 编排能力」本身</strong>（loop、状态、工具、终止、失败恢复），不是某个库名。</p>
+<h3 id="_2">选型图：什么时候用框架，什么时候自研</h3>
+<pre><code class="language-mermaid">flowchart TD
+    NEED[&quot;需要 Agent 编排&quot;] --&gt; SPEED{&quot;要最快出 Demo / PoC?&quot;}
+    SPEED --&gt;|是| USE[&quot;用 LangChain / LangGraph&lt;br/&gt;加速验证&quot;]
+    SPEED --&gt;|否| CTRL{&quot;要严控缓存、成本、&lt;br/&gt;工具面、多平台?&quot;}
+    CTRL --&gt;|是| DIY[&quot;自研 loop&lt;br/&gt;（Hermes 路径）&quot;]
+    CTRL --&gt;|否| EITHER[&quot;两者皆可&lt;br/&gt;优先团队熟悉栈&quot;]
+
+    classDef need fill:#FFF3CD,stroke:#E6A817,color:#333,stroke-width:2px
+    classDef q fill:#FDEBD0,stroke:#D68910,color:#333,stroke-width:2px
+    classDef use fill:#E8F4FC,stroke:#2E86AB,color:#1a1a1a,stroke-width:2px
+    classDef diy fill:#E8F8F0,stroke:#2A9D6E,color:#1a1a1a,stroke-width:2px
+    classDef mid fill:#F0E6FA,stroke:#7D3C98,color:#1a1a1a,stroke-width:2px
+
+    class NEED need
+    class SPEED,CTRL q
+    class USE use
+    class DIY diy
+    class EITHER mid
+</code></pre>
+<hr>
+<h2 id="5-langchain-langgraph">5. 面试为什么总问「用过 LangChain / LangGraph 吗」</h2>
+<p>常见真实动机（往往叠在一起）：</p>
+<ol>
+<li>
+<p><strong>简历 / JD 关键词</strong><br>
+   岗位描述写了 LC/LG → 一面用关键词对齐，不等于团队生产全押框架。</p>
+</li>
+<li>
+<p><strong>默认「共同语言」</strong><br>
+   很多候选人靠官方教程接触 Agent；面试官用 LC/LG 当速记：chain、tool agent、graph、checkpoint、human-in-the-loop。</p>
+</li>
+<li>
+<p><strong>想测概念，不是测 import</strong><br>
+   真正想听的通常是：
+   - LLM → tool → observe → 再调 的闭环<br>
+   - 状态存在哪、上下文怎么截断/压缩<br>
+   - 多步分支、审批节点怎么设计<br>
+   - 循环终止、重试、成本与超时  </p>
+</li>
+</ol>
+<p>LangGraph 只是这些概念的一种实现；手写 loop 是另一种。</p>
+<ol start="4">
+<li><strong>行业惯性</strong><br>
+   2023–2025 中文圈 Agent 内容 LC 曝光极高；问法滞后于一线工程实践很常见。</li>
+</ol>
+<hr>
+<h2 id="6">6. 面试怎么答（可直接用）</h2>
+<blockquote>
+<p>了解 LangChain / LangGraph，能写 chain、tool agent、状态图。<br>
+落地更倾向直接用 OpenAI 兼容 API 写 agent loop：自己管 messages、tool schema、终止条件和上下文压缩。<br>
+像 Hermes 这类产品也是自研编排，核心依赖不是 LC/LG。<br>
+框架适合快速验证；要控 prompt cache、工具面体积和多平台接入时，手写更可控。</p>
+</blockquote>
+<p>补充一句更加分：</p>
+<blockquote>
+<p>LC/LG 和自研 loop 解决的是同一类问题——差别在抽象层放哪。我能用框架原型，也能在需要时拆掉框架自己控。</p>
+</blockquote>
+<p>避免两种极端：</p>
+<ul>
+<li>❌ 「没用过所以不会 Agent」  </li>
+<li>❌ 「生产必须全用 LangGraph」</li>
+</ul>
+<hr>
+<h2 id="7">7. 概念对照表（面试翻译用）</h2>
+<table>
+<thead>
+<tr>
+<th>面试官说的 LC/LG 词</th>
+<th>Hermes / 自研里的等价物</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Agent / ReAct loop</td>
+<td><code>run_agent.run_conversation</code> while loop</td>
+</tr>
+<tr>
+<td>Tools / ToolNode</td>
+<td><code>tools/*.py</code> + <code>registry</code> + <code>handle_function_call</code></td>
+</tr>
+<tr>
+<td>State / checkpoint</td>
+<td>Session DB、messages 历史、compression</td>
+</tr>
+<tr>
+<td>Graph 分支 / 子图</td>
+<td><code>delegate_task</code> 子代理、cron、gateway 分流</td>
+</tr>
+<tr>
+<td>Memory</td>
+<td><code>MEMORY.md</code> / memory providers / session search</td>
+</tr>
+<tr>
+<td>Human-in-the-loop</td>
+<td>clarify / approval / gateway 审批命令</td>
+</tr>
+<tr>
+<td>LangSmith tracing</td>
+<td>自建日志（agent.log / gateway.log）或独立可观测插件</td>
+</tr>
+</tbody>
+</table>
+<p>会说这张表，比背 API 更像做过真项目。</p>
+<h3 id="hermes">对照图：面试词 → Hermes 落点</h3>
+<pre><code class="language-mermaid">flowchart LR
+    subgraph Ask[&quot;面试官口头禅&quot;]
+        L1[&quot;ReAct / Agent loop&quot;]
+        L2[&quot;ToolNode&quot;]
+        L3[&quot;State / Checkpoint&quot;]
+        L4[&quot;Subgraph / 分支&quot;]
+        L5[&quot;Memory&quot;]
+        L6[&quot;Human-in-the-loop&quot;]
+    end
+
+    subgraph Real[&quot;Hermes 落点&quot;]
+        H1[&quot;run_conversation&quot;]
+        H2[&quot;registry + tools/*&quot;]
+        H3[&quot;SessionDB + compression&quot;]
+        H4[&quot;delegate_task / cron / gateway&quot;]
+        H5[&quot;MEMORY.md / providers&quot;]
+        H6[&quot;clarify / approval&quot;]
+    end
+
+    L1 --&gt; H1
+    L2 --&gt; H2
+    L3 --&gt; H3
+    L4 --&gt; H4
+    L5 --&gt; H5
+    L6 --&gt; H6
+
+    classDef left fill:#E8F4FC,stroke:#2E86AB,color:#1a1a1a,stroke-width:2px
+    classDef right fill:#E8F8F0,stroke:#2A9D6E,color:#1a1a1a,stroke-width:2px
+    class L1,L2,L3,L4,L5,L6 left
+    class H1,H2,H3,H4,H5,H6 right
+</code></pre>
+<hr>
+<h2 id="8">8. 学习建议（针对「面试会问、工程可不用」）</h2>
+<ol>
+<li><strong>概念必会</strong>：agent loop、tool schema、消息角色交替、上下文压缩、终止条件。  </li>
+<li><strong>LC/LG：读懂即可</strong>：会写一个最小 tool agent + 一个带分支的 StateGraph 就够应付「用过吗」。  </li>
+<li><strong>至少手写一版</strong>：纯 <code>openai</code> SDK + tools，不依赖框架——这是和 Hermes 同构的路径，面试故事更硬。  </li>
+<li><strong>能讲取舍</strong>：何时用框架加速、何时拆掉框架控成本和缓存。</li>
+</ol>
+<hr>
+<h2 id="9">9. 一句话收束</h2>
+<p><strong>Hermes 证明：严肃 Agent 产品可以零依赖 LangChain / LangGraph。</strong><br>
+面试问 LC/LG，多半在筛「你是否进入过 Agent 编排语境」；你觉得「非用不可」——判断正确。把等价能力讲清楚，比死磕库名更重要。</p>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags">
+            <span class="chip">Hermes 源码精读</span>
+            <span class="chip">AI Agent</span>
+            <span class="chip">面试宝典</span>
+          </div>
+          <a class="t-meta" href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/08-hermes-agent/09-lang-serial-not/README.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../ai-engineer/hermes/08-gateway.html"><span class="dir">← 上一篇</span><span class="t">Hermes Gateway · 源码学习</span></a><a class="next" href="../../ai-engineer/hermes/hermes-study.html"><span class="dir">下一篇 →</span><span class="t">Hermes Agent - Development Guide</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../rag/index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+
+<script src="../../ai-engineer/assets/mermaid-init.js" defer></script>
+<script src="../../js/main.js" defer></script>
+</body>
+</html>

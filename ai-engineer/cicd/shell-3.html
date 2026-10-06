@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shell 日志处理实战题库 —— 答案与讲解 · AI Agent 面试宝典 — NorthAdb 的博客</title>
+<meta name="description" content="配套题目：shell日志实战题库.md。所有命令在本目录下执行。">
+<link rel="canonical" href="https://northadb.github.io/ai-engineer/cicd/shell-3.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Shell 日志处理实战题库 —— 答案与讲解 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta property="og:description" content="配套题目：shell日志实战题库.md。所有命令在本目录下执行。">
+<meta property="og:url" content="https://northadb.github.io/ai-engineer/cicd/shell-3.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Shell 日志处理实战题库 —— 答案与讲解 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta name="twitter:description" content="配套题目：shell日志实战题库.md。所有命令在本目录下执行。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../feed.xml">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../ai-engineer/assets/course.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Shell 日志处理实战题库 —— 答案与讲解", "description": "配套题目：shell日志实战题库.md。所有命令在本目录下执行。", "author": {"@type": "Person", "name": "juliepy", "url": "https://github.com/juliepy/AI-Engineer-from-scrach"}, "mainEntityOfPage": "https://northadb.github.io/ai-engineer/cicd/shell-3.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../index.html">首页</a><span>/</span><a href="../../learn.html">课件</a><span>/</span><a href="../../ai-engineer/index.html">AI Agent 面试宝典</a><span>/</span><a href="../../ai-engineer/cicd/index.html">CI/CD 面试突击</a></div>
+          <h1>Shell 日志处理实战题库 —— 答案与讲解</h1>
+          <p class="post-sub">配套题目：shell日志实战题库.md。所有命令在本目录下执行。</p>
+          <div class="post-meta">
+            <span class="avatar">AI</span>
+            <span>AI Agent 面试宝典</span><span class="sep"></span>
+            <span>CI/CD 面试突击</span><span class="sep"></span>
+            <span>阅读约 28 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<p>配套题目：<code>shell_日志实战题库.md</code>。所有命令在本目录下执行。</p>
+<p><strong>验证说明</strong></p>
+<ul>
+<li>A / B / C / E / F 区的命令<strong>全部在 Linux（WSL）上真跑过</strong>，下面贴的输出就是实际输出。</li>
+<li>D 区（jq）：本机没装 jq，命令按 jq 1.6/1.7 语法手写，<strong>期望结果用等价的 Python 计算过</strong>，数值可信。
+  装好 jq 后自己对一遍：<code>sudo apt install -y jq</code>。</li>
+</ul>
+<hr>
+<h2 id="a-grep">A. grep：检索与计数</h2>
+<h3 id="a1-5xx">A1 统计 5xx 请求数</h3>
+<pre><code class="language-bash">grep -cE 'HTTP/1\.1&quot; 5[0-9]{2} ' access.log
+</code></pre>
+<pre><code>7
+</code></pre>
+<p>要点：</p>
+<ul>
+<li><code>-c</code> 只输出计数，不要再套 <code>| wc -l</code>（多一个进程）。</li>
+<li><code>.</code> 在正则里是任意字符，<code>HTTP/1.1</code> 必须写成 <code>HTTP/1\.1</code>。</li>
+<li>模式里带上 <code>HTTP/1.1"</code> 前缀和末尾空格，是为了<strong>锁死"状态码那一列"</strong>。
+  只写 <code>grep -cE '5[0-9]{2}'</code> 会把响应字节数 <code>1532</code>、耗时里的数字全匹配进去。</li>
+</ul>
+<p>反例对照：<code>grep -cE '5[0-9]{2}'</code> 在本文件返回 <strong>11</strong>（真实值 7），多出来的 4 条是字节数/耗时里恰好出现 5xx 数字的行。</p>
+<h3 id="a2-error">A2 三个文件各自的 ERROR 数</h3>
+<pre><code class="language-bash">grep -c ERROR app-*.log
+</code></pre>
+<pre><code>app-2026-08-01.log:4
+app-2026-08-02.log:8
+app-2026-08-03.log:2
+</code></pre>
+<p>要点：grep 接<strong>多个文件</strong>时会自动加 <code>文件名:</code> 前缀。单文件想强制带文件名用 <code>-H</code>，多文件想去掉用 <code>-h</code>（B7/F3 会用到 <code>-h</code>）。</p>
+<h3 id="a3">A3 带上下文和行号</h3>
+<pre><code class="language-bash">grep -n -C1 'quota exceeded' app-2026-08-02.log
+</code></pre>
+<pre><code>17-2026-08-02 10:19:02 WARN  [rate-limiter] session=s-2004 msg=&quot;approaching quota&quot; used=970 limit=1000
+18:2026-08-02 10:19:30 ERROR [rate-limiter] session=s-2004 msg=&quot;quota exceeded&quot; used=1001 limit=1000
+19-2026-08-02 11:02:44 INFO  [agent-core] session=s-2005 msg=&quot;agent started&quot; model=gpt-4o
+</code></pre>
+<p>要点：</p>
+<ul>
+<li><code>-A n</code> 后 n 行 / <code>-B n</code> 前 n 行 / <code>-C n</code> 前后各 n 行。</li>
+<li>看分隔符能区分匹配行和上下文行：命中行是 <code>18:</code>（冒号），上下文行是 <code>17-</code>（减号）。</li>
+<li>排查线上问题基本都是 <code>grep -n -C5 ERROR</code>，光看一行 ERROR 没有用。</li>
+</ul>
+<h3 id="a4-200-304">A4 排除 200 和 304</h3>
+<pre><code class="language-bash">grep -vcE ' (200|304) ' access.log
+</code></pre>
+<pre><code>15
+</code></pre>
+<p>要点：</p>
+<ul>
+<li><code>-v</code> 反选，<code>-c</code> 计数，两个可以合写成 <code>-vc</code>。</li>
+<li><strong>为什么模式两边要留空格</strong>：不留空格的话，字节数 <code>2001</code>、耗时 <code>0.200</code> 里的 <code>200</code> 都会被当成状态码，导致本该保留的行被误排除。空格把这一列"框"起来，是纯 grep 处理列数据的常用土办法。</li>
+<li>更严谨的写法是交给 awk 按列判断：<code>awk '$9!=200 &amp;&amp; $9!=304' access.log | wc -l</code>。列数据能用 awk 就别硬用 grep。</li>
+</ul>
+<h3 id="a5-statuserror">A5 精确统计 status=error</h3>
+<pre><code class="language-bash"># 错误写法
+grep -c 'error' agent_trace.jsonl      # 26 —— 全中了
+
+# 正确写法
+grep -c '&quot;status&quot;:&quot;error&quot;' agent_trace.jsonl
+</code></pre>
+<pre><code>8
+</code></pre>
+<p>要点：<code>error</code> 这个词在每行里出现太多次——<code>"error":null</code> 字段每行都有，<code>"error":"upstream 502"</code> 也含它。所以必须连 key 一起匹配。</p>
+<p>这题的真正答案其实是：<strong>JSON 别用 grep</strong>。正解见 D 区：</p>
+<pre><code class="language-bash">jq -r 'select(.status==&quot;error&quot;)' agent_trace.jsonl | ...
+# 或
+jq -s '[.[] | select(.status==&quot;error&quot;)] | length' agent_trace.jsonl
+</code></pre>
+<p>面试时说出"JSON 用 grep 是错的，应该用 jq"，比写对 grep 更加分。</p>
+<h3 id="a6">A6 列出包含关键字的文件名</h3>
+<pre><code class="language-bash">grep -rl 'connection refused' .
+</code></pre>
+<pre><code>./agent_trace.jsonl
+./app-2026-08-01.log
+./app-2026-08-02.log
+./shell_日志实战题库.md
+</code></pre>
+<p>要点：</p>
+<ul>
+<li><code>-r</code> 递归，<code>-l</code>（小写 L）只打印文件名，<code>-L</code> 是反过来"不包含的文件"。</li>
+<li>注意题库 md 自己也被搜进去了。实战里要限定范围：</li>
+</ul>
+<pre><code class="language-bash">grep -rl --include='*.log' --include='*.jsonl' 'connection refused' .
+</code></pre>
+<hr>
+<h2 id="b-awk">B. awk：分组统计与格式化</h2>
+<h3 id="b1">B1 打印两列</h3>
+<pre><code class="language-bash">awk '{print $1, $9}' access.log
+</code></pre>
+<pre><code>10.0.0.1 200
+10.0.0.2 200
+10.0.0.1 200
+172.16.5.9 200
+10.0.0.3 500
+...
+</code></pre>
+<p>要点：<code>print $1, $9</code> 中的逗号会输出 <code>OFS</code>（默认空格）；写成 <code>print $1 $9</code> 会直接拼在一起变成 <code>10.0.0.1200</code>。这是最常见的低级错误。</p>
+<h3 id="b2">B2 状态码分组计数（万能模板）</h3>
+<pre><code class="language-bash">awk '{c[$9]++} END{for(k in c) print k, c[k]}' access.log | sort -k2 -nr
+</code></pre>
+<pre><code>200 34
+500 4
+404 3
+401 3
+502 2
+504 1
+429 1
+403 1
+304 1
+</code></pre>
+<p>要点：</p>
+<ul>
+<li><strong><code>{c[key]++} END{for(k in c) print k, c[k]}</code> 这个模板背下来</strong>，B3/B6/B7/B8/B9/F1 全是它的变体。</li>
+<li>awk 的 <code>for (k in c)</code> 遍历顺序<strong>不保证</strong>，所以想要排序必须外接 <code>sort</code>。</li>
+<li><code>sort -k2 -nr</code>：按第 2 列、按数值、倒序。</li>
+</ul>
+<h3 id="b3-top3-ip">B3 Top3 IP（两种写法）</h3>
+<pre><code class="language-bash"># (a) awk 数组：注意 print 时把次数放前面，方便直接 sort -nr
+awk '{c[$1]++} END{for(k in c) print c[k], k}' access.log | sort -nr | head -3
+
+# (b) 经典管道流水线
+awk '{print $1}' access.log | sort | uniq -c | sort -nr | head -3
+</code></pre>
+<pre><code>12 10.0.0.1
+10 10.0.0.2
+8 10.0.0.3
+</code></pre>
+<p>要点：</p>
+<ul>
+<li><code>uniq -c</code> <strong>必须先 sort</strong>，因为它只能合并"相邻"的重复行。这是笔试高频扣分点。</li>
+<li>数据量大时 (a) 更快：(a) 是一次扫描 + 哈希；(b) 要做全量排序，O(n log n)。</li>
+<li>但 (b) 好写好记，面试口述时说清"数据大用 awk 数组"就够了。</li>
+</ul>
+<h3 id="b4-apichat">B4 /api/chat 请求数与平均耗时（平均值陷阱）</h3>
+<pre><code class="language-bash">awk '$7==&quot;/api/chat&quot; {s+=$11; n++} END{printf &quot;count=%d avg=%.3f\n&quot;, n, s/n}' access.log
+</code></pre>
+<pre><code>count=19 avg=2.455
+</code></pre>
+<p><strong>这题的重点是解释这个 2.455s 是假的。</strong></p>
+<p>19 条请求里有 2 条是 30s 的超时。排除 5xx 之后：</p>
+<pre><code class="language-bash">awk '$7==&quot;/api/chat&quot; &amp;&amp; $9&lt;400 {s+=$11; n++} END{printf &quot;count=%d avg=%.3fs\n&quot;, n, s/n}' access.log
+</code></pre>
+<pre><code>count=15 avg=0.805s
+</code></pre>
+<p>平均值被少数极端值拉高了 3 倍。面试标准答法：</p>
+<ol>
+<li><strong>平均值对长尾不敏感</strong>，看耗时要看 <strong>P95 / P99 或中位数</strong>；</li>
+<li>超时/失败请求要么单独统计，要么先剔除，不能和成功请求混在一起算；</li>
+<li>顺手给出 P95 的算法（排序后取第 95% 位）：</li>
+</ol>
+<pre><code class="language-bash">awk '$7==&quot;/api/chat&quot; {print $11}' access.log | sort -n | \
+  awk '{a[NR]=$1} END{printf &quot;p50=%.3f p95=%.3f max=%.3f\n&quot;, a[int(NR*0.5)], a[int(NR*0.95)], a[NR]}'
+</code></pre>
+<h3 id="b5">B5 慢请求对齐输出</h3>
+<pre><code class="language-bash">awk '$11&gt;1 {printf &quot;%-22s %-14s %6.3f\n&quot;, substr($4,2), $7, $11}' access.log
+</code></pre>
+<pre><code>02/Aug/2026:10:01:10   /api/embed      1.204
+02/Aug/2026:10:07:55   /api/chat       1.512
+02/Aug/2026:10:11:28   /api/embed     30.001
+02/Aug/2026:10:17:12   /api/embed      1.088
+02/Aug/2026:10:18:55   /api/chat       2.443
+02/Aug/2026:10:23:31   /api/chat       1.205
+02/Aug/2026:10:30:15   /api/chat      30.002
+02/Aug/2026:10:31:47   /api/embed      1.377
+02/Aug/2026:11:05:38   /api/chat       1.844
+02/Aug/2026:11:13:02   /api/embed     60.001
+02/Aug/2026:11:20:19   /api/chat       1.033
+02/Aug/2026:11:31:05   /api/chat       2.109
+02/Aug/2026:11:45:33   /api/embed      1.150
+</code></pre>
+<p>要点：</p>
+<ul>
+<li><code>substr($4,2)</code> 从第 2 个字符开始截，去掉前导 <code>[</code>（awk 的字符串下标从 <strong>1</strong> 开始，不是 0）。</li>
+<li><code>printf</code> 不自动换行，必须自己写 <code>\n</code>；<code>print</code> 才自动换行。</li>
+<li><code>%-22s</code> 左对齐、<code>%6.3f</code> 右对齐保留 3 位——报表左边文字左对齐、右边数字右对齐，才看得清。</li>
+<li><code>$11&gt;1</code> 里 <code>$11</code> 会被自动当数字比较；如果字段带单位（如 <code>1.2s</code>）就得先 <code>substr</code>/<code>+0</code> 处理。</li>
+</ul>
+<h3 id="b6-ip-mb">B6 每个 IP 的流量（MB）</h3>
+<pre><code class="language-bash">awk '{b[$1]+=$10} END{for(k in b) printf &quot;%-12s %8.2f MB\n&quot;, k, b[k]/1024/1024}' access.log | sort -k2 -nr
+</code></pre>
+<pre><code>172.16.5.9       0.18 MB
+10.0.0.1         0.02 MB
+192.168.1.7      0.01 MB
+10.0.0.6         0.00 MB
+...
+</code></pre>
+<p>要点：<code>b[$1]+=$10</code> 是"分组求和"，和 B2 的 <code>c[$1]++</code>（分组计数）是同一个模板的两种形态。计数 = 累加 1，求和 = 累加某列。</p>
+<h3 id="b7">B7 多文件日志级别统计</h3>
+<pre><code class="language-bash">awk '{c[$3]++} END{for(k in c) print c[k], k}' app-*.log | sort -nr
+</code></pre>
+<pre><code>33 INFO
+14 ERROR
+7 WARN
+3 DEBUG
+</code></pre>
+<p>要点：</p>
+<ul>
+<li>awk 天生支持多文件：<code>app-*.log</code> 由 shell 展开成多个参数，awk 顺序读完，数组是<strong>跨文件累积</strong>的。</li>
+<li>想按文件分别统计，用内置变量 <code>FILENAME</code>：<code>{c[FILENAME"|"$3]++}</code>。</li>
+<li>相关内置变量：<code>NR</code>（全局行号）、<code>FNR</code>（当前文件行号）、<code>NF</code>（字段数）。<code>NR==FNR</code> 是双文件关联的经典技巧。</li>
+</ul>
+<h3 id="b8-tool">B8 统计 tool 调用次数</h3>
+<pre><code class="language-bash">awk -F'tool=' 'NF&gt;1 {split($2, a, &quot; &quot;); c[a[1]]++} END{for(k in c) print c[k], k}' app-*.log | sort -nr
+</code></pre>
+<pre><code>5 code_exec
+4 web_search
+2 terminal
+2 read_file
+2 browser_navigate
+1 patch
+1 delegate_task
+</code></pre>
+<p>要点：</p>
+<ul>
+<li><code>-F'tool='</code> 用<strong>字符串</strong>做分隔符，切完 <code>$2</code> 就是 <code>web_search status=ok cost_ms=812</code>。</li>
+<li><code>NF&gt;1</code> 是关键：不含 <code>tool=</code> 的行切不开，<code>NF</code> 仍为 1，必须跳过，否则 <code>$2</code> 是空串会统计出一个空 key。</li>
+<li><code>split($2, a, " ")</code> 再按空格切，<code>a[1]</code> 就是工具名。</li>
+<li>另一种通用写法（不依赖字段位置，扫全行找 <code>k=v</code>）：</li>
+</ul>
+<pre><code class="language-bash">awk '{for(i=1;i&lt;=NF;i++) if($i ~ /^tool=/) {sub(/^tool=/,&quot;&quot;,$i); c[$i]++}} END{for(k in c) print c[k], k}' app-*.log | sort -nr
+</code></pre>
+<h3 id="b9">B9 按小时统计请求数</h3>
+<pre><code class="language-bash">awk '{split($4, a, &quot;:&quot;); c[a[2]]++} END{for(k in c) printf &quot;%s:00  %d\n&quot;, k, c[k]}' access.log | sort
+</code></pre>
+<pre><code>09:00  2
+10:00  35
+11:00  10
+12:00  3
+</code></pre>
+<p>要点：<code>$4</code> 是 <code>[02/Aug/2026:09:58:12</code>，按 <code>:</code> 切开后 <code>a[1]="[02/Aug/2026"</code>、<code>a[2]="09"</code>、<code>a[3]="58"</code>。取 <code>a[2]</code> 即小时。做"每分钟"就再拼上 <code>a[3]</code>（见 F1）。</p>
+<h3 id="b10-401-3">B10 暴力破解告警（401 ≥ 3 次）</h3>
+<pre><code class="language-bash">awk '$9==401 {c[$1]++} END{for(k in c) if(c[k]&gt;=3) print k, c[k]}' access.log
+</code></pre>
+<pre><code>10.0.0.4 3
+</code></pre>
+<p>要点：过滤条件写在 <code>END</code> 块里，先累加完再判断阈值。这是"告警类"题目的标准结构：<strong>扫描聚合 → END 里比阈值 → 命中才输出</strong>。F3 的 CI 巡检脚本是同一个思路。</p>
+<hr>
+<h2 id="c-sed">C. sed：清洗与替换</h2>
+<h3 id="c1">C1 压缩连续空格</h3>
+<pre><code class="language-bash">sed -E 's/ +/ /g' app-2026-08-01.log     # 推荐
+sed 's/  */ /g'   app-2026-08-01.log     # 基础正则等价写法
+</code></pre>
+<pre><code>2026-08-01 09:00:01 INFO [agent-core] session=s-1001 msg=&quot;agent started&quot; model=gpt-4o
+2026-08-01 09:00:04 DEBUG [tool-runner] session=s-1001 tool=web_search args_len=42
+...
+</code></pre>
+<p>要点：</p>
+<ul>
+<li><strong>BRE vs ERE</strong>：基础正则里 <code>+</code> 不是元字符，所以必须写 <code>*</code>（一个空格 + 零或多个空格）或转义成 <code>\+</code>。加 <code>-E</code> 用扩展正则就能直接写 <code>+</code>，更好读。</li>
+<li><code>g</code> 标志表示一行内替换所有匹配，不加只替换每行第一处。</li>
+</ul>
+<h3 id="c2">C2 删除空行和注释行</h3>
+<pre><code class="language-bash">sed -E '/^\s*$/d; /^\s*#/d' somefile
+</code></pre>
+<p>要点：</p>
+<ul>
+<li><code>/pattern/d</code> 删除匹配行；多条命令用 <code>;</code> 分隔或者写多个 <code>-e</code>。</li>
+<li><code>^\s*$</code> 要匹配"只有空白的行"，光写 <code>^$</code> 漏掉纯空格行。</li>
+<li>grep 等价写法：<code>grep -vE '^\s*$|^\s*#'</code>。<strong>删行用 grep -v 通常比 sed 更直观</strong>，sed 的强项是替换。</li>
+</ul>
+<h3 id="c3-5xx">C3 从 5xx 行提取时间</h3>
+<pre><code class="language-bash">grep -E ' 5[0-9]{2} ' access.log | sed -E 's/^.*\[([^]]+)\].*$/\1/'
+</code></pre>
+<pre><code>02/Aug/2026:10:01:10 +0800
+02/Aug/2026:10:11:28 +0800
+02/Aug/2026:10:18:55 +0800
+02/Aug/2026:10:30:15 +0800
+02/Aug/2026:10:31:47 +0800
+02/Aug/2026:11:13:02 +0800
+02/Aug/2026:11:31:05 +0800
+</code></pre>
+<p>要点：</p>
+<ul>
+<li><code>\(...\)</code>（BRE）/ <code>(...)</code>（ERE）捕获，<code>\1</code> 反向引用第一组——<strong>sed 提取子串的唯一手段</strong>。</li>
+<li><code>[^]]+</code> 意思是"除 <code>]</code> 外的任意字符若干个"。<code>]</code> 放在字符类第一个位置不用转义。</li>
+<li>用 <code>.*</code> 包住整行再整体替换，才能达到"只留捕获组"的效果。</li>
+<li>更省事的做法其实是 <code>awk '{print substr($4,2)}'</code>，按列取比写正则稳。</li>
+</ul>
+<h3 id="c4-ip">C4 IP 脱敏</h3>
+<pre><code class="language-bash">sed -E 's/^([0-9]+\.[0-9]+\.[0-9]+)\.[0-9]+/\1.x/' access.log
+</code></pre>
+<pre><code>10.0.0.x - - [02/Aug/2026:09:58:12 +0800] &quot;GET /api/chat HTTP/1.1&quot; 200 1532 0.312 &quot;-&quot; &quot;curl/8.4.0&quot;
+10.0.0.x - - [02/Aug/2026:09:59:01 +0800] &quot;GET /health HTTP/1.1&quot; 200 12 0.002 &quot;-&quot; &quot;kube-probe/1.29&quot;
+...
+</code></pre>
+<p>要点：</p>
+<ul>
+<li>锚定 <code>^</code> 只改行首的 IP，避免误伤日志正文里出现的其他 IP/版本号。</li>
+<li>前三段整体捕获成 <code>\1</code>，最后一段丢掉换成 <code>x</code>。</li>
+<li>实战延伸：脱敏手机号 <code>s/(1[3-9][0-9])[0-9]{4}([0-9]{4})/\1****\2/g</code>、脱敏邮箱、脱敏 token —— 日志脱敏是运维/平台岗的高频真实需求。</li>
+</ul>
+<h3 id="c5">C5 打印指定行范围</h3>
+<pre><code class="language-bash">sed -n '17,20p' access.log
+</code></pre>
+<pre><code>10.0.0.4 - - [02/Aug/2026:10:15:31 +0800] &quot;POST /api/login HTTP/1.1&quot; 401 88 0.008 &quot;-&quot; &quot;curl/8.4.0&quot;
+10.0.0.4 - - [02/Aug/2026:10:15:36 +0800] &quot;POST /api/login HTTP/1.1&quot; 401 88 0.007 &quot;-&quot; &quot;curl/8.4.0&quot;
+10.0.0.4 - - [02/Aug/2026:10:15:41 +0800] &quot;POST /api/login HTTP/1.1&quot; 401 88 0.009 &quot;-&quot; &quot;curl/8.4.0&quot;
+10.0.0.4 - - [02/Aug/2026:10:15:47 +0800] &quot;POST /api/login HTTP/1.1&quot; 200 312 0.121 &quot;-&quot; &quot;curl/8.4.0&quot;
+</code></pre>
+<p>要点：</p>
+<ul>
+<li><strong>不加 <code>-n</code> 会怎样</strong>：sed 默认打印每一行，<code>p</code> 又打印一次，结果是全文输出 + 17~20 行重复两遍。<code>-n</code> 关掉默认输出，配合 <code>p</code> 才是"只打印选中行"。</li>
+<li>大文件想取中间几行，<code>sed -n '17,20p;21q' file</code> 加个 <code>q</code> 提前退出，不用读完整个文件。</li>
+<li>等价：<code>awk 'NR&gt;=17 &amp;&amp; NR&lt;=20' access.log</code>。</li>
+</ul>
+<h3 id="c6">C6 原地替换 + 备份</h3>
+<pre><code class="language-bash"># 1. 先 dry-run 确认影响面
+sed 's/gpt-4o/gpt-5/g' app-2026-08-02.log | grep -c 'gpt-5'    # 2
+
+# 2. 在副本上操作，别直接改题库数据
+cp app-2026-08-02.log /tmp/t.log
+sed -i.bak 's/gpt-4o/gpt-5/g' /tmp/t.log
+ls /tmp/t.log*        # /tmp/t.log  /tmp/t.log.bak
+</code></pre>
+<p>要点：</p>
+<ul>
+<li><code>-i</code> 原地修改；<code>-i.bak</code> 会先存一份 <code>原文件名.bak</code>。<strong>没有备份的 <code>-i</code> 是不可逆的</strong>，线上误操作没有后悔药。</li>
+<li>macOS/BSD 的 sed 里 <code>-i</code> 必须跟参数（<code>-i ''</code>），GNU sed 可以只写 <code>-i</code>。跨平台脚本要注意。</li>
+<li>规范流程：<strong>先不带 <code>-i</code> 跑一遍看输出 → 确认条数 → 再加 <code>-i.bak</code></strong>。</li>
+</ul>
+<p>⚠️ 如果你已经直接改了 <code>app-2026-08-02.log</code>，用 <code>mv app-2026-08-02.log.bak app-2026-08-02.log</code> 还原。</p>
+<hr>
+<h2 id="d-jqjson">D. jq：JSON 日志解析</h2>
+<blockquote>
+<p>下面的命令按 jq 1.6/1.7 语法编写；输出值由等价的 Python 计算验证。
+先装 jq：<code>sudo apt install -y jq</code>，然后自己跑一遍对照。</p>
+</blockquote>
+<h3 id="d1-tool">D1 打印所有 tool</h3>
+<pre><code class="language-bash">jq -r '.tool' agent_trace.jsonl
+</code></pre>
+<pre><code>web_search
+web_search
+read_file
+...
+</code></pre>
+<p>要点：</p>
+<ul>
+<li><strong>jq 天然支持 JSON Lines</strong>：不加 <code>-s</code> 时，jq 会把输入当成"一个接一个的 JSON 值"逐个处理，正好对应每行一条日志。</li>
+<li><code>-r</code>（raw output）去掉字符串两边的引号。要把结果喂给 awk/sort 时<strong>必须加 <code>-r</code></strong>，否则引号会混进字段里。</li>
+</ul>
+<h3 id="d2">D2 非成功记录，压成一行</h3>
+<pre><code class="language-bash">jq -c 'select(.status != &quot;success&quot;)' agent_trace.jsonl
+</code></pre>
+<p>共 10 条：</p>
+<pre><code class="language-json">{&quot;ts&quot;:&quot;2026-08-02T08:31:12Z&quot;,&quot;session_id&quot;:&quot;s-2001&quot;,...,&quot;status&quot;:&quot;error&quot;,&quot;error&quot;:&quot;net::ERR_CONNECTION_REFUSED&quot;}
+{&quot;ts&quot;:&quot;2026-08-02T08:31:40Z&quot;,&quot;session_id&quot;:&quot;s-2001&quot;,...,&quot;status&quot;:&quot;error&quot;,&quot;error&quot;:&quot;net::ERR_CONNECTION_REFUSED&quot;}
+{&quot;ts&quot;:&quot;2026-08-02T09:47:20Z&quot;,&quot;session_id&quot;:&quot;s-2002&quot;,...,&quot;status&quot;:&quot;error&quot;,&quot;error&quot;:&quot;exit code 127: command not found&quot;}
+{&quot;ts&quot;:&quot;2026-08-02T10:11:28Z&quot;,&quot;session_id&quot;:&quot;s-2003&quot;,...,&quot;status&quot;:&quot;error&quot;,&quot;error&quot;:&quot;upstream 502&quot;}
+{&quot;ts&quot;:&quot;2026-08-02T10:11:33Z&quot;,&quot;session_id&quot;:&quot;s-2003&quot;,...,&quot;status&quot;:&quot;error&quot;,&quot;error&quot;:&quot;upstream 502&quot;}
+{&quot;ts&quot;:&quot;2026-08-02T10:18:55Z&quot;,&quot;session_id&quot;:&quot;s-2004&quot;,...,&quot;status&quot;:&quot;timeout&quot;,&quot;error&quot;:&quot;tool timed out after 30s&quot;}
+{&quot;ts&quot;:&quot;2026-08-02T10:19:30Z&quot;,&quot;session_id&quot;:&quot;s-2004&quot;,...,&quot;status&quot;:&quot;error&quot;,&quot;error&quot;:&quot;quota exceeded&quot;}
+{&quot;ts&quot;:&quot;2026-08-02T12:30:41Z&quot;,&quot;session_id&quot;:&quot;s-2006&quot;,...,&quot;status&quot;:&quot;error&quot;,&quot;error&quot;:&quot;vector store connection refused&quot;}
+{&quot;ts&quot;:&quot;2026-08-03T09:20:11Z&quot;,&quot;session_id&quot;:&quot;s-3002&quot;,...,&quot;status&quot;:&quot;error&quot;,&quot;error&quot;:&quot;SyntaxError: invalid syntax&quot;}
+{&quot;ts&quot;:&quot;2026-08-03T13:41:30Z&quot;,&quot;session_id&quot;:&quot;s-3003&quot;,...,&quot;status&quot;:&quot;timeout&quot;,&quot;error&quot;:&quot;upstream 504&quot;}
+</code></pre>
+<p>要点：</p>
+<ul>
+<li><code>select(条件)</code> 是 jq 的过滤器：条件为真就把当前输入原样传下去，为假就输出<strong>空</strong>（不是 null，是啥都不输出）。等价于 SQL 的 WHERE。</li>
+<li><code>-c</code>（compact）一条一行，方便 <code>wc -l</code> 或后续管道；不加会格式化成多行缩进。</li>
+<li>注意 <code>error</code> 和 <code>timeout</code> 是两种不同状态，所以用 <code>!= "success"</code> 而不是 <code>== "error"</code>——<strong>统计失败率时漏掉 timeout 是最常见的口径错误</strong>。</li>
+</ul>
+<h3 id="d3-error">D3 error 记录四列输出</h3>
+<pre><code class="language-bash">jq -r 'select(.status==&quot;error&quot;) | [.ts, .session_id, .tool, .error] | join(&quot; | &quot;)' agent_trace.jsonl
+</code></pre>
+<pre><code>2026-08-02T08:31:12Z | s-2001 | browser_navigate | net::ERR_CONNECTION_REFUSED
+2026-08-02T08:31:40Z | s-2001 | browser_navigate | net::ERR_CONNECTION_REFUSED
+2026-08-02T09:47:20Z | s-2002 | terminal | exit code 127: command not found
+2026-08-02T10:11:28Z | s-2003 | web_search | upstream 502
+2026-08-02T10:11:33Z | s-2003 | web_search | upstream 502
+2026-08-02T10:19:30Z | s-2004 | code_exec | quota exceeded
+2026-08-02T12:30:41Z | s-2006 | memory_search | vector store connection refused
+2026-08-03T09:20:11Z | s-3002 | code_exec | SyntaxError: invalid syntax
+</code></pre>
+<p>要点：</p>
+<ul>
+<li><code>[.a, .b] | join(" | ")</code> 先构造数组再拼字符串。<code>join</code> 要求元素是字符串/数字，遇到 null 会当空串。</li>
+<li>想喂给 awk 就换成 <code>@tsv</code>（制表符分隔，最安全，因为字段内容里几乎不会有 Tab）：</li>
+</ul>
+<pre><code class="language-bash">jq -r 'select(.status==&quot;error&quot;) | [.ts,.session_id,.tool,.error] | @tsv' agent_trace.jsonl
+</code></pre>
+<ul>
+<li><strong><code>|</code> 在 jq 里就是管道</strong>，语义和 shell 一致：左边的输出作为右边的输入。</li>
+</ul>
+<h3 id="d4-tool">D4 按 tool 分组计数</h3>
+<pre><code class="language-bash"># (a) 纯 jq
+jq -s -r 'group_by(.tool) | map({tool: .[0].tool, n: length}) | sort_by(-.n) | .[] | &quot;\(.n) \(.tool)&quot;' agent_trace.jsonl
+
+# (b) jq 只负责取字段，统计交给 shell（更好写、更常用）
+jq -r '.tool' agent_trace.jsonl | sort | uniq -c | sort -nr
+</code></pre>
+<pre><code>8 web_search
+4 terminal
+4 code_exec
+3 read_file
+2 browser_navigate
+2 patch
+2 delegate_task
+1 memory_search
+</code></pre>
+<p>要点：</p>
+<ul>
+<li><strong><code>-s</code>（slurp）是 jq 的核心开关</strong>：把所有输入<strong>吞成一个大数组</strong>再处理。凡是需要跨行聚合（group_by / add / length / max_by / sort_by）就必须加 <code>-s</code>，否则 jq 一行一行独立处理，聚合不起来。</li>
+<li><code>group_by(.tool)</code> 要求先按 key 排序——jq 内部会自动排，不用自己 sort。它返回的是"数组的数组"，所以取组名要写 <code>.[0].tool</code>。</li>
+<li><code>\(...)</code> 是字符串插值，等价于 Python 的 f-string。</li>
+<li>实战里 (b) 更常用：<strong>jq 负责"从 JSON 里挑列"，sort/uniq/awk 负责"统计"</strong>，各司其职。</li>
+</ul>
+<h3 id="d5-token">D5 token 总消耗</h3>
+<pre><code class="language-bash">jq -s 'map(.tokens.prompt + .tokens.completion) | add' agent_trace.jsonl
+</code></pre>
+<pre><code>51070
+</code></pre>
+<p>拆开看：</p>
+<pre><code class="language-bash">jq -s '{prompt: (map(.tokens.prompt) | add), completion: (map(.tokens.completion) | add)}' agent_trace.jsonl
+# {&quot;prompt&quot;: 41640, &quot;completion&quot;: 9430}
+</code></pre>
+<p>要点：</p>
+<ul>
+<li>嵌套字段直接用 <code>.a.b</code> 点下去。字段可能不存在时用 <code>.a.b // 0</code> 兜底。</li>
+<li><code>map(f)</code> = 对数组每个元素求 f；<code>add</code> = 数组求和（空数组返回 <code>null</code>，不是 0，注意兜底：<code>add // 0</code>）。</li>
+<li><code>map(.x) | add</code> 这个组合 = SQL 的 <code>SUM(x)</code>，背下来。</li>
+</ul>
+<h3 id="d6">D6 最慢的一条 + 平均耗时</h3>
+<pre><code class="language-bash">jq -s -r 'max_by(.latency_ms) | &quot;\(.tool) \(.latency_ms)&quot;' agent_trace.jsonl
+# web_search 60000
+
+jq -s '[.[].latency_ms] | add / length' agent_trace.jsonl
+# 5176.692307692308
+</code></pre>
+<p>要点：</p>
+<ul>
+<li><code>max_by(.f)</code> / <code>min_by(.f)</code> 返回<strong>整条记录</strong>（不是字段值），所以后面还能继续取 <code>.tool</code>。</li>
+<li><code>[.[].latency_ms]</code> 把所有值收集成数组；<code>add / length</code> = 平均值。</li>
+<li>同 B4 的陷阱：这个 5176ms 的均值被 30s / 60s 两条超时严重拉高。看 P95：</li>
+</ul>
+<pre><code class="language-bash">jq -s '[.[].latency_ms] | sort | .[(length*0.95|floor)]' agent_trace.jsonl
+</code></pre>
+<h3 id="d7">D7 缺字段处理（重点）</h3>
+<pre><code class="language-bash"># (a) 找出缺 tags 的记录
+jq -r 'select(has(&quot;tags&quot;) | not) | .ts' agent_trace.jsonl
+</code></pre>
+<pre><code>2026-08-03T18:09:01Z
+</code></pre>
+<pre><code class="language-bash"># (b) 打印所有 tags，缺字段输出空串
+jq -r '(.tags // []) | join(&quot;,&quot;)' agent_trace.jsonl
+</code></pre>
+<p>最后三行：</p>
+<pre><code>subagent
+fs,write
+            &lt;- 空行，缺 tags 的那条
+</code></pre>
+<p>要点（面试爱问）：</p>
+<ul>
+<li><code>has("k")</code> 判断 key 是否存在（对象用 key，数组用下标）。<code>| not</code> 取反。</li>
+<li><strong><code>//</code> 是"备选运算符"</strong>：左边为 <code>null</code> 或 <code>false</code> 时取右边。<code>.tags // []</code> 就是"没有 tags 就当空数组"。
+  注意它对 <code>false</code> 也生效，判断布尔字段时要小心。</li>
+<li><code>?</code> 是错误抑制：<code>.tags[]?</code> 遇到类型不对不报错而是跳过。</li>
+<li>三者区别：</li>
+<li><code>.tags</code> 缺字段 → 输出 <code>null</code>（不报错）</li>
+<li><code>.tags | join(",")</code> 缺字段 → <strong>报错</strong> <code>null (null) cannot be joined</code></li>
+<li><code>(.tags // []) | join(",")</code> → 输出空串 ✅</li>
+<li>真实日志里字段缺失/为 null 是常态，<strong>写 jq 不做兜底 = 脚本在生产环境随机崩</strong>。这是 D 区最实用的一题。</li>
+</ul>
+<h3 id="d8-enabled-provider">D8 enabled provider 下的所有模型</h3>
+<pre><code class="language-bash">jq -r '.providers[] | select(.enabled) | .models[].id' models.json
+</code></pre>
+<pre><code>gpt-4o
+gpt-4o-mini
+o3-mini
+claude-3-5-sonnet
+claude-3-haiku
+</code></pre>
+<p>要点：</p>
+<ul>
+<li><code>.providers[]</code> 把数组<strong>展开成多个输出</strong>（不是返回数组），之后每个元素独立往下走。</li>
+<li>展开可以套娃：<code>.models[].id</code> 是在每个 provider 内部再展开一层。</li>
+<li><code>select(.enabled)</code> 直接用布尔字段当条件，不用写 <code>== true</code>。</li>
+<li>结果不含 deepseek 的两个模型（<code>enabled: false</code>），可以自己去掉 select 对比一下（共 7 个）。</li>
+</ul>
+<h3 id="d9-provider">D9 每个 provider 的模型数量</h3>
+<pre><code class="language-bash">jq -r '.providers[] | &quot;\(.name) \(.models|length)&quot;' models.json
+</code></pre>
+<pre><code>openai 3
+anthropic 2
+deepseek 2
+</code></pre>
+<p>要点：<code>length</code> 是多态的——数组返回元素数、字符串返回字符数、对象返回 key 数、null 返回 0。</p>
+<h3 id="d10">D10 最贵的模型</h3>
+<pre><code class="language-bash">jq -r '[.providers[].models[]] | max_by(.price_out) | .id' models.json
+</code></pre>
+<pre><code>claude-3-5-sonnet
+</code></pre>
+<p>要点：</p>
+<ul>
+<li><strong><code>[ ... ]</code> 把展开的多个输出重新收集成一个数组</strong>——这是 jq 里"拍平嵌套"的标准手法。<code>.providers[].models[]</code> 展开出 7 个模型对象，外面套 <code>[]</code> 变成长度 7 的数组，才能用 <code>max_by</code>。</li>
+<li>想连价格一起看：<code>... | max_by(.price_out) | "\(.id) \(.price_out)"</code> → <code>claude-3-5-sonnet 15</code>。</li>
+<li>Top3 最贵：<code>[.providers[].models[]] | sort_by(-.price_out) | .[:3][] | .id</code>。</li>
+</ul>
+<h3 id="d11-csv">D11 导出 CSV（带表头）</h3>
+<pre><code class="language-bash">jq -s -r '[&quot;ts&quot;,&quot;session_id&quot;,&quot;tool&quot;,&quot;status&quot;,&quot;latency_ms&quot;,&quot;error&quot;],
+          (.[] | select(.status != &quot;success&quot;) | [.ts,.session_id,.tool,.status,.latency_ms,.error])
+          | @csv' agent_trace.jsonl
+</code></pre>
+<pre><code class="language-csv">&quot;ts&quot;,&quot;session_id&quot;,&quot;tool&quot;,&quot;status&quot;,&quot;latency_ms&quot;,&quot;error&quot;
+&quot;2026-08-02T08:31:12Z&quot;,&quot;s-2001&quot;,&quot;browser_navigate&quot;,&quot;error&quot;,5120,&quot;net::ERR_CONNECTION_REFUSED&quot;
+&quot;2026-08-02T08:31:40Z&quot;,&quot;s-2001&quot;,&quot;browser_navigate&quot;,&quot;error&quot;,5210,&quot;net::ERR_CONNECTION_REFUSED&quot;
+&quot;2026-08-02T09:47:20Z&quot;,&quot;s-2002&quot;,&quot;terminal&quot;,&quot;error&quot;,180,&quot;exit code 127: command not found&quot;
+&quot;2026-08-02T10:11:28Z&quot;,&quot;s-2003&quot;,&quot;web_search&quot;,&quot;error&quot;,2050,&quot;upstream 502&quot;
+&quot;2026-08-02T10:11:33Z&quot;,&quot;s-2003&quot;,&quot;web_search&quot;,&quot;error&quot;,1980,&quot;upstream 502&quot;
+&quot;2026-08-02T10:18:55Z&quot;,&quot;s-2004&quot;,&quot;code_exec&quot;,&quot;timeout&quot;,30000,&quot;tool timed out after 30s&quot;
+&quot;2026-08-02T10:19:30Z&quot;,&quot;s-2004&quot;,&quot;code_exec&quot;,&quot;error&quot;,150,&quot;quota exceeded&quot;
+&quot;2026-08-02T12:30:41Z&quot;,&quot;s-2006&quot;,&quot;memory_search&quot;,&quot;error&quot;,3010,&quot;vector store connection refused&quot;
+&quot;2026-08-03T09:20:11Z&quot;,&quot;s-3002&quot;,&quot;code_exec&quot;,&quot;error&quot;,402,&quot;SyntaxError: invalid syntax&quot;
+&quot;2026-08-03T13:41:30Z&quot;,&quot;s-3003&quot;,&quot;web_search&quot;,&quot;timeout&quot;,60000,&quot;upstream 504&quot;
+</code></pre>
+<p>要点：</p>
+<ul>
+<li><strong>表头只打印一次的关键是 <code>-s</code></strong>：slurp 之后整个输入只是"一个值"，<code>["ts",...]</code> 这个常量数组自然只产生一次输出。不加 <code>-s</code> 的话每行都会带一个表头。</li>
+<li><code>A, (B) | @csv</code> 的优先级：jq 里 <code>|</code> 优先级<strong>低于</strong> <code>,</code>，所以等价于 <code>(A, B) | @csv</code>——表头和每行数据都各自过一遍 <code>@csv</code>。</li>
+<li><code>@csv</code> 会自动给字符串加引号、转义内部引号；数字不加引号。比自己 <code>join(",")</code> 安全得多（字段里有逗号就废了）。</li>
+<li>同族：<code>@tsv</code> <code>@json</code> <code>@base64</code> <code>@uri</code> <code>@sh</code>（<code>@sh</code> 用来安全拼 shell 命令）。</li>
+</ul>
+<h3 id="d12-top3">D12 Top3 错误信息</h3>
+<pre><code class="language-bash"># 组合写法（推荐，好记）
+jq -r '.error | select(. != null)' agent_trace.jsonl | sort | uniq -c | sort -nr | head -3
+
+# 纯 jq
+jq -s -r '[.[].error | select(.)] | group_by(.) | map({e: .[0], n: length})
+          | sort_by(-.n) | .[:3][] | &quot;\(.n) \(.e)&quot;' agent_trace.jsonl
+</code></pre>
+<pre><code>2 net::ERR_CONNECTION_REFUSED
+2 upstream 502
+1 exit code 127: command not found
+</code></pre>
+<p>要点：</p>
+<ul>
+<li><code>select(. != null)</code> 里的 <code>.</code> 指"当前值本身"，用来过掉 <code>"error": null</code> 的成功记录。简写 <code>select(.)</code> 利用了 null 的假值性。</li>
+<li>第 3 名有并列（多条计数都是 1），<code>head -3</code> 取到哪条取决于 sort 的稳定性。<strong>面试时主动说一句"这里有并列，需要定义 tie-break 规则"</strong>，是加分项。</li>
+<li><code>.[:3]</code> 是数组切片，和 Python 一样。</li>
+</ul>
+<h3 id="d13-tool">D13 每个 tool 的失败率（压轴）</h3>
+<pre><code class="language-bash"># (a) jq 取两列 + awk 聚合（推荐：好写、好调试）
+jq -r '[.tool, .status] | @tsv' agent_trace.jsonl | \
+awk -F'\t' '{t[$1]++; if($2!=&quot;success&quot;) f[$1]++}
+            END{for(k in t) printf &quot;%-18s %6.1f%%  (%d/%d)\n&quot;, k, f[k]*100/t[k], f[k], t[k]}' | \
+sort -k2 -nr
+</code></pre>
+<pre><code>memory_search        100.0%  (1/1)
+browser_navigate     100.0%  (2/2)
+code_exec             75.0%  (3/4)
+web_search            37.5%  (3/8)
+terminal              25.0%  (1/4)
+read_file              0.0%  (0/3)
+patch                  0.0%  (0/2)
+delegate_task          0.0%  (0/2)
+</code></pre>
+<pre><code class="language-bash"># (b) 纯 jq
+jq -s -r 'group_by(.tool)
+          | map({tool: .[0].tool,
+                 total: length,
+                 fail: (map(select(.status != &quot;success&quot;)) | length)})
+          | map(. + {rate: (.fail / .total * 100)})
+          | sort_by(-.rate)
+          | .[] | &quot;\(.tool) \((.rate*10|round)/10)% (\(.fail)/\(.total))&quot;' agent_trace.jsonl
+</code></pre>
+<p>要点：</p>
+<ul>
+<li>awk 里 <code>f[k]</code> 未赋值时在数值上下文自动当 0，所以 <code>read_file</code> 这类零失败的 tool 不会报错，直接是 0.0%。这是 awk 关联数组的便利之处。</li>
+<li><strong>分母口径</strong>：失败 = <code>status != "success"</code>，把 timeout 算进去。只统计 <code>== "error"</code> 会漏掉 timeout，<code>web_search</code> 会从 37.5% 变成 25%——面试官经常拿这个追问。</li>
+<li><strong>样本量陷阱</strong>：<code>memory_search</code> 100% 失败，但只有 1 次调用，没有统计意义。真实告警要加最小样本数：</li>
+</ul>
+<pre><code class="language-bash">... awk -F'\t' '{t[$1]++; if($2!=&quot;success&quot;) f[$1]++}
+                END{for(k in t) if(t[k]&gt;=3) printf &quot;%-18s %6.1f%%\n&quot;, k, f[k]*100/t[k]}' | sort -k2 -nr
+</code></pre>
+<ul>
+<li>能主动说出"100% 那条是 1/1，不可信，要设最小样本量"，这题就满分了。</li>
+</ul>
+<hr>
+<h2 id="e">E. 文件遍历 / 时间过滤 / 脚本</h2>
+<h3 id="e1">E1 遍历文件输出行数</h3>
+<pre><code class="language-bash">for f in app-*.log; do
+    printf &quot;%-22s %4d\n&quot; &quot;$f&quot; &quot;$(wc -l &lt; &quot;$f&quot;)&quot;
+done
+</code></pre>
+<pre><code>app-2026-08-01.log       20
+app-2026-08-02.log       24
+app-2026-08-03.log       13
+</code></pre>
+<p>要点：</p>
+<ul>
+<li><code>wc -l &lt; "$f"</code> 用<strong>重定向</strong>而不是 <code>wc -l "$f"</code>：前者只输出数字，后者会带文件名，还得再 <code>awk '{print $1}'</code> 切一刀。</li>
+<li><code>"$f"</code> 一定要加双引号，文件名带空格时才不会被拆成两个参数。</li>
+<li>通配符没匹配到任何文件时，<code>for f in app-*.log</code> 会拿到字面量 <code>app-*.log</code>，所以循环体里习惯加一句 <code>[ -f "$f" ] || continue</code>。</li>
+</ul>
+<h3 id="e2-24">E2 24 小时内修改过的日志</h3>
+<pre><code class="language-bash">find . -name '*.log' -mtime -1
+</code></pre>
+<pre><code>./01-log-process/agent.log
+./access.log
+./app-2026-08-01.log
+./app-2026-08-02.log
+./app-2026-08-03.log
+</code></pre>
+<p>要点：</p>
+<ul>
+<li><code>-mtime</code> 单位是<strong>天</strong>，<code>-mmin</code> 单位是<strong>分钟</strong>。</li>
+<li>符号含义：<code>-1</code> = 1 天以内、<code>+7</code> = 7 天以前、<code>1</code> = 恰好第 1 天（很少用，容易踩坑）。</li>
+<li>常用组合：</li>
+<li>最近 1 小时改过：<code>find . -name '*.log' -mmin -60</code></li>
+<li>清理 7 天前的日志：<code>find /var/log -name '*.log' -mtime +7 -delete</code></li>
+<li>大于 100MB 的日志：<code>find . -name '*.log' -size +100M</code></li>
+<li>交给别的命令：<code>find . -name '*.log' -mtime -1 -exec grep -l ERROR {} \;</code></li>
+<li><strong>删除类命令先去掉 <code>-delete</code> 跑一遍确认列表</strong>，这是运维铁律。</li>
+</ul>
+<h3 id="e3">E3 时间范围过滤</h3>
+<pre><code class="language-bash">awk '$2 &gt;= &quot;09:00:00&quot; &amp;&amp; $2 &lt;= &quot;11:00:00&quot;' app-2026-08-02.log
+</code></pre>
+<pre><code>2026-08-02 09:45:18 INFO  [agent-core] session=s-2002 msg=&quot;agent started&quot; model=deepseek-v3
+2026-08-02 09:45:33 DEBUG [memory] session=s-2002 msg=&quot;retrieved 12 memories&quot; cost_ms=88
+2026-08-02 09:46:01 INFO  [tool-runner] session=s-2002 tool=read_file status=ok cost_ms=22
+...
+</code></pre>
+<p>共 12 行。</p>
+<p>要点：</p>
+<ul>
+<li><strong><code>HH:MM:SS</code> 是定长零填充格式，字典序 == 时间序</strong>，所以字符串比较就等于时间比较，不需要 <code>date -d</code> 转时间戳（那样每行 fork 一个进程，10 万行日志能跑一分钟）。</li>
+<li>加引号很重要：<code>$2 &gt;= "09:00:00"</code> 是字符串比较；写成 <code>$2 &gt;= 09:00:00</code> 是语法错误。</li>
+<li>跨天要连日期一起比：<code>$0 &gt;= "2026-08-02 09:00:00" &amp;&amp; $0 &lt;= "2026-08-02 11:00:00"</code>（利用日志行以时间戳开头）。</li>
+<li>同理 sed 也能干，取"从某行到某行"的区间：<code>sed -n '/09:00:00/,/11:00:00/p'</code>——但它匹配的是<strong>第一次出现</strong>，日志里时间戳不一定精确存在，不如 awk 稳。</li>
+</ul>
+<h3 id="e4-while-read">E4 while read 逐行统计</h3>
+<pre><code class="language-bash">n=0
+while IFS= read -r line; do
+    case &quot;$line&quot; in
+        *ERROR*) n=$((n+1)) ;;
+    esac
+done &lt; app-2026-08-03.log
+echo &quot;ERROR lines: $n&quot;
+</code></pre>
+<pre><code>ERROR lines: 2
+</code></pre>
+<p>要点（这是 shell 基本功考点）：</p>
+<ul>
+<li><strong><code>IFS=</code></strong>：清空字段分隔符，否则 read 会吃掉行首行尾的空白（tab/空格），日志缩进就没了。</li>
+<li><strong><code>-r</code></strong>：不解析反斜杠转义。日志里的 <code>\n</code>、Windows 路径 <code>C:\temp</code> 会被 read 吞掉或改写，加 <code>-r</code> 才是"原样读"。</li>
+<li><strong><code>done &lt; file</code> 而不是 <code>cat file | while ...</code></strong>：管道会开子 shell，循环里对 <code>n</code> 的修改在子 shell 里，循环结束后 <code>n</code> 还是 0。这是经典面试题。</li>
+<li>但是——<strong>这题真实场景应该用 <code>grep -c ERROR</code></strong>。while read 逐行是 shell 里最慢的做法（每行都要 fork/内建调用），10 万行能慢几十倍。会写，但知道什么时候不该写。</li>
+</ul>
+<h3 id="e5">E5 按状态码拆分文件</h3>
+<pre><code class="language-bash">mkdir -p out
+awk '{print &gt; (&quot;out/status_&quot; $9 &quot;.log&quot;)}' access.log
+ls out/
+</code></pre>
+<pre><code>status_200.log  status_304.log  status_401.log  status_403.log  status_404.log
+status_429.log  status_500.log  status_502.log  status_504.log
+</code></pre>
+<p>要点：</p>
+<ul>
+<li><strong>括号必须加</strong>：<code>print &gt; "status_" $9 ".log"</code> 会被解析成 <code>(print &gt; "status_") $9 ".log"</code>，把所有内容写进一个叫 <code>status_</code> 的文件。<code>print &gt; (表达式)</code> 才对。</li>
+<li>awk 会保持文件句柄打开（是追加不是覆盖），所以<strong>重复跑会累积内容</strong>，测试前记得清空目录。文件很多时用 <code>close(f)</code> 主动关闭，避免超过打开文件数上限。</li>
+<li>这是"日志按维度切分"的标准做法，比 <code>for code in 200 404 ...; do grep ...; done</code> 快得多——<strong>一次扫描 vs N 次扫描</strong>。</li>
+</ul>
+<h3 id="e6-log_reportsh">E6 log_report.sh</h3>
+<pre><code class="language-bash">#!/bin/bash
+#
+# 日志目录巡检报表
+
+dir=$1
+
+# 1. 参数校验
+if [ -z &quot;$dir&quot; ]; then
+    echo &quot;用法: $0 &lt;日志目录&gt;&quot; &gt;&amp;2
+    exit 1
+fi
+
+# 2. 目录校验
+if [ ! -d &quot;$dir&quot; ]; then
+    echo &quot;目录不存在: $dir&quot; &gt;&amp;2
+    exit 1
+fi
+
+# 3. 逐文件统计
+printf &quot;%-22s %8s %8s %8s\n&quot; &quot;FILE&quot; &quot;LINES&quot; &quot;ERROR&quot; &quot;WARN&quot;
+for f in &quot;$dir&quot;/app-*.log; do
+    [ -f &quot;$f&quot; ] || continue
+    total=$(wc -l &lt; &quot;$f&quot;)
+    errors=$(grep -c ERROR &quot;$f&quot;)
+    warns=$(grep -c WARN &quot;$f&quot;)
+    printf &quot;%-22s %8d %8d %8d\n&quot; &quot;$(basename &quot;$f&quot;)&quot; &quot;$total&quot; &quot;$errors&quot; &quot;$warns&quot;
+done
+
+# 4. 全局 ERROR Top3 模块
+echo
+echo &quot;ERROR Top3 模块:&quot;
+grep -h ERROR &quot;$dir&quot;/app-*.log | awk '{print $4}' | sort | uniq -c | sort -nr | head -3
+</code></pre>
+<p>运行结果：</p>
+<pre><code>$ bash log_report.sh
+用法: log_report.sh &lt;日志目录&gt;
+$ echo $?
+1
+
+$ bash log_report.sh .
+FILE                      LINES    ERROR     WARN
+app-2026-08-01.log           20        4        3
+app-2026-08-02.log           24        8        3
+app-2026-08-03.log           13        2        1
+
+ERROR Top3 模块:
+      4 [tool-runner]
+      4 [gateway]
+      3 [agent-core]
+</code></pre>
+<p>要点：</p>
+<ul>
+<li><strong>错误信息输出到 stderr（<code>&gt;&amp;2</code>）</strong>，正常报表走 stdout。这样 <code>bash log_report.sh &gt; report.txt</code> 时报错依然能在终端看到。</li>
+<li><code>exit 1</code> 表示异常退出，<code>exit 0</code> 正常。CI 全靠这个判断成败。</li>
+<li><code>grep -h</code>：多文件时<strong>去掉文件名前缀</strong>，否则 <code>awk '{print $4}'</code> 取到的列会错位（因为 <code>文件名:2026-08-01</code> 粘成了 $1）。这是本题最容易踩的坑。</li>
+<li><code>basename</code> 只留文件名，报表才对得齐。</li>
+<li>进阶写法：参数校验可以压成一行 <code>dir=${1:?用法: $0 &lt;日志目录&gt;}</code>（见 F3）。</li>
+</ul>
+<hr>
+<h2 id="f">F. 综合大题</h2>
+<h3 id="f1">F1 每分钟错误数报表</h3>
+<pre><code class="language-bash">awk '$3==&quot;ERROR&quot; {split($2, t, &quot;:&quot;); c[$1 &quot; &quot; t[1] &quot;:&quot; t[2]]++}
+     END{for(k in c) print k, c[k]}' app-*.log | sort
+</code></pre>
+<pre><code>2026-08-01 09:14 2
+2026-08-01 10:03 1
+2026-08-01 11:05 1
+2026-08-02 08:31 3
+2026-08-02 10:11 2
+2026-08-02 10:18 1
+2026-08-02 10:19 1
+2026-08-02 12:30 1
+2026-08-03 09:20 1
+2026-08-03 13:41 1
+</code></pre>
+<p>要点：</p>
+<ul>
+<li><strong>把"日期 + 时:分"拼成一个字符串当数组下标</strong>——这是多维分组的通用手法（awk 也支持 <code>c[$1, t[1]]</code> 这种真·多维数组，底层就是用 <code>SUBSEP</code> 拼接，原理一样）。</li>
+<li>最后 <code>| sort</code> 就能按时间升序，因为 <code>YYYY-MM-DD HH:MM</code> 的字典序等于时间序（又是定长格式的好处）。</li>
+<li>想找"错误尖峰"，再接一刀：<code>| sort -k3 -nr | head -5</code>，<code>2026-08-02 08:31</code> 一分钟 3 条错误就是最高峰。</li>
+<li>这类"时间桶聚合"是监控告警的基本单元，能扩展到每 5 分钟（<code>int(minute/5)*5</code>）、每小时等。</li>
+</ul>
+<h3 id="f2-tool">F2 平均耗时最高的 tool</h3>
+<pre><code class="language-bash">jq -r '[.tool, .latency_ms] | @tsv' agent_trace.jsonl | \
+awk -F'\t' '{s[$1]+=$2; c[$1]++}
+            END{for(k in s) printf &quot;%-18s %8.1f ms  (n=%d)\n&quot;, k, s[k]/c[k], c[k]}' | \
+sort -k2 -nr
+</code></pre>
+<pre><code>delegate_task        8800.0 ms  (n=2)
+web_search           8743.5 ms  (n=8)
+code_exec            8110.5 ms  (n=4)
+browser_navigate     5165.0 ms  (n=2)
+memory_search        3010.0 ms  (n=1)
+terminal              280.0 ms  (n=4)
+patch                  41.0 ms  (n=2)
+read_file              20.7 ms  (n=3)
+</code></pre>
+<p>要点：</p>
+<ul>
+<li>分工：<strong>jq 负责从 JSON 里挑列 → awk 负责聚合 → sort 负责排序</strong>。每个工具只干自己最擅长的事，这就是 Unix 哲学，也是面试想听的回答。</li>
+<li><code>@tsv</code> 比 <code>join(",")</code> 安全：字段值里可能有逗号（错误信息尤其常见），但几乎不会有 Tab。对应 awk 侧要写 <code>-F'\t'</code>。</li>
+<li>结果同样要警惕小样本：<code>delegate_task</code> 排第一但只有 2 次调用；<code>web_search</code> 8 次调用平均 8.7s（含一条 60s 超时）才是真问题。<strong>输出里带上 <code>n=</code> 就是为了让人能判断可信度</strong>。</li>
+</ul>
+<h3 id="f3-check_errorsshci">F3 check_errors.sh（CI 巡检）</h3>
+<pre><code class="language-bash">#!/bin/bash
+#
+# CI 日志巡检：错误数超阈值就让流水线变红
+
+dir=${1:?用法: $0 &lt;日志目录&gt; [阈值]}
+threshold=${2:-5}
+
+count=$(grep -h ERROR &quot;$dir&quot;/app-*.log 2&gt;/dev/null | wc -l)
+echo &quot;ERROR 总数: $count (阈值 $threshold)&quot;
+
+if [ &quot;$count&quot; -gt &quot;$threshold&quot; ]; then
+    echo &quot;--- Top3 错误 ---&quot;
+    grep -h ERROR &quot;$dir&quot;/app-*.log \
+        | sed -E 's/^.*(msg=&quot;[^&quot;]*&quot;|status=[a-z]+).*$/\1/' \
+        | sort | uniq -c | sort -nr | head -3
+    exit 1
+fi
+
+echo &quot;OK&quot;
+exit 0
+</code></pre>
+<p>运行结果：</p>
+<pre><code>$ bash check_errors.sh .
+ERROR 总数: 14 (阈值 5)
+--- Top3 错误 ---
+      3 msg=&quot;upstream 502 from provider&quot;
+      3 msg=&quot;tool call failed&quot;
+      2 status=timeout
+$ echo $?
+1
+
+$ bash check_errors.sh . 100
+ERROR 总数: 14 (阈值 100)
+OK
+$ echo $?
+0
+</code></pre>
+<p>要点：</p>
+<ul>
+<li><strong><code>${1:?消息}</code></strong>：参数为空时打印消息到 stderr 并以非 0 退出，一行顶 E6 的四行 if。</li>
+<li><strong><code>${2:-5}</code></strong>：参数未提供时用默认值 5（<code>:-</code> 只取值不赋值，<code>:=</code> 会顺便赋给变量）。
+  一张表记住：<code>${v:-默认}</code> 取默认 / <code>${v:=默认}</code> 取并赋值 / <code>${v:?报错}</code> 为空就报错 / <code>${v:+替代}</code> 非空才替换。</li>
+<li><strong>退出码就是 CI 的红绿灯</strong>：0 = 通过，非 0 = 失败。脚本最后不写 <code>exit</code> 的话，退出码是最后一条命令的状态，容易出意外，显式写清楚。</li>
+<li><code>2&gt;/dev/null</code> 屏蔽"文件不存在"的报错，避免目录为空时刷屏；但要想清楚是不是把真错误也吞了。</li>
+<li>生产版还应该加：<code>set -euo pipefail</code>（出错即停、未定义变量报错、管道任意环节失败即失败）。本题为了输出可读没加，实际 CI 脚本建议第一行就写上。</li>
+</ul>
+<hr>
+<h2 id="40">复盘：这 40 题在考什么</h2>
+<table>
+<thead>
+<tr>
+<th>能力</th>
+<th>对应题</th>
+<th>一句话要点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>列定位</td>
+<td>A1 A4 B1</td>
+<td>状态码/耗时是"列"，grep 靠空格框列，awk 靠 <code>$n</code> 直接取</td>
+</tr>
+<tr>
+<td>分组聚合模板</td>
+<td>B2 B3 B6 B7 B8 B9 F1</td>
+<td><code>{c[key]++} END{for(k in c) print}</code> 一个模板通吃</td>
+</tr>
+<tr>
+<td>排序输出</td>
+<td>B2 B3 D4</td>
+<td><code>sort -k2 -nr</code>、<code>uniq -c</code> 前必须 sort</td>
+</tr>
+<tr>
+<td>格式化</td>
+<td>B5 B6 E1 E6</td>
+<td><code>printf "%-20s %8.2f\n"</code>，文字左对齐数字右对齐</td>
+</tr>
+<tr>
+<td>正则提取</td>
+<td>C3 C4</td>
+<td>捕获组 + <code>\1</code> 反向引用，sed 提取子串的唯一手段</td>
+</tr>
+<tr>
+<td>原地修改</td>
+<td>C6</td>
+<td><code>-i.bak</code>，先 dry-run 再动手</td>
+</tr>
+<tr>
+<td>JSON 处理</td>
+<td>D 全区</td>
+<td><code>-r</code> 去引号、<code>-s</code> 才能聚合、<code>//</code> 兜底缺字段</td>
+</tr>
+<tr>
+<td>缺字段容错</td>
+<td>D7</td>
+<td>真实日志字段必缺，不兜底就是线上事故</td>
+</tr>
+<tr>
+<td>时间过滤</td>
+<td>E3 F1</td>
+<td>定长时间戳直接字符串比较，别 fork <code>date</code></td>
+</tr>
+<tr>
+<td>脚本规范</td>
+<td>E6 F3</td>
+<td>参数校验 + stderr + 退出码，CI 只认退出码</td>
+</tr>
+<tr>
+<td>统计口径</td>
+<td>B4 D13 F2</td>
+<td>平均值陷阱、timeout 算不算失败、小样本不可信</td>
+</tr>
+</tbody>
+</table>
+<p><strong>最容易被追问的三个点</strong>（想清楚再去面试）：</p>
+<ol>
+<li><strong>B4 / F2 的平均值陷阱</strong> —— 为什么要看 P95 而不是均值。</li>
+<li><strong>D13 的失败率口径</strong> —— timeout 算不算失败，样本量太小怎么办。</li>
+<li><strong>E4 的 <code>cat | while read</code></strong> —— 为什么变量改了不生效（子 shell 问题）。</li>
+</ol>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags">
+            <span class="chip">CI/CD 面试突击</span>
+            <span class="chip">AI Agent</span>
+            <span class="chip">面试宝典</span>
+          </div>
+          <a class="t-meta" href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/10-CICD/09-writing/01-basic-shell/02-log-process/shell_%E6%97%A5%E5%BF%97%E5%AE%9E%E6%88%98%E9%A2%98%E5%BA%93_%E7%AD%94%E6%A1%88.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../ai-engineer/cicd/shell-2.html"><span class="dir">← 上一篇</span><span class="t">Shell 日志处理实战题库（40 题）</span></a><a class="next" href="../../ai-engineer/cicd/03-shell-scripts.html"><span class="dir">下一篇 →</span><span class="t">03 · Shell 可运行脚本</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../rag/index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+
+<script src="../../js/main.js" defer></script>
+</body>
+</html>

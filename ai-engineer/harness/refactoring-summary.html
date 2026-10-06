@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>重构总结 · AI Agent 面试宝典 — NorthAdb 的博客</title>
+<meta name="description" content="实现一个可扩展的多通道检索架构，解决以下问题： 1. 意图识别覆盖率不足：当文档内容较多时，意图识别树的示例问题无法覆盖所有场景 2. 缺乏兜底机制：意图识别失败时，无法检索到相关文档 3. 扩展性差：新增检索策略需要修改核心代码">
+<link rel="canonical" href="https://northadb.github.io/ai-engineer/harness/refactoring-summary.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="重构总结 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta property="og:description" content="实现一个可扩展的多通道检索架构，解决以下问题： 1. 意图识别覆盖率不足：当文档内容较多时，意图识别树的示例问题无法覆盖所有场景 2. 缺乏兜底机制：意图识别失败时，无法检索到相关文档 3. 扩展性差：新增检索策略需要修改核心代码">
+<meta property="og:url" content="https://northadb.github.io/ai-engineer/harness/refactoring-summary.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="重构总结 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta name="twitter:description" content="实现一个可扩展的多通道检索架构，解决以下问题： 1. 意图识别覆盖率不足：当文档内容较多时，意图识别树的示例问题无法覆盖所有场景 2. 缺乏兜底机制：意图识别失败时，无法检索到相关文档 3. 扩展性差：新增检索策略需要修改核心代码">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../feed.xml">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../ai-engineer/assets/course.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "重构总结", "description": "实现一个可扩展的多通道检索架构，解决以下问题： 1. 意图识别覆盖率不足：当文档内容较多时，意图识别树的示例问题无法覆盖所有场景 2. 缺乏兜底机制：意图识别失败时，无法检索到相关文档 3. 扩展性差：新增检索策略需要修改核心代码", "author": {"@type": "Person", "name": "juliepy", "url": "https://github.com/juliepy/AI-Engineer-from-scrach"}, "mainEntityOfPage": "https://northadb.github.io/ai-engineer/harness/refactoring-summary.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../index.html">首页</a><span>/</span><a href="../../learn.html">课件</a><span>/</span><a href="../../ai-engineer/index.html">AI Agent 面试宝典</a><span>/</span><a href="../../ai-engineer/harness/index.html">Harness 工程化</a></div>
+          <h1>重构总结</h1>
+          <p class="post-sub">实现一个可扩展的多通道检索架构，解决以下问题： 1. 意图识别覆盖率不足：当文档内容较多时，意图识别树的示例问题无法覆盖所有场景 2. 缺乏兜底机制：意图识别失败时，无法检索到相关文档 3. 扩展性差：新增检索策略需要修改核心代码</p>
+          <div class="post-meta">
+            <span class="avatar">AI</span>
+            <span>AI Agent 面试宝典</span><span class="sep"></span>
+            <span>Harness 工程化</span><span class="sep"></span>
+            <span>阅读约 4 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<h2 id="_1">重构目标</h2>
+<p>实现一个可扩展的多通道检索架构，解决以下问题：
+1. <strong>意图识别覆盖率不足</strong>：当文档内容较多时，意图识别树的示例问题无法覆盖所有场景
+2. <strong>缺乏兜底机制</strong>：意图识别失败时，无法检索到相关文档
+3. <strong>扩展性差</strong>：新增检索策略需要修改核心代码</p>
+<h2 id="_2">重构内容</h2>
+<h3 id="1">1. 新增文件</h3>
+<h4 id="_3">核心接口和类型</h4>
+<ul>
+<li><code>SearchChannel.java</code> - 检索通道接口</li>
+<li><code>SearchChannelType.java</code> - 检索通道类型枚举</li>
+<li><code>SearchContext.java</code> - 检索上下文</li>
+<li><code>SearchChannelResult.java</code> - 检索通道结果</li>
+</ul>
+<h4 id="_4">检索通道实现</h4>
+<ul>
+<li><code>VectorGlobalSearchChannel.java</code> - 向量全局检索通道</li>
+<li><code>IntentDirectedSearchChannel.java</code> - 意图定向检索通道</li>
+</ul>
+<h4 id="_5">后置处理器</h4>
+<ul>
+<li><code>SearchResultPostProcessor.java</code> - 后置处理器接口</li>
+<li><code>DeduplicationPostProcessor.java</code> - 去重处理器</li>
+<li><code>RerankPostProcessor.java</code> - Rerank 处理器</li>
+</ul>
+<h4 id="_6">核心引擎</h4>
+<ul>
+<li><code>MultiChannelRetrievalEngine.java</code> - 多通道检索引擎</li>
+</ul>
+<h4 id="_7">配置和文档</h4>
+<ul>
+<li><code>application-search.yml</code> - 检索配置文件</li>
+<li><code>multi-channel-retrieval.md</code> - 架构说明文档</li>
+</ul>
+<h3 id="2">2. 修改文件</h3>
+<ul>
+<li><code>RetrievalEngine.java</code> - 集成多通道检索引擎</li>
+</ul>
+<h2 id="_8">架构设计</h2>
+<h3 id="_9">核心思想</h3>
+<p>采用<strong>责任链 + 策略模式</strong>的组合：
+- <strong>策略模式</strong>：不同的检索通道实现不同的检索策略
+- <strong>责任链模式</strong>：后置处理器形成处理链，依次处理检索结果</p>
+<h3 id="_10">工作流程</h3>
+<pre><code>用户问题
+    ↓
+【多通道并行检索】
+    ├─→ VectorGlobalSearchChannel（条件触发）
+    └─→ IntentDirectedSearchChannel（始终执行）
+    ↓
+【后置处理器链】
+    ├─→ DeduplicationPostProcessor（去重）
+    └─→ RerankPostProcessor（重排序）
+    ↓
+【返回最终结果】
+</code></pre>
+<h3 id="_11">关键特性</h3>
+<ol>
+<li>
+<p><strong>条件触发的双路召回</strong>
+   - 意图识别成功：只执行意图定向检索
+   - 意图识别失败或置信度低：同时执行全局检索和意图定向检索</p>
+</li>
+<li>
+<p><strong>并行执行</strong>
+   - 所有启用的检索通道并行执行，提升性能</p>
+</li>
+<li>
+<p><strong>统一后处理</strong>
+   - 去重：合并多个通道的结果，保留高优先级通道的结果
+   - Rerank：对合并后的结果进行重排序</p>
+</li>
+<li>
+<p><strong>易于扩展</strong>
+   - 新增检索通道：实现 <code>SearchChannel</code> 接口
+   - 新增后置处理器：实现 <code>SearchResultPostProcessor</code> 接口
+   - 无需修改核心代码</p>
+</li>
+</ol>
+<h2 id="_12">解决方案对比</h2>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>覆盖率</th>
+<th>准确率</th>
+<th>性能</th>
+<th>扩展性</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>原方案</strong>（仅意图识别）</td>
+<td>⭐⭐⭐</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐⭐</td>
+</tr>
+<tr>
+<td><strong>新方案</strong>（多通道检索）</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐⭐</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_13">新方案优势</h3>
+<ol>
+<li><strong>覆盖率提升</strong>：全局检索兜底，即使意图识别失败也能检索到相关文档</li>
+<li><strong>准确率保持</strong>：意图定向检索优先，保证精确性</li>
+<li><strong>性能可控</strong>：条件触发，只在必要时启用全局检索</li>
+<li><strong>扩展性强</strong>：新增通道或处理器无需修改核心代码</li>
+</ol>
+<h2 id="_14">使用示例</h2>
+<h3 id="1_1">1. 基本使用</h3>
+<pre><code class="language-java">@Service
+public class RAGService {
+    @Autowired
+    private MultiChannelRetrievalEngine retrievalEngine;
+
+    public void search(String question) {
+        List&lt;SubQuestionIntent&gt; intents = ...;
+        List&lt;RetrievedChunk&gt; chunks = retrievalEngine.retrieveKB(intents, 5);
+        // 使用检索结果
+    }
+}
+</code></pre>
+<h3 id="2_1">2. 新增检索通道</h3>
+<pre><code class="language-java">@Component
+public class KeywordESSearchChannel implements SearchChannel {
+    @Override
+    public String getName() {
+        return &quot;KeywordESSearch&quot;;
+    }
+
+    @Override
+    public boolean isEnabled(SearchContext context) {
+        // 判断是否启用
+        return containsKeywords(context.getMainQuestion());
+    }
+
+    @Override
+    public SearchChannelResult search(SearchContext context) {
+        // 实现 ES 检索逻辑
+        // ...
+    }
+}
+</code></pre>
+<h3 id="3">3. 新增后置处理器</h3>
+<pre><code class="language-java">@Component
+public class VersionFilterPostProcessor implements SearchResultPostProcessor {
+    @Override
+    public String getName() {
+        return &quot;VersionFilter&quot;;
+    }
+
+    @Override
+    public int getOrder() {
+        return 2;  // 在去重之后执行
+    }
+
+    @Override
+    public List&lt;RetrievedChunk&gt; process(...) {
+        // 实现版本过滤逻辑
+        // ...
+    }
+}
+</code></pre>
+<h2 id="_15">配置说明</h2>
+<pre><code class="language-yaml">rag:
+  search:
+    channels:
+      vector-global:
+        enabled: true
+        confidence-threshold: 0.6  # 意图置信度低于此值时启用
+        top-k-multiplier: 3
+
+      intent-directed:
+        enabled: true
+        min-intent-score: 0.4
+        top-k-multiplier: 2
+
+    post-processors:
+      deduplication:
+        enabled: true
+      rerank:
+        enabled: true
+</code></pre>
+<h2 id="_16">未来扩展</h2>
+<ol>
+<li><strong>ES 关键词检索通道</strong>：基于 Elasticsearch 的全文检索</li>
+<li><strong>版本过滤处理器</strong>：只保留最新版本的文档</li>
+<li><strong>分数归一化处理器</strong>：统一不同通道的分数尺度</li>
+<li><strong>缓存机制</strong>：对检索结果进行缓存</li>
+<li><strong>监控和统计</strong>：记录各通道的命中率、耗时等指标</li>
+</ol>
+<h2 id="_17">测试建议</h2>
+<ol>
+<li>
+<p><strong>单元测试</strong>
+   - 测试各检索通道的独立功能
+   - 测试各后置处理器的处理逻辑</p>
+</li>
+<li>
+<p><strong>集成测试</strong>
+   - 测试多通道并行执行
+   - 测试后置处理器链的执行顺序</p>
+</li>
+<li>
+<p><strong>性能测试</strong>
+   - 对比单通道和多通道的性能差异
+   - 测试不同配置下的性能表现</p>
+</li>
+<li>
+<p><strong>覆盖率测试</strong>
+   - 对比原方案和新方案的检索覆盖率
+   - 测试意图识别失败时的兜底效果</p>
+</li>
+</ol>
+<h2 id="_18">注意事项</h2>
+<ol>
+<li><strong>通道优先级</strong>：数字越小优先级越高，影响去重时的结果保留策略</li>
+<li><strong>处理器顺序</strong>：<code>order</code> 决定执行顺序，去重应该最先执行，Rerank 应该最后执行</li>
+<li><strong>性能考虑</strong>：启用过多通道会增加延迟，建议根据实际需求选择性启用</li>
+<li><strong>配置调优</strong>：<code>confidence-threshold</code>、<code>top-k-multiplier</code> 等参数需要根据实际效果调整</li>
+</ol>
+<h2 id="_19">总结</h2>
+<p>本次重构实现了一个<strong>可扩展的多通道检索架构</strong>，解决了意图识别覆盖率不足的问题，同时保持了高准确率和良好的扩展性。通过条件触发的双路召回策略，在覆盖率和性能之间取得了良好的平衡。</p>
+<p>新架构的核心优势：
+- ✅ <strong>高覆盖率</strong>：全局检索兜底
+- ✅ <strong>高准确率</strong>：意图定向检索优先
+- ✅ <strong>易扩展</strong>：新增通道或处理器无需修改核心代码
+- ✅ <strong>灵活配置</strong>：通过配置文件控制行为
+- ✅ <strong>性能可控</strong>：条件触发，按需启用</p>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags">
+            <span class="chip">Harness 工程化</span>
+            <span class="chip">AI Agent</span>
+            <span class="chip">面试宝典</span>
+          </div>
+          <a class="t-meta" href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/06-harnes/ragent/docs/refactoring-summary.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../ai-engineer/harness/quick-start.html"><span class="dir">← 上一篇</span><span class="t">快速开始指南</span></a><a class="next" href="../../ai-engineer/llm-scratch/overview.html"><span class="dir">下一篇 →</span><span class="t">从零开始构建大语言模型 — 实践课程 (PyTorch)</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../rag/index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+
+<script src="../../js/main.js" defer></script>
+</body>
+</html>

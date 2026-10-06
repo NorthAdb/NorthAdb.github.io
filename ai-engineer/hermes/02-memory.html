@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hermes Agent Memory 四层体系 · AI Agent 面试宝典 — NorthAdb 的博客</title>
+<meta name="description" content="多数人不知道：从第一次开机对话起，内置 Memory 一直在静默读写。本篇拆开 Layer 1 的机制，再讲可叠加的三层扩展。">
+<link rel="canonical" href="https://northadb.github.io/ai-engineer/hermes/02-memory.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Hermes Agent Memory 四层体系 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta property="og:description" content="多数人不知道：从第一次开机对话起，内置 Memory 一直在静默读写。本篇拆开 Layer 1 的机制，再讲可叠加的三层扩展。">
+<meta property="og:url" content="https://northadb.github.io/ai-engineer/hermes/02-memory.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Hermes Agent Memory 四层体系 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta name="twitter:description" content="多数人不知道：从第一次开机对话起，内置 Memory 一直在静默读写。本篇拆开 Layer 1 的机制，再讲可叠加的三层扩展。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../feed.xml">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../ai-engineer/assets/course.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Hermes Agent Memory 四层体系", "description": "多数人不知道：从第一次开机对话起，内置 Memory 一直在静默读写。本篇拆开 Layer 1 的机制，再讲可叠加的三层扩展。", "author": {"@type": "Person", "name": "juliepy", "url": "https://github.com/juliepy/AI-Engineer-from-scrach"}, "mainEntityOfPage": "https://northadb.github.io/ai-engineer/hermes/02-memory.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../index.html">首页</a><span>/</span><a href="../../learn.html">课件</a><span>/</span><a href="../../ai-engineer/index.html">AI Agent 面试宝典</a><span>/</span><a href="../../ai-engineer/hermes/index.html">Hermes 源码精读</a></div>
+          <h1>Hermes Agent Memory 四层体系</h1>
+          <p class="post-sub">多数人不知道：从第一次开机对话起，内置 Memory 一直在静默读写。本篇拆开 Layer 1 的机制，再讲可叠加的三层扩展。</p>
+          <div class="post-meta">
+            <span class="avatar">AI</span>
+            <span>AI Agent 面试宝典</span><span class="sep"></span>
+            <span>Hermes 源码精读</span><span class="sep"></span>
+            <span>阅读约 17 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<p>https://www.youtube.com/watch?v=ZKZLko9kLm4&amp;list=PLmpUb_PWAkDx-VWjh00tVCji794xAa_IX&amp;index=4</p>
+<p>多数人不知道：从第一次开机对话起，<strong>内置 Memory 一直在静默读写</strong>。本篇拆开 Layer 1 的机制，再讲可叠加的三层扩展。</p>
+<hr>
+<h2 id="0">0. 总览：四层可叠加，不是四选一</h2>
+<pre><code class="language-mermaid">flowchart TB
+    subgraph L1[&quot;Layer 1 · 内置 Markdown（默认开启）&quot;]
+        M[&quot;~/.hermes/memories/memory.md&quot;]
+        U[&quot;~/.hermes/memories/user.md&quot;]
+    end
+
+    subgraph L2[&quot;Layer 2 · FTS5 Session Search（内置常开）&quot;]
+        DB[&quot;~/.hermes/state.db&lt;br/&gt;全量会话全文索引&quot;]
+    end
+
+    subgraph L3[&quot;Layer 3 · External Provider Plugin（可选，同时只能开一个）&quot;]
+        P[&quot;Honcho / Mem0 / Hindsight / Supermemory …&quot;]
+    end
+
+    subgraph L4[&quot;Layer 4 · Obsidian Skill（技能，不是 Provider 槽位）&quot;]
+        V[&quot;本地 Vault · 结构化 wiki 笔记&quot;]
+    end
+
+    L1 --&gt; L2 --&gt; L3 --&gt; L4
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>是什么</th>
+<th>解决什么</th>
+<th>是否默认</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1</strong></td>
+<td><code>memory.md</code> + <code>user.md</code></td>
+<td>关键事实 / 用户画像常驻 system prompt</td>
+<td><strong>是</strong>，开机即用</td>
+</tr>
+<tr>
+<td><strong>2</strong></td>
+<td><code>state.db</code> + <code>session_search</code></td>
+<td>「上周聊过 X 吗？」类细节全文召回</td>
+<td><strong>是</strong>，常开</td>
+</tr>
+<tr>
+<td><strong>3</strong></td>
+<td>Provider 插件（Honcho、Mem0…）</td>
+<td>语义召回、身份建模等</td>
+<td>否；<code>hermes memory setup</code></td>
+</tr>
+<tr>
+<td><strong>4</strong></td>
+<td>Obsidian <strong>Skill</strong></td>
+<td>大项目 / 领域知识的结构化长期库</td>
+<td>否；配 vault path</td>
+</tr>
+</tbody>
+</table>
+<p><strong>关键原则：四层是 additive（叠加），不是 alternatives（互斥）。</strong><br>
+Layer 1 在配置了 Provider 后也 <strong>不会关掉</strong>；Provider 是增强。四层可同时跑。</p>
+<p>一句话定位：</p>
+<blockquote>
+<p>Memory = Hermes <strong>知道什么</strong>；下一模块 Skills = Hermes <strong>能做什么</strong>。</p>
+</blockquote>
+<hr>
+<h2 id="05-session-vs-turn">0.5 术语：Session vs 单轮对话（Turn）</h2>
+<p>读后面「frozen snapshot / 每 turn prefetch / session end extract」之前，先把这两个词钉死。混用会导致以为「写了 memory 马上进 system prompt」或「每条消息都会重新 seed 记忆文件」。</p>
+<h3 id="_1">一句话</h3>
+<table>
+<thead>
+<tr>
+<th>词</th>
+<th>是什么</th>
+<th>类比</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Turn（单轮 / 一轮）</strong></td>
+<td>用户 <strong>发一条消息</strong> → Agent 跑完 <strong>一整次 Loop</strong>（可含多次 Tool）→ 给出最终回复 →（可选）Memory Update</td>
+<td>一次「你问、它答」</td>
+</tr>
+<tr>
+<td><strong>Session（会话）</strong></td>
+<td>一次 <strong>连续对话容器</strong>：包含 <strong>多轮</strong> Turn，共享同一份启动时冻结的 system prompt 快照与同一条 session 历史</td>
+<td>一次打开的 CLI 聊天 / 同一个 Telegram 会话线程</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-mermaid">flowchart TB
+    subgraph Session[&quot;一个 Session（可跨很多轮）&quot;]
+        Boot[&quot;Session 启动&lt;br/&gt;读 memory.md / user.md → Frozen Snapshot 进 SP&lt;br/&gt;加载 Project Context 等&quot;]
+        T1[&quot;Turn 1: 用户消息 → Loop → 回复&quot;]
+        T2[&quot;Turn 2: 用户消息 → Loop → 回复&quot;]
+        T3[&quot;Turn N: …&quot;]
+        EndS[&quot;Session 结束&lt;br/&gt;如关 CLI / 新开会话 / Provider extract&quot;]
+        Boot --&gt; T1 --&gt; T2 --&gt; T3 --&gt; EndS
+    end
+</code></pre>
+<h3 id="_2">对照表（按「发生频率」）</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Turn（单轮）</th>
+<th>Session（会话）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>触发</strong></td>
+<td>用户每发 <strong>1 条</strong> 消息</td>
+<td>打开/绑定一条对话通道（CLI 一次运行、Gateway 的 <code>telegram:session_id:…</code> 等）</td>
+</tr>
+<tr>
+<td><strong>包含关系</strong></td>
+<td>Session ⊃ 多个 Turn</td>
+<td>一个 Session = Turn₁ + Turn₂ + …</td>
+</tr>
+<tr>
+<td><strong>Agent Loop</strong></td>
+<td><strong>每轮跑一遍</strong>（Build Context → LLM↔Tools → 回复 → Memory Update）</td>
+<td>Loop 本身不是「按 session 跑一次」，而是 session 里 <strong>每轮都跑</strong></td>
+</tr>
+<tr>
+<td><strong>消息历史</strong></td>
+<td>本轮把「到目前为止的历史 + 本轮新消息」送进 LLM</td>
+<td>整段 transcript 落在 <strong>同一 session id</strong> 下（<code>state.db</code>）</td>
+</tr>
+<tr>
+<td><strong><code>memory.md</code> / <code>user.md</code> 读进 SP</strong></td>
+<td>否（不每轮重载）</td>
+<td><strong>仅 Session 启动时读一次</strong> = frozen snapshot</td>
+</tr>
+<tr>
+<td><strong>memory tool 写盘</strong></td>
+<td>可在某一轮中途发生（磁盘立刻变）</td>
+<td>写完后 <strong>同 session 内 SP 仍是旧快照</strong>；要 <strong>下一个 Session</strong> 才进 SP</td>
+</tr>
+<tr>
+<td><strong>Compression 检查</strong></td>
+<td><strong>每轮之前</strong>（以及 context 报错时）</td>
+<td>阈值等配置按 session/实例，检查动作按 turn</td>
+</tr>
+<tr>
+<td><strong>External Provider</strong></td>
+<td>常见：每 turn 前 prefetch；每 turn 后 sync</td>
+<td>session end 再 extract；有的还做 session graph ingest</td>
+</tr>
+<tr>
+<td><strong>Context Files 子目录发现</strong></td>
+<td>某轮 tool 摸到路径时注入</td>
+<td><strong>每个子目录每 session 最多查一次</strong></td>
+</tr>
+<tr>
+<td><strong>Session Search</strong></td>
+<td>某一轮里 Agent 决定要不要搜</td>
+<td>索引单位是 <strong>整段 session 历史</strong>（可搜「上周那次会话」）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_3">时间轴叠在一起看</h3>
+<pre><code class="language-text">Session 开始
+  │  ← 读盘渲染 SP（Layer1 快照）/ 选一种 Project Context
+  │
+  ├─ Turn 1  用户：「我是做 HVAC 的」
+  │     Loop… → 回复
+  │     可能：memory tool 写入 user.md（盘已更新）
+  │     但：本 session 的 SP 里 user.md **仍是启动时那份**
+  │     transcript 写入 state.db
+  │
+  ├─ Turn 2  用户：「上周那个包的名字有哪些？」
+  │     Loop… → 可能调 session_search（搜的是历史 session/本 session 全文）
+  │     SP 里的 Layer1 **仍未变**
+  │
+  └─ Session 结束（关窗口 / 新开对话 / 策略上的 session end）
+        ← Provider extract；下次 Session 启动才带上新的 user.md 快照
+</code></pre>
+<h3 id="_4">三个最容易混的点</h3>
+<ol>
+<li>
+<p><strong>「单轮写了 memory」≠「当前 session 的 system prompt 已更新」</strong><br>
+   写的是盘；读进 SP 要等 <strong>下一次 Session 启动</strong>（frozen snapshot）。同轮 / 同 session 里若要看见新记忆，靠的是 <strong>tool 返回的 live 状态</strong>，不是刷新后的 SP。</p>
+</li>
+<li>
+<p><strong>「Session 里有很多轮」≠「每轮都重新 Build 整份人格记忆文件」</strong><br>
+   每轮都会 Build Context（带上消息历史、可能压缩、可能 prefetch），但 <strong><code>memory.md</code>/<code>user.md</code> 进 SP 的那份是 session 级冻结的</strong>。</p>
+</li>
+<li>
+<p><strong>Gateway 的「一条 Telegram 消息」= 一个 Turn，不是新 Session</strong><br>
+   同一 <code>telegram:session_id:…</code> 下连续发消息 = <strong>同一 Session 的多个 Turn</strong>；Session Manager 的 queue/interrupt/steer 也是在 <strong>当前 session 的当前/排队 turns</strong> 上操作。</p>
+</li>
+</ol>
+<h3 id="_5">术语落到各机制上</h3>
+<table>
+<thead>
+<tr>
+<th>说法</th>
+<th>指的是</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><em>at the start of every session</em></td>
+<td>Session 启动，不是每一轮</td>
+</tr>
+<tr>
+<td><em>memory writes don't show up in the same session</em></td>
+<td>同 Session 内后续 Turns 的 SP 仍是旧快照</td>
+</tr>
+<tr>
+<td><em>prefetch before each turn</em> / <em>sync after each response</em></td>
+<td>按 <strong>Turn</strong></td>
+</tr>
+<tr>
+<td><em>extract on session end</em></td>
+<td>按 <strong>Session</strong></td>
+</tr>
+<tr>
+<td><code>01-arch</code> 里「用户每发一条消息就跑一轮 Loop」</td>
+<td><strong>Turn</strong></td>
+</tr>
+<tr>
+<td><code>01-arch</code> 里 session transcript / Session Manager</td>
+<td><strong>Session</strong></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="1-layer-1-markdown-memory">1. Layer 1：内置 Markdown Memory</h2>
+<p>路径：<code>~/.hermes/memories/</code>。</p>
+<p>Agent <strong>每个 session 启动时读</strong>，使用过程中 <strong>用 memory tool 写</strong>。多数人从未打开过这两个文件，但它一直在工作。</p>
+<h3 id="11">1.1 两个文件与预算</h3>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>存什么</th>
+<th>默认体积预算</th>
+<th>大约 token</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>memory.md</code></strong></td>
+<td>Agent 关于项目、环境、决策、经验教训的笔记</td>
+<td><strong>约 2,200 字符</strong></td>
+<td>~800 tokens</td>
+</tr>
+<tr>
+<td><strong><code>user.md</code></strong></td>
+<td>Agent 对「你是谁」的模型：角色、偏好、沟通风格</td>
+<td>默认 <strong>cap ≈ 1,375 字符</strong>——最终以 <strong>config 里的 <code>user</code> character limit 为准</strong></td>
+<td>两文件合计常按 <strong>~1,300 tokens</strong> 计 system prompt 预算</td>
+</tr>
+</tbody>
+</table>
+<p>可在 config 的 <code>memory</code> 段设置：</p>
+<ul>
+<li><code>memory</code> character limit  </li>
+<li><code>user</code> character limit  </li>
+</ul>
+<p>默认对多数人够用。调太大 → 每开新 session 都把记忆灌进 context，真正干活的 token 被挤占。</p>
+<p><strong>设计意图：有界（bounded）。硬字符上限逼 Agent 策展（curate），而不是无限堆积。</strong></p>
+<h3 id="12">1.2 真实样例长什么样</h3>
+<p>实机 <code>memory.md</code>（约 24 行纯 Markdown）：</p>
+<ul>
+<li>用 <strong>分节符 <code>§</code>（section sign）</strong> 分隔条目  </li>
+<li>内容来自对话自动沉淀，例如：  </li>
+<li>在做的不同项目  </li>
+<li>论文摘要任务的优先级列表  </li>
+<li>工作环境、workflow 偏好、关注的 evaluation metrics  </li>
+<li>具体项目（如 Solana 上 DLM / pools 的可视化工具）</li>
+</ul>
+<p><code>user.md</code> 样例（关于用户 Tom B，从 Agent 视角）：</p>
+<ul>
+<li>Core persona：technical researcher，重视 detailed、reproducible memory，Windows-aware paper walkthroughs  </li>
+<li><code>User prefers blank, minimal project starts over pre-built templates or branded defaults</code>  </li>
+<li><code>User expects thorough, proper implementations with no shortcuts or hacks</code>  </li>
+</ul>
+<p><strong>没有人专门命令「写进 memories」</strong>——是对话过程中 Agent 自己记下的。</p>
+<p>两文件在 <strong>每个 session 开始时加载进 system prompt</strong>。「魔法」就是纯 Markdown：可手改、可审计、可查矛盾、可在不同 Agent 间迁移。</p>
+<h3 id="13-frozen-snapshot-pattern">1.3 Frozen Snapshot Pattern（冻结快照）——必懂机制</h3>
+<blockquote>
+<p>先分清 <a href="#05-术语session-vs-单轮对话turn">§0.5 Session vs Turn</a>：快照按 <strong>Session</strong> 冻结；<strong>Turn</strong> 里写盘不刷新本 Session 的 SP。</p>
+</blockquote>
+<pre><code class="language-mermaid">sequenceDiagram
+    participant Disk as memories/*.md
+    participant Boot as Session 启动
+    participant SP as System Prompt&lt;br/&gt;Prompt Cache
+    participant Tool as memory tool
+    participant Next as 下一 Session
+
+    Boot-&gt;&gt;Disk: 读 memory.md + user.md
+    Boot-&gt;&gt;SP: 渲染一次 = Frozen Snapshot
+    Note over SP: 本 Session 内多轮 Turn 共用这份 SP
+
+    Tool-&gt;&gt;Disk: 某 Turn 内 add / replace / remove&lt;br/&gt;磁盘立刻更新
+    Note over SP: 当前 Session 后续 Turns 的 SP 仍是旧快照
+    Note over Tool: tool response 可见 live 状态
+
+    Next-&gt;&gt;Disk: 再读盘
+    Next-&gt;&gt;SP: 新 Session 的快照才带上上次写入
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>点</th>
+<th>行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Session</strong> 开始</td>
+<td>从磁盘加载 → <strong>只渲染进 system prompt 一次</strong> = frozen snapshot</td>
+</tr>
+<tr>
+<td><strong>某 Turn</strong> 中途</td>
+<td>Agent 调 <strong>memory tool</strong> → <strong>磁盘立刻更新</strong></td>
+</tr>
+<tr>
+<td>System prompt</td>
+<td><strong>本 Session 内所有 Turn 都不因 memory 写入而刷新</strong>；要等 <strong>下一个 Session</strong></td>
+</tr>
+<tr>
+<td>为何如此</td>
+<td>System prompt 走 <strong>prompt caching</strong>；中途改 SP → 每次 memory 写入都 <strong>废掉 cache</strong>；长会话成本会炸</td>
+</tr>
+<tr>
+<td>Hermes 取舍</td>
+<td><strong>用新鲜度换速度/成本</strong>：写入同 Session 不进 SP，下 Session 才进</td>
+</tr>
+</tbody>
+</table>
+<p>核心机制一句话：</p>
+<blockquote>
+<p>Tool responses show <strong>live state</strong>；system prompt 是 <strong>boot snapshot</strong>。<br>
+Memory writes <strong>don't show up in the same session, only in the next one.</strong><br>
+（same <strong>session</strong>，不是 same <strong>turn</strong>——同 Session 里后面好多轮也看不到进 SP 的更新。）</p>
+</blockquote>
+<h3 id="14-memory-tool">1.4 Memory Tool：三种动作</h3>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>作用</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>add</strong></td>
+<td>追加条目</td>
+<td>条目之间用 <code>§</code> 分隔</td>
+</tr>
+<tr>
+<td><strong>replace</strong></td>
+<td>替换</td>
+<td>用 <code>old_text</code> <strong>子串匹配</strong>；不必整段原文，<strong>短且唯一</strong> 的 substring 即可</td>
+</tr>
+<tr>
+<td><strong>remove</strong></td>
+<td>删除</td>
+<td>同样靠 substring</td>
+</tr>
+<tr>
+<td>~~read~~</td>
+<td><strong>没有</strong></td>
+<td>内容在 session 启动时已自动注入 SP，无需 read</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-mermaid">flowchart TD
+    Call[&quot;memory tool 调用&quot;] --&gt; Scan{&quot;写入前安全扫描&lt;br/&gt;注入 / 凭证外泄 / 隐藏 Unicode&quot;}
+    Scan -- 命中 --&gt; Reject[&quot;拒绝写入&quot;]
+    Scan -- 通过 --&gt; Act{&quot;action?&quot;}
+
+    Act -- add --&gt; Dup{&quot;内容已存在?&quot;}
+    Dup -- 是 --&gt; Noop[&quot;返回 success&lt;br/&gt;但静默 no-op 不插入&quot;]
+    Dup -- 否 --&gt; Over{&quot;超出字符 cap?&quot;}
+    Over -- 是 --&gt; Err1[&quot;报错 → Agent 必须先 remove 腾地方&quot;]
+    Over -- 否 --&gt; Add[&quot;用 § 分隔追加&quot;]
+
+    Act -- replace/remove --&gt; Match{&quot;old_text substring 命中几条?&quot;}
+    Match -- 多条 --&gt; Err2[&quot;报错 → Agent 写更具体&quot;]
+    Match -- 1 条 --&gt; Do[&quot;执行替换 / 删除&quot;]
+
+    Add &amp; Do --&gt; Disk[&quot;磁盘立即更新&lt;br/&gt;本 session SP 仍是旧快照&quot;]
+</code></pre>
+<p>匹配规则细节：</p>
+<ul>
+<li>substring 命中 <strong>多条</strong> → <strong>报错</strong>，Agent 必须写得更具体  </li>
+<li><strong>Duplicate detection</strong>：再 add <strong>完全相同</strong> 内容 → 返回 <strong>success</strong>，但 <strong>不插入重复</strong>（静默 no-op）</li>
+</ul>
+<p>写入前扫描：</p>
+<ul>
+<li>Prompt injection 模式  </li>
+<li>Credential exfiltration（如把 SSH key 写进「事实」）  </li>
+<li>等安全模式  </li>
+</ul>
+<p>→ 防止 Agent 被骗写入恶意记忆，污染 <strong>每一个未来 session</strong> 的 system prompt。</p>
+<h4 id="agentscampi">实机例子（Agent「Scampi」）</h4>
+<p>长聊一篇 multi-agent 论文后，用户：<em>「save this paper for when I get back」</em></p>
+<ol>
+<li>Agent 调 <code>memory</code> <strong>add</strong>：用户要追踪该论文…  </li>
+<li>因有 <strong>字符 cap</strong>，必须腾地方 → <strong>remove</strong> 一条重复的「Open Writer video studio」相关记忆  </li>
+<li>一边维护一边写入：cap 逼出策展，而不是 junk drawer</li>
+</ol>
+<h3 id="15">1.5 四个「看不见」的安全/设计特性</h3>
+<p>纸面上「两个 md + 2200 字符 + 无向量库」不该好用；能用是因为每个约束都有理由。</p>
+<h4 id="1cap-as-a-feature">（1）Cap as a Feature（上限本身就是功能）</h4>
+<ul>
+<li>每个 system prompt header 会显示 <strong>当前用量百分比</strong>  </li>
+<li>试图超过 cap → tool <strong>报错</strong>  </li>
+<li>Agent 必须主动决定 <strong>consolidate / 删什么 / 留什么</strong>  </li>
+<li><strong>拿掉 cap，系统塌成噪音 junk drawer</strong></li>
+</ul>
+<h4 id="2train-save-skip-policy">（2）Train / Save / Skip Policy（内置存什么、跳过什么）</h4>
+<p>Agent <strong>不是从零猜</strong> 什么值得记；出厂带清晰策略：</p>
+<table>
+<thead>
+<tr>
+<th>Save</th>
+<th>Skip</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Preferences</td>
+<td>Trivial questions</td>
+</tr>
+<tr>
+<td>Environment</td>
+<td>Web-searchable facts</td>
+</tr>
+<tr>
+<td>Facts</td>
+<td>Raw data dumps</td>
+</tr>
+<tr>
+<td>Corrections</td>
+<td>Session-specific randomness</td>
+</tr>
+<tr>
+<td>Conventions</td>
+<td></td>
+</tr>
+<tr>
+<td>Completed work</td>
+<td></td>
+</tr>
+<tr>
+<td>Explicit user requests</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>→ <strong>不需要单独的 memory manager agent</strong>；主 Agent 已知道。</p>
+<h4 id="3duplicate-success-no-op-error">（3）Duplicate = Success No-op（不是 Error）</h4>
+<ul>
+<li>LLM 爱 <strong>retry</strong>  </li>
+<li>若重复 add 报错或允许略改复写 → <code>memory.md</code> 会被同一事实的四种措辞填满  </li>
+<li>静默去重保持干净</li>
+</ul>
+<h4 id="4injection-scanning-before-write">（4）Injection Scanning Before Write</h4>
+<ul>
+<li>Memory 条目会进入 <strong>每个未来 session</strong> 的 system prompt  </li>
+<li>攻击者若骗 Agent 写入恶意记忆 → <strong>跨 session 持久 payload</strong>  </li>
+<li>Hermes 在 accept 前扫描：prompt injection、credential exfiltration、invisible Unicode 等 → <strong>关掉这条攻击面</strong></li>
+</ul>
+<h3 id="16-seed-usermd">1.6 建议主动 Seed <code>user.md</code></h3>
+<p>Agent 会随对话自动填 <code>user.md</code>，但仍建议人手种一点：</p>
+<ul>
+<li>关于自己的几条主事实  </li>
+<li>短期目标  </li>
+<li>正在做的项目 / 为何一起工作  </li>
+</ul>
+<p>注意：<strong><code>user.md</code> 默认有硬 cap（约 1,375 字符）</strong>——塞不进整本人生史。</p>
+<hr>
+<h2 id="2-layer-2fts5-session-search">2. Layer 2：FTS5 Session Search</h2>
+<h3 id="21">2.1 机制</h3>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>存储</td>
+<td>每个 CLI / Gateway session 索引进 <strong><code>~/.hermes/state.db</code></strong></td>
+</tr>
+<tr>
+<td>覆盖</td>
+<td>Telegram、Discord 等 <strong>每一条</strong> 往来</td>
+</tr>
+<tr>
+<td>工具</td>
+<td>Agent 有 <strong><code>session_search</code></strong>，可对自身对话史做 <strong>全文检索</strong></td>
+</tr>
+<tr>
+<td>返回</td>
+<td>结果上再加一层 <strong>Gemini Flash summarization</strong> → Agent <strong>不必重读原始 transcript</strong></td>
+</tr>
+<tr>
+<td>触发</td>
+<td>Agent <strong>自主</strong>调用：当它认为「以前可能聊过相关的」——<strong>不必用户显式 prompt</strong></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-mermaid">flowchart LR
+    subgraph Write[&quot;写入（自动）&quot;]
+        S1[&quot;CLI / Telegram / Discord…&lt;br/&gt;每条往来&quot;] --&gt; DB[(&quot;~/.hermes/state.db&lt;br/&gt;FTS5 全文索引&quot;)]
+    end
+
+    subgraph Read[&quot;读取（Agent 自主）&quot;]
+        Q[&quot;Agent 判断:&lt;br/&gt;以前可能聊过?&quot;] --&gt; Search[&quot;session_search 全文检索&quot;]
+        Search --&gt; DB
+        DB --&gt; Hits[&quot;命中的 transcript 片段&quot;]
+        Hits --&gt; Sum[&quot;Gemini Flash 摘要&quot;]
+        Sum --&gt; Ans[&quot;Agent 直接用摘要&lt;br/&gt;不必重读原始 transcript&quot;]
+    end
+</code></pre>
+<h3 id="22-auto-prune-vacuum">2.2 运维：Auto prune + Vacuum</h3>
+<p>新版 Hermes：启动时对 <code>state.db</code> <strong>自动 prune + vacuum</strong>。</p>
+<ul>
+<li>过去：重度用户库会 <strong>无限膨胀</strong>  </li>
+<li>现在：自维护  </li>
+<li>若你曾计划用 cron 清 session：<strong>可以不做了</strong></li>
+</ul>
+<h3 id="23">2.3 实机演示</h3>
+<p>问 Scampi：<em>「奢侈箱包手表 App 头脑风暴时，我们讨论过的 top 10 名字建议是什么？」</em></p>
+<ul>
+<li>这类细节 <strong>不该</strong>、也通常 <strong>不会</strong> 进 <code>memory.md</code>（太碎、头脑风暴很多）  </li>
+<li>Agent 调 <code>session_search</code>：<code>luxury bag watch app name</code> / watch|watches|bag …  </li>
+<li>从 <code>state.db</code> 找回 top 10 建议；界面上还可能伴随 memories updated 提示</li>
+</ul>
+<h3 id="24-layer-1-vs-layer-2">2.4 Layer 1 vs Layer 2 对照</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Persistent Memory（两 md）</th>
+<th>Session Search（state.db）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>容量</td>
+<td>~1,300 tokens 总量级，有硬 cap</td>
+<td><strong>实质无限</strong>：全 session 都存</td>
+</tr>
+<tr>
+<td>速度</td>
+<td><strong>瞬时</strong>：已在 context</td>
+<td>搜索 + 摘要，稍慢</td>
+</tr>
+<tr>
+<td>用例</td>
+<td>关键事实 <strong>永远在场</strong></td>
+<td>「上周讨论过 X 吗？」</td>
+</tr>
+<tr>
+<td>管理</td>
+<td>Agent 策展写入</td>
+<td><strong>自动</strong>：每 session 入库</td>
+</tr>
+<tr>
+<td>Token 成本</td>
+<td><strong>固定</strong>（文件大小固定）</td>
+<td><strong>按需</strong>：搜索时才花；具体搜索可能更贵</td>
+</tr>
+</tbody>
+</table>
+<p>结论：多数人 <strong>不必急着上插件</strong>；两套内置已经很强。</p>
+<hr>
+<h2 id="3-layer-3external-memory-provider-plugins">3. Layer 3：External Memory Provider Plugins</h2>
+<p>记忆是 Agent 是否「像 Agent」的关键痛点，所以社区 Provider / 插件很多。</p>
+<h3 id="31">3.1 插件架构规则</h3>
+<table>
+<thead>
+<tr>
+<th>规则</th>
+<th>细节</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>引入版本</td>
+<td>约在 Hermes <strong>v7</strong>：pluggable memory provider <strong>ABC</strong></td>
+</tr>
+<tr>
+<td>接入</td>
+<td>第三方实现简单接口，经 Hermes <strong>plugin loader</strong> 注册</td>
+</tr>
+<tr>
+<td><strong>同时只能开一个 Provider</strong></td>
+<td>不能 Honcho + Mem0 并行；选一个，以后可换</td>
+</tr>
+<tr>
+<td><strong>切换不迁移数据</strong></td>
+<td>Honcho 用了 3 个月再切 Mem0 → Honcho 里的记忆 <strong>不会自动跟过来</strong>；容易踩坑，要提前规划</td>
+</tr>
+<tr>
+<td>Layer 1</td>
+<td><strong>始终开启</strong>；Provider <strong>增强</strong>，不替换</td>
+</tr>
+</tbody>
+</table>
+<h3 id="32-provider-hermes-5">3.2 Provider 激活后 Hermes 自动做的 5 件事</h3>
+<ol>
+<li><strong>Inject</strong> provider context → system prompt  </li>
+<li><strong>Prefetch</strong> 相关记忆 → <strong>每个 turn 之前</strong>  </li>
+<li><strong>Sync</strong> 对话 turn → provider（<strong>每次 response 之后</strong>）  </li>
+<li><strong>Extract</strong> memories → <strong>session end</strong>  </li>
+<li><strong>Add</strong> provider-specific tools  </li>
+</ol>
+<p>按 Session / Turn 生命周期摆开看：</p>
+<pre><code class="language-mermaid">flowchart TB
+    Boot[&quot;Session 启动&quot;] --&gt; Inject[&quot;1 Inject: provider context → SP&lt;br/&gt;5 Add: provider 专属 tools&quot;]
+    Inject --&gt; TurnLoop
+
+    subgraph TurnLoop[&quot;每个 Turn 循环&quot;]
+        direction TB
+        Pre[&quot;2 Prefetch: 相关记忆&lt;br/&gt;（turn 之前）&quot;] --&gt; LLM[&quot;Agent Loop：LLM ↔ Tools → 回复&quot;]
+        LLM --&gt; Post[&quot;3 Sync: 本 turn → provider&lt;br/&gt;（response 之后）&quot;]
+    end
+
+    TurnLoop --&gt; EndS[&quot;Session 结束&quot;]
+    EndS --&gt; Extract[&quot;4 Extract: 抽取 memories&lt;br/&gt;（部分 provider 还做 session graph ingest）&quot;]
+</code></pre>
+<p>CLI：</p>
+<pre><code class="language-text">hermes memory setup
+hermes memory status
+hermes memory off
+</code></pre>
+<h3 id="33-provider">3.3 Provider 生态速览</h3>
+<table>
+<thead>
+<tr>
+<th>Provider</th>
+<th>独特点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Mem0</strong></td>
+<td>最出名（stars 多）；<strong>server-side LLM extraction</strong></td>
+</tr>
+<tr>
+<td><strong>Supermemory</strong></td>
+<td><strong>Multi-container partitioning</strong></td>
+</tr>
+<tr>
+<td><strong>Hindsight</strong></td>
+<td><strong>Knowledge graph + reflect synthesis</strong></td>
+</tr>
+<tr>
+<td><strong>Honcho</strong></td>
+<td>Hermes 社区很火；研究向、<strong>一等公民集成</strong>；有独立 <strong>Hermes Honcho CLI</strong>；<strong>dialectic user modeling</strong></td>
+</tr>
+</tbody>
+</table>
+<p>生态当时约 <strong>8 个选项</strong>，还在增加；下列深入讲四个代表。</p>
+<h3 id="34-mem0-llm">3.4 Mem0：服务端 LLM 抽取事实</h3>
+<p>流程：</p>
+<ol>
+<li>Ingest 对话 → <strong>LLM 抽出离散 facts</strong>  </li>
+<li><strong>对每个 fact 再过一轮 LLM</strong> 决策：<br>
+   - 新 → insert<br>
+   - 可更新 → modify existing<br>
+   - 矛盾 → delete<br>
+   - 已有 → no-op  </li>
+<li>Dedup 自动  </li>
+</ol>
+<pre><code class="language-mermaid">flowchart TD
+    Conv[&quot;对话 turn&quot;] --&gt; Ext[&quot;LLM 抽出离散 facts&quot;]
+    Ext --&gt; Each[&quot;对每个 fact 再过一轮 LLM 决策&quot;]
+    Each --&gt; D{&quot;与已有记忆比对&quot;}
+    D -- 新事实 --&gt; Ins[&quot;insert&quot;]
+    D -- 可更新 --&gt; Mod[&quot;modify existing&quot;]
+    D -- 矛盾 --&gt; Del[&quot;delete&quot;]
+    D -- 已存在 --&gt; No[&quot;no-op&quot;]
+    Ins &amp; Mod &amp; Del --&gt; Emb[&quot;embed 抽出来的 facts&lt;br/&gt;（非原始文本）→ 召回噪声更少&quot;]
+</code></pre>
+<p>独特：其它后端常 <strong>embed 原始文本</strong>；Mem0 <strong>embed 抽出来的 facts</strong> → 召回噪声更少，但 <strong>每次写多一轮 LM 成本</strong>。</p>
+<h3 id="35-hindsight">3.5 Hindsight：知识图 + 多策略检索</h3>
+<ul>
+<li>结构最密的一档：存 turn + metadata、建实体关系、<strong>三种 retrieval strategies</strong>  </li>
+<li><strong>自动保留完整 conversation turns（含 tool calls）</strong>  </li>
+<li>Session 级 document tracking  </li>
+<li><strong><code>Reflect</code> tool</strong>：跨记忆综合，生态里少见  </li>
+</ul>
+<p>适合：需要 <strong>显式实体关系知识图</strong> 时。</p>
+<h3 id="36-supermemory-container">3.6 Supermemory：多 Container 分区</h3>
+<ul>
+<li>Container 一等公民：各自 retention、search mode、identity  </li>
+<li>适合：按 client / project / team 要 <strong>多个 memory namespace</strong>  </li>
+</ul>
+<p>两个特色：</p>
+<ol>
+<li><strong>Context fencing</strong>：从 capture 的 turn 里剥掉「已经召回过的记忆」，防 <strong>recursive memory pollution</strong>  </li>
+<li><strong>Session graph ingest</strong>：session 结束时把对话 ingest 成 <strong>graph</strong>，利后续检索</li>
+</ol>
+<h3 id="37-honcho">3.7 Honcho 深潜（本模块实机演示对象）</h3>
+<h4 id="_6">理念</h4>
+<ul>
+<li><strong>Dialectic reasoning</strong>：Agent 推导关于你的 <strong>conclusions / insights</strong>，会累积  </li>
+<li>不是只记你陈述的事实，而是建 <strong>偏好、沟通模式、目标</strong> 的 running model  </li>
+<li>「建模的是 <strong>你</strong>，不只是关于你的 facts」；更接近人怎么建立对他人的心智模型</li>
+</ul>
+<h4 id="_7">对象层级</h4>
+<pre><code class="language-mermaid">flowchart TB
+    W[&quot;Workspace&quot;] --&gt; P1[&quot;Peer: user（用户表示，共享）&quot;]
+    W --&gt; P2[&quot;Peer: coder profile 的 AI peer&quot;]
+    W --&gt; P3[&quot;Peer: writer profile 的 AI peer&quot;]
+    P2 --&gt; S1[&quot;Sessions&quot;]
+    P3 --&gt; S2[&quot;Sessions&quot;]
+    S1 --&gt; M1[&quot;Messages&quot;]
+    S2 --&gt; M2[&quot;Messages&quot;]
+</code></pre>
+<p>每个 Hermes profile 对应一个 AI peer，共享同一 workspace。例：coder profile 与 writer profile <strong>共享同一用户表示</strong>，但各自建 <strong>自己的 agent identity</strong>。</p>
+<h4 id="_8">四个主工具</h4>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>honcho_conclude</strong></td>
+<td>触发服务端 dialectic reasoning</td>
+</tr>
+<tr>
+<td><strong>honcho_context</strong></td>
+<td>取当前对话相关 context</td>
+</tr>
+<tr>
+<td><strong>honcho_profile</strong></td>
+<td>查看 / 更新 user profile</td>
+</tr>
+<tr>
+<td><strong>honcho_search</strong></td>
+<td>在 conclusions / observations 上语义搜索</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_9">配置</h4>
+<ul>
+<li>文件：<code>$HERMES_HOME/honcho.json</code>  </li>
+<li>关键选项：  </li>
+<li><strong>recall mode</strong>：是否 / 如何 auto-inject context  </li>
+<li><strong>write frequency</strong>：何时算 conclusions — async / per turn / per session / per end turns 等  </li>
+<li><strong>dialectic reasoning level</strong>：minimal → max 的深度旋钮  </li>
+</ul>
+<h4 id="v0110">v0.11.0 大改</h4>
+<ul>
+<li>Context injection 每 turn 自动处理  </li>
+<li><strong>Cost safety</strong>（防 runaway think）  </li>
+<li>Session isolation  </li>
+</ul>
+<p>托管：云 <a href="https://app.honcho.dev">app.honcho.dev</a> 或 <strong>免费自托管</strong>。</p>
+<h4 id="_10">安装演示步骤</h4>
+<ol>
+<li>打开 app.honcho.dev → 建组织；绑卡可拿 <strong>100 credits</strong>（促销是否长期不确定）  </li>
+<li>拿 API key  </li>
+<li><code>hermes memory setup</code> → 选 <strong>Honcho</strong> → Cloud → 贴 key  </li>
+<li>交互配置示例：<br>
+   - Username: Tom B<br>
+   - AI peer name: Hermes<br>
+   - Workspace ID: Hermes<br>
+   - Observational mode：<strong>directional</strong>（默认；各 AI peer 自建视图）vs unified shared pool<br>
+   - Write frequency：async（无每步 token 成本压力的选项之一）<br>
+   - Recall mode：hybrid（默认）<br>
+   - Dialectic cadence：推荐 <strong>每 2 turn</strong> 重建一次 user model（one every turn / every other turn）<br>
+   - Reasoning level：medium 等<br>
+   - Session strategy：per session / per directory / per repo（演示选 per session）  </li>
+<li>聊完可查：<code>hermes honcho status</code>、<code>hermes honcho peer</code>（user / AI peer identity）  </li>
+<li>其它 CLI：<code>hermes honcho mode</code>、recall/observation 切换、更新 peer names、<code>hermes honcho map</code>（目录映射 session 名）等  </li>
+</ol>
+<h4 id="_11">双写现象（重要）</h4>
+<p>问名字时 Agent 先说还不知道 → 调 <strong>Honcho conclude</strong> 尝试回忆；用户说名字是 Tom B 后：</p>
+<ul>
+<li><strong>Built-in</strong> 可能写入 <code>user.md</code>（「I'll remember that」）  </li>
+<li><strong>Honcho</strong> 同时在学习用户身份  </li>
+</ul>
+<pre><code class="language-mermaid">flowchart LR
+    U[&quot;用户：名字是 Tom B&quot;] --&gt; A[&quot;Agent 处理本 turn&quot;]
+    A --&gt; L1[&quot;Layer 1 · memory tool&lt;br/&gt;写入 user.md（本地盘）&quot;]
+    A --&gt; L3[&quot;Layer 3 · Honcho&lt;br/&gt;学习/建模用户身份（服务端）&quot;]
+</code></pre>
+<p>→ Layer 1 + Layer 3 <strong>同时工作</strong> 的典型画面。</p>
+<hr>
+<h2 id="4-layer-4obsidian-skill-memory-provider">4. Layer 4：Obsidian Skill（不是 Memory Provider）</h2>
+<h3 id="41">4.1 定位差异</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Provider（Honcho / Mem0…）</th>
+<th>Obsidian</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>槽位</td>
+<td><code>hermes memory setup</code> 的 <strong>唯一 active provider</strong></td>
+<td><strong>不在</strong> Provider 列表里</td>
+</tr>
+<tr>
+<td>形态</td>
+<td>Plugin</td>
+<td><strong>Bundled skill</strong>：<code>skills/note-taking/obsidian</code></td>
+</tr>
+<tr>
+<td>实现</td>
+<td>各家 API / 图 / 容器</td>
+<td><strong>文件系统</strong>操作 vault；<strong>不需要 MCP</strong>；不需要 Obsidian GUI（可 headless Linux）</td>
+</tr>
+</tbody>
+</table>
+<p>注意：config 里若还有旧的「Obsidian vault」选项，<strong>已不再使用</strong>——以 <strong>环境变量 <code>OBSIDIAN_VAULT_PATH</code>（或同类 vault path env）</strong> 为准。</p>
+<h3 id="42">4.2 本地准备</h3>
+<ol>
+<li>安装 Obsidian 桌面端（若要在本机可视化编辑）  </li>
+<li>Open folder as vault  </li>
+<li>环境变量里的 vault path <strong>必须与真实文件夹一致</strong></li>
+</ol>
+<h3 id="43">4.3 何时用：大项目结构化长期记忆</h3>
+<p>场景：HVAC contractor AI 报价业务——</p>
+<ol>
+<li>前几集已做竞品与商业计划  </li>
+<li>本集再查旧金山区域 HVAC providers、主打设备/品牌  </li>
+<li>Prompt：用 <strong>Obsidian skill</strong> 存 providers + HVAC model companies  </li>
+</ol>
+<p>Agent 行为：</p>
+<ul>
+<li>调用 Obsidian skill  </li>
+<li>甚至顺手 <strong>创建 skill</strong>（如 local provider research）——与后续 Skills 模块衔接  </li>
+<li>Vault 被填满：各公司一页、汇总页带链接、wiki <strong>交叉链接</strong>  </li>
+<li>网站上找不到具体机型时会老实写「只有系统类型、还要再挖」</li>
+</ul>
+<p>调用方式：</p>
+<ul>
+<li>自然语言：<em>use Obsidian skill</em>  </li>
+<li>或 <strong>Obsidian slash command</strong>：read / search / create notes  </li>
+</ul>
+<p>定位：比 <code>memory.md</code> <strong>细得多、长得多</strong> 的 topic / project / domain 知识库；LLM 读结构化 Markdown + wiki link 更轻松。</p>
+<blockquote>
+<p>不是 memory plugin per se，但提供 <strong>长期详细记忆 / 知识库</strong> 功能；社区很常用。</p>
+</blockquote>
+<hr>
+<h2 id="5">5. 四层怎么一起理解</h2>
+<pre><code class="language-mermaid">flowchart LR
+    subgraph Always[&quot;始终在&quot;]
+        L1[&quot;Layer1 md&lt;br/&gt;策展后的关键事实&quot;]
+        L2[&quot;Layer2 FTS5&lt;br/&gt;全历史按需搜&quot;]
+    end
+
+    subgraph Opt[&quot;按需叠加&quot;]
+        L3[&quot;Layer3 Provider&lt;br/&gt;语义/身份/图谱…&quot;]
+        L4[&quot;Layer4 Obsidian&lt;br/&gt;项目级知识库&quot;]
+    end
+
+    Q1[&quot;偏好/环境/约定?&quot;] --&gt; L1
+    Q2[&quot;上周细节聊过吗?&quot;] --&gt; L2
+    Q3[&quot;跨 session 深度用户模型?&quot;] --&gt; L3
+    Q4[&quot;上百页调研怎么组织?&quot;] --&gt; L4
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>你想要的</th>
+<th>优先用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>每轮都在场的短画像与关键事实</td>
+<td>Layer 1（注意 frozen snapshot + cap）</td>
+</tr>
+<tr>
+<td>找回头脑风暴里的小细节</td>
+<td>Layer 2 session_search</td>
+</tr>
+<tr>
+<td>Dialectic 用户模型 / 语义事实抽取 / 知识图 / 多租户容器</td>
+<td>Layer 3 选一个 Provider</td>
+</tr>
+<tr>
+<td>可人工策展的大型项目 wiki</td>
+<td>Layer 4 Obsidian skill</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="6-6">6. 与架构篇 §6 的对齐补丁</h2>
+<p>本模块把架构里的 Memory 讲细了，对齐关系：</p>
+<table>
+<thead>
+<tr>
+<th><code>01-arch.md</code> 说法</th>
+<th>本模块精确化</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Markdown + SQLite + External</td>
+<td>= Layer1 + Layer2 + Layer3；另加 Layer4 Skill</td>
+</tr>
+<tr>
+<td>Memory Update 后可能写 user/memory</td>
+<td>Layer1 经 <strong>memory tool</strong> 写盘；<strong>同 session SP 不刷新</strong>（frozen snapshot）</td>
+</tr>
+<tr>
+<td>External 首轮后查询等</td>
+<td>Provider 激活后固定五件套：inject / prefetch / sync / extract / tools</td>
+</tr>
+<tr>
+<td>Bare text / 相似度</td>
+<td>Layer2 是 <strong>SQLite FTS5 全文</strong> + Flash 摘要；Provider 才各自语义/图谱</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="7">7. 小结与下一模块</h2>
+<p>本 Module 覆盖：</p>
+<ol>
+<li><strong>Built-in</strong>：<code>user.md</code> + <code>memory.md</code>、cap、frozen snapshot、memory tool、四条隐形安全设计、手动 seed  </li>
+<li><strong>Session search</strong>：<code>state.db</code> FTS5、自主召回、启动 prune/vacuum  </li>
+<li><strong>Provider 生态</strong> + <strong>Honcho</strong> 实装（唯一 active、不迁移、与 Layer1 双写）  </li>
+<li><strong>Obsidian skill</strong>：文件系统 vault，项目级长期知识  </li>
+</ol>
+<p>下一 Module：<strong>Skills</strong>（Memory = 知道什么；Skills = 能做什么），会继续 HVAC 项目，并看到自定义 skills 如何让 Agent 与你一起演进；Honcho / Obsidian / 内置记忆会继续交叉出现。</p>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags">
+            <span class="chip">Hermes 源码精读</span>
+            <span class="chip">AI Agent</span>
+            <span class="chip">面试宝典</span>
+          </div>
+          <a class="t-meta" href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/08-hermes-agent/02-memory.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../ai-engineer/hermes/01-arch.html"><span class="dir">← 上一篇</span><span class="t">Hermes Agent 架构详解</span></a><a class="next" href="../../ai-engineer/hermes/04-arch.html"><span class="dir">下一篇 →</span><span class="t">Hermes Agent — Architecture Map  - 最终篇</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../rag/index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+
+<script src="../../ai-engineer/assets/mermaid-init.js" defer></script>
+<script src="../../js/main.js" defer></script>
+</body>
+</html>

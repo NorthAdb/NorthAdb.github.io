@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>03 - Reflection Agent 示例 · AI Agent 面试宝典 — NorthAdb 的博客</title>
+<meta name="description" content="实现 Action → Evaluation → Reflection → Retry 工作流：失败时将反思写入策略记忆，跨尝试复用，形成可累积的改进线索。">
+<link rel="canonical" href="https://northadb.github.io/ai-engineer/agent/03-reflexion.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="03 - Reflection Agent 示例 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta property="og:description" content="实现 Action → Evaluation → Reflection → Retry 工作流：失败时将反思写入策略记忆，跨尝试复用，形成可累积的改进线索。">
+<meta property="og:url" content="https://northadb.github.io/ai-engineer/agent/03-reflexion.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="03 - Reflection Agent 示例 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta name="twitter:description" content="实现 Action → Evaluation → Reflection → Retry 工作流：失败时将反思写入策略记忆，跨尝试复用，形成可累积的改进线索。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../feed.xml">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../ai-engineer/assets/course.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "03 - Reflection Agent 示例", "description": "实现 Action → Evaluation → Reflection → Retry 工作流：失败时将反思写入策略记忆，跨尝试复用，形成可累积的改进线索。", "author": {"@type": "Person", "name": "juliepy", "url": "https://github.com/juliepy/AI-Engineer-from-scrach"}, "mainEntityOfPage": "https://northadb.github.io/ai-engineer/agent/03-reflexion.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../index.html">首页</a><span>/</span><a href="../../learn.html">课件</a><span>/</span><a href="../../ai-engineer/index.html">AI Agent 面试宝典</a><span>/</span><a href="../../ai-engineer/agent/index.html">Agent 核心模式</a></div>
+          <h1>03 - Reflection Agent 示例</h1>
+          <p class="post-sub">实现 Action → Evaluation → Reflection → Retry 工作流：失败时将反思写入策略记忆，跨尝试复用，形成可累积的改进线索。</p>
+          <div class="post-meta">
+            <span class="avatar">AI</span>
+            <span>AI Agent 面试宝典</span><span class="sep"></span>
+            <span>Agent 核心模式</span><span class="sep"></span>
+            <span>阅读约 3 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<p>实现 <strong>Action → Evaluation → Reflection → Retry</strong> 工作流：失败时将反思写入策略记忆，跨尝试复用，形成可累积的改进线索。</p>
+<h2 id="_1">目录结构</h2>
+<pre><code>03-reaction/
+├── main.py
+├── agent/
+│   ├── reflection_loop.py   # 主循环 reflect_until_success
+│   ├── action.py            # ReAct Action（注入 reflections）
+│   ├── evaluator.py         # 规则 + LLM 评估
+│   ├── reflector.py         # 生成反思并裁剪 memory
+│   ├── prompt.py
+│   ├── llm/
+│   └── tools/
+├── requirements.txt
+└── .env.example
+</code></pre>
+<h2 id="35">核心循环（对应 3.5 伪代码）</h2>
+<pre><code class="language-python">reflections = []
+repeat until success or max_trials:
+    output = Action(task, reflections, tools)      # agent/action.py
+    score, feedback = Evaluator(task, output)    # agent/evaluator.py
+    if success:
+        return output
+    reflections.append(Reflector(feedback))        # agent/reflector.py
+</code></pre>
+<p>入口：<code>reflect_until_success()</code> in <code>agent/reflection_loop.py</code>。</p>
+<h2 id="q5">与「让模型自己检查一遍」的区别（Q5）</h2>
+<table>
+<thead>
+<tr>
+<th>自检</th>
+<th>Reflection</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>往往一次性</td>
+<td>评估与反思显式化、结构化</td>
+</tr>
+<tr>
+<td>不持久</td>
+<td>跨尝试复用反思文本（策略记忆）</td>
+</tr>
+<tr>
+<td>难评测</td>
+<td>规则/分数/反馈可记录，便于工程控制</td>
+</tr>
+</tbody>
+</table>
+<h2 id="34">追问要点（3.4）</h2>
+<ul>
+<li><strong>Evaluator 从哪来？</strong> 本示例对演示任务先用规则（<code>21+21</code> + 字符数 2），否则用 LLM 输出 <code>Success/Score/Feedback</code>。</li>
+<li><strong>反思会不会冗长？</strong> <code>trim_reflections</code> 限制条数（默认 5）、单条长度（400 字）、合并相似项。</li>
+</ul>
+<h2 id="36">适用场景（3.6）</h2>
+<ul>
+<li>可验证任务：代码、数学、有测试用例的生成</li>
+<li>易犯系统性错误：格式、约束、工具选择</li>
+<li>预算允许多轮尝试（反思会增加 LLM 调用次数）</li>
+</ul>
+<h2 id="_2">快速开始</h2>
+<pre><code class="language-bash">cd 03-reaction
+pip install -r requirements.txt
+copy .env.example .env   # 填写 DEEPSEEK_API_KEY，可与 01/02 共用
+
+python main.py
+</code></pre>
+<h2 id="_3">流程图</h2>
+<h3 id="_4">主流程概览</h3>
+<pre><code>  [Task]
+     |
+     v
+  reflections = []
+     |
+     +---- trial &lt; max_trials ------------------+
+     |                                          |
+     v                                          |
+  Action (ReAct + reflections + tools)          |
+     |                                          |
+     v                                          |
+  Evaluation (rules -&gt; else LLM)              |
+     |                                          |
+     +--- success ---&gt; return output            |
+     |                                          |
+     v                                          |
+  Reflection -&gt; append &amp; trim reflections -----+
+     |
+     v
+  return last output (or failed message)
+</code></pre>
+<h3 id="_5">时序图</h3>
+<p><strong>Trial</strong> = 一轮完整的「生成答案 → 评估 →（失败则）写反思」；由 <code>reflect_until_success()</code> 驱动，默认最多 3 轮。<br>
+<strong>reflections</strong> = 策略记忆：每轮失败后的改进建议会追加进来，下一轮 Action 会读入，避免重复犯错。</p>
+<pre><code>reflect_until_success(task)
+│
+├─ reflections = []
+│
+└─ Trial 1, 2, ... max_trials
+      │
+      │  ① Action（action.py）
+      │     读入: task + reflections（第 2 轮起带上上轮反思）
+      │     内部: ReAct — LLM 思考 → 调 calculator/word_count 等 → Final Answer
+      │     产出: output
+      │           │
+      │  ② Evaluation（evaluator.py）
+      │     读入: task + output
+      │     内部: 能规则校验则走规则，否则 LLM 给 Success / Score / Feedback
+      │     产出: success, feedback
+      │           │
+      │  ③ 判断
+      │     success = yes  ──→ 返回 output，程序结束
+      │     success = no   ──→ 继续 ④
+      │           │
+      │  ④ Reflection（reflector.py，仅失败时）
+      │     读入: output + feedback
+      │     内部: LLM 写一条改进策略 → trim_reflections 限条数/去重
+      │     产出: reflections 多一条 → 进入下一 Trial 的 ①
+      │
+      └─ 全部 Trial 仍失败 → 返回最后一轮的 output
+</code></pre>
+<p><strong>运行示例时序图</strong>（<code>python main.py</code>，任务：计算 21+21 并统计答案串字符数）</p>
+<pre><code>main.py
+  └── reflect_until_success(&quot;请帮我计算 21+21，并统计答案字符串有多少个字符。&quot;)
+        reflections = []
+
+══════════════════════════ Trial 1/3 ══════════════════════════
+
+reflection_loop ──① Action─────────────────────────────────────────────&gt; action + LLM
+
+  ReAct Step 1
+    LLM ──Thought──&gt; 先算 21+21
+    LLM ──Action: calculator, Input: 21+21──&gt; tools.calculator
+    tools ──Observation──&gt; &quot;42&quot;
+
+  ReAct Step 2
+    LLM ──Action: word_count, Input: 42──&gt; tools.word_count
+    tools ──Observation──&gt; &quot;字符数: 2, 词数: 1&quot;
+    LLM ──Final Answer──&gt; &quot;21+21=42，字符串\&quot;42\&quot;有2个字符。&quot;
+
+action ──output──&gt; reflection_loop
+
+reflection_loop ──② Evaluation──&gt; evaluator._rule_check
+  规则看 Final Answer 措辞：含 42，但未匹配「字符数: 2 / 字符数为 2」等格式
+  （虽在 ReAct 里调过 word_count，规则只检查最终文本）
+evaluator ──&gt; Success=False, Score=0.3
+           Feedback: 未用 word_count 统计…（规则提示语）
+
+reflection_loop ──④ Reflection──&gt; reflector + LLM
+reflector ──&gt; &quot;必须使用 word_count…再按要求格式输出&quot;
+reflection_loop ──&gt; reflections[1] = 上述文本
+
+══════════════════════════ Trial 2/3 ══════════════════════════
+
+reflection_loop 打印 Strategy memory: reflections[1]
+
+reflection_loop ──① Action（prompt 含 Past reflections）──&gt; action + LLM
+
+  ReAct Step 1
+    calculator(21+21) ──&gt; Observation: 42
+
+  ReAct Step 2
+    word_count(42) ──&gt; Observation: 字符数: 2, 词数: 1
+    Final Answer ──&gt; &quot;21+21=42，字符串\&quot;42\&quot;的字符数为2。&quot;
+
+action ──output──&gt; reflection_loop
+
+reflection_loop ──② Evaluation──&gt; evaluator._rule_check
+evaluator ──&gt; Success=True, Score=1.0
+           Feedback: 规则校验通过
+
+reflection_loop ──③ return output ──&gt; main.py 打印 Final Result
+</code></pre>
+<p><strong>示例对照表：</strong></p>
+<table>
+<thead>
+<tr>
+<th>Trial</th>
+<th>ReAct 关键步骤</th>
+<th>Final Answer（规则只看这句）</th>
+<th>Evaluation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>calculator→42；word_count→字符数:2</td>
+<td>「…有<strong>2个字符</strong>」</td>
+<td>未通过（措辞不符）</td>
+</tr>
+<tr>
+<td>2</td>
+<td>同上，且 prompt 带 reflections</td>
+<td>「…<strong>字符数为</strong>2」</td>
+<td>通过 → 结束</td>
+</tr>
+</tbody>
+</table>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags">
+            <span class="chip">Agent 核心模式</span>
+            <span class="chip">AI Agent</span>
+            <span class="chip">面试宝典</span>
+          </div>
+          <a class="t-meta" href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/01-Agent/03-Re%EF%AC%82exion/Readme.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../ai-engineer/agent/02-plan-and-execute.html"><span class="dir">← 上一篇</span><span class="t">02 - Plan-and-Execute Agent 示例</span></a><a class="next" href="../../ai-engineer/agent/04-lats.html"><span class="dir">下一篇 →</span><span class="t">04 - LATS（Language Agent Tree Search）</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../rag/index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+
+<script src="../../js/main.js" defer></script>
+</body>
+</html>

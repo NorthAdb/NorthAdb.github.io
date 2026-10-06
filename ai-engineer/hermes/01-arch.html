@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hermes Agent 架构详解 · AI Agent 面试宝典 — NorthAdb 的博客</title>
+<meta name="description" content="本文从鸟瞰全貌出发，依次讲清：Agent Loop、Context（Session 冻结 vs Turn 组装）、Compression、Gateway、Memory、Cron。目标是既理解如何使用 Hermes，也能照着思路自己搭一套类似…">
+<link rel="canonical" href="https://northadb.github.io/ai-engineer/hermes/01-arch.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Hermes Agent 架构详解 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta property="og:description" content="本文从鸟瞰全貌出发，依次讲清：Agent Loop、Context（Session 冻结 vs Turn 组装）、Compression、Gateway、Memory、Cron。目标是既理解如何使用 Hermes，也能照着思路自己搭一套类似…">
+<meta property="og:url" content="https://northadb.github.io/ai-engineer/hermes/01-arch.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Hermes Agent 架构详解 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta name="twitter:description" content="本文从鸟瞰全貌出发，依次讲清：Agent Loop、Context（Session 冻结 vs Turn 组装）、Compression、Gateway、Memory、Cron。目标是既理解如何使用 Hermes，也能照着思路自己搭一套类似…">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../feed.xml">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../ai-engineer/assets/course.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Hermes Agent 架构详解", "description": "本文从鸟瞰全貌出发，依次讲清：Agent Loop、Context（Session 冻结 vs Turn 组装）、Compression、Gateway、Memory、Cron。目标是既理解如何使用 Hermes，也能照着思路自己搭一套类似…", "author": {"@type": "Person", "name": "juliepy", "url": "https://github.com/juliepy/AI-Engineer-from-scrach"}, "mainEntityOfPage": "https://northadb.github.io/ai-engineer/hermes/01-arch.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../index.html">首页</a><span>/</span><a href="../../learn.html">课件</a><span>/</span><a href="../../ai-engineer/index.html">AI Agent 面试宝典</a><span>/</span><a href="../../ai-engineer/hermes/index.html">Hermes 源码精读</a></div>
+          <h1>Hermes Agent 架构详解</h1>
+          <p class="post-sub">本文从鸟瞰全貌出发，依次讲清：Agent Loop、Context（Session 冻结 vs Turn 组装）、Compression、Gateway、Memory、Cron。目标是既理解如何使用 Hermes，也能照着思路自己搭一套类似…</p>
+          <div class="post-meta">
+            <span class="avatar">AI</span>
+            <span>AI Agent 面试宝典</span><span class="sep"></span>
+            <span>Hermes 源码精读</span><span class="sep"></span>
+            <span>阅读约 18 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<p>https://www.youtube.com/watch?v=n32qq7Kwzh0&amp;t=488s</p>
+<p>本文从鸟瞰全貌出发，依次讲清：Agent Loop、Context（Session 冻结 vs Turn 组装）、Compression、Gateway、Memory、Cron。目标是既理解如何使用 Hermes，也能照着思路自己搭一套类似系统。贯穿主线：<strong>Session 管稳定前缀与历史容器，Turn 管每一轮 Build Context / 压缩检查 / 写盘。</strong></p>
+<p><strong>本文默认对照的一种真实用法（Windows Desktop 直聊）</strong>：用 Hermes Windows App 当「面试教练 / 个人助手」，主要依赖 <code>%LOCALAPPDATA%\hermes</code> 下的 <code>SOUL.md</code> + <code>memories/USER.md</code> + <code>MEMORY.md</code>；<strong>不</strong>在 Hermes 家目录里找 <code>.hermes.md</code> / <code>AGENTS.md</code>（那些属于项目仓库，见 §3.0）。</p>
+<hr>
+<h2 id="1-birds-eye-view">1. 鸟瞰：整体架构（Bird's-eye View）</h2>
+<p>Hermes 组件并不复杂，核心是 <strong>AI Agent Core（Agentic Loop）</strong>，外围有多种接入方式，以及一套开箱即用的 Tools / Skills / Memory。</p>
+<h3 id="11-agent-core">1.1 接入层 → Agent Core → 附属能力</h3>
+<pre><code class="language-mermaid">flowchart TB
+    subgraph Entry[&quot;接入层&quot;]
+        CLI[&quot;CLI: hermes 命令行&quot;]
+        DESK[&quot;Desktop / Windows App&quot;]
+        GW[&quot;Gateway 常驻进程&quot;]
+        API[&quot;API&quot;]
+    end
+
+    subgraph Messaging[&quot;Gateway 消息渠道&quot;]
+        TG[Telegram]
+        EM[Email]
+        SL[Slack]
+        DC[Discord]
+        WA[WhatsApp]
+        SMS[SMS]
+    end
+
+    subgraph Core[&quot;AI Agent Core&quot;]
+        LOOP[&quot;Agentic Loop&quot;]
+    end
+
+    subgraph Builtins[&quot;开箱即用能力&quot;]
+        TOOLS[Tools]
+        SKILLS[Skills]
+        MEM[Memory]
+        FILES[&quot;SOUL / user / memory.md&quot;]
+    end
+
+    subgraph MemSplit[&quot;Memory 两大部分&quot;]
+        EXT[&quot;External: mem0 / SuperMemory&quot;]
+        INT[&quot;Internal: Session Transcripts&quot;]
+    end
+
+    TG --&gt; GW
+    EM --&gt; GW
+    SL --&gt; GW
+    DC --&gt; GW
+    WA --&gt; GW
+    SMS --&gt; GW
+    CLI --&gt; LOOP
+    DESK --&gt; LOOP
+    GW --&gt; LOOP
+    API --&gt; LOOP
+    LOOP --&gt; TOOLS
+    LOOP --&gt; SKILLS
+    LOOP --&gt; MEM
+    LOOP --&gt; FILES
+    MEM --&gt; EXT
+    MEM --&gt; INT
+</code></pre>
+<h3 id="12">1.2 要点</h3>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>CLI</strong></td>
+<td>本机命令行直接对话（<code>hermes</code>）</td>
+</tr>
+<tr>
+<td><strong>Desktop / Windows App</strong></td>
+<td>GUI 直聊；与 CLI <strong>共用</strong> <code>%LOCALAPPDATA%\hermes</code>（<code>SOUL</code> / memories / <code>state.db</code>）。打开 App ≠ 一个 Session，侧边栏每条对话 / New Chat 才是</td>
+</tr>
+<tr>
+<td><strong>Gateway</strong></td>
+<td>常驻运行，把 Telegram / Email / Slack 等消息桥接到 Agent</td>
+</tr>
+<tr>
+<td><strong>API</strong></td>
+<td>程序化调用同一套 Agent Core</td>
+</tr>
+<tr>
+<td><strong>Tools / Skills</strong></td>
+<td>安装即带；Agent 可在 Loop 里调用</td>
+</tr>
+<tr>
+<td><strong>Internal Memory</strong></td>
+<td>每次对话以 <strong>session transcript</strong> 形式落盘</td>
+</tr>
+<tr>
+<td><strong>External Memory</strong></td>
+<td>可选；对接 mem0、SuperMemory 等外部记忆服务</td>
+</tr>
+<tr>
+<td><strong>SOUL.md / user.md</strong></td>
+<td>人格与用户画像；Agent 可读写，直接影响行为</td>
+</tr>
+</tbody>
+</table>
+<p>鸟瞰记住一句：<strong>多种入口汇入同一个 Agentic Loop；Loop 再挂 Tools、Skills、双层 Memory 与人格文件。</strong></p>
+<hr>
+<h2 id="2-agent-loop">2. Agent Loop（智能体主循环）</h2>
+<p>Hermes 的 Loop 偏极简，风格接近 Pi Agent、OpenCode 一类 minimalist agent：<strong>用户每发一条消息，就跑一轮完整循环。</strong></p>
+<h3 id="21">2.1 循环步骤</h3>
+<pre><code class="language-mermaid">flowchart TD
+    U[&quot;1. 用户发送消息&quot;] --&gt; BC[&quot;2. Build Context&quot;]
+    BC --&gt; LLM[&quot;3. Context 发给 LLM&quot;]
+    LLM --&gt; DEC{&quot;4. 是否调用 Tool?&quot;}
+    DEC --&gt;|是| EXEC[&quot;5. 执行 Tool&quot;]
+    EXEC --&gt; FEED[&quot;6. Result 回灌 LLM&quot;]
+    FEED --&gt; LLM
+    DEC --&gt;|否| RESP[&quot;7. 最终回复&quot;]
+    RESP --&gt; MU[&quot;8. Memory Update&quot;]
+    MU --&gt; DONE[&quot;本轮结束&quot;]
+</code></pre>
+<h3 id="22">2.2 细节说明</h3>
+<ol>
+<li>
+<p><strong>Build Context</strong><br>
+   组装本轮发给 LLM 的内容：缓存的 System Prompt（Session 启动时冻结）+ 消息历史 + 本轮新消息等（详见 §3）。</p>
+</li>
+<li>
+<p><strong>Tool 调用是内循环</strong><br>
+   LLM 可连续多次调工具（搜索、读写文件等），直到认为不必再调，才出最终回复。</p>
+</li>
+<li>
+<p><strong>Memory Update（闭环学习）</strong><br>
+<strong>时机：本轮最终回复已经给出之后</strong>（不是 Build Context 时，也不是 Tool 调用中间）。<br>
+   Agent 审视本轮对话，判断有没有值得记住的内容，再决定是否写入 <code>user.md</code> / <code>memory.md</code>（详见 §6.4）。</p>
+</li>
+</ol>
+<hr>
+<h2 id="3-context-llm">3. Context 构建（发给 LLM 的内容）</h2>
+<p>Hermes 把 Context 拆成两层时间尺度，搞混就会以为「写了 memory 立刻进 system prompt」或「每条消息都重新读盘」：</p>
+<table>
+<thead>
+<tr>
+<th>词</th>
+<th>含义</th>
+<th>对 Context 的影响</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Turn（单轮）</strong></td>
+<td>用户发 <strong>1 条</strong> 消息 → 跑完一整次 Loop（可含多次 Tool）→ 最终回复</td>
+<td><strong>每轮</strong> Build Context：复用已缓存的 SP + 追加消息历史；可压缩；可挂 tool result 旁路</td>
+</tr>
+<tr>
+<td><strong>Session（会话）</strong></td>
+<td>一次连续对话容器（Desktop 侧边栏一条对话 / CLI 一次聊天 / Gateway 同一个 <code>session_id</code>）</td>
+<td><strong>启动时</strong>组装并 <strong>冻结</strong> System Prompt；整段 transcript 挂同一 session</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>官方：<a href="https://hermes-agent.nousresearch.com/docs/user-guide/features/context-files">Context Files</a> · <a href="https://hermes-agent.nousresearch.com/docs/developer-guide/prompt-assembly">Prompt Assembly</a> · <a href="https://hermes-agent.nousresearch.com/docs/user-guide/sessions">Sessions</a></p>
+</blockquote>
+<pre><code class="language-mermaid">%%{init: {&quot;flowchart&quot;: {&quot;nodeSpacing&quot;: 28, &quot;rankSpacing&quot;: 40}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;15px&quot;}}}%%
+flowchart TB
+    Boot[&quot;Session 启动&lt;br/&gt;读盘 → 组装 System Prompt → Frozen Snapshot&quot;]
+    T1[&quot;Turn 1: Build Context → LLM ↔ Tools → 回复&quot;]
+    T2[&quot;Turn 2: 同上（SP 仍是启动快照）&quot;]
+    Tn[&quot;Turn N: …&quot;]
+    EndS[&quot;Session 结束 / 新开会话&lt;br/&gt;下次启动才重读盘刷新 SP&quot;]
+
+    Boot --&gt; T1 --&gt; T2 --&gt; Tn --&gt; EndS
+</code></pre>
+<h3 id="31-llm-sp">3.1 发给 LLM 的两块：缓存 SP + 本轮消息</h3>
+<p>每次调模型，实际送出去的是：</p>
+<pre><code class="language-mermaid">%%{init: {&quot;flowchart&quot;: {&quot;nodeSpacing&quot;: 24, &quot;rankSpacing&quot;: 36}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;15px&quot;}}}%%
+flowchart TB
+    subgraph Cached[&quot;Cached System Prompt（Session 启动时冻结，同 Session 内尽量不变）&quot;]
+        ST[&quot;stable: SOUL / Tools·Skills 指引 / 环境·平台 hint&quot;]
+        CT[&quot;context: 可选 system_message + Project Context 一种&quot;]
+        VOL[&quot;volatile: memory.md + user.md 快照&lt;br/&gt;+ 可选 External 块 + 时间/session 行&quot;]
+        ST --&gt; CT --&gt; VOL
+    end
+
+    subgraph PerCall[&quot;本轮 API 调用层（可变）&quot;]
+        HIST[&quot;消息历史（可被 Compression 摘要替换）&quot;]
+        CUR[&quot;本轮 user 消息&quot;]
+        EPH[&quot;可选: ephemeral overlay / 外部召回挂在本轮 user 上&quot;]
+        HINT[&quot;可选: 子目录 AGENTS.md 挂在 tool result 后&quot;]
+    end
+
+    Cached --&gt; LLM[&quot;发给 LLM&quot;]
+    PerCall --&gt; LLM
+</code></pre>
+<p>设计意图一句话：<strong>稳定前缀尽量不动 → 保 prompt cache；会变的东西放消息侧或 tool result。</strong></p>
+<table>
+<thead>
+<tr>
+<th>Markdown / 块</th>
+<th>位置</th>
+<th>谁维护</th>
+<th>进 Context 的时机</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>SOUL.md</strong></td>
+<td>仅 <code>$HERMES_HOME/SOUL.md</code></td>
+<td>人手；缺失可自动 seed</td>
+<td><strong>Session 启动</strong>进 SP（identity）；空文件 = 不注入</td>
+</tr>
+<tr>
+<td><strong>Project Context</strong></td>
+<td>工作区（见 §3.4）</td>
+<td>项目作者</td>
+<td><strong>Session 启动</strong>选一种进 SP；子目录可在 <strong>Turn 中途</strong>挂 tool result</td>
+</tr>
+<tr>
+<td><strong>user.md</strong></td>
+<td><code>~/.hermes/memories/</code></td>
+<td>Agent / 人手</td>
+<td><strong>Session 启动</strong>冻结进 SP；中途写盘 <strong>不改</strong> 当前 SP</td>
+</tr>
+<tr>
+<td><strong>memory.md</strong></td>
+<td>同上</td>
+<td>Agent / 人手</td>
+<td>同上</td>
+</tr>
+<tr>
+<td><strong>Skills / Tools 描述</strong></td>
+<td>内置 + 安装包</td>
+<td>系统</td>
+<td>Session 启动进 SP（stable）</td>
+</tr>
+<tr>
+<td><strong>消息历史</strong></td>
+<td>本 session transcript</td>
+<td>每轮 append</td>
+<td><strong>每 Turn</strong> 带上；过长走 §4 Compression</td>
+</tr>
+<tr>
+<td><strong>External 摘要</strong></td>
+<td>Provider 插件</td>
+<td>可选</td>
+<td>未配置则无；常在 turn 侧 prefetch，而非每轮重写 SP</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="32-session-system-prompt">3.2 Session 级：启动时冻结 System Prompt</h3>
+<p>Session 开始时（Desktop New Chat、CLI 开聊、Gateway 绑定一个 <code>session_id</code>）做一次 <strong>Prompt Assembly</strong>，结果作为 <strong>cached system prompt</strong>：</p>
+<pre><code class="language-mermaid">%%{init: {&quot;flowchart&quot;: {&quot;nodeSpacing&quot;: 36, &quot;rankSpacing&quot;: 44}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;15px&quot;}}}%%
+flowchart LR
+    A[&quot;读 SOUL.md&quot;] --&gt; D[&quot;组装 SP&lt;br/&gt;stable → context → volatile&quot;]
+    B[&quot;选一种 Project Context&lt;br/&gt;.hermes.md → AGENTS.md → …&quot;] --&gt; D
+    C[&quot;读 memory.md / user.md&lt;br/&gt;渲染 Frozen Snapshot&quot;] --&gt; D
+    D --&gt; E[&quot;缓存 SP&lt;br/&gt;本 Session 内复用&quot;]
+    F[&quot;Gateway: 按 session_id&lt;br/&gt;从 SQLite 拉历史&quot;] --&gt; G[&quot;挂到消息侧&quot;]
+</code></pre>
+<p>要点：</p>
+<ol>
+<li><strong>只 freeze 一次</strong>：<code>memory.md</code> / <code>user.md</code> 是启动时的快照；本 session 里 Agent 用 memory tool 改了磁盘，<strong>当前 SP 仍是旧快照</strong>（tool 返回里能看到活数据）。  </li>
+<li><strong>为何冻结</strong>：保住 provider 侧 <strong>prompt prefix cache</strong>，也避免每轮重读盘抖动前缀。  </li>
+<li><strong>刷新时机</strong>：新 Session 启动；或压缩等触发的 <strong>explicit rebuild</strong>（少数路径会重建 SP，见官方 Prompt Assembly）。  </li>
+<li><strong>Gateway 更重</strong>：除 freeze SP 外，还要用 <code>渠道:provider_session_id:…</code> 从 SQLite <strong>拉齐历史</strong>再进 Loop（详见 §5）。  </li>
+<li><strong>Project Context 可选</strong>：直聊场景没有 <code>.hermes.md</code> / <code>AGENTS.md</code> 时，context 层这一块为空，<strong>完全正常</strong>。有项目文件时，每个 Session <strong>只选一种</strong>（先匹配先得）；<code>SOUL.md</code> <strong>独立占位</strong>，不跟项目文件抢槽。</li>
+</ol>
+<pre><code class="language-text">项目上下文优先级（每个 session 一种）:
+.hermes.md / HERMES.md  →  AGENTS.md  →  CLAUDE.md  →  .cursorrules
+</code></pre>
+<hr>
+<h3 id="33-turn-build-context">3.3 Turn 级：每一轮 Build Context 做什么</h3>
+<p>用户每发一条消息，Loop 在调 LLM <strong>之前</strong>走 Build Context。同 Session 内 <strong>不重装</strong> 整份 SP，而是：</p>
+<pre><code class="language-mermaid">%%{init: {&quot;flowchart&quot;: {&quot;nodeSpacing&quot;: 28, &quot;rankSpacing&quot;: 40}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;15px&quot;}}}%%
+flowchart TB
+    U[&quot;用户新消息&quot;] --&gt; CHK{&quot;用量达压缩阈值?&lt;br/&gt;或上次 context 报错?&quot;}
+    CHK --&gt;|是| CMP[&quot;Compression: 旧消息 → 结构化 Summary&quot;]
+    CHK --&gt;|否| OK[&quot;保留完整历史&quot;]
+    CMP --&gt; BUILD[&quot;拼本轮请求&quot;]
+    OK --&gt; BUILD
+    BUILD --&gt; SP[&quot;复用 Session 冻结的 System Prompt&quot;]
+    BUILD --&gt; MSG[&quot;历史 + 本轮 user&lt;br/&gt;+ 可选 ephemeral / 外部召回&quot;]
+    SP --&gt; LLM[&quot;调用 LLM&quot;]
+    MSG --&gt; LLM
+    LLM --&gt; DEC{&quot;要调 Tool?&quot;}
+    DEC --&gt;|是| TOOL[&quot;执行 Tool&quot;]
+    TOOL --&gt; HINT{&quot;路径触及新子目录?&quot;}
+    HINT --&gt;|是| INJ[&quot;AGENTS.md 等追加到 tool result&lt;br/&gt;不改 SP&quot;]
+    HINT --&gt;|否| FEED[&quot;Result 回灌&quot;]
+    INJ --&gt; FEED
+    FEED --&gt; LLM
+    DEC --&gt;|否| RESP[&quot;最终回复&quot;]
+    RESP --&gt; MEM[&quot;Memory Update / transcript 落盘&lt;br/&gt;写盘 ≠ 刷新当前 SP&quot;]
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>Turn 内行为</th>
+<th>会不会改冻结的 SP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>压缩检查</td>
+<td>每 turn 前；context 报错时再强制（§4）</td>
+<td>一般只改 <strong>消息历史</strong>；少数 rebuild 路径除外</td>
+</tr>
+<tr>
+<td>拼请求</td>
+<td>SP（缓存）+ 历史 + 本轮消息</td>
+<td>否</td>
+</tr>
+<tr>
+<td>Tool 内循环</td>
+<td>可多次；子目录 Context Files <strong>渐进发现</strong></td>
+<td>否（挂 tool result）</td>
+</tr>
+<tr>
+<td>最终回复后</td>
+<td>transcript 写入 <code>state.db</code>；可写 <code>user.md</code> / <code>memory.md</code></td>
+<td><strong>否</strong>（下个 Session 才进 SP）</td>
+</tr>
+</tbody>
+</table>
+<p>和 Session 对照记：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Session</th>
+<th>Turn</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>System Prompt</td>
+<td>启动组装并冻结</td>
+<td>复用</td>
+</tr>
+<tr>
+<td>消息历史</td>
+<td>同一 session id 下累积</td>
+<td>每轮带「到目前为止」的历史</td>
+</tr>
+<tr>
+<td>Context Files（根）</td>
+<td>启动注入 SP</td>
+<td>每轮随 SP 带着</td>
+</tr>
+<tr>
+<td>Context Files（子目录）</td>
+<td>每目录最多发现一次</td>
+<td>某轮 tool 摸到路径时注入</td>
+</tr>
+<tr>
+<td>Compression</td>
+<td>配置按实例/session</td>
+<td><strong>检查动作按 turn</strong></td>
+</tr>
+<tr>
+<td>Memory 写盘</td>
+<td>跨 session 持久</td>
+<td>可在某轮发生，<strong>不影响本 session SP</strong></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="4-context-compression">4. Context Compression（上下文压缩）</h2>
+<p>源码：<code>agent/context_compressor.py</code>。压的是 <strong>消息列表</strong>（不是重读项目说明书）。</p>
+<p><strong>何时压</strong>：用量 ≥ 主模型窗口 × 阈值（默认 <strong>50%</strong>）。Gateway 进 Agent 前另有一道约 <strong>85%</strong> 的安全网；模型因 context 报错也会强制压。token 优先用 API 返回的 usage，没有则粗估。</p>
+<pre><code class="language-yaml"># config.yaml
+compression:
+  threshold: 0.50       # 触发比例
+  target_ratio: 0.20    # 近期消息保留预算 = 触发阈值 token × 此值
+  protect_last_n: 20    # 尾部至少保留多少条（预算优先，这条是下限）
+</code></pre>
+<p>例（200K 窗口、默认配置）：触发线 100K token；尾部预算约 20K；摘要上限约 10K。</p>
+<h3 id="41">4.1 压缩算法</h3>
+<p>把消息切成三段：</p>
+<pre><code class="language-text">head   开头保留（默认约 system + 首轮交换；多次压缩后开头保护会减弱）
+middle 中间旧轮次 → 压成一份结构化摘要
+tail   最近对话原样保留（按 token 预算从后往前留，不够则至少留 N 条）
+</code></pre>
+<pre><code class="language-mermaid">%%{init: {&quot;flowchart&quot;: {&quot;nodeSpacing&quot;: 28, &quot;rankSpacing&quot;: 40}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;15px&quot;}}}%%
+flowchart TB
+    IN[&quot;消息列表&quot;] --&gt; P1[&quot;① 廉价剪枝&lt;br/&gt;清掉旧的冗长 tool 输出&lt;br/&gt;不调 LLM&quot;]
+    P1 --&gt; P2[&quot;② 定边界&lt;br/&gt;划出 head / middle / tail&lt;br/&gt;不拆开成对的 tool 调用&quot;]
+    P2 --&gt; CHK{&quot;中间还有可压内容?&quot;}
+    CHK --&gt;|否| NOP[&quot;记一次无效压缩&lt;br/&gt;原样返回&quot;]
+    CHK --&gt;|是| P3[&quot;③ 辅助模型写结构化摘要&lt;br/&gt;若已有旧摘要则增量更新&quot;]
+    P3 --&gt; OK{&quot;摘要成功?&quot;}
+    OK --&gt;|否| FB[&quot;中止整次压缩&lt;br/&gt;或本地拼一份兜底摘要再丢掉中间段&quot;]
+    OK --&gt;|是| P4[&quot;④ 组装&lt;br/&gt;开头 + 摘要消息 + 尾部&lt;br/&gt;修好断裂的 tool 对&quot;]
+    FB --&gt; OUT[&quot;返回新消息列表&quot;]
+    P4 --&gt; OUT
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>做什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>① 剪枝</strong></td>
+<td>尾部保护区之外：把很长的 tool 结果收成一行（工具名 / 命令 / 结果）；重复结果去重；过大的调用参数截断</td>
+</tr>
+<tr>
+<td><strong>② 定边界</strong></td>
+<td>算出 head、middle、tail；保证 tool 调用和 tool 结果不被拆到不同段</td>
+</tr>
+<tr>
+<td><strong>③ 摘要</strong></td>
+<td>用辅助模型按固定模板总结 middle；本 session 已有上一份摘要时做<strong>增量更新</strong>；<code>/compress 某主题</code> 可指定保留重点</td>
+</tr>
+<tr>
+<td><strong>④ 组装</strong></td>
+<td>开头 +「上下文压缩」摘要消息 + 尾部；清掉没有配对的 tool 消息；摘要带内部标记（发给 API 前会剥掉）</td>
+</tr>
+</tbody>
+</table>
+<p>摘要目标长度大约是被压内容的 <strong>20%</strong>，并夹在约 2K～10K token 之间。</p>
+<p>消息太少或中间没有可压窗口：不压，记无效次数；连续两次无效就暂时不再自动触发，避免死循环。</p>
+<h3 id="42">4.2 摘要长什么样</h3>
+<p>摘要开头会声明：<strong>仅作背景参考</strong>——模型应只响应摘要<strong>之后</strong>的最新用户消息；<code>MEMORY.md</code> / <code>USER.md</code> 仍然有效。带 Historical 的标题是故意的，防止把旧待办当成还要继续做。</p>
+<table>
+<thead>
+<tr>
+<th>区块</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Historical Task Snapshot</td>
+<td>用户最近未完成的输入（尽量原文）</td>
+</tr>
+<tr>
+<td>Goal / Constraints &amp; Preferences</td>
+<td>总目标、约束与偏好</td>
+</tr>
+<tr>
+<td>Completed Actions</td>
+<td>编号：做了什么、路径/命令、结果、用了哪个工具</td>
+</tr>
+<tr>
+<td>Active State</td>
+<td>工作目录、分支、改动文件、测试状态等</td>
+</tr>
+<tr>
+<td>Historical In-Progress / Blocked</td>
+<td>压缩当时进行中的事、阻塞与报错</td>
+</tr>
+<tr>
+<td>Key Decisions / Resolved Questions</td>
+<td>关键决策、已回答过的问题</td>
+</tr>
+<tr>
+<td>Historical Pending Asks / Remaining Work</td>
+<td><strong>陈旧</strong>待办——默认不要自动接着做</td>
+</tr>
+<tr>
+<td>Relevant Files / Critical Context</td>
+<td>相关文件与关键值（密钥写成 <code>[REDACTED]</code>）</td>
+</tr>
+</tbody>
+</table>
+<p>额外规则：已完成的事写成带日期的过去式；再次压缩时更新上一份摘要，而不是从头重写。</p>
+<h3 id="43">4.3 失败时怎么办</h3>
+<pre><code class="language-mermaid">%%{init: {&quot;flowchart&quot;: {&quot;nodeSpacing&quot;: 28, &quot;rankSpacing&quot;: 40}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;15px&quot;}}}%%
+flowchart TB
+    START[&quot;准备压缩 / 写摘要&quot;] --&gt; PRE{&quot;自动压缩被挡住?&quot;}
+    PRE --&gt;|&quot;连续无效压缩&lt;br/&gt;或摘要冷却中&quot;| STOP[&quot;本次不自动压&lt;br/&gt;可用 /compress 立刻再试&quot;]
+    PRE --&gt;|否| SUM[&quot;辅助模型写摘要&quot;]
+
+    SUM --&gt; WIN{&quot;摘要模型窗口&lt;br/&gt;≥ 主模型?&quot;}
+    WIN --&gt;|否| LOST[&quot;中间段塞不进去&lt;br/&gt;易丢历史且无有效摘要&quot;]
+
+    WIN --&gt;|是| OK{&quot;摘要成功?&quot;}
+    OK --&gt;|是| DONE[&quot;组装：开头 + 摘要 + 尾部&quot;]
+
+    OK --&gt;|否| KIND{&quot;失败类型?&quot;}
+    KIND --&gt;|&quot;鉴权 / 网络错误&lt;br/&gt;或配置要求中止&quot;| ABORT[&quot;整次压缩取消&lt;br/&gt;消息原样不动&quot;]
+    KIND --&gt;|其它失败| FB[&quot;本地拼兜底摘要&lt;br/&gt;丢掉中间段&quot;]
+</code></pre>
+<hr>
+<h2 id="5-gateway">5. Gateway（消息网关）</h2>
+<p>Gateway 把 Agent 挂到 Telegram、WhatsApp、Email、Slack、Discord、SMS 等渠道：<strong>常驻在线 + 多端同一套 Core</strong>。相对 CLI，它多了两件 Context 相关的硬活：<strong>按 Session 拼历史</strong>，以及 <strong>并发 Turn 的排队/打断</strong>。</p>
+<h3 id="51-turn">5.1 一条入站消息怎么变成一个 Turn</h3>
+<pre><code class="language-mermaid">%%{init: {&quot;flowchart&quot;: {&quot;nodeSpacing&quot;: 24, &quot;rankSpacing&quot;: 36}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;15px&quot;}}}%%
+flowchart TB
+    subgraph Providers[&quot;各渠道（各自独立配置）&quot;]
+        P1[Telegram]
+        P2[Discord]
+        P3[Email]
+        P4[SMS]
+        P5[WhatsApp]
+        P6[Slack]
+    end
+
+    subgraph GW[&quot;Gateway 常驻进程&quot;]
+        ASYNC[&quot;listen / poll / webhook&quot;]
+        FMT[&quot;转成统一入站格式&quot;]
+        SID[&quot;解析 Session Key&quot;]
+        HYG[&quot;Session Hygiene ≈85%&lt;br/&gt;（§4）&quot;]
+        HIST[&quot;SQLite 拉该 Session 历史&quot;]
+        SM[&quot;Session Manager&lt;br/&gt;queue / interrupt / steer&quot;]
+    end
+
+    AGENT[&quot;Agent Core&lt;br/&gt;本 Turn: Build Context → Loop&quot;]
+
+    P1 &amp; P2 &amp; P3 &amp; P4 &amp; P5 &amp; P6 --&gt; ASYNC
+    ASYNC --&gt; FMT --&gt; SID --&gt; HYG --&gt; HIST --&gt; SM --&gt; AGENT
+    AGENT --&gt;|出站回复| P1
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>Session 还是 Turn</th>
+<th>做什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>解析 Session Key</td>
+<td>Session</td>
+<td><code>telegram:&lt;provider_session_id&gt;:…</code> 定位同一条对话线程</td>
+</tr>
+<tr>
+<td>Hygiene</td>
+<td>Session 用量，<strong>在本 Turn 进 Agent 前</strong></td>
+<td>超长历史先压一刀（§4）</td>
+</tr>
+<tr>
+<td>拉 SQLite 历史</td>
+<td>Session 累积 → 交给本 Turn</td>
+<td>CLI 内存里本来就有；Gateway <strong>每次只收到一条新消息</strong></td>
+</tr>
+<tr>
+<td>Session Manager</td>
+<td>多 Turn 并发</td>
+<td>上一条还在跑时，新消息 queue / interrupt / steer</td>
+</tr>
+<tr>
+<td>Agent Loop</td>
+<td><strong>一个 Turn</strong></td>
+<td>复用/组装 Context → LLM↔Tools → 回复 → Memory Update</td>
+</tr>
+</tbody>
+</table>
+<h3 id="52-gateway-context">5.2 为何 Gateway 的「拼 Context」更重</h3>
+<ul>
+<li>CLI：进程内 Session 连续，历史 naturally 在内存。  </li>
+<li>Gateway：进程常驻，但 <strong>入站往往只有最新一条</strong>；必须：<br>
+  1. 用 Session Key 从 SQLite <strong>拉齐历史</strong>（消息侧）；<br>
+  2. 再走与 CLI 相同的 Build Context / 冻结 SP 逻辑（§3）。  </li>
+</ul>
+<p>没有这一步，Agent 会把每条 Telegram 消息当成「失忆的新会话」。</p>
+<h3 id="53-session-sqlite">5.3 Session 标识与 SQLite</h3>
+<pre><code class="language-text">{gateway_name}:{provider_session_id}:{其他 ID…}
+例：telegram:&lt;telegram_session_id&gt;:…
+</code></pre>
+<ul>
+<li>全渠道消息落 <strong>本地 SQLite</strong>（Internal Memory / transcript，详见 §6）。  </li>
+<li>新消息 → 查 Session → append →（必要时 hygiene）→ 开本 Turn 的 Agent。</li>
+</ul>
+<h3 id="54-session-manager-turn">5.4 Session Manager：上一 Turn 未结束又来新消息</h3>
+<table>
+<thead>
+<tr>
+<th>用户动作（例：Telegram）</th>
+<th>行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>普通再发一条</td>
+<td><strong>Queue</strong>（排队，等当前 Turn 结束）</td>
+</tr>
+<tr>
+<td><code>/interrupt</code></td>
+<td><strong>Interrupt</strong>（打断当前 Turn）</td>
+</tr>
+<tr>
+<td><code>/steer</code></td>
+<td><strong>Steer</strong>（纠偏/引导当前任务）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="55">5.5 集成现实</h3>
+<ul>
+<li><strong>不是</strong>一个万能适配器通吃所有渠道；每个集成单独配置（<code>hermes setup gateway</code>）。  </li>
+<li>拉取方式因平台而异：webhook、轮询、WebSocket 等。</li>
+</ul>
+<h3 id="56">5.6 源码精读教材</h3>
+<p>对照源码学习包（结构对齐 <code>04-prompt</code>）：<a href="https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/08-hermes-agent/08-gateway"><code>08-gateway/</code></a>——消息热路径、双守卫、Session Key、Delivery/Cron、平台 Plugin。</p>
+<hr>
+<h2 id="6-memory">6. Memory（三种形态）</h2>
+<p>Memory 贯穿 Loop、Compression、Gateway。细拆四层体系见 <a href="../hermes/02-memory.html"><code>02-memory.md</code></a>；这里只钉 <strong>和 Context 的交接</strong>：谁在 Session 启动进 SP，谁在 Turn 末尾写盘。</p>
+<p>Hermes 记忆分 <strong>三路</strong>：</p>
+<pre><code class="language-mermaid">%%{init: {&quot;flowchart&quot;: {&quot;nodeSpacing&quot;: 24, &quot;rankSpacing&quot;: 36}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;15px&quot;}}}%%
+flowchart TB
+    subgraph M1[&quot;1. Markdown 文件记忆&quot;]
+        S[SOUL.md]
+        U[user.md]
+        M[memory.md]
+        NOTE1[&quot;Session 启动 → Frozen Snapshot 进 SP&lt;br/&gt;同 Session 内写盘不刷新 SP&quot;]
+        S --&gt; NOTE1
+        U --&gt; NOTE1
+        M --&gt; NOTE1
+    end
+
+    subgraph M2[&quot;2. SQLite 内部记忆&quot;]
+        T[Session Transcripts]
+        BT[Bare text / FTS]
+        NOTE2[&quot;每 Turn 落库；Gateway 按 session 拉历史&quot;]
+        T --&gt; NOTE2
+        BT --&gt; NOTE2
+    end
+
+    subgraph M3[&quot;3. External Memory 可选&quot;]
+        E1[mem0]
+        E2[SuperMemory]
+        E3[Honcho]
+        NOTE3[&quot;常按 Turn prefetch/sync；未配置则无&quot;]
+        E1 --&gt; NOTE3
+        E2 --&gt; NOTE3
+        E3 --&gt; NOTE3
+    end
+</code></pre>
+<h3 id="61-markdown">6.1 Markdown 三件套（复习）</h3>
+<ul>
+<li><code>SOUL.md</code>：人格（常需自建；仅 <code>HERMES_HOME</code>）。  </li>
+<li><code>user.md</code>：用户事实（Agent 可更新）。  </li>
+<li><code>memory.md</code>：任意有用知识（结合目标判断是否写入）。</li>
+</ul>
+<h3 id="62-sqlite">6.2 SQLite</h3>
+<ul>
+<li>本质是 <strong>各 session 的完整 transcript</strong>（可 FTS 搜「上周那次」）。  </li>
+<li>Gateway 用「渠道前缀 + session id」定位。  </li>
+<li><strong>Bare text</strong> 便于相似度 / 全文检索。</li>
+</ul>
+<h3 id="63-external-memory">6.3 External Memory（强烈建议开启）</h3>
+<table>
+<thead>
+<tr>
+<th>点</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>默认</td>
+<td><strong>未启用</strong>；需自行配置</td>
+</tr>
+<tr>
+<td>例子</td>
+<td>mem0、Honcho、SuperMemory 等</td>
+</tr>
+<tr>
+<td>何时查询</td>
+<td>典型 <strong>不是</strong> Session 首条消息之前；而是 <strong>首轮回复之后</strong> 再查，服务后续 Turn（口播常见说法；具体 provider 略有差异）</td>
+</tr>
+<tr>
+<td>使用技巧</td>
+<td>首轮没想起：先描述「想回忆什么」，再 follow-up</td>
+</tr>
+</tbody>
+</table>
+<h3 id="64-memory">6.4 何时更新 Memory（按类型拆开）</h3>
+<p>先分清：<strong>写入（Write）</strong> vs <strong>读进 Context（Read）</strong>。Read 规则见 §3（Session 冻结）；下表专讲 <strong>何时改磁盘</strong>。</p>
+<pre><code class="language-mermaid">flowchart TD
+    MSG[&quot;用户发来一条消息（一个 Turn）&quot;] --&gt; BC[&quot;Build Context&lt;br/&gt;复用 Session 冻结的 SP&lt;br/&gt;此时不因读盘改 SP&quot;]
+    BC --&gt; LOOP[&quot;LLM 与 Tools 内循环&quot;]
+    LOOP --&gt; RESP[&quot;给出最终回复&quot;]
+    RESP --&gt; SQLITE[&quot;几乎总会写: SQLite transcript&quot;]
+    RESP --&gt; MU{&quot;Memory Update 审视本轮&quot;}
+    MU --&gt;|&quot;识别到用户画像&quot;| USERW[&quot;更新 user.md（盘）&quot;]
+    MU --&gt;|&quot;识别到可复用事实&quot;| MEMW[&quot;更新 memory.md（盘）&quot;]
+    MU --&gt;|&quot;没什么值得记&quot;| SKIP[&quot;不改 Markdown&quot;]
+    RESP --&gt; EXTW[&quot;若开了 External:&lt;br/&gt;按 provider 规则同步&quot;]
+    NOTE[&quot;写盘后: 当前 Session 的 SP 仍是旧快照&lt;br/&gt;下个 Session 启动才重读进 SP&quot;]
+</code></pre>
+<h4 id="_1">对照表：谁、何时、写什么</h4>
+<table>
+<thead>
+<tr>
+<th>记忆载体</th>
+<th>何时写入</th>
+<th>触发条件</th>
+<th>谁决定写</th>
+<th>默认是否发生</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>SQLite transcript</strong></td>
+<td><strong>每个 Turn 之后</strong></td>
+<td>有对话就落库</td>
+<td>系统自动</td>
+<td><strong>是</strong></td>
+</tr>
+<tr>
+<td><strong>Bare text / FTS</strong></td>
+<td>随 transcript</td>
+<td>便于检索</td>
+<td>系统自动</td>
+<td><strong>是</strong></td>
+</tr>
+<tr>
+<td><strong>user.md</strong></td>
+<td>Turn 末尾 Memory Update；或中途 memory tool</td>
+<td>出现用户画像信息</td>
+<td>Agent</td>
+<td>有料才写</td>
+</tr>
+<tr>
+<td><strong>memory.md</strong></td>
+<td>① Turn 末尾 ② 踩坑自改进 ③ 用户显式「记住」</td>
+<td>可复用事实</td>
+<td>Agent / 用户</td>
+<td><strong>否</strong>（有内容才写）</td>
+</tr>
+<tr>
+<td><strong>SOUL.md</strong></td>
+<td><strong>不走</strong>每轮自动 Update</td>
+<td>人手或显式让 Hermes 写</td>
+<td>用户主导</td>
+<td><strong>否</strong></td>
+</tr>
+<tr>
+<td><strong>External</strong></td>
+<td>视 provider（常 Turn 结束后）</td>
+<td>已配置</td>
+<td>Provider + 适配层</td>
+<td>仅配置后</td>
+</tr>
+</tbody>
+</table>
+<h4 id="turn">时间轴（单个 Turn）</h4>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>读 Memory？</th>
+<th>写 Memory？</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. 用户发消息</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>2. Build Context</td>
+<td><strong>复用</strong> Session 启动时冻进 SP 的 <code>SOUL</code> / <code>user</code> / <code>memory</code>；消息侧带历史；可选 ephemeral / External 召回</td>
+<td><strong>不写</strong></td>
+</tr>
+<tr>
+<td>3. LLM ↔ Tools</td>
+<td>可通过 memory tool 读/写磁盘</td>
+<td>可能中途写盘（<strong>仍不刷新当前 SP</strong>）</td>
+</tr>
+<tr>
+<td>4. 最终回复</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>5. 落库 transcript</td>
+<td>—</td>
+<td><strong>写 SQLite</strong></td>
+</tr>
+<tr>
+<td>6. Memory Update</td>
+<td>再看本轮</td>
+<td><strong>可能</strong>写 <code>user.md</code> / <code>memory.md</code></td>
+</tr>
+<tr>
+<td>7. External（若开启）</td>
+<td>—</td>
+<td>按 provider 同步</td>
+</tr>
+<tr>
+<td>8. 下一 Turn</td>
+<td>SP 仍是本 Session 快照</td>
+<td>—</td>
+</tr>
+<tr>
+<td>9. 下一 Session</td>
+<td><strong>重读盘</strong>刷新 SP 快照</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_2">容易混的三点</h4>
+<ol>
+<li>
+<p><strong>「每轮都 Memory Update」≠「每轮都改 user.md / memory.md」</strong><br>
+   审视每轮可跑；只有「值得记」才落盘。Transcript 才是每轮必写。</p>
+</li>
+<li>
+<p><strong>写盘 ≠ 当前 Turn/Session 的 SP 已更新</strong><br>
+   Frozen snapshot 是为 prompt cache；活数据在 tool result / 下个 Session。</p>
+</li>
+<li>
+<p><strong>三种写入入口</strong><br>
+   - 隐式：Loop 末尾审视 / 自改进 / External<br>
+   - 显式：用户说「记住：…」<br>
+   - 人手改 Markdown（尤其 <code>SOUL.md</code>）</p>
+</li>
+</ol>
+<hr>
+<h2 id="7-cron-jobs">7. Cron Jobs（定时任务）</h2>
+<p>Cron 让你说：「每天早上把最新 AI 新闻发我邮箱」「每周五给老板发进度」——在指定时刻自动跑 Agent 任务。</p>
+<h3 id="71">7.1 运行机制</h3>
+<pre><code class="language-mermaid">flowchart TD
+    CRON[&quot;独立 Cron 循环 不等于系统 crontab&quot;] --&gt; TICK[&quot;每分钟 tick&quot;]
+    TICK --&gt; READ[&quot;读取 jobs.json&quot;]
+    READ --&gt; HIT{&quot;当前分钟有到期 Job?&quot;}
+    HIT --&gt;|否| WAIT[&quot;等到下一分钟&quot;]
+    WAIT --&gt; TICK
+    HIT --&gt;|是| RUN[&quot;执行 Job&quot;]
+    RUN --&gt; OUT[&quot;结果写入 cron/output/job_id/&quot;]
+    OUT --&gt; HOME[&quot;通知投递到 Home 渠道&quot;]
+    HOME --&gt; WAIT
+</code></pre>
+<p>说明：文档常写 cron 在 SQLite，实盘多半是 <strong><code>~/.hermes/cron/jobs.json</code></strong>；通知走 Home，不是 Agent 调 <code>send_message</code>。</p>
+<h3 id="72">7.2 存储细节（与文档易不一致）</h3>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>实际行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Job 列表</td>
+<td><strong><code>~/.hermes/cron/jobs.json</code></strong>（plain JSON：prompt、调度等）</td>
+</tr>
+<tr>
+<td>文档说法</td>
+<td>有的文档写存在 SQLite；走读代码/实盘时常 <strong>看不到 cron 表</strong>，tick 也是读 JSON</td>
+</tr>
+<tr>
+<td>运行产物</td>
+<td><code>cron/output/&lt;job_id&gt;/</code> 下各次 run 的 markdown</td>
+</tr>
+</tbody>
+</table>
+<h3 id="73-home-channel">7.3 通知投递：Home Channel</h3>
+<ul>
+<li>Cron <strong>不会</strong>靠 Agent 的「发消息」Tool 去推 Telegram。  </li>
+<li>配置 Gateway 时会问：某个 User ID 是否设为该渠道的 <strong>Home</strong>。  </li>
+<li>Job 跑完后，系统把通知发到 <strong>Home 集成</strong>（你的主消息入口）。</li>
+</ul>
+<h3 id="74">7.4 典型用途</h3>
+<ul>
+<li>每日 AI 新闻邮件  </li>
+<li>每日社区 Slack 动态  </li>
+<li>每周五老板汇报邮件  </li>
+<li>任意「按分钟/小时/天/周/月」重复的 Agent 任务</li>
+</ul>
+<hr>
+<h2 id="8-telegram">8. 端到端：一次 Telegram 消息怎么走完</h2>
+<p>把前面模块串成一条路径：</p>
+<pre><code class="language-mermaid">sequenceDiagram
+    participant User as User
+    participant GW as Gateway
+    participant SM as SessionMgr
+    participant DB as SQLite
+    participant CTX as BuildContext
+    participant LLM as LLM
+    participant Tool as Tools
+    participant Mem as MemoryUpdate
+
+    User-&gt;&gt;GW: 新消息（一个 Turn）
+    GW-&gt;&gt;SM: queue / interrupt / steer
+    SM-&gt;&gt;DB: 按 session key 拉历史
+    Note over GW: 可选 Session Hygiene ≈85%
+    GW-&gt;&gt;CTX: 复用冻结 SP + 历史 + 本轮消息
+    Note over CTX: Agent 阈值默认 50% → Compression
+    CTX-&gt;&gt;LLM: 完整 Context
+    loop ToolLoop
+        LLM-&gt;&gt;Tool: function call
+        Tool--&gt;&gt;LLM: result（可挂子目录 AGENTS.md）
+    end
+    LLM--&gt;&gt;User: 最终回复
+    LLM-&gt;&gt;DB: 写 transcript
+    LLM-&gt;&gt;Mem: Memory Update 审视
+    Note over Mem: 值得记才写 user.md / memory.md&lt;br/&gt;写盘 ≠ 刷新当前 Session SP
+</code></pre>
+<hr>
+<h2 id="9">9. 模块对照速查</h2>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>一句话</th>
+<th>关键实现细节</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Entry</strong></td>
+<td>CLI / Desktop / Gateway / API 同 Core</td>
+<td>Desktop 与 CLI 共用 <code>%LOCALAPPDATA%\hermes</code>；打开 App ≠ Session</td>
+</tr>
+<tr>
+<td><strong>Agent Loop</strong></td>
+<td>消息 → Context → LLM ↔ Tools → 回复 → Memory Update</td>
+<td>Memory Update 在<strong>最终回复之后</strong>；审视≠必写</td>
+</tr>
+<tr>
+<td><strong>Context</strong></td>
+<td>Session 冻结 SP + Turn 拼历史/本轮消息</td>
+<td>直聊：<code>SOUL</code>+memory 即可；Project Context 可选</td>
+</tr>
+<tr>
+<td><strong>Context Files</strong></td>
+<td><code>.hermes.md</code> → <code>AGENTS.md</code> → …</td>
+<td><strong>放项目根</strong>，不放 Hermes 家目录；无文件则跳过</td>
+</tr>
+<tr>
+<td><strong>Compression</strong></td>
+<td>消息列表：剪枝 → 定边界 → 结构化摘要 → 组装</td>
+<td>默认 50% 触发；保留头尾、压中间；摘要可增量更新</td>
+</tr>
+</tbody>
+</table>
+<p>| <strong>Gateway</strong> | 入站一条 → 还原 Session → 跑一个 Turn | Session key 拉 SQLite；Manager：queue/interrupt/steer |
+| <strong>Memory</strong> | Markdown 快照 + transcript + 可选 External | <strong>写</strong>：transcript 每 Turn；user/memory 有料才写。<strong>读进 SP</strong>：Session 启动冻结 |
+| <strong>Cron</strong> | 每分钟 tick 读 JSON 跑任务 | <code>jobs.json</code> + <code>output/&lt;job_id&gt;/</code>；通知走 Home，不走 send tool |</p>
+<hr>
+<h2 id="10">10. 小结</h2>
+<p>Hermes = <strong>本地 Agent Core（极简 Loop）</strong> + <strong>多入口（CLI / Desktop / Gateway）</strong> + <strong>文件化人格/记忆</strong> + <strong>SQLite 全文会话</strong> + <strong>可选外部记忆</strong> + <strong>自建分钟级 Cron</strong>。</p>
+<p>对 <strong>Windows App 直聊</strong> 这类用法，先记住：</p>
+<ol>
+<li>打开 App ≠ Session；New Chat / 一条对话 = Session；每条消息 = Turn  </li>
+<li>Context 主料是 <code>SOUL</code> + <code>USER</code>/<code>MEMORY</code> + 消息历史；<strong>不必</strong>强行加 <code>AGENTS.md</code>  </li>
+<li>写了 memory 要进当前 system prompt → 需要 <strong>新 Session</strong>（冻结快照只在启动时读）  </li>
+<li>进仓库改代码时，再在<strong>项目根</strong>加 Project Context</li>
+</ol>
+<p>架构上并不炫技，但每一块都落到可配置、可落盘、可多端常驻——这也是它适合当「自托管个人助手 / 自建 Claw 类 Agent」参考实现的原因。若要自己做同类系统，优先复用这几件事：</p>
+<ol>
+<li>固定 Loop + Memory Update 闭环  </li>
+<li>Markdown 人格与用户记忆注入 Context（Project Context 做成可选层）  </li>
+<li>可配置的压缩阈值与结构化 summarizer  </li>
+<li>Gateway / Desktop 侧按 session 重建历史 + 并发策略  </li>
+<li>Cron 与 Home 通知解耦于 Tool 调用</li>
+</ol>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags">
+            <span class="chip">Hermes 源码精读</span>
+            <span class="chip">AI Agent</span>
+            <span class="chip">面试宝典</span>
+          </div>
+          <a class="t-meta" href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/08-hermes-agent/01-arch.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../ai-engineer/hermes/00-outline.html"><span class="dir">← 上一篇</span><span class="t">Hermes 学习大纲</span></a><a class="next" href="../../ai-engineer/hermes/02-memory.html"><span class="dir">下一篇 →</span><span class="t">Hermes Agent Memory 四层体系</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../rag/index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+
+<script src="../../ai-engineer/assets/mermaid-init.js" defer></script>
+<script src="../../js/main.js" defer></script>
+</body>
+</html>

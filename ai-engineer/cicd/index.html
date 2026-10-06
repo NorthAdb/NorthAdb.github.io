@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CI/CD 面试突击 · AI Agent 面试宝典 — NorthAdb 的博客</title>
+<meta name="description" content="CI/CD 概念、pytest、GitLab CI、交叉编译与制品、故障排查、Jenkins、工具链与口述话术，附笔试题库。 AI Agent 面试宝典第 10 章，共 72 篇笔记。">
+<link rel="canonical" href="https://northadb.github.io/ai-engineer/cicd/index.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="CI/CD 面试突击 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta property="og:description" content="CI/CD 概念、pytest、GitLab CI、交叉编译与制品、故障排查、Jenkins、工具链与口述话术，附笔试题库。 AI Agent 面试宝典第 10 章，共 72 篇笔记。">
+<meta property="og:url" content="https://northadb.github.io/ai-engineer/cicd/index.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="CI/CD 面试突击 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta name="twitter:description" content="CI/CD 概念、pytest、GitLab CI、交叉编译与制品、故障排查、Jenkins、工具链与口述话术，附笔试题库。 AI Agent 面试宝典第 10 章，共 72 篇笔记。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../feed.xml">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../ai-engineer/assets/course.css">
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../" data-page="">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <section class="hero wrap" style="padding-bottom: 40px;">
+    <div class="hero-glow"></div>
+    <div class="hero-kicker"><span class="dot"></span> AI Agent 面试宝典 · 第 10 章</div>
+    <h1 class="t-h1">CI/CD 面试突击</h1>
+    <p class="sub">CI/CD 概念、pytest、GitLab CI、交叉编译与制品、故障排查、Jenkins、工具链与口述话术，附笔试题库。<span class="dim">共 72 篇笔记，整理自 <a href="https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/10-CICD" target="_blank" rel="noopener">10-CICD/</a>。</span></p>
+    <div class="hero-actions">
+      <a href="https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/10-CICD" class="btn btn-ghost">源目录 ↗</a>
+      <a href="../../ai-engineer/index.html" class="btn btn-ghost">返回宝典目录 →</a>
+    </div>
+  </section>
+
+  <section class="block wrap" style="padding-top: 0;">
+    <div class="sec-head">
+      <span class="label">章节目录</span>
+    </div>
+    <ul class="post-list">
+      <li>
+        <a class="post-row" href="cicd.html">
+          <span class="num">01</span>
+          <div>
+            <h3>CICD-DEVOPS AI 面试｜短期学习清单</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 5 分钟</span></div>
+            <p class="row-desc">主线：GitLab CI（新手友好，精简、直奔面试考点） 定位：开发转岗，主攻 CI，弱化 CD；通用软件研发场景 时间：约 6 天突击（理论 → pytest → GitLab CI → 特色/排查 → 复盘） 说明：多门禁里不同 cas…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="01-basic.html">
+          <span class="num">02</span>
+          <div>
+            <h3>Day 1｜基础理论</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">对应大纲：一、基础理论 目标：能口述 CI / CD 区别与核心名词</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="01-ci-cd.html">
+          <span class="num">03</span>
+          <div>
+            <h3>1. CI / 持续交付 / 持续部署（必背）</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 9 分钟</span></div>
+            <p class="row-desc">记忆口诀：集成测得住 → 交付随时上 → 部署自动上。</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="01-basic-02.html">
+          <span class="num">04</span>
+          <div>
+            <h3>2. 核心名词（熟记）</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 4 分钟</span></div>
+            <p class="row-desc">面试里听到这些词，要能立刻解释，并说清它们的层级关系。</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="01-basic-03.html">
+          <span class="num">05</span>
+          <div>
+            <h3>3. 分支策略（GitLab Flow + MR 门禁）</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 3 分钟</span></div>
+            <p class="row-desc">分支策略决定了：什么时候触发 CI、什么分支要过门禁、制品从哪来。 你做 CI，必须能说清「流水线卡在合并入口」。</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="04-devops.html">
+          <span class="num">06</span>
+          <div>
+            <h3>4. DevOps 基础认知</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 2 分钟</span></div>
+            <p class="row-desc">要求：能简单口述，区分 DevOps ≠ CI/CD。</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="01-basic-05.html">
+          <span class="num">07</span>
+          <div>
+            <h3>5. Day 1 自测题</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 2 分钟</span></div>
+            <p class="row-desc">建议：先闭卷答，再对照参考答案。口述题最好录音听一遍。</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="02-pytest.html">
+          <span class="num">08</span>
+          <div>
+            <h3>Day 1.5｜pytest（CI 向单独模块）</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">对应大纲：一补、pytest 基础 目标：能本地跑用例，会用目录 + -m 区分门禁 case，并能接到 GitLab Job 的 script</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="02-pytest-01.html">
+          <span class="num">09</span>
+          <div>
+            <h3>1. 安装与第一次跑通</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 2 分钟</span></div>
+            <p class="row-desc">动手 Demo：demos/01-install-run./demos/01-install-run/ 先按下面建好 venv，再 cd demos/01-install-run &amp;&amp; pytest -v</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="02-pytest-02.html">
+          <span class="num">10</span>
+          <div>
+            <h3>2. 用例怎么写、怎么被发现</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">动手 Demo：demos/02-discovery./demos/02-discovery/ cd demos/02-discovery &amp;&amp; pytest -v ；再试 pytest -k login -v</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="03-marker.html">
+          <span class="num">11</span>
+          <div>
+            <h3>3. marker 与门禁分流【重点】</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 2 分钟</span></div>
+            <p class="row-desc">这一节直接对接你公司的多门禁：触发不同，case 集也不同。 动手 Demo：demos/03-markers./demos/03-markers/ cd demos/03-markers &amp;&amp; pytest -m smoke -v（再试 …</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="04-ci.html">
+          <span class="num">12</span>
+          <div>
+            <h3>4. 失败怎么读、怎么进 CI</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">动手 Demo：demos/04-ci./demos/04-ci/ cd demos/04-ci &amp;&amp; pytest tests/smoke -m smoke -v --junitxml=report-mr.xml</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="02-pytest-05.html">
+          <span class="num">13</span>
+          <div>
+            <h3>5. pytest 自测题</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">动手 Demo：demos/05-selfcheck./demos/05-selfcheck/ 闭卷做完 A 部分后，把答案填进 testquizanswers.py，再 pytest -v 自动核对。</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="demos.html">
+          <span class="num">14</span>
+          <div>
+            <h3>pytest 学习 Demo 索引</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">每个文档对应一个可运行目录。请 cd 进对应 demo 目录再跑（尤其是 03/04，依赖当地 pytest.ini）。</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="01-install-run.html">
+          <span class="num">15</span>
+          <div>
+            <h3>Demo 01｜安装与第一次跑通</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">对应文档：01-安装与运行.md../../01-安装与运行.md</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="02-discovery.html">
+          <span class="num">16</span>
+          <div>
+            <h3>Demo 02｜用例与发现规则</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">对应文档：02-用例与发现规则.md../../02-用例与发现规则.md</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="03-markers.html">
+          <span class="num">17</span>
+          <div>
+            <h3>Demo 03｜marker 与门禁分流</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">对应文档：03-marker与门禁分流.md../../03-marker与门禁分流.md</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="04-ci-2.html">
+          <span class="num">18</span>
+          <div>
+            <h3>Demo 04｜失败阅读与 CI 衔接</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">对应文档：04-失败阅读与CI衔接.md../../04-失败阅读与CI衔接.md</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="05-selfcheck.html">
+          <span class="num">19</span>
+          <div>
+            <h3>Demo 05｜自测题核对</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">对应文档：05-自测题.md../../05-自测题.md</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="03-gitlab-ci.html">
+          <span class="num">20</span>
+          <div>
+            <h3>Day 2~3｜GitLab CI 核心【重中之重】</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">对应大纲：二、GitLab CI 核心 前置：02-pytest/../02-pytest/README.md（会跑 pytest + -m / 目录分流） 目标：看懂、改写 .gitlab-ci.yml，把 pytest 正确挂进 Job</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="03-gitlab-ci-00.html">
+          <span class="num">21</span>
+          <div>
+            <h3>0. GitLab 安装与部署（面试够用）</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 3 分钟</span></div>
+            <p class="row-desc">先分清装的是哪两样：</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="03-gitlab-ci-01.html">
+          <span class="num">22</span>
+          <div>
+            <h3>1. GitLab CI 核心组件</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 2 分钟</span></div>
+            <p class="row-desc">仓库事件（push / MR / tag / schedule） → GitLab 读 .gitlab-ci.yml → 按 rules 选出要跑的 Job → 派给空闲 Runner → Runner 用执行器跑 script → 回传日…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="03-gitlab-ci-02.html">
+          <span class="num">23</span>
+          <div>
+            <h3>2. 必须掌握语法（六个关键字）</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 2 分钟</span></div>
+            <p class="row-desc">面试听到关键字，要能立刻说「干什么用」。</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="03-gitlab-ci-03.html">
+          <span class="num">24</span>
+          <div>
+            <h3>3. 标准 CI 流水线流程（背诵）</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 5 分钟</span></div>
+            <p class="row-desc">大纲把 CI 能力串成一条：</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="04-pytest.html">
+          <span class="num">25</span>
+          <div>
+            <h3>4. 与 pytest 的衔接</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">前置能力来自 02-pytest/../02-pytest/README.md。这里只讲「怎么写进 GitLab Job」。</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="03-gitlab-ci-05.html">
+          <span class="num">26</span>
+          <div>
+            <h3>5. GitLab CI 自测题</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">建议：先闭卷，再对答案。口述题录音一遍。</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="demos-2.html">
+          <span class="num">27</span>
+          <div>
+            <h3>demos｜GitLab CI</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">入口：</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="mini-pipeline.html">
+          <span class="num">28</span>
+          <div>
+            <h3>mini-pipeline｜完整标准流水线 Demo</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 3 分钟</span></div>
+            <p class="row-desc">本地模拟整条教科书 CI（不需要真实 GitLab Runner）：</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="04-ci-features.html">
+          <span class="num">29</span>
+          <div>
+            <h3>Day 3｜CI 特色知识点【拉开差距】</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">对应大纲：三、CI 特色知识点 前置：03-gitlab-ci/../03-gitlab-ci/README.md 目标：比「会写 yml」多一层优化与合规话术</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="04-ci-features-01.html">
+          <span class="num">30</span>
+          <div>
+            <h3>1. 交叉编译（了解 + 嵌入式加分）</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">在 A 架构机器上，编译出跑在 B 架构上的程序。 例：在 x8664 Linux / CI Runner 上，用 ARM 工具链编出板端固件。</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="04-ci-features-02.html">
+          <span class="num">31</span>
+          <div>
+            <h3>2. 构建痛点优化</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">编译 / 测试耗时久 → 开发反馈慢 → 有人想关门禁（危险）</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="04-ci-features-03.html">
+          <span class="num">32</span>
+          <div>
+            <h3>3. 制品管理</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">流水线产出的、可交付 / 可部署的东西：</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="04-ci-features-04.html">
+          <span class="num">33</span>
+          <div>
+            <h3>4. 软件研发合规要点（CI 视角）</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">贴合「维护 CI、过审计」的经历包装。</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="04-ci-features-05.html">
+          <span class="num">34</span>
+          <div>
+            <h3>5. CI 特色知识点自测题</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">A1. 构建慢的三条优化：、、。</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="cross-compile.html">
+          <span class="num">35</span>
+          <div>
+            <h3>Demo：固件交叉编译链路（Docker → 出包 → HTTP）</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 3 分钟</span></div>
+            <p class="row-desc">对应笔记：01-交叉编译.md../../01-交叉编译.md</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="05-troubleshoot.html">
+          <span class="num">36</span>
+          <div>
+            <h3>Day 4｜故障排查 + 流水线优化</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">对应大纲：四、故障排查 + 流水线优化 前置：04-ci-features/../04-ci-features/README.md 目标：有固定排查话术，能包装「维护 CI」经历</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="05-troubleshoot-01.html">
+          <span class="num">37</span>
+          <div>
+            <h3>1. 优化方向（熟记四条）</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 3 分钟</span></div>
+            <p class="row-desc">大纲原文，面试直接背：</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="05-troubleshoot-02.html">
+          <span class="num">38</span>
+          <div>
+            <h3>2. 标准排查思路（固定话术）</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">流水线挂了，按顺序查，体现方法论，而不是上来改脚本瞎试。</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="05-troubleshoot-03.html">
+          <span class="num">39</span>
+          <div>
+            <h3>3. 经历包装（STAR 骨架）</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">把「维护 CI」说成可验证的故事，而不是「我写过 yml」。</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="05-troubleshoot-04.html">
+          <span class="num">40</span>
+          <div>
+            <h3>4. 排查与优化自测题</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">A1. 优化四条：</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="runner-lb.html">
+          <span class="num">41</span>
+          <div>
+            <h3>Demo：用 Python 理解「容器负载均衡」</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">对应笔记：01-优化方向.md../../01-优化方向.md</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="06-jenkins.html">
+          <span class="num">42</span>
+          <div>
+            <h3>Day 4｜Jenkins 保底认知</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">对应大纲：五、Jenkins 保底认知 不用实操，看懂基础即可 目标：能对比 GitLab CI，说清互通点</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="06-jenkins-01.html">
+          <span class="num">43</span>
+          <div>
+            <h3>1. Jenkins 架构：Master + Agent</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">开发者提交 / 触发 → Master 接到任务 → 分配到空闲 Agent → Agent 跑流水线步骤 → 结果回 Master</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="02-jenkinsfile.html">
+          <span class="num">44</span>
+          <div>
+            <h3>2. Jenkinsfile（声明式）</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">- Jenkinsfile 放在仓库里 → 同样是「代码即流水线」 - 声明式（Declarative） Pipeline 最常见，面试够用 - 思想与 .gitlab-ci.yml 一致：阶段、步骤、条件、制品</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="06-jenkins-03.html">
+          <span class="num">45</span>
+          <div>
+            <h3>3. 凭证管理与分布式构建（概念）</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">- 账号、Token、SSH Key 不进仓库明文 - 存在 Jenkins Credentials，Job 运行时注入 - 对应 GitLab：CI/CD Variables（masked / protected）</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="06-jenkins-04.html">
+          <span class="num">46</span>
+          <div>
+            <h3>4. Jenkins 自测题</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">A1. Jenkins 架构两角色： + 。</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="07-tools.html">
+          <span class="num">47</span>
+          <div>
+            <h3>工具认知（知道用途即可）</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">对应大纲：六、工具认知 目标：听到名字能说清在流水线哪一环，不要求会搭全集群</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="07-tools-01.html">
+          <span class="num">48</span>
+          <div>
+            <h3>1. 工具速览</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc"></p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="07-tools-02.html">
+          <span class="num">49</span>
+          <div>
+            <h3>2. 四工具串进流水线</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">MR / push / tag / schedule → GitLab 调度 + Runner（Docker 镜像环境） → Lint → SonarQube 扫描（质量门禁） → pytest（按门禁选 case） → 编译构建（镜像内工…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="07-tools-03.html">
+          <span class="num">50</span>
+          <div>
+            <h3>3. 工具认知自测题</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">A1. 写出四种工具及用途（关键词）。</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="08-review.html">
+          <span class="num">51</span>
+          <div>
+            <h3>Day 5｜复盘模拟</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">对应大纲：七、Day 5 复盘模拟 目标：串流程、刷题、包装经历，形成可上场状态</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="08-review-01.html">
+          <span class="num">52</span>
+          <div>
+            <h3>1. 串整条标准 CI 流程（口述稿）</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">开发者在功能分支提 MR，仓库触发 Pipeline。 Runner 用 Docker 执行器拉起干净环境：先 Lint，再 Sonar 静态扫描，再按门禁跑 pytest——MR 只跑 smoke，合入主干后的 Gate1 跑关键链路，D…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="08-review-02.html">
+          <span class="num">53</span>
+          <div>
+            <h3>2. 高频面试题（速刷）</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">先闭卷写关键词，再对要点。</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="08-review-03.html">
+          <span class="num">54</span>
+          <div>
+            <h3>3. 经历话术终稿</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">在 05-troubleshoot/03-经历包装.md../05-troubleshoot/03-经历包装.md 草稿上，压成 90 秒 终稿。</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="08-review-04.html">
+          <span class="num">55</span>
+          <div>
+            <h3>4. 极易混淆考点（大纲附录）</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">- 干净、统一的构建环境 - 方便封装各类编译工具链 - 不污染宿主机</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="09-writing.html">
+          <span class="num">56</span>
+          <div>
+            <h3>09 · Writing：Shell / Linux / Python 排查写作与实操</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">CI / SDET 笔试向：命令行文本处理 → 系统排查 → Python 日志分析。</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="00-python-core.html">
+          <span class="num">57</span>
+          <div>
+            <h3>Python 核心语法（C 转 Python 速通）</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 5 分钟</span></div>
+            <p class="row-desc">场景：有 C 底子、靠 AI 写过 Python，但缺系统语法。 目标：能手写日志过滤/去重/计数；AI 生成的进阶写法能读懂。</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="shell.html">
+          <span class="num">58</span>
+          <div>
+            <h3>掌握Shell脚本：从入门到精通</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 6 分钟</span></div>
+            <p class="row-desc">来源：https://blog.csdn.net/250293300404/article/details/161364802</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="log-process.html">
+          <span class="num">59</span>
+          <div>
+            <h3>日志处理 + JSON 解析（笔试高频）</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 3 分钟</span></div>
+            <p class="row-desc">目标：日志处理 + JSON 日志解析，只抓笔试高频，剔除冷门语法。 本目录数据： - agent.log —— 文本应用日志（grep / sed / awk） - agent.jsonl —— JSON Lines（jq） 做完本节 →…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="shell-2.html">
+          <span class="num">60</span>
+          <div>
+            <h3>Shell 日志处理实战题库（40 题）</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 7 分钟</span></div>
+            <p class="row-desc">配套数据就在本目录，覆盖 logprocess.md 里列的四个高频方向： grep/sed/awk 筛选统计、jq 解析 JSON 日志、文件遍历与时间过滤、管道与格式化输出。</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="shell-3.html">
+          <span class="num">61</span>
+          <div>
+            <h3>Shell 日志处理实战题库 —— 答案与讲解</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 28 分钟</span></div>
+            <p class="row-desc">配套题目：shell日志实战题库.md。所有命令在本目录下执行。</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="03-shell-scripts.html">
+          <span class="num">62</span>
+          <div>
+            <h3>03 · Shell 可运行脚本</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 2 分钟</span></div>
+            <p class="row-desc">对应题库 E6 / E3 / F3，并补齐 grep / sed / awk / 日志筛选 专项脚本。 数据默认：../02-log-process/（也可用 ../01-log-process/）。</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="02-log-python.html">
+          <span class="num">63</span>
+          <div>
+            <h3>04 · Python 日志处理</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 2 分钟</span></div>
+            <p class="row-desc">场景：自动化测试脚本、日志分析、校验 Agent 输出、筛异常任务。 有 C 底子、语法不熟：先 00-python-core.md + 00-containers-demo.py，再 01-python-basic.md，再按编号跑脚本。</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="01-python-basic.html">
+          <span class="num">64</span>
+          <div>
+            <h3>Python 必备基础清单（Senior AI Agent SDET）</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 2 分钟</span></div>
+            <p class="row-desc">场景：自动化测试脚本、日志分析、校验 Agent 输出，不考复杂算法。</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="03-linux.html">
+          <span class="num">65</span>
+          <div>
+            <h3>03 · Linux 运维排查速通（CI / SDET）</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">面向 Runner / 容器 / 宿主机 上的笔试与线上排查： 进程、网络、权限、core dump、日志、后台任务。</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="03-linux-00.html">
+          <span class="num">66</span>
+          <div>
+            <h3>Linux 排查 · 一页速查</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 2 分钟</span></div>
+            <p class="row-desc">CI / SDET 笔试够用版。细节见同目录分册。</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="03-linux-01.html">
+          <span class="num">67</span>
+          <div>
+            <h3>01 · 进程排查</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">场景：CI Job 卡住、CPU 打满、僵尸进程、找不到谁占端口。</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="03-linux-02.html">
+          <span class="num">68</span>
+          <div>
+            <h3>02 · 网络调试</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">场景：拉依赖失败、Runner 注册不上、服务端口不通、DNS 错。</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="03-linux-03.html">
+          <span class="num">69</span>
+          <div>
+            <h3>03 · 权限</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">场景：Permission denied、脚本无法执行、CI 用户写不了目录、密钥权限过宽被拒绝。</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="04-core-dump.html">
+          <span class="num">70</span>
+          <div>
+            <h3>04 · Core dump</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">场景：C/C++/部分原生扩展崩溃，需要堆栈；CI 里「偶发 Segmentation fault」。</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="03-linux-05.html">
+          <span class="num">71</span>
+          <div>
+            <h3>05 · 日志分析（系统层）</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">场景：服务挂了查系统日志；应用日志仍用 shell/python 模块深挖。</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+      <li>
+        <a class="post-row" href="03-linux-06.html">
+          <span class="num">72</span>
+          <div>
+            <h3>06 · 后台任务</h3>
+            <div class="row-meta"><span class="cat">CI/CD 面试突击</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">场景：长编译放后台、SSH 断线任务死掉、本地保活调试、和 CI Job 的边界。</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+    </ul>
+  </section>
+
+  <section class="block wrap">
+    <div class="chapter-nav"><a class="btn btn-ghost" href="../loop/index.html">← Loop Engineering</a><a class="btn btn-ghost" href="../langgraph/index.html">LangGraph 实战 →</a></div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../rag/index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+
+<script src="../../js/main.js" defer></script>
+</body>
+</html>

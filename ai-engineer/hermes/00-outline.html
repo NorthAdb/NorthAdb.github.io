@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hermes 学习大纲 · AI Agent 面试宝典 — NorthAdb 的博客</title>
+<meta name="description" content="1. 下一代多模态 Agent Runtime 2. Eval、Sandbox、Memory 等核心 Infra 3. 云端 Agent 服务与端云协同能力 4. 内部 Harness：Agentify the whole company …">
+<link rel="canonical" href="https://northadb.github.io/ai-engineer/hermes/00-outline.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Hermes 学习大纲 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta property="og:description" content="1. 下一代多模态 Agent Runtime 2. Eval、Sandbox、Memory 等核心 Infra 3. 云端 Agent 服务与端云协同能力 4. 内部 Harness：Agentify the whole company …">
+<meta property="og:url" content="https://northadb.github.io/ai-engineer/hermes/00-outline.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Hermes 学习大纲 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta name="twitter:description" content="1. 下一代多模态 Agent Runtime 2. Eval、Sandbox、Memory 等核心 Infra 3. 云端 Agent 服务与端云协同能力 4. 内部 Harness：Agentify the whole company …">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../feed.xml">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../ai-engineer/assets/course.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Hermes 学习大纲", "description": "1. 下一代多模态 Agent Runtime 2. Eval、Sandbox、Memory 等核心 Infra 3. 云端 Agent 服务与端云协同能力 4. 内部 Harness：Agentify the whole company …", "author": {"@type": "Person", "name": "juliepy", "url": "https://github.com/juliepy/AI-Engineer-from-scrach"}, "mainEntityOfPage": "https://northadb.github.io/ai-engineer/hermes/00-outline.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../index.html">首页</a><span>/</span><a href="../../learn.html">课件</a><span>/</span><a href="../../ai-engineer/index.html">AI Agent 面试宝典</a><span>/</span><a href="../../ai-engineer/hermes/index.html">Hermes 源码精读</a></div>
+          <h1>Hermes 学习大纲</h1>
+          <p class="post-sub">1. 下一代多模态 Agent Runtime 2. Eval、Sandbox、Memory 等核心 Infra 3. 云端 Agent 服务与端云协同能力 4. 内部 Harness：Agentify the whole company …</p>
+          <div class="post-meta">
+            <span class="avatar">AI</span>
+            <span>AI Agent 面试宝典</span><span class="sep"></span>
+            <span>Hermes 源码精读</span><span class="sep"></span>
+            <span>阅读约 10 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<hr>
+<h2 id="jd">JD</h2>
+<ol>
+<li>下一代多模态 Agent Runtime</li>
+<li>Eval、Sandbox、Memory 等核心 Infra</li>
+<li>云端 Agent 服务与端云协同能力</li>
+<li>内部 Harness：Agentify the whole company</li>
+<li>熟悉 TypeScript 与 Node.js 生态</li>
+<li>啃过 CC / Codex / Pi / OpenCode / Hermes 源码</li>
+<li>熟悉 Context Policy、Sandbox、Trace Analysis、Eval 等</li>
+<li>对 Agentic Engineering 有深入 insight</li>
+<li>做过 Agent Runtime / Sandbox / MicroVM</li>
+<li>做过 Evaluation / Benchmark / Observability</li>
+<li>有多模态 Agent / 算法相关经验</li>
+</ol>
+<hr>
+<h2 id="_1">一、开源项目按什么顺序读</h2>
+<ol>
+<li><strong>Hermes</strong>（最优先，本地就有 <code>hermes-agent/</code>）——JD 点名，主战场。</li>
+<li><strong>OpenCode</strong>（开源、代码清晰）——对照 Hermes 看另一种 runtime 架构。</li>
+<li><strong>Claude Code (CC)</strong>——看 Context 管理、工具设计、权限模型（官方文档 + 用它时观察行为）。</li>
+<li><strong>Codex / Pi</strong>——公开资料了解范式即可，不用啃到底。</li>
+</ol>
+<blockquote>
+<p>原则：<strong>精读 1 个（Hermes），泛读 1 个（OpenCode），了解其余</strong>。别平均用力。</p>
+</blockquote>
+<hr>
+<h2 id="hermes">二、Hermes 学习路线总览</h2>
+<p>一张图看懂 2~3 周怎么走：<strong>先跑起来 → Memory → Eval → 主循环 → 环境 → Sandbox → 收尾产出面试材料</strong>。</p>
+<pre><code class="language-mermaid">flowchart TD
+    A[&quot;第 0 步：环境跑通&lt;br/&gt;本地启动 Hermes CLI + 打断点&quot;] --&gt; B[&quot;模块一：Memory + Context Policy&lt;br/&gt;memory_provider / 压缩 / Prompt Cache&quot;]
+    B --&gt; C[&quot;模块二：Eval + Trace&lt;br/&gt;评测集 + 可观测性&quot;]
+    C --&gt; D[&quot;模块三：主循环&lt;br/&gt;run_agent.py 思考→调工具→观察&quot;]
+    D --&gt; E[&quot;模块四：环境&lt;br/&gt;tools/environments/ 执行后端抽象&quot;]
+    E --&gt; F[&quot;模块五：Sandbox / MicroVM&lt;br/&gt;隔离边界 + 逃逸拦截&quot;]
+    F --&gt; G[&quot;收尾：面试输出&lt;br/&gt;架构对比 + STAR 项目故事&quot;]
+</code></pre>
+<p><strong>时间与主线（最短 2~3 周）</strong></p>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>模块</th>
+<th>时长</th>
+<th>核心产出（demo / 笔记）</th>
+<th>命中 JD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>起步</td>
+<td>第 0 步：跑通 CLI</td>
+<td>0.5~1 天</td>
+<td>本地能打断点看一轮对话</td>
+<td>啃源码</td>
+</tr>
+<tr>
+<td>模块一</td>
+<td>Memory + Context Policy</td>
+<td>3~4 天</td>
+<td>Context 溢出策略笔记 + 缓存命中对比图</td>
+<td>Memory、Context Policy</td>
+</tr>
+<tr>
+<td>模块二</td>
+<td>Eval + Trace</td>
+<td>3~4 天</td>
+<td>20~50 条评测集 + 一条完整 Trace 根因分析</td>
+<td>Eval、Benchmark、Observability</td>
+</tr>
+<tr>
+<td>模块三</td>
+<td>主循环</td>
+<td>3~4 天</td>
+<td>主循环时序图 + 一轮 tool call 消息序列</td>
+<td>Agent Runtime、啃源码</td>
+</tr>
+<tr>
+<td>模块四</td>
+<td>环境</td>
+<td>2~3 天</td>
+<td>各执行后端对比笔记（local/docker/ssh/云）</td>
+<td>Agent Runtime、端云协同</td>
+</tr>
+<tr>
+<td>模块五</td>
+<td>Sandbox / MicroVM</td>
+<td>3~4 天</td>
+<td>Docker+seccomp 最小沙箱 + 逃逸拦截实验</td>
+<td>Sandbox、MicroVM</td>
+</tr>
+<tr>
+<td>收尾</td>
+<td>面试输出</td>
+<td>缓冲</td>
+<td>架构对比笔记 + demo 串成 STAR 故事</td>
+<td>Agentic Engineering</td>
+</tr>
+</tbody>
+</table>
+<p><strong>学习原则</strong>
+- <strong>先能跑再精读</strong>：断点比读代码快十倍，第 0 步一定是把 CLI 跑起来。
+- <strong>按 JD Infra 优先级推进</strong>：Memory → Eval → 主循环 → 环境 → Sandbox；主循环是 Runtime 地基，但 Memory/Eval 先建立 Context 与评测视角，再回看循环更清晰。
+- <strong>每模块留一个可展示物</strong>：一句话能说清「读了哪段码 + 做了什么 demo + 拿到什么结论」，否则不算学完。
+- <strong>对齐 JD 不平均用力</strong>：Sandbox 和 Eval 是 JD 高频词，优先保证这两个 demo 拿得出手。</p>
+<hr>
+<h2 id="memory-context-policy34">模块一：Memory + Context Policy（3~4 天）</h2>
+<p><strong>学习目标</strong>：截断 / 压缩 / 长期记忆检索；Prompt Cache 为什么不能中途改上下文。</p>
+<p><strong>教材目录</strong>：
+- <a href="https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/08-hermes-agent/01-memory"><code>01-memory/</code></a>——notebook + 广谱 Memory/压缩/cache（目录名亦作 <code>04.1-memory</code> 旧称）
+- <a href="https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/08-hermes-agent/07-mem-provider"><code>07-mem-provider/</code></a>——<strong>结构对齐 05-env</strong>：聚焦 turn <strong>存</strong>（<code>sync_turn</code>）、对话 <strong>取</strong>（<code>prefetch</code>→user 注入）、相关 <strong>prompt</strong>
+- 概念长文：<a href="../hermes/02-memory.html"><code>02-memory.md</code></a></p>
+<p><strong>源码精读清单</strong>
+- <code>agent/memory_provider.py</code>：<code>MemoryProvider</code> ABC（<code>sync_turn</code> / <code>prefetch</code> / <code>shutdown</code>）。
+- <code>agent/memory_manager.py</code>：单外部 provider 编排；<code>build_memory_context_block</code>。
+- <code>turn_context</code> → <code>prefetch_all</code>；<code>conversation_loop</code> 注入 user；<code>turn_finalizer</code> → <code>_sync_external_memory_for_turn</code>。
+- Prompt：<code>MEMORY_GUIDANCE</code>、<code>&lt;memory-context&gt;</code> note、<code>_MEMORY_REVIEW_PROMPT</code>（见 <code>07-mem-provider/notes/04</code>）。
+- 压缩模块（context compression）：唯一允许改上下文的场景。
+- 根 <code>AGENTS.md</code>「Prompt Caching Must Not Break」小节。</p>
+<p><strong>代码目录结构</strong>（Provider 接线优先读这个）</p>
+<pre><code class="language-text">07-mem-provider/
+├── README.md
+├── notes/          # 01 ABC → 02 prefetch → 03 sync → 04 prompts
+├── demo/           # FakeProvider + 真 MemoryManager
+└── hermes_src/     # memory_*.py + turn/inject/sync/prompt excerpts
+</code></pre>
+<p>广谱 notebook 仍见 <a href="https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/08-hermes-agent/01-memory"><code>01-memory/</code></a>。</p>
+<p><strong>动手</strong>
+- 跑 <code>07-mem-provider/demo/run_mem_provider.py</code>；对照 notes/02–04。
+- 可选：按 <code>01-memory/README.md</code> 跑 notebooks。
+- 写一份「Context 溢出处理」策略笔记；画「缓存命中 vs 中途失效」对比图。</p>
+<p><strong>面试会讲</strong>
+- Per-conversation prompt caching is sacred：任何中途 mutate 上下文 / 换 toolset / 重建 system prompt 都会击穿缓存、放大成本，只有压缩是例外。
+- 取：prefetch 进 <strong>user message</strong>（不进 SP）；存：<code>sync_all</code> 异步 + interrupted 跳过；写什么由 <code>MEMORY_GUIDANCE</code> 约束。
+- 记忆 = 短期(近轮) + 摘要 + 长期检索三层。</p>
+<hr>
+<h2 id="eval-trace34">模块二：Eval + Trace（3~4 天）</h2>
+<p><strong>学习目标</strong>：评测维度设计 + 可观测性；行为契约测试 vs 变更检测测试。</p>
+<p><strong>教材目录</strong>：<a href="https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/08-hermes-agent/03-eval"><code>03-eval/</code></a>——<code>hermes_src/</code> 源码剪枝 + <code>notes/</code> 讲稿 + <code>demo/</code> 离线打分（目录序：<code>01-memory</code> → <code>02-run-agent</code> → <code>03-eval</code>）。</p>
+<p><strong>代码目录结构</strong>（本步骤要读/要跑的文件）</p>
+<pre><code class="language-text">03-eval/
+├── README.md
+├── notes/
+│   ├── 1_eval_invariants.md      # 不变量 vs 变更检测
+│   ├── 2_logging_trace.md        # session_tag / 日志分流
+│   └── 3_eval_harness.md         # 离线打分 + RCA
+├── demo/                         # ★ 可跑通（无需 API Key）
+│   ├── run_eval_suite.py
+│   ├── fixtures/                 # eval_cases.jsonl + golden/failure runs
+│   └── teaching/{invariants,logging,harness}/
+└── hermes_src/
+    ├── AGENTS.md                 # 「Don't write change-detector tests」
+    ├── hermes_logging.py         # agent.log / errors.log / gateway.log
+    ├── scripts/run_tests.sh      # CI 对齐的唯一测试入口（勿直接调 pytest）
+    └── tests/agent/              # 不变量断言范例
+        ├── test_prompt_caching.py        # ★ 课堂主文件
+        ├── test_context_compressor.py
+        └── test_memory_provider.py
+</code></pre>
+<p>（完整仓库里 Trace 还可配合 <code>hermes logs</code> + 外接 LangFuse。）</p>
+<h3 id="21-eval-benchmark">2.1 Eval / Benchmark</h3>
+<ul>
+<li>维度：完成率 / 步数 / 成本 / 工具选对率 / 忠实度。</li>
+<li>源码：<code>03-eval/hermes_src/scripts/run_tests.sh</code>、<code>tests/agent/</code>；<code>AGENTS.md</code>「Don't write change-detector tests」。</li>
+<li><strong>动手</strong>：跑 <code>03-eval/demo/</code>；扩 <code>eval_cases.jsonl</code> 到 20~50 条；至少写 1 条「不变量断言」而非「快照断言」。</li>
+</ul>
+<h3 id="22-observability-trace">2.2 Observability / Trace</h3>
+<ul>
+<li>概念：trace_id / span；每个 Tool/LLM/检索记什么；Trace 查因果、Metrics 看 SLO、Log 查细节。</li>
+<li>源码：<code>03-eval/hermes_src/hermes_logging.py</code>、<code>hermes logs</code> 命令；demo <code>teaching/logging/</code>。</li>
+<li><strong>动手</strong>：跑 demo 看 <code>03_trace_rca.md</code>；可选再接 LangFuse。</li>
+</ul>
+<p><strong>面试会讲</strong>
+- 好测试断言「数据之间的关系（不变量）」，不冻结当前值（模型列表 / 配置版本号 / 枚举数量都会变，快照测试是反模式）。
+- 一条 Trace 如何定位「工具选错 / 上下文溢出 / 预算耗尽」的根因。</p>
+<hr>
+<h2 id="hermes-agent-runtime-34">模块三：Hermes Agent Runtime 主循环（3~4 天）</h2>
+<p><strong>学习目标</strong>：一次请求怎么走完「思考 → 调工具 → 观察 → 再思考」，怎么控预算 / 防死循环。</p>
+<p><strong>教材目录</strong>：<a href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/08-hermes-agent/03-run-agent"><code>03-run-agent/</code></a>——<code>hermes_src/</code> 源码剪枝 + <code>notes/</code> 讲稿对照。</p>
+<p><strong>源码精读清单</strong>
+- <code>agent/conversation_loop.py</code> → <code>run_conversation()</code>：<strong>真正的</strong> while 循环、<code>max_iterations</code>、<code>iteration_budget</code>、<code>_interrupt_requested</code>、grace call。
+- <code>run_agent.py</code> → <code>AIAgent.run_conversation()</code>：现为 <strong>forwarder</strong>（转发到 conversation_loop）。
+- <code>model_tools.py</code> → <code>handle_function_call()</code>；发现由 <code>tools/registry.py</code> 的 <code>discover_builtin_tools()</code> 触发。
+- <code>toolsets.py</code> → <code>_HERMES_CORE_TOOLS</code>、<code>TOOLSETS</code>。
+- <code>tools/registry.py</code>：<code>registry.register()</code> 自动发现。
+- 开场白对照：<a href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/08-hermes-agent/04.1-memory"><code>04.1-memory/</code></a> 的 <code>turn_context.py</code>。</p>
+<p><strong>代码目录结构</strong>（本步骤要读/要跑的文件）</p>
+<pre><code class="language-text">03-run-agent/
+├── README.md
+├── notes/
+│   ├── 1_agent_loop.md           # while / 预算 / 中断
+│   ├── 2_tools_discovery.md      # registry → model_tools → toolsets
+│   └── 3_todo_intercept.md       # agent 级工具范例
+└── hermes_src/
+    ├── run_agent.py              # AIAgent；run_conversation → forwarder
+    ├── agent/conversation_loop.py # ★ 真正的 while 循环
+    ├── model_tools.py            # handle_function_call / get_tool_definitions
+    ├── toolsets.py               # _HERMES_CORE_TOOLS / TOOLSETS
+    └── tools/
+        ├── registry.py           # discover_builtin_tools / register
+        └── todo_tool.py          # agent 级工具拦截范例
+</code></pre>
+<p><strong>动手</strong>
+- 画一张主循环时序图（消息 role 交替：system/user/assistant/tool）。
+- 在本地跑通 Hermes CLI，打断点观察一轮 tool call 的完整消息序列（断点打在 <code>conversation_loop</code> 的 while，不要只打在 forwarder）。</p>
+<p><strong>面试会讲</strong>
+- Runtime = 主循环 + 工具调度 + 状态 + 预算/中断。
+- 为什么工具 schema 每次都全量下发 → 「narrow waist」设计，加核心工具门槛高（Footprint Ladder）。</p>
+<hr>
+<h2 id="23">模块四：环境（2~3 天）</h2>
+<p><strong>学习目标</strong>：Agent 的「执行环境」如何抽象；本地 / 容器 / SSH / 云后端的统一接口与取舍。</p>
+<p><strong>教材目录</strong>：<a href="https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/08-hermes-agent/05-env"><code>05-env/</code></a>——<code>notes/</code> 真源码讲稿 + <code>hermes_src/tools/environments/</code> <strong>完整后端拷贝</strong> + <code>terminal_tool.FACTORY.py</code> 工厂摘录。完整对照亦见 <a href="https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/08-hermes-agent/hermes-study/tools/environments"><code>hermes-study/tools/environments/</code></a>。</p>
+<p><strong>源码精读清单</strong>
+- <code>tools/environments/base.py</code>：<code>BaseEnvironment.execute</code> / snapshot / CWD。
+- <code>local.py</code> / <code>docker.py</code>：无隔离 vs <code>_BASE_SECURITY_ARGS</code>。
+- <code>file_sync.py</code> + <code>ssh.py</code> / <code>modal*.py</code> / <code>daytona.py</code>：端云文件到位。
+- <code>terminal_tool.py</code> → <code>_get_env_config</code> / <code>_create_environment</code>（教材内为 FACTORY 摘录）。</p>
+<p><strong>代码目录结构</strong>（本步骤要读的文件）</p>
+<pre><code class="language-text">05-env/
+├── README.md
+├── notes/                 # 01 base → 02 local/docker → 03 remote → 04 factory
+└── hermes_src/tools/
+    ├── terminal_tool.FACTORY.py
+    ├── env_probe.py
+    └── environments/      # base/local/docker/ssh/modal/daytona/singularity/file_sync
+</code></pre>
+<p><strong>动手</strong>
+- 按 <code>05-env/README.md</code> 精读 <code>hermes_src</code>，对照 notes。
+- 真 Hermes CLI 切 <code>TERMINAL_ENV=local|docker</code>，对 <code>execute</code> / <code>_create_environment</code> 打断点。
+- 产出「后端对比表」（隔离 / 延迟 / 文件可见性 / 场景）。</p>
+<p><strong>面试会讲</strong>
+- 环境抽象 = Runtime 与执行后端解耦；端云协同靠同一 <code>execute()</code> + bind/sync 策略。
+- 选后端：调试 local，不可信代码 docker/云，远程机 ssh。</p>
+<hr>
+<h2 id="cron">扩展：Cron（定时任务，可与模块三/四并行）</h2>
+<p><strong>学习目标</strong>：无人值守调度——job 存哪、谁 tick、怎么跑一轮隔离 Agent、结果投到哪。</p>
+<p><strong>教材目录</strong>：<a href="https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/08-hermes-agent/06-cron"><code>06-cron/</code></a>——结构对齐 <a href="https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/08-hermes-agent/05-env"><code>05-env/</code></a>：<code>notes/</code> + <code>hermes_src/cron/</code> + <code>demo/</code>。</p>
+<p><strong>源码精读清单</strong>
+- <code>cron/jobs.py</code>：<code>jobs.json</code>、<code>parse_schedule</code>、<code>create_job</code>、<code>get_due_jobs</code>
+- <code>cron/scheduler.py</code>：<code>tick</code> / <code>run_job</code>（<code>skip_memory</code>、disabled toolsets、投递）
+- <code>tools/cronjob_tools.py</code>：压缩 <code>cronjob(action=…)</code> + prompt 扫描</p>
+<p><strong>动手</strong>：跑 <code>06-cron/demo/run_cron_jobs.py</code>；可选在真 gateway 上对 <code>tick</code> 打断点。</p>
+<p><strong>面试会讲</strong>：JSON store ≠ 系统 crontab；fire 靠 gateway 分钟 tick；cron 会话 skip_memory + 禁交互工具 + Home 投递。</p>
+<hr>
+<h2 id="gateway">扩展：Gateway（消息网关，建议在模块三之后）</h2>
+<p><strong>学习目标</strong>：多渠道入站如何变成同一套 Agent Turn——Session Key 拉历史、双层忙时守卫、Home/Cron 投递。</p>
+<p><strong>教材目录</strong>：<a href="https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/08-hermes-agent/08-gateway"><code>08-gateway/</code></a>——<strong>结构对齐 <a href="https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/08-hermes-agent/04-prompt"><code>04-prompt/</code></a></strong>：<code>notes/</code> + <code>catalog/</code> + <code>hermes_src/</code> + <code>scripts/</code>。鸟瞰见 <a href="../hermes/01-arch.html"><code>01-arch.md</code></a> §5。</p>
+<p><strong>源码精读清单</strong>
+- <code>gateway/platforms/base.py</code>：<code>handle_message</code>（<code>_active_sessions</code> / <code>_pending_messages</code> / bypass）
+- <code>gateway/run.py</code>：<code>GatewayRunner._handle_message</code>、<code>_handle_message_with_agent</code>、<code>start_gateway</code>
+- <code>gateway/session.py</code>：<code>build_session_key</code>、<code>SessionStore.get_or_create_session</code>
+- <code>gateway/delivery.py</code> + <code>config.py</code>：<code>DeliveryRouter</code>、<code>HomeChannel</code>
+- <code>hermes_cli/commands.py</code>：<code>should_bypass_active_session</code>
+- <code>platforms/ADDING_A_PLATFORM.md</code>：新渠道走 plugin，不改 core</p>
+<p><strong>代码目录结构</strong></p>
+<pre><code class="language-text">08-gateway/
+├── README.md
+├── notes/          # 0 地图 → 1 热路径 → 2 session → 3 双守卫 → 4 delivery/cron
+├── catalog/        # 00_index + 01–08 主题索引（对照 excerpts）
+├── hermes_src/     # 全文拷贝 + run.py/base.py 等巨文件摘录
+└── scripts/extract_gateway_map.py
+</code></pre>
+<p><strong>动手</strong>：按 <code>08-gateway/README.md</code> 读 notes/catalog；真仓对 <code>handle_message</code> / <code>_handle_message</code> 打断点。</p>
+<p><strong>面试会讲</strong>：Gateway = MessageEvent + Session Key 拉历史 + <strong>两层守卫（控制命令必须 bypass）</strong> + 同进程 cron/Delivery；按 session 缓存 AIAgent 保 prompt cache。</p>
+<hr>
+<h2 id="sandbox-microvm34">模块五：Sandbox / MicroVM（3~4 天）</h2>
+<p><strong>学习目标</strong>：进程隔离 → 容器 → 轻量 VM 的取舍与安全边界。</p>
+<p><strong>知识点阶梯</strong>
+- 进程级：seccomp / namespace / cgroup。
+- 容器级：Docker 隔离与逃逸面。
+- 轻量 VM：<strong>Firecracker</strong> / gVisor 的定位与 trade-off（启动速度 vs 隔离强度）。</p>
+<p><strong>源码精读清单</strong>
+- 在模块四环境抽象之上，精读 <code>docker.py</code> 的隔离配置与挂载策略。
+- 对照：无隔离的 <code>local.py</code> vs 容器隔离的 <code>docker.py</code>，哪些能力属于「环境」、哪些属于「沙箱加固」。</p>
+<p><strong>动手（核心 demo）</strong>
+- 用 Docker + seccomp（或 gVisor）跑一个「执行任意代码」的最小沙箱：限制系统调用、只读挂载、网络关闭、资源上限。
+- 记录一次「尝试逃逸被拦截」的实验结果。</p>
+<p><strong>面试会讲</strong>
+- 为什么 Agent 执行代码必须隔离；不同隔离级别的成本/安全权衡；MicroVM 适合什么场景。
+- 环境抽象解决「跑在哪」；Sandbox 解决「跑得安不安全」。</p>
+<hr>
+<h2 id="3">收尾：面试输出（第 3 周缓冲）</h2>
+<ul>
+<li><strong>架构对比笔记</strong>：Hermes vs OpenCode/CC 在 Context / 工具 / Sandbox 上的方案差异。</li>
+<li><strong>项目故事（STAR）</strong>：把各模块 demo/PR 串成一条线，对应 JD 关键词逐一能讲。</li>
+<li><strong>一句话定位</strong>：每模块能用一句话说清「读了哪段码 + 做了什么 demo + 拿到什么结论」。</li>
+</ul>
+<hr>
+<h2 id="jd_1">硬核对齐 JD</h2>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>命中 JD 关键词</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>一 Memory</td>
+<td>Memory、Context Policy、核心 Infra</td>
+</tr>
+<tr>
+<td>二 Eval+Trace</td>
+<td>Eval、Benchmark、Observability、Trace Analysis</td>
+</tr>
+<tr>
+<td>三 主循环</td>
+<td>Agent Runtime、Agentic Engineering、啃源码</td>
+</tr>
+<tr>
+<td>四 环境</td>
+<td>Agent Runtime、端云协同、核心 Infra</td>
+</tr>
+<tr>
+<td>五 Sandbox</td>
+<td>Sandbox、MicroVM</td>
+</tr>
+</tbody>
+</table>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags">
+            <span class="chip">Hermes 源码精读</span>
+            <span class="chip">AI Agent</span>
+            <span class="chip">面试宝典</span>
+          </div>
+          <a class="t-meta" href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/08-hermes-agent/03-hermes%20Agent%20%20%E5%AD%A6%E4%B9%A0%E5%A4%A7%E7%BA%B2.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../ai-engineer/llm-scratch/tinymodeltraining.html"><span class="dir">← 上一篇</span><span class="t">Tiny GPT 训练示例</span></a><a class="next" href="../../ai-engineer/hermes/01-arch.html"><span class="dir">下一篇 →</span><span class="t">Hermes Agent 架构详解</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../rag/index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+
+<script src="../../ai-engineer/assets/mermaid-init.js" defer></script>
+<script src="../../js/main.js" defer></script>
+</body>
+</html>

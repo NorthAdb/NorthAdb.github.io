@@ -1,0 +1,1514 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hermes Agent — Architecture Map  - 最终篇 · AI Agent 面试宝典 — NorthAdb 的博客</title>
+<meta name="description" content="对照仓库：hermes-agent../../hermes-agent/ · README · 官方 Architecturehttps://hermes-agent.nousresearch.com/docs/developer-guid…">
+<link rel="canonical" href="https://northadb.github.io/ai-engineer/hermes/04-arch.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Hermes Agent — Architecture Map  - 最终篇 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta property="og:description" content="对照仓库：hermes-agent../../hermes-agent/ · README · 官方 Architecturehttps://hermes-agent.nousresearch.com/docs/developer-guid…">
+<meta property="og:url" content="https://northadb.github.io/ai-engineer/hermes/04-arch.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Hermes Agent — Architecture Map  - 最终篇 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta name="twitter:description" content="对照仓库：hermes-agent../../hermes-agent/ · README · 官方 Architecturehttps://hermes-agent.nousresearch.com/docs/developer-guid…">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../feed.xml">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../ai-engineer/assets/course.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Hermes Agent — Architecture Map  - 最终篇", "description": "对照仓库：hermes-agent../../hermes-agent/ · README · 官方 Architecturehttps://hermes-agent.nousresearch.com/docs/developer-guid…", "author": {"@type": "Person", "name": "juliepy", "url": "https://github.com/juliepy/AI-Engineer-from-scrach"}, "mainEntityOfPage": "https://northadb.github.io/ai-engineer/hermes/04-arch.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../index.html">首页</a><span>/</span><a href="../../learn.html">课件</a><span>/</span><a href="../../ai-engineer/index.html">AI Agent 面试宝典</a><span>/</span><a href="../../ai-engineer/hermes/index.html">Hermes 源码精读</a></div>
+          <h1>Hermes Agent — Architecture Map  - 最终篇</h1>
+          <p class="post-sub">对照仓库：hermes-agent../../hermes-agent/ · README · 官方 Architecturehttps://hermes-agent.nousresearch.com/docs/developer-guid…</p>
+          <div class="post-meta">
+            <span class="avatar">AI</span>
+            <span>AI Agent 面试宝典</span><span class="sep"></span>
+            <span>Hermes 源码精读</span><span class="sep"></span>
+            <span>阅读约 21 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p>对照仓库：<a href="https://github.com/juliepy/AI-Engineer-from-scrach/"><code>hermes-agent</code></a> · README · <a href="https://hermes-agent.nousresearch.com/docs/developer-guide/architecture">官方 Architecture</a><br>
+更深的 Session / Turn / Memory 细讲见 <a href="../hermes/01-arch.html"><code>01-arch.md</code></a></p>
+</blockquote>
+<p><strong>一句话</strong>：多种入口汇入同一个 <code>AIAgent</code> 窄腰；能力长在边缘（Tools / Skills / Plugins / Platforms），核心只做「拼 Context → 调模型 → 跑 Tool → 落盘」。</p>
+<hr>
+<h2 id="jd">JD</h2>
+<ol>
+<li>下一代多模态 Agent Runtime</li>
+<li>Eval、Sandbox、Memory 等核心 Infra</li>
+<li>云端 Agent 服务与端云协同能力</li>
+<li>内部 Harness：Agentify the whole company</li>
+<li>熟悉 TypeScript 与 Node.js 生态</li>
+<li>啃过 CC / Codex / Pi / OpenCode / Hermes 源码</li>
+<li>熟悉 Context Policy、Sandbox、Trace Analysis、Eval 等</li>
+<li>对 Agentic Engineering 有深入 insight</li>
+<li>做过 Agent Runtime / Sandbox / MicroVM</li>
+<li>做过 Evaluation / Benchmark / Observability</li>
+<li>有多模态 Agent / 算法相关经验</li>
+</ol>
+<hr>
+<h2 id="1">1. 仓库目录速查</h2>
+<pre><code class="language-text">hermes-agent/
+├── run_agent.py          # 🔴 AIAgent 核心循环
+├── cli.py                # 🟡 经典交互 CLI
+├── model_tools.py        # 工具编排入口
+├── toolsets.py           # toolset 定义 / 平台预设
+├── hermes_state.py       # 🟢 SQLite + FTS5
+├── hermes_constants.py   # get_hermes_home() · profile 路径
+├── batch_runner.py       # 轨迹批跑
+│
+├── agent/                # Prompt / Cache / Memory / Display
+├── hermes_cli/           # hermes 子命令 · setup · plugins · skin
+├── tools/                # 工具实现 + environments/
+├── gateway/              # 消息网关 + platforms/
+├── cron/                 # jobs.py · scheduler.py
+├── plugins/              # memory / context_engine / model-providers / platforms / …
+├── skills/               # 内置 skills（默认可用）
+├── optional-skills/      # 需显式 install
+├── ui-tui/ + tui_gateway/# Ink TUI
+├── apps/desktop/         # Electron Desktop（独立聊天面）
+├── acp_adapter/          # IDE ACP
+├── web/ + website/       # Dashboard + Docs
+└── tests/                # pytest（务必 scripts/run_tests.sh）
+</code></pre>
+<p>用户状态落盘：</p>
+<table>
+<thead>
+<tr>
+<th>路径</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>~/.hermes/config.yaml</code></td>
+<td>行为配置（非密钥）</td>
+</tr>
+<tr>
+<td><code>~/.hermes/.env</code></td>
+<td><strong>仅</strong> API keys / tokens</td>
+</tr>
+<tr>
+<td><code>~/.hermes/memories/</code></td>
+<td>USER.md · MEMORY.md</td>
+</tr>
+<tr>
+<td><code>~/.hermes/SOUL.md</code></td>
+<td>人格</td>
+</tr>
+<tr>
+<td><code>~/.hermes/cron/jobs.json</code></td>
+<td>定时任务</td>
+</tr>
+<tr>
+<td>Profile</td>
+<td><code>hermes -p &lt;name&gt;</code> → 独立 <code>HERMES_HOME</code></td>
+</tr>
+</tbody>
+</table>
+<p>Windows 原生安装常见根：<code>%LOCALAPPDATA%\hermes</code>（与 WSL/<code>~/.hermes</code> 不同）。</p>
+<hr>
+<h2 id="2">2. 系统全景</h2>
+<pre><code class="language-mermaid">%%{init: {
+  &quot;theme&quot;: &quot;base&quot;,
+  &quot;themeVariables&quot;: {
+    &quot;fontSize&quot;: &quot;15px&quot;,
+    &quot;primaryColor&quot;: &quot;#FFF3B0&quot;,
+    &quot;primaryTextColor&quot;: &quot;#1a1a1a&quot;,
+    &quot;primaryBorderColor&quot;: &quot;#E6B800&quot;,
+    &quot;lineColor&quot;: &quot;#90CAF9&quot;,
+    &quot;secondaryColor&quot;: &quot;#C8E6C9&quot;,
+    &quot;tertiaryColor&quot;: &quot;#BBDEFB&quot;,
+    &quot;clusterBkg&quot;: &quot;transparent&quot;,
+    &quot;clusterBorder&quot;: &quot;#78909C&quot;,
+    &quot;titleColor&quot;: &quot;#ECEFF1&quot;,
+    &quot;edgeLabelBackground&quot;: &quot;#BBDEFB&quot;,
+    &quot;edgeLabelColor&quot;: &quot;#0D47A1&quot;
+  }
+}}%%
+flowchart TB
+    subgraph Entry[&quot;🟡 Entry Points 接入层&quot;]
+        CLI[&quot;CLI&lt;br/&gt;cli.py&quot;]
+        TUI[&quot;TUI&lt;br/&gt;ui-tui + tui_gateway&quot;]
+        DESK[&quot;Desktop&lt;br/&gt;apps/desktop&quot;]
+        GW[&quot;Gateway&lt;br/&gt;gateway/run.py&quot;]
+        ACP[&quot;ACP&lt;br/&gt;acp_adapter/&quot;]
+        BATCH[&quot;Batch&lt;br/&gt;batch_runner.py&quot;]
+        API[&quot;API Server&quot;]
+    end
+
+    subgraph Core[&quot;🔴 AIAgent 窄腰 · run_agent.py&quot;]
+        PB[&quot;Prompt Builder&quot;]
+        PR[&quot;Provider Resolution&quot;]
+        TD[&quot;Tool Dispatch&quot;]
+        CC[&quot;Compression &amp; Caching&quot;]
+        API3[&quot;3 API Modes&lt;br/&gt;chat · codex · anthropic&quot;]
+        REG[&quot;Tool Registry&lt;br/&gt;70+ tools / ~28 toolsets&quot;]
+        PB --- PR --- TD
+        CC --- API3 --- REG
+    end
+
+    subgraph Persist[&quot;🟢 Persistence&quot;]
+        DB[&quot;SessionDB&lt;br/&gt;SQLite + FTS5&quot;]
+        FILES[&quot;SOUL / MEMORY / USER.md&quot;]
+    end
+
+    subgraph Edge[&quot;🔵 Capability Edges&quot;]
+        TERM[&quot;Terminal ×6&quot;]
+        BR[&quot;Browser ×5&quot;]
+        WEB[&quot;Web ×4&quot;]
+        MCP[&quot;MCP dynamic&quot;]
+        MEM[&quot;Memory Providers&quot;]
+        CRON[&quot;Cron Scheduler&quot;]
+        PLAT[&quot;25+ Platforms&quot;]
+    end
+
+    CLI &amp; TUI &amp; DESK &amp; GW &amp; ACP &amp; BATCH &amp; API --&gt; Core
+    Core --&gt; Persist
+    Core --&gt; Edge
+    GW -.-&gt; PLAT
+    CRON -.-&gt; GW
+
+    style CLI fill:#FFF59D,stroke:#F9A825,color:#212121
+    style TUI fill:#FFF59D,stroke:#F9A825,color:#212121
+    style DESK fill:#FFF59D,stroke:#F9A825,color:#212121
+    style GW fill:#FFF59D,stroke:#F9A825,color:#212121
+    style ACP fill:#FFF59D,stroke:#F9A825,color:#212121
+    style BATCH fill:#FFF59D,stroke:#F9A825,color:#212121
+    style API fill:#FFF59D,stroke:#F9A825,color:#212121
+    style PB fill:#EF9A9A,stroke:#C62828,color:#212121
+    style PR fill:#EF9A9A,stroke:#C62828,color:#212121
+    style TD fill:#EF9A9A,stroke:#C62828,color:#212121
+    style CC fill:#EF9A9A,stroke:#C62828,color:#212121
+    style API3 fill:#EF9A9A,stroke:#C62828,color:#212121
+    style REG fill:#EF9A9A,stroke:#C62828,color:#212121
+    style DB fill:#A5D6A7,stroke:#2E7D32,color:#212121
+    style FILES fill:#A5D6A7,stroke:#2E7D32,color:#212121
+    style TERM fill:#90CAF9,stroke:#1565C0,color:#212121
+    style BR fill:#90CAF9,stroke:#1565C0,color:#212121
+    style WEB fill:#90CAF9,stroke:#1565C0,color:#212121
+    style MCP fill:#90CAF9,stroke:#1565C0,color:#212121
+    style MEM fill:#90CAF9,stroke:#1565C0,color:#212121
+    style CRON fill:#90CAF9,stroke:#1565C0,color:#212121
+    style PLAT fill:#90CAF9,stroke:#1565C0,color:#212121
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>颜色层</th>
+<th>职责</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>黄 · Entry</td>
+<td>只做 I/O 与会话路由，不实现 Agent 逻辑</td>
+</tr>
+<tr>
+<td>红 · Core</td>
+<td>唯一对话引擎；平台差异不进这里</td>
+</tr>
+<tr>
+<td>绿 · Persist</td>
+<td>transcript / 人格记忆落盘</td>
+</tr>
+<tr>
+<td>蓝 · Edges</td>
+<td>Tool 后端、渠道、Cron、可插拔记忆</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="3">3. 设计原则（读代码时的透镜）</h2>
+<pre><code class="language-mermaid">%%{init: {
+  &quot;theme&quot;: &quot;base&quot;,
+  &quot;themeVariables&quot;: {
+    &quot;fontSize&quot;: &quot;14px&quot;,
+    &quot;primaryColor&quot;: &quot;#FFF59D&quot;,
+    &quot;primaryTextColor&quot;: &quot;#212121&quot;,
+    &quot;primaryBorderColor&quot;: &quot;#F9A825&quot;,
+    &quot;lineColor&quot;: &quot;#B0BEC5&quot;,
+    &quot;mainBkg&quot;: &quot;#FFF59D&quot;,
+    &quot;textColor&quot;: &quot;#ECEFF1&quot;
+  }
+}}%%
+mindmap
+  root((Hermes Design))
+    Prompt Caching 神圣
+      Session 内 SP 尽量冻结
+      禁止中途换 toolset
+      唯一例外: Compression
+    窄腰宽边缘
+      Core 不加廉价 Tool
+      Skill / CLI / Plugin / MCP 优先
+    平台无关 Core
+      CLI Gateway ACP Batch 共用 AIAgent
+    可观察可打断
+      Tool 回调可见
+      Ctrl+C /stop 可中断
+    Profile 隔离
+      每 profile 独立 HERMES_HOME
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>原则</th>
+<th>落地</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Prompt stability</strong></td>
+<td>System prompt 会话内不变；禁 mid-conversation 重建（压缩除外）</td>
+</tr>
+<tr>
+<td><strong>Platform-agnostic core</strong></td>
+<td>差异在入口，不在 <code>run_agent.py</code></td>
+</tr>
+<tr>
+<td><strong>Loose coupling</strong></td>
+<td>MCP / plugins / memory 用 registry + <code>check_fn</code>，非硬依赖</td>
+</tr>
+<tr>
+<td><strong>Footprint ladder</strong></td>
+<td>扩展优先：改现有 → CLI+Skill → 门控 Tool → Plugin → MCP → 新核心 Tool</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="4-agent-runtime">4. Agent Runtime（运行时详解）</h2>
+<blockquote>
+<p>源码主链：<code>run_agent.py</code>（forwarder）→ <code>agent/conversation_loop.py</code>（真 while）→ <code>agent/turn_context.py</code>（prologue）→ <code>agent/turn_finalizer.py</code>（收尾）<br>
+细讲笔记：<a href="https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/08-hermes-agent/02-run-agent"><code>02-run-agent/</code></a> · 官方 <a href="https://hermes-agent.nousresearch.com/docs/developer-guide/agent-loop">Agent Loop</a></p>
+</blockquote>
+<p><strong>一句话</strong>：一条用户消息 = <strong>1 次 Prologue</strong> + <strong>N 次 API/Tool 循环</strong> + <strong>1 次 Finalize</strong>。Runtime 只管编排；平台 I/O 在入口，能力在 Tool 边缘。</p>
+<h3 id="41-runtime">4.1 Runtime 分层鸟瞰</h3>
+<pre><code class="language-mermaid">%%{init: {
+  &quot;theme&quot;: &quot;base&quot;,
+  &quot;themeVariables&quot;: {
+    &quot;fontSize&quot;: &quot;14px&quot;,
+    &quot;primaryColor&quot;: &quot;#FFCDD2&quot;,
+    &quot;primaryTextColor&quot;: &quot;#212121&quot;,
+    &quot;lineColor&quot;: &quot;#90CAF9&quot;,
+    &quot;clusterBkg&quot;: &quot;transparent&quot;,
+    &quot;clusterBorder&quot;: &quot;#78909C&quot;,
+    &quot;titleColor&quot;: &quot;#ECEFF1&quot;,
+    &quot;edgeLabelBackground&quot;: &quot;#BBDEFB&quot;,
+    &quot;edgeLabelColor&quot;: &quot;#0D47A1&quot;
+  }
+}}%%
+flowchart TB
+    subgraph Entry[&quot;🟡 入口壳&quot;]
+        E1[&quot;CLI / TUI / Desktop / Gateway / ACP / Cron&quot;]
+    end
+
+    subgraph Runtime[&quot;🔴 Agent Runtime&quot;]
+        direction TB
+        RA[&quot;AIAgent&lt;br/&gt;run_agent.py&quot;]
+        TC[&quot;① turn_context&lt;br/&gt;build_turn_context&quot;]
+        CL[&quot;② conversation_loop&lt;br/&gt;while API ↔ Tools&quot;]
+        TF[&quot;③ turn_finalizer&lt;br/&gt;persist + memory flush&quot;]
+        RA --&gt; TC --&gt; CL --&gt; TF
+    end
+
+    subgraph Support[&quot;🟣 支撑子系统&quot;]
+        PB[&quot;prompt_builder / system_prompt&quot;]
+        PR[&quot;runtime_provider&quot;]
+        MT[&quot;model_tools + registry&quot;]
+        CMP[&quot;context_compressor&quot;]
+        AUX[&quot;auxiliary_client&quot;]
+        BUD[&quot;IterationBudget&quot;]
+    end
+
+    subgraph Out[&quot;🟢 出口&quot;]
+        DB[&quot;SessionDB&quot;]
+        CB[&quot;callbacks · spinner · delivery&quot;]
+    end
+
+    Entry --&gt; Runtime
+    Runtime -.-&gt; Support
+    TF --&gt; Out
+
+    style E1 fill:#FFF59D,stroke:#F9A825,color:#212121
+    style RA fill:#EF9A9A,stroke:#C62828,color:#212121
+    style TC fill:#FFF59D,stroke:#F9A825,color:#212121
+    style CL fill:#FFCC80,stroke:#EF6C00,color:#212121
+    style TF fill:#A5D6A7,stroke:#2E7D32,color:#212121
+    style PB fill:#CE93D8,stroke:#8E24AA,color:#212121
+    style PR fill:#CE93D8,stroke:#8E24AA,color:#212121
+    style MT fill:#CE93D8,stroke:#8E24AA,color:#212121
+    style CMP fill:#CE93D8,stroke:#8E24AA,color:#212121
+    style AUX fill:#CE93D8,stroke:#8E24AA,color:#212121
+    style BUD fill:#CE93D8,stroke:#8E24AA,color:#212121
+    style DB fill:#A5D6A7,stroke:#2E7D32,color:#212121
+    style CB fill:#A5D6A7,stroke:#2E7D32,color:#212121
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>文件</th>
+<th>每用户 Turn 跑几次</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Prologue</td>
+<td><code>turn_context.py</code></td>
+<td><strong>1</strong> — 拼 messages、复用/建 SP、预压缩</td>
+</tr>
+<tr>
+<td>Loop</td>
+<td><code>conversation_loop.py</code></td>
+<td><strong>N</strong> — 调模型 + 跑 tool</td>
+</tr>
+<tr>
+<td>Finalize</td>
+<td><code>turn_finalizer.py</code></td>
+<td><strong>1</strong> — 落库、memory/skill 回顾、返回 dict</td>
+</tr>
+</tbody>
+</table>
+<h3 id="42-turn">4.2 一个 Turn 的主干状态机</h3>
+<pre><code class="language-mermaid">%%{init: {
+  &quot;theme&quot;: &quot;base&quot;,
+  &quot;themeVariables&quot;: {
+    &quot;fontSize&quot;: &quot;14px&quot;,
+    &quot;primaryColor&quot;: &quot;#FFCDD2&quot;,
+    &quot;primaryTextColor&quot;: &quot;#212121&quot;,
+    &quot;lineColor&quot;: &quot;#90CAF9&quot;,
+    &quot;edgeLabelBackground&quot;: &quot;#BBDEFB&quot;,
+    &quot;edgeLabelColor&quot;: &quot;#0D47A1&quot;
+  }
+}}%%
+flowchart TD
+    U[&quot;👤 User Message&quot;] --&gt; P[&quot;① Prologue&lt;br/&gt;build_turn_context&quot;]
+    P --&gt; CX{&quot;Codex 专用模式?&quot;}
+    CX --&gt;|是| CDX[&quot;整 turn 交给 Codex 子进程&quot;]
+    CX --&gt;|否| W[&quot;② while 循环&quot;]
+
+    W --&gt; INT{&quot;/stop · interrupt?&quot;}
+    INT --&gt;|是| F
+    INT --&gt;|否| BUD[&quot;扣 IterationBudget&lt;br/&gt;grace 轮不扣&quot;]
+    BUD --&gt; PRE[&quot;③ Pre-API&lt;br/&gt;修 role · steer · 可选再压&quot;]
+    PRE --&gt; API[&quot;④ LLM API Call&lt;br/&gt;tools=schema&quot;]
+    API --&gt; ERR{&quot;失败?&quot;}
+    ERR --&gt;|是| BYP[&quot;旁路: retry / compress / failover&quot;]
+    BYP --&gt; W
+    ERR --&gt;|否| TC{&quot;有 tool_calls?&quot;}
+
+    TC --&gt;|无| TXT[&quot;⑥ 纯文本回复&quot;]
+    TXT --&gt; VER{&quot;需 verify / 续跑?&quot;}
+    VER --&gt;|是| W
+    VER --&gt;|否| GRACE
+    TC --&gt;|有| EX[&quot;⑤ 执行 Tools&quot;]
+    EX --&gt; APP[&quot;append assistant + tool msgs&quot;]
+    APP --&gt; W
+
+    GRACE{&quot;⑦ 预算尽且末条是 tool?&quot;}
+    GRACE --&gt;|是| GCALL[&quot;再调一次 API&lt;br/&gt;通常禁用 tools 收尾&quot;]
+    GRACE --&gt;|否| F
+    GCALL --&gt; F
+    CDX --&gt; F
+    F[&quot;⑧ Finalize&lt;br/&gt;DB + Memory Update&quot;] --&gt; DONE[&quot;✅ 返回 dict&quot;]
+
+    style U fill:#90CAF9,stroke:#1565C0,color:#212121
+    style P fill:#FFF59D,stroke:#F9A825,color:#212121
+    style W fill:#FFCC80,stroke:#EF6C00,color:#212121
+    style API fill:#FFAB91,stroke:#D84315,color:#212121
+    style EX fill:#A5D6A7,stroke:#43A047,color:#212121
+    style F fill:#A5D6A7,stroke:#2E7D32,color:#212121
+    style DONE fill:#E0E0E0,stroke:#616161,color:#212121
+    style CX fill:#BBDEFB,stroke:#1565C0,color:#212121
+    style INT fill:#BBDEFB,stroke:#1565C0,color:#212121
+    style ERR fill:#BBDEFB,stroke:#1565C0,color:#212121
+    style TC fill:#BBDEFB,stroke:#1565C0,color:#212121
+    style VER fill:#BBDEFB,stroke:#1565C0,color:#212121
+    style GRACE fill:#BBDEFB,stroke:#1565C0,color:#212121
+</code></pre>
+<h3 id="43-while">4.3 while 内：思考 → 工具 → 观察</h3>
+<pre><code class="language-mermaid">%%{init: {
+  &quot;theme&quot;: &quot;base&quot;,
+  &quot;themeVariables&quot;: {
+    &quot;fontSize&quot;: &quot;15px&quot;,
+    &quot;primaryColor&quot;: &quot;#FFCDD2&quot;,
+    &quot;primaryTextColor&quot;: &quot;#212121&quot;,
+    &quot;lineColor&quot;: &quot;#90CAF9&quot;,
+    &quot;edgeLabelBackground&quot;: &quot;#BBDEFB&quot;,
+    &quot;edgeLabelColor&quot;: &quot;#0D47A1&quot;
+  }
+}}%%
+flowchart TD
+    BUILD[&quot;🧩 Prologue 已就绪&lt;br/&gt;SP + history + user&quot;] --&gt; CALL[&quot;📡 LLM API&quot;]
+    CALL --&gt; DEC{tool_calls?}
+    DEC --&gt;|Yes| EXEC[&quot;⚙️ invoke / handle_function_call&quot;]
+    EXEC --&gt; FEED[&quot;📥 append role=tool&quot;]
+    FEED --&gt; CALL
+    DEC --&gt;|No| OUT[&quot;💬 Final response&quot;]
+    OUT --&gt; SAVE[&quot;💾 Finalize&quot;]
+
+    style BUILD fill:#FFF59D,stroke:#F9A825,color:#212121
+    style CALL fill:#FFCCBC,stroke:#E64A19,color:#212121
+    style EXEC fill:#C8E6C9,stroke:#43A047,color:#212121
+    style FEED fill:#C8E6C9,stroke:#43A047,color:#212121
+    style OUT fill:#81D4FA,stroke:#0288D1,color:#212121
+    style SAVE fill:#DCEDC8,stroke:#689F38,color:#212121
+    style DEC fill:#BBDEFB,stroke:#1565C0,color:#212121
+</code></pre>
+<p>三个刹车（防死循环）：</p>
+<table>
+<thead>
+<tr>
+<th>机制</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>max_iterations</code></td>
+<td>硬上限（默认约 90，与 subagent 共享语义）</td>
+</tr>
+<tr>
+<td><code>IterationBudget</code></td>
+<td>可 consume / refund（部分 housekeeping tool 可退回）</td>
+</tr>
+<tr>
+<td><code>_budget_grace_call</code></td>
+<td>预算用尽后再给 <strong>一次</strong> 纯文本收尾</td>
+</tr>
+<tr>
+<td><code>_interrupt_requested</code></td>
+<td>用户 <code>/stop</code> / Ctrl+C；工具级也可取消</td>
+</tr>
+</tbody>
+</table>
+<h3 id="44-tool-agent-vs-registry">4.4 Tool 执行路径（Agent 级截胡 vs Registry）</h3>
+<pre><code class="language-mermaid">%%{init: {
+  &quot;theme&quot;: &quot;base&quot;,
+  &quot;themeVariables&quot;: {
+    &quot;fontSize&quot;: &quot;14px&quot;,
+    &quot;primaryColor&quot;: &quot;#E8F5E9&quot;,
+    &quot;primaryTextColor&quot;: &quot;#212121&quot;,
+    &quot;lineColor&quot;: &quot;#81C784&quot;,
+    &quot;edgeLabelBackground&quot;: &quot;#BBDEFB&quot;,
+    &quot;edgeLabelColor&quot;: &quot;#0D47A1&quot;
+  }
+}}%%
+flowchart LR
+    TC[&quot;assistant.tool_calls&quot;] --&gt; NAME{&quot;tool name?&quot;}
+    NAME --&gt;|todo / memory 等| AG[&quot;🔴 Agent 级截胡&lt;br/&gt;run_agent 内直接调&quot;]
+    NAME --&gt;|其它| REG[&quot;🟢 registry.dispatch&lt;br/&gt;tools/*.py handler&quot;]
+    AG --&gt; JSON[&quot;返回 JSON str&quot;]
+    REG --&gt; JSON
+    JSON --&gt; MSG[&quot;append role=tool&quot;]
+    MSG --&gt; LOOP[&quot;continue while&quot;]
+
+    style TC fill:#FFCC80,stroke:#EF6C00,color:#212121
+    style AG fill:#EF9A9A,stroke:#C62828,color:#212121
+    style REG fill:#A5D6A7,stroke:#2E7D32,color:#212121
+    style JSON fill:#FFF59D,stroke:#F9A825,color:#212121
+</code></pre>
+<p>Schema 在会话开始前就定好：<code>tools/*.py</code> register → <code>model_tools</code> 发现 → toolset 过滤 → 每次 API 的 <code>tools=</code>。中途换 toolset = 废 prompt cache，Runtime 禁止。</p>
+<h3 id="45-role">4.5 消息 role 时序（铁律）</h3>
+<pre><code class="language-mermaid">%%{init: {
+  &quot;theme&quot;: &quot;base&quot;,
+  &quot;themeVariables&quot;: {
+    &quot;fontSize&quot;: &quot;13px&quot;,
+    &quot;actorBkg&quot;: &quot;#BBDEFB&quot;,
+    &quot;actorBorder&quot;: &quot;#1565C0&quot;,
+    &quot;actorTextColor&quot;: &quot;#212121&quot;,
+    &quot;signalColor&quot;: &quot;#90CAF9&quot;,
+    &quot;signalTextColor&quot;: &quot;#ECEFF1&quot;,
+    &quot;noteBkgColor&quot;: &quot;#FFF59D&quot;,
+    &quot;noteTextColor&quot;: &quot;#212121&quot;,
+    &quot;noteBorderColor&quot;: &quot;#F9A825&quot;
+  }
+}}%%
+sequenceDiagram
+    autonumber
+    participant S as system(cached)
+    participant U as user
+    participant A as assistant
+    participant T as tool
+
+    Note over S: Session 内字节稳定
+    U-&gt;&gt;A: Turn 开始
+    A-&gt;&gt;T: tool_call #1
+    T--&gt;&gt;A: result #1
+    A-&gt;&gt;T: tool_call #2
+    T--&gt;&gt;A: result #2
+    A--&gt;&gt;U: 最终纯文本
+
+    Note over S,T: 禁止两条同 role 连发&lt;br/&gt;禁止中途插入合成 user
+</code></pre>
+<p>内部统一 OpenAI 消息形：<code>role</code> / <code>content</code> / <code>tool_calls</code>；<code>reasoning</code> 存在 <code>assistant_msg["reasoning"]</code>。三种 API Mode 在进出 API 边界做格式转换，Loop 内看到的始终是这套。</p>
+<h3 id="46-api-mode">4.6 三条 API Mode</h3>
+<pre><code class="language-mermaid">%%{init: {
+  &quot;theme&quot;: &quot;base&quot;,
+  &quot;themeVariables&quot;: {
+    &quot;fontSize&quot;: &quot;14px&quot;,
+    &quot;primaryColor&quot;: &quot;#BBDEFB&quot;,
+    &quot;primaryTextColor&quot;: &quot;#212121&quot;,
+    &quot;primaryBorderColor&quot;: &quot;#1565C0&quot;,
+    &quot;secondaryColor&quot;: &quot;#BBDEFB&quot;,
+    &quot;tertiaryColor&quot;: &quot;#E3F2FD&quot;,
+    &quot;lineColor&quot;: &quot;#64B5F6&quot;,
+    &quot;mainBkg&quot;: &quot;#BBDEFB&quot;,
+    &quot;nodeBorder&quot;: &quot;#1565C0&quot;,
+    &quot;edgeLabelBackground&quot;: &quot;#BBDEFB&quot;,
+    &quot;edgeLabelColor&quot;: &quot;#0D47A1&quot;
+  }
+}}%%
+flowchart TB
+    IN[&quot;Internal messages&lt;br/&gt;OpenAI-style dicts&quot;] --&gt; MODE{&quot;api_mode&quot;}
+    MODE --&gt;|chat_completions| OC[&quot;openai.OpenAI&lt;br/&gt;Chat Completions&quot;]
+    MODE --&gt;|codex_responses| RX[&quot;Responses / Codex 格式&quot;]
+    MODE --&gt;|anthropic_messages| AN[&quot;anthropic adapter&lt;br/&gt;+ cache breakpoints&quot;]
+    OC &amp; RX &amp; AN --&gt; OUT[&quot;解析回统一 messages&quot;]
+
+    style IN fill:#90CAF9,stroke:#1565C0,color:#212121
+    style MODE fill:#BBDEFB,stroke:#1565C0,color:#212121
+    style OC fill:#BBDEFB,stroke:#1565C0,color:#212121
+    style RX fill:#BBDEFB,stroke:#1565C0,color:#212121
+    style AN fill:#BBDEFB,stroke:#1565C0,color:#212121
+    style OUT fill:#FFF59D,stroke:#F9A825,color:#212121
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>用途</th>
+<th>解析优先级</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>chat_completions</code></td>
+<td>OpenRouter / 多数兼容端</td>
+<td>默认</td>
+</tr>
+<tr>
+<td><code>codex_responses</code></td>
+<td>Codex / Responses API</td>
+<td>显式或 provider 探测</td>
+</tr>
+<tr>
+<td><code>anthropic_messages</code></td>
+<td>原生 Anthropic + cache</td>
+<td><code>anthropic</code> provider / <code>api.anthropic.com</code></td>
+</tr>
+</tbody>
+</table>
+<p>解析顺序：构造参数 <code>api_mode</code> → provider 特判 → base_url 启发 → 默认 <code>chat_completions</code>。</p>
+<h3 id="47-runtime">4.7 Runtime 与周边职责边界</h3>
+<table>
+<thead>
+<tr>
+<th>关注点</th>
+<th>Runtime 做</th>
+<th>Runtime 不做</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>会话路由</td>
+<td>接收已解析的 history / session_id</td>
+<td>Gateway Session Key / 排队</td>
+</tr>
+<tr>
+<td>Prompt</td>
+<td>复用缓存 SP；压缩时重建</td>
+<td>每轮重读 SOUL/MEMORY 进 SP</td>
+</tr>
+<tr>
+<td>Tool</td>
+<td>截胡 + registry 分发</td>
+<td>新增核心 tool 的产品决策</td>
+</tr>
+<tr>
+<td>预算</td>
+<td>iterations / budget / grace / interrupt</td>
+<td>平台侧消息防抖</td>
+</tr>
+<tr>
+<td>落盘</td>
+<td>Finalize 写 SessionDB / flush memory</td>
+<td>Cron 的 Home 投递策略</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="5">5. 三条主数据流</h2>
+<h3 id="51-cli-tui-desktop">5.1 CLI / TUI / Desktop</h3>
+<pre><code class="language-mermaid">%%{init: {
+  &quot;theme&quot;: &quot;base&quot;,
+  &quot;themeVariables&quot;: {
+    &quot;fontSize&quot;: &quot;14px&quot;,
+    &quot;actorBkg&quot;: &quot;#BBDEFB&quot;,
+    &quot;actorBorder&quot;: &quot;#1565C0&quot;,
+    &quot;actorTextColor&quot;: &quot;#212121&quot;,
+    &quot;signalColor&quot;: &quot;#4FC3F7&quot;,
+    &quot;signalTextColor&quot;: &quot;#FFFFFF&quot;,
+    &quot;sequenceNumberColor&quot;: &quot;#FFFFFF&quot;,
+    &quot;labelBoxBkgColor&quot;: &quot;#37474F&quot;,
+    &quot;labelBoxBorderColor&quot;: &quot;#4FC3F7&quot;,
+    &quot;labelTextColor&quot;: &quot;#FFFFFF&quot;,
+    &quot;loopTextColor&quot;: &quot;#FFFFFF&quot;,
+    &quot;noteBkgColor&quot;: &quot;#FFF59D&quot;,
+    &quot;noteTextColor&quot;: &quot;#212121&quot;,
+    &quot;noteBorderColor&quot;: &quot;#F9A825&quot;
+  }
+}}%%
+sequenceDiagram
+    autonumber
+    participant U as User
+    participant UI as CLI / TUI / Desktop
+    participant A as AIAgent
+    participant P as Provider
+    participant T as Tools
+    participant DB as SessionDB
+
+    U-&gt;&gt;UI: 输入 / 点击发送
+    UI-&gt;&gt;A: run_conversation()
+    A-&gt;&gt;A: build_system_prompt + resolve provider
+    A-&gt;&gt;P: chat/completions | messages
+    loop Tool loop
+        P--&gt;&gt;A: tool_calls
+        A-&gt;&gt;T: handle_function_call
+        T--&gt;&gt;A: JSON result
+        A-&gt;&gt;P: 回灌 messages
+    end
+    P--&gt;&gt;A: final content
+    A-&gt;&gt;DB: persist transcript
+    A--&gt;&gt;UI: 展示回复
+</code></pre>
+<h3 id="52-messaging-gateway">5.2 Messaging Gateway</h3>
+<pre><code class="language-mermaid">%%{init: {
+  &quot;theme&quot;: &quot;base&quot;,
+  &quot;themeVariables&quot;: {
+    &quot;fontSize&quot;: &quot;14px&quot;,
+    &quot;primaryColor&quot;: &quot;#B2EBF2&quot;,
+    &quot;primaryTextColor&quot;: &quot;#212121&quot;,
+    &quot;lineColor&quot;: &quot;#4FC3F7&quot;,
+    &quot;clusterBkg&quot;: &quot;transparent&quot;,
+    &quot;clusterBorder&quot;: &quot;#90A4AE&quot;,
+    &quot;titleColor&quot;: &quot;#ECEFF1&quot;,
+    &quot;edgeLabelBackground&quot;: &quot;#BBDEFB&quot;,
+    &quot;edgeLabelColor&quot;: &quot;#0D47A1&quot;
+  }
+}}%%
+flowchart LR
+    subgraph Platforms[&quot;紫 · Platforms&quot;]
+        TG[&quot;Telegram&quot;]
+        DC[&quot;Discord&quot;]
+        SL[&quot;Slack&quot;]
+        WA[&quot;WhatsApp&quot;]
+        SIG[&quot;Signal&quot;]
+        MORE[&quot;… 20+&quot;]
+    end
+
+    subgraph GW[&quot;青 · GatewayRunner&quot;]
+        AUTH[&quot;Authorize&quot;]
+        SK[&quot;Session Key&quot;]
+        HYG[&quot;Hygiene ~85%&quot;]
+        HIST[&quot;Load history&quot;]
+        SM[&quot;queue / interrupt / steer&quot;]
+    end
+
+    AGENT[&quot;红 · AIAgent&quot;]
+    DELIV[&quot;绿 · Delivery&quot;]
+
+    TG &amp; DC &amp; SL &amp; WA &amp; SIG &amp; MORE --&gt; AUTH
+    AUTH --&gt; SK --&gt; HYG --&gt; HIST --&gt; SM --&gt; AGENT --&gt; DELIV
+    DELIV --&gt; TG &amp; DC &amp; SL &amp; WA &amp; SIG &amp; MORE
+
+    style TG fill:#CE93D8,stroke:#8E24AA,color:#212121
+    style DC fill:#CE93D8,stroke:#8E24AA,color:#212121
+    style SL fill:#CE93D8,stroke:#8E24AA,color:#212121
+    style WA fill:#CE93D8,stroke:#8E24AA,color:#212121
+    style SIG fill:#CE93D8,stroke:#8E24AA,color:#212121
+    style MORE fill:#CE93D8,stroke:#8E24AA,color:#212121
+    style AUTH fill:#80CBC4,stroke:#00897B,color:#212121
+    style SK fill:#80CBC4,stroke:#00897B,color:#212121
+    style HYG fill:#80CBC4,stroke:#00897B,color:#212121
+    style HIST fill:#80CBC4,stroke:#00897B,color:#212121
+    style SM fill:#80CBC4,stroke:#00897B,color:#212121
+    style AGENT fill:#EF9A9A,stroke:#C62828,color:#212121
+    style DELIV fill:#A5D6A7,stroke:#2E7D32,color:#212121
+</code></pre>
+<p>Session Key 形态：<code>{platform}:{provider_session_id}:…</code> —— Gateway 每次只收到「最新一条」，必须靠 SQLite 还原整段历史。</p>
+<h3 id="53-cron">5.3 Cron</h3>
+<pre><code class="language-mermaid">%%{init: {
+  &quot;theme&quot;: &quot;base&quot;,
+  &quot;themeVariables&quot;: {
+    &quot;fontSize&quot;: &quot;14px&quot;,
+    &quot;primaryColor&quot;: &quot;#FFE0B2&quot;,
+    &quot;primaryTextColor&quot;: &quot;#212121&quot;,
+    &quot;lineColor&quot;: &quot;#FFB74D&quot;,
+    &quot;edgeLabelBackground&quot;: &quot;#BBDEFB&quot;,
+    &quot;edgeLabelColor&quot;: &quot;#0D47A1&quot;
+  }
+}}%%
+flowchart TD
+    TICK[&quot;⏱ Scheduler tick&quot;] --&gt; LOCK[&quot;🔒 .tick.lock&quot;]
+    LOCK --&gt; LOAD[&quot;📖 jobs.json 到期 Job&quot;]
+    LOAD --&gt; FRESH[&quot;🆕 Fresh AIAgent&lt;br/&gt;skip_memory · 无主会话历史&quot;]
+    FRESH --&gt; SKILL[&quot;📎 注入 attached skills&quot;]
+    SKILL --&gt; RUN[&quot;▶ 跑 Job prompt&quot;]
+    RUN --&gt; OUT[&quot;📁 cron/output/&amp;lt;job_id&amp;gt;/&quot;]
+    OUT --&gt; HOME[&quot;📬 投递到目标平台 / Home&quot;]
+    HOME --&gt; NEXT[&quot;🗓 更新 next_run&quot;]
+
+    style TICK fill:#FFE0B2,stroke:#EF6C00,color:#212121
+    style FRESH fill:#EF9A9A,stroke:#C62828,color:#212121
+    style HOME fill:#80CBC4,stroke:#00695C,color:#212121
+</code></pre>
+<p>Cron 是 <strong>Agent 任务</strong>（不是 shell crontab）。交付与主 Gateway 会话隔离，避免破坏消息 role 交替。</p>
+<hr>
+<h2 id="6-tool">6. Tool 系统与依赖链</h2>
+<pre><code class="language-mermaid">%%{init: {
+  &quot;theme&quot;: &quot;base&quot;,
+  &quot;themeVariables&quot;: {
+    &quot;fontSize&quot;: &quot;15px&quot;,
+    &quot;primaryColor&quot;: &quot;#E8F5E9&quot;,
+    &quot;primaryTextColor&quot;: &quot;#212121&quot;,
+    &quot;lineColor&quot;: &quot;#81C784&quot;,
+    &quot;edgeLabelBackground&quot;: &quot;#BBDEFB&quot;,
+    &quot;edgeLabelColor&quot;: &quot;#0D47A1&quot;
+  }
+}}%%
+flowchart TB
+    R[&quot;tools/registry.py&lt;br/&gt;无依赖 · 中央注册表&quot;]
+    T[&quot;tools/*.py&lt;br/&gt;import 时 registry.register()&quot;]
+    M[&quot;model_tools.py&lt;br/&gt;discover + handle_function_call&quot;]
+    A[&quot;run_agent.py · cli.py&lt;br/&gt;batch_runner · environments&quot;]
+
+    R --&gt; T --&gt; M --&gt; A
+
+    style R fill:#A5D6A7,stroke:#1B5E20,color:#212121
+    style T fill:#C8E6C9,stroke:#2E7D32,color:#212121
+    style M fill:#FFF59D,stroke:#F9A825,color:#212121
+    style A fill:#FFAB91,stroke:#D84315,color:#212121
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>文件</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Registry</td>
+<td><code>tools/registry.py</code></td>
+<td>schema / dispatch / availability / 错误包装</td>
+</tr>
+<tr>
+<td>Impl</td>
+<td><code>tools/*.py</code></td>
+<td>自注册；handler 必须返回 JSON 字符串</td>
+</tr>
+<tr>
+<td>Orchestration</td>
+<td><code>model_tools.py</code></td>
+<td>发现工具、组装 definitions、执行调用</td>
+</tr>
+<tr>
+<td>Exposure</td>
+<td><code>toolsets.py</code></td>
+<td>只有进 toolset 的工具才会暴露给 Agent</td>
+</tr>
+<tr>
+<td>Backends</td>
+<td><code>tools/environments/</code></td>
+<td>local · docker · ssh · modal · daytona · singularity</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Footprint 提醒</strong>：Terminal + File 能做的事，不要再加核心 Tool；优先 Skill / Plugin / MCP。</p>
+<hr>
+<h2 id="7-context">7. Context 体系（组装 · 缓存 · 压缩）</h2>
+<blockquote>
+<p>源码：<code>agent/system_prompt.py</code> · <code>agent/prompt_builder.py</code> · <code>agent/context_compressor.py</code> · <code>agent/turn_context.py</code><br>
+细讲：<a href="../hermes/01-arch.html"><code>01-arch.md</code></a> §3–4 · <a href="https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/08-hermes-agent/04-prompt"><code>04-prompt/</code></a> · 官方 <a href="https://hermes-agent.nousresearch.com/docs/developer-guide/prompt-assembly">Prompt Assembly</a></p>
+</blockquote>
+<p><strong>一句话</strong>：Context = <strong>Session 冻结的 System Prompt</strong> + <strong>Turn 可变的消息侧</strong>。稳定前缀保 cache；会变的东西放 messages / tool result / ephemeral，绝不每轮重写 SP。</p>
+<h3 id="71-session-vs-turn">7.1 Session vs Turn（两层时间尺度）</h3>
+<pre><code class="language-mermaid">%%{init: {
+  &quot;theme&quot;: &quot;base&quot;,
+  &quot;themeVariables&quot;: {
+    &quot;fontSize&quot;: &quot;14px&quot;,
+    &quot;primaryColor&quot;: &quot;#FFF8E1&quot;,
+    &quot;primaryTextColor&quot;: &quot;#212121&quot;,
+    &quot;lineColor&quot;: &quot;#B0BEC5&quot;,
+    &quot;edgeLabelBackground&quot;: &quot;#BBDEFB&quot;,
+    &quot;edgeLabelColor&quot;: &quot;#0D47A1&quot;
+  }
+}}%%
+flowchart TB
+    Boot[&quot;🟡 Session 启动&lt;br/&gt;读盘 → 组装 SP → Frozen Snapshot&quot;]
+    T1[&quot;🔵 Turn 1&lt;br/&gt;复用 SP + 拼历史/本轮 → Loop&quot;]
+    T2[&quot;🔵 Turn 2&lt;br/&gt;SP 仍是启动快照&quot;]
+    Tn[&quot;🔵 Turn N&lt;br/&gt;可 Compression 改消息历史&quot;]
+    EndS[&quot;🟢 新 Session&lt;br/&gt;才重读盘刷新 SP&quot;]
+
+    Boot --&gt; T1 --&gt; T2 --&gt; Tn --&gt; EndS
+
+    style Boot fill:#FFF59D,stroke:#F9A825,color:#212121
+    style T1 fill:#81D4FA,stroke:#0277BD,color:#212121
+    style T2 fill:#81D4FA,stroke:#0277BD,color:#212121
+    style Tn fill:#81D4FA,stroke:#0277BD,color:#212121
+    style EndS fill:#A5D6A7,stroke:#2E7D32,color:#212121
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>词</th>
+<th>含义</th>
+<th>对 Context 的影响</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Session</strong></td>
+<td>Desktop 一条对话 / CLI 一次聊 / Gateway 同一 <code>session_id</code></td>
+<td>启动组装并 <strong>冻结</strong> SP</td>
+</tr>
+<tr>
+<td><strong>Turn</strong></td>
+<td>用户 1 条消息 → 跑完 Loop → 最终回复</td>
+<td>每轮 Build：复用 SP + 追加消息；可压缩</td>
+</tr>
+</tbody>
+</table>
+<h3 id="72-llm">7.2 发给 LLM 的两块拼图</h3>
+<pre><code class="language-mermaid">%%{init: {
+  &quot;theme&quot;: &quot;base&quot;,
+  &quot;themeVariables&quot;: {
+    &quot;fontSize&quot;: &quot;14px&quot;,
+    &quot;primaryColor&quot;: &quot;#FFF8E1&quot;,
+    &quot;primaryTextColor&quot;: &quot;#212121&quot;,
+    &quot;lineColor&quot;: &quot;#90CAF9&quot;,
+    &quot;clusterBkg&quot;: &quot;transparent&quot;,
+    &quot;clusterBorder&quot;: &quot;#78909C&quot;,
+    &quot;titleColor&quot;: &quot;#ECEFF1&quot;,
+    &quot;edgeLabelBackground&quot;: &quot;#BBDEFB&quot;,
+    &quot;edgeLabelColor&quot;: &quot;#0D47A1&quot;
+  }
+}}%%
+flowchart TB
+    subgraph SP[&quot;Cached System Prompt · Session 冻结&quot;]
+        direction TB
+        S[&quot;🟡 stable&lt;br/&gt;SOUL · Tools/Skills 指引 · 环境/平台 hint&quot;]
+        C[&quot;🟠 context&lt;br/&gt;system_message · Project Context 一种&quot;]
+        V[&quot;🔴 volatile&lt;br/&gt;MEMORY / USER 快照 · provider 块 · 时间戳&quot;]
+        S --&gt; C --&gt; V
+    end
+
+    subgraph MSG[&quot;Per-call Messages · Turn 可变&quot;]
+        H[&quot;历史 turns&lt;br/&gt;可被 Compression 摘要替换&quot;]
+        U[&quot;本轮 user&quot;]
+        E[&quot;紫 · ephemeral / plugin prefetch&lt;br/&gt;挂本轮 user 或 API 叠加层&quot;]
+        TR[&quot;绿 · tool results&lt;br/&gt;可挂子目录 AGENTS.md&quot;]
+    end
+
+    SP --&gt; LLM[&quot;LLM Request&quot;]
+    MSG --&gt; LLM
+
+    style S fill:#FFF59D,stroke:#F9A825,color:#212121
+    style C fill:#FFCC80,stroke:#FB8C00,color:#212121
+    style V fill:#EF9A9A,stroke:#E53935,color:#212121
+    style H fill:#81D4FA,stroke:#039BE5,color:#212121
+    style U fill:#81D4FA,stroke:#039BE5,color:#212121
+    style E fill:#CE93D8,stroke:#8E24AA,color:#212121
+    style TR fill:#C8E6C9,stroke:#43A047,color:#212121
+    style LLM fill:#E0E0E0,stroke:#616161,color:#212121
+</code></pre>
+<h3 id="73-system-prompt">7.3 System Prompt 三层注入地图</h3>
+<pre><code class="language-mermaid">%%{init: {
+  &quot;theme&quot;: &quot;base&quot;,
+  &quot;themeVariables&quot;: {
+    &quot;fontSize&quot;: &quot;13px&quot;,
+    &quot;primaryColor&quot;: &quot;#FFFDE7&quot;,
+    &quot;primaryTextColor&quot;: &quot;#212121&quot;,
+    &quot;lineColor&quot;: &quot;#FFD54F&quot;,
+    &quot;clusterBkg&quot;: &quot;transparent&quot;,
+    &quot;clusterBorder&quot;: &quot;#78909C&quot;,
+    &quot;titleColor&quot;: &quot;#ECEFF1&quot;,
+    &quot;edgeLabelBackground&quot;: &quot;#BBDEFB&quot;,
+    &quot;edgeLabelColor&quot;: &quot;#0D47A1&quot;
+  }
+}}%%
+flowchart TB
+    subgraph Stable[&quot;🟡 STABLE&quot;]
+        S1[&quot;SOUL.md 或 DEFAULT_IDENTITY&quot;]
+        S2[&quot;Help / Task-completion / Parallel-tool 指引&quot;]
+        S3[&quot;Memory·Skills·Kanban guidance&lt;br/&gt;仅当对应 tool 在 schema 里&quot;]
+        S4[&quot;Skills 索引 · Env hints · Platform hint&quot;]
+        S1 --&gt; S2 --&gt; S3 --&gt; S4
+    end
+
+    subgraph Context[&quot;🟠 CONTEXT&quot;]
+        C1[&quot;调用方 system_message&quot;]
+        C2[&quot;Project Context 只选一种&quot;]
+        C1 --&gt; C2
+    end
+
+    subgraph Volatile[&quot;🔴 VOLATILE&quot;]
+        V1[&quot;MEMORY.md 冻结快照&quot;]
+        V2[&quot;USER.md 冻结快照&quot;]
+        V3[&quot;Memory provider block&quot;]
+        V4[&quot;时间 · session · model · provider 行&quot;]
+        V1 --&gt; V2 --&gt; V3 --&gt; V4
+    end
+
+    Stable --&gt; Context --&gt; Volatile --&gt; JOIN[&quot;join 非空三层&lt;br/&gt;→ agent._cached_system_prompt&quot;]
+
+    style S1 fill:#FFF59D,stroke:#F9A825,color:#212121
+    style C2 fill:#FFCC80,stroke:#FB8C00,color:#212121
+    style V1 fill:#EF9A9A,stroke:#E53935,color:#212121
+    style JOIN fill:#B0BEC5,stroke:#455A64,color:#212121
+</code></pre>
+<p>Project Context 优先级（每个 Session <strong>只取一种</strong>；<code>SOUL</code> 独立占位不抢槽）：</p>
+<pre><code class="language-text">.hermes.md / HERMES.md  →  AGENTS.md  →  CLAUDE.md  →  .cursorrules
+</code></pre>
+<p><strong>条件注入</strong>：没加载 <code>memory</code> tool 就不塞 <code>MEMORY_GUIDANCE</code>，避免模型幻觉调用不存在的工具。</p>
+<h3 id="74-sp-sp">7.4 什么进 SP，什么绝不进 SP</h3>
+<pre><code class="language-mermaid">%%{init: {
+  &quot;theme&quot;: &quot;base&quot;,
+  &quot;themeVariables&quot;: {
+    &quot;fontSize&quot;: &quot;14px&quot;,
+    &quot;primaryColor&quot;: &quot;#E8EAF6&quot;,
+    &quot;primaryTextColor&quot;: &quot;#212121&quot;,
+    &quot;lineColor&quot;: &quot;#90CAF9&quot;,
+    &quot;clusterBkg&quot;: &quot;transparent&quot;,
+    &quot;clusterBorder&quot;: &quot;#78909C&quot;,
+    &quot;titleColor&quot;: &quot;#ECEFF1&quot;,
+    &quot;edgeLabelBackground&quot;: &quot;#BBDEFB&quot;,
+    &quot;edgeLabelColor&quot;: &quot;#0D47A1&quot;
+  }
+}}%%
+flowchart LR
+    subgraph IN[&quot;🟢 进 Cached SP&quot;]
+        A[&quot;SOUL / Skills 索引&quot;]
+        B[&quot;Project Context 一种&quot;]
+        C[&quot;MEMORY / USER 启动快照&quot;]
+        D[&quot;平台 / 环境 hint&quot;]
+    end
+
+    subgraph OUT[&quot;🔴 不进 Cached SP&quot;]
+        E[&quot;ephemeral_system_prompt&quot;]
+        F[&quot;pre_llm_call 插件返回&quot;]
+        G[&quot;Skill slash → user message&quot;]
+        H[&quot;Compression 摘要 → history&quot;]
+        I[&quot;Honcho turn recall → user overlay&quot;]
+        J[&quot;中途 memory tool 写盘&quot;]
+    end
+
+    IN --&gt; SP[&quot;_cached_system_prompt&quot;]
+    OUT --&gt; MSG[&quot;messages / API overlay&quot;]
+
+    style IN fill:#C8E6C9,stroke:#2E7D32,color:#212121
+    style OUT fill:#FFCDD2,stroke:#C62828,color:#212121
+    style SP fill:#FFF59D,stroke:#F9A825,color:#212121
+    style MSG fill:#90CAF9,stroke:#1565C0,color:#212121
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Markdown / 块</th>
+<th>进 Context 时机</th>
+<th>中途写盘影响当前 SP？</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SOUL.md</code></td>
+<td>Session 启动 → stable</td>
+<td>否（下个 Session）</td>
+</tr>
+<tr>
+<td>Project Context</td>
+<td>Session 启动 → context</td>
+<td>否；子目录可挂 <strong>tool result</strong></td>
+</tr>
+<tr>
+<td><code>USER.md</code> / <code>MEMORY.md</code></td>
+<td>Session 启动 → volatile</td>
+<td><strong>否</strong></td>
+</tr>
+<tr>
+<td>Skills / Tools 描述</td>
+<td>Session 启动（按 schema）</td>
+<td>换 toolset 被禁止</td>
+</tr>
+<tr>
+<td>消息历史</td>
+<td>每 Turn</td>
+<td>Compression 可改历史</td>
+</tr>
+<tr>
+<td>External prefetch</td>
+<td>常挂 Turn 侧</td>
+<td>不改 SP</td>
+</tr>
+</tbody>
+</table>
+<p>Gateway 额外：每 turn 可能新建 <code>AIAgent</code>，靠 SessionDB <strong>读回同一份 system 字符串</strong>（<code>_restore_or_build_system_prompt</code>），否则 cache 前缀对不齐。</p>
+<h3 id="75-turn-build-context">7.5 Turn 级 Build Context 流程</h3>
+<pre><code class="language-mermaid">%%{init: {
+  &quot;theme&quot;: &quot;base&quot;,
+  &quot;themeVariables&quot;: {
+    &quot;fontSize&quot;: &quot;14px&quot;,
+    &quot;primaryColor&quot;: &quot;#BBDEFB&quot;,
+    &quot;primaryTextColor&quot;: &quot;#212121&quot;,
+    &quot;primaryBorderColor&quot;: &quot;#1565C0&quot;,
+    &quot;lineColor&quot;: &quot;#64B5F6&quot;,
+    &quot;mainBkg&quot;: &quot;#BBDEFB&quot;,
+    &quot;edgeLabelBackground&quot;: &quot;#BBDEFB&quot;,
+    &quot;edgeLabelColor&quot;: &quot;#0D47A1&quot;
+  }
+}}%%
+flowchart TD
+    U[&quot;用户新消息&quot;] --&gt; CHK{&quot;用量 ≥ 阈值?&lt;br/&gt;默认 50% · 或上次 context 报错&quot;}
+    CHK --&gt;|是| CMP[&quot;Compression&lt;br/&gt;旧中间段 → 结构化 Summary&quot;]
+    CHK --&gt;|否| OK[&quot;保留完整历史&quot;]
+    CMP --&gt; BUILD[&quot;拼本轮请求&quot;]
+    OK --&gt; BUILD
+    BUILD --&gt; SP[&quot;复用 Session 冻结 SP&quot;]
+    BUILD --&gt; MSG[&quot;历史 + 本轮 user&lt;br/&gt;+ 可选 ephemeral&quot;]
+    SP --&gt; LLM[&quot;调用 LLM&quot;]
+    MSG --&gt; LLM
+    LLM --&gt; DEC{&quot;要调 Tool?&quot;}
+    DEC --&gt;|是| TOOL[&quot;执行 Tool&quot;]
+    TOOL --&gt; HINT{&quot;路径触及新子目录?&quot;}
+    HINT --&gt;|是| INJ[&quot;AGENTS.md 等追加到 tool result&quot;]
+    HINT --&gt;|否| FEED[&quot;Result 回灌&quot;]
+    INJ --&gt; FEED --&gt; LLM
+    DEC --&gt;|否| RESP[&quot;最终回复&quot;]
+    RESP --&gt; MEM[&quot;transcript 落盘&lt;br/&gt;可能写 USER/MEMORY&lt;br/&gt;≠ 刷新当前 SP&quot;]
+
+    style U fill:#90CAF9,stroke:#1565C0,color:#212121
+    style CHK fill:#BBDEFB,stroke:#1565C0,color:#212121
+    style DEC fill:#BBDEFB,stroke:#1565C0,color:#212121
+    style HINT fill:#BBDEFB,stroke:#1565C0,color:#212121
+    style CMP fill:#FFCC80,stroke:#EF6C00,color:#212121
+    style SP fill:#FFF59D,stroke:#F9A825,color:#212121
+    style INJ fill:#C8E6C9,stroke:#43A047,color:#212121
+    style MEM fill:#CE93D8,stroke:#8E24AA,color:#212121
+</code></pre>
+<h3 id="76-compression">7.6 Compression（压消息，不重读说明书）</h3>
+<p>源码：<code>agent/context_compressor.py</code>。压的是 <strong>消息列表</strong>，不是重装 Project Context。</p>
+<pre><code class="language-mermaid">%%{init: {
+  &quot;theme&quot;: &quot;base&quot;,
+  &quot;themeVariables&quot;: {
+    &quot;fontSize&quot;: &quot;14px&quot;,
+    &quot;primaryColor&quot;: &quot;#FFE0B2&quot;,
+    &quot;primaryTextColor&quot;: &quot;#212121&quot;,
+    &quot;lineColor&quot;: &quot;#FFB74D&quot;,
+    &quot;edgeLabelBackground&quot;: &quot;#BBDEFB&quot;,
+    &quot;edgeLabelColor&quot;: &quot;#0D47A1&quot;
+  }
+}}%%
+flowchart TB
+    IN[&quot;消息列表&quot;] --&gt; P1[&quot;① 廉价剪枝&lt;br/&gt;缩短旧 tool 输出 · 不调 LLM&quot;]
+    P1 --&gt; P2[&quot;② 定边界&lt;br/&gt;head / middle / tail&lt;br/&gt;不拆开 tool 对&quot;]
+    P2 --&gt; CHK{&quot;middle 可压?&quot;}
+    CHK --&gt;|否| NOP[&quot;无效压缩计数 · 原样返回&quot;]
+    CHK --&gt;|是| P3[&quot;③ 辅助模型写结构化摘要&lt;br/&gt;可有增量更新&quot;]
+    P3 --&gt; OK{&quot;成功?&quot;}
+    OK --&gt;|否| FB[&quot;中止或本地兜底摘要&quot;]
+    OK --&gt;|是| P4[&quot;④ 组装&lt;br/&gt;head + Summary + tail&quot;]
+    FB --&gt; OUT[&quot;新消息列表&quot;]
+    P4 --&gt; OUT
+
+    style P1 fill:#FFE0B2,stroke:#EF6C00,color:#212121
+    style P2 fill:#FFCC80,stroke:#FB8C00,color:#212121
+    style P3 fill:#CE93D8,stroke:#8E24AA,color:#212121
+    style P4 fill:#A5D6A7,stroke:#2E7D32,color:#212121
+    style CHK fill:#BBDEFB,stroke:#1565C0,color:#212121
+    style OK fill:#BBDEFB,stroke:#1565C0,color:#212121
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>配置（<code>compression:</code>）</th>
+<th>默认直觉</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>threshold: 0.50</code></td>
+<td>用量 ≥ 窗口 50% 触发</td>
+</tr>
+<tr>
+<td><code>target_ratio: 0.20</code></td>
+<td>尾部保留预算 ≈ 触发线 × 0.2</td>
+</tr>
+<tr>
+<td><code>protect_last_n: 20</code></td>
+<td>尾部至少留 N 条</td>
+</tr>
+<tr>
+<td>Gateway Hygiene</td>
+<td>进 Agent 前约 <strong>85%</strong> 安全网</td>
+</tr>
+</tbody>
+</table>
+<p>三段切法：<code>head</code>（开头保护）· <code>middle</code>（压成 Historical Snapshot 摘要）· <code>tail</code>（近期原文）。摘要声明「仅背景参考」，防止把旧待办当成还要继续做。</p>
+<h3 id="77-context-prompt-cache">7.7 Context 与 Prompt Cache 的契约</h3>
+<pre><code class="language-mermaid">%%{init: {
+  &quot;theme&quot;: &quot;base&quot;,
+  &quot;themeVariables&quot;: {
+    &quot;fontSize&quot;: &quot;14px&quot;,
+    &quot;primaryColor&quot;: &quot;#FFECB3&quot;,
+    &quot;primaryTextColor&quot;: &quot;#212121&quot;,
+    &quot;lineColor&quot;: &quot;#B0BEC5&quot;,
+    &quot;edgeLabelBackground&quot;: &quot;#BBDEFB&quot;,
+    &quot;edgeLabelColor&quot;: &quot;#0D47A1&quot;
+  }
+}}%%
+flowchart TB
+    OK[&quot;✅ 保 Cache&quot;] --&gt; OK1[&quot;Session 内复用同一 SP 字节&quot;]
+    OK --&gt; OK2[&quot;Skill slash 注入成 user message&quot;]
+    OK --&gt; OK3[&quot;Memory 写盘等下个 Session&quot;]
+    OK --&gt; OK4[&quot;子目录 Context 挂 tool result&quot;]
+
+    BAD[&quot;❌ 废 Cache&quot;] --&gt; BAD1[&quot;中途换 toolset / 重建 SP&quot;]
+    BAD --&gt; BAD2[&quot;每轮重读 MEMORY 进 system&quot;]
+    BAD --&gt; BAD3[&quot;插入合成 user 破坏 role 交替&quot;]
+
+    EXC[&quot;唯一例外&quot;] --&gt; EXC1[&quot;Context Compression&lt;br/&gt;改的是 messages 中段&quot;]
+
+    style OK fill:#C8E6C9,stroke:#2E7D32,color:#212121
+    style BAD fill:#FFCDD2,stroke:#C62828,color:#212121
+    style EXC fill:#FFF59D,stroke:#F9A825,color:#212121
+</code></pre>
+<p>速记：</p>
+<pre><code class="language-text">写了 MEMORY ≠ 当前 SP 已更新（要新 Session）
+直聊可以没有 AGENTS.md（完全正常）
+Gateway：拉历史在消息侧；冻 SP 与 CLI 相同
+Compression：改历史，不是改 Project Context 文件
+</code></pre>
+<hr>
+<h2 id="8">8. 可插拔子系统</h2>
+<pre><code class="language-mermaid">%%{init: {
+  &quot;theme&quot;: &quot;base&quot;,
+  &quot;themeVariables&quot;: {
+    &quot;fontSize&quot;: &quot;14px&quot;,
+    &quot;primaryColor&quot;: &quot;#E3F2FD&quot;,
+    &quot;primaryTextColor&quot;: &quot;#212121&quot;,
+    &quot;lineColor&quot;: &quot;#90CAF9&quot;,
+    &quot;clusterBkg&quot;: &quot;transparent&quot;,
+    &quot;clusterBorder&quot;: &quot;#78909C&quot;,
+    &quot;titleColor&quot;: &quot;#ECEFF1&quot;,
+    &quot;edgeLabelBackground&quot;: &quot;#BBDEFB&quot;,
+    &quot;edgeLabelColor&quot;: &quot;#0D47A1&quot;
+  }
+}}%%
+flowchart TB
+    subgraph General[&quot;General Plugins&quot;]
+        PM[&quot;PluginManager&lt;br/&gt;hermes_cli/plugins.py&quot;]
+        HOOKS[&quot;hooks: pre/post tool · LLM · session&quot;]
+        PTOOLS[&quot;ctx.register_tool&quot;]
+        PCLI[&quot;ctx.register_cli_command&quot;]
+    end
+
+    subgraph Specialized[&quot;Single-select Plugins&quot;]
+        MEM[&quot;Memory Provider&lt;br/&gt;honcho · mem0 · …&quot;]
+        CTX[&quot;Context Engine&quot;]
+        MP[&quot;Model Providers&lt;br/&gt;openrouter · anthropic · …&quot;]
+        IMG[&quot;Image Gen&quot;]
+    end
+
+    subgraph Discover[&quot;Discovery Paths&quot;]
+        U[&quot;~/.hermes/plugins/&quot;]
+        P[&quot;./.hermes/plugins/&quot;]
+        E[&quot;pip entry points&quot;]
+        B[&quot;repo plugins/*&quot;]
+    end
+
+    Discover --&gt; PM
+    Discover --&gt; Specialized
+    PM --&gt; HOOKS &amp; PTOOLS &amp; PCLI
+
+    style PM fill:#90CAF9,stroke:#1565C0,color:#212121
+    style MEM fill:#CE93D8,stroke:#8E24AA,color:#212121
+    style CTX fill:#CE93D8,stroke:#8E24AA,color:#212121
+    style MP fill:#CE93D8,stroke:#8E24AA,color:#212121
+    style IMG fill:#CE93D8,stroke:#8E24AA,color:#212121
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>选择模型</th>
+<th>目录</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>General plugin</td>
+<td>可多个</td>
+<td><code>plugins/&lt;name&gt;/</code>、用户目录、pip</td>
+</tr>
+<tr>
+<td>Memory provider</td>
+<td><strong>同时只能一个</strong></td>
+<td><code>plugins/memory/</code></td>
+</tr>
+<tr>
+<td>Context engine</td>
+<td><strong>同时只能一个</strong></td>
+<td><code>plugins/context_engine/</code></td>
+</tr>
+<tr>
+<td>Model provider</td>
+<td>按配置切换</td>
+<td><code>plugins/model-providers/</code></td>
+</tr>
+<tr>
+<td>Platform adapter</td>
+<td>多开</td>
+<td><code>gateway/platforms/</code> + <code>plugins/platforms/</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="9-surface-core">9. Surface 对照（同一 Core，不同壳）</h2>
+<pre><code class="language-mermaid">%%{init: {
+  &quot;theme&quot;: &quot;base&quot;,
+  &quot;themeVariables&quot;: {
+    &quot;fontSize&quot;: &quot;14px&quot;,
+    &quot;primaryColor&quot;: &quot;#F3E5F5&quot;,
+    &quot;primaryTextColor&quot;: &quot;#212121&quot;,
+    &quot;lineColor&quot;: &quot;#CE93D8&quot;,
+    &quot;edgeLabelBackground&quot;: &quot;#BBDEFB&quot;,
+    &quot;edgeLabelColor&quot;: &quot;#0D47A1&quot;
+  }
+}}%%
+flowchart TB
+    CORE[&quot;AIAgent + Tools + SessionDB&quot;]
+
+    CLI[&quot;经典 CLI&lt;br/&gt;prompt_toolkit + Rich&quot;]
+    TUI[&quot;hermes --tui&lt;br/&gt;Ink ↔ JSON-RPC&quot;]
+    DASH[&quot;Dashboard /chat&lt;br/&gt;嵌入真实 TUI PTY&quot;]
+    DESK[&quot;Desktop App&lt;br/&gt;自有 transcript · 不嵌 TUI&quot;]
+    MSG[&quot;Messaging Gateway&lt;br/&gt;Telegram …&quot;]
+    IDE[&quot;ACP · VS Code/Zed/JB&quot;]
+
+    CLI &amp; TUI &amp; MSG &amp; IDE &amp; DESK --&gt; CORE
+    DASH --&gt; TUI
+
+    style CORE fill:#EF9A9A,stroke:#C62828,color:#212121
+    style CLI fill:#FFF59D,stroke:#F9A825,color:#212121
+    style TUI fill:#A5D6A7,stroke:#43A047,color:#212121
+    style DASH fill:#80CBC4,stroke:#00897B,color:#212121
+    style DESK fill:#CE93D8,stroke:#8E24AA,color:#212121
+    style MSG fill:#81D4FA,stroke:#0288D1,color:#212121
+    style IDE fill:#FFCC80,stroke:#FB8C00,color:#212121
+</code></pre>
+<p>要点：<strong>Dashboard 嵌 TUI；Desktop 是第三条聊天面</strong>（经 <code>hermes serve</code> JSON-RPC），不要在 Dashboard React 里重写主对话。</p>
+<hr>
+<h2 id="10">10. 学习路径（建议顺序）</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>主题</th>
+<th>本仓库笔记 / 官方</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>仓库目录 + 全景</td>
+<td><code>arch.md</code> §1–2</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Agent Runtime</strong>（图解）</td>
+<td><code>arch.md</code> <strong>§4</strong> · <a href="https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/08-hermes-agent/02-run-agent"><code>02-run-agent/</code></a> · <a href="https://hermes-agent.nousresearch.com/docs/developer-guide/agent-loop">agent-loop</a></td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Context 体系</strong>（图解）</td>
+<td><code>arch.md</code> <strong>§7</strong> · <a href="https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/08-hermes-agent/04-prompt"><code>04-prompt/</code></a> · <a href="https://hermes-agent.nousresearch.com/docs/developer-guide/prompt-assembly">prompt-assembly</a></td>
+</tr>
+<tr>
+<td>4</td>
+<td>Session / Turn / Memory 深讲</td>
+<td><a href="../hermes/01-arch.html"><code>01-arch.md</code></a> · <a href="../hermes/02-memory.html"><code>02-memory.md</code></a></td>
+</tr>
+<tr>
+<td>5</td>
+<td>Cron</td>
+<td><a href="https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/08-hermes-agent/06-cron"><code>06-cron/</code></a></td>
+</tr>
+<tr>
+<td>6</td>
+<td>Gateway</td>
+<td><a href="https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/08-hermes-agent/08-gateway"><code>08-gateway/</code></a></td>
+</tr>
+<tr>
+<td>7</td>
+<td>Memory Providers</td>
+<td><a href="https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/08-hermes-agent/07-mem-provider"><code>07-mem-provider/</code></a></td>
+</tr>
+<tr>
+<td>8</td>
+<td>Tools Runtime</td>
+<td><a href="https://hermes-agent.nousresearch.com/docs/developer-guide/tools-runtime">tools-runtime</a></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="11">11. 速记卡片</h2>
+<pre><code class="language-text">Entry → AIAgent Runtime → (Prompt + Provider + Tools) → SessionDB / Delivery
+                       ↘ Terminal/Browser/Web/MCP/Cron/Plugins
+
+Runtime: 1 Prologue + N (API↔Tool) + 1 Finalize
+         刹车 = max_iterations · IterationBudget · grace · interrupt
+         Tool = agent 截胡(todo/memory) | registry.dispatch
+         三 Mode 边界转换，内部统一 OpenAI messages
+
+Context: Session 冻 SP(stable→context→volatile)
+         Turn 拼 历史+user+ephemeral；子目录挂 tool result
+         写 MEMORY ≠ 刷新当前 SP；压缩只改 messages 中段
+Cache:   禁中途换 toolset / 重建 SP（压缩例外）
+
+Gate:    一条消息 → Session Key → 拉历史 → 同一 Runtime
+Cron:    新 Agent · 独立会话 · Home/平台投递
+Edge:    能力外挂；Core 保持窄
+</code></pre>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags">
+            <span class="chip">Hermes 源码精读</span>
+            <span class="chip">AI Agent</span>
+            <span class="chip">面试宝典</span>
+          </div>
+          <a class="t-meta" href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/08-hermes-agent/04-arch.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../ai-engineer/hermes/02-memory.html"><span class="dir">← 上一篇</span><span class="t">Hermes Agent Memory 四层体系</span></a><a class="next" href="../../ai-engineer/hermes/01-memory.html"><span class="dir">下一篇 →</span><span class="t">Hermes Memory · 如何学习</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../rag/index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+
+<script src="../../ai-engineer/assets/mermaid-init.js" defer></script>
+<script src="../../js/main.js" defer></script>
+</body>
+</html>

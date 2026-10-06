@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agentic Chatbot with LangGraph （包含完整的框架和 human in the loop） · AI Agent 面试宝典 — NorthAdb 的博客</title>
+<meta name="description" content="基于 LangGraph + Streamlit 的 Agentic 聊天机器人。">
+<link rel="canonical" href="https://northadb.github.io/ai-engineer/langgraph/02-agentic-chatbot-using-langgraph.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Agentic Chatbot with LangGraph （包含完整的框架和 human in the loop） · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta property="og:description" content="基于 LangGraph + Streamlit 的 Agentic 聊天机器人。">
+<meta property="og:url" content="https://northadb.github.io/ai-engineer/langgraph/02-agentic-chatbot-using-langgraph.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Agentic Chatbot with LangGraph （包含完整的框架和 human in the loop） · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta name="twitter:description" content="基于 LangGraph + Streamlit 的 Agentic 聊天机器人。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../feed.xml">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../ai-engineer/assets/course.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Agentic Chatbot with LangGraph （包含完整的框架和 human in the loop）", "description": "基于 LangGraph + Streamlit 的 Agentic 聊天机器人。", "author": {"@type": "Person", "name": "juliepy", "url": "https://github.com/juliepy/AI-Engineer-from-scrach"}, "mainEntityOfPage": "https://northadb.github.io/ai-engineer/langgraph/02-agentic-chatbot-using-langgraph.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../index.html">首页</a><span>/</span><a href="../../learn.html">课件</a><span>/</span><a href="../../ai-engineer/index.html">AI Agent 面试宝典</a><span>/</span><a href="../../ai-engineer/langgraph/index.html">LangGraph 实战</a></div>
+          <h1>Agentic Chatbot with LangGraph （包含完整的框架和 human in the loop）</h1>
+          <p class="post-sub">基于 LangGraph + Streamlit 的 Agentic 聊天机器人。</p>
+          <div class="post-meta">
+            <span class="avatar">AI</span>
+            <span>AI Agent 面试宝典</span><span class="sep"></span>
+            <span>LangGraph 实战</span><span class="sep"></span>
+            <span>阅读约 6 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<p>基于 <strong>LangGraph + Streamlit</strong> 的 Agentic 聊天机器人。</p>
+<ul>
+<li><strong>LLM</strong>：<code>deepseek-v4-pro</code>（DeepSeek OpenAI 兼容 API）</li>
+<li><strong>Embedding</strong>：<code>sentence-transformers</code> 加载 <code>BAAI/bge-small-en-v1.5</code>（首次下载到 <code>models/</code>，之后本地加载）</li>
+<li><strong>能力</strong>：网页搜索 · 天气 · 股票行情 · PDF RAG · 计算器 · 股票购买 HITL 审批</li>
+<li><strong>记忆</strong>：SQLite Checkpointer，多会话线程可切换恢复</li>
+</ul>
+<hr>
+<h2 id="quick-start">Quick Start</h2>
+<h3 id="1-windows">1. 环境准备（推荐 Windows 原生）</h3>
+<pre><code class="language-bash">cd 02-Agentic-Chatbot-using-LangGraph
+
+# 若目录里还有 WSL 建的 .venv，先删掉或改名后再建 Windows venv
+python -m venv .venv
+.venv\Scripts\activate
+
+pip install -r requirements.txt
+</code></pre>
+<h3 id="2">2. 配置环境变量</h3>
+<p>在项目根目录创建 <code>.env</code>：</p>
+<pre><code class="language-env">DEEPSEEK_API_KEY=your-deepseek-api-key
+TAVILY_API_KEY=your-tavily-api-key
+
+# optional
+# DEEPSEEK_BASE_URL=https://api.deepseek.com
+# EMBEDDING_MODEL_NAME=BAAI/bge-small-en-v1.5
+# LOCAL_EMBEDDING_MODEL_DIR=models/bge-small-en-v1.5
+# LOG_LEVEL=INFO                                 # DEBUG / INFO / WARNING / ERROR
+# LOG_DIR=logs
+</code></pre>
+<blockquote>
+<p>天气工具复用 <code>TAVILY_API_KEY</code>，通过 Tavily 搜索获取实时天气。</p>
+<p>Embedding <strong>懒加载</strong>：普通聊天不加载 <code>torch</code>；首次上传 PDF / 调用 RAG 时才会加载。<br>
+权重目录：<code>models/bge-small-en-v1.5/</code>（可提前：<code>python scripts/download_embedding_model.py</code>）。<br>
+若更换过 embedding 模型，请删除本地 <code>data/faiss_db/</code> 后重新上传 PDF。<br>
+运行日志：<code>logs/agentic-chatbot.log</code>；启动分段计时：<code>logs/startup.log</code>。</p>
+</blockquote>
+<h3 id="3">3. 启动应用</h3>
+<pre><code class="language-bash">python -m streamlit run app.py
+</code></pre>
+<p>浏览器打开 <strong><code>http://127.0.0.1:8501</code></strong>。<br>
+终端出现 URL 后，第一次打开页面仍会花几秒导入 LangGraph（正常）；同一进程内刷新会快很多。<br>
+若白屏：清掉该站点 Cookie / 站点数据后硬刷新。</p>
+<hr>
+<h2 id="_1">目录结构</h2>
+<pre><code class="language-text">02-Agentic-Chatbot-using-LangGraph/
+├── app.py                         # Streamlit 入口
+├── requirements.txt
+├── README.md
+├── data/                          # 运行时数据（gitignore）
+│   ├── chatbot.db                 # LangGraph SQLite checkpointer
+│   └── faiss_db/                  # PDF RAG 向量库
+├── backend/                       # LangGraph 后端
+│   ├── __init__.py                # 导出 chatbot / get_all_threads / ingest_rag_document
+│   ├── logger.py                  # 统一日志（控制台 + 滚动文件）
+│   ├── llm.py                     # DeepSeek LLM + SentenceTransformer Embeddings
+│   ├── rag.py                     # PDF 入库、检索、rag_tool
+│   ├── graph.py                   # StateGraph / nodes / checkpointer
+│   ├── threads.py                 # 会话线程列表
+│   └── tools/                     # 工具包（按能力拆分）
+│       ├── __init__.py            # 汇总 tools / llm_with_tools
+│       ├── search.py              # Tavily 搜索
+│       ├── calculator.py          # 数学计算
+│       ├── stock.py               # 股价查询 + HITL 购买
+│       └── weather.py             # Tavily 天气检索
+└── frontend/                      # Streamlit 前端
+    ├── __init__.py
+    ├── session.py                 # session / thread 管理
+    ├── hitl.py                    # interrupt 同步与 resume
+    ├── sidebar.py                 # 侧边栏会话列表
+    └── chat.py                    # 消息流、审批 UI、PDF 上传
+</code></pre>
+<hr>
+<h2 id="_2">系统逻辑</h2>
+<h3 id="_3">整体架构</h3>
+<pre><code class="language-mermaid">%%{init: {
+  'theme': 'base',
+  'themeVariables': {
+    'fontFamily': 'Inter, &quot;Segoe UI&quot;, system-ui, sans-serif',
+    'background': '#1C1F24',
+    'primaryColor': '#3D4F5F',
+    'primaryTextColor': '#E8E6E3',
+    'primaryBorderColor': '#7A91A8',
+    'secondaryColor': '#4A3F42',
+    'tertiaryColor': '#4A453C',
+    'lineColor': '#9AABB8',
+    'textColor': '#E8E6E3',
+    'mainBkg': '#2A3038',
+    'nodeBorder': '#7A91A8',
+    'clusterBkg': '#24292F',
+    'clusterBorder': '#6B7C8A',
+    'titleColor': '#D4C4A8',
+    'edgeLabelBackground': '#2A3038',
+    'tertiaryTextColor': '#D4C4A8'
+  }
+}}%%
+
+flowchart TB
+    User([&quot;👤 User&quot;])
+
+    subgraph FE[&quot;🖥️ Frontend · Streamlit&quot;]
+        direction TB
+        App[&quot;app.py&quot;]
+        Sidebar[&quot;sidebar.py&quot;]
+        Chat[&quot;chat.py&quot;]
+        HITL_UI[&quot;hitl.py&quot;]
+    end
+
+    subgraph BE[&quot;⚙️ Backend · LangGraph&quot;]
+        direction TB
+        Graph[&quot;graph.py&quot;]
+        ChatNode[&quot;chat_node&lt;br/&gt;deepseek-v4-pro&quot;]
+        ToolNode[&quot;ToolNode&quot;]
+        CKPT[(&quot;SQLite checkpointer&quot;)]
+        RAG[&quot;rag.py + FAISS&lt;br/&gt;bge-small-en-v1.5&quot;]
+    end
+
+    subgraph TOOLS[&quot;🧰 backend/tools&quot;]
+        direction LR
+        T1[&quot;search.py&quot;] ~~~ T2[&quot;calculator.py&quot;] ~~~ T3[&quot;stock.py&quot;] ~~~ T4[&quot;weather.py&quot;] ~~~ T5[&quot;rag_tool&quot;]
+    end
+
+    User --&gt; App
+    App --&gt; Sidebar
+    App --&gt; Chat
+    App --&gt; HITL_UI
+    Chat --&gt; Graph
+    HITL_UI --&gt; Graph
+    Graph --&gt; ChatNode
+    ChatNode --&gt;|need tools| ToolNode
+    ToolNode --&gt; TOOLS
+    T5 --&gt; RAG
+    ToolNode --&gt; ChatNode
+    ChatNode --&gt;|final answer| Chat
+    Graph &lt;--&gt; CKPT
+    ChatNode -.-&gt;|interrupt| HITL_UI
+
+    linkStyle default stroke:#9AABB8,stroke-width:1.5px,color:#D4C4A8
+
+    classDef user fill:#4A3F42,stroke:#C4A7A7,stroke-width:1.5px,color:#F0E6E6
+    classDef fe fill:#3D4F5F,stroke:#7A91A8,stroke-width:1.5px,color:#E4ECF2
+    classDef be fill:#36424D,stroke:#8FA3B5,stroke-width:1.5px,color:#E4ECF2
+    classDef tool fill:#4A453C,stroke:#C9B896,stroke-width:1.5px,color:#F2EBDD
+    classDef store fill:#423A40,stroke:#B89B9B,stroke-width:1.5px,color:#F0E6E6
+
+    class User user
+    class App,Sidebar,Chat,HITL_UI fe
+    class Graph,ChatNode,ToolNode,RAG be
+    class T1,T2,T3,T4,T5 tool
+    class CKPT store
+</code></pre>
+<h3 id="agent">Agent 运行时序</h3>
+<pre><code class="language-mermaid">%%{init: {
+  'theme': 'base',
+  'themeVariables': {
+    'background': '#1C1F24',
+    'actorBkg': '#3D4F5F',
+    'actorBorder': '#7A91A8',
+    'actorTextColor': '#E8E6E3',
+    'signalColor': '#9AABB8',
+    'signalTextColor': '#D4C4A8',
+    'labelBoxBkgColor': '#2A3038',
+    'labelBoxBorderColor': '#7A91A8',
+    'labelTextColor': '#D4C4A8',
+    'noteBkgColor': '#4A453C',
+    'noteBorderColor': '#C9B896',
+    'noteTextColor': '#F2EBDD',
+    'activationBkgColor': '#36424D',
+    'activationBorderColor': '#8FA3B5',
+    'sequenceNumberColor': '#1C1F24'
+  }
+}}%%
+
+sequenceDiagram
+    autonumber
+    actor U as User
+    participant UI as Streamlit UI
+    participant G as LangGraph
+    participant L as deepseek-v4-pro
+    participant T as Tools
+    participant H as HITL Panel
+
+    U-&gt;&gt;UI: 输入问题 / 上传 PDF
+    alt 上传 PDF
+        UI-&gt;&gt;G: ingest_rag_document()
+        Note over G: 本地 BGE embedding → FAISS
+    end
+
+    UI-&gt;&gt;G: stream(HumanMessage)
+    G-&gt;&gt;L: 推理是否需要工具
+
+    alt 需要工具
+        L-&gt;&gt;T: tool_calls
+        alt purchase_stock HITL
+            T--&gt;&gt;G: interrupt(审批提示)
+            G--&gt;&gt;UI: pending_hitl
+            UI-&gt;&gt;H: Approve / Reject
+            U-&gt;&gt;H: 审批决策
+            H-&gt;&gt;G: Command(resume=yes/no)
+            G-&gt;&gt;T: 继续执行
+            T--&gt;&gt;L: 工具结果
+        else 其他工具
+            T--&gt;&gt;L: 工具结果
+        end
+        L--&gt;&gt;UI: 流式最终回答
+    else 直接回答
+        L--&gt;&gt;UI: 流式最终回答
+    end
+
+    UI--&gt;&gt;U: 渲染回复 &amp; 会话记忆
+</code></pre>
+<h3 id="function-call-flow">Function Call Flow（文本）</h3>
+<p>前后端同进程：Streamlit <code>frontend/*</code> 直接 <code>import</code> 并调用 <code>backend</code> 导出函数，无 HTTP。</p>
+<p><strong>1. 启动渲染</strong></p>
+<pre><code class="language-text">app.py
+├── init_session_state()                    # frontend/session.py
+│   ├── generate_thread_id()
+│   ├── get_all_threads()                   # backend/threads.py → checkpointer
+│   └── add_thread(thread_id)
+├── sync_pending_interrupt(thread_id)       # frontend/hitl.py
+│   └── get_pending_interrupt(thread_id)
+│       └── chatbot.get_state(config)       # backend.graph 编译图
+├── render_sidebar()                        # frontend/sidebar.py
+├── render_message_history()                # frontend/chat.py
+├── render_hitl_approval()                  # frontend/chat.py
+└── handle_chat_input()                     # frontend/chat.py
+</code></pre>
+<p><strong>2. 用户发消息（主路径）</strong></p>
+<pre><code class="language-text">handle_chat_input()
+└── _stream_assistant_response(user_input)
+    └── chatbot.stream(
+            {&quot;messages&quot;: [HumanMessage(...)]},
+            config={&quot;configurable&quot;: {&quot;thread_id&quot;: ...}},
+            stream_mode=&quot;messages&quot;,
+        )                                   # backend/graph.py → compiled graph
+        ├── chat_node(state)
+        │   └── llm_with_tools.invoke(messages)
+        │       ├── 无 tool_calls → 流式 AIMessage → st.write_stream
+        │       └── 有 tool_calls → tools_condition → tools
+        └── tools (ToolNode)
+            ├── search_tool / calculator / get_stock_price /
+            │   get_current_weather / rag_tool / purchase_stock
+            ├── purchase_stock → interrupt(...)   # HITL 暂停
+            └── 工具结果回灌 chat_node → 最终 AIMessage
+    └── get_pending_interrupt(thread_id)    # 若有 interrupt
+        └── save_pending_interrupt(...)     # 写入 st.session_state[&quot;pending_hitl&quot;]
+</code></pre>
+<p><strong>3. 上传 PDF</strong></p>
+<pre><code class="language-text">handle_chat_input()
+└── _process_uploaded_pdf(uploaded_pdf)
+    └── ingest_rag_document(temp_path)      # backend/rag.py
+        ├── 解析 PDF → chunks
+        ├── get_embeddings()                # backend/llm.py · BGE 本地
+        └── FAISS 写入 data/faiss_db/
+</code></pre>
+<p><strong>4. HITL 审批恢复</strong></p>
+<pre><code class="language-text">render_hitl_approval()
+└── resume_hitl_execution(&quot;yes&quot; | &quot;no&quot;)     # frontend/hitl.py
+    └── chatbot.stream(
+            Command(resume=decision),
+            config=...,
+            stream_mode=&quot;messages&quot;,
+        )
+        └── 从 interrupt 处继续 ToolNode
+            → purchase_stock 返回结果
+            → chat_node 生成最终回答
+            → st.write_stream / st.rerun()
+</code></pre>
+<p><strong>5. 切换 / 新建会话</strong></p>
+<pre><code class="language-text"># New Chat
+render_sidebar() → reset_chat() → generate_thread_id() + 清空 history/HITL
+
+# 点击已有 thread
+render_sidebar()
+├── load_conversation(thread_id)            # chatbot.get_state → messages
+├── messages_to_ui_history(messages)
+└── sync_pending_interrupt(thread_id)       # 恢复该线程未完成审批
+</code></pre>
+<h3 id="langgraph">LangGraph 状态机</h3>
+<pre><code class="language-mermaid">%%{init: {
+  'theme': 'base',
+  'themeVariables': {
+    'background': '#1C1F24',
+    'primaryColor': '#3D4F5F',
+    'primaryTextColor': '#E8E6E3',
+    'primaryBorderColor': '#7A91A8',
+    'lineColor': '#9AABB8',
+    'textColor': '#D4C4A8',
+    'labelColor': '#D4C4A8',
+    'tertiaryTextColor': '#D4C4A8',
+    'edgeLabelBackground': '#2A3038',
+    'noteBkgColor': '#4A3F42',
+    'noteTextColor': '#F0E6E6',
+    'noteBorderColor': '#C4A7A7'
+  }
+}}%%
+
+stateDiagram-v2
+    [*] --&gt; chat_node: START
+
+    chat_node --&gt; tools: tools_condition / 有 tool_calls
+    chat_node --&gt; [*]: 无 tool_calls / 结束本轮
+
+    tools --&gt; chat_node: 工具结果回灌
+
+    note right of tools
+      stock.purchase_stock 触发
+      interrupt → 等待人工审批
+      resume 后继续
+    end note
+</code></pre>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags">
+            <span class="chip">LangGraph 实战</span>
+            <span class="chip">AI Agent</span>
+            <span class="chip">面试宝典</span>
+          </div>
+          <a class="t-meta" href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/11-langgraph/02-Agentic-Chatbot-using-LangGraph/README.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../ai-engineer/langgraph/04-langgraph-code.html"><span class="dir">← 上一篇</span><span class="t">LangGraph 核心 + Agentic Chatbot</span></a><a class="next" href="../../ai-engineer/langgraph/03-project-tripmate-ai-a-multi-agent-travel-planner-with-langgraph.html"><span class="dir">下一篇 →</span><span class="t">✈️ TripMate AI — 基于 LangGraph 的多智能体旅行规划助手</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../rag/index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+
+<script src="../../ai-engineer/assets/mermaid-init.js" defer></script>
+<script src="../../js/main.js" defer></script>
+</body>
+</html>

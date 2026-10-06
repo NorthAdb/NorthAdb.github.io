@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>s09: Memory — 压缩会丢细节，要有一层不丢的 · AI Agent 面试宝典 — NorthAdb 的博客</title>
+<meta name="description" content="&quot;压缩会丢细节, 要有一层不丢的&quot; — 文件仓库 + 索引 + 按需加载，跨压缩、跨会话。 Harness 层: 记忆 — 跨压缩、跨会话的知识积累。">
+<link rel="canonical" href="https://northadb.github.io/ai-engineer/harness/s09-memory.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="s09: Memory — 压缩会丢细节，要有一层不丢的 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta property="og:description" content="&quot;压缩会丢细节, 要有一层不丢的&quot; — 文件仓库 + 索引 + 按需加载，跨压缩、跨会话。 Harness 层: 记忆 — 跨压缩、跨会话的知识积累。">
+<meta property="og:url" content="https://northadb.github.io/ai-engineer/harness/s09-memory.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="s09: Memory — 压缩会丢细节，要有一层不丢的 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta name="twitter:description" content="&quot;压缩会丢细节, 要有一层不丢的&quot; — 文件仓库 + 索引 + 按需加载，跨压缩、跨会话。 Harness 层: 记忆 — 跨压缩、跨会话的知识积累。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../feed.xml">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../ai-engineer/assets/course.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "s09: Memory — 压缩会丢细节，要有一层不丢的", "description": "\"压缩会丢细节, 要有一层不丢的\" — 文件仓库 + 索引 + 按需加载，跨压缩、跨会话。 Harness 层: 记忆 — 跨压缩、跨会话的知识积累。", "author": {"@type": "Person", "name": "juliepy", "url": "https://github.com/juliepy/AI-Engineer-from-scrach"}, "mainEntityOfPage": "https://northadb.github.io/ai-engineer/harness/s09-memory.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../index.html">首页</a><span>/</span><a href="../../learn.html">课件</a><span>/</span><a href="../../ai-engineer/index.html">AI Agent 面试宝典</a><span>/</span><a href="../../ai-engineer/harness/index.html">Harness 工程化</a></div>
+          <h1>s09: Memory — 压缩会丢细节，要有一层不丢的</h1>
+          <p class="post-sub">&quot;压缩会丢细节, 要有一层不丢的&quot; — 文件仓库 + 索引 + 按需加载，跨压缩、跨会话。 Harness 层: 记忆 — 跨压缩、跨会话的知识积累。</p>
+          <div class="post-meta">
+            <span class="avatar">AI</span>
+            <span>AI Agent 面试宝典</span><span class="sep"></span>
+            <span>Harness 工程化</span><span class="sep"></span>
+            <span>阅读约 9 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<p><a href="../harness/s09-memory.html">中文</a> · <a href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/06-harnes/learn-claude-code/s09_memory/README.en.md">English</a> · <a href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/06-harnes/learn-claude-code/s09_memory/README.ja.md">日本語</a></p>
+<p>s01 → ... → s07 → s08 → <code>s09</code> → <a href="https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/06-harnes/learn-claude-code/s10_system_prompt">s10</a> → s11 → ... → s20</p>
+<blockquote>
+<p><em>"压缩会丢细节, 要有一层不丢的"</em> — 文件仓库 + 索引 + 按需加载，跨压缩、跨会话。</p>
+<p><strong>Harness 层</strong>: 记忆 — 跨压缩、跨会话的知识积累。</p>
+</blockquote>
+<hr>
+<h2 id="_1">问题</h2>
+<p>s08 的 autoCompact 会把当前目标、剩余工作、用户约束写进摘要，但细节会丢失："用 tab 缩进不要用空格"可能被简化成"用户有代码风格偏好"。而且新开一个会话，连摘要也没了。</p>
+<p>LLM 没有持久状态，所有信息都在上下文窗口里。上下文满了要压缩，压缩就有损。需要一层不参与压缩、跨会话保留的存储。</p>
+<hr>
+<h2 id="_2">解决方案</h2>
+<p><img alt="Memory Overview" src="../assets/img/4f24890601.svg"></p>
+<p>s08 的压缩管线保留，聚焦记忆。存储选文件系统：<code>.memory/</code> 目录下，每个记忆一个 <code>.md</code> 文件，带 YAML frontmatter（<code>name</code> / <code>description</code> / <code>type</code>）。文件多了需要索引：<code>MEMORY.md</code> 一行一个链接，注入 SYSTEM。</p>
+<p>关键设计：索引常驻 SYSTEM prompt（可被 prompt cache 缓存），文件内容按需注入到当前 user turn（按 filename/description 匹配当前对话，不破坏 cache）。写入由每轮结束后的提取器完成：用户显式说"记住"或表达稳定偏好时，提取器会保存为记忆。文件积累多了，定期整理去重。</p>
+<p>四类记忆，各有用途：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>回答什么</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>user</td>
+<td>你是谁</td>
+<td>"用 tab 不用空格"</td>
+</tr>
+<tr>
+<td>feedback</td>
+<td>怎么做事</td>
+<td>"别 mock 数据库"</td>
+</tr>
+<tr>
+<td>project</td>
+<td>正在发生什么</td>
+<td>"auth 重写是合规驱动"</td>
+</tr>
+<tr>
+<td>reference</td>
+<td>东西在哪找</td>
+<td>"pipeline bug 在 Linear INGEST"</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="_3">工作原理</h2>
+<p><img alt="Memory Subsystems" src="../assets/img/a673e10071.svg"></p>
+<h3 id="markdown">存储：Markdown 文件 + 索引</h3>
+<p>每个记忆是一个 <code>.md</code> 文件，YAML frontmatter 记录元数据：</p>
+<pre><code class="language-markdown">---
+name: user-preference-tabs
+description: User prefers tabs for indentation
+type: user
+---
+
+User prefers using tabs, not spaces, for indentation.
+**Why:** Consistency with existing codebase conventions.
+**How to apply:** Always use tabs when writing or editing files.
+</code></pre>
+<p><code>MEMORY.md</code> 是索引，一行一个链接：</p>
+<pre><code class="language-markdown">- [user-preference-tabs](user-preference-tabs.md) — User prefers tabs for indentation
+</code></pre>
+<p>写入新记忆时自动重建索引：</p>
+<pre><code class="language-python">def write_memory_file(name, mem_type, description, body):
+    slug = name.lower().replace(&quot; &quot;, &quot;-&quot;)
+    filepath = MEMORY_DIR / f&quot;{slug}.md&quot;
+    filepath.write_text(
+        f&quot;---\nname: {name}\ndescription: {description}\ntype: {mem_type}\n---\n\n{body}\n&quot;
+    )
+    _rebuild_index()
+</code></pre>
+<h3 id="_4">加载：两条路径</h3>
+<p><strong>路径一：索引常驻 SYSTEM。</strong> <code>build_system()</code> 在每次用户请求开始时读取 <code>MEMORY.md</code>，把记忆清单注入。记忆提取和整理只在本轮结束时触发，因此同一轮用户请求中不需要重复重建 SYSTEM。</p>
+<p><strong>路径二：相关记忆按需注入。</strong> 每次用户请求开始时，<code>load_memories()</code> 把最近对话和记忆目录（name + description）一起发给 LLM 做一次轻量 side-query，选出相关的文件名，再读文件内容临时注入到当前 user turn。最多 5 条，控制开销。</p>
+<pre><code class="language-python">def select_relevant_memories(messages, max_items=5):
+    files = list_memory_files()
+    if not files:
+        return []
+
+    # Build catalog: &quot;0: user-preference-tabs — User prefers tabs...&quot;
+    catalog = &quot;\n&quot;.join(f&quot;{i}: {f['name']} — {f['description']}&quot; for i, f in enumerate(files))
+
+    response = client.messages.create(model=MODEL, messages=[{&quot;role&quot;: &quot;user&quot;,
+        &quot;content&quot;: f&quot;Select relevant memory indices. Return JSON array.\n\n&quot;
+                   f&quot;Recent conversation:\n{recent}\n\nMemory catalog:\n{catalog}&quot;}],
+        max_tokens=200)
+    text = extract_text(response.content).strip()
+    indices = json.loads(re.search(r'\[.*?\]', text).group())
+    return [files[i][&quot;filename&quot;] for i in indices if 0 &lt;= i &lt; len(files)]
+</code></pre>
+<p>如果 side-query 失败（API 错误、JSON 解析失败），降级到关键词匹配 name + description。</p>
+<h3 id="_5">写入：每轮结束后提取</h3>
+<p>用户不会每次都说"记住这个"。偏好通常散落在正常对话中："用 tab 比空格好"、"以后都用单引号"。</p>
+<p><code>extract_memories()</code> 在每轮结束时运行，条件是模型停止且没有 tool_use（说明对话告一段落）：</p>
+<pre><code class="language-python"># In agent_loop:
+if response.stop_reason != &quot;tool_use&quot;:
+    extract_memories(pre_compress)   # 从压缩前快照提取新记忆
+    consolidate_memories()       # 检查是否需要整理
+    return
+</code></pre>
+<p>提取前先检查已有记忆，避免重复。提取 prompt 要求 LLM 返回 <code>{name, type, description, body}</code> 的 JSON 数组，只有确实有新信息时才写文件。</p>
+<pre><code class="language-python">def extract_memories(messages):
+    dialogue = format_recent_messages(messages[-10:])
+    existing = &quot;\n&quot;.join(f&quot;- {m['name']}: {m['description']}&quot; for m in list_memory_files())
+
+    prompt = (
+        &quot;Extract user preferences, constraints, or project facts.\n&quot;
+        &quot;Return JSON array: [{name, type, description, body}].\n&quot;
+        &quot;If nothing new or already covered, return [].\n\n&quot;
+        f&quot;Existing memories:\n{existing}\n\nDialogue:\n{dialogue[:4000]}&quot;
+    )
+    # ... parse response, write files ...
+</code></pre>
+<h3 id="_6">整理：低频合并去重</h3>
+<p>记忆文件会积累。<code>consolidate_memories()</code> 在文件数达到阈值（默认 10）时触发，让 LLM 去重、合并矛盾、淘汰过时记忆：</p>
+<pre><code class="language-python">CONSOLIDATE_THRESHOLD = 10
+
+def consolidate_memories():
+    files = list_memory_files()
+    if len(files) &lt; CONSOLIDATE_THRESHOLD:
+        return  # 太少，不值得整理
+    # Send all memories to LLM, get back deduplicated list
+    # Replace all files with consolidated results
+</code></pre>
+<p>CC 把这个过程叫 Dream，实际有四层门控：时间间隔、扫描节流、会话数、文件锁。教学版简化为文件数阈值。</p>
+<h3 id="memory">Memory 适合保存什么</h3>
+<p>Memory 保存跨会话仍然有用的信息：用户偏好、反复出现的反馈、项目背景、常用入口和排查线索。它关注“以后还会用到什么”，并通过索引 + 按需加载把这些信息带回当前对话。</p>
+<p>session memory 关注同一会话内的连续性：compact 之后，当前会话还需要保留哪些上下文。两者配合使用：Memory 管长期知识，session memory 管当前会话的压缩续接。</p>
+<hr>
+<h2 id="s08">相对 s08 的变更</h2>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>之前 (s08)</th>
+<th>之后 (s09)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>记忆能力</td>
+<td>无（压缩后偏好随摘要退化）</td>
+<td>存储 + 加载 + 提取 + 整理</td>
+</tr>
+<tr>
+<td>新函数</td>
+<td>—</td>
+<td>write_memory_file, select_relevant_memories, load_memories, extract_memories, consolidate_memories</td>
+</tr>
+<tr>
+<td>存储</td>
+<td>—</td>
+<td>.memory/MEMORY.md 索引 + .memory/*.md 文件</td>
+</tr>
+<tr>
+<td>工具</td>
+<td>bash, read, write, edit, glob, todo_write, task, load_skill, compact (9)</td>
+<td>bash, read_file, write_file, edit_file, glob, task (6)</td>
+</tr>
+<tr>
+<td>循环</td>
+<td>每轮只做压缩</td>
+<td>每轮注入记忆 + 压缩 + 每轮结束后提取 + 定期整理</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="_7">试一下</h2>
+<pre><code class="language-sh">cd learn-claude-code
+python s09_memory/code.py
+</code></pre>
+<p>试试这些 prompt（分多轮输入，观察记忆的累积和加载）：</p>
+<ol>
+<li><code>I prefer using tabs for indentation, not spaces. Remember that.</code></li>
+<li><code>Create a Python file called test.py</code>（观察 Agent 是否用了 tab）</li>
+<li><code>What did I tell you about my preferences?</code>（观察 Agent 是否记得）</li>
+<li><code>I also prefer single quotes over double quotes for strings.</code></li>
+</ol>
+<p>观察重点：每轮结束后是否出现 <code>[Memory: extracted N new memories]</code>？<code>.memory/</code> 目录下是否生成了 <code>.md</code> 文件？<code>MEMORY.md</code> 索引是否更新？新一轮对话时 Agent 是否自动加载了之前的记忆？</p>
+<hr>
+<h2 id="_8">接下来</h2>
+<p>记忆、压缩、工具都已就绪。但 system prompt 还是硬编码的一大段字符串。加了新工具要手动加描述，换了项目要重写整个 prompt。prompt 应该运行时组装。</p>
+<p>s10 System Prompt → 分段 + 运行时组装。不同项目、不同工具，拼出不同的 prompt。</p>
+<details>
+<summary>深入 CC 源码</summary>
+
+> 以下基于 CC 源码 `src/` 下 `memdir/`、`services/`、`utils/`、`query/` 的分析，行号已对照核实。
+
+### 源码路径
+
+| 文件 | 行数 | 职责 |
+|------|------|------|
+| `memdir/memdir.ts` | 507 | 核心：MEMORY.md 定义（`34-38`）、记忆行为指令区分 memory/plan/tasks（`199-266`）、`loadMemoryPrompt()` 三条路径（`419-490`） |
+| `memdir/findRelevantMemories.ts` | 141 | Sonnet side-query 选记忆（`18-24` 系统提示、`97-122` 调用逻辑） |
+| `memdir/memoryTypes.ts` | 271 | 类型定义，frontmatter 字段 |
+| `memdir/memoryScan.ts` | — | 扫描 .md 文件，排除 MEMORY.md，读 frontmatter，最多 200 个，按 mtime 降序（`35-94`） |
+| `services/extractMemories/extractMemories.ts` | 615 | forked agent 提取记忆，受限权限，`skipTranscript: true`，`maxTurns: 5`（`371-427`） |
+| `services/autoDream/autoDream.ts` | 324 | Dream 整理，四层门控（`63-66` 默认值、`130-190` 门控、`224-233` forked agent） |
+| `services/SessionMemory/sessionMemory.ts` | 495 | 会话级记忆管理 |
+| `services/compact/sessionMemoryCompact.ts` | — | session memory 轻量摘要，阈值 10K/5/40K（`56-61`） |
+| `utils/attachments.ts` | — | 注入预算：200 行 / 4096 字节每文件，60KB 每 session（`269-288`）；按 query 找相关 memory（`2196-2241`） |
+| `query.ts` | — | memory prefetch 每轮启动（`301-304`），非阻塞收集（`1592-1614`） |
+| `query/stopHooks.ts` | — | stop hook fire-and-forget 触发提取和 Dream（`141-155`） |
+
+### 记忆选择：LLM 选，不是 embedding
+
+CC 用 **Sonnet 本身来选**（`findRelevantMemories.ts`），不是 embedding 向量相似度：
+
+1. `memoryScan.ts` 扫描 `.memory/` 下所有 `.md` 文件（排除 MEMORY.md），最多 200 个，按 mtime 降序
+2. 把 `name` + `description` 列成清单
+3. 发给 Sonnet side-query："根据名称和描述选出真正有用的记忆（最多 5 个）。不确定就不要选。"
+4. Sonnet 返回 `{ selected_memories: ["file1.md", ...] }`
+5. 选中文件读取完整内容（每文件 ≤ 200 行 / 4096 字节），注入上下文。单 session 总预算 60KB
+
+每轮用户 turn 开始时，`query.ts:301-304` 启动 memory prefetch（异步）；工具执行后 `1592-1614` 非阻塞收集结果，不卡主流程。
+
+### 提取时机：stop hook，不是 autoCompact 后
+
+触发位置（`stopHooks.ts:141-155`）：在 `handleStopHooks()` 中，fire-and-forget 触发提取和 Dream。教学版把提取放在 `stop_reason != "tool_use"` 分支里，方向一致。
+
+CC 的提取通过 forked agent 执行（`extractMemories.ts:371-427`）：受限权限、`skipTranscript: true`、`maxTurns: 5`。还有重叠保护：如果主 Agent 已经写入了记忆文件，跳过提取。
+
+### 记忆文件格式
+
+CC 用 Markdown + YAML frontmatter，和教学版一致。四种类型：`user`、`feedback`、`project`、`reference`。
+
+`memdir.ts:34-38` 定义索引约束：`MEMORY.md` 最多 200 行 / 25KB。`memdir.ts:199-266` 构建记忆行为指令，明确区分 memory、plan、tasks。存储位置：`~/.claude/projects/<sanitized-git-root>/memory/`。
+
+### Dream：四层门控
+
+不是"空闲时触发"或"数量够了就合并"，而是四层门控（`autoDream.ts`，默认值 `63-66`，门控逻辑 `130-190`）：
+
+1. **时间门控**：距上次合并 ≥ 24 小时
+2. **扫描节流**：避免频繁扫描文件系统
+3. **会话门控**：自上次合并以来修改了 ≥ 5 个会话 transcript
+4. **锁门控**：没有其他进程正在合并（`.consolidate-lock` 文件）
+
+合并本身通过 forked agent 执行（`224-233`）：定位 → 收集近期信号 → 合并写文件 → 剪枝更新索引。锁文件 mtime 就是 lastConsolidatedAt。崩溃恢复：1 小时后锁自动过期。
+
+### User Memory vs Session Memory
+
+| | User Memory | Session Memory |
+|---|---|---|
+| 持久性 | 跨会话 | 单会话 |
+| 存储 | `memory/` 下多个 .md 文件 | `session-memory/<id>/memory.md` |
+| 加载到 | system prompt | compact 摘要 |
+| 用途 | 跨会话的知识积累 | 跨 compact 的上下文连续性 |
+
+sessionMemoryCompact（s08 中提到的机制）正是使用了 Session Memory：autoCompact 前先读 session memory 文件，如果内容足够（≥ 10K token、≥ 5 条文本消息、≤ 40K token，`sessionMemoryCompact.ts:56-61`），就用它做摘要，不调 LLM。
+
+### 真实实现比教学版复杂的地方
+
+- **Feature flags**：记忆相关功能有多层 feature gate 控制
+- **Team memory**：团队共享记忆，`loadMemoryPrompt()` 有专门路径（教学版未涉及）
+- **KAIROS**：时机感知的记忆提取策略，`loadMemoryPrompt()` 中 daily-log 模式
+- **Prompt cache**：记忆注入需要考虑 prompt cache 的 TTL，避免每次都重写 system prompt 的大段内容
+- **文件锁**：多进程并发时的锁机制
+- **Memory prefetch**：异步预取，不阻塞主流程
+
+### 教学版的简化是刻意的
+
+- LLM side-query → LLM side-query + 关键词降级：教学版保留了 LLM 选择，加了降级路径
+- 记忆 JSON → Markdown + frontmatter：教学版与 CC 一致
+- stop hook 触发 → `stop_reason != "tool_use"` 分支：方向一致
+- 四层门控 → 文件数阈值：教学版没有 transcript 系统和多会话概念
+- forked agent + 受限权限 → 直接调用：教学版没有子进程隔离
+
+</details>
+
+<!-- translation-sync: zh@v1, en@v1, ja@v1 -->
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags">
+            <span class="chip">Harness 工程化</span>
+            <span class="chip">AI Agent</span>
+            <span class="chip">面试宝典</span>
+          </div>
+          <a class="t-meta" href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/06-harnes/learn-claude-code/s09_memory/README.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../ai-engineer/harness/s08-context-compact.html"><span class="dir">← 上一篇</span><span class="t">s08: Context Compact — 上下文总会满，要有办法腾地方</span></a><a class="next" href="../../ai-engineer/harness/s10-system-prompt.html"><span class="dir">下一篇 →</span><span class="t">s10: System Prompt — 运行时组装，不硬编码</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../rag/index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+
+<script src="../../js/main.js" defer></script>
+</body>
+</html>

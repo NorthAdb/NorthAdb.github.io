@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pi Events and Persistence · AI Agent 面试宝典 — NorthAdb 的博客</title>
+<meta name="description" content="- 一、总图一总图 - 二、emit 是什么二emit-是什么 - 三、何时发送三何时发送 - 四、谁在听四谁在听 - 五、processEvents五processevents - 六、落盘六落盘">
+<link rel="canonical" href="https://northadb.github.io/ai-engineer/pi/03-events.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Pi Events and Persistence · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta property="og:description" content="- 一、总图一总图 - 二、emit 是什么二emit-是什么 - 三、何时发送三何时发送 - 四、谁在听四谁在听 - 五、processEvents五processevents - 六、落盘六落盘">
+<meta property="og:url" content="https://northadb.github.io/ai-engineer/pi/03-events.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Pi Events and Persistence · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta name="twitter:description" content="- 一、总图一总图 - 二、emit 是什么二emit-是什么 - 三、何时发送三何时发送 - 四、谁在听四谁在听 - 五、processEvents五processevents - 六、落盘六落盘">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../feed.xml">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../ai-engineer/assets/course.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Pi Events and Persistence", "description": "- 一、总图一总图 - 二、emit 是什么二emit-是什么 - 三、何时发送三何时发送 - 四、谁在听四谁在听 - 五、processEvents五processevents - 六、落盘六落盘", "author": {"@type": "Person", "name": "juliepy", "url": "https://github.com/juliepy/AI-Engineer-from-scrach"}, "mainEntityOfPage": "https://northadb.github.io/ai-engineer/pi/03-events.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../index.html">首页</a><span>/</span><a href="../../learn.html">课件</a><span>/</span><a href="../../ai-engineer/index.html">AI Agent 面试宝典</a><span>/</span><a href="../../ai-engineer/pi/index.html">Pi 架构与上手</a></div>
+          <h1>Pi Events and Persistence</h1>
+          <p class="post-sub">- 一、总图一总图 - 二、emit 是什么二emit-是什么 - 三、何时发送三何时发送 - 四、谁在听四谁在听 - 五、processEvents五processevents - 六、落盘六落盘</p>
+          <div class="post-meta">
+            <span class="avatar">AI</span>
+            <span>AI Agent 面试宝典</span><span class="sep"></span>
+            <span>Pi 架构与上手</span><span class="sep"></span>
+            <span>阅读约 7 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<hr>
+<h2 id="_1">目录</h2>
+<ul>
+<li><a href="#一总图">一、总图</a></li>
+<li><a href="#二emit-是什么">二、emit 是什么</a></li>
+<li><a href="#三何时发送">三、何时发送</a></li>
+<li><a href="#四谁在听">四、谁在听</a></li>
+<li><a href="#五processevents">五、processEvents</a></li>
+<li><a href="#六落盘">六、落盘</a></li>
+</ul>
+<hr>
+<h2 id="_2">一、总图</h2>
+<p>图从左到右是 UI | Interactive | Core。事件从右往左：Core 发，Interactive 处理，UI 画。<code>await emit</code> 等到 Interactive 做完；UI 被 <code>_emit</code> 踢出去，不挡循环。后面各节按这条线展开。</p>
+<pre><code class="language-text">function flow（三层）
+  Pi Core  发送
+    runLoop await emit(event)
+      → Agent.processEvents
+          先改 state
+          再 await 已 subscribe 的 listeners   # 含 _handleAgentEvent
+
+  Pi Interactive  处理
+    AgentSession._handleAgentEvent
+      ① await pi.on 订的扩展
+      ② _emit → session.subscribe 名单  # 不 await，不挡循环
+      ③ message_end → append JSONL
+    另发 SessionEvent（不经 runLoop，第四节）
+
+  UI  处理
+    handleEvent                        # 只订 Session，不订 Core
+      改 Component → TUI.requestRender
+</code></pre>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;flowchart&quot;: {&quot;curve&quot;: &quot;linear&quot;, &quot;rankSpacing&quot;: 36, &quot;nodeSpacing&quot;: 28, &quot;padding&quot;: 12, &quot;useMaxWidth&quot;: false, &quot;htmlLabels&quot;: true}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;22px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;lineColor&quot;: &quot;#CBD5E1&quot;, &quot;clusterBkg&quot;: &quot;#111111&quot;, &quot;clusterBorder&quot;: &quot;#C4B5FD&quot;, &quot;titleColor&quot;: &quot;#FDE68A&quot;, &quot;edgeLabelBackground&quot;: &quot;#111111&quot;}, &quot;themeCSS&quot;: &quot;.nodeLabel,.label,.cluster-label,span{font-size:22px!important}&quot;}}%%
+flowchart RL
+    subgraph uiLayer[&quot;UI&quot;]
+        direction TB
+        HEV[&quot;handleEvent&lt;br/&gt;订 session.subscribe&quot;]
+        DRAW[&quot;requestRender&quot;]
+        HEV --&gt; DRAW
+    end
+
+    subgraph interactiveLayer[&quot;Interactive&quot;]
+        direction TB
+        HA[&quot;_handleAgentEvent&lt;br/&gt;订 agent.subscribe&quot;]
+        EXT[&quot;① await pi.on&quot;]
+        UIEMIT[&quot;② _emit 不等待&quot;]
+        DISK[&quot;③ message_end 落盘&quot;]
+        HA --&gt; EXT
+        EXT --&gt; UIEMIT
+        UIEMIT --&gt; DISK
+    end
+
+    subgraph coreLayer[&quot;Pi Core&quot;]
+        direction TB
+        LOOP[&quot;runLoop emit&quot;]
+        ST[&quot;processEvents&lt;br/&gt;先改 state&quot;]
+        LIS[&quot;再 await listeners&quot;]
+        LOOP --&gt; ST
+        ST --&gt; LIS
+    end
+
+    LIS --&gt; HA
+    UIEMIT --&gt; HEV
+
+    classDef start fill:#BFDBFE,stroke:#93C5FD,color:#1E3A8A,font-size:22px
+    classDef step fill:#A5F3FC,stroke:#67E8F9,color:#155E75,font-size:22px
+    classDef prod fill:#E9D5FF,stroke:#D8B4FE,color:#6B21A8,font-size:22px
+    classDef ok fill:#BBF7D0,stroke:#86EFAC,color:#14532D,font-size:22px
+    classDef wrap fill:#111111,stroke:#C4B5FD,color:#FDE68A,font-size:22px
+
+    class LOOP start
+    class ST,LIS,HA,EXT,UIEMIT step
+    class HEV prod
+    class DISK,DRAW ok
+    class uiLayer,interactiveLayer,coreLayer wrap
+</code></pre>
+<hr>
+<h2 id="emit">二、emit 是什么</h2>
+<p>循环对外只发 <code>AgentEvent</code>。<code>runLoop</code> 不画 UI、不写盘，只调用传入的回调 <code>emit</code>。类型在 <code>packages/agent/src/types.ts</code>。</p>
+<pre><code class="language-text">AgentEventSink = (event: AgentEvent) =&gt; Promise&lt;void&gt;
+
+Agent 把 emit 接到自己身上:
+  runAgentLoop(..., (event) =&gt; this.processEvents(event), ...)
+</code></pre>
+<p><code>await emit(...)</code> 等的是 <code>processEvents</code> + 已订 listener 做完，不是等模型。TUI 的 <code>handleEvent</code> 被 Interactive 的 <code>_emit</code> 踢出去，不挡循环。</p>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>文件</th>
+<th>函数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>发出</td>
+<td><code>packages/agent/src/agent-loop.ts</code></td>
+<td><code>runLoop</code> 的 <code>emit</code></td>
+</tr>
+<tr>
+<td>接到</td>
+<td><code>packages/agent/src/agent.ts</code></td>
+<td><code>processEvents</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="_3">三、何时发送</h2>
+<p><code>AgentEvent</code> 只在 Core 发。Interactive 另发的 <code>SessionEvent</code> 见第四节。<code>continue()</code> 没有初始 prompt 那对 <code>message_start/end</code>。<code>turn_start</code> 之后可以再进下一 turn，不回到 <code>agent_start</code>。</p>
+<pre><code class="language-text">function flow（何时发送 · agent-loop.ts）
+  agent_start
+    turn_start
+      message_start / message_end              # 初始 prompt（continue 没有）
+      message_start → message_update* → message_end   # assistant 流
+      tool_execution_start
+        tool_execution_update*
+      tool_execution_end
+      message_start / message_end              # 每条 toolResult
+    turn_end
+  agent_end                                    # 不是只有 turn_end 后一条
+    ① error / aborted                    → emit → 立刻 return
+    ② 整批 terminate                      → 不发
+    ③ shouldStopAfterTurn                 → emit → return，跳过两队列
+    ④ 无 tool、steering/follow-up 都空    → emit → 正常退出
+</code></pre>
+<p><code>message_update</code> 只给正在流的 assistant。UI 边生成边画，靠这条，不是循环回头问人。</p>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;flowchart&quot;: {&quot;curve&quot;: &quot;linear&quot;, &quot;rankSpacing&quot;: 32, &quot;nodeSpacing&quot;: 28, &quot;padding&quot;: 12, &quot;useMaxWidth&quot;: false, &quot;htmlLabels&quot;: true}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;22px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;lineColor&quot;: &quot;#CBD5E1&quot;, &quot;edgeLabelBackground&quot;: &quot;#111111&quot;}, &quot;themeCSS&quot;: &quot;.nodeLabel,.label,span{font-size:22px!important}&quot;}}%%
+flowchart LR
+    AS[&quot;agent_start&quot;] --&gt; TS[&quot;turn_start&quot;]
+    TS --&gt; PR[&quot;prompt/steer start+end&quot;]
+    PR --&gt; AM[&quot;assistant start → update* → end&quot;]
+    AM --&gt; TX[&quot;tool start → update* → end&quot;]
+    TX --&gt; TR[&quot;toolResult start+end&quot;]
+    TR --&gt; TE[&quot;turn_end&quot;]
+    TE --&gt; AE[&quot;agent_end&quot;]
+
+    classDef start fill:#BFDBFE,stroke:#93C5FD,color:#1E3A8A,font-size:22px
+    classDef step fill:#A5F3FC,stroke:#67E8F9,color:#155E75,font-size:22px
+    classDef prod fill:#E9D5FF,stroke:#D8B4FE,color:#6B21A8,font-size:22px
+    classDef ok fill:#BBF7D0,stroke:#86EFAC,color:#14532D,font-size:22px
+
+    class AS start
+    class TS,PR,AM,TX,TR step
+    class TE prod
+    class AE ok
+</code></pre>
+<p>上图是嵌套顺序。<code>agent_end</code> 不是只有 <code>turn_end</code> 后面那一条：同一文件三处，对应停机第 1、3、4 道门。第 2 道 terminate <strong>不发</strong>，只挡住「因这批 tool 再调 LLM」，循环可能还去 poll 队列，最后仍可能走第 4 道才发。停机四道门见 <code>02-agent-loop.md</code>。</p>
+<p><code>agent_end</code> 是这次 <code>runLoop</code> 的结束通知，不是在问要不要停。payload 的 <code>messages</code> 是这次 run <strong>新产生</strong>的消息，不含进循环前已有的 transcript。后面 Interactive 若 <code>continue()</code>，那是新的一次 <code>runLoop</code>，会再发 <code>agent_start</code>。</p>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;flowchart&quot;: {&quot;curve&quot;: &quot;linear&quot;, &quot;rankSpacing&quot;: 28, &quot;nodeSpacing&quot;: 20, &quot;padding&quot;: 8, &quot;useMaxWidth&quot;: false, &quot;htmlLabels&quot;: true}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;22px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;lineColor&quot;: &quot;#CBD5E1&quot;, &quot;edgeLabelBackground&quot;: &quot;#111111&quot;}, &quot;themeCSS&quot;: &quot;.nodeLabel,.label,span{font-size:22px!important}&quot;}}%%
+flowchart TB
+    G1{&quot;① 出错?&quot;} --&gt;|是| E1[&quot;立刻发&quot;]
+    G1 --&gt;|否| G2{&quot;② 整批终止?&quot;}
+    G2 --&gt;|是| NO[&quot;不发&quot;]
+    G2 --&gt;|否| G3{&quot;③ 停本 turn?&quot;}
+    G3 --&gt;|是| E2[&quot;跳过队列发&quot;]
+    G3 --&gt;|否| G4{&quot;④ 队列空?&quot;}
+    G4 --&gt;|是| E3[&quot;正常发&quot;]
+    G4 --&gt;|否| MORE[&quot;续跑&quot;]
+
+    classDef dec fill:#FEF08A,stroke:#FDE047,color:#713F12,font-size:22px
+    classDef ok fill:#BBF7D0,stroke:#86EFAC,color:#14532D,font-size:22px
+    classDef mid fill:#A5F3FC,stroke:#67E8F9,color:#155E75,font-size:22px
+    classDef skip fill:#E9D5FF,stroke:#D8B4FE,color:#6B21A8,font-size:22px
+
+    class G1,G2,G3,G4 dec
+    class E1,E2,E3 ok
+    class MORE mid
+    class NO skip
+</code></pre>
+<p><code>agent_end</code> 钩子里新入队的消息，本轮 loop 已经停了，由 <code>_handlePostAgentRun</code> 的 <code>hasQueuedMessages</code> 再 <code>continue()</code>。那是兜底，不是停机第 4 条。</p>
+<p><code>agent_settled</code> 在 <code>_handlePostAgentRun</code> 不再 <code>continue()</code> 之后，是 Interactive 的结束，不是 Core 的 <code>agent_end</code>。它不经 <code>processEvents</code>，走 <code>session.subscribe</code>（第四节）。<code>Agent.waitForIdle</code> 等的是 <code>agent_end</code> 的 listener（第五节）；<code>AgentSession.waitForIdle</code> 等的是这条 <code>agent_settled</code>。</p>
+<hr>
+<h2 id="_4">四、谁在听</h2>
+<p>订听众是 <code>subscribe</code> / <code>pi.on</code>，发生在<strong>构造时</strong>，不在 <code>emit</code> 路径上。</p>
+<pre><code class="language-text">function flow（订）
+  AgentSession 构造:
+    agent.subscribe(_handleAgentEvent)     # 订到 Core
+  扩展加载:
+    pi.on(&quot;message_end&quot;, handler)          # 订到 Interactive
+  InteractiveMode / RPC / print:
+    session.subscribe(handleEvent)         # 订到 Interactive
+</code></pre>
+<p>TUI 不订 Core，只订 Session。</p>
+<table>
+<thead>
+<tr>
+<th>谁订</th>
+<th>订到哪</th>
+<th>调用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AgentSession</td>
+<td>Core <code>Agent.listeners</code></td>
+<td>构造时 <code>agent.subscribe(_handleAgentEvent)</code></td>
+</tr>
+<tr>
+<td>扩展</td>
+<td>Interactive <code>handlers</code></td>
+<td>加载时 <code>pi.on("message_end", ...)</code></td>
+</tr>
+<tr>
+<td>TUI / RPC / print</td>
+<td>Interactive <code>_eventListeners</code></td>
+<td><code>session.subscribe(handleEvent)</code></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>文件</th>
+<th>函数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>订到 Core</td>
+<td><code>packages/agent/src/agent.ts</code></td>
+<td><code>subscribe</code> → <code>listeners.add</code></td>
+</tr>
+<tr>
+<td>订到 Session</td>
+<td><code>packages/coding-agent/src/core/agent-session.ts</code></td>
+<td><code>subscribe</code> → <code>_eventListeners</code></td>
+</tr>
+<tr>
+<td>订扩展</td>
+<td><code>packages/coding-agent/src/core/extensions/types.ts</code></td>
+<td><code>pi.on(...)</code></td>
+</tr>
+<tr>
+<td>UI</td>
+<td><code>packages/coding-agent/src/modes/interactive/interactive-mode.ts</code></td>
+<td><code>subscribeToAgent</code> → <code>handleEvent</code></td>
+</tr>
+</tbody>
+</table>
+<p>Interactive 还另发 <code>SessionEvent</code>（不经 <code>runLoop</code>）：<code>queue_update</code> / <code>agent_settled</code> / <code>compaction_*</code> / <code>auto_retry_*</code>，同样走 <code>session.subscribe</code>。</p>
+<hr>
+<h2 id="processevents">五、processEvents</h2>
+<p>先改内部 state，再按订阅顺序 <code>await</code> 每个 listener。<code>Agent.waitForIdle</code> 等的是这些 listener 做完，不是 <code>agent_end</code> 刚发出。<code>AgentSession.waitForIdle</code> 等的是 <code>agent_settled</code>，见第三节。</p>
+<pre><code class="language-text">function flow（processEvents）
+  Agent.processEvents(event):
+    message_start / message_update → streamingMessage = event.message
+    message_end → 清 streamingMessage；state.messages.push
+    tool_execution_start → pendingToolCalls.add
+    tool_execution_end → pendingToolCalls.delete
+    turn_end → 若 assistant 带 errorMessage，记下
+    agent_end → 清 streamingMessage
+
+    for listener in subscribe() 顺序:
+      await listener(event, signal)
+
+  Agent.waitForIdle():
+    return activeRun.promise     # agent_end 的 listener 也算进去
+                                 # 不是 AgentSession.waitForIdle（那条等 agent_settled）
+</code></pre>
+<p><code>AgentSession</code> 构造时 <code>agent.subscribe(this._handleAgentEvent)</code>。处理顺序：扩展 → TUI 监听者 → 落盘。</p>
+<p>扩展在 <code>message_end</code> 可以替换消息（<code>emitMessageEnd</code>）。替换发生在 <code>appendMessage</code> 之前，所以盘上的是改过的版本。</p>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>文件</th>
+<th>函数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>处理 state</td>
+<td><code>packages/agent/src/agent.ts</code></td>
+<td><code>processEvents</code></td>
+</tr>
+<tr>
+<td>产品订阅</td>
+<td><code>packages/coding-agent/src/core/agent-session.ts</code></td>
+<td><code>_handleAgentEvent</code></td>
+</tr>
+<tr>
+<td>扩展</td>
+<td>同上</td>
+<td><code>_emitExtensionEvent</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="_5">六、落盘</h2>
+<p>落盘 = 把已经定稿的消息追加到 session JSONL。触发点是 <code>message_end</code>，不是整轮 <code>agent_end</code>。崩溃或关掉 TUI 后能接着聊：消息已经按事件写盘。</p>
+<pre><code class="language-text">function flow（落盘）
+  _handleAgentEvent:
+    if message_end:
+      role == custom        → appendCustomMessageEntry
+      role in (user, assistant, toolResult) → sessionManager.appendMessage
+      bash / compactionSummary / branchSummary → 别处写
+
+  appendMessage(msg):
+    entry = { type: message, id, parentId: leafId, timestamp, message }
+    appendFileSync 一行 JSON
+    leafId = entry.id
+</code></pre>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;flowchart&quot;: {&quot;curve&quot;: &quot;linear&quot;, &quot;rankSpacing&quot;: 32, &quot;nodeSpacing&quot;: 24, &quot;padding&quot;: 12, &quot;useMaxWidth&quot;: false, &quot;htmlLabels&quot;: true}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;22px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;lineColor&quot;: &quot;#CBD5E1&quot;, &quot;edgeLabelBackground&quot;: &quot;#111111&quot;}, &quot;themeCSS&quot;: &quot;.nodeLabel,.label,span{font-size:22px!important}&quot;}}%%
+flowchart TB
+    E[&quot;message_end&quot;] --&gt; R{&quot;role?&quot;}
+    R --&gt;|user / assistant / toolResult| M[&quot;appendMessage&quot;]
+    R --&gt;|custom| C[&quot;appendCustomMessageEntry&quot;]
+    R --&gt;|其它| SKIP[&quot;别处写或不写&quot;]
+
+    classDef start fill:#BFDBFE,stroke:#93C5FD,color:#1E3A8A,font-size:22px
+    classDef dec fill:#FEF08A,stroke:#FDE047,color:#713F12,font-size:22px
+    classDef ok fill:#BBF7D0,stroke:#86EFAC,color:#14532D,font-size:22px
+    classDef prod fill:#E9D5FF,stroke:#D8B4FE,color:#6B21A8,font-size:22px
+
+    class E start
+    class R dec
+    class M,C ok
+    class SKIP prod
+</code></pre>
+<p><code>message_update</code> 不落盘。流式过程只改 <code>streamingMessage</code>；定稿才追加一行。文件只 append，不改已有行。路径与树结构见 <code>04-sessions.md</code>。</p>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>文件</th>
+<th>函数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>何时写</td>
+<td><code>packages/coding-agent/src/core/agent-session.ts</code></td>
+<td><code>_handleAgentEvent</code> 的 <code>message_end</code> 分支</td>
+</tr>
+<tr>
+<td>写哪一行</td>
+<td><code>packages/coding-agent/src/core/session-manager.ts</code></td>
+<td><code>appendMessage</code> / <code>_appendEntry</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags">
+            <span class="chip">Pi 架构与上手</span>
+            <span class="chip">AI Agent</span>
+            <span class="chip">面试宝典</span>
+          </div>
+          <a class="t-meta" href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/13-pi-agent/03-events.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../ai-engineer/pi/02-agent-loop.html"><span class="dir">← 上一篇</span><span class="t">Pi Agent Loop</span></a><a class="next" href="../../ai-engineer/pi/04-sessions.html"><span class="dir">下一篇 →</span><span class="t">Pi Sessions</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../rag/index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+
+<script src="../../ai-engineer/assets/mermaid-init.js" defer></script>
+<script src="../../js/main.js" defer></script>
+</body>
+</html>

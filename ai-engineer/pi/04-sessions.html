@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pi Sessions · AI Agent 面试宝典 — NorthAdb 的博客</title>
+<meta name="description" content="- 一、按工作目录落盘一按工作目录落盘 - 二、JSONL 是树二jsonl-是树 - 三、拼给 LLM 的不是全文件三拼给-llm-的不是全文件 - 四、同文件切枝 vs 新开文件四同文件切枝-vs-新开文件">
+<link rel="canonical" href="https://northadb.github.io/ai-engineer/pi/04-sessions.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Pi Sessions · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta property="og:description" content="- 一、按工作目录落盘一按工作目录落盘 - 二、JSONL 是树二jsonl-是树 - 三、拼给 LLM 的不是全文件三拼给-llm-的不是全文件 - 四、同文件切枝 vs 新开文件四同文件切枝-vs-新开文件">
+<meta property="og:url" content="https://northadb.github.io/ai-engineer/pi/04-sessions.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Pi Sessions · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta name="twitter:description" content="- 一、按工作目录落盘一按工作目录落盘 - 二、JSONL 是树二jsonl-是树 - 三、拼给 LLM 的不是全文件三拼给-llm-的不是全文件 - 四、同文件切枝 vs 新开文件四同文件切枝-vs-新开文件">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../feed.xml">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../ai-engineer/assets/course.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Pi Sessions", "description": "- 一、按工作目录落盘一按工作目录落盘 - 二、JSONL 是树二jsonl-是树 - 三、拼给 LLM 的不是全文件三拼给-llm-的不是全文件 - 四、同文件切枝 vs 新开文件四同文件切枝-vs-新开文件", "author": {"@type": "Person", "name": "juliepy", "url": "https://github.com/juliepy/AI-Engineer-from-scrach"}, "mainEntityOfPage": "https://northadb.github.io/ai-engineer/pi/04-sessions.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../index.html">首页</a><span>/</span><a href="../../learn.html">课件</a><span>/</span><a href="../../ai-engineer/index.html">AI Agent 面试宝典</a><span>/</span><a href="../../ai-engineer/pi/index.html">Pi 架构与上手</a></div>
+          <h1>Pi Sessions</h1>
+          <p class="post-sub">- 一、按工作目录落盘一按工作目录落盘 - 二、JSONL 是树二jsonl-是树 - 三、拼给 LLM 的不是全文件三拼给-llm-的不是全文件 - 四、同文件切枝 vs 新开文件四同文件切枝-vs-新开文件</p>
+          <div class="post-meta">
+            <span class="avatar">AI</span>
+            <span>AI Agent 面试宝典</span><span class="sep"></span>
+            <span>Pi 架构与上手</span><span class="sep"></span>
+            <span>阅读约 4 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<hr>
+<h2 id="_1">目录</h2>
+<ul>
+<li><a href="#一按工作目录落盘">一、按工作目录落盘</a></li>
+<li><a href="#二jsonl-是树">二、JSONL 是树</a></li>
+<li><a href="#三拼给-llm-的不是全文件">三、拼给 LLM 的不是全文件</a></li>
+<li><a href="#四同文件切枝-vs-新开文件">四、同文件切枝 vs 新开文件</a></li>
+</ul>
+<p>循环怎么把消息写进 JSONL，见 <a href="../pi/03-events.html"><code>03-events.md</code></a>。compact 条目怎么裁 context，见 <a href="../pi/05-compaction.html"><code>05-compaction.md</code></a>。</p>
+<hr>
+<h2 id="_2">一、按工作目录落盘</h2>
+<p>Session 不是全局一条。cwd 被编码成目录名，同一项目的多次对话都在这个目录下。文件只 append，不改已有行。</p>
+<pre><code class="language-text">function flow（路径）
+  createSessionManager / createAgentSession
+    SessionManager.create(cwd)
+      getDefaultSessionDir(cwd)
+        getDefaultSessionDirPath(cwd)
+          safePath = &quot;--&quot; + cwd.replace(/^[/\\]/, &quot;&quot;).replace(/[/\\:]/g, &quot;-&quot;) + &quot;--&quot;
+          mkdir join(~/.pi/agent, &quot;sessions&quot;, safePath)
+      newSession()
+        sessionFile = join(dir, `${timestamp}_${id}.jsonl`)
+        header { type: session, version: 3, id, cwd, parentSession }
+        第一轮 assistant 才 _persist 写盘
+</code></pre>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;flowchart&quot;: {&quot;curve&quot;: &quot;linear&quot;, &quot;rankSpacing&quot;: 32, &quot;nodeSpacing&quot;: 24, &quot;padding&quot;: 12, &quot;useMaxWidth&quot;: false, &quot;htmlLabels&quot;: true}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;22px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;lineColor&quot;: &quot;#CBD5E1&quot;, &quot;edgeLabelBackground&quot;: &quot;#111111&quot;}, &quot;themeCSS&quot;: &quot;.nodeLabel,.label,span{font-size:22px!important}&quot;}}%%
+flowchart LR
+    CR[&quot;SessionManager.create&quot;] --&gt; DIR[&quot;getDefaultSessionDir&quot;]
+    DIR --&gt; NS[&quot;newSession&quot;]
+    DIR --&gt; F1[&quot;A.jsonl&quot;]
+    DIR --&gt; F2[&quot;B.jsonl&quot;]
+
+    classDef start fill:#BFDBFE,stroke:#93C5FD,color:#1E3A8A,font-size:22px
+    classDef step fill:#A5F3FC,stroke:#67E8F9,color:#155E75,font-size:22px
+    classDef prod fill:#E9D5FF,stroke:#D8B4FE,color:#6B21A8,font-size:22px
+    classDef ok fill:#BBF7D0,stroke:#86EFAC,color:#14532D,font-size:22px
+
+    class CR start
+    class DIR step
+    class NS prod
+    class F1,F2 ok
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>文件</th>
+<th>函数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Interactive 树</td>
+<td><code>packages/coding-agent/src/core/session-manager.ts</code></td>
+<td><code>appendMessage</code> / <code>branch</code> / <code>getTree</code> / <code>createBranchedSession</code></td>
+</tr>
+<tr>
+<td>切枝</td>
+<td><code>packages/coding-agent/src/core/agent-session.ts</code></td>
+<td><code>navigateTree</code></td>
+</tr>
+<tr>
+<td>新开文件</td>
+<td><code>packages/coding-agent/src/core/agent-session-runtime.ts</code></td>
+<td><code>fork</code></td>
+</tr>
+<tr>
+<td>Core 存储</td>
+<td><code>packages/agent/src/harness/session/</code></td>
+<td><code>Session</code> / JSONL repo / <code>parentId</code></td>
+</tr>
+</tbody>
+</table>
+<p>第一行是 header：<code>type=session</code>、<code>id</code>、<code>cwd</code>、<code>parentSession</code>。之后每一行一个 entry。版本现在是 3。</p>
+<p>为什么是 JSONL：新消息 <code>appendFileSync</code> 最后一行。若是一个大 JSON 数组，每次都要改整份文件。</p>
+<hr>
+<h2 id="jsonl">二、JSONL 是树</h2>
+<p>文件在磁盘上是行列表，语义是树。每条 entry 有 <code>id</code> 和 <code>parentId</code>。当前对话位置是 <code>leafId</code>。下一句挂在 leaf 下面，然后 leaf 前进。类型：<code>message</code> / <code>thinking_level_change</code> / <code>model_change</code> / <code>compaction</code> / <code>branch_summary</code> / <code>custom</code> / <code>custom_message</code> / <code>label</code>。</p>
+<pre><code class="language-text">function flow（树）
+  _handleAgentEvent(message_end)
+    sessionManager.appendMessage(msg)
+      _appendEntry({ type: &quot;message&quot;, id, parentId: leafId, timestamp, message })
+        fileEntries.push / byId.set
+        leafId = entry.id
+        _persist(entry)
+          无 assistant → 不写盘
+          第一条 assistant → openSync wx 写全文件
+          之后 → appendFileSync 一行
+</code></pre>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;flowchart&quot;: {&quot;curve&quot;: &quot;linear&quot;, &quot;rankSpacing&quot;: 32, &quot;nodeSpacing&quot;: 24, &quot;padding&quot;: 12, &quot;useMaxWidth&quot;: false, &quot;htmlLabels&quot;: true}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;22px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;lineColor&quot;: &quot;#CBD5E1&quot;, &quot;edgeLabelBackground&quot;: &quot;#111111&quot;}, &quot;themeCSS&quot;: &quot;.nodeLabel,.label,span{font-size:22px!important}&quot;}}%%
+flowchart TB
+    P[&quot;parentId = null&quot;] --&gt; A[&quot;leaf A&quot;]
+    P --&gt; B[&quot;leaf B&quot;]
+    A --&gt; A2[&quot;A 的后续&quot;]
+    B --&gt; B2[&quot;B 的后续&quot;]
+
+    classDef start fill:#BFDBFE,stroke:#93C5FD,color:#1E3A8A,font-size:22px
+    classDef ok fill:#BBF7D0,stroke:#86EFAC,color:#14532D,font-size:22px
+    classDef prod fill:#E9D5FF,stroke:#D8B4FE,color:#6B21A8,font-size:22px
+
+    class P start
+    class A,A2 ok
+    class B,B2 prod
+</code></pre>
+<p><code>getTree()</code> 用 <code>parentId</code> 把浅拷贝拼成树。断掉的 parent 当根。子节点按 timestamp 排。<code>/tree</code> 看到的就是这个结构。</p>
+<p>循环里 <code>message_end</code> 时 <code>sessionManager.appendMessage</code>，不等整轮 <code>agent_end</code>。UI 和 JSONL 订同一条事件总线。何时写、写哪些 role，见 <code>03-events.md</code>。</p>
+<hr>
+<h2 id="llm">三、拼给 LLM 的不是全文件</h2>
+<p>磁盘上整棵树都在。送给模型的是 <strong>当前 leaf 回溯到根的那条 path</strong>，再按最近一次 compaction 裁。</p>
+<pre><code class="language-text">function flow（拼 context）
+  sessionManager.buildSessionContext()
+    path = buildSessionPath(entries, leafId)
+    { thinkingLevel, model } = getSessionContextSettings(path)
+    messages = buildContextEntries(entries, leafId)
+                 .flatMap(sessionEntryToContextMessages)
+      有 compaction → [compaction] + firstKeptEntryId 起到 compaction 前
+                      + compaction 之后；旧消息不进
+      compaction → createCompactionSummaryMessage
+      custom 不进；custom_message / branch_summary 才进
+</code></pre>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;flowchart&quot;: {&quot;curve&quot;: &quot;linear&quot;, &quot;rankSpacing&quot;: 32, &quot;nodeSpacing&quot;: 24, &quot;padding&quot;: 12, &quot;useMaxWidth&quot;: false, &quot;htmlLabels&quot;: true}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;22px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;lineColor&quot;: &quot;#CBD5E1&quot;, &quot;edgeLabelBackground&quot;: &quot;#111111&quot;}, &quot;themeCSS&quot;: &quot;.nodeLabel,.label,span{font-size:22px!important}&quot;}}%%
+flowchart LR
+    CTX[&quot;buildSessionContext&quot;] --&gt; PATH[&quot;buildSessionPath&quot;]
+    PATH --&gt; CUT[&quot;buildContextEntries&quot;]
+    CUT --&gt; MSG[&quot;sessionEntryToContextMessages&quot;]
+
+    classDef start fill:#BFDBFE,stroke:#93C5FD,color:#1E3A8A,font-size:22px
+    classDef step fill:#A5F3FC,stroke:#67E8F9,color:#155E75,font-size:22px
+    classDef prod fill:#E9D5FF,stroke:#D8B4FE,color:#6B21A8,font-size:22px
+    classDef ok fill:#BBF7D0,stroke:#86EFAC,color:#14532D,font-size:22px
+
+    class CTX start
+    class PATH step
+    class CUT prod
+    class MSG ok
+</code></pre>
+<p>旁支还在同一个文件里，只是当前 leaf 走不到。这就是「返回会创建分支、旧路还在」的原因。</p>
+<hr>
+<h2 id="vs">四、同文件切枝 vs 新开文件</h2>
+<p><code>/tree</code> 改当前文件的 leaf。<code>/fork</code> <code>/clone</code> 另写一份 session。正在 streaming 时不能切枝。</p>
+<pre><code class="language-text">function flow（切枝）
+  /tree → session.navigateTree(targetId)
+    collectEntriesForBranchSummary(oldLeaf, target)
+    可选 generateBranchSummary
+    sessionManager.branch(newLeafId) | branchWithSummary | resetLeaf
+    buildSessionContext() → agent.state.messages
+  /fork /clone → runtime.fork(entryId)
+    SessionManager.open(currentFile)
+    createBranchedSession(leafId)
+      getBranch(leafId)
+      header.parentSession = 旧文件
+      换成新 SessionManager
+</code></pre>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;flowchart&quot;: {&quot;curve&quot;: &quot;linear&quot;, &quot;rankSpacing&quot;: 32, &quot;nodeSpacing&quot;: 24, &quot;padding&quot;: 12, &quot;useMaxWidth&quot;: false, &quot;htmlLabels&quot;: true}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;22px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;lineColor&quot;: &quot;#CBD5E1&quot;, &quot;edgeLabelBackground&quot;: &quot;#111111&quot;}, &quot;themeCSS&quot;: &quot;.nodeLabel,.label,span{font-size:22px!important}&quot;}}%%
+flowchart TB
+    NOW[&quot;leafId&quot;] --&gt; Q{&quot;同文件切枝?&quot;}
+    Q --&gt;|是| T[&quot;navigateTree&quot;]
+    T --&gt; B[&quot;branch / branchWithSummary&quot;]
+    Q --&gt;|否| F[&quot;runtime.fork&quot;]
+    F --&gt; C[&quot;createBranchedSession&quot;]
+
+    classDef start fill:#BFDBFE,stroke:#93C5FD,color:#1E3A8A,font-size:22px
+    classDef dec fill:#FEF08A,stroke:#FDE047,color:#713F12,font-size:22px
+    classDef step fill:#A5F3FC,stroke:#67E8F9,color:#155E75,font-size:22px
+    classDef bad fill:#FBCFE8,stroke:#F9A8D4,color:#831843,font-size:22px
+
+    class NOW start
+    class Q dec
+    class T,B step
+    class F,C bad
+</code></pre>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><code>/tree</code></th>
+<th><code>/fork</code> <code>/clone</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>API</td>
+<td><code>navigateTree</code></td>
+<td><code>runtime.fork</code> → <code>createBranchedSession</code></td>
+</tr>
+<tr>
+<td>文件</td>
+<td>同一个 JSONL</td>
+<td>新 JSONL</td>
+</tr>
+<tr>
+<td>旧分支</td>
+<td>仍在原文件</td>
+<td>不复制到新文件</td>
+</tr>
+<tr>
+<td>摘要</td>
+<td>可选 <code>branch_summary</code></td>
+<td>无（整条 path 拷走）</td>
+</tr>
+</tbody>
+</table>
+<p><code>/clone</code> 复制当前分支为新 session；<code>/fork</code> 可从树上某条 prompt 开新文件。未写出第一轮 assistant 前，文件可能还不存在，fork 会失败。</p>
+<hr>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags">
+            <span class="chip">Pi 架构与上手</span>
+            <span class="chip">AI Agent</span>
+            <span class="chip">面试宝典</span>
+          </div>
+          <a class="t-meta" href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/13-pi-agent/04-sessions.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../ai-engineer/pi/03-events.html"><span class="dir">← 上一篇</span><span class="t">Pi Events and Persistence</span></a><a class="next" href="../../ai-engineer/pi/05-compaction.html"><span class="dir">下一篇 →</span><span class="t">Pi Compaction</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../rag/index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+
+<script src="../../ai-engineer/assets/mermaid-init.js" defer></script>
+<script src="../../js/main.js" defer></script>
+</body>
+</html>

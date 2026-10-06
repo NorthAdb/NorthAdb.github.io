@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pi Agent Loop · AI Agent 面试宝典 — NorthAdb 的博客</title>
+<meta name="description" content="- 一、三层调用栈一三层调用栈 - 二、消息怎么进循环二消息怎么进循环 - 三、Core 循环三core-循环 - 队列队列 - runLooprunloop - 调用一次大模型调用一次大模型 - 工具工具 - 停机与兜底停机与兜底 - 四…">
+<link rel="canonical" href="https://northadb.github.io/ai-engineer/pi/02-agent-loop.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Pi Agent Loop · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta property="og:description" content="- 一、三层调用栈一三层调用栈 - 二、消息怎么进循环二消息怎么进循环 - 三、Core 循环三core-循环 - 队列队列 - runLooprunloop - 调用一次大模型调用一次大模型 - 工具工具 - 停机与兜底停机与兜底 - 四…">
+<meta property="og:url" content="https://northadb.github.io/ai-engineer/pi/02-agent-loop.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Pi Agent Loop · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta name="twitter:description" content="- 一、三层调用栈一三层调用栈 - 二、消息怎么进循环二消息怎么进循环 - 三、Core 循环三core-循环 - 队列队列 - runLooprunloop - 调用一次大模型调用一次大模型 - 工具工具 - 停机与兜底停机与兜底 - 四…">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../feed.xml">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../ai-engineer/assets/course.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Pi Agent Loop", "description": "- 一、三层调用栈一三层调用栈 - 二、消息怎么进循环二消息怎么进循环 - 三、Core 循环三core-循环 - 队列队列 - runLooprunloop - 调用一次大模型调用一次大模型 - 工具工具 - 停机与兜底停机与兜底 - 四…", "author": {"@type": "Person", "name": "juliepy", "url": "https://github.com/juliepy/AI-Engineer-from-scrach"}, "mainEntityOfPage": "https://northadb.github.io/ai-engineer/pi/02-agent-loop.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../index.html">首页</a><span>/</span><a href="../../learn.html">课件</a><span>/</span><a href="../../ai-engineer/index.html">AI Agent 面试宝典</a><span>/</span><a href="../../ai-engineer/pi/index.html">Pi 架构与上手</a></div>
+          <h1>Pi Agent Loop</h1>
+          <p class="post-sub">- 一、三层调用栈一三层调用栈 - 二、消息怎么进循环二消息怎么进循环 - 三、Core 循环三core-循环 - 队列队列 - runLooprunloop - 调用一次大模型调用一次大模型 - 工具工具 - 停机与兜底停机与兜底 - 四…</p>
+          <div class="post-meta">
+            <span class="avatar">AI</span>
+            <span>AI Agent 面试宝典</span><span class="sep"></span>
+            <span>Pi 架构与上手</span><span class="sep"></span>
+            <span>阅读约 13 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<hr>
+<h2 id="_1">目录</h2>
+<ul>
+<li><a href="#一三层调用栈">一、三层调用栈</a></li>
+<li><a href="#二消息怎么进循环">二、消息怎么进循环</a></li>
+<li><a href="#三core-循环">三、Core 循环</a></li>
+<li><a href="#队列">队列</a></li>
+<li><a href="#runloop">runLoop</a></li>
+<li><a href="#调用一次大模型">调用一次大模型</a></li>
+<li><a href="#工具">工具</a></li>
+<li><a href="#停机与兜底">停机与兜底</a></li>
+<li><a href="#四事件与落盘">四、事件与落盘</a></li>
+<li><a href="#五compaction">五、Compaction</a></li>
+<li><a href="#对照">对照</a></li>
+</ul>
+<p>事件总线和 JSONL 落盘见 <a href="../pi/03-events.html"><code>03-events.md</code></a>。compact 见 <a href="../pi/05-compaction.html"><code>05-compaction.md</code></a>。HITL 见 <a href="../pi/06-hitl.html"><code>06-HITL.md</code></a>。</p>
+<hr>
+<h2 id="_2">一、三层调用栈</h2>
+<p>这里的三层是调用栈上的三个对象，不是大纲的「初始化 / 变换 / LLM」：</p>
+<ol>
+<li><strong><code>runLoop</code></strong>（<code>agent-loop.ts</code>）：无状态循环，只做 LLM ↔ tool，发事件。</li>
+<li><strong><code>Agent</code></strong>（<code>agent.ts</code>）：有状态封装，持有 transcript、steering / follow-up 队列、abort。</li>
+<li><strong><code>AgentSession</code></strong>（<code>agent-session.ts</code>）：Interactive 产品层，进循环前翻译输入，结束后 compact / retry。</li>
+</ol>
+<p>TUI、RPC、SDK 都从 <code>Agent.prompt</code> 进同一套 Core。<code>AgentSession</code> 是 Core 外面的包装，不是第四套循环。</p>
+<pre><code class="language-text">function flow（调用栈）
+  TUI / CLI / RPC / print
+    → AgentSession.prompt(text)
+        slash / skill / template
+        _checkCompaction(lastAssistant)          # 循环外
+        → Agent.prompt(messages)
+            → runAgentLoop(prompts, context, config)
+                → runLoop()                      # 双层 while
+                    streamAssistantResponse()
+                    executeToolCalls()
+        → while _handlePostAgentRun():
+            Agent.continue()                     # retry / compact / 队列
+</code></pre>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;16px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;lineColor&quot;: &quot;#CBD5E1&quot;, &quot;clusterBkg&quot;: &quot;#111111&quot;, &quot;clusterBorder&quot;: &quot;#C4B5FD&quot;, &quot;titleColor&quot;: &quot;#FDE68A&quot;, &quot;edgeLabelBackground&quot;: &quot;#111111&quot;}}}%%
+flowchart TB
+    subgraph entry[&quot;入口&quot;]
+        TUI[&quot;TUI / CLI / RPC / print&quot;]
+    end
+
+    subgraph interactive[&quot;Pi Interactive&quot;]
+        SES[&quot;AgentSession.prompt()&quot;]
+        PRE[&quot;slash / skill / template&lt;br/&gt;拼 system prompt&lt;br/&gt;发 prompt 前 check compact&quot;]
+        POST[&quot;_handlePostAgentRun()&lt;br/&gt;retry / compact / 再 continue&quot;]
+    end
+
+    subgraph core[&quot;Pi Core&quot;]
+        AG[&quot;Agent.prompt()&quot;]
+        LOOP[&quot;runAgentLoop() → runLoop()&quot;]
+        STM[&quot;streamAssistantResponse()&quot;]
+        TOOL[&quot;executeToolCalls()&quot;]
+    end
+
+    TUI --&gt; SES
+    SES --&gt; PRE
+    PRE --&gt; AG
+    AG --&gt; LOOP
+    LOOP --&gt; STM
+    STM --&gt; TOOL
+    TOOL --&gt; LOOP
+    LOOP --&gt; POST
+    POST --&gt;|&quot;需要再跑&quot;| AG
+
+    classDef e fill:#BFDBFE,stroke:#93C5FD,color:#1E3A8A
+    classDef i fill:#E9D5FF,stroke:#D8B4FE,color:#6B21A8
+    classDef c fill:#FBCFE8,stroke:#F9A8D4,color:#831843
+    classDef wrap fill:#111111,stroke:#C4B5FD,color:#FDE68A
+
+    class TUI e
+    class SES,PRE,POST i
+    class AG,LOOP,STM,TOOL c
+    class entry,interactive,core wrap
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>文件</th>
+<th>函数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>无状态循环</td>
+<td><code>packages/agent/src/agent-loop.ts</code></td>
+<td><code>agentLoop</code> / <code>runLoop</code></td>
+</tr>
+<tr>
+<td>有状态封装</td>
+<td><code>packages/agent/src/agent.ts</code></td>
+<td><code>Agent.prompt</code> / <code>steer</code> / <code>followUp</code></td>
+</tr>
+<tr>
+<td>产品 session</td>
+<td><code>packages/coding-agent/src/core/agent-session.ts</code></td>
+<td><code>prompt</code> / <code>_handlePostAgentRun</code></td>
+</tr>
+<tr>
+<td>组装</td>
+<td><code>packages/coding-agent/src/core/sdk.ts</code></td>
+<td><code>new Agent({ streamFn, transformContext })</code></td>
+</tr>
+</tbody>
+</table>
+<p>同一时刻一个 <code>activeRun</code>。再发消息走 <code>steer()</code> / <code>followUp()</code>。<code>continue()</code> 要求最后一条能转成 <code>user</code> 或 <code>toolResult</code>。</p>
+<hr>
+<h2 id="_3">二、消息怎么进循环</h2>
+<p>用户回车后先在 Interactive 处理：扩展命令、skill / template、鉴权、发消息前 compact。命中 <code>/</code> 扩展命令则不进 Core。正在跑时不能再 <code>prompt</code>，只能入队。Core 停了还不等于结束，<code>_handlePostAgentRun</code> 还可能 <code>continue()</code>。</p>
+<pre><code class="language-text">function flow（prompt）
+  AgentSession.prompt(text, options):
+    if text starts with &quot;/&quot; and extension command:
+      handler(args) → return                    # 不进 Core
+    emitInput() → handled | transform
+    expand /skill: and prompt template
+    if agent.isStreaming:
+      steer() or followUp() → return
+    check model + API key
+    _checkCompaction(lastAssistant, skipAborted=false)
+    messages = [user, ...pendingNextTurn, ...before_agent_start]
+    maybe override systemPrompt
+    _runAgentPrompt(messages)
+
+  _runAgentPrompt(messages):
+    agent.prompt(messages)
+    while _handlePostAgentRun():
+      agent.continue()
+    emit agent_settled
+
+  _handlePostAgentRun():
+    if retryable error → prepareRetry → continue
+    if _checkCompaction(lastAssistant) → continue
+    if agent.hasQueuedMessages() → continue     # agent_end 钩子新入队
+    return false
+</code></pre>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;16px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;lineColor&quot;: &quot;#CBD5E1&quot;, &quot;clusterBkg&quot;: &quot;#111111&quot;, &quot;clusterBorder&quot;: &quot;#C4B5FD&quot;, &quot;titleColor&quot;: &quot;#FDE68A&quot;, &quot;edgeLabelBackground&quot;: &quot;#111111&quot;}}}%%
+flowchart TD
+    IN[&quot;用户输入&quot;] --&gt; SL{&quot;以 / 开头？&quot;}
+    SL --&gt;|&quot;扩展命令&quot;| EXT[&quot;extension command&lt;br/&gt;不进 Core&quot;]
+    SL --&gt;|&quot;否 / 未命中&quot;| INP[&quot;extension input 钩子&quot;]
+    INP --&gt; EXP[&quot;展开 /skill: 与 template&quot;]
+    EXP --&gt; BUSY{&quot;Agent 正在跑？&quot;}
+    BUSY --&gt;|&quot;是&quot;| Q[&quot;steer 或 followUp 入队&quot;]
+    BUSY --&gt;|&quot;否&quot;| AUTH[&quot;校验 model + API key&quot;]
+    AUTH --&gt; PREC[&quot;_checkCompaction&quot;]
+    PREC --&gt; BUILD[&quot;组装消息 + before_agent_start&quot;]
+    BUILD --&gt; RUN[&quot;Agent.prompt&quot;]
+    RUN --&gt; POST[&quot;_handlePostAgentRun&quot;]
+    POST --&gt;|&quot;retry / compact / 队列&quot;| CONT[&quot;Agent.continue&quot;]
+    CONT --&gt; POST
+    POST --&gt;|&quot;否&quot;| IDLE[&quot;agent_settled&quot;]
+
+    classDef start fill:#BFDBFE,stroke:#93C5FD,color:#1E3A8A
+    classDef step fill:#A5F3FC,stroke:#67E8F9,color:#155E75
+    classDef dec fill:#FEF08A,stroke:#FDE047,color:#713F12
+    classDef core fill:#FBCFE8,stroke:#F9A8D4,color:#831843
+    classDef ok fill:#BBF7D0,stroke:#86EFAC,color:#14532D
+    classDef skip fill:#E9D5FF,stroke:#D8B4FE,color:#6B21A8
+
+    class IN start
+    class EXP,AUTH,PREC,BUILD step
+    class SL,BUSY,POST dec
+    class RUN,CONT core
+    class IDLE ok
+    class EXT,INP,Q skip
+</code></pre>
+<p><code>/skill:name</code> 只注入 name / description / location。自定义 <code>/template</code> 在 Interactive 展开成全文。</p>
+<p>进循环前还要拼 <code>AgentContext</code>。system prompt 按固定顺序叠；tools schema 走 <code>context.tools</code>，不写进 prompt 正文。循环内变换见第三节「调用一次大模型」；compact 见第五节。</p>
+<pre><code class="language-text">function flow（buildSystemPrompt）
+  default | SYSTEM.md | --system-prompt
+    + APPEND_SYSTEM.md
+    + AGENTS.md / CLAUDE.md
+    + skills descriptions          # 有 read 才挂
+    + cwd
+  AgentContext = { systemPrompt, messages, tools }
+</code></pre>
+<hr>
+<h2 id="core">三、Core 循环</h2>
+<p>Core 从 <code>Agent.prompt</code> 进 <code>runLoop</code>。先讲两条队列（steering / follow-up），再讲循环怎么消化它们：双层 while、调用一次大模型、跑工具、何时停、产品层兜底。</p>
+<h3 id="_4">队列</h3>
+<p><code>Agent</code> 同时只跑一个 prompt。正在 streaming 时再打字不能新开一轮，只能入队。<strong>steering</strong> 是中途纠偏：当前 turn 的工具照跑，结束后立刻把新话塞进 transcript，再打下一轮 LLM。<strong>follow-up</strong> 是做完再加：没有 tool、也没有 steering、本来要停了才注入。<code>shouldStopAfterTurn</code> 为 true 时两队列都不 drain。</p>
+<p>例子：智能体正在搜文件，你打「别搜了，只看 <code>foo.ts</code>」。走 steering 则手头这批工具跑完就改方向；走 follow-up 会先把搜索做完再听你的。</p>
+<p><code>streamingBehavior</code> 由调用方决定，不是 <code>runLoop</code>，也不是模型。<code>AgentSession.prompt</code> 只读 <code>options.streamingBehavior</code>。正在跑时没带会抛错；空闲时该字段无用，一律新开 <code>Agent.prompt</code>。Core 的 <code>Agent</code> 只提供 <code>steer()</code> / <code>followUp()</code>。</p>
+<pre><code class="language-text">function flow（队列）
+  用户在 streaming 时再输入
+    streamingBehavior == &quot;steer&quot;
+      → agent.steer(msg)
+      → 内层：turn_end 后、下一轮 LLM 前 drain
+      → 当前这批 tool 不跳过
+    streamingBehavior == &quot;followUp&quot;
+      → agent.followUp(msg)
+      → 外层：无 tool 且无 steering、本要停时 drain
+
+  谁定 streamingBehavior（调用方，不是 Core）
+    TUI 回车              → &quot;steer&quot;
+    TUI Alt+Enter         → &quot;followUp&quot;
+    RPC prompt            → 客户端自带
+    RPC steer / follow_up → 直接走对应 API
+    正在跑且没带          → throw
+
+  QueueMode:
+    &quot;one-at-a-time&quot;   # 默认，一次一条
+    &quot;all&quot;             # drain 点倒空
+
+  Agent.continue() 且 last.role == assistant:
+    drain steering / followUp → 当新 prompt 跑
+    否则 throw
+</code></pre>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;16px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;lineColor&quot;: &quot;#CBD5E1&quot;, &quot;clusterBkg&quot;: &quot;#111111&quot;, &quot;clusterBorder&quot;: &quot;#C4B5FD&quot;, &quot;titleColor&quot;: &quot;#FDE68A&quot;, &quot;edgeLabelBackground&quot;: &quot;#111111&quot;}}}%%
+flowchart LR
+    U[&quot;streaming 时再输入&quot;] --&gt; M{&quot;streamingBehavior&quot;}
+    M --&gt;|&quot;steer&quot;| S[&quot;steer 队列&quot;]
+    M --&gt;|&quot;followUp&quot;| F[&quot;followUp 队列&quot;]
+    S --&gt; T[&quot;turn_end 后、下一 LLM 前 drain&quot;]
+    F --&gt; W[&quot;无 tool 且无 steering 时 drain&quot;]
+    T --&gt; LLM[&quot;下一轮 streamAssistantResponse&quot;]
+    W --&gt; LLM
+
+    classDef u fill:#BFDBFE,stroke:#93C5FD,color:#1E3A8A
+    classDef d fill:#FEF08A,stroke:#FDE047,color:#713F12
+    classDef s fill:#FBCFE8,stroke:#F9A8D4,color:#831843
+    classDef f fill:#E9D5FF,stroke:#D8B4FE,color:#6B21A8
+    classDef l fill:#A5F3FC,stroke:#67E8F9,color:#155E75
+
+    class U u
+    class M d
+    class S,T s
+    class F,W f
+    class LLM l
+</code></pre>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Steering</th>
+<th>Follow-up</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>API</td>
+<td><code>steer()</code></td>
+<td><code>followUp()</code></td>
+</tr>
+<tr>
+<td>循环位置</td>
+<td>内层，每个 turn 结束后</td>
+<td>外层，本要 <code>agent_end</code> 时</td>
+</tr>
+<tr>
+<td>当前工具</td>
+<td>不跳过</td>
+<td>等全部做完</td>
+</tr>
+<tr>
+<td>语义</td>
+<td>中途改方向</td>
+<td>做完再加一句</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>入口</th>
+<th>谁定 <code>streamingBehavior</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TUI 回车</td>
+<td>写死 <code>"steer"</code></td>
+</tr>
+<tr>
+<td>TUI Alt+Enter</td>
+<td>写死 <code>"followUp"</code></td>
+</tr>
+<tr>
+<td>RPC <code>prompt</code></td>
+<td>客户端自己带</td>
+</tr>
+<tr>
+<td>RPC <code>steer</code> / <code>follow_up</code></td>
+<td>直接走对应 API，不经过这个字段</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="runloop">runLoop</h3>
+<p>不是「调一次 LLM」。内层消化 tool call 和 steering（中途纠偏，当前工具不跳过）。外层消化 follow-up（本要停了才加一句）。<code>error</code> / <code>aborted</code> 立刻整 run 退出。<code>prepareNextTurn</code> 在 <code>turn_end</code> 之后刷新 system prompt / tools，扩展中途改工具集不必重建 Agent。</p>
+<pre><code class="language-text">function flow（runLoop）
+  runAgentLoop(prompts, context, config):
+    emit agent_start, turn_start
+    emit message_start/end for each prompt
+    runLoop(...)
+
+  runLoop(context, newMessages, config):
+    pending = getSteeringMessages()
+    while true:                                   # 外层：follow-up
+      while hasMoreToolCalls or pending:          # 内层：tool + steering
+        emit turn_start                           # firstTurn 跳过重复
+        inject pending into context
+        msg = streamAssistantResponse(...)
+        if msg.stopReason in (error, aborted):
+          emit turn_end, agent_end → return
+        if toolCalls:
+          if stopReason == length:
+            fail all calls                        # 参数可能截断，不执行
+          else:
+            batch = executeToolCalls(...)
+          append toolResults
+          hasMoreToolCalls = not batch.terminate
+        emit turn_end
+        prepareNextTurn()                         # 可换 systemPrompt / tools / model
+        if shouldStopAfterTurn():
+          emit agent_end → return                 # 不再 poll 队列
+        pending = getSteeringMessages()
+      followUp = getFollowUpMessages()
+      if followUp: pending = followUp; continue
+      break
+    emit agent_end
+</code></pre>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;flowchart&quot;: {&quot;curve&quot;: &quot;linear&quot;, &quot;rankSpacing&quot;: 36, &quot;nodeSpacing&quot;: 24}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;16px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;lineColor&quot;: &quot;#CBD5E1&quot;, &quot;clusterBkg&quot;: &quot;#111111&quot;, &quot;clusterBorder&quot;: &quot;#C4B5FD&quot;, &quot;titleColor&quot;: &quot;#FDE68A&quot;, &quot;edgeLabelBackground&quot;: &quot;#111111&quot;}}}%%
+flowchart TD
+    IN[&quot;user input&quot;] --&gt; RL[&quot;runLoop()&quot;]
+    RL --&gt; LLM[&quot;streamAssistantResponse&quot;]
+
+    subgraph INNER[&quot;内层 while：tool + steering&quot;]
+        direction TB
+        LLM --&gt; WORK[&quot;executeToolCalls + turn_end&quot;]
+        WORK --&gt; ST{&quot;steering?&quot;}
+        ST --&gt;|有| LLM
+    end
+
+    ST --&gt;|无| FU{&quot;follow-up?&quot;}
+    FU --&gt;|有| LLM
+    FU --&gt;|无| OUT[&quot;user output&quot;]
+
+    classDef io fill:#BFDBFE,stroke:#93C5FD,color:#1E3A8A
+    classDef core fill:#E9D5FF,stroke:#D8B4FE,color:#6B21A8
+    classDef llm fill:#A5F3FC,stroke:#67E8F9,color:#155E75
+    classDef step fill:#FBCFE8,stroke:#F9A8D4,color:#831843
+    classDef dec fill:#FEF08A,stroke:#FDE047,color:#713F12
+    classDef ok fill:#BBF7D0,stroke:#86EFAC,color:#14532D
+    classDef wrap fill:#111111,stroke:#C4B5FD,color:#FDE68A
+
+    class IN io
+    class RL core
+    class LLM llm
+    class WORK step
+    class ST,FU dec
+    class OUT ok
+    class INNER wrap
+</code></pre>
+<hr>
+<h3 id="_5">调用一次大模型</h3>
+<p>循环内部一直拿 <code>AgentMessage</code>（可含 custom / 摘要 / bash）。只有调用大模型前才收成 <code>pi-ai</code> 的 <code>Message[]</code>。流式事件原地替换最后一条 assistant，UI 边生成边画。<code>getApiKey</code> 每次调用都解析，方便短命 OAuth。</p>
+<pre><code class="language-text">function flow（streamAssistantResponse）
+  streamAssistantResponse(context, config, signal, emit, streamFn):
+    messages = transformContext(context.messages) or context.messages
+    llmMessages = convertToLlm(messages)
+    apiKey = getApiKey(provider) or config.apiKey   # 每次调用都解析
+    stream = streamFn(model, { systemPrompt, llmMessages, tools }, options)
+
+    for event in stream:
+      start        → push partial, emit message_start
+      text/thinking/toolcall_* → replace last, emit message_update
+      done / error → replace with result(), emit message_end, return
+</code></pre>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;flowchart&quot;: {&quot;curve&quot;: &quot;linear&quot;, &quot;rankSpacing&quot;: 36, &quot;nodeSpacing&quot;: 24}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;16px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;lineColor&quot;: &quot;#CBD5E1&quot;, &quot;edgeLabelBackground&quot;: &quot;#111111&quot;}}}%%
+flowchart TD
+    T[&quot;transformContext&quot;] --&gt; C[&quot;convertToLlm&quot;]
+    C --&gt; K[&quot;getApiKey&quot;]
+    K --&gt; S[&quot;streamFn&quot;]
+    S --&gt; E[&quot;start → message_start&lt;br/&gt;text/thinking/toolcall_* → message_update&lt;br/&gt;done/error → message_end&quot;]
+
+    classDef a fill:#BFDBFE,stroke:#93C5FD,color:#1E3A8A
+    classDef b fill:#A5F3FC,stroke:#67E8F9,color:#155E75
+    classDef c fill:#E9D5FF,stroke:#D8B4FE,color:#6B21A8
+    classDef d fill:#BBF7D0,stroke:#86EFAC,color:#14532D
+
+    class T a
+    class C,K b
+    class S c
+    class E d
+</code></pre>
+<p><code>streamFn</code> 失败不能 throw，必须给出 <code>stopReason: "error" | "aborted"</code>。Interactive 在 <code>sdk.ts</code> 灌入 <code>modelRuntime.streamSimple</code>。</p>
+<hr>
+<h3 id="_6">工具</h3>
+<p>一条 assistant 可以带多个 tool call。默认并行，但预检（查工具、校验、<code>beforeToolCall</code>）必须串行；任一工具声明 <code>sequential</code> 则整批改串行。<code>length</code> 截断时参数可能不完整，整批 fail 不执行。<code>terminate</code> 必须这批每个 result 都为 true 才提前停。</p>
+<pre><code class="language-text">function flow（executeToolCalls）
+  executeToolCalls(context, assistant, config):
+    calls = assistant.content where type == toolCall
+    if any tool.executionMode == sequential or config.toolExecution == sequential:
+      sequential: for each call: prepare → execute → finalize → emit result
+    else:
+      parallel:
+        for each call: prepare                         # 串行预检
+        Promise.all(execute + finalize)                # 并发执行
+        emit tool_execution_end in completion order
+        emit toolResult messages in assistant order    # 与 call 顺序一致
+    terminate = every result.terminate == true
+
+  prepareToolCall(call):
+    find tool | error &quot;not found&quot;
+    prepareArguments → validateToolArguments
+    beforeToolCall → { block: true } → error result
+    return prepared
+
+  executePreparedToolCall(prepared):
+    tool.execute(id, args, signal, onUpdate)
+      onUpdate → tool_execution_update                 # settle 后丢掉
+    catch → error result
+
+  finalizeExecutedToolCall:
+    afterToolCall → field-level override               # 不深合并
+</code></pre>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;flowchart&quot;: {&quot;curve&quot;: &quot;linear&quot;, &quot;rankSpacing&quot;: 24, &quot;nodeSpacing&quot;: 16}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;14px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;lineColor&quot;: &quot;#CBD5E1&quot;, &quot;edgeLabelBackground&quot;: &quot;#111111&quot;}}}%%
+flowchart LR
+    TC[&quot;toolCall[]&quot;] --&gt; LEN{&quot;length?&quot;}
+    LEN --&gt;|是| FAIL[&quot;全部 fail&quot;]
+    LEN --&gt;|否| MODE{&quot;sequential?&quot;}
+    MODE --&gt;|是| SEQ[&quot;逐个 prepare/execute&quot;]
+    MODE --&gt;|否| PAR[&quot;prepare 串行，execute 并发&quot;]
+    FAIL --&gt; TERM{&quot;全 terminate?&quot;}
+    SEQ --&gt; TERM
+    PAR --&gt; TERM
+    TERM --&gt;|是| STOP[&quot;停&quot;]
+    TERM --&gt;|否| MORE[&quot;续 LLM&quot;]
+
+    classDef a fill:#BFDBFE,stroke:#93C5FD,color:#1E3A8A
+    classDef d fill:#FEF08A,stroke:#FDE047,color:#713F12
+    classDef r fill:#A5F3FC,stroke:#67E8F9,color:#155E75
+    classDef bad fill:#FBCFE8,stroke:#F9A8D4,color:#831843
+    classDef ok fill:#BBF7D0,stroke:#86EFAC,color:#14532D
+
+    class TC a
+    class LEN,MODE,TERM d
+    class SEQ,PAR r
+    class FAIL bad
+    class STOP,MORE ok
+</code></pre>
+<p><code>length</code> 截断：<code>failToolCallsFromTruncatedMessage</code>，全部 error，让模型重发。<br>
+<code>terminate</code> 必须整批同意。<br>
+Interactive：<code>beforeToolCall</code> → 扩展 <code>tool_call</code>；<code>afterToolCall</code> → <code>tool_result</code> + 图片规范化。</p>
+<hr>
+<h3 id="_7">停机与兜底</h3>
+<p>先分清两层。它们问的不是同一个问题。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>停机</th>
+<th>兜底</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>谁</td>
+<td>Core <code>runLoop</code>（<code>agent-loop.ts</code>）</td>
+<td>Interactive <code>_handlePostAgentRun</code>（<code>agent-session.ts</code>）</td>
+</tr>
+<tr>
+<td>问</td>
+<td><strong>这次循环停不停</strong></td>
+<td><strong>停完了，还开不开新一轮</strong></td>
+</tr>
+<tr>
+<td>何时</td>
+<td><code>agent.prompt()</code> 还在阻塞</td>
+<td><code>prompt()</code> 已经返回</td>
+</tr>
+<tr>
+<td>结果</td>
+<td>发 <code>agent_end</code></td>
+<td><code>continue()</code> 或 <code>settled</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>agent_end</code> 是这次循环的<strong>结束通知</strong>，不是在问要不要停。后面若再跑，是新的一次 <code>runLoop</code>。一个 Agent 不能并行两个 prompt。</p>
+<p>讲的时候按时间走：Core 四道门 → <code>prompt()</code> 返回 → Interactive 才进兜底。</p>
+<pre><code class="language-text">function flow（两层关系）
+  _runAgentPrompt(messages):
+    agent.prompt(messages)                 # 阻塞；内部跑完停机四道门才返回
+    while _handlePostAgentRun():           # 兜底：再开一轮？
+      agent.continue()                     # 新的一次 runLoop
+    emit agent_settled
+</code></pre>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;flowchart&quot;: {&quot;curve&quot;: &quot;linear&quot;, &quot;rankSpacing&quot;: 28, &quot;nodeSpacing&quot;: 24, &quot;padding&quot;: 8}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;15px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;lineColor&quot;: &quot;#CBD5E1&quot;, &quot;clusterBkg&quot;: &quot;#111111&quot;, &quot;clusterBorder&quot;: &quot;#A78BFA&quot;, &quot;titleColor&quot;: &quot;#FDE68A&quot;, &quot;edgeLabelBackground&quot;: &quot;#111111&quot;}}}%%
+flowchart TB
+    P[&quot;agent.prompt()&quot;] --&gt; H[&quot;Core 停机：这次 runLoop 停不停&quot;]
+    H --&gt;|&quot;agent_end，prompt 返回&quot;| F{&quot;还开不开新一轮？&quot;}
+    F --&gt;|是| C[&quot;continue：再进停机&quot;]
+    F --&gt;|否| S[&quot;settled&quot;]
+
+    classDef a fill:#BFDBFE,stroke:#93C5FD,color:#1E3A8A
+    classDef b fill:#A5F3FC,stroke:#67E8F9,color:#155E75
+    classDef c fill:#E9D5FF,stroke:#D8B4FE,color:#6B21A8
+    classDef d fill:#BBF7D0,stroke:#86EFAC,color:#14532D
+
+    class P a
+    class H b
+    class F,C c
+    class S d
+</code></pre>
+<p><strong>停机（Core）</strong> — 按执行顺序走四道门。只有 1、3、4 发 <code>agent_end</code>。第 2 道只挡住「因这批 tool 再调 LLM」，循环可能还去 poll steering / follow-up。</p>
+<pre><code class="language-text">function flow（停机）
+  msg = streamAssistantResponse()
+
+  1. stopReason in (error, aborted)
+       emit turn_end, agent_end → return     # 立刻整 run 退出
+
+  2. 有 tool 且整批 result.terminate == true
+       hasMoreToolCalls = false              # 不因这批续 LLM；还不发 agent_end
+
+  emit turn_end
+  prepareNextTurn()
+
+  3. shouldStopAfterTurn() == true
+       emit agent_end → return               # 跳过两队列
+
+  pending = getSteeringMessages()            # 有 → 内层再转
+  followUp = getFollowUpMessages()           # 有 → 外层再转
+
+  4. 无 tool 且两队列空
+       emit agent_end                        # 大纲那条「模型决定停」
+</code></pre>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;flowchart&quot;: {&quot;curve&quot;: &quot;linear&quot;, &quot;rankSpacing&quot;: 28, &quot;nodeSpacing&quot;: 24, &quot;padding&quot;: 8}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;15px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;lineColor&quot;: &quot;#CBD5E1&quot;, &quot;edgeLabelBackground&quot;: &quot;#111111&quot;}}}%%
+flowchart TB
+    MSG[&quot;streamAssistantResponse&quot;] --&gt; G1{&quot;① error / aborted?&quot;}
+    G1 --&gt;|是| E1[&quot;立刻 agent_end&quot;]
+    G1 --&gt;|否| G2{&quot;② 整批 terminate?&quot;}
+    G2 --&gt;|是| CUT[&quot;不因这批续 LLM&quot;]
+    G2 --&gt;|否| G3
+    CUT --&gt; G3{&quot;③ stop after turn?&quot;}
+    G3 --&gt;|是| E2[&quot;agent_end，跳过队列&quot;]
+    G3 --&gt;|否| G4{&quot;④ tool 与队列都空?&quot;}
+    G4 --&gt;|是| E3[&quot;正常 agent_end&quot;]
+    G4 --&gt;|否| LOOP[&quot;续跑 LLM&quot;]
+
+    classDef a fill:#BFDBFE,stroke:#93C5FD,color:#1E3A8A
+    classDef d fill:#FEF08A,stroke:#FDE047,color:#713F12
+    classDef bad fill:#FBCFE8,stroke:#F9A8D4,color:#831843
+    classDef mid fill:#A5F3FC,stroke:#67E8F9,color:#155E75
+    classDef ok fill:#BBF7D0,stroke:#86EFAC,color:#14532D
+
+    class MSG a
+    class G1,G2,G3,G4 d
+    class E1,E2 bad
+    class CUT,LOOP mid
+    class E3 ok
+</code></pre>
+<p>第 2 道必须<strong>整批</strong> <code>result.terminate == true</code>。同批有一个没 terminate，还会续 LLM。<code>Agent.abort()</code> 打当前 <code>AbortController</code>，正在流的那次变成 <code>aborted</code>，走第 1 道。</p>
+<p><strong>兜底（Interactive）</strong> — 不实现上面四道门，只订 <code>agent_end</code> 做副作用（落盘、扩展、<code>willRetry</code>）。<code>prompt()</code> 返回后再问要不要 <code>continue()</code>。</p>
+<pre><code class="language-text">function flow（兜底）
+  _handlePostAgentRun():                     # 再开一轮？
+    if retryable error → prepareRetry → true
+    if overflow compact → true
+    if hasQueuedMessages → true              # agent_end 钩子新入队
+    return false                             # settled
+</code></pre>
+<pre><code class="language-mermaid">%%{init: {&quot;theme&quot;: &quot;dark&quot;, &quot;flowchart&quot;: {&quot;curve&quot;: &quot;linear&quot;, &quot;rankSpacing&quot;: 28, &quot;nodeSpacing&quot;: 24, &quot;padding&quot;: 8}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;15px&quot;, &quot;background&quot;: &quot;#000000&quot;, &quot;lineColor&quot;: &quot;#CBD5E1&quot;, &quot;edgeLabelBackground&quot;: &quot;#111111&quot;}}}%%
+flowchart TB
+    POST[&quot;_handlePostAgentRun&quot;] --&gt; R{&quot;retryable error?&quot;}
+    R --&gt;|是| C1[&quot;continue&quot;]
+    R --&gt;|否| CMP{&quot;overflow compact?&quot;}
+    CMP --&gt;|是| C2[&quot;continue&quot;]
+    CMP --&gt;|否| Q{&quot;hasQueuedMessages?&quot;}
+    Q --&gt;|是| C3[&quot;continue&quot;]
+    Q --&gt;|否| IDLE[&quot;settled&quot;]
+
+    classDef a fill:#E9D5FF,stroke:#D8B4FE,color:#6B21A8
+    classDef d fill:#FEF08A,stroke:#FDE047,color:#713F12
+    classDef c fill:#A5F3FC,stroke:#67E8F9,color:#155E75
+    classDef ok fill:#BBF7D0,stroke:#86EFAC,color:#14532D
+
+    class POST a
+    class R,CMP,Q d
+    class C1,C2,C3 c
+    class IDLE ok
+</code></pre>
+<p><code>hasQueuedMessages</code> <strong>不是</strong>停机第 4 条。第 4 条排空的是这次 loop 里的 steering / follow-up。这里查的是 <code>agent_end</code> 钩子之后新塞进来的消息。</p>
+<hr>
+<h2 id="_8">四、事件与落盘</h2>
+<p>循环对外只发 <code>AgentEvent</code>。UI 和 JSONL 订同一条总线。JSONL 在 <code>message_end</code> 追加，不等整轮结束。展开见 <a href="../pi/03-events.html"><code>03-events.md</code></a>。</p>
+<h2 id="compaction">五、Compaction</h2>
+<p><code>runLoop</code> 不 compact。检查在 Interactive 的 <code>_checkCompaction</code>。展开见 <a href="../pi/05-compaction.html"><code>05-compaction.md</code></a>。</p>
+<hr>
+<h2 id="_9">对照</h2>
+<p>大纲是教学抽象。读源码时按这张表对齐，避免把 compact 画进 <code>runLoop</code>。</p>
+<table>
+<thead>
+<tr>
+<th>大纲</th>
+<th>源码</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>初始化上下文</td>
+<td><code>buildSystemPrompt</code> + <code>AgentContext</code>，在 <code>runLoop</code> 外</td>
+</tr>
+<tr>
+<td>变换 = compact</td>
+<td>循环内 <code>transformContext</code> + <code>convertToLlm</code>；compact 在 <code>_checkCompaction</code></td>
+</tr>
+<tr>
+<td>LLM ↔ tool</td>
+<td><code>runLoop</code> 内层；外层是 follow-up</td>
+</tr>
+<tr>
+<td>模型决定停</td>
+<td>Core 停机四道门：error/aborted、整批 terminate、<code>shouldStopAfterTurn</code>、两队列空</td>
+</tr>
+<tr>
+<td>（大纲没有这一层）</td>
+<td>Interactive 兜底：<code>prompt()</code> 返回后 <code>_handlePostAgentRun</code>，可能 <code>continue()</code></td>
+</tr>
+</tbody>
+</table>
+<p>读：<code>types.ts</code> → <code>agent-loop.ts</code> → <code>agent.ts</code> → <code>sdk.ts</code> → <code>agent-session.ts</code> → <code>test/agent-loop.test.ts</code>。</p>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags">
+            <span class="chip">Pi 架构与上手</span>
+            <span class="chip">AI Agent</span>
+            <span class="chip">面试宝典</span>
+          </div>
+          <a class="t-meta" href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/13-pi-agent/02-agent-loop.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../ai-engineer/pi/01-arch.html"><span class="dir">← 上一篇</span><span class="t">Pi 架构全解析</span></a><a class="next" href="../../ai-engineer/pi/03-events.html"><span class="dir">下一篇 →</span><span class="t">Pi Events and Persistence</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../rag/index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+
+<script src="../../ai-engineer/assets/mermaid-init.js" defer></script>
+<script src="../../js/main.js" defer></script>
+</body>
+</html>

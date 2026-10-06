@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>s13: Background Tasks — 慢操作放后台 · AI Agent 面试宝典 — NorthAdb 的博客</title>
+<meta name="description" content="&quot;慢操作丢后台, agent 继续处理&quot; — 后台线程跑命令, 完成后注入通知。 Harness 层: 后台 — 异步执行, 不阻塞主循环。">
+<link rel="canonical" href="https://northadb.github.io/ai-engineer/harness/s13-background-tasks.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="s13: Background Tasks — 慢操作放后台 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta property="og:description" content="&quot;慢操作丢后台, agent 继续处理&quot; — 后台线程跑命令, 完成后注入通知。 Harness 层: 后台 — 异步执行, 不阻塞主循环。">
+<meta property="og:url" content="https://northadb.github.io/ai-engineer/harness/s13-background-tasks.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="s13: Background Tasks — 慢操作放后台 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta name="twitter:description" content="&quot;慢操作丢后台, agent 继续处理&quot; — 后台线程跑命令, 完成后注入通知。 Harness 层: 后台 — 异步执行, 不阻塞主循环。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../feed.xml">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../ai-engineer/assets/course.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "s13: Background Tasks — 慢操作放后台", "description": "\"慢操作丢后台, agent 继续处理\" — 后台线程跑命令, 完成后注入通知。 Harness 层: 后台 — 异步执行, 不阻塞主循环。", "author": {"@type": "Person", "name": "juliepy", "url": "https://github.com/juliepy/AI-Engineer-from-scrach"}, "mainEntityOfPage": "https://northadb.github.io/ai-engineer/harness/s13-background-tasks.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../index.html">首页</a><span>/</span><a href="../../learn.html">课件</a><span>/</span><a href="../../ai-engineer/index.html">AI Agent 面试宝典</a><span>/</span><a href="../../ai-engineer/harness/index.html">Harness 工程化</a></div>
+          <h1>s13: Background Tasks — 慢操作放后台</h1>
+          <p class="post-sub">&quot;慢操作丢后台, agent 继续处理&quot; — 后台线程跑命令, 完成后注入通知。 Harness 层: 后台 — 异步执行, 不阻塞主循环。</p>
+          <div class="post-meta">
+            <span class="avatar">AI</span>
+            <span>AI Agent 面试宝典</span><span class="sep"></span>
+            <span>Harness 工程化</span><span class="sep"></span>
+            <span>阅读约 7 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<p><a href="../harness/s13-background-tasks.html">中文</a> · <a href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/06-harnes/learn-claude-code/s13_background_tasks/README.en.md">English</a> · <a href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/06-harnes/learn-claude-code/s13_background_tasks/README.ja.md">日本語</a></p>
+<p>s01 → ... → s11 → s12 → <code>s13</code> → <a href="https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/06-harnes/learn-claude-code/s14_cron_scheduler">s14</a> → s15 → ... → s20</p>
+<blockquote>
+<p><em>"慢操作丢后台, agent 继续处理"</em> — 后台线程跑命令, 完成后注入通知。</p>
+<p><strong>Harness 层</strong>: 后台 — 异步执行, 不阻塞主循环。</p>
+</blockquote>
+<hr>
+<h2 id="_1">问题</h2>
+<p>你用过洗衣机吗？把衣服扔进去，按下启动，然后去干别的——做饭、回消息、看论文。30 分钟后洗衣机"滴滴滴"提醒你：好了。你不会站在洗衣机前面干等 30 分钟。</p>
+<p>Agent 的 bash 工具也一样。<code>pip install torch</code> 要 10 分钟，<code>npm run build</code> 要 3 分钟。这些命令一跑，Agent 就在等 bash 工具返回，没法利用这段时间处理别的任务。</p>
+<p>读文件是毫秒级，不等。<code>git status</code> 一秒内返回，不等。但 <code>npm install</code>？分钟级。Agent 等 10 分钟什么都不做，而 LLM 按 token 计费，空转就是浪费。</p>
+<hr>
+<h2 id="_2">解决方案</h2>
+<p><img alt="Background Tasks Overview" src="../assets/img/8702d77eab.svg"></p>
+<p>教学代码沿用 S12 的简化任务系统和 prompt 组装；为了聚焦后台任务，省略完整错误恢复、记忆和技能系统。唯一的变动：慢操作扔到后台线程，Agent 继续跑循环，后台完成后把通知注入到对话里。</p>
+<p>同步 vs 后台：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>同步 (s12)</th>
+<th>后台 (s13)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>慢操作</td>
+<td>Agent 干等</td>
+<td>后台线程执行</td>
+</tr>
+<tr>
+<td>Agent 空闲</td>
+<td>是</td>
+<td>否，继续处理</td>
+</tr>
+<tr>
+<td>结果</td>
+<td>立即返回</td>
+<td>下轮注入通知</td>
+</tr>
+<tr>
+<td>判断标准</td>
+<td>—</td>
+<td><code>run_in_background</code> 参数（模型显式请求），启发式兜底</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="_3">工作原理</h2>
+<h3 id="should_run_background">should_run_background: 显式请求优先，启发式兜底</h3>
+<p>模型通过 bash 工具的 <code>run_in_background</code> 参数显式请求后台执行。如果模型没指定，教学版用关键词启发式兜底：</p>
+<pre><code class="language-python">def is_slow_operation(tool_name: str, tool_input: dict) -&gt; bool:
+    &quot;&quot;&quot;Fallback heuristic: commands likely to take &gt; 30s.&quot;&quot;&quot;
+    if tool_name != &quot;bash&quot;:
+        return False
+    cmd = tool_input.get(&quot;command&quot;, &quot;&quot;).lower()
+    slow_keywords = [&quot;install&quot;, &quot;build&quot;, &quot;test&quot;, &quot;deploy&quot;, &quot;compile&quot;,
+                     &quot;docker build&quot;, &quot;pip install&quot;, &quot;npm install&quot;,
+                     &quot;cargo build&quot;, &quot;pytest&quot;, &quot;make&quot;]
+    return any(kw in cmd for kw in slow_keywords)
+
+def should_run_background(tool_name: str, tool_input: dict) -&gt; bool:
+    &quot;&quot;&quot;Model explicit request takes priority; fallback to heuristic.&quot;&quot;&quot;
+    if tool_input.get(&quot;run_in_background&quot;):
+        return True
+    return is_slow_operation(tool_name, tool_input)
+</code></pre>
+<p>CC 的 bash 工具 schema 里有 <code>run_in_background: boolean</code> 参数（<code>BashTool.tsx:241</code>）。模型自己决定哪些命令丢后台，不靠关键词猜。教学版保留启发式作为兜底，但主路径是模型显式请求。</p>
+<h3 id="start_background_task">start_background_task: 后台执行与生命周期</h3>
+<p>把工具调用包装成 worker 函数，扔到 daemon 线程里执行。每个后台任务有唯一 ID，状态存在 <code>background_tasks</code> 字典里：</p>
+<pre><code class="language-python">_bg_counter = 0
+background_tasks: dict[str, dict] = {}   # bg_id → {tool_use_id, command, status}
+background_results: dict[str, str] = {}   # bg_id → output
+background_lock = threading.Lock()
+
+def start_background_task(block) -&gt; str:
+    &quot;&quot;&quot;Run tool in a daemon thread. Returns background task ID.&quot;&quot;&quot;
+    global _bg_counter
+    _bg_counter += 1
+    bg_id = f&quot;bg_{_bg_counter:04d}&quot;
+
+    def worker():
+        result = execute_tool(block)
+        with background_lock:
+            background_tasks[bg_id][&quot;status&quot;] = &quot;completed&quot;
+            background_results[bg_id] = result
+
+    with background_lock:
+        background_tasks[bg_id] = {
+            &quot;tool_use_id&quot;: block.id,
+            &quot;command&quot;: block.input.get(&quot;command&quot;, &quot;&quot;),
+            &quot;status&quot;: &quot;running&quot;,
+        }
+    thread = threading.Thread(target=worker, daemon=True)
+    thread.start()
+    return bg_id
+</code></pre>
+<p>返回 <code>bg_id</code> 而不是只返回 <code>[Running in background...]</code>。<code>daemon=True</code> 确保 Agent 进程退出时线程跟着退出。教学版用内存字典追踪状态；真实 CC 有 <code>LocalShellTaskState</code>，输出重定向到文件，支持停止任务、读取后续输出等完整生命周期。</p>
+<h3 id="collect_background_results">collect_background_results: 通知收集</h3>
+<p>后台任务完成后，收集结果并格式化为 <code>&lt;task_notification&gt;</code> 通知：</p>
+<pre><code class="language-python">def collect_background_results() -&gt; list[str]:
+    &quot;&quot;&quot;Collect completed results as task_notification messages.&quot;&quot;&quot;
+    with background_lock:
+        ready_ids = [bid for bid, task in background_tasks.items()
+                     if task[&quot;status&quot;] == &quot;completed&quot;]
+    notifications = []
+    for bg_id in ready_ids:
+        with background_lock:
+            task = background_tasks.pop(bg_id)
+            output = background_results.pop(bg_id, &quot;&quot;)
+        notifications.append(
+            f&quot;&lt;task_notification&gt;\n&quot;
+            f&quot;  &lt;task_id&gt;{bg_id}&lt;/task_id&gt;\n&quot;
+            f&quot;  &lt;status&gt;completed&lt;/status&gt;\n&quot;
+            f&quot;  &lt;command&gt;{task['command']}&lt;/command&gt;\n&quot;
+            f&quot;  &lt;summary&gt;{output[:200]}&lt;/summary&gt;\n&quot;
+            f&quot;&lt;/task_notification&gt;&quot;)
+    return notifications
+</code></pre>
+<p>通知不复用原始 <code>tool_use_id</code>。原始 tool call 已经用占位 <code>tool_result</code> 回复了，后台完成是独立事件，用 <code>task_notification</code> 格式注入。这符合 Messages API 的工具配对语义：一个 <code>tool_use</code> 只对应一个 <code>tool_result</code>。</p>
+<h3 id="_4">循环中的集成</h3>
+<p>agent_loop 里，工具执行分两条路，通知和结果合并为一条 user 消息：</p>
+<pre><code class="language-python">results = []
+for block in response.content:
+    if block.type != &quot;tool_use&quot;:
+        continue
+    if should_run_background(block.name, block.input):
+        bg_id = start_background_task(block)
+        results.append({&quot;type&quot;: &quot;tool_result&quot;,
+            &quot;tool_use_id&quot;: block.id,
+            &quot;content&quot;: f&quot;[Background task {bg_id} started] &quot;
+                       f&quot;Result will be available when complete.&quot;})
+    else:
+        output = execute_tool(block)
+        results.append({&quot;type&quot;: &quot;tool_result&quot;,
+            &quot;tool_use_id&quot;: block.id, &quot;content&quot;: output})
+
+# 通知和工具结果合入同一条 user 消息
+user_content = []
+bg_notifications = collect_background_results()
+if bg_notifications:
+    for notif in bg_notifications:
+        user_content.append({&quot;type&quot;: &quot;text&quot;, &quot;text&quot;: notif})
+user_content.extend(results)
+messages.append({&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: user_content})
+</code></pre>
+<p>慢操作先回一个带 <code>bg_id</code> 的占位 tool_result，LLM 知道这个命令还在跑，可以先做别的事。后台完成后，通知作为独立 text block 和当前轮的 tool_result 一起组成 user 消息。</p>
+<p>教学版在 agent loop 继续运行时轮询后台结果。真实 CC 通过通知队列（<code>messageQueueManager.ts</code>）把后台完成事件送入后续 turn，不需要等工具循环。</p>
+<h3 id="_5">合起来跑</h3>
+<pre><code>Turn 1:
+  LLM → bash &quot;npm install&quot; (run_in_background=true)
+  → start_background_task → bg_0001
+  → tool_result: &quot;[Background task bg_0001 started]...&quot;
+  → LLM: &quot;OK, I'll check later. Let me also read the config.&quot;
+
+Turn 2:
+  LLM → read_file &quot;package.json&quot; (fast, sync)
+  → tool_result: file content
+  → collect: bg_0001 done! inject &lt;task_notification&gt;
+  → LLM sees: config file + install notification in one message
+</code></pre>
+<p>Agent 没干等，npm install 跑后台的时候，它去读了配置文件。</p>
+<hr>
+<h2 id="s12">相对 s12 的变更</h2>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>之前 (s12)</th>
+<th>之后 (s13)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>执行模型</td>
+<td>全部同步</td>
+<td>慢操作后台线程 + 通知注入</td>
+</tr>
+<tr>
+<td>bash schema</td>
+<td><code>command</code></td>
+<td><code>command</code> + <code>run_in_background</code></td>
+</tr>
+<tr>
+<td>新函数</td>
+<td>—</td>
+<td><code>should_run_background</code>, <code>is_slow_operation</code>, <code>start_background_task</code>, <code>collect_background_results</code></td>
+</tr>
+<tr>
+<td>新类型</td>
+<td>—</td>
+<td><code>background_tasks: dict</code>, <code>background_results: dict</code>, <code>background_lock: Lock</code></td>
+</tr>
+<tr>
+<td>通知格式</td>
+<td>—</td>
+<td><code>&lt;task_notification&gt;</code>（不复用 tool_use_id）</td>
+</tr>
+<tr>
+<td>循环行为</td>
+<td>工具串行执行</td>
+<td>慢操作异步，快操作同步，通知每轮收集</td>
+</tr>
+<tr>
+<td>工具</td>
+<td>8 (s12)</td>
+<td>8（不变，执行策略变了）</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="_6">试一下</h2>
+<pre><code class="language-sh">cd learn-claude-code
+python s13_background_tasks/code.py
+</code></pre>
+<p>试试这些 prompt：</p>
+<ol>
+<li><code>Run pip list in the background and find all Python files in this directory</code></li>
+<li><code>Run npm install (use run_in_background) and while waiting, read package.json</code></li>
+<li><code>Create a task to setup the project, then run pip list in the background</code></li>
+</ol>
+<p>观察重点：慢操作有没有被送到后台？<code>bg_id</code> 是否返回？后台通知有没有以 <code>&lt;task_notification&gt;</code> 格式注入？</p>
+<hr>
+<h2 id="_7">接下来</h2>
+<p>后台任务解决了"慢操作不阻塞"。但如果想定时做某件事呢？比如"每天早上 9 点跑测试"、"每 5 分钟检查一次服务器状态"。</p>
+<p>s14 Cron Scheduler → 给 Agent 装一个闹钟。</p>
+<details>
+<summary>深入 CC 源码</summary>
+
+> 以下基于 CC 源码 `query.ts`（211, 1054-1060, 1411-1482 行）、`services/toolUseSummary/toolUseSummaryGenerator.ts`（L15 prompt 文本）、`LocalShellTask.tsx`（L24-25 常量, L59-98 看门狗逻辑）、`messageQueueManager.ts`（通知队列）、`utils/task/framework.ts`（L267 `enqueueTaskNotification`）的完整分析。
+
+### 一、pendingToolUseSummary：Haiku 后台生成
+
+CC 在每批工具执行完后，启动一个 Haiku side-query 生成工具使用摘要。发起代码在 `query.ts:1411-1482`，prompt 文本定义在 `services/toolUseSummary/toolUseSummaryGenerator.ts:15`（变量名 `TOOL_USE_SUMMARY_SYSTEM_PROMPT`）。提示是 "Write a short summary label... think git-commit-subject, not sentence"，过去时态，约 30 字符。
+
+Haiku 摘要（~1s）在主模型流式生成（5-30s）期间完成。下一轮开始前，把摘要 yield 出去。SDK 消费这些摘要做移动端进度展示。
+
+### 二、线程模型：没有真正的线程
+
+CC 运行在 Node.js/Bun 单线程事件循环中。"后台"只是 "不 await"。`ShellCommand.background(taskId)` 把 stdout/stderr 重定向到文件，让进程独立运行。
+
+### 三、七种后台任务类型
+
+CC 定义了 7 种后台任务（`Task.ts:7-13`）：`local_bash`、`local_agent`、`remote_agent`、`in_process_teammate`、`local_workflow`、`monitor_mcp`、`dream`。每种有自己的注册、生命周期和通知机制。
+
+### 四、通知注入：命令队列
+
+后台任务完成后通过 `enqueueTaskNotification`（`utils/task/framework.ts:267`）或 `enqueuePendingNotification`（`messageQueueManager.ts`）入队到共享命令队列。通知格式是结构化的 XML：
+
+
+<pre><code class="language-xml">&lt;task_notification&gt;
+  &lt;status&gt;completed&lt;/status&gt;
+  &lt;summary&gt;Background command &quot;npm test&quot; completed (exit code 0)&lt;/summary&gt;
+&lt;/task_notification&gt;
+</code></pre>
+
+
+优先级分 `next` > `later`（`messageQueueManager.ts`）。后台任务默认 `later`（不阻塞用户输入）。消费点在 `query.ts:1566-1593`。
+
+### 五、停滞看门狗
+
+后台 bash 任务有一个看门狗（`LocalShellTask.tsx` L24-25 常量, L59-98 逻辑），定期检查输出是否停滞，45 秒无增长后检测交互式提示（`(y/n)` 等），防止后台任务卡在无人响应的交互式对话框。
+
+### 六、并发限制
+
+前台工具调用：`CLAUDE_CODE_MAX_TOOL_USE_CONCURRENCY`（默认 10 个并发安全工具）。后台 bash 任务：没有硬性限制，它们是独立的子进程。
+
+</details>
+
+<!-- translation-sync: zh@v1, en@v1, ja@v1 -->
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags">
+            <span class="chip">Harness 工程化</span>
+            <span class="chip">AI Agent</span>
+            <span class="chip">面试宝典</span>
+          </div>
+          <a class="t-meta" href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/06-harnes/learn-claude-code/s13_background_tasks/README.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../ai-engineer/harness/s12-task-system.html"><span class="dir">← 上一篇</span><span class="t">s12: Task System — 目标太大，拆成小任务</span></a><a class="next" href="../../ai-engineer/harness/s14-cron-scheduler.html"><span class="dir">下一篇 →</span><span class="t">s14: Cron Scheduler — 按时间表生产工作</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../rag/index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+
+<script src="../../js/main.js" defer></script>
+</body>
+</html>

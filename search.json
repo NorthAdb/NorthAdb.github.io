@@ -1,16 +1,1991 @@
 [
-  {"title": "当我用 AI 写代码时，我在想什么", "url": "posts/ai-coding-workflow.html", "category": "AI · 随笔", "excerpt": "从「让 AI 帮我生成代码」到「和 AI 结对编程」，分享真实的 AI 编程工作流与踩过的坑。", "type": "post", "featured": true},
-  {"title": "新博客，开工 —— 你好，世界", "url": "posts/hello-world.html", "category": "随笔", "excerpt": "换了新的博客主题，聊聊这次改版背后的想法。", "type": "post", "featured": true},
-  {"title": "拆解 Claude 官网的设计语言", "url": "posts/claude-design-language.html", "category": "设计", "excerpt": "从色彩、字体、纹理到留白，逐层拆解 Claude 官网的设计系统。", "type": "post", "featured": false},
-  {"title": "零基础把静态网页部署到 GitHub Pages", "url": "posts/github-pages-guide.html", "category": "教程", "excerpt": "免费、免服务器、全球 CDN。手把手教你用 GitHub Pages 部署个人博客。", "type": "post", "featured": false},
-  {"title": "Agent Harness 架构课程", "url": "agent-harness-course/index.html", "category": "课件 · 15 课", "excerpt": "逆向工程 Pi 源码，回答现代 Agent Harness 需要哪些基础机制。", "type": "course", "featured": false, "keywords": "agent harness pi loop tool context session compaction skills mcp"},
-  {"title": "学习 Pi 导读", "url": "learn-pi/index.html", "category": "课件 · 22 篇", "excerpt": "面向 Pi 仓库的中文学习导读：设计哲学、架构、运行模式与二次开发。", "type": "course", "featured": false, "keywords": "pi agent 导读 架构 设计哲学"},
-  {"title": "从 HTTP 到实时 Agent Server", "url": "web-foundation/COURSE.html", "category": "课件 · 网络通信课", "excerpt": "异步与 HTTP 地基、SSE 流式、WebSocket 双向通信，到 Agent 事件流与生产化。", "type": "course", "featured": false, "keywords": "http sse websocket fastapi redis nginx agent server 网络"},
-  {"title": "RAG Playground", "url": "rag/index.html", "category": "课件 · 18 讲", "excerpt": "从零手写一条可观测的 RAG 流水线：讲义、实验报告与自测。", "type": "course", "featured": false, "keywords": "rag retrieval embedding vector chunk hnsw raptor lightrag 检索"},
-  {"title": "Agent Learning（主课）", "url": "https://northadb.github.io/agent-learning/lessons/", "category": "课件 · 外部", "excerpt": "用 Python 读懂并跑通 coding agent harness。", "type": "course", "featured": false, "keywords": "python harness agent learning"},
-  {"title": "课件总览", "url": "learn.html", "category": "页面", "excerpt": "全部公开课的入口与阅读方式。", "type": "page", "featured": false},
-  {"title": "关于我", "url": "about.html", "category": "页面", "excerpt": "关于 NorthAdb：前端开发者，关注 AI Agent、RAG 与工程实践。", "type": "page", "featured": false},
-  {"title": "AI & Agents", "url": "learn.html", "category": "方向", "excerpt": "Agent Loop、Harness 架构、工具调用与上下文管理。", "type": "topic", "featured": false},
-  {"title": "RAG", "url": "rag/index.html", "category": "方向", "excerpt": "从零手写可观测的 RAG 流水线。", "type": "topic", "featured": false},
-  {"title": "Web & Infra", "url": "web-foundation/COURSE.html", "category": "方向", "excerpt": "从 HTTP 到 Redis / Nginx 生产化的网络通信课。", "type": "topic", "featured": false}
+  {
+    "title": "当我用 AI 写代码时，我在想什么",
+    "url": "posts/ai-coding-workflow.html",
+    "category": "AI · 随笔",
+    "excerpt": "从「让 AI 帮我生成代码」到「和 AI 结对编程」，分享真实的 AI 编程工作流与踩过的坑。",
+    "type": "post",
+    "featured": true
+  },
+  {
+    "title": "新博客，开工 —— 你好，世界",
+    "url": "posts/hello-world.html",
+    "category": "随笔",
+    "excerpt": "换了新的博客主题，聊聊这次改版背后的想法。",
+    "type": "post",
+    "featured": true
+  },
+  {
+    "title": "拆解 Claude 官网的设计语言",
+    "url": "posts/claude-design-language.html",
+    "category": "设计",
+    "excerpt": "从色彩、字体、纹理到留白，逐层拆解 Claude 官网的设计系统。",
+    "type": "post",
+    "featured": false
+  },
+  {
+    "title": "零基础把静态网页部署到 GitHub Pages",
+    "url": "posts/github-pages-guide.html",
+    "category": "教程",
+    "excerpt": "免费、免服务器、全球 CDN。手把手教你用 GitHub Pages 部署个人博客。",
+    "type": "post",
+    "featured": false
+  },
+  {
+    "title": "Agent Harness 架构课程",
+    "url": "agent-harness-course/index.html",
+    "category": "课件 · 15 课",
+    "excerpt": "逆向工程 Pi 源码，回答现代 Agent Harness 需要哪些基础机制。",
+    "type": "course",
+    "featured": false,
+    "keywords": "agent harness pi loop tool context session compaction skills mcp"
+  },
+  {
+    "title": "学习 Pi 导读",
+    "url": "learn-pi/index.html",
+    "category": "课件 · 22 篇",
+    "excerpt": "面向 Pi 仓库的中文学习导读：设计哲学、架构、运行模式与二次开发。",
+    "type": "course",
+    "featured": false,
+    "keywords": "pi agent 导读 架构 设计哲学"
+  },
+  {
+    "title": "从 HTTP 到实时 Agent Server",
+    "url": "web-foundation/COURSE.html",
+    "category": "课件 · 网络通信课",
+    "excerpt": "异步与 HTTP 地基、SSE 流式、WebSocket 双向通信，到 Agent 事件流与生产化。",
+    "type": "course",
+    "featured": false,
+    "keywords": "http sse websocket fastapi redis nginx agent server 网络"
+  },
+  {
+    "title": "RAG Playground",
+    "url": "rag/index.html",
+    "category": "课件 · 18 讲",
+    "excerpt": "从零手写一条可观测的 RAG 流水线：讲义、实验报告与自测。",
+    "type": "course",
+    "featured": false,
+    "keywords": "rag retrieval embedding vector chunk hnsw raptor lightrag 检索"
+  },
+  {
+    "title": "Agent Learning（主课）",
+    "url": "https://northadb.github.io/agent-learning/lessons/",
+    "category": "课件 · 外部",
+    "excerpt": "用 Python 读懂并跑通 coding agent harness。",
+    "type": "course",
+    "featured": false,
+    "keywords": "python harness agent learning"
+  },
+  {
+    "title": "课件总览",
+    "url": "learn.html",
+    "category": "页面",
+    "excerpt": "全部公开课的入口与阅读方式。",
+    "type": "page",
+    "featured": false
+  },
+  {
+    "title": "关于我",
+    "url": "about.html",
+    "category": "页面",
+    "excerpt": "关于 NorthAdb：前端开发者，关注 AI Agent、RAG 与工程实践。",
+    "type": "page",
+    "featured": false
+  },
+  {
+    "title": "AI & Agents",
+    "url": "learn.html",
+    "category": "方向",
+    "excerpt": "Agent Loop、Harness 架构、工具调用与上下文管理。",
+    "type": "topic",
+    "featured": false
+  },
+  {
+    "title": "RAG",
+    "url": "rag/index.html",
+    "category": "方向",
+    "excerpt": "从零手写可观测的 RAG 流水线。",
+    "type": "topic",
+    "featured": false
+  },
+  {
+    "title": "Web & Infra",
+    "url": "web-foundation/COURSE.html",
+    "category": "方向",
+    "excerpt": "从 HTTP 到 Redis / Nginx 生产化的网络通信课。",
+    "type": "topic",
+    "featured": false
+  },
+  {
+    "title": "记忆系统",
+    "url": "https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/03-memory",
+    "category": "面试宝典 · 第 03 章 · 代码实践",
+    "excerpt": "窗口记忆、长期记忆、摘要记忆与三因子打分。以代码实践为主，笔记在仓库 03-memory/，此处不设网页。",
+    "type": "course",
+    "featured": false,
+    "keywords": "记忆系统"
+  },
+  {
+    "title": "多智能体架构",
+    "url": "https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/04-multiagent",
+    "category": "面试宝典 · 第 04 章 · 代码实践",
+    "excerpt": "多智能体架构：Pipeline / Hub-Spoke / Blackboard、Supervisor 分层与 HITL，附 AutoGen / CrewAI 实战课表。",
+    "type": "course",
+    "featured": false,
+    "keywords": "多智能体架构"
+  },
+  {
+    "title": "记忆系统",
+    "url": "https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/03-memory",
+    "category": "面试宝典 · 第 03 章 · 代码实践",
+    "excerpt": "窗口记忆、长期记忆、摘要记忆与三因子打分。以代码实践为主，笔记在仓库 03-memory/，此处不设网页。",
+    "type": "course",
+    "featured": false,
+    "keywords": "记忆系统"
+  },
+  {
+    "title": "记忆系统",
+    "url": "https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/03-memory",
+    "category": "面试宝典 · 第 03 章 · 代码实践",
+    "excerpt": "窗口记忆、长期记忆、摘要记忆与三因子打分。以代码实践为主，笔记在仓库 03-memory/，此处不设网页。",
+    "type": "course",
+    "featured": false,
+    "keywords": "记忆系统"
+  },
+  {
+    "title": "记忆系统",
+    "url": "https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/03-memory",
+    "category": "面试宝典 · 第 03 章 · 代码实践",
+    "excerpt": "窗口记忆、长期记忆、摘要记忆与三因子打分。以代码实践为主，笔记在仓库 03-memory/，此处不设网页。",
+    "type": "course",
+    "featured": false,
+    "keywords": "记忆系统"
+  },
+  {
+    "title": "记忆系统",
+    "url": "https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/03-memory",
+    "category": "面试宝典 · 第 03 章 · 代码实践",
+    "excerpt": "窗口记忆、长期记忆、摘要记忆与三因子打分。以代码实践为主，笔记在仓库 03-memory/，此处不设网页。",
+    "type": "course",
+    "featured": false,
+    "keywords": "记忆系统"
+  },
+  {
+    "title": "记忆系统",
+    "url": "https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/03-memory",
+    "category": "面试宝典 · 第 03 章 · 代码实践",
+    "excerpt": "窗口记忆、长期记忆、摘要记忆与三因子打分。以代码实践为主，笔记在仓库 03-memory/，此处不设网页。",
+    "type": "course",
+    "featured": false,
+    "keywords": "记忆系统"
+  },
+  {
+    "title": "记忆系统",
+    "url": "https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/03-memory",
+    "category": "面试宝典 · 第 03 章 · 代码实践",
+    "excerpt": "窗口记忆、长期记忆、摘要记忆与三因子打分。以代码实践为主，笔记在仓库 03-memory/，此处不设网页。",
+    "type": "course",
+    "featured": false,
+    "keywords": "记忆系统"
+  },
+  {
+    "title": "记忆系统",
+    "url": "https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/03-memory",
+    "category": "面试宝典 · 第 03 章 · 代码实践",
+    "excerpt": "窗口记忆、长期记忆、摘要记忆与三因子打分。以代码实践为主，笔记在仓库 03-memory/，此处不设网页。",
+    "type": "course",
+    "featured": false,
+    "keywords": "记忆系统"
+  },
+  {
+    "title": "AI Agent 面试宝典",
+    "url": "ai-engineer/index.html",
+    "category": "课件 · 17 章",
+    "excerpt": "面向 Agent / RAG / 多智能体面试的全景学习手册，整理自 AI-Engineer-from-scrach。",
+    "type": "course",
+    "featured": true,
+    "keywords": "agent rag memory multiagent harness loop hermes pi waku cicd langgraph 面试 宝典 deepseek edge"
+  },
+  {
+    "title": "第 00 章 · 学习总大纲",
+    "url": "ai-engineer/outline/index.html",
+    "category": "面试宝典 · 1 篇",
+    "excerpt": "学习顺序总览：工具调用 → ReAct → 规划执行 → 反思 → 树搜索 → 多角色协作，附 multi-agent-arch 课表与目录地图。",
+    "type": "course",
+    "featured": false,
+    "keywords": "学习总大纲"
+  },
+  {
+    "title": "Agent 教学大纲",
+    "url": "ai-engineer/outline/learning-outline.html",
+    "category": "面试宝典 · 学习总大纲",
+    "excerpt": "00-llmfunctioncall 工具调用入门 01-small-llm-function-call Function Calling 小工程 02-Agentreact ReAct 02-Plan-and-Execute 规划与执行",
+    "type": "course",
+    "featured": false,
+    "keywords": "学习总大纲"
+  },
+  {
+    "title": "第 01 章 · Agent 核心模式",
+    "url": "ai-engineer/agent/index.html",
+    "category": "面试宝典 · 7 篇",
+    "excerpt": "Function Call、ReAct、Plan-and-Execute、Reflexion、LATS 与 Multi-Agent Crew —— 六种核心模式的原理、代码与对比。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Agent 核心模式"
+  },
+  {
+    "title": "Agent 课程：从 ReAct 到多 Agent 协作",
+    "url": "ai-engineer/agent/overview.html",
+    "category": "面试宝典 · Agent 核心模式",
+    "excerpt": "5 个独立示例项目，由浅入深讲解 Agent 核心范式。 每个子目录可单独运行，共用 DeepSeek API + 相同工具集（calculator / getcurrenttime / wordcount）。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Agent 核心模式"
+  },
+  {
+    "title": "LLM Function Calling 小工程",
+    "url": "ai-engineer/agent/01-small-llm-function-call-project.html",
+    "category": "面试宝典 · Agent 核心模式",
+    "excerpt": "演示如何通过 OpenAI Function Calling 协议让 LLM 调用本地 Python 函数。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Agent 核心模式"
+  },
+  {
+    "title": "ReAct Agent 示例",
+    "url": "ai-engineer/agent/02-agent-react.html",
+    "category": "面试宝典 · Agent 核心模式",
+    "excerpt": "简化版 ReAct（Reasoning + Acting）循环：LLM 按 Thought → Action → Observation 格式推理，必要时调用工具，最后给出 Final Answer。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Agent 核心模式"
+  },
+  {
+    "title": "02 - Plan-and-Execute Agent 示例",
+    "url": "ai-engineer/agent/02-plan-and-execute.html",
+    "category": "面试宝典 · Agent 核心模式",
+    "excerpt": "极简 Planner + Executor 架构：先由 LLM 将任务分解为 3–7 个具体步骤，再逐步执行；单步执行器复用 ReAct 循环；失败时可触发重规划。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Agent 核心模式"
+  },
+  {
+    "title": "03 - Reflection Agent 示例",
+    "url": "ai-engineer/agent/03-reflexion.html",
+    "category": "面试宝典 · Agent 核心模式",
+    "excerpt": "实现 Action → Evaluation → Reflection → Retry 工作流：失败时将反思写入策略记忆，跨尝试复用，形成可累积的改进线索。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Agent 核心模式"
+  },
+  {
+    "title": "04 - LATS（Language Agent Tree Search）",
+    "url": "ai-engineer/agent/04-lats.html",
+    "category": "面试宝典 · Agent 核心模式",
+    "excerpt": "把 Agent 决策看成在树上搜索：节点 = 状态/中间思路，边 = 不同行动。复杂任务上探索多条路径，用评估函数判断哪条更有希望。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Agent 核心模式"
+  },
+  {
+    "title": "05 - Multi-Agent Crew（多角色轮询）",
+    "url": "ai-engineer/agent/05-multi-agent-crew.html",
+    "category": "面试宝典 · Agent 核心模式",
+    "excerpt": "多个专责角色按固定顺序阅读同一条对话线程 thread，轮流补充内容，形成「研究 → 撰写 → 审稿」的极简协作链。对应面试宝典 7.5 / 8 模块。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Agent 核心模式"
+  },
+  {
+    "title": "第 02 章 · RAG 全流程",
+    "url": "ai-engineer/rag/index.html",
+    "category": "面试宝典 · 7 篇",
+    "excerpt": "从最朴素的向量检索到 High-Level RAG、GraphRAG、RAG 评测与 PDF 解析，一条完整的 RAG 学习线。",
+    "type": "course",
+    "featured": false,
+    "keywords": "RAG 全流程"
+  },
+  {
+    "title": "01-simple_rag：最小 RAG 闭环实现",
+    "url": "ai-engineer/rag/01-simple-rag.html",
+    "category": "面试宝典 · RAG 全流程",
+    "excerpt": "模型：DeepSeek | 向量库：FAISS | 框架：纯 Python（无 LangChain）",
+    "type": "course",
+    "featured": false,
+    "keywords": "RAG 全流程"
+  },
+  {
+    "title": "02-RAG_basic：RAG 核心知识点代码示例",
+    "url": "ai-engineer/rag/02-rag-basic.html",
+    "category": "面试宝典 · RAG 全流程",
+    "excerpt": "每个文件对应一个知识点，可独立运行，无需 API Key。",
+    "type": "course",
+    "featured": false,
+    "keywords": "RAG 全流程"
+  },
+  {
+    "title": "03-high_level_RAG：高级 RAG 架构示例",
+    "url": "ai-engineer/rag/03-high-level-rag.html",
+    "category": "面试宝典 · RAG 全流程",
+    "excerpt": "每个文件对应一种高级 RAG 范式，可独立运行。 语料为内置公司员工手册片段，检索使用 FAISS + SentenceTransformer，LLM 调用 DeepSeek。",
+    "type": "course",
+    "featured": false,
+    "keywords": "RAG 全流程"
+  },
+  {
+    "title": "GraphRAG + 混合检索",
+    "url": "ai-engineer/rag/04-graph-rag.html",
+    "category": "面试宝典 · RAG 全流程",
+    "excerpt": "纯向量检索有硬伤——用 Vector + BM25 + Graph 三路并行 + RRF 融合，搭出工业级 RAG。",
+    "type": "course",
+    "featured": false,
+    "keywords": "RAG 全流程"
+  },
+  {
+    "title": "Lesson 1 · RAG Evaluation",
+    "url": "ai-engineer/rag/lesson1-rag-evaluation.html",
+    "category": "面试宝典 · RAG 全流程",
+    "excerpt": "Time: 19:00 · 60 minutes Module: PHASE 3: RAG Instructor: Liangjun Song",
+    "type": "course",
+    "featured": false,
+    "keywords": "RAG 全流程"
+  },
+  {
+    "title": "Lesson 2 · RAG Metrics 进阶详解",
+    "url": "ai-engineer/rag/lesson2-rag-metrics.html",
+    "category": "面试宝典 · RAG 全流程",
+    "excerpt": "模块： PHASE 3: RAG · Evaluation",
+    "type": "course",
+    "featured": false,
+    "keywords": "RAG 全流程"
+  },
+  {
+    "title": "Lesson 2 — PDF Parsing 101",
+    "url": "ai-engineer/rag/05-pdf-process.html",
+    "category": "面试宝典 · RAG 全流程",
+    "excerpt": "完整讲义已迁入 Jupyter Notebook（原 slides.md 已删除），按顺序学习：",
+    "type": "course",
+    "featured": false,
+    "keywords": "RAG 全流程"
+  },
+  {
+    "title": "记忆系统",
+    "url": "https://github.com/juliepy/AI-Engineer-from-scrach/tree/main/03-memory",
+    "category": "面试宝典 · 第 03 章 · 代码实践",
+    "excerpt": "窗口记忆、长期记忆、摘要记忆与三因子打分。以代码实践为主，笔记在仓库 03-memory/，此处不设网页。",
+    "type": "course",
+    "featured": false,
+    "keywords": "记忆系统"
+  },
+  {
+    "title": "第 04 章 · 多智能体架构",
+    "url": "ai-engineer/multi-agent/index.html",
+    "category": "面试宝典 · 1 篇",
+    "excerpt": "多智能体架构：Pipeline / Hub-Spoke / Blackboard、Supervisor 分层与 HITL，附 AutoGen / CrewAI 实战课表。",
+    "type": "course",
+    "featured": false,
+    "keywords": "多智能体架构"
+  },
+  {
+    "title": "Multi-Agent 架构与框架 — 课程 Notebook 索引",
+    "url": "ai-engineer/multi-agent/multi-agent-arch.html",
+    "category": "面试宝典 · 多智能体架构",
+    "excerpt": "AI Engineer 训练营 · 多 Agent 模块",
+    "type": "course",
+    "featured": false,
+    "keywords": "多智能体架构"
+  },
+  {
+    "title": "第 05 章 · 模型路由",
+    "url": "ai-engineer/model-route/index.html",
+    "category": "面试宝典 · 1 篇",
+    "excerpt": "模型路由：按成本、能力与场景把请求分发给合适的模型。",
+    "type": "course",
+    "featured": false,
+    "keywords": "模型路由"
+  },
+  {
+    "title": "05-model-route：模型路由与工程化实践",
+    "url": "ai-engineer/model-route/overview.html",
+    "category": "面试宝典 · 模型路由",
+    "excerpt": "教材代码 + 面试清单对照。每目录可独立运行：cd 0X && python main.py（04 用 pytest -v）。",
+    "type": "course",
+    "featured": false,
+    "keywords": "模型路由"
+  },
+  {
+    "title": "第 06 章 · Harness 工程化",
+    "url": "ai-engineer/harness/index.html",
+    "category": "面试宝典 · 29 篇",
+    "excerpt": "learn-claude-code 二十讲逐节拆解 Agent Loop、工具、权限、压缩、子代理；另有 ragent 多渠道检索与三套工程示例。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Harness 工程化"
+  },
+  {
+    "title": "Simple Harness Demo",
+    "url": "ai-engineer/harness/01-simple-harnes-demo.html",
+    "category": "面试宝典 · Harness 工程化",
+    "excerpt": "这是一个用于学习 Harness Engineering（马具工程） 的极简 demo。 只保留核心部分：",
+    "type": "course",
+    "featured": false,
+    "keywords": "Harness 工程化"
+  },
+  {
+    "title": "RAG Harness Demo",
+    "url": "ai-engineer/harness/02-rag-harness-demo.html",
+    "category": "面试宝典 · Harness 工程化",
+    "excerpt": "用于教学的 RAG（检索增强生成）全栈 Harness 工程。 仿照 harness-engineering-demo 的 PIV 循环，精简到可在课堂一节课内讲完。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Harness 工程化"
+  },
+  {
+    "title": "Harness Engineering Demo",
+    "url": "ai-engineer/harness/harness-engineering-demo.html",
+    "category": "面试宝典 · Harness 工程化",
+    "excerpt": "Companion repo for the YouTube video \"What is Harness Engineering?\"",
+    "type": "course",
+    "featured": false,
+    "keywords": "Harness 工程化"
+  },
+  {
+    "title": "Ralph — Autonomous Spec-Driven Loop",
+    "url": "ai-engineer/harness/ralph.html",
+    "category": "面试宝典 · Harness 工程化",
+    "excerpt": "Ralph is a tight feedback loop that re-feeds a spec PROMPT.md to a fresh headless Claude process each iteration until th…",
+    "type": "course",
+    "featured": false,
+    "keywords": "Harness 工程化"
+  },
+  {
+    "title": "Learn Claude Code -- 真正的 Agent Harness 工程",
+    "url": "ai-engineer/harness/learn-claude-code.html",
+    "category": "面试宝典 · Harness 工程化",
+    "excerpt": "在讨论代码之前，先把一件事说清楚。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Harness 工程化"
+  },
+  {
+    "title": "s01: Agent Loop — 一个循环就够了",
+    "url": "ai-engineer/harness/s01-agent-loop.html",
+    "category": "面试宝典 · Harness 工程化",
+    "excerpt": "\"One loop & Bash is all you need\" — 一个工具 + 一个循环 = 一个 Agent。 Harness 层: 循环 — 模型与真实世界的第一道连接。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Harness 工程化"
+  },
+  {
+    "title": "s02: Tool Use — 多加一个工具，只加一行",
+    "url": "ai-engineer/harness/s02-tool-use.html",
+    "category": "面试宝典 · Harness 工程化",
+    "excerpt": "\"加一个工具, 只加一个 handler\" — 循环不用动, 新工具注册进 dispatch map 就行。 Harness 层: 工具分发 — 扩展模型能触达的边界。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Harness 工程化"
+  },
+  {
+    "title": "s03: Permission — 执行前做权限判断",
+    "url": "ai-engineer/harness/s03-permission.html",
+    "category": "面试宝典 · Harness 工程化",
+    "excerpt": "\"工具执行前先做权限判断\" — 权限管线决定哪些操作需要审批。 Harness 层: 权限 — 在工具执行前加一道门。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Harness 工程化"
+  },
+  {
+    "title": "s04: Hooks — 挂在循环上，不写进循环里",
+    "url": "ai-engineer/harness/s04-hooks.html",
+    "category": "面试宝典 · Harness 工程化",
+    "excerpt": "\"挂在循环上, 不写进循环里\" — hook 在工具执行前后注入扩展逻辑。 Harness 层: hook — 扩展点不侵入循环。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Harness 工程化"
+  },
+  {
+    "title": "s05: TodoWrite — 没有计划的 Agent，做着做着就偏了",
+    "url": "ai-engineer/harness/s05-todo-write.html",
+    "category": "面试宝典 · Harness 工程化",
+    "excerpt": "\"没有计划的 agent 走哪算哪\" — 先列步骤再动手，长任务更不容易漏项。 Harness 层: 规划 — 让 Agent 在动手之前先想清楚。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Harness 工程化"
+  },
+  {
+    "title": "s06: Subagent — 大任务拆小，每个拿到的都是干净上下文",
+    "url": "ai-engineer/harness/s06-subagent.html",
+    "category": "面试宝典 · Harness 工程化",
+    "excerpt": "\"大任务拆小, 每个小任务干净的上下文\" — Subagent 用独立 messages, 不污染主对话。 Harness 层: 子 Agent — 上下文隔离, 注意力不漂移。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Harness 工程化"
+  },
+  {
+    "title": "s07: Skill Loading — 用到的时候才加载",
+    "url": "ai-engineer/harness/s07-skill-loading.html",
+    "category": "面试宝典 · Harness 工程化",
+    "excerpt": "\"用到时再加载, 别全塞 prompt 里\" — 通过 toolresult 注入, 不塞 system prompt。 Harness 层: 知识 — 按需加载, 不堆满上下文。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Harness 工程化"
+  },
+  {
+    "title": "s08: Context Compact — 上下文总会满，要有办法腾地方",
+    "url": "ai-engineer/harness/s08-context-compact.html",
+    "category": "面试宝典 · Harness 工程化",
+    "excerpt": "\"上下文总会满, 要有办法腾地方\" — 四层压缩策略, 便宜的先跑贵的后跑。 Harness 层: 压缩 — 干净的记忆, 无限的会话。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Harness 工程化"
+  },
+  {
+    "title": "s09: Memory — 压缩会丢细节，要有一层不丢的",
+    "url": "ai-engineer/harness/s09-memory.html",
+    "category": "面试宝典 · Harness 工程化",
+    "excerpt": "\"压缩会丢细节, 要有一层不丢的\" — 文件仓库 + 索引 + 按需加载，跨压缩、跨会话。 Harness 层: 记忆 — 跨压缩、跨会话的知识积累。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Harness 工程化"
+  },
+  {
+    "title": "s10: System Prompt — 运行时组装，不硬编码",
+    "url": "ai-engineer/harness/s10-system-prompt.html",
+    "category": "面试宝典 · Harness 工程化",
+    "excerpt": "\"prompt 是组装出来的, 不是写死的\" — 分段 + 按需拼接 + 缓存。 Harness 层: 提示 — 运行时组装, 不硬编码。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Harness 工程化"
+  },
+  {
+    "title": "s11: Error Recovery — 错误不是结束，是重试的开始",
+    "url": "ai-engineer/harness/s11-error-recovery.html",
+    "category": "面试宝典 · Harness 工程化",
+    "excerpt": "\"错误不是终点, 是重试的起点\" — 升级 token、压缩上下文、切换模型。 Harness 层: 韧性 — 主循环遇到错误时分类并恢复。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Harness 工程化"
+  },
+  {
+    "title": "s12: Task System — 目标太大，拆成小任务",
+    "url": "ai-engineer/harness/s12-task-system.html",
+    "category": "面试宝典 · Harness 工程化",
+    "excerpt": "\"大目标拆成小任务, 排好序, 持久化\" — 文件持久化的任务图, 多 agent 协作的基础。 Harness 层: 任务 — 持久化的目标, 可恢复的进度。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Harness 工程化"
+  },
+  {
+    "title": "s13: Background Tasks — 慢操作放后台",
+    "url": "ai-engineer/harness/s13-background-tasks.html",
+    "category": "面试宝典 · Harness 工程化",
+    "excerpt": "\"慢操作丢后台, agent 继续处理\" — 后台线程跑命令, 完成后注入通知。 Harness 层: 后台 — 异步执行, 不阻塞主循环。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Harness 工程化"
+  },
+  {
+    "title": "s14: Cron Scheduler — 按时间表生产工作",
+    "url": "ai-engineer/harness/s14-cron-scheduler.html",
+    "category": "面试宝典 · Harness 工程化",
+    "excerpt": "\"按时间表生产工作, 调度与执行解耦\" — cron 调度, 持久化或会话级。 Harness 层: 调度 — 独立线程判断时间, 队列传递触发。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Harness 工程化"
+  },
+  {
+    "title": "s15: Agent Teams — 一个搞不定，组队来",
+    "url": "ai-engineer/harness/s15-agent-teams.html",
+    "category": "面试宝典 · Harness 工程化",
+    "excerpt": "\"一个搞不定, 组队来\" — 文件收件箱 + 队友线程。 Harness 层: 团队 — 多 Agent 协作, 消息总线。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Harness 工程化"
+  },
+  {
+    "title": "s16: Team Protocols — 队友之间要有约定",
+    "url": "ai-engineer/harness/s16-team-protocols.html",
+    "category": "面试宝典 · Harness 工程化",
+    "excerpt": "\"队友之间要有约定\" — request-response 模式驱动协商。 Harness 层: 协议 — Agent 之间的结构化握手。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Harness 工程化"
+  },
+  {
+    "title": "s17: Autonomous Agents — 自己看板，自己认领",
+    "url": "ai-engineer/harness/s17-autonomous-agents.html",
+    "category": "面试宝典 · Harness 工程化",
+    "excerpt": "\"自己看板，自己认领\" — 空闲时轮询，有活就干。 Harness 层: 自治 — 队友自组织，不依赖 Lead 分配。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Harness 工程化"
+  },
+  {
+    "title": "s18: Worktree Isolation — 各干各的，互不干扰",
+    "url": "ai-engineer/harness/s18-worktree-isolation.html",
+    "category": "面试宝典 · Harness 工程化",
+    "excerpt": "\"各干各的目录, 互不干扰\" — 任务管目标, worktree 管目录, 按 ID 绑定。 Harness 层: 隔离 — 并行执行的目录隔离。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Harness 工程化"
+  },
+  {
+    "title": "s19: MCP Tools — 外接工具，标准协议",
+    "url": "ai-engineer/harness/s19-mcp-plugin.html",
+    "category": "面试宝典 · Harness 工程化",
+    "excerpt": "\"外接工具, 标准协议\" — 发现、组装、调用，Agent 不需要知道工具是谁写的。 Harness 层: 插件 — 外部能力通过标准协议接入。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Harness 工程化"
+  },
+  {
+    "title": "s20: Comprehensive Agent — 全部机制，归到一个循环",
+    "url": "ai-engineer/harness/s20-comprehensive.html",
+    "category": "面试宝典 · Harness 工程化",
+    "excerpt": "\"机制很多，循环一个\" — 工具、权限、记忆、任务、团队、插件都挂在同一个 while True 上。 Harness 层: 综合 — 把前 19 章的机制放回同一个可运行系统。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Harness 工程化"
+  },
+  {
+    "title": "Ragent — 后端程序员转型 AI 工程师的多渠道检索 RAG 中台",
+    "url": "ai-engineer/harness/ragent.html",
+    "category": "面试宝典 · Harness 工程化",
+    "excerpt": "Ragent 是一个企业级 Agentic RAG 平台，覆盖从文档入库到智能问答的完整链路。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Harness 工程化"
+  },
+  {
+    "title": "多通道检索架构说明",
+    "url": "ai-engineer/harness/multi-channel-retrieval.html",
+    "category": "面试宝典 · Harness 工程化",
+    "excerpt": "本项目实现了一个可扩展的多通道检索架构，支持： - 多种检索策略：向量全局检索、意图定向检索、ES 关键词检索等 - 灵活的后置处理：去重、版本过滤、分数归一化、Rerank 等 - 易于扩展：新增检索通道或后置处理器只需实现接口并注册为 …",
+    "type": "course",
+    "featured": false,
+    "keywords": "Harness 工程化"
+  },
+  {
+    "title": "快速开始指南",
+    "url": "ai-engineer/harness/quick-start.html",
+    "category": "面试宝典 · Harness 工程化",
+    "excerpt": "本次重构实现了一个多通道检索 + 后置处理器的可扩展架构，解决了意图识别覆盖率不足的问题。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Harness 工程化"
+  },
+  {
+    "title": "重构总结",
+    "url": "ai-engineer/harness/refactoring-summary.html",
+    "category": "面试宝典 · Harness 工程化",
+    "excerpt": "实现一个可扩展的多通道检索架构，解决以下问题： 1. 意图识别覆盖率不足：当文档内容较多时，意图识别树的示例问题无法覆盖所有场景 2. 缺乏兜底机制：意图识别失败时，无法检索到相关文档 3. 扩展性差：新增检索策略需要修改核心代码",
+    "type": "course",
+    "featured": false,
+    "keywords": "Harness 工程化"
+  },
+  {
+    "title": "第 07 章 · 从零实现 LLM",
+    "url": "ai-engineer/llm-scratch/index.html",
+    "category": "面试宝典 · 6 篇",
+    "excerpt": "从零实现大模型：分词、预训练、训练流程图到 GRPO 强化学习。",
+    "type": "course",
+    "featured": false,
+    "keywords": "从零实现 LLM"
+  },
+  {
+    "title": "从零开始构建大语言模型 — 实践课程 (PyTorch)",
+    "url": "ai-engineer/llm-scratch/overview.html",
+    "category": "面试宝典 · 从零实现 LLM",
+    "excerpt": "- 0.1 Understanding the high-level LLM training pipeline pretraining → finetuning → alignment 理解大语言模型训练的高层流程（预训练 → 微调 → …",
+    "type": "course",
+    "featured": false,
+    "keywords": "从零实现 LLM"
+  },
+  {
+    "title": "Part 1 — 核心 Transformer 架构",
+    "url": "ai-engineer/llm-scratch/part-1.html",
+    "category": "面试宝典 · 从零实现 LLM",
+    "excerpt": "从零手搓 Transformer 的第一部分：分词器 → 位置编码 → 自注意力 → 多头 → FFN → Transformer Block。",
+    "type": "course",
+    "featured": false,
+    "keywords": "从零实现 LLM"
+  },
+  {
+    "title": "GPT 训练流程",
+    "url": "ai-engineer/llm-scratch/train-flowchart.html",
+    "category": "面试宝典 · 从零实现 LLM",
+    "excerpt": "flowchart TD Start开始 -- ParseArgs解析命令行参数 ParseArgs -- PrintConfig打印训练配置信息 PrintConfig -- DeviceSetup设置计算设备<br/CPU/GPU De…",
+    "type": "course",
+    "featured": false,
+    "keywords": "从零实现 LLM"
+  },
+  {
+    "title": "Part 5 — Mixture-of-Experts (MoE)",
+    "url": "ai-engineer/llm-scratch/part-5.html",
+    "category": "面试宝典 · 从零实现 LLM",
+    "excerpt": "This part focuses purely on the Mixture-of-Experts feed-forward component. We are not implementing self-attention in thi…",
+    "type": "course",
+    "featured": false,
+    "keywords": "从零实现 LLM"
+  },
+  {
+    "title": "GRPO (Group Relative Policy Optimization) 训练方法详解",
+    "url": "ai-engineer/llm-scratch/grpo-training-explanation.html",
+    "category": "面试宝典 · 从零实现 LLM",
+    "excerpt": "GRPO（Group Relative Policy Optimization）是 PPO（Proximal Policy Optimization）的一个变体，专门设计用于语言模型的强化学习训练。与标准 PPO 相比，GRPO 的核心创新…",
+    "type": "course",
+    "featured": false,
+    "keywords": "从零实现 LLM"
+  },
+  {
+    "title": "Tiny GPT 训练示例",
+    "url": "ai-engineer/llm-scratch/tinymodeltraining.html",
+    "category": "面试宝典 · 从零实现 LLM",
+    "excerpt": "用 PyTorch 实现的极简 字节级 GPT（下一字节预测）：tinyllm 包含模型 / 数据集 / 分词 / 采样；根目录 train.py 为训练入口，corpus/ 下放示例文本。",
+    "type": "course",
+    "featured": false,
+    "keywords": "从零实现 LLM"
+  },
+  {
+    "title": "第 08 章 · Hermes 源码精读",
+    "url": "ai-engineer/hermes/index.html",
+    "category": "面试宝典 · 14 篇",
+    "excerpt": "Hermes 源码精读：Memory、主循环、Eval、Prompt、环境、Cron、Gateway —— 建立现代 Agent Runtime 心智模型。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Hermes 源码精读"
+  },
+  {
+    "title": "Hermes 学习大纲",
+    "url": "ai-engineer/hermes/00-outline.html",
+    "category": "面试宝典 · Hermes 源码精读",
+    "excerpt": "1. 下一代多模态 Agent Runtime 2. Eval、Sandbox、Memory 等核心 Infra 3. 云端 Agent 服务与端云协同能力 4. 内部 Harness：Agentify the whole company …",
+    "type": "course",
+    "featured": false,
+    "keywords": "Hermes 源码精读"
+  },
+  {
+    "title": "Hermes Agent 架构详解",
+    "url": "ai-engineer/hermes/01-arch.html",
+    "category": "面试宝典 · Hermes 源码精读",
+    "excerpt": "本文从鸟瞰全貌出发，依次讲清：Agent Loop、Context（Session 冻结 vs Turn 组装）、Compression、Gateway、Memory、Cron。目标是既理解如何使用 Hermes，也能照着思路自己搭一套类似…",
+    "type": "course",
+    "featured": false,
+    "keywords": "Hermes 源码精读"
+  },
+  {
+    "title": "Hermes Agent Memory 四层体系",
+    "url": "ai-engineer/hermes/02-memory.html",
+    "category": "面试宝典 · Hermes 源码精读",
+    "excerpt": "多数人不知道：从第一次开机对话起，内置 Memory 一直在静默读写。本篇拆开 Layer 1 的机制，再讲可叠加的三层扩展。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Hermes 源码精读"
+  },
+  {
+    "title": "Hermes Agent — Architecture Map  - 最终篇",
+    "url": "ai-engineer/hermes/04-arch.html",
+    "category": "面试宝典 · Hermes 源码精读",
+    "excerpt": "对照仓库：hermes-agent../../hermes-agent/ · README · 官方 Architecturehttps://hermes-agent.nousresearch.com/docs/developer-guid…",
+    "type": "course",
+    "featured": false,
+    "keywords": "Hermes 源码精读"
+  },
+  {
+    "title": "Hermes Memory · 如何学习",
+    "url": "ai-engineer/hermes/01-memory.html",
+    "category": "面试宝典 · Hermes 源码精读",
+    "excerpt": "目标：用 可执行的源码副本 讲清 Memory 实现逻辑（对照 hermessrc/ 真文件）。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Hermes 源码精读"
+  },
+  {
+    "title": "Hermes Run Agent · 主循环如何学习",
+    "url": "ai-engineer/hermes/02-run-agent.html",
+    "category": "面试宝典 · Hermes 源码精读",
+    "excerpt": "目标：讲清一次请求如何走完 思考 → 调工具 → 观察 → 再思考，以及预算 / 中断 / 工具发现。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Hermes 源码精读"
+  },
+  {
+    "title": "Hermes Eval + Trace · 如何学习",
+    "url": "ai-engineer/hermes/03-eval.html",
+    "category": "面试宝典 · Hermes 源码精读",
+    "excerpt": "目标：讲清 评测维度设计、行为契约测试 vs 变更检测测试，以及如何用 Trace / session 日志做根因分析。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Hermes 源码精读"
+  },
+  {
+    "title": "Hermes Prompt · 系统学习",
+    "url": "ai-engineer/hermes/04-prompt.html",
+    "category": "面试宝典 · Hermes 源码精读",
+    "excerpt": "目标：按模块搞清 Hermes 用什么 prompt，并对照宏全文学习——不是只看最终拼出来的 system 字符串。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Hermes 源码精读"
+  },
+  {
+    "title": "Hermes Tools · Environments（执行环境）",
+    "url": "ai-engineer/hermes/05-env.html",
+    "category": "面试宝典 · Hermes 源码精读",
+    "excerpt": "目标：精读 Hermes 真源码里 Agent 命令跑在哪——tools/environments/ + terminaltool.createenvironment。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Hermes 源码精读"
+  },
+  {
+    "title": "Hermes Cron（定时任务）",
+    "url": "ai-engineer/hermes/06-cron.html",
+    "category": "面试宝典 · Hermes 源码精读",
+    "excerpt": "给小白： Cron 是「按预定时间自动执行任务」的机制。你先写好要做什么、以及何时做（例如每天 09:00、每隔 2 小时、或某次具体时间点）；程序在后台定期检查当前是否到了该执行的时刻，到了就自动跑对应任务——你不必当时在场手动触发。He…",
+    "type": "course",
+    "featured": false,
+    "keywords": "Hermes 源码精读"
+  },
+  {
+    "title": "07-mem-provider",
+    "url": "ai-engineer/hermes/07-mem-provider.html",
+    "category": "面试宝典 · Hermes 源码精读",
+    "excerpt": "﻿ Hermes Memory Provider（存 / 取 / Prompt）",
+    "type": "course",
+    "featured": false,
+    "keywords": "Hermes 源码精读"
+  },
+  {
+    "title": "Hermes Gateway · 源码学习",
+    "url": "ai-engineer/hermes/08-gateway.html",
+    "category": "面试宝典 · Hermes 源码精读",
+    "excerpt": "目标：按消息路径搞清 Gateway 怎么把 Telegram/Discord/… 接到同一套 Agent Core——不是只背「常驻进程」四个字。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Hermes 源码精读"
+  },
+  {
+    "title": "Hermes 没用 LangChain / LangGraph —— 以及面试为什么总问",
+    "url": "ai-engineer/hermes/09-lang-serial-not.html",
+    "category": "面试宝典 · Hermes 源码精读",
+    "excerpt": "研究结论：Hermes Agent 核心编排不依赖 LangChain / LangGraph。 面试高频问「有没有用 LC/LG 编排过」，测的多半是 Agent 概念标签，不是「生产必须用这个库」。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Hermes 源码精读"
+  },
+  {
+    "title": "Hermes Agent - Development Guide",
+    "url": "ai-engineer/hermes/hermes-study.html",
+    "category": "面试宝典 · Hermes 源码精读",
+    "excerpt": "Instructions for AI coding assistants and developers working on the hermes-agent codebase.",
+    "type": "course",
+    "featured": false,
+    "keywords": "Hermes 源码精读"
+  },
+  {
+    "title": "第 09 章 · Loop Engineering",
+    "url": "ai-engineer/loop/index.html",
+    "category": "面试宝典 · 3 篇",
+    "excerpt": "Loop Engineering 三部曲：从 Prompt 到 Context、Harness，再到 Loop 本身的工程化方法论。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Loop Engineering"
+  },
+  {
+    "title": "Loop Engineering：从 Prompt 到自我驱动的 Agent",
+    "url": "ai-engineer/loop/01-context-looop-engineering.html",
+    "category": "面试宝典 · Loop Engineering",
+    "excerpt": "工程范式在不断叠「环」。每一层并不取代下一层，而是在能力边界外扩时，把上一层补不上的缺口工程化。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Loop Engineering"
+  },
+  {
+    "title": "Loop Engineering：什么是 Loop，以及如何写好一个",
+    "url": "ai-engineer/loop/02-loop-engineering.html",
+    "category": "面试宝典 · Loop Engineering",
+    "excerpt": "核心主张很简单：",
+    "type": "course",
+    "featured": false,
+    "keywords": "Loop Engineering"
+  },
+  {
+    "title": "Loop Engineering：定义澄清、质量曲线与落地形态",
+    "url": "ai-engineer/loop/03-loop-engineering.html",
+    "category": "面试宝典 · Loop Engineering",
+    "excerpt": "网上关于 agent loops / loop engineering 的说法很多，定义却并不统一。 这篇只做一件事：把概念压到可执行，并说明何时不该跟风上舰队。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Loop Engineering"
+  },
+  {
+    "title": "第 10 章 · CI/CD 面试突击",
+    "url": "ai-engineer/cicd/index.html",
+    "category": "面试宝典 · 72 篇",
+    "excerpt": "CI/CD 概念、pytest、GitLab CI、交叉编译与制品、故障排查、Jenkins、工具链与口述话术，附笔试题库。",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "CICD-DEVOPS AI 面试｜短期学习清单",
+    "url": "ai-engineer/cicd/cicd.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "主线：GitLab CI（新手友好，精简、直奔面试考点） 定位：开发转岗，主攻 CI，弱化 CD；通用软件研发场景 时间：约 6 天突击（理论 → pytest → GitLab CI → 特色/排查 → 复盘） 说明：多门禁里不同 cas…",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "Day 1｜基础理论",
+    "url": "ai-engineer/cicd/01-basic.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "对应大纲：一、基础理论 目标：能口述 CI / CD 区别与核心名词",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "1. CI / 持续交付 / 持续部署（必背）",
+    "url": "ai-engineer/cicd/01-ci-cd.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "记忆口诀：集成测得住 → 交付随时上 → 部署自动上。",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "2. 核心名词（熟记）",
+    "url": "ai-engineer/cicd/01-basic-02.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "面试里听到这些词，要能立刻解释，并说清它们的层级关系。",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "3. 分支策略（GitLab Flow + MR 门禁）",
+    "url": "ai-engineer/cicd/01-basic-03.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "分支策略决定了：什么时候触发 CI、什么分支要过门禁、制品从哪来。 你做 CI，必须能说清「流水线卡在合并入口」。",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "4. DevOps 基础认知",
+    "url": "ai-engineer/cicd/04-devops.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "要求：能简单口述，区分 DevOps ≠ CI/CD。",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "5. Day 1 自测题",
+    "url": "ai-engineer/cicd/01-basic-05.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "建议：先闭卷答，再对照参考答案。口述题最好录音听一遍。",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "Day 1.5｜pytest（CI 向单独模块）",
+    "url": "ai-engineer/cicd/02-pytest.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "对应大纲：一补、pytest 基础 目标：能本地跑用例，会用目录 + -m 区分门禁 case，并能接到 GitLab Job 的 script",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "1. 安装与第一次跑通",
+    "url": "ai-engineer/cicd/02-pytest-01.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "动手 Demo：demos/01-install-run./demos/01-install-run/ 先按下面建好 venv，再 cd demos/01-install-run && pytest -v",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "2. 用例怎么写、怎么被发现",
+    "url": "ai-engineer/cicd/02-pytest-02.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "动手 Demo：demos/02-discovery./demos/02-discovery/ cd demos/02-discovery && pytest -v ；再试 pytest -k login -v",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "3. marker 与门禁分流【重点】",
+    "url": "ai-engineer/cicd/03-marker.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "这一节直接对接你公司的多门禁：触发不同，case 集也不同。 动手 Demo：demos/03-markers./demos/03-markers/ cd demos/03-markers && pytest -m smoke -v（再试 …",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "4. 失败怎么读、怎么进 CI",
+    "url": "ai-engineer/cicd/04-ci.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "动手 Demo：demos/04-ci./demos/04-ci/ cd demos/04-ci && pytest tests/smoke -m smoke -v --junitxml=report-mr.xml",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "5. pytest 自测题",
+    "url": "ai-engineer/cicd/02-pytest-05.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "动手 Demo：demos/05-selfcheck./demos/05-selfcheck/ 闭卷做完 A 部分后，把答案填进 testquizanswers.py，再 pytest -v 自动核对。",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "pytest 学习 Demo 索引",
+    "url": "ai-engineer/cicd/demos.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "每个文档对应一个可运行目录。请 cd 进对应 demo 目录再跑（尤其是 03/04，依赖当地 pytest.ini）。",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "Demo 01｜安装与第一次跑通",
+    "url": "ai-engineer/cicd/01-install-run.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "对应文档：01-安装与运行.md../../01-安装与运行.md",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "Demo 02｜用例与发现规则",
+    "url": "ai-engineer/cicd/02-discovery.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "对应文档：02-用例与发现规则.md../../02-用例与发现规则.md",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "Demo 03｜marker 与门禁分流",
+    "url": "ai-engineer/cicd/03-markers.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "对应文档：03-marker与门禁分流.md../../03-marker与门禁分流.md",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "Demo 04｜失败阅读与 CI 衔接",
+    "url": "ai-engineer/cicd/04-ci-2.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "对应文档：04-失败阅读与CI衔接.md../../04-失败阅读与CI衔接.md",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "Demo 05｜自测题核对",
+    "url": "ai-engineer/cicd/05-selfcheck.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "对应文档：05-自测题.md../../05-自测题.md",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "Day 2~3｜GitLab CI 核心【重中之重】",
+    "url": "ai-engineer/cicd/03-gitlab-ci.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "对应大纲：二、GitLab CI 核心 前置：02-pytest/../02-pytest/README.md（会跑 pytest + -m / 目录分流） 目标：看懂、改写 .gitlab-ci.yml，把 pytest 正确挂进 Job",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "0. GitLab 安装与部署（面试够用）",
+    "url": "ai-engineer/cicd/03-gitlab-ci-00.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "先分清装的是哪两样：",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "1. GitLab CI 核心组件",
+    "url": "ai-engineer/cicd/03-gitlab-ci-01.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "仓库事件（push / MR / tag / schedule） → GitLab 读 .gitlab-ci.yml → 按 rules 选出要跑的 Job → 派给空闲 Runner → Runner 用执行器跑 script → 回传日…",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "2. 必须掌握语法（六个关键字）",
+    "url": "ai-engineer/cicd/03-gitlab-ci-02.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "面试听到关键字，要能立刻说「干什么用」。",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "3. 标准 CI 流水线流程（背诵）",
+    "url": "ai-engineer/cicd/03-gitlab-ci-03.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "大纲把 CI 能力串成一条：",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "4. 与 pytest 的衔接",
+    "url": "ai-engineer/cicd/04-pytest.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "前置能力来自 02-pytest/../02-pytest/README.md。这里只讲「怎么写进 GitLab Job」。",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "5. GitLab CI 自测题",
+    "url": "ai-engineer/cicd/03-gitlab-ci-05.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "建议：先闭卷，再对答案。口述题录音一遍。",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "demos｜GitLab CI",
+    "url": "ai-engineer/cicd/demos-2.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "入口：",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "mini-pipeline｜完整标准流水线 Demo",
+    "url": "ai-engineer/cicd/mini-pipeline.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "本地模拟整条教科书 CI（不需要真实 GitLab Runner）：",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "Day 3｜CI 特色知识点【拉开差距】",
+    "url": "ai-engineer/cicd/04-ci-features.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "对应大纲：三、CI 特色知识点 前置：03-gitlab-ci/../03-gitlab-ci/README.md 目标：比「会写 yml」多一层优化与合规话术",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "1. 交叉编译（了解 + 嵌入式加分）",
+    "url": "ai-engineer/cicd/04-ci-features-01.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "在 A 架构机器上，编译出跑在 B 架构上的程序。 例：在 x8664 Linux / CI Runner 上，用 ARM 工具链编出板端固件。",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "2. 构建痛点优化",
+    "url": "ai-engineer/cicd/04-ci-features-02.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "编译 / 测试耗时久 → 开发反馈慢 → 有人想关门禁（危险）",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "3. 制品管理",
+    "url": "ai-engineer/cicd/04-ci-features-03.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "流水线产出的、可交付 / 可部署的东西：",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "4. 软件研发合规要点（CI 视角）",
+    "url": "ai-engineer/cicd/04-ci-features-04.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "贴合「维护 CI、过审计」的经历包装。",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "5. CI 特色知识点自测题",
+    "url": "ai-engineer/cicd/04-ci-features-05.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "A1. 构建慢的三条优化：、、。",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "Demo：固件交叉编译链路（Docker → 出包 → HTTP）",
+    "url": "ai-engineer/cicd/cross-compile.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "对应笔记：01-交叉编译.md../../01-交叉编译.md",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "Day 4｜故障排查 + 流水线优化",
+    "url": "ai-engineer/cicd/05-troubleshoot.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "对应大纲：四、故障排查 + 流水线优化 前置：04-ci-features/../04-ci-features/README.md 目标：有固定排查话术，能包装「维护 CI」经历",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "1. 优化方向（熟记四条）",
+    "url": "ai-engineer/cicd/05-troubleshoot-01.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "大纲原文，面试直接背：",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "2. 标准排查思路（固定话术）",
+    "url": "ai-engineer/cicd/05-troubleshoot-02.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "流水线挂了，按顺序查，体现方法论，而不是上来改脚本瞎试。",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "3. 经历包装（STAR 骨架）",
+    "url": "ai-engineer/cicd/05-troubleshoot-03.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "把「维护 CI」说成可验证的故事，而不是「我写过 yml」。",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "4. 排查与优化自测题",
+    "url": "ai-engineer/cicd/05-troubleshoot-04.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "A1. 优化四条：",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "Demo：用 Python 理解「容器负载均衡」",
+    "url": "ai-engineer/cicd/runner-lb.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "对应笔记：01-优化方向.md../../01-优化方向.md",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "Day 4｜Jenkins 保底认知",
+    "url": "ai-engineer/cicd/06-jenkins.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "对应大纲：五、Jenkins 保底认知 不用实操，看懂基础即可 目标：能对比 GitLab CI，说清互通点",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "1. Jenkins 架构：Master + Agent",
+    "url": "ai-engineer/cicd/06-jenkins-01.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "开发者提交 / 触发 → Master 接到任务 → 分配到空闲 Agent → Agent 跑流水线步骤 → 结果回 Master",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "2. Jenkinsfile（声明式）",
+    "url": "ai-engineer/cicd/02-jenkinsfile.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "- Jenkinsfile 放在仓库里 → 同样是「代码即流水线」 - 声明式（Declarative） Pipeline 最常见，面试够用 - 思想与 .gitlab-ci.yml 一致：阶段、步骤、条件、制品",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "3. 凭证管理与分布式构建（概念）",
+    "url": "ai-engineer/cicd/06-jenkins-03.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "- 账号、Token、SSH Key 不进仓库明文 - 存在 Jenkins Credentials，Job 运行时注入 - 对应 GitLab：CI/CD Variables（masked / protected）",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "4. Jenkins 自测题",
+    "url": "ai-engineer/cicd/06-jenkins-04.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "A1. Jenkins 架构两角色： + 。",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "工具认知（知道用途即可）",
+    "url": "ai-engineer/cicd/07-tools.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "对应大纲：六、工具认知 目标：听到名字能说清在流水线哪一环，不要求会搭全集群",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "1. 工具速览",
+    "url": "ai-engineer/cicd/07-tools-01.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "2. 四工具串进流水线",
+    "url": "ai-engineer/cicd/07-tools-02.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "MR / push / tag / schedule → GitLab 调度 + Runner（Docker 镜像环境） → Lint → SonarQube 扫描（质量门禁） → pytest（按门禁选 case） → 编译构建（镜像内工…",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "3. 工具认知自测题",
+    "url": "ai-engineer/cicd/07-tools-03.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "A1. 写出四种工具及用途（关键词）。",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "Day 5｜复盘模拟",
+    "url": "ai-engineer/cicd/08-review.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "对应大纲：七、Day 5 复盘模拟 目标：串流程、刷题、包装经历，形成可上场状态",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "1. 串整条标准 CI 流程（口述稿）",
+    "url": "ai-engineer/cicd/08-review-01.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "开发者在功能分支提 MR，仓库触发 Pipeline。 Runner 用 Docker 执行器拉起干净环境：先 Lint，再 Sonar 静态扫描，再按门禁跑 pytest——MR 只跑 smoke，合入主干后的 Gate1 跑关键链路，D…",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "2. 高频面试题（速刷）",
+    "url": "ai-engineer/cicd/08-review-02.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "先闭卷写关键词，再对要点。",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "3. 经历话术终稿",
+    "url": "ai-engineer/cicd/08-review-03.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "在 05-troubleshoot/03-经历包装.md../05-troubleshoot/03-经历包装.md 草稿上，压成 90 秒 终稿。",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "4. 极易混淆考点（大纲附录）",
+    "url": "ai-engineer/cicd/08-review-04.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "- 干净、统一的构建环境 - 方便封装各类编译工具链 - 不污染宿主机",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "09 · Writing：Shell / Linux / Python 排查写作与实操",
+    "url": "ai-engineer/cicd/09-writing.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "CI / SDET 笔试向：命令行文本处理 → 系统排查 → Python 日志分析。",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "Python 核心语法（C 转 Python 速通）",
+    "url": "ai-engineer/cicd/00-python-core.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "场景：有 C 底子、靠 AI 写过 Python，但缺系统语法。 目标：能手写日志过滤/去重/计数；AI 生成的进阶写法能读懂。",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "掌握Shell脚本：从入门到精通",
+    "url": "ai-engineer/cicd/shell.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "来源：https://blog.csdn.net/250293300404/article/details/161364802",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "日志处理 + JSON 解析（笔试高频）",
+    "url": "ai-engineer/cicd/log-process.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "目标：日志处理 + JSON 日志解析，只抓笔试高频，剔除冷门语法。 本目录数据： - agent.log —— 文本应用日志（grep / sed / awk） - agent.jsonl —— JSON Lines（jq） 做完本节 →…",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "Shell 日志处理实战题库（40 题）",
+    "url": "ai-engineer/cicd/shell-2.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "配套数据就在本目录，覆盖 logprocess.md 里列的四个高频方向： grep/sed/awk 筛选统计、jq 解析 JSON 日志、文件遍历与时间过滤、管道与格式化输出。",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "Shell 日志处理实战题库 —— 答案与讲解",
+    "url": "ai-engineer/cicd/shell-3.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "配套题目：shell日志实战题库.md。所有命令在本目录下执行。",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "03 · Shell 可运行脚本",
+    "url": "ai-engineer/cicd/03-shell-scripts.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "对应题库 E6 / E3 / F3，并补齐 grep / sed / awk / 日志筛选 专项脚本。 数据默认：../02-log-process/（也可用 ../01-log-process/）。",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "04 · Python 日志处理",
+    "url": "ai-engineer/cicd/02-log-python.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "场景：自动化测试脚本、日志分析、校验 Agent 输出、筛异常任务。 有 C 底子、语法不熟：先 00-python-core.md + 00-containers-demo.py，再 01-python-basic.md，再按编号跑脚本。",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "Python 必备基础清单（Senior AI Agent SDET）",
+    "url": "ai-engineer/cicd/01-python-basic.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "场景：自动化测试脚本、日志分析、校验 Agent 输出，不考复杂算法。",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "03 · Linux 运维排查速通（CI / SDET）",
+    "url": "ai-engineer/cicd/03-linux.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "面向 Runner / 容器 / 宿主机 上的笔试与线上排查： 进程、网络、权限、core dump、日志、后台任务。",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "Linux 排查 · 一页速查",
+    "url": "ai-engineer/cicd/03-linux-00.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "CI / SDET 笔试够用版。细节见同目录分册。",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "01 · 进程排查",
+    "url": "ai-engineer/cicd/03-linux-01.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "场景：CI Job 卡住、CPU 打满、僵尸进程、找不到谁占端口。",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "02 · 网络调试",
+    "url": "ai-engineer/cicd/03-linux-02.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "场景：拉依赖失败、Runner 注册不上、服务端口不通、DNS 错。",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "03 · 权限",
+    "url": "ai-engineer/cicd/03-linux-03.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "场景：Permission denied、脚本无法执行、CI 用户写不了目录、密钥权限过宽被拒绝。",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "04 · Core dump",
+    "url": "ai-engineer/cicd/04-core-dump.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "场景：C/C++/部分原生扩展崩溃，需要堆栈；CI 里「偶发 Segmentation fault」。",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "05 · 日志分析（系统层）",
+    "url": "ai-engineer/cicd/03-linux-05.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "场景：服务挂了查系统日志；应用日志仍用 shell/python 模块深挖。",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "06 · 后台任务",
+    "url": "ai-engineer/cicd/03-linux-06.html",
+    "category": "面试宝典 · CI/CD 面试突击",
+    "excerpt": "场景：长编译放后台、SSH 断线任务死掉、本地保活调试、和 CI Job 的边界。",
+    "type": "course",
+    "featured": false,
+    "keywords": "CI/CD 面试突击"
+  },
+  {
+    "title": "第 11 章 · LangGraph 实战",
+    "url": "ai-engineer/langgraph/index.html",
+    "category": "面试宝典 · 6 篇",
+    "excerpt": "LangGraph 实战：从 LangChain 对比、多智能体研究系统到 Agentic Chatbot 与 TripMate 旅行规划。",
+    "type": "course",
+    "featured": false,
+    "keywords": "LangGraph 实战"
+  },
+  {
+    "title": "Complete Agentic AI Course — 学习大纲",
+    "url": "ai-engineer/langgraph/01-project-complete-agentic-ai-course.html",
+    "category": "面试宝典 · LangGraph 实战",
+    "excerpt": "从 LangChain 单 Agent，到多 Agent 协作，再到 LangGraph 工作流与生产级 Chatbot；配套异步编程与 Pydantic 结构化校验。建议按章节顺序学习。",
+    "type": "course",
+    "featured": false,
+    "keywords": "LangGraph 实战"
+  },
+  {
+    "title": "Langchain vs LangGraph",
+    "url": "ai-engineer/langgraph/01-langchainvslanggraph.html",
+    "category": "面试宝典 · LangGraph 实战",
+    "excerpt": "两者同属 LangChain 生态，分工不同，常一起用，而不是二选一。",
+    "type": "course",
+    "featured": false,
+    "keywords": "LangGraph 实战"
+  },
+  {
+    "title": "LangChain 多智能体研究系统",
+    "url": "ai-engineer/langgraph/03-langchain-multi-agent-research-system.html",
+    "category": "面试宝典 · LangGraph 实战",
+    "excerpt": "在 02-Langchain-Single-Agent 单 Agent 基础上，把「搜索 → 阅读 → 写作 → 评审」拆成多个角色，由 runresearchpipeline 串成流水线，自动产出研究报告并打分。",
+    "type": "course",
+    "featured": false,
+    "keywords": "LangGraph 实战"
+  },
+  {
+    "title": "LangGraph 核心 + Agentic Chatbot",
+    "url": "ai-engineer/langgraph/04-langgraph-code.html",
+    "category": "面试宝典 · LangGraph 实战",
+    "excerpt": "本目录是课程主线：用 StateGraph 把控制流画成图，掌握状态、条件边、循环、持久化、HITL、子图与护栏；再用 Streamlit 实战把能力落到可对话的生产级 Chatbot。",
+    "type": "course",
+    "featured": false,
+    "keywords": "LangGraph 实战"
+  },
+  {
+    "title": "Agentic Chatbot with LangGraph （包含完整的框架和 human in the loop）",
+    "url": "ai-engineer/langgraph/02-agentic-chatbot-using-langgraph.html",
+    "category": "面试宝典 · LangGraph 实战",
+    "excerpt": "基于 LangGraph + Streamlit 的 Agentic 聊天机器人。",
+    "type": "course",
+    "featured": false,
+    "keywords": "LangGraph 实战"
+  },
+  {
+    "title": "✈️ TripMate AI — 基于 LangGraph 的多智能体旅行规划助手",
+    "url": "ai-engineer/langgraph/03-project-tripmate-ai-a-multi-agent-travel-planner-with-langgraph.html",
+    "category": "面试宝典 · LangGraph 实战",
+    "excerpt": "开源 AI 旅行规划器：把自然语言出行需求转成可落地的行程，包含航班建议、酒店推荐和逐日行程。项目基于 LangGraph、LangChain 与 FastAPI，采用多智能体工作流。",
+    "type": "course",
+    "featured": false,
+    "keywords": "LangGraph 实战"
+  },
+  {
+    "title": "第 12 章 · waku 精简四支柱",
+    "url": "ai-engineer/waku/index.html",
+    "category": "面试宝典 · 9 篇",
+    "excerpt": "waku（hermes-agent-small）：本地优先教学助手，用最小代码复现 Harness · Loop · Memory · Eval 四支柱。",
+    "type": "course",
+    "featured": false,
+    "keywords": "waku 精简四支柱"
+  },
+  {
+    "title": "waku-agent",
+    "url": "ai-engineer/waku/overview.html",
+    "category": "面试宝典 · waku 精简四支柱",
+    "excerpt": "你自己的 AI 助手。跑在笔记本上。代码一个下午能读完。",
+    "type": "course",
+    "featured": false,
+    "keywords": "waku 精简四支柱"
+  },
+  {
+    "title": "Hermes Agent small 源码 学习大纲",
+    "url": "ai-engineer/waku/learn-guide.html",
+    "category": "面试宝典 · waku 精简四支柱",
+    "excerpt": "本地优先的个人助手教学仓库。目标：一个下午读懂严肃 Agent 的四大支柱 —— Harness · Loop · Memory · Eval/LLM-Ops。",
+    "type": "course",
+    "featured": false,
+    "keywords": "waku 精简四支柱"
+  },
+  {
+    "title": "Architecture — the whiteboard, refreshed",
+    "url": "ai-engineer/waku/architecture.html",
+    "category": "面试宝典 · waku 精简四支柱",
+    "excerpt": "The same system as the two whiteboard diagrams from the previous videos the generic Harness/Loop/Memory/LLM-Ops one and …",
+    "type": "course",
+    "featured": false,
+    "keywords": "waku 精简四支柱"
+  },
+  {
+    "title": "Model comparison — the Waku benchmark battery",
+    "url": "ai-engineer/waku/benchmarks.html",
+    "category": "面试宝典 · waku 精简四支柱",
+    "excerpt": "How Waku compares models, what each test measures, and how to read the result. This is the Eval / LLM-Ops pillar pointed…",
+    "type": "course",
+    "featured": false,
+    "keywords": "waku 精简四支柱"
+  },
+  {
+    "title": "Stack report — verified 2026-07-10",
+    "url": "ai-engineer/waku/stack-report.html",
+    "category": "面试宝典 · waku 精简四支柱",
+    "excerpt": "The brief §7 asked for a research-then-verify pass before building. Result: every layer below was installed together in …",
+    "type": "course",
+    "featured": false,
+    "keywords": "waku 精简四支柱"
+  },
+  {
+    "title": "Demo / filming checklist",
+    "url": "ai-engineer/waku/demo-checklist.html",
+    "category": "面试宝典 · waku 精简四支柱",
+    "excerpt": "The workflow to walk through on camera, in order. Each beat has the exact prompt, what it proves, where to look, and whe…",
+    "type": "course",
+    "featured": false,
+    "keywords": "waku 精简四支柱"
+  },
+  {
+    "title": "Good first issues (to file on GitHub after publishing)",
+    "url": "ai-engineer/waku/good-first-issues.html",
+    "category": "面试宝典 · waku 精简四支柱",
+    "excerpt": "Each of these is deliberately shaped like a first PR: one file, a clear reference implementation to imitate, and a way t…",
+    "type": "course",
+    "featured": false,
+    "keywords": "waku 精简四支柱"
+  },
+  {
+    "title": "Deterministic evals（确定性评测）",
+    "url": "ai-engineer/waku/deterministic.html",
+    "category": "面试宝典 · waku 精简四支柱",
+    "excerpt": "0/1 断言，不靠 LLM 打分。测的是「该不该调工具 / 状态对不对 / 纯函数行为」，和 evals/judge/（DeepEval 打分）永不混用。",
+    "type": "course",
+    "featured": false,
+    "keywords": "waku 精简四支柱"
+  },
+  {
+    "title": "LLM-as-judge evals",
+    "url": "ai-engineer/waku/judge.html",
+    "category": "面试宝典 · waku 精简四支柱",
+    "excerpt": "跑一轮 Waku，再用同一套 provider发一条打分 prompt，看回复够不够好（0–10，阈值 6）。",
+    "type": "course",
+    "featured": false,
+    "keywords": "waku 精简四支柱"
+  },
+  {
+    "title": "第 13 章 · Pi 架构与上手",
+    "url": "ai-engineer/pi/index.html",
+    "category": "面试宝典 · 10 篇",
+    "excerpt": "Pi 架构与上手十讲：Core / Interactive 双模式、会话树、事件系统、能力扩展与 Skills。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Pi 架构与上手"
+  },
+  {
+    "title": "Pi 上手指南",
+    "url": "ai-engineer/pi/00-learn-guide.html",
+    "category": "面试宝典 · Pi 架构与上手",
+    "excerpt": "源码根目录：D:\\workspace\\doc\\面试狂魔\\人工智能面试题\\pi。下文路径相对该根目录。Interactive 层在 packages/coding-agent/，Core 层在 packages/agent/。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Pi 架构与上手"
+  },
+  {
+    "title": "Pi 架构全解析",
+    "url": "ai-engineer/pi/01-arch.html",
+    "category": "面试宝典 · Pi 架构与上手",
+    "excerpt": "Pi 是一套极简、模块化的智能体系统。本文按源码结构拆解其两层设计，说明每次对话实际执行的步骤，以及如何自行扩展或复刻。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Pi 架构与上手"
+  },
+  {
+    "title": "Pi Agent Loop",
+    "url": "ai-engineer/pi/02-agent-loop.html",
+    "category": "面试宝典 · Pi 架构与上手",
+    "excerpt": "- 一、三层调用栈一三层调用栈 - 二、消息怎么进循环二消息怎么进循环 - 三、Core 循环三core-循环 - 队列队列 - runLooprunloop - 调用一次大模型调用一次大模型 - 工具工具 - 停机与兜底停机与兜底 - 四…",
+    "type": "course",
+    "featured": false,
+    "keywords": "Pi 架构与上手"
+  },
+  {
+    "title": "Pi Events and Persistence",
+    "url": "ai-engineer/pi/03-events.html",
+    "category": "面试宝典 · Pi 架构与上手",
+    "excerpt": "- 一、总图一总图 - 二、emit 是什么二emit-是什么 - 三、何时发送三何时发送 - 四、谁在听四谁在听 - 五、processEvents五processevents - 六、落盘六落盘",
+    "type": "course",
+    "featured": false,
+    "keywords": "Pi 架构与上手"
+  },
+  {
+    "title": "Pi Sessions",
+    "url": "ai-engineer/pi/04-sessions.html",
+    "category": "面试宝典 · Pi 架构与上手",
+    "excerpt": "- 一、按工作目录落盘一按工作目录落盘 - 二、JSONL 是树二jsonl-是树 - 三、拼给 LLM 的不是全文件三拼给-llm-的不是全文件 - 四、同文件切枝 vs 新开文件四同文件切枝-vs-新开文件",
+    "type": "course",
+    "featured": false,
+    "keywords": "Pi 架构与上手"
+  },
+  {
+    "title": "Pi Compaction",
+    "url": "ai-engineer/pi/05-compaction.html",
+    "category": "面试宝典 · Pi 架构与上手",
+    "excerpt": "- 一、怎么压一怎么压 - 二、何时压二何时压 - 三、怎么拼 context三怎么拼-context",
+    "type": "course",
+    "featured": false,
+    "keywords": "Pi 架构与上手"
+  },
+  {
+    "title": "Pi HITL",
+    "url": "ai-engineer/pi/06-hitl.html",
+    "category": "面试宝典 · Pi 架构与上手",
+    "excerpt": "- 一、总图一总图 - 二、怎么插话二怎么插话 - 三、何时进循环三何时进循环 - 四、怎么拦工具四怎么拦工具",
+    "type": "course",
+    "featured": false,
+    "keywords": "Pi 架构与上手"
+  },
+  {
+    "title": "Pi Capability at the Edges",
+    "url": "ai-engineer/pi/07-capability.html",
+    "category": "面试宝典 · Pi 架构与上手",
+    "excerpt": "- 一、总图一总图 - 二、工具怎么进循环二工具怎么进循环 - 四、扩展怎么接上四扩展怎么接上",
+    "type": "course",
+    "featured": false,
+    "keywords": "Pi 架构与上手"
+  },
+  {
+    "title": "Pi Interactive",
+    "url": "ai-engineer/pi/08-pi-interactive.html",
+    "category": "面试宝典 · Pi 架构与上手",
+    "excerpt": "- 一、总图一总图 - 二、怎么接到 Core二怎么接到-core - 三、何时用哪种壳三何时用哪种壳 - 四、进循环前怎么处理输入四进循环前怎么处理输入",
+    "type": "course",
+    "featured": false,
+    "keywords": "Pi 架构与上手"
+  },
+  {
+    "title": "Pi 最终复习",
+    "url": "ai-engineer/pi/09-the-end.html",
+    "category": "面试宝典 · Pi 架构与上手",
+    "excerpt": "四块拼成一套系统：LOOP 是循环本身，Runtime & memory 是记什么、发给模型什么，Extension 在循环外加能力，HITL 是人怎么插进去（steer / follow-up、挡工具），不单开一节。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Pi 架构与上手"
+  },
+  {
+    "title": "第 14 章 · DeepSeek Harness",
+    "url": "ai-engineer/deepseek/index.html",
+    "category": "面试宝典 · 1 篇",
+    "excerpt": "DeepSeek Harness 架构笔记。",
+    "type": "course",
+    "featured": false,
+    "keywords": "DeepSeek Harness"
+  },
+  {
+    "title": "DeepSeek Harness 架构解析 -- 到底改变了什么， 值得思考",
+    "url": "ai-engineer/deepseek/01-arch.html",
+    "category": "面试宝典 · DeepSeek Harness",
+    "excerpt": "DeepSeek Harness 刚出来不久，星数已经很高，仓库里大约有 12,000 次提交。题目偏进阶，但下面会用尽量简单的视角讲：既看清这个 Harness 为什么特别，也把「编码 Agent 到底是什么」过一遍。",
+    "type": "course",
+    "featured": false,
+    "keywords": "DeepSeek Harness"
+  },
+  {
+    "title": "第 15 章 · Edge Agent",
+    "url": "ai-engineer/edge/index.html",
+    "category": "面试宝典 · 1 篇",
+    "excerpt": "Edge Agent：面向边缘侧的轻量 Agent 架构。",
+    "type": "course",
+    "featured": false,
+    "keywords": "Edge Agent"
+  },
+  {
+    "title": "端侧 Agent（On-device Agent）",
+    "url": "ai-engineer/edge/01-edge-agent.html",
+    "category": "面试宝典 · Edge Agent",
+    "excerpt": "随着 NPU、端侧芯片和模型压缩成熟，AI 从云端走到手机、PC、网关和现场设备。现在的 Edge AI 不再只是 TinyML / 视觉检测，主线已经变成 on-device LLM + 端侧 Agent：模型、记忆、工具都在本机，默认不…",
+    "type": "course",
+    "featured": false,
+    "keywords": "Edge Agent"
+  },
+  {
+    "title": "第 16 章 · 学习笔记与思考",
+    "url": "ai-engineer/notes/index.html",
+    "category": "面试宝典 · 13 篇",
+    "excerpt": "个人学习笔记：长期记忆专题、AI 编程工作流、Agent Eval 与小白岗位学习指南。",
+    "type": "course",
+    "featured": false,
+    "keywords": "学习笔记与思考"
+  },
+  {
+    "title": "00.guide",
+    "url": "ai-engineer/notes/00-guide.html",
+    "category": "面试宝典 · 学习笔记与思考",
+    "excerpt": "小白 AI Agent 岗位 学习指南",
+    "type": "course",
+    "featured": false,
+    "keywords": "学习笔记与思考"
+  },
+  {
+    "title": "Agent 长期记忆（以 Mem0 为例）",
+    "url": "ai-engineer/notes/01-longtermmemory.html",
+    "category": "面试宝典 · 学习笔记与思考",
+    "excerpt": "如果你希望 Agent 能跨对话记住：关于你的事、关于它自己的事、以及它从世界里学到的东西，就需要一套 Agent 记忆系统。本文介绍长期记忆是什么，再拆一套常见实现：Mem0——它用哪些存储拼出完整长期记忆、写入（ingestion）和检…",
+    "type": "course",
+    "featured": false,
+    "keywords": "学习笔记与思考"
+  },
+  {
+    "title": "AI Coding Full Workflow",
+    "url": "ai-engineer/notes/full-workflow.html",
+    "category": "面试宝典 · 学习笔记与思考",
+    "excerpt": "来源：Matt Pocock Workshop 转录整理 核心论点：软件工程基本功对 AI 同样有效——把任务压进 Smart Zone，用人在环做对齐，用 AFK Agent 做实现。",
+    "type": "course",
+    "featured": false,
+    "keywords": "学习笔记与思考"
+  },
+  {
+    "title": "AI Coding Agent 完整 Workflow（面试版）",
+    "url": "ai-engineer/notes/interview-workflow.html",
+    "category": "面试宝典 · 学习笔记与思考",
+    "excerpt": "一句话：人负责对齐与品味，Agent 负责在 Smart Zone 里按垂直切片 AFK 实现；反馈环质量决定产出天花板。",
+    "type": "course",
+    "featured": false,
+    "keywords": "学习笔记与思考"
+  },
+  {
+    "title": "Agent Evaluate 方法整理",
+    "url": "ai-engineer/notes/01-eval.html",
+    "category": "面试宝典 · 学习笔记与思考",
+    "excerpt": "来源：Hugging Face Agentic Evals Workshop 讲者：Abhijit（HF / Eval）、Arvind（Princeton）、Pierre（Meta / Gaia 2）、Mahesh（Bespoke Labs…",
+    "type": "course",
+    "featured": false,
+    "keywords": "学习笔记与思考"
+  },
+  {
+    "title": "Agentic AI 智能体面试精简问答（面试口述版，好记、直接背诵）",
+    "url": "ai-engineer/notes/memory-01.html",
+    "category": "面试宝典 · 学习笔记与思考",
+    "excerpt": "Q：如何用智能体搭建企业故障告警自动处置流程？ A： 1. 接入监控数据源，接收云监控、DataDog告警事件； 2. 智能体对告警分类，判定故障等级和关联业务； 3. 调用工具检索历史同类故障、运维手册； 4. 通过API自动执行标准修复…",
+    "type": "course",
+    "featured": false,
+    "keywords": "学习笔记与思考"
+  },
+  {
+    "title": "Agentic AI 面试精简问答（背诵版，分基础/架构/多智能体/工程落地/安全伦理）",
+    "url": "ai-engineer/notes/memory-02.html",
+    "category": "面试宝典 · 学习笔记与思考",
+    "excerpt": "A：AI智能体可以感知环境、自主决策、执行动作达成目标，存在感知-思考-行动反馈闭环，能根据结果自适应调整。 传统AI只做单一静态预测任务，无自主行动与迭代优化能力。",
+    "type": "course",
+    "featured": false,
+    "keywords": "学习笔记与思考"
+  },
+  {
+    "title": "一、文档核心对Agent Memory的整体见解",
+    "url": "ai-engineer/notes/03-memory.html",
+    "category": "面试宝典 · 学习笔记与思考",
+    "excerpt": "大模型本身记忆能力极弱，仅靠原生上下文窗口如同金鱼记忆；单纯拼接对话历史存在致命缺陷： 1. 上下文长度有限，多轮对话、大量工具调用极易超限； 2. 超长历史会产生上下文漂移，模型丢失早期关键信息； 3. 多会话/新对话线程无记忆隔离，每次…",
+    "type": "course",
+    "featured": false,
+    "keywords": "学习笔记与思考"
+  },
+  {
+    "title": "面试完整回答：长对话摘要丢失关键信息怎么解决",
+    "url": "ai-engineer/notes/04-memory.html",
+    "category": "面试宝典 · 学习笔记与思考",
+    "excerpt": "结合文档里的 Working Memory、Semantic Recall、Observational Memory 三层方案分层作答，由浅到深，工程落地可执行，分兜底方案、优化方案、终极架构方案。",
+    "type": "course",
+    "featured": false,
+    "keywords": "学习笔记与思考"
+  },
+  {
+    "title": "Agent Memory 建议整理",
+    "url": "ai-engineer/notes/05-memory.html",
+    "category": "面试宝典 · 学习笔记与思考",
+    "excerpt": "来源：视频文稿（模型无状态、Context Rot、记忆闭环、工程落地）",
+    "type": "course",
+    "featured": false,
+    "keywords": "学习笔记与思考"
+  },
+  {
+    "title": "AI Agent Memory 系统设计",
+    "url": "ai-engineer/notes/08-memory.html",
+    "category": "面试宝典 · 学习笔记与思考",
+    "excerpt": "来源：Shawn 视频文稿（Working Memory + 三柱记忆 + 门控巩固）",
+    "type": "course",
+    "featured": false,
+    "keywords": "学习笔记与思考"
+  },
+  {
+    "title": "Agent Harness、Loop Engineering 与 LLMOps",
+    "url": "ai-engineer/notes/10-memory.html",
+    "category": "面试宝典 · 学习笔记与思考",
+    "excerpt": "来源：Shawn 视频文稿（Harness 控马、循环工程、评测与运维闭环） 前置：可先看 Memory 三柱（Working / Procedural / Semantic / Episodic）",
+    "type": "course",
+    "featured": false,
+    "keywords": "学习笔记与思考"
+  },
+  {
+    "title": "Hermes Agent Harness 与循环工程（完整笔记）",
+    "url": "ai-engineer/notes/11-memory.html",
+    "category": "面试宝典 · 学习笔记与思考",
+    "excerpt": "来源：Shawn 视频文稿（Nous Research / Hermes Agent 实机走读） 前置：通用 Harness、Loop Engineering、三柱 Memory、LLMOps（见 08 / 10） 官方站：Hermes A…",
+    "type": "course",
+    "featured": false,
+    "keywords": "学习笔记与思考"
+  }
 ]

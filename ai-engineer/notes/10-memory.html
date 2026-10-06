@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Harness、Loop Engineering 与 LLMOps · AI Agent 面试宝典 — NorthAdb 的博客</title>
+<meta name="description" content="来源：Shawn 视频文稿（Harness 控马、循环工程、评测与运维闭环） 前置：可先看 Memory 三柱（Working / Procedural / Semantic / Episodic）">
+<link rel="canonical" href="https://northadb.github.io/ai-engineer/notes/10-memory.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Agent Harness、Loop Engineering 与 LLMOps · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta property="og:description" content="来源：Shawn 视频文稿（Harness 控马、循环工程、评测与运维闭环） 前置：可先看 Memory 三柱（Working / Procedural / Semantic / Episodic）">
+<meta property="og:url" content="https://northadb.github.io/ai-engineer/notes/10-memory.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Agent Harness、Loop Engineering 与 LLMOps · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta name="twitter:description" content="来源：Shawn 视频文稿（Harness 控马、循环工程、评测与运维闭环） 前置：可先看 Memory 三柱（Working / Procedural / Semantic / Episodic）">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../feed.xml">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../ai-engineer/assets/course.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Agent Harness、Loop Engineering 与 LLMOps", "description": "来源：Shawn 视频文稿（Harness 控马、循环工程、评测与运维闭环） 前置：可先看 Memory 三柱（Working / Procedural / Semantic / Episodic）", "author": {"@type": "Person", "name": "juliepy", "url": "https://github.com/juliepy/AI-Engineer-from-scrach"}, "mainEntityOfPage": "https://northadb.github.io/ai-engineer/notes/10-memory.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../index.html">首页</a><span>/</span><a href="../../learn.html">课件</a><span>/</span><a href="../../ai-engineer/index.html">AI Agent 面试宝典</a><span>/</span><a href="../../ai-engineer/notes/index.html">学习笔记与思考</a></div>
+          <h1>Agent Harness、Loop Engineering 与 LLMOps</h1>
+          <p class="post-sub">来源：Shawn 视频文稿（Harness 控马、循环工程、评测与运维闭环） 前置：可先看 Memory 三柱（Working / Procedural / Semantic / Episodic）</p>
+          <div class="post-meta">
+            <span class="avatar">AI</span>
+            <span>AI Agent 面试宝典</span><span class="sep"></span>
+            <span>学习笔记与思考</span><span class="sep"></span>
+            <span>阅读约 5 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p>来源：Shawn 视频文稿（Harness 控马、循环工程、评测与运维闭环）<br>
+前置：可先看 Memory 三柱（Working / Procedural / Semantic / Episodic）</p>
+</blockquote>
+<hr>
+<h2 id="_1">一、核心结论（先记住这句）</h2>
+<p><strong>LLM 是一匹很强的马；Harness 是缰绳与鞍具。</strong><br>
+单次问答不够用——要用 Memory + Tool Loop + 结束护栏把模型「控住」；再用 Trace → Eval → Diagnose → Ship 的 LLMOps 闭环，让系统持续变好。</p>
+<p>热词并不玄：Harness、Loop Engineering、LLMOps、Eval 都是<strong>简单积木</strong>，拼起来才是能跑的智能系统。</p>
+<hr>
+<h2 id="agent-run">二、从一次 Agent Run 说起</h2>
+<p>一次 <strong>Agent Run</strong> = 用户输入 →（可选多轮工具调用）→ Agent 回复。</p>
+<p>最小形态（无长期记忆、短暂 ephemeral）：</p>
+<pre><code>User Prompt + Chat History + System Prompt
+        │
+        ▼
+  Working Memory / Context RAM
+        │
+        ▼
+     LLM（Q&amp;A Agent）
+        │
+        ▼
+      Reply
+</code></pre>
+<p>问题：只有短时上下文。模型「懂人类知识」，但<strong>不懂你、不懂你的软件要它怎么跑</strong>——所以需要 Harness。</p>
+<hr>
+<h2 id="harness">三、什么是 Harness（缰绳）</h2>
+<h3 id="_2">字面意思</h3>
+<p>骑马时的一套控制工具。LLM 像马：力大、能跑，但没有缰绳会乱跑、伤人；战争里更不能失控。</p>
+<h3 id="_3">工程含义</h3>
+<p><strong>Harness = 围绕 LLM 搭的控制框架</strong>，让它按你想要的方式工作，压住「下一词概率」带来的随机性。</p>
+<p>市场上常见积木：LangGraph、LangChain、Pydantic AI 等（本篇讲概念，不深挖某一框架）。</p>
+<h3 id="harness_1">Harness 里通常有什么</h3>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Working Memory</td>
+<td>本轮上下文组装</td>
+</tr>
+<tr>
+<td>三柱 Memory + DB + 更新机制</td>
+<td>让记忆可存、可取、可演进</td>
+</tr>
+<tr>
+<td>Tool Calling + Loop</td>
+<td>多步任务，直到「够好」再回复</td>
+</tr>
+<tr>
+<td>End Loop Guardrails</td>
+<td>何时停、何时问人</td>
+</tr>
+<tr>
+<td>（外圈）LLMOps</td>
+<td>可观测、可评测、可迭代</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="harness-memory">四、Harness 视角下的 Memory（速览）</h2>
+<p>LLM 自己做不到「记得你」——Memory 是 Harness 的一部分。</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>存什么</th>
+<th>存储 / 召回要点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Procedural</strong></td>
+<td>怎么表现、技能指令</td>
+<td>多为文件 / 文本（Skills = Markdown）；也可进库</td>
+</tr>
+<tr>
+<td><strong>Semantic</strong></td>
+<td>耐久事实、画像</td>
+<td>向量 + <strong>RAG</strong>；可人工写入，也可从情节巩固</td>
+</tr>
+<tr>
+<td><strong>Episodic</strong></td>
+<td>带时间戳的事件 / 历史会话</td>
+<td>时间序列；可 SQL 查近期，也可 RAG 语义筛相关</td>
+</tr>
+</tbody>
+</table>
+<h3 id="harness_2">更新与门控（Harness 要「聪明」）</h3>
+<pre><code>Agent 回复 → 写入 DB（情节日志）
+                │
+         Gate（例：每 2000 次会话再巩固）
+                │
+                ▼
+        Summarizer Agent（可换便宜模型）
+                │
+                ▼
+        Distill → Semantic Memory（耐久事实）
+</code></pre>
+<p>电商例：百万次「怎么退款」对话 → 门控后摘要成事实，而不是每次全量扫百万日志。</p>
+<h3 id="rag">情节检索：不只是 RAG</h3>
+<table>
+<thead>
+<tr>
+<th>问法</th>
+<th>更合适的取法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>「和这位美国客户最近 10 次对话」</td>
+<td>偏 <strong>SQL / 时间过滤</strong></td>
+</tr>
+<tr>
+<td>「过去 20 次产品质量投诉且未解决」</td>
+<td><strong>SQL（时间/表）+ RAG（语义）</strong>，只要相关 20 条，不要整段 2000 条</td>
+</tr>
+</tbody>
+</table>
+<p>Semantic：事实文本 → 主要靠 RAG。<br>
+Episodic：时间线 + 文本 → 结构化查询与语义检索常一起用。</p>
+<hr>
+<h2 id="loop-engineering">五、Loop Engineering（循环工程）</h2>
+<h3 id="loop">为什么需要 Loop</h3>
+<p>Agent 不只读记忆，还会调工具，且往往<strong>多轮</strong>：</p>
+<ul>
+<li>约会议</li>
+<li>读写 CRM</li>
+<li>从 Stripe / 支付宝拉支付、触发退款</li>
+</ul>
+<p>若给 LLM「全权」：可能无限调工具、不知道何时停、不知道何时该回复用户。</p>
+<h3 id="loop_1">Loop 是什么</h3>
+<p><strong>架构层思考：怎样算「够好」，可以停下来给用户 / 业务方一个答复。</strong></p>
+<p>例：用户问——客户在抱怨什么？怎么挽回？要退款的退了没有？没退能否退？</p>
+<p>可能循环：</p>
+<ol>
+<li>调 CRM → 近 2 月 30 条投诉，12 已退、8 未退  </li>
+<li>再调工具 → 给未退的 8 人约跟进会  </li>
+<li>更进一步 → 直接触发 Stripe / 支付宝退款  </li>
+</ol>
+<p>直到任务完成（或到达约定终点）→ <strong>End Loop Guardrails</strong> 触发 → 回复用户。</p>
+<h3 id="end-loop-guardrails">End Loop Guardrails（结束护栏）</h3>
+<table>
+<thead>
+<tr>
+<th>做法</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>任务完成即停</td>
+<td>最简护栏</td>
+</tr>
+<tr>
+<td>规划时与用户确认终点</td>
+<td>「直接退那 8 人」vs「只列出名单你自己跟」→ 两种不同结束条件</td>
+</tr>
+<tr>
+<td>卡住时通知人</td>
+<td>如 Claude Code：权限弹窗时通知笔记本，避免挂 25 分钟你还在刷 YouTube</td>
+</tr>
+</tbody>
+</table>
+<p><strong>没有万能 Loop</strong>：终点取决于任务与系统设计；Harness 的关键是<strong>显式定义停条件</strong>。</p>
+<hr>
+<h2 id="harness_3">六、整体 Harness 一图</h2>
+<pre><code>                    ┌──────── Harness ────────┐
+User Prompt ──► Working Memory ◄── Memory DB（P/S/E + RAG/SQL）
+                    │
+                    ▼
+              LLM Agent ◄──► Tools（CRM / 支付 / 日程…）
+                    │              ▲
+                    │         Loop + Guardrails
+                    ▼              │
+                 Reply ────────────┘
+                    │
+                    └──► 写入 Episodic / 门控巩固 Semantic
+</code></pre>
+<p>到这里：Memory + Loop + 停条件 = <strong>一套控住 LLM 的 Harness</strong>。</p>
+<hr>
+<h2 id="llmops-eval">七、为什么还要 LLMOps / Eval</h2>
+<p>Harness 能跑，但<strong>不知道跑得好不好</strong>。<br>
+需要反馈闭环：评测 → 诊断 → 修（Prompt / 模型配置 / 检索参数 / 工具）→ 再跑。</p>
+<p>这就是 <strong>LLMOps（Large Language Model Operations）</strong>；其中 <strong>Eval</strong> 是「好不好、健不健康」的度量。</p>
+<p>YC 常提的 Eval / LLMOps，本质是：<strong>可观测 + 可评测 + 可迭代</strong>。</p>
+<hr>
+<h2 id="llmops">八、LLMOps 闭环</h2>
+<h3 id="1-trace">1. Trace（追踪）——先采数据</h3>
+<p>每个 Agent Run 记一棵<strong>事件树</strong>（工具：LangFuse、LangSmith 等）：</p>
+<ul>
+<li>用户到底问了什么  </li>
+<li>检索了哪些记忆  </li>
+<li>工具调了几次、用得怎样  </li>
+<li>端到端延迟、Token 消耗  </li>
+</ul>
+<p><strong>Trace = 收集运行事实</strong>，供后面两件事用：好不好？健不健康？</p>
+<h3 id="2-eval">2. Eval（评测）——好不好 / 健不健康</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>任务是否完成</td>
+<td>约会议是否真触发</td>
+</tr>
+<tr>
+<td>延迟</td>
+<td>20s vs 2ms</td>
+</tr>
+<tr>
+<td>Token / 成本</td>
+<td>本轮检索 + 工具调用花了多少</td>
+</tr>
+</tbody>
+</table>
+<p>可用确定性代码，也可用 <strong>LLM-as-Judge</strong> 打分。</p>
+<h3 id="3-diagnose">3. Diagnose（诊断）——哪里坏、为什么</h3>
+<p>例：</p>
+<ul>
+<li>会议从未触发 → 喂给 Coding Agent 深挖  </li>
+<li>延迟 20s → 某工具慢？Working Memory 太大？  </li>
+<li>简单问题（生日、OpenAI 何时成立）却狂检索 → 检索策略过重  </li>
+</ul>
+<p>要有 <strong>Dashboard</strong>：指标可见，才能定位旋钮。</p>
+<h3 id="4-gate-ship">4. Gate + Ship（门控发布）</h3>
+<pre><code>Trace → Eval → Diagnose
+              │
+         评测通过？
+         ├── 是：小改即发（新 Prompt / 模型配置 / 工具 / 检索参数）
+         │         └──► 回灌 Harness 的 Agent Run
+         └── 否（深坑）：修 Bug → 重跑 → 再 Trace → 再 Eval
+</code></pre>
+<p>一轮 LLMOps = 观测 → 评测 → 诊断 → 把更好的 Prompt / 配置喂回 Harness。</p>
+<hr>
+<h2 id="zoom-out">九、Zoom Out：两层系统</h2>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>管什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Harness（内圈）</strong></td>
+<td>单次 / 多步怎么跑：Memory、Tool Loop、停条件、回复</td>
+</tr>
+<tr>
+<td><strong>LLMOps（外圈）</strong></td>
+<td>跑得怎样：Trace、Eval、诊断、改旋钮、再发布</td>
+</tr>
+</tbody>
+</table>
+<p>目标形态：<strong>受控执行 + 自我演进</strong>——不是一次写死 Prompt，而是持续根据运行数据变好。</p>
+<hr>
+<h2 id="_4">十、面试口述版（可直接背）</h2>
+<ol>
+<li><strong>Harness</strong>：把 LLM 当马，用框架控随机性——Memory、工具、循环、停条件都是缰绳。  </li>
+<li><strong>Memory</strong>：Working 装本轮；Procedural 管怎么做；Semantic 管耐久事实（RAG）；Episodic 管时间线（SQL + RAG）；门控摘要防库爆炸。  </li>
+<li><strong>Loop Engineering</strong>：多工具调用直到任务够好；<strong>End Loop Guardrails</strong> 定义停点，必要时问人或弹通知。  </li>
+<li><strong>LLMOps</strong>：每个 Run 做 Trace → Eval（好不好/健不健康）→ Diagnose → 改 Prompt/配置/检索 → 回灌；深坑则修 Bug 再跑。  </li>
+</ol>
+<p>一句话：<strong>Harness 让它按你的规矩跑；LLMOps 让你知道跑得怎样并持续改规矩。</strong></p>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags">
+            <span class="chip">学习笔记与思考</span>
+            <span class="chip">AI Agent</span>
+            <span class="chip">面试宝典</span>
+          </div>
+          <a class="t-meta" href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/99-My%20idea/memory/10.memory.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../ai-engineer/notes/08-memory.html"><span class="dir">← 上一篇</span><span class="t">AI Agent Memory 系统设计</span></a><a class="next" href="../../ai-engineer/notes/11-memory.html"><span class="dir">下一篇 →</span><span class="t">Hermes Agent Harness 与循环工程（完整笔记）</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../rag/index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+
+<script src="../../js/main.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Memory 建议整理 · AI Agent 面试宝典 — NorthAdb 的博客</title>
+<meta name="description" content="来源：视频文稿（模型无状态、Context Rot、记忆闭环、工程落地）">
+<link rel="canonical" href="https://northadb.github.io/ai-engineer/notes/05-memory.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Agent Memory 建议整理 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta property="og:description" content="来源：视频文稿（模型无状态、Context Rot、记忆闭环、工程落地）">
+<meta property="og:url" content="https://northadb.github.io/ai-engineer/notes/05-memory.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Agent Memory 建议整理 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta name="twitter:description" content="来源：视频文稿（模型无状态、Context Rot、记忆闭环、工程落地）">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../feed.xml">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../ai-engineer/assets/course.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Agent Memory 建议整理", "description": "来源：视频文稿（模型无状态、Context Rot、记忆闭环、工程落地）", "author": {"@type": "Person", "name": "juliepy", "url": "https://github.com/juliepy/AI-Engineer-from-scrach"}, "mainEntityOfPage": "https://northadb.github.io/ai-engineer/notes/05-memory.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../index.html">首页</a><span>/</span><a href="../../learn.html">课件</a><span>/</span><a href="../../ai-engineer/index.html">AI Agent 面试宝典</a><span>/</span><a href="../../ai-engineer/notes/index.html">学习笔记与思考</a></div>
+          <h1>Agent Memory 建议整理</h1>
+          <p class="post-sub">来源：视频文稿（模型无状态、Context Rot、记忆闭环、工程落地）</p>
+          <div class="post-meta">
+            <span class="avatar">AI</span>
+            <span>AI Agent 面试宝典</span><span class="sep"></span>
+            <span>学习笔记与思考</span><span class="sep"></span>
+            <span>阅读约 6 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p>来源：视频文稿（模型无状态、Context Rot、记忆闭环、工程落地）</p>
+</blockquote>
+<hr>
+<h2 id="_1">一、核心结论（先记住这句）</h2>
+<p><strong>好的 Memory 不靠“记得更多”，而靠“故意忘掉什么”。</strong><br>
+控制器（决定保留/丢弃/覆盖）比底层数据库更重要。对大多数 Agent，Memory = Markdown 文件 + 好习惯；能证明需要再上重型方案。</p>
+<hr>
+<h2 id="_2">二、先分清三件事（别混谈）</h2>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>本质</th>
+<th>类比</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Context Window</strong></td>
+<td>单次回答能看见的文本，用完即清</td>
+<td>RAM：快、小、易满</td>
+</tr>
+<tr>
+<td><strong>RAG / Retrieval</strong></td>
+<td><strong>读</strong>：从已有文档里捞相关片段塞进窗口</td>
+<td>图书馆检索</td>
+</tr>
+<tr>
+<td><strong>Memory</strong></td>
+<td><strong>写</strong>：观察交互 → 判断是否值得存 → 供未来会话用</td>
+<td>决定上架什么、下架什么</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>RAG：架子上的书别人已经放好了，你只负责找。</li>
+<li>Memory：你自己决定什么该上架、什么该撤下、冲突时以谁为准。</li>
+</ul>
+<hr>
+<h2 id="_3">三、为什么模型会“忘”</h2>
+<ol>
+<li><strong>模型本身无状态</strong>：一次请求进、一次回答出，结束后什么都不留。</li>
+<li><strong>“连续对话”是工具在作弊</strong>：每轮把历史对话重新贴回 Prompt，模型才像记得。</li>
+<li><strong>无状态是特性不是 Bug</strong>：同一模型服务千万人，会话互不串扰。</li>
+</ol>
+<hr>
+<h2 id="memory">四、真正的 Memory 是一个闭环（不是“套了马甲的数据库”）</h2>
+<pre><code>Write → Store → Reconcile → Retrieve → Rank → Forget
+</code></pre>
+<h3 id="write">Write（记住）</h3>
+<ul>
+<li>每轮结束后，<strong>独立流程</strong>回看刚发生的事，问：有没有值得长期保留的？</li>
+<li>多数是噪声：模型废话、半截推理、失败的工具调用 → <strong>丢掉</strong>。</li>
+<li>只留耐久事实：换了 TypeScript、部署卡在 auth、用户讨厌早班机。</li>
+</ul>
+<h3 id="reconcile">Reconcile（调和 / 对齐）</h3>
+<p><strong>是什么</strong>：新记忆写进来时，<strong>处理它和旧记忆的冲突</strong>，而不是两边都留着。<br>
+一句话：Reconcile = <strong>让记忆自洽</strong>——冲突时更新/覆盖，而不是并排堆两份互相打架的“事实”。</p>
+<p><strong>典型例子</strong>：昨天偏好 Python，今天改 TypeScript。天真做法两条都存、检索时两条都捞 → Agent 不知听谁的；Reconcile 用新事实<strong>覆盖</strong>旧事实（或明确标记旧的已失效）。</p>
+<h4 id="1">1. 先对齐：同一条“事实槽位”</h4>
+<p>不要拿整段文本比相似度，而是落到<strong>可键控的事实</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>键（slot）</th>
+<th>旧值</th>
+<th>新值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>user.lang_pref</code></td>
+<td>Python</td>
+<td>TypeScript</td>
+</tr>
+<tr>
+<td><code>deploy.blocker</code></td>
+<td>auth</td>
+<td>（已解决则删/标过期）</td>
+</tr>
+</tbody>
+</table>
+<p>有稳定 key → 冲突可判定；只有向量相似 → 容易误伤或漏覆盖。</p>
+<h4 id="2">2. 常见处理策略（按场景选）</h4>
+<table>
+<thead>
+<tr>
+<th>策略</th>
+<th>做法</th>
+<th>适合</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>A. Last-Write-Wins</strong></td>
+<td>同 key 直接用新值覆盖旧值</td>
+<td>偏好、当前目标、当前阻塞点（默认首选）</td>
+</tr>
+<tr>
+<td><strong>B. 版本化 + 失效标记</strong></td>
+<td>不物理删；旧记录 <code>status=stale</code> / <code>superseded_by=新 id</code>；检索只取 active</td>
+<td>要审计、要回放“为什么改过”</td>
+</tr>
+<tr>
+<td><strong>C. Merge 合并</strong></td>
+<td>同主题互补、非互斥 → 合成一条（如约束列表）</td>
+<td>多条可并存的偏好/禁止项</td>
+</tr>
+<tr>
+<td><strong>D. 冲突升级</strong></td>
+<td>两边都像真又互斥 → 问用户，或交给 Reflector 按更新时间/置信度裁决</td>
+<td>高风险事实（权限、账号、业务规则）</td>
+</tr>
+<tr>
+<td><strong>E. 时间窗 / TTL</strong></td>
+<td>临时状态设过期，到期自动 Forget</td>
+<td>“这周在赶 auth”类短期事实，避免抢长期偏好的召回</td>
+</tr>
+</tbody>
+</table>
+<h4 id="3">3. 工程落地最小流程</h4>
+<pre><code>新事实写入
+  → 按 key / 实体+属性 查旧事实
+  → 无旧：直接 Store
+  → 有旧且互斥：覆盖或标 stale（Reconcile）
+  → 有旧且互补：Merge
+  → 不确定：标 conflict，检索时降权或不注入
+</code></pre>
+<p>对应 Multi-Agent 里的 <strong>Reflector Agent</strong>：专职做优先级、过时标记、冲突消解，主对话 Agent 只看有效记忆。</p>
+<h4 id="4-reconcile">4. 怎么验（测的就是 Reconcile）</h4>
+<ol>
+<li>稳定偏好 → 应记住；  </li>
+<li><strong>已变更事实 → 应覆盖旧值</strong>；  </li>
+<li>从未告知 → 应拒绝瞎编。  </li>
+</ol>
+<p>测不过，说明只是在堆记忆，没有真正调和。</p>
+<h3 id="read">Read（回忆）</h3>
+<ul>
+<li>新一轮开始前：挑相关记忆 → 排序 → <strong>只贴最好的几条</strong>进窗口。</li>
+<li>不是整库倒进 Context。</li>
+</ul>
+<h3 id="memory_1">会话流程中的 Memory 处理（流程图）</h3>
+<p>一轮对话里，Memory 分两条路：<strong>开场先读</strong>，<strong>收尾再写</strong>；中间 LLM 只看见精排后的少量事实 + 近期上下文。</p>
+<pre><code class="language-mermaid">flowchart TD
+    U[用户输入] --&gt; ReadPath
+
+    subgraph ReadPath[&quot;读路径（本轮开始前）&quot;]
+        R1[Retrieve 按 query / key 捞候选]
+        R2[过滤 stale / conflict / 过期 TTL]
+        R3[Rank 精排：只留最好的几条]
+        R1 --&gt; R2 --&gt; R3
+    end
+
+    ReadPath --&gt; Prompt[拼装 Context&lt;br/&gt;System + 精排记忆 + 近期对话]
+    Prompt --&gt; LLM[LLM 生成回复]
+    LLM --&gt; Ans[返回用户]
+
+    Ans --&gt; WritePath
+
+    subgraph WritePath[&quot;写路径（本轮结束后，独立流程）&quot;]
+        W1[回看本轮：有无耐久事实？]
+        W1 --&gt;|噪声 / 半截推理 / 失败工具调用| Toss[Forget 丢掉]
+        W1 --&gt;|值得保留| Store[Store 写入候选事实]
+        Store --&gt; Rec{Reconcile&lt;br/&gt;同 key 是否已有旧事实？}
+        Rec --&gt;|无旧| Keep[直接入库 active]
+        Rec --&gt;|互斥| LWW[覆盖 / 标 stale]
+        Rec --&gt;|互补| Merge[Merge 合并]
+        Rec --&gt;|不确定| Conf[标 conflict&lt;br/&gt;下次检索降权]
+        Keep --&gt; Mem[(Memory Store)]
+        LWW --&gt; Mem
+        Merge --&gt; Mem
+        Conf --&gt; Mem
+    end
+
+    Mem -.-&gt;|下一轮 Retrieve| R1
+    Toss -.-&gt;|不进库| EndTurn[本轮结束]
+    Mem --&gt; EndTurn
+    EndTurn --&gt; U
+</code></pre>
+<p><strong>读时要点</strong>：只贴 Rank 后的几条，对抗 Context Rot。<br>
+<strong>写时要点</strong>：先过滤再 Reconcile，控制器做 keep / toss / 覆盖，而不是整段 transcript 入库。</p>
+<h3 id="_4">关键点</h3>
+<p>换向量库 / 图数据库 / 纯文本文件，<strong>闭环形态不变</strong>。<br>
+锐利或无用，取决于控制器的 <strong>keep / toss</strong> 决策，这卖不了“开箱即用的黑盒”。</p>
+<hr>
+<h2 id="memory-agent">五、为什么“更多 Memory”会让 Agent 更差</h2>
+<h3 id="context-rot">Context Rot（上下文腐烂）</h3>
+<ul>
+<li>窗口再大，模型也<strong>不会均匀读完</strong>整段输入。</li>
+<li>Chroma 等研究：输入越长，即使简单查找，可靠性也下降。</li>
+<li>体感：会话早期指令几乎总被遵守；埋在几千 token 历史下后，遵从率可掉到约 <strong>1/3</strong>。</li>
+</ul>
+<h3 id="_5">因此任务翻转</h3>
+<p>Memory 系统的价值 = <strong>扔掉了多少</strong>，而不是存了多少。<br>
+保持活跃上下文 <strong>小、尖、尽量空</strong>，模型才清醒。<br>
+<strong>有意遗忘</strong>是控制器最难、也最值钱的工作。</p>
+<hr>
+<h2 id="memory_2">六、Memory 的硬问题（面试/选型常踩坑）</h2>
+<ol>
+<li>
+<p><strong>不知道该留什么</strong><br>
+   留太多 → Context Rot；留太少 → 三天后才发现关键细节被扔了。模型与简单启发式都不可靠。</p>
+</li>
+<li>
+<p><strong>事实会变（Staleness / Conflict）</strong><br>
+   昨天偏好 Python，今天改 TypeScript。天真系统两边都存、两边都召回 → Agent 拿着矛盾事实不知以谁为准。<br>
+   处理见上文 <strong>Reconcile</strong>：键控槽位 + Last-Write-Wins / 标 stale / Merge / 冲突升级；<strong>完美自动覆盖</strong>仍是开放问题，但工程上必须有明确策略。</p>
+</li>
+<li>
+<p><strong>检索精度</strong><br>
+   相似 ≠ 正确。问当前任务，可能捞出三天前措辞相近的旧日志。</p>
+</li>
+<li>
+<p><strong>静默失败</strong><br>
+   Memory 坏了不报错，Agent 只是慢慢变差；你往往要到它自信地忘掉不该忘的事才发现。<br>
+   LongMemEval 等基准：强方案在长多会话上仍可能掉约 <strong>30%</strong> 准确率。厂商自测分数当营销看。</p>
+</li>
+<li>
+<p><strong>安全：持久记忆 = 持久攻击面</strong><br>
+   - 普通 Prompt Injection：一回合作恶，会话结束即消失。<br>
+   - Memory 投毒：读到毒 README/邮件 → 当成有用事实写入长期记忆 → 数天后在另一会话（甚至高权限）被召回执行。<br>
+   - 研究显示用普通消息植入成功率可 &gt; <strong>90%</strong>。<br>
+<strong>持久 Memory 把一次性漏洞变成“潜伏 Agent”。</strong></p>
+</li>
+</ol>
+<hr>
+<h2 id="_6">七、工程落地建议（本周就能用）</h2>
+<h3 id="memory_3">默认方案：别上重型 Memory 产品</h3>
+<p>多数在干活的开发者<strong>根本不跑 Memory 系统</strong>，而是：</p>
+<table>
+<thead>
+<tr>
+<th>做法</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CLAUDE.md</code> / <code>AGENTS.md</code></td>
+<td>项目级站立事实（standing facts）</td>
+</tr>
+<tr>
+<td>Notes 文件，Agent 追加写入</td>
+<td>轻量可写记忆</td>
+</tr>
+<tr>
+<td>Git History</td>
+<td>已有“做了什么、为什么”的干净记录</td>
+</tr>
+<tr>
+<td>对话变长 → <strong>摘要旧轮次，丢掉原文 transcript</strong></td>
+<td>控窗口、抗 Context Rot</td>
+</tr>
+<tr>
+<td><strong>每用户一张小表：耐久事实，精确查找（非相似度）</strong></td>
+<td>解决“忘了我的偏好”头号抱怨，无需向量库</td>
+</tr>
+</tbody>
+</table>
+<h3 id="mem0-letta">何时才值得上 Mem0 / Letta 等重型层</h3>
+<p>能<strong>证明</strong>你撞到墙再上，例如：</p>
+<ul>
+<li>真实的跨会话个性化；</li>
+<li>代码库大到无法靠摘要扛住；</li>
+<li>多 Agent 必须共享状态。</li>
+</ul>
+<p>否则 fancy Memory 层多半只买到：<strong>更多 token、更多延迟、更多失败方式</strong>。</p>
+<h3 id="_7">先写测试，再上系统</h3>
+<p>用自己的数据准备至少 5 个问题，例如：</p>
+<ol>
+<li>稳定偏好（应记住）；</li>
+<li>已变更的事实（应覆盖旧值）；</li>
+<li>从未告知的事（应拒绝/承认不知道）。</li>
+</ol>
+<p><strong>测不出 Memory 是否有用，就分不清“真有效”和“感觉有效”。</strong></p>
+<hr>
+<h2 id="_8">八、行业收敛形态</h2>
+<ul>
+<li><strong>数据库没人赢</strong>：向量 / 图 / 文件都有信徒。</li>
+<li><strong>大家收敛的是闭环</strong>：Write → Store → Reconcile → Retrieve → Rank → Forget，且始终卡在模型真正能消化的预算内。</li>
+<li>Agent“不该忘却忘了”时：问题几乎不在存储，而在 <strong>该存什么、该扔什么</strong> 的决策。</li>
+</ul>
+<blockquote>
+<p>决策对了，Markdown 就够用很久；决策错了，再贵的 Memory 栈只会帮 Agent <strong>忘得更快</strong>。</p>
+</blockquote>
+<hr>
+<h2 id="_9">九、一句话行动清单</h2>
+<ol>
+<li>分清 Context / RAG / Memory（读 vs 写）。  </li>
+<li>实现闭环，重点做 <strong>过滤、覆盖、精排、遗忘</strong>。  </li>
+<li>主动对抗 Context Rot：上下文保持小而准。  </li>
+<li>默认用 Markdown + 摘要 + 精确事实表。  </li>
+<li>有证据再上向量/图/商业 Memory。  </li>
+<li>用自有评测题验证；警惕持久记忆投毒。  </li>
+<li><strong>对大多数 Agent：Memory = 一个 Markdown 文件 + 一种习惯。</strong></li>
+</ol>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags">
+            <span class="chip">学习笔记与思考</span>
+            <span class="chip">AI Agent</span>
+            <span class="chip">面试宝典</span>
+          </div>
+          <a class="t-meta" href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/99-My%20idea/memory/05.memory.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../ai-engineer/notes/04-memory.html"><span class="dir">← 上一篇</span><span class="t">面试完整回答：长对话摘要丢失关键信息怎么解决</span></a><a class="next" href="../../ai-engineer/notes/08-memory.html"><span class="dir">下一篇 →</span><span class="t">AI Agent Memory 系统设计</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../rag/index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+
+<script src="../../ai-engineer/assets/mermaid-init.js" defer></script>
+<script src="../../js/main.js" defer></script>
+</body>
+</html>

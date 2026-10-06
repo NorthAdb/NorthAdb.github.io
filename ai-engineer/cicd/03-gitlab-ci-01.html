@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1. GitLab CI 核心组件 · AI Agent 面试宝典 — NorthAdb 的博客</title>
+<meta name="description" content="仓库事件（push / MR / tag / schedule） → GitLab 读 .gitlab-ci.yml → 按 rules 选出要跑的 Job → 派给空闲 Runner → Runner 用执行器跑 script → 回传日…">
+<link rel="canonical" href="https://northadb.github.io/ai-engineer/cicd/03-gitlab-ci-01.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="1. GitLab CI 核心组件 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta property="og:description" content="仓库事件（push / MR / tag / schedule） → GitLab 读 .gitlab-ci.yml → 按 rules 选出要跑的 Job → 派给空闲 Runner → Runner 用执行器跑 script → 回传日…">
+<meta property="og:url" content="https://northadb.github.io/ai-engineer/cicd/03-gitlab-ci-01.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="1. GitLab CI 核心组件 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta name="twitter:description" content="仓库事件（push / MR / tag / schedule） → GitLab 读 .gitlab-ci.yml → 按 rules 选出要跑的 Job → 派给空闲 Runner → Runner 用执行器跑 script → 回传日…">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../feed.xml">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../ai-engineer/assets/course.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "1. GitLab CI 核心组件", "description": "仓库事件（push / MR / tag / schedule） → GitLab 读 .gitlab-ci.yml → 按 rules 选出要跑的 Job → 派给空闲 Runner → Runner 用执行器跑 script → 回传日…", "author": {"@type": "Person", "name": "juliepy", "url": "https://github.com/juliepy/AI-Engineer-from-scrach"}, "mainEntityOfPage": "https://northadb.github.io/ai-engineer/cicd/03-gitlab-ci-01.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../index.html">首页</a><span>/</span><a href="../../learn.html">课件</a><span>/</span><a href="../../ai-engineer/index.html">AI Agent 面试宝典</a><span>/</span><a href="../../ai-engineer/cicd/index.html">CI/CD 面试突击</a></div>
+          <h1>1. GitLab CI 核心组件</h1>
+          <p class="post-sub">仓库事件（push / MR / tag / schedule） → GitLab 读 .gitlab-ci.yml → 按 rules 选出要跑的 Job → 派给空闲 Runner → Runner 用执行器跑 script → 回传日…</p>
+          <div class="post-meta">
+            <span class="avatar">AI</span>
+            <span>AI Agent 面试宝典</span><span class="sep"></span>
+            <span>CI/CD 面试突击</span><span class="sep"></span>
+            <span>阅读约 2 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<h2 id="_1">三角关系（心里有图）</h2>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>是什么</th>
+<th>谁管</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>.gitlab-ci.yml</code></strong></td>
+<td>流水线配置（声明要跑什么）</td>
+<td>仓库内，跟代码一起评审</td>
+</tr>
+<tr>
+<td><strong>GitLab（协调端）</strong></td>
+<td>收到事件、解析 yml、排队 Job</td>
+<td>GitLab Server</td>
+</tr>
+<tr>
+<td><strong>GitLab Runner</strong></td>
+<td>真正执行 Job 脚本的「工人」</td>
+<td>运维 / 平台组注册</td>
+</tr>
+</tbody>
+</table>
+<pre><code>仓库事件（push / MR / tag / schedule）
+  → GitLab 读 .gitlab-ci.yml
+  → 按 rules 选出要跑的 Job
+  → 派给空闲 Runner
+  → Runner 用执行器跑 script
+  → 回传日志 / artifacts / 成功失败
+</code></pre>
+<hr>
+<h2 id="gitlab-ciyml"><code>.gitlab-ci.yml</code>：代码即流水线</h2>
+<ul>
+<li>放在仓库根目录（或项目设置里指定路径）</li>
+<li><strong>改流水线 = 改代码</strong>，走 MR 评审，可追溯</li>
+<li>面试说法：「我们流水线配置和业务代码同仓管理，变更可审计。」</li>
+</ul>
+<hr>
+<h2 id="runner">Runner 类型</h2>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>含义</th>
+<th>场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>共享 Runner</strong></td>
+<td>多项目共用</td>
+<td>小团队、通用构建</td>
+</tr>
+<tr>
+<td><strong>私有 Runner</strong></td>
+<td>绑定某项目/组</td>
+<td>内网、特殊工具链、安全隔离</td>
+</tr>
+</tbody>
+</table>
+<p>面试追问「为什么要私有 Runner」：</p>
+<ul>
+<li>需要访问内网制品库 / 编译服务器</li>
+<li>需要固定工具链（交叉编译、专用 SDK）</li>
+<li>安全：凭证不出共享池</li>
+</ul>
+<hr>
+<h2 id="runner-docker">Runner 和 Docker 什么区别？</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><strong>Runner</strong></th>
+<th><strong>Docker</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>是什么</td>
+<td>接活的<strong>工人进程</strong>（GitLab Runner）</td>
+<td><strong>怎么跑</strong> Job 的一种方式 / 容器环境</td>
+</tr>
+<tr>
+<td>干什么</td>
+<td>向 GitLab 报到、领 Job、回报日志和结果</td>
+<td>按 <code>image:</code> 起容器，在容器里执行 <code>script</code></td>
+</tr>
+<tr>
+<td>类比</td>
+<td>工厂里的工人</td>
+<td>工人进无尘车间干活（车间 = 容器）</td>
+</tr>
+</tbody>
+</table>
+<p>关系（最常见）：</p>
+<pre><code>GitLab 派 Job
+  → Runner（工人）接到
+  → Runner 用 Docker 执行器起容器（image: xxx）
+  → 容器里跑 pytest / 编译
+  → 容器销毁，Runner 继续接下一个 Job
+</code></pre>
+<ul>
+<li><strong>一台机器</strong>上通常：装一个 Runner + 装 Docker Engine  </li>
+<li>Runner <strong>也可以不用 Docker</strong>（Shell 执行器直接在宿主机跑）——环境易脏，生产少用  </li>
+<li>yml 里的 <code>image:</code> 是 <strong>Docker 镜像</strong>；<code>tags:</code> 是选哪个 <strong>Runner</strong>  </li>
+</ul>
+<p>口述：</p>
+<blockquote>
+<p>「Runner 负责接任务；Docker 负责提供干净的执行环境。我们 Runner 配 Docker 执行器，每个 Job 起一个容器跑脚本。」</p>
+</blockquote>
+<hr>
+<h2 id="docker">执行器（重点：Docker）</h2>
+<table>
+<thead>
+<tr>
+<th>执行器</th>
+<th>特点</th>
+<th>面试怎么说</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Shell</strong></td>
+<td>直接在 Runner 宿主机跑</td>
+<td>简单，但环境易脏、难复现</td>
+</tr>
+<tr>
+<td><strong>Docker</strong></td>
+<td>每个 Job 起一个干净容器</td>
+<td><strong>统一环境、不污染宿主机、易封装工具链</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="docker_1">Docker 执行器优势（大纲必背）</h3>
+<ol>
+<li>干净、统一的构建环境  </li>
+<li>方便封装各类编译工具链  </li>
+<li>不污染宿主机  </li>
+</ol>
+<hr>
+<h2 id="day-1">和 Day 1 名词对齐</h2>
+<table>
+<thead>
+<tr>
+<th>Day 1 名词</th>
+<th>在 GitLab 里</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pipeline</td>
+<td>一次触发产生的整条流水线</td>
+</tr>
+<tr>
+<td>Stage</td>
+<td>yml 里 <code>stages:</code> 定义的阶段</td>
+</tr>
+<tr>
+<td>Job</td>
+<td>yml 里一个命名块（如 <code>mr_smoke:</code>）</td>
+</tr>
+<tr>
+<td>Step</td>
+<td>Job 的 <code>script:</code> 里每一行命令</td>
+</tr>
+<tr>
+<td>Runner / Agent</td>
+<td>GitLab Runner</td>
+</tr>
+<tr>
+<td>Artifact</td>
+<td><code>artifacts:</code> 归档的文件</td>
+</tr>
+<tr>
+<td>Webhook</td>
+<td>仓库事件通知 GitLab 开 Pipeline（GitLab 常内建集成，不必手配）</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="_2">易混</h2>
+<table>
+<thead>
+<tr>
+<th>混淆</th>
+<th>纠正</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Runner = GitLab Server</td>
+<td>Runner 是工人；Server 是调度</td>
+</tr>
+<tr>
+<td>有 yml 就会跑</td>
+<td>还要有可用 Runner + rules 匹配</td>
+</tr>
+<tr>
+<td>Docker 执行器 = 业务要上 K8s</td>
+<td>只是 Job 运行方式，不等于部署平台</td>
+</tr>
+</tbody>
+</table>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags">
+            <span class="chip">CI/CD 面试突击</span>
+            <span class="chip">AI Agent</span>
+            <span class="chip">面试宝典</span>
+          </div>
+          <a class="t-meta" href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/10-CICD/03-gitlab-ci/01-%E6%A0%B8%E5%BF%83%E7%BB%84%E4%BB%B6.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../ai-engineer/cicd/03-gitlab-ci-00.html"><span class="dir">← 上一篇</span><span class="t">0. GitLab 安装与部署（面试够用）</span></a><a class="next" href="../../ai-engineer/cicd/03-gitlab-ci-02.html"><span class="dir">下一篇 →</span><span class="t">2. 必须掌握语法（六个关键字）</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../rag/index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+
+<script src="../../js/main.js" defer></script>
+</body>
+</html>

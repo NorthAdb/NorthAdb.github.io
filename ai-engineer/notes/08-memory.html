@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Agent Memory 系统设计 · AI Agent 面试宝典 — NorthAdb 的博客</title>
+<meta name="description" content="来源：Shawn 视频文稿（Working Memory + 三柱记忆 + 门控巩固）">
+<link rel="canonical" href="https://northadb.github.io/ai-engineer/notes/08-memory.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="AI Agent Memory 系统设计 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta property="og:description" content="来源：Shawn 视频文稿（Working Memory + 三柱记忆 + 门控巩固）">
+<meta property="og:url" content="https://northadb.github.io/ai-engineer/notes/08-memory.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="AI Agent Memory 系统设计 · AI Agent 面试宝典 — NorthAdb 的博客">
+<meta name="twitter:description" content="来源：Shawn 视频文稿（Working Memory + 三柱记忆 + 门控巩固）">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../feed.xml">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../ai-engineer/assets/course.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "AI Agent Memory 系统设计", "description": "来源：Shawn 视频文稿（Working Memory + 三柱记忆 + 门控巩固）", "author": {"@type": "Person", "name": "juliepy", "url": "https://github.com/juliepy/AI-Engineer-from-scrach"}, "mainEntityOfPage": "https://northadb.github.io/ai-engineer/notes/08-memory.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../index.html">首页</a><span>/</span><a href="../../learn.html">课件</a><span>/</span><a href="../../ai-engineer/index.html">AI Agent 面试宝典</a><span>/</span><a href="../../ai-engineer/notes/index.html">学习笔记与思考</a></div>
+          <h1>AI Agent Memory 系统设计</h1>
+          <p class="post-sub">来源：Shawn 视频文稿（Working Memory + 三柱记忆 + 门控巩固）</p>
+          <div class="post-meta">
+            <span class="avatar">AI</span>
+            <span>AI Agent 面试宝典</span><span class="sep"></span>
+            <span>学习笔记与思考</span><span class="sep"></span>
+            <span>阅读约 4 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p>来源：Shawn 视频文稿（Working Memory + 三柱记忆 + 门控巩固）</p>
+</blockquote>
+<hr>
+<h2 id="_1">一、核心结论（先记住这句）</h2>
+<p><strong>现代 Agent Memory = 工作内存（上下文）+ 三类长期记忆（程序 / 语义 / 情节）+ 门控巩固。</strong><br>
+会话本身是短暂的；真正跨会话、省 Token 的能力，来自「按需召回」和「把情节摘要成耐久事实」。</p>
+<hr>
+<h2 id="memory">二、为什么需要 Memory</h2>
+<p>ChatGPT / Claude 能记住「你是谁、上周聊过什么、你的公司是什么」，并不是模型本身有状态，而是背后挂了一套 Memory 系统。</p>
+<p>对 AI 产品 / Agent 来说：</p>
+<ul>
+<li>只靠当前对话历史 → 会话结束就丢光</li>
+<li>全量历史塞进 Prompt → 贵、慢、不准（上下文窗口有上限）</li>
+<li>需要：<strong>选择性注入上下文 + 持久化存储 + 定期压缩成核心事实</strong></li>
+</ul>
+<hr>
+<h2 id="_2">三、整体架构</h2>
+<pre><code>用户 Prompt
+    │
+    ▼
+┌─────────────────────────────────────┐
+│  Working Memory / Context RAM       │
+│  · System Prompt（角色）            │
+│  · Current Chat History（本会话）   │
+│  · User Prompt（本轮问题）          │
+│  · 从三类记忆召回的片段             │
+└─────────────────┬───────────────────┘
+                  │
+                  ▼
+            LLM（Q&amp;A Agent）
+                  │
+                  ▼
+               回复用户
+                  │
+                  ▼
+         写入 Episodic Memory（活动日志）
+                  │
+         Gate（满 N 轮 / N 次活动）
+                  │
+                  ▼
+           Summarizer Agent
+                  │
+                  ▼
+         Steal into Facts → Semantic Memory
+</code></pre>
+<p>会话（AI Agent Session）是 <strong>ephemeral（短暂）</strong> 的：不主动落库，对话结束就没了。<br>
+Working Memory 只是「这一次 LLM 调用能看见的上下文」，不是长期记忆。</p>
+<hr>
+<h2 id="working-memory-context-ram">四、Working Memory（工作内存 / Context RAM）</h2>
+<h3 id="_3">是什么</h3>
+<p>送进 LLM 之前组装好的<strong>当前上下文</strong>，相当于 Agent 的「内存条」。</p>
+<h3 id="_4">基础三件套</h3>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>作用</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>User Prompt</strong></td>
+<td>本轮用户问题</td>
+<td>「今天天气怎么样？」「怎么理解相对论？」</td>
+</tr>
+<tr>
+<td><strong>Chat History</strong></td>
+<td>本会话已发生的对话</td>
+<td>电商客服这一通会话里的前后文</td>
+</tr>
+<tr>
+<td><strong>System Prompt</strong></td>
+<td>角色 / 行为约束</td>
+<td>「你是 Elon Musk，用他的口吻回答」</td>
+</tr>
+</tbody>
+</table>
+<p>没有额外记忆时，Agent 只知道：系统角色 + 本会话历史 + 当前问题。<br>
+它不知道：产品库存、历史订单、客户偏好、过去投诉——这些都不在当前会话里。</p>
+<h3 id="_5">局限</h3>
+<ul>
+<li>会话级：跨会话不保留</li>
+<li>容量有限：不能把公司十年文档全塞进去</li>
+<li>需要「三柱记忆」把更丰富、更省 Token 的信息注入 Working Memory</li>
+</ul>
+<hr>
+<h2 id="working-memory">五、三柱记忆（补全 Working Memory）</h2>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>存什么</th>
+<th>存储形态</th>
+<th>注入方式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Procedural Memory</strong></td>
+<td>怎么做、怎么表现</td>
+<td>文件（如 <code>skill.md</code>）</td>
+<td>作为技能 / 习惯读入上下文</td>
+</tr>
+<tr>
+<td><strong>Semantic Memory</strong></td>
+<td>耐久事实、画像、品牌</td>
+<td>向量库</td>
+<td>RAG Top-K 召回</td>
+</tr>
+<tr>
+<td><strong>Episodic Memory</strong></td>
+<td>带时间戳的事件 / 活动日志</td>
+<td>向量库</td>
+<td>RAG Top-K 召回</td>
+</tr>
+</tbody>
+</table>
+<h3 id="1-procedural-memory">1. Procedural Memory（程序记忆）</h3>
+<p><strong>本质</strong>：教 Agent「遇到某种情况该怎么做」——习惯 / 流程 / Skill，不是「记得某件事」。</p>
+<ul>
+<li>例：客户很生气 → 礼貌回应并道歉</li>
+<li>类比：教员工 / 小孩的行为规范</li>
+<li>落地：Markdown 技能文件（<code>skill.md</code>）等，写入 Working Memory</li>
+</ul>
+<h3 id="2-semantic-memory">2. Semantic Memory（语义记忆）</h3>
+<p><strong>本质</strong>：相对稳定、可复用的<strong>耐久事实</strong>。</p>
+<p>存什么：</p>
+<ul>
+<li>公司 / 产品是什么、卖什么、品牌怎么对外</li>
+<li>用户画像（常联系的客户是谁、偏好是什么）</li>
+<li>不常变的业务事实</li>
+</ul>
+<p>怎么用：</p>
+<ul>
+<li>存向量库 → <strong>RAG（Retrieval Augmented Generation）</strong></li>
+<li>Top-K 相似度检索，只取最相关片段注入 Working Memory</li>
+<li>为什么必须「选择性拉取」：十年公司资料巨大，全塞进 LLM 既贵又不可行；上下文过大还会变慢、变糊</li>
+</ul>
+<blockquote>
+<p>基础模型不知道你的小公司是谁时，必须自己把 durable facts 存库，再靠 RAG 按需取。</p>
+</blockquote>
+<h3 id="3-episodic-memory">3. Episodic Memory（情节记忆）</h3>
+<p><strong>本质</strong>：带时间线的<strong>事件 / 活动记录</strong>，不是静态事实。</p>
+<p>存什么：</p>
+<ul>
+<li>谁在哪天买了什么、何时发货、上次投诉是什么时候</li>
+<li>本会话结束后落库的 chat history / 活动日志</li>
+</ul>
+<p>和 Semantic 的共同点：都走向量库 + RAG Top-K。<br>
+和 Semantic 的区别：Episodic 是「发生过什么」（dated events），Semantic 是「长期成立的事实」。</p>
+<p>写入路径：Agent 回复后 → 把消息 / 活动写回 Episodic → 日志持续增长。</p>
+<hr>
+<h2 id="episodic-semanticsteal-into-facts">六、门控巩固：Episodic → Semantic（Steal into Facts）</h2>
+<h3 id="_6">问题</h3>
+<p>若每次都从巨大的 Episodic 里搜「关于你 / 你公司的一切」：</p>
+<ul>
+<li>库太大、贵、慢</li>
+<li>ChatGPT / Claude 的「可编辑 Memory」往往不长，却会随对话更新——靠的是<strong>摘要后的耐久事实</strong>，不是全量情节日志</li>
+</ul>
+<h3 id="summarizer-gate">解法：Summarizer + Gate</h3>
+<pre><code>Episodic（活动日志）
+        │
+        │  不满阈值：不巩固（避免双写、浪费）
+        ▼
+   Gate（门控）
+   例：每 20 轮对话 / 每 100 次活动
+        │
+        ▼
+  Summarizer Agent
+        │
+        ▼
+  Steal into Facts
+        │
+        ▼
+  Semantic Memory（压缩后的核心事实）
+</code></pre>
+<p>要点：</p>
+<ol>
+<li><strong>不要</strong>每条新活动都立刻写进 Semantic（否则等于存两遍，失去「耐久事实」的意义）</li>
+<li>达到一定聊天 / 活动次数后再巩固</li>
+<li>Summarizer 把情节压缩成「以后必须知道的事实」写入 Semantic</li>
+<li>效果：省 Token、更快、跨会话仍记得「你在做什么公司 / 是否 pivot」</li>
+</ol>
+<hr>
+<h2 id="token">七、Token 效率为什么成立</h2>
+<table>
+<thead>
+<tr>
+<th>机制</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RAG Top-K</td>
+<td>只取相关片段，不全量灌上下文</td>
+</tr>
+<tr>
+<td>Semantic 耐久事实</td>
+<td>常用画像 / 业务事实短而稳，不必每次扫全量情节</td>
+</tr>
+<tr>
+<td>Gate + Summarizer</td>
+<td>控制巩固频率，避免重复存储与噪声膨胀</td>
+</tr>
+<tr>
+<td>Procedural 技能文件</td>
+<td>行为规范外置，不靠海量对话「学出来」</td>
+</tr>
+</tbody>
+</table>
+<p>一句话：<strong>记全量情节，用摘要事实；按需召回，门控写入。</strong></p>
+<hr>
+<h2 id="_7">八、电商客服例子（串起来）</h2>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>System Prompt</td>
+<td>「你是本站客服 Bot」</td>
+</tr>
+<tr>
+<td>Chat History</td>
+<td>当前这一通会话</td>
+</tr>
+<tr>
+<td>Procedural</td>
+<td>生气客户 → 道歉、礼貌回复（<code>skill.md</code>）</td>
+</tr>
+<tr>
+<td>Semantic</td>
+<td>产品说明、品牌话术、该客户画像</td>
+</tr>
+<tr>
+<td>Episodic</td>
+<td>历史订单、投诉、过往会话时间线</td>
+</tr>
+<tr>
+<td>巩固</td>
+<td>多轮后摘要：「该客户偏好 / 近期纠纷结论」→ 写入 Semantic</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="_8">九、面试口述版（可直接背）</h2>
+<p>Agent Memory 不是「把历史全塞进 Prompt」，而是一层上下文 + 三类记忆：</p>
+<ol>
+<li><strong>Working Memory</strong>：本轮 System Prompt + 会话历史 + 用户问题，会话结束即丢；</li>
+<li><strong>Procedural</strong>：技能 / 行为规范，文件化（如 skill.md）；</li>
+<li><strong>Semantic</strong>：耐久事实与画像，向量库 + RAG Top-K；</li>
+<li><strong>Episodic</strong>：带时间戳的活动日志，同样向量检索；</li>
+<li><strong>Gate + Summarizer</strong>：情节积累到阈值后，摘要「偷」进语义事实，避免全量扫日志、控制 Token。</li>
+</ol>
+<p>现代产品（ChatGPT Memory 等）本质就是：情节记流水，语义记精华，工作内存只装当前该看见的那一截。</p>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags">
+            <span class="chip">学习笔记与思考</span>
+            <span class="chip">AI Agent</span>
+            <span class="chip">面试宝典</span>
+          </div>
+          <a class="t-meta" href="https://github.com/juliepy/AI-Engineer-from-scrach/blob/main/99-My%20idea/memory/08.memory.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../ai-engineer/notes/05-memory.html"><span class="dir">← 上一篇</span><span class="t">Agent Memory 建议整理</span></a><a class="next" href="../../ai-engineer/notes/10-memory.html"><span class="dir">下一篇 →</span><span class="t">Agent Harness、Loop Engineering 与 LLMOps</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../rag/index.html">RAG</a>
+      <a href="../../about.html">关于</a>
+      <a href="../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+
+<script src="../../js/main.js" defer></script>
+</body>
+</html>
