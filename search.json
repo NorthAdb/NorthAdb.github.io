@@ -1987,5 +1987,3002 @@
     "type": "course",
     "featured": false,
     "keywords": "学习笔记与思考"
+  },
+  {
+    "title": "我的笔记库",
+    "url": "notes/index.html",
+    "category": "笔记库 · Obsidian 在线镜像",
+    "excerpt": "个人 Obsidian 知识库在线镜像：知识领域、项目实践、内容剪藏与岗位情报。",
+    "type": "note",
+    "featured": true,
+    "keywords": "笔记 obsidian vault note wiki 双向链接 剪藏 领域 项目 clippings"
+  },
+  {
+    "title": "知识领域（领域/）",
+    "url": "notes/domains/index.html",
+    "category": "笔记库 · 20 篇",
+    "excerpt": "跨项目的知识沉淀：Agent、RAG、Harness、记忆系统的概念笔记与技术选型，以及各条学习路线。",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
+    "title": "项目笔记（项目/）",
+    "url": "notes/projects/index.html",
+    "category": "笔记库 · 128 篇",
+    "excerpt": "按项目归集的实践笔记：claude-code-best-practice 实践库、learn-claude-code-north 二十讲、AI-Agents-in-Depth 精读与 Javase 学习。",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "内容剪藏（Clippings/）",
+    "url": "notes/clippings/index.html",
+    "category": "笔记库 · 82 篇",
+    "excerpt": "外部内容剪藏与整理：Bilibili、微信公众号、小红书、GitHub、抖音、飞书文档等来源的摘要笔记。",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "JD 情报（JD/）",
+    "url": "notes/jd/index.html",
+    "category": "笔记库 · 29 篇",
+    "excerpt": "2026–2027 实习岗位 JD 整理：各大厂岗位要求原文与提炼出的学习路径。",
+    "type": "note",
+    "featured": false,
+    "keywords": "JD 情报"
+  },
+  {
+    "title": "LLM Wiki（wiki/）",
+    "url": "notes/wiki/index.html",
+    "category": "笔记库 · 44 篇",
+    "excerpt": "Karpathy LLM Wiki 的中文知识库：concepts / entities / sources 三层结构的主题 wiki。",
+    "type": "note",
+    "featured": false,
+    "keywords": "LLM Wiki"
+  },
+  {
+    "title": "PQ-SecTunnel（doc-pqsectunnel/）",
+    "url": "notes/pqsectunnel/index.html",
+    "category": "笔记库 · 18 篇",
+    "excerpt": "PQ-SecTunnel 后量子 VPN 项目：WireGuard 背景研究、协议拆解与答辩文档。",
+    "type": "note",
+    "featured": false,
+    "keywords": "PQ-SecTunnel"
+  },
+  {
+    "title": "Claude 记忆（claude-memory/）",
+    "url": "notes/memory/index.html",
+    "category": "笔记库 · 2 篇",
+    "excerpt": "Claude Code 长期记忆库（autoMemoryDirectory 指向本目录）。",
+    "type": "note",
+    "featured": false,
+    "keywords": "Claude 记忆"
+  },
+  {
+    "title": "日记（日记/）",
+    "url": "notes/diary/index.html",
+    "category": "笔记库 · 1 篇",
+    "excerpt": "每日随记与流水日志。",
+    "type": "note",
+    "featured": false,
+    "keywords": "日记"
+  },
+  {
+    "title": "📖 2026 暑假手账",
+    "url": "notes/domains/2026.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "周期：2026-07-04 ~ 2026-08-07（约 5 周） 主线：AI Agent ｜ Claude Code 工程化 ｜ Java 后端 定位：假期学习总结 + 全库导航（MOC）",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
+    "title": "Agent 上下文压缩机制：六类核心机制与主流 Agent 实现",
+    "url": "notes/domains/agentagent.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "Agent 的上下文压缩（Context Compression / Context Compaction）不是单一算法，而是一套由 Runtime、LLM、Provider 和 External Memory 共同参与的 Context …",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
+    "title": "Agent Skill 注入机制：Progressive Disclosure 与 Zero Resident Skill",
+    "url": "notes/domains/agent-skill-progressive-disclosurezero-resident.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "随着 Agent 中 Skill 数量增加，如何让模型使用合适的能力成为一个核心问题。",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
+    "title": "Agent Skills 与 Tool 的渐进式披露、上下文注入与 KV Cache",
+    "url": "notes/domains/agent-skills-tools-kv-cache.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "本笔记整理本次对话中关于 Skills 加载方式、Tool Schema 延迟加载、Claude Code / Codex 上下文注入、System Prompt 与 API role 的区别，以及它们对上下文与 KV Cache 的影响 …",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
+    "title": "AI Agent 智能体学习路线 2026",
+    "url": "notes/domains/aiagent2026.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "本文综合整理自 Datawhale Agent-Learning-Hub 及相关资源，结合 2026 年 AI Agent 领域最新动态进行了补充和完善。",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
+    "title": "Claude Code：Command 与 Skill 的区别",
+    "url": "notes/domains/claudecode-commandskill.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "结论：在当前版本中，custom slash commands 已并入 skills 系统，二者在形式和调用方式上基本统一；仅在能力范围和历史遗留部分仍有区别。",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
+    "title": "Claude Code 记忆系统与 Agent 记忆架构",
+    "url": "notes/domains/claudecodeagent.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "数据来源：Anthropic 官方文档 + 工程博客 2026-07-06 整理",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
+    "title": "CodeWiki：Google 的 AI 驱动代码文档平台",
+    "url": "notes/domains/codewikigoogleai.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "采集时间：2026-07-07 官方网站：https://codewiki.google/",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
+    "title": "Git 常用命令指南",
+    "url": "notes/domains/git.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "git config --list 查看所有配置 git config user.name 查看用户名 git config user.email 查看邮箱 git config --list --show-origin 查看配置来源（系统…",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
+    "title": "Java 后端 + Agent 开发学习路线 2026",
+    "url": "notes/domains/javaagent2026.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "结合小红书两位博主（蒜了吧、We1L）的经验分享，以及 Vault 现有知识库，整理出这套 Java 后端 + Agent 双修学习路线。",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
+    "title": "MCP协议2.0新版本到底升级了什么？对我们有什么影响？",
+    "url": "notes/domains/mcp2-0.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "抖音视频 · 作者：IT老王（楼兰） 时长：11分32秒 链接：https://v.douyin.com/-b8qvvg6BIE/ 飞书妙记逐字稿：https://www.feishu.cn/minutes/obcnd63un875qkrm…",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
+    "title": "Mem0 v2 → v3：记忆架构与 Hybrid Retrieval",
+    "url": "notes/domains/mem0-v2-v3-architecture.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "本笔记整理本轮对话中对 Mem0 两代 Memory 架构，以及 Semantic / BM25 / Entity / Time 四种检索信号的讨论。",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
+    "title": "MySQL vs PostgreSQL vs SQLite：对比、AI 时代选型与学习曲线",
+    "url": "notes/domains/mysql-vs-postgresql-ai.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "面向想学关系型数据库的开发者。结论可直接看文首摘要。",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
+    "title": "基于 openHiTLS 的 nginx 1.29.6 适配与单端口国密/国际自适应研究文档",
+    "url": "notes/domains/nginx/nginx-adaptation.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "课题：基于 openHiTLS 的 nginx 1.29.6 版本适配与 HTTPS 能力，并实现支持国密/国际协议单端口自适应 本文档为课题前期调研与方案设计的基础材料，持续更新。",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
+    "title": "Nginx 反代部署笔记（联机版）",
+    "url": "notes/domains/nginx/nginx-notes.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "本文记录《政变》联机版在云服务器上使用 Nginx 反向代理的完整配置、原理与排查方法。对应服务器：47.93.119.89（Ubuntu 24.04 + 宝塔面板，nginx 1.20.2，配置目录 /www/server/panel/v…",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
+    "title": "Python vs TypeScript：AI 时代的编程语言之争",
+    "url": "notes/domains/pythonvstypescriptai.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "调研时间：2026-06-07 ~ 2026-07-07 数据来源：Reddit、Hacker News、GitHub、Stack Overflow 2026 调查、The New Stack、KDnuggets、Brookings、Log…",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
+    "title": "RAG（Retrieval-Augmented Generation）学习笔记：从基础检索到知识工程",
+    "url": "notes/domains/rag.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "RAG（Retrieval-Augmented Generation，检索增强生成）的核心思想是：在 LLM 生成回答之前，从外部知识源中检索与问题相关的信息，将这些信息加入当前 Context，再由 LLM 基于增强后的上下文生成答案。 …",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
+    "title": "RAG 与 LLM Wiki：从检索增强到知识编译",
+    "url": "notes/domains/ragllmwiki.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "本笔记基于论文、官方文档、GitHub README 与源码整理。重点不是罗列名词，而是解释：RAG 如何把外部知识送进 LLM，LLM Wiki 如何把外部资料编译成可持续维护的知识层，以及这些系统在真实开源项目中如何落地。",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
+    "title": "Skill 加载模式与 KV Cache 影响",
+    "url": "notes/domains/skillkv-cache.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "现代 Agent 中，Skill 的设计主要涉及两个独立问题：",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
+    "title": "云端 Agent 架构：Harness 放沙箱还是放服务",
+    "url": "notes/domains/agentharness.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "两篇小红书帖子问的其实是同一个问题的两面：把 Agent 从「本地 CLI」搬进「云端 B/S 系统」时，真正难的不是 agent loop，而是有状态的那部分（会话状态、文件系统、沙箱生命周期）；而「harness 放沙箱里还是放服务里」…",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
+    "title": "项目模板",
+    "url": "notes/projects/p1869bc.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "新建项目笔记时复制此文件。",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "AI Agents in Depth（深入理解 AI Agent）· 整理版",
+    "url": "notes/projects/ai-agents-in-depth-md/ai-agents-in-depth-md.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "来源：MinerU 转换的《AI-Agents-in-Depth-zh-CN》全书（第 1 章 ~ 第 10 章 + 后记）。 每章为独立子文件夹，内含该章 Markdown 文档；文中图片托管于 Gitee 图床。",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "后记 回到 Agent = LLM + 上下文 + 工具",
+    "url": "notes/projects/ai-agents-in-depth-md/agentllm/agentllm.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "本书开篇提出了一个公式：Agent = LLM + 上下文 + 工具。全书十章，都在这三个词里展开。",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "第一次迭代 - LLM 看到上述轨迹, 生成响应",
+    "url": "notes/projects/ai-agents-in-depth-md/01aiagent/01aiagent.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "如果你用 Cursor 写过代码，看它搜索代码库、编辑多个文件、运行测试直到通过；用 Deep Research 调研过一个课题，看它反复搜索、阅读，总结出一份完整报告；用 Manus 操控浏览器帮你完成在线任务；让豆包手机助手帮你在手机上…",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "— Tool definitions —",
+    "url": "notes/projects/ai-agents-in-depth-md/02/02.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "第一章把上下文比作 Agent 的“眼睛”——Agent 只能基于它看到的信息做决策。上下文的设计和管理称为上下文工程（Context Engineering）。所谓上下文，就是每次你和 AI 对话时，AI 实际“看到”的全部信息。它不仅包…",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "=> 2",
+    "url": "notes/projects/ai-agents-in-depth-md/03/03.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "上一章解决的是单次交互的上下文管理。这一章要处理一个更难的问题：如何让 Agent 在对话结束后仍然记住用户、记住知识。",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "第04章 工具",
+    "url": "notes/projects/ai-agents-in-depth-md/04/04.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "在科幻电影《Her》中，AI 助手 Samantha 能主动整理邮件、识别出情感复杂的信件并提议润色回复，能代表主角处理出版事宜，还能在不同的沟通渠道间无缝切换。她的智能之所以动人，是因为她拥有强大的工具——连接语言“大脑”与真实数字世界的…",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "第 5 章 Coding Agent 与通用 Agent",
+    "url": "notes/projects/ai-agents-in-depth-md/05codingagentagent/05codingagentagent.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "前面的章节分别深入讨论了上下文工程（第二、三章）和工具设计（第四章）。本章将这些构件组合在一起，回答一个核心问题：一个能处理任意任务的通用 Agent，它的架构长什么样？",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "第06章 交互：观察与动作空间的扩展",
+    "url": "notes/projects/ai-agents-in-depth-md/06/06.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "第一章提出过一个论断：在底层模型固定时，提升 Agent 任务表现最主要的系统工程手段，往往是重新定义或扩展观察空间与动作空间。在前五章的内容中，Agent 与世界的交互是轮流的。用户说完一句，Agent 想一段、调用几个工具，再回一句；在…",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "以下代码块仅用于说明受保护作用域",
+    "url": "notes/projects/ai-agents-in-depth-md/07agent/07agent.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "前六章已经展开了单 Agent 的构建：上下文、知识、工具、代码能力以及观察与动作空间。然而，构建完成不等于构建正确；只有能够稳定测量结果，后续的模型训练和系统进化才有可靠方向。",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "第08章 模型后训练",
+    "url": "notes/projects/ai-agents-in-depth-md/08/08.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "本书的核心公式是 Agent = LLM + 上下文 + 工具。本章聚焦于优化 LLM 这个“大脑”——先用 Mid-training补齐目标领域的知识与基础能力，再用 SFT/RL 等后训练方法塑造模型利用上下文和工具的行为。第七章结尾指…",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "第09章 Agent 的持续进化",
+    "url": "notes/projects/ai-agents-in-depth-md/09agent/09agent.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "今天的 Agent 面临一个鲜明的能力悖论：它可以零样本解决从未见过的复杂任务，却可能在处理了一万次相似任务之后，第二天仍然犯下第一天的错误。能否自主从经验中学习，正在成为 Agent 从“会完成任务”走向“能够可靠工作”的关键能力，也是下…",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "第10章 多 Agent 协作",
+    "url": "notes/projects/ai-agents-in-depth-md/10agent/10agent.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "前九章围绕单个 Agent 展开：先构建上下文、知识、工具与交互能力，再通过评估、后训练和持续进化让它长期变好。本章把问题从“如何构建和改进一个 Agent”推进到“如何组织多个 Agent”——让它们通过分工、通信与相互验证完成单个 Ag…",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "claude-code-best-practice 实践指南",
+    "url": "notes/projects/claude-code-best-practice/claude-code-best-practice.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "基于 shanraisshan/claude-code-best-practicehttps://github.com/shanraisshan/claude-code-best-practice \"from vibe coding to …",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "CLAUDE.md 使用指南 — 文章总结",
+    "url": "notes/projects/claude-code-best-practice/claude-md.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "原文：《面试官皱眉：\"Claude Code 你用了半年，CLAUDE.md 平时怎么维护？\"》 作者：小林",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "Agent团队提示词（中文翻译）",
+    "url": "notes/projects/claude-code-best-practice/doc/agent-teams/agent.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译自 agent-teams/agent-teams-prompt.md",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "时间Agent实现（中文翻译）",
+    "url": "notes/projects/claude-code-best-practice/doc/agent-teams/agent-2.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译自 agent-teams/.claude/agents/time-agent.md",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "时间SVG Skill（中文翻译）",
+    "url": "notes/projects/claude-code-best-practice/doc/agent-teams/svg-skill.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译自 agent-teams/.claude/skills/time-svg-creator/SKILL.md",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "时间 SVG 创建器 — 参考",
+    "url": "notes/projects/claude-code-best-practice/doc/agent-teams/svg.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "- Time: {{TIME}} - Timezone: {{TIMEZONE}} - Date: {{DATE}} - Full: {{FORMATTED}} - SVG: agent-teams/output/dubai-time.sv…",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "时间 SVG 创建器 — 示例",
+    "url": "notes/projects/claude-code-best-practice/doc/agent-teams/svg-2.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "time: 14:30:45 timezone: GST UTC+4 formatted: 2026-03-12 14:30:45 +04",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "时间编排命令（中文翻译）",
+    "url": "notes/projects/claude-code-best-practice/doc/agent-teams/p1c0d79.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译自 agent-teams/.claude/commands/time-orchestrator.md",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "时间获取Skill（中文翻译）",
+    "url": "notes/projects/claude-code-best-practice/doc/agent-teams/skill.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译自 agent-teams/.claude/skills/time-fetcher/SKILL.md",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "CLAUDE.md（中文翻译注释版）",
+    "url": "notes/projects/claude-code-best-practice/doc/claude.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译自 CLAUDE.md",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "ClaudeCode 的 Skill 注入上下文分析",
+    "url": "notes/projects/claude-code-best-practice/doc/collected/claude-code-skill-injection.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "来源：小黑盒 - ClaudeCode的skill注入上下文分析https://www.xiaoheihe.cn/app/bbs/link/1de3720946d0 作者：锝嘚得（Lv.6） 日期：3天前（2026-06-18 左右） 收藏…",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "Fable 5 系统提示词工程要点梳理",
+    "url": "notes/projects/claude-code-best-practice/doc/collected/fable5-system-prompt-analysis.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "来源：公众号\"小林coding\" 原文：面试官皱眉：\"你看过 Claude Fable 5 系统提示词吗？\"https://mp.weixin.qq.com/s/QAhMamZY0m4gSyIzxKfVEg 泄露仓库：https://git…",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "跨模型（Claude Code + Codex）工作流（中文翻译）",
+    "url": "notes/projects/claude-code-best-practice/doc/development-workflows/cross-model-workflow/p2bc9b4.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译自 development-workflows/cross-model-workflow/cross-model-workflow.md../../development-workflows/cross-model-workflow…",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "UX 设计师 Agent（中文翻译）",
+    "url": "notes/projects/claude-code-best-practice/doc/development-workflows/rpi/agents/uxagent.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译自 development-workflows/rpi/.claude/agents/ux-designer.md../../../development-workflows/rpi/.claude/agents/ux-design…",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "产品经理 Agent（中文翻译）",
+    "url": "notes/projects/claude-code-best-practice/doc/development-workflows/rpi/agents/agent.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译自 development-workflows/rpi/.claude/agents/product-manager.md../../../development-workflows/rpi/.claude/agents/produ…",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "代码审查 Agent（中文翻译）",
+    "url": "notes/projects/claude-code-best-practice/doc/development-workflows/rpi/agents/agent-2.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译自 development-workflows/rpi/.claude/agents/code-reviewer.md../../../development-workflows/rpi/.claude/agents/code-re…",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "宪法验证器Agent（中文翻译）",
+    "url": "notes/projects/claude-code-best-practice/doc/development-workflows/rpi/agents/agent-3.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译自 development-workflows/rpi/.claude/agents/constitutional-validator.mdhttps://github.com/NorthAdb/claude-code-best-p…",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "技术CTO顾问Agent（中文翻译）",
+    "url": "notes/projects/claude-code-best-practice/doc/development-workflows/rpi/agents/ctoagent.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译自 development-workflows/rpi/.claude/agents/technical-cto-advisor.mdhttps://github.com/NorthAdb/claude-code-best-prac…",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "文档分析师-写手 Agent（中文翻译）",
+    "url": "notes/projects/claude-code-best-practice/doc/development-workflows/rpi/agents/agent-4.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译自 development-workflows/rpi/.claude/agents/documentation-analyst-writer.md../../../development-workflows/rpi/.claude…",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "需求解析器Agent（中文翻译）",
+    "url": "notes/projects/claude-code-best-practice/doc/development-workflows/rpi/agents/agent-5.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译自 development-workflows/rpi/.claude/agents/requirement-parser.mdhttps://github.com/NorthAdb/claude-code-best-practic…",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "高级软件工程师 Agent（中文翻译）",
+    "url": "notes/projects/claude-code-best-practice/doc/development-workflows/rpi/agents/agent-6.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译自 development-workflows/rpi/.claude/agents/senior-software-engineer.md../../../development-workflows/rpi/.claude/age…",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "实现命令（中文翻译）",
+    "url": "notes/projects/claude-code-best-practice/doc/development-workflows/rpi/commands/p84b6cb.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译自 development-workflows/rpi/.claude/commands/rpi/implement.mdhttps://github.com/NorthAdb/claude-code-best-practice/b…",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "研究命令（中文翻译）",
+    "url": "notes/projects/claude-code-best-practice/doc/development-workflows/rpi/commands/pad97ce.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译自 development-workflows/rpi/.claude/commands/rpi/research.mdhttps://github.com/NorthAdb/claude-code-best-practice/bl…",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "规划命令（中文翻译）",
+    "url": "notes/projects/claude-code-best-practice/doc/development-workflows/rpi/commands/pf3c5cb.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译自 development-workflows/rpi/.claude/commands/rpi/plan.mdhttps://github.com/NorthAdb/claude-code-best-practice/blob/m…",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "RPI 工作流（中文翻译）",
+    "url": "notes/projects/claude-code-best-practice/doc/development-workflows/rpi/rpi.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译自 development-workflows/rpi/rpi-workflow.md../../development-workflows/rpi/rpi-workflow.md",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "Subagent 实现",
+    "url": "notes/projects/claude-code-best-practice/doc/implementation/01-subagent.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译整理自 implementation/claude-subagents-implementation.md",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "Command 实现",
+    "url": "notes/projects/claude-code-best-practice/doc/implementation/02-command.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译整理自 implementation/claude-commands-implementation.md",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "Skill 实现",
+    "url": "notes/projects/claude-code-best-practice/doc/implementation/03-skill.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译整理自 implementation/claude-skills-implementation.md",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "Agent Teams 实现",
+    "url": "notes/projects/claude-code-best-practice/doc/implementation/04-agent-teams.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译整理自 implementation/claude-agent-teams-implementation.md",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "Goal 模式实现",
+    "url": "notes/projects/claude-code-best-practice/doc/implementation/05-goal.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译整理自 implementation/claude-goal-implementation.md",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "定时任务实现",
+    "url": "notes/projects/claude-code-best-practice/doc/implementation/06.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译整理自 implementation/claude-scheduled-tasks-implementation.md",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "Claude Code LSP 支持：LLM 理解代码的质变",
+    "url": "notes/projects/claude-code-best-practice/doc/learn/claudecodelspllm.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "1. 理解 LSP（Language Server Protocol）对 LLM 写代码意味着什么，为什么不是\"又多了一个功能\" 2. 知道 Claude Code 接入 LSP 前后，理解代码的方式有什么本质区别 3. 掌握通过 Anth…",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "Claude Code 完全学习指南",
+    "url": "notes/projects/claude-code-best-practice/doc/learning-guide.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "🔗 本指南围绕 claude-code-best-practice 仓库编写，章节顺序与 doc/practice/ 文档编号一致。 学习方式：按章节顺序，边读边打开项目中对应的文件，理论和实际对照着看。",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "编排工作流（中文翻译）",
+    "url": "notes/projects/claude-code-best-practice/doc/orchestration-workflow/pa9db9a.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译自 orchestration-workflow/orchestration-workflow.md",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "Claude Code 概念总览",
+    "url": "notes/projects/claude-code-best-practice/doc/practice/01-concepts.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译自 README.md 的 CONCEPTS 表格 学习顺序：第 1 篇",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "子代理（Subagents）最佳实践",
+    "url": "notes/projects/claude-code-best-practice/doc/practice/02-subagents.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译整理自 best-practice/claude-subagents.md 学习顺序：第 2 篇 官方文档：Create custom subagentshttps://code.claude.com/docs/en/sub-age…",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "命令（Commands）最佳实践",
+    "url": "notes/projects/claude-code-best-practice/doc/practice/03-commands.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译整理自 best-practice/claude-commands.md 学习顺序：第 3 篇 官方文档：Slash Commandshttps://code.claude.com/docs/en/slash-commands",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "技能（Skills）最佳实践",
+    "url": "notes/projects/claude-code-best-practice/doc/practice/04-skills.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译整理自 best-practice/claude-skills.md 学习顺序：第 4 篇 官方文档：Skillshttps://code.claude.com/docs/en/skills",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "设置（Settings）最佳实践",
+    "url": "notes/projects/claude-code-best-practice/doc/practice/05-settings.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译整理自 best-practice/claude-settings.md 学习顺序：第 5 篇 官方文档：Settingshttps://code.claude.com/docs/en/settings",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "MCP 服务器最佳实践",
+    "url": "notes/projects/claude-code-best-practice/doc/practice/06-mcp-mcp.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译整理自 best-practice/claude-mcp.md 学习顺序：第 6 篇 官方文档：MCP Servershttps://code.claude.com/docs/en/mcp",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "记忆系统（Memory）最佳实践",
+    "url": "notes/projects/claude-code-best-practice/doc/practice/07-memory.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译整理自 best-practice/claude-memory.md 学习顺序：第 7 篇 官方文档：Memoryhttps://code.claude.com/docs/en/memory",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "CLI 启动参数最佳实践",
+    "url": "notes/projects/claude-code-best-practice/doc/practice/08-cli-cli-startup-flags.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译整理自 best-practice/claude-cli-startup-flags.md 学习顺序：第 8 篇 官方文档：CLI Referencehttps://code.claude.com/docs/en/cli-refer…",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "能力强化（Power-ups）最佳实践",
+    "url": "notes/projects/claude-code-best-practice/doc/practice/09-power-ups.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译整理自 best-practice/claude-power-ups.md 学习顺序：第 9 篇",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "Claude Code 学习路径",
+    "url": "notes/projects/claude-code-best-practice/doc/practice/10.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "从入门到精通的学习路线图 学习顺序：第 10 篇（最终篇）",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "Worktree（工作树）最佳实践",
+    "url": "notes/projects/claude-code-best-practice/doc/practice/11-worktree.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "翻译整理自 https://code.claude.com/docs/zh-CN/worktrees 学习顺序：第 11 篇 官方文档：Worktrees - 并行会话https://code.claude.com/docs/zh-CN/w…",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "MCP 与 Skill：机制、安装、调用方式全面对比",
+    "url": "notes/projects/claude-code-best-practice/doc/practice/mcpskill.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "两者都是\"扩展 Claude 能力\"的机制，容易让人觉得功能重合，但解决的是完全不同层面的问题：",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "📚 学习进度清单",
+    "url": "notes/projects/claude-code-best-practice/doc/practice/todo.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "学完一章划掉一章 ✓",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "Agent SDK vs CLI 系统提示对比（中文翻译）",
+    "url": "notes/projects/claude-code-best-practice/doc/reports/agent-sdk-vs-cli.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译自 reports/claude-agent-sdk-vs-cli-system-prompts.md../reports/claude-agent-sdk-vs-cli-system-prompts.md",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "Agent vs Command vs Skill — 何时用什么",
+    "url": "notes/projects/claude-code-best-practice/doc/reports/agent-vs-command-vs-skill.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "Claude Code 三种扩展机制（子代理、命令、技能）的深度对比。",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "LLM日常退化问题（中文翻译）",
+    "url": "notes/projects/claude-code-best-practice/doc/reports/llm.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译自 reports/llm-day-to-day-degradation.md../reports/llm-day-to-day-degradation.md",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "Spinner动词与提示（中文翻译）",
+    "url": "notes/projects/claude-code-best-practice/doc/reports/spinner.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译自 reports/claude-spinner-verbs-and-tips.md../reports/claude-spinner-verbs-and-tips.md",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "Weather工作流重构历程（中文翻译）",
+    "url": "notes/projects/claude-code-best-practice/doc/reports/weather.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译自 reports/learning-journey-weather-reporter-redesign.md../reports/learning-journey-weather-reporter-redesign.md",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "为什么 Harness 如此重要",
+    "url": "notes/projects/claude-code-best-practice/doc/reports/harness.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "为什么 Claude Code 的功能不是\"披着外衣的提示词\"——以及为什么 Harness 才是区分玩具输出和生产级工程工作的关键。",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "使用量与速率限制（中文翻译）",
+    "url": "notes/projects/claude-code-best-practice/doc/reports/p643e11.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译自 reports/claude-usage-and-rate-limits.md../reports/claude-usage-and-rate-limits.md",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "全局 vs 项目设置对比（中文翻译）",
+    "url": "notes/projects/claude-code-best-practice/doc/reports/vs.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译自 reports/claude-global-vs-project-settings.md../reports/claude-global-vs-project-settings.md",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "大型Monorepo的Skill策略（中文翻译）",
+    "url": "notes/projects/claude-code-best-practice/doc/reports/monoreposkill.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译自 reports/claude-skills-for-larger-mono-repos.md../reports/claude-skills-for-larger-mono-repos.md",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "子代理记忆系统（中文翻译）",
+    "url": "notes/projects/claude-code-best-practice/doc/reports/pc79fcf.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译自 reports/claude-agent-memory.md../reports/claude-agent-memory.md",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "浏览器自动化 MCP 对比（中文翻译）",
+    "url": "notes/projects/claude-code-best-practice/doc/reports/mcp.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译自 reports/claude-in-chrome-v-chrome-devtools-mcp.md../reports/claude-in-chrome-v-chrome-devtools-mcp.md",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "高级工具使用模式（中文翻译）",
+    "url": "notes/projects/claude-code-best-practice/doc/reports/p51f0d2.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译自 reports/claude-advanced-tool-use.md../reports/claude-advanced-tool-use.md",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "Markdown文档规范（中文翻译）",
+    "url": "notes/projects/claude-code-best-practice/doc/rules/markdown.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译自 .claude/rules/markdown-docs.md",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "演示文稿规范（中文翻译）",
+    "url": "notes/projects/claude-code-best-practice/doc/rules/p3fd482.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译自 .claude/rules/presentation.md",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "Skills 全览",
+    "url": "notes/projects/claude-code-best-practice/doc/skills-inventory.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "本仓库所有 Skills、Agents、Commands 的完整梳理。 快捷跳转：项目原生-项目原生-skills · Mattpocock Engineering-工程-engineering · Mattpocock Productiv…",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "使用 Claude Code 的 10 个技巧 — 来自 Claude Code 团队",
+    "url": "notes/projects/claude-code-best-practice/doc/tips/boris10claudecode.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "Boris Cherny（@bchernyhttps://x.com/bcherny），Claude Code 的创建者，于 2026 年 2 月 1 日分享的团队技巧汇总。",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "定制Claude Code的12种方式——来自Boris Cherny（中文翻译）",
+    "url": "notes/projects/claude-code-best-practice/doc/tips/boris12claudecode.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译自 tips/claude-boris-12-tips-12-feb-26.mdhttps://github.com/shanraisshan/claude-code-best-practice/blob/main/tips/cla…",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "我如何使用Claude Code——来自Boris Cherny的13个技巧（中文翻译）",
+    "url": "notes/projects/claude-code-best-practice/doc/tips/boris13claudecode.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译自 tips/claude-boris-13-tips-03-jan-26.mdhttps://github.com/shanraisshan/claude-code-best-practice/blob/main/tips/cla…",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "Claude Code中15个隐藏且未被充分利用的功能——来自Boris Cherny（中文翻译）",
+    "url": "notes/projects/claude-code-best-practice/doc/tips/boris15claudecode.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译自 tips/claude-boris-15-tips-30-mar-26.mdhttps://github.com/shanraisshan/claude-code-best-practice/blob/main/tips/cla…",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "代码审查和测试时计算——来自Boris Cherny的技巧（中文翻译）",
+    "url": "notes/projects/claude-code-best-practice/doc/tips/boris2claudecode-0310.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译自 tips/claude-boris-2-tips-10-mar-26.mdhttps://github.com/shanraisshan/claude-code-best-practice/blob/main/tips/clau…",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "Squash合并与PR大小分布——来自Boris Cherny的技巧（中文翻译）",
+    "url": "notes/projects/claude-code-best-practice/doc/tips/boris2claudecode-0325.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译自 tips/claude-boris-2-tips-25-mar-26.mdhttps://github.com/shanraisshan/claude-code-best-practice/blob/main/tips/clau…",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "从Opus 4.7中获得更多价值的6个技巧——来自Boris Cherny（中文翻译）",
+    "url": "notes/projects/claude-code-best-practice/doc/tips/boris6claudecode.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译自 tips/claude-boris-6-tips-16-apr-26.mdhttps://github.com/shanraisshan/claude-code-best-practice/blob/main/tips/clau…",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "构建Claude Code的经验教训：我们如何使用技能——Thariq（中文翻译）",
+    "url": "notes/projects/claude-code-best-practice/doc/tips/thariqclaudecode-0317.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译自 tips/claude-thariq-tips-17-mar-26.mdhttps://github.com/shanraisshan/claude-code-best-practice/blob/main/tips/claud…",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "使用Claude Code：会话管理与100万上下文——Thariq（中文翻译）",
+    "url": "notes/projects/claude-code-best-practice/doc/tips/thariqclaudecode-0416.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "中文翻译自 tips/claude-thariq-tips-16-apr-26.mdhttps://github.com/shanraisshan/claude-code-best-practice/blob/main/tips/claud…",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "翻译进度与文档缺口分析",
+    "url": "notes/projects/claude-code-best-practice/doc/pb58041.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "本文件追踪 shanraisshan/claude-code-best-practice 项目中英文档的对照关系， 识别已翻译、待更新、待翻译的内容，作为后续翻译和学习的路线图。",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "HelloAgent 项目学习指南",
+    "url": "notes/projects/claude-code-best-practice/helloagent.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "\"HelloAgent\" 是一个项目家族，核心是 Datawhale 社区的《Hello-Agents：从零开始构建 AI Agent》教程（GitHub 60,400+ stars），以及由此衍生出的多语言框架实现。",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "learn-claude-code 实践指南",
+    "url": "notes/projects/claude-code-best-practice/learn-claude-code.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "基于 shareAI-lab/learn-claude-codehttps://github.com/shareAI-lab/learn-claude-code 67.5k ⭐ 从零构建一个 Claude Code 式的 Agent Har…",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "JavaSE 学习清单",
+    "url": "notes/projects/javase/javase.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "共 8 篇笔记，按学习顺序排列。勾选即完成，可同时当做目录使用。",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "新手入门篇",
+    "url": "notes/projects/javase/javase-javasejava.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "注意： 开始学习JavaSE之前建议学习的前置课程《C语言程序设计》《数据结构》《操作系统》《计算机组成原理》这些前置课程对于你接下来学习JavaSE有着非常重要的帮助。",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "多线程与反射",
+    "url": "notes/projects/javase/javase-javase.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "前面我们已经讲解了JavaSE的大部分核心内容，最后一章，我们还将继续学习JavaSE中提供的各种高级特性。这些高级特性对于我们之后的学习，会有着举足轻重的作用。",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "面向对象基础篇",
+    "url": "notes/projects/javase/javase-javase-2.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "我们在前面已经学习了面向过程编程，也可以自行编写出简单的程序了。我们接着就需要认识 面向对象程序设计（Object Oriented Programming）它是我们在Java语言中要学习的重要内容，面向对象也是高级语言的一大重要特性。",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "面向过程篇",
+    "url": "notes/projects/javase/javase-javase-3.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "前面我们已经认识了Java语言的相关特性，并且已经成功配置好了开发环境，从这节课开始，我们就可以正式进入到Java语言的学习当中了。Java语言是一门面向对象的语言，但是在面向对象之前，我们还得先学会如何面向过程编程。",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "泛型程序设计",
+    "url": "notes/projects/javase/javase-javase-4.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "在前面我们学习了最重要的类和对象，了解了面向对象编程的思想，注意，非常重要，面向对象是必须要深入理解和掌握的内容，不能草草结束。在本章节，我们还会继续深入了解，从泛型开始，再到数据结构，最后再开始我们的集合类学习，循序渐进。",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "GUI程序开发",
+    "url": "notes/projects/javase/javase-javasegui.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "注意：开始学习之前请确保你完成了《Java SE》篇视频教程。",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "集合类与IO",
+    "url": "notes/projects/javase/javase-javaseio.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "前面我们已经把基础介绍完了，从这节课开始，我们就正式进入到集合类的讲解中。",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "面向对象高级篇",
+    "url": "notes/projects/javase/javase-javase-5.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "经过前面的学习，我们已经了解了面向对象编程的大部分基础内容，这一部分，我们将继续探索面向对象编程过程中一些常用的东西。",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "JavaSE 教程 · 入门篇（P1-P34）",
+    "url": "notes/projects/javase/javase-2.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "课程：JavaSE 教程 已完结 IDEA 2025 最新版 4K蓝光画质+杜比音效 版本：基于 Java 25 讲解 UP 主：青空の霞光 总集数：168 集（入门篇 34 集） 视频地址：BV163GGz2E8chttps://www.…",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "JavaSE 入门篇 · 逐节精讲笔记",
+    "url": "notes/projects/javase/javase-3.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "课程：JavaSE 教程 IDEA 2025 4K·杜比音效 · 基于 Java 25 UP 主：青空の霞光 视频地址：BV163GGz2E8chttps://www.bilibili.com/video/BV163GGz2E8c/ 本篇范…",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "s01: The Agent Loop (Agent 循环)",
+    "url": "notes/projects/learn-claude-code-north/docs/zh/s01-the-agent-loop.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "s01 s02 s03 s04 s05 s06 | s07 s08 s09 s10 s11 s12",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "s02: Tool Use (工具使用)",
+    "url": "notes/projects/learn-claude-code-north/docs/zh/s02-tool-use.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "s01 s02 s03 s04 s05 s06 | s07 s08 s09 s10 s11 s12",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "s03: TodoWrite (待办写入)",
+    "url": "notes/projects/learn-claude-code-north/docs/zh/s03-todo-write.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "s01 s02 s03 s04 s05 s06 | s07 s08 s09 s10 s11 s12",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "s04: Subagents (Subagent)",
+    "url": "notes/projects/learn-claude-code-north/docs/zh/s04-subagent.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "s01 s02 s03 s04 s05 s06 | s07 s08 s09 s10 s11 s12",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "s05: Skills (Skill 加载)",
+    "url": "notes/projects/learn-claude-code-north/docs/zh/s05-skill-loading.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "s01 s02 s03 s04 s05 s06 | s07 s08 s09 s10 s11 s12",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "s06: Context Compact (上下文压缩)",
+    "url": "notes/projects/learn-claude-code-north/docs/zh/s06-context-compact.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "s01 s02 s03 s04 s05 s06 | s07 s08 s09 s10 s11 s12",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "s07: Task System (任务系统)",
+    "url": "notes/projects/learn-claude-code-north/docs/zh/s07-task-system.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "s01 s02 s03 s04 s05 s06 | s07 s08 s09 s10 s11 s12",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "s08: Background Tasks (后台任务)",
+    "url": "notes/projects/learn-claude-code-north/docs/zh/s08-background-tasks.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "s01 s02 s03 s04 s05 s06 | s07 s08 s09 s10 s11 s12",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "s09: Agent Teams (Agent 团队)",
+    "url": "notes/projects/learn-claude-code-north/docs/zh/s09-agent-teams.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "s01 s02 s03 s04 s05 s06 | s07 s08 s09 s10 s11 s12",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "s10: Team Protocols (团队协议)",
+    "url": "notes/projects/learn-claude-code-north/docs/zh/s10-team-protocols.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "s01 s02 s03 s04 s05 s06 | s07 s08 s09 s10 s11 s12",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "s11: Autonomous Agents (Autonomous Agent)",
+    "url": "notes/projects/learn-claude-code-north/docs/zh/s11-autonomous-agents.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "s01 s02 s03 s04 s05 s06 | s07 s08 s09 s10 s11 s12",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "s12: Worktree + Task Isolation (Worktree 任务隔离)",
+    "url": "notes/projects/learn-claude-code-north/docs/zh/s12-worktree-task-isolation.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "s01 s02 s03 s04 s05 s06 | s07 s08 s09 s10 s11 s12",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "Learn Claude Code -- 真正的 Agent Harness 工程",
+    "url": "notes/projects/learn-claude-code-north/readme-zh.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "English./README.md | 中文./README-zh.md | 日本語./README-ja.md",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "s01: Agent Loop — 一个循环就够了",
+    "url": "notes/projects/learn-claude-code-north/s01-agent-loop/readme-zh.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "EnglishREADME.md · 中文README.zh.md · 日本語README.ja.md",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "s02: Tool Use — 多加一个工具，只加一行",
+    "url": "notes/projects/learn-claude-code-north/s02-tool-use/readme-zh.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "EnglishREADME.md · 中文README.zh.md · 日本語README.ja.md",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "s03: Permission — 执行前做权限判断",
+    "url": "notes/projects/learn-claude-code-north/s03-permission/readme-zh.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "EnglishREADME.md · 中文README.zh.md · 日本語README.ja.md",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "s04: Hooks — 挂在循环上，不写进循环里",
+    "url": "notes/projects/learn-claude-code-north/s04-hooks/readme-zh.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "EnglishREADME.md · 中文README.zh.md · 日本語README.ja.md",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "s05: TodoWrite — 没有计划的 Agent，做着做着就偏了",
+    "url": "notes/projects/learn-claude-code-north/s05-todo-write/readme-zh.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "EnglishREADME.md · 中文README.zh.md · 日本語README.ja.md",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "s06: Subagent — 给子任务一段独立上下文",
+    "url": "notes/projects/learn-claude-code-north/s06-subagent/readme-zh.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "EnglishREADME.md · 中文README.zh.md · 日本語README.ja.md",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "s07: Skill Loading — 用到时再加载",
+    "url": "notes/projects/learn-claude-code-north/s07-skill-loading/readme-zh.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "EnglishREADME.md · 中文README.zh.md · 日本語README.ja.md",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "s08: Context Compact：上下文总会满，先整理，再总结",
+    "url": "notes/projects/learn-claude-code-north/s08-context-compact/readme-zh.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "EnglishREADME.md · 中文README.zh.md · 日本語README.ja.md",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "s09: Memory — 让重要信息跨会话保留下来",
+    "url": "notes/projects/learn-claude-code-north/s09-memory/readme-zh.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "EnglishREADME.md · 中文README.zh.md · 日本語README.ja.md",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "s10: Task System — 从执行清单到可协调的任务状态",
+    "url": "notes/projects/learn-claude-code-north/s10-task-system/readme-zh.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "EnglishREADME.md · 中文README.zh.md · 日本語README.ja.md",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "s11: Background Tasks — 慢操作放后台",
+    "url": "notes/projects/learn-claude-code-north/s11-background-tasks/readme-zh.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "EnglishREADME.md · 中文README.zh.md · 日本語README.ja.md",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "s12: Cron Scheduler — 按时间启动任务",
+    "url": "notes/projects/learn-claude-code-north/s12-cron-scheduler/readme-zh.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "EnglishREADME.md · 中文README.zh.md · 日本語README.ja.md",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "s13: Agent Teams — 团队运行时与协作协议",
+    "url": "notes/projects/learn-claude-code-north/s13-agent-teams/readme-zh.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "EnglishREADME.md · 中文README.zh.md · 日本語README.ja.md",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "s14: MCP Tools — 发现并调用外部工具",
+    "url": "notes/projects/learn-claude-code-north/s14-mcp-plugin/readme-zh.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "EnglishREADME.md · 中文README.zh.md · 日本語README.ja.md",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "s15: Agent Harness 集成 — 多种机制，一个循环",
+    "url": "notes/projects/learn-claude-code-north/s15-integrated-harness/readme-zh.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "EnglishREADME.md · 中文README.zh.md · 日本語README.ja.md",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "s16: Workflow Runtime — 模型决定单步，脚本决定编排",
+    "url": "notes/projects/learn-claude-code-north/s16-workflow-runtime/readme-zh.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "EnglishREADME.md · 中文README.zh.md · 日本語README.ja.md",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "s17: Goal Loop：模型提出停止，独立判断器决定是否继续",
+    "url": "notes/projects/learn-claude-code-north/s17-goal-loop/readme-zh.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "EnglishREADME.md · 中文README.zh.md · 日本語README.ja.md",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "我的 B站 AI/编程 收藏清单（2026.03–2026.07）",
+    "url": "notes/clippings/bilibili/2026-07-28-bai.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "采集自默认收藏夹（共 2546 个视频），2026-07-28 更新 🆕 本期新增约 60 个视频，以下按合集归类整理",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "别再问 Agent 学习路线了，你的学习顺序从头就是反的",
+    "url": "notes/clippings/bilibili/2026-07-30-agent.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "UP 主：海云日记 | 时长 4:37 发布时间：2026-06-14 | 播放 1.1万 | 收藏 1084 | 点赞 442 互动质量：⭐⭐⭐⭐⭐（高，收藏率 9.5%）",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "Agent 架构中 Skill 和 Tool 到底有啥本质区别？",
+    "url": "notes/clippings/bilibili/2026-07-30-agentskilltool.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "UP 主：Agent开发入门 | 时长 4:05 发布时间：2026-07-30 | 弹幕 87 | 收藏 13 互动质量：⭐⭐⭐⭐⭐（高）",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "10 分钟讲透 AI Agent 8 种主流架构",
+    "url": "notes/clippings/bilibili/2026-07-31-10ai-agent-8.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "UP 主：AI架构师Leo | 时长 10:13 | 发布 2026-07-18 互动：❤️ 65 · ⭐ 123 · 💬 7 · 🪙 23 事实主干：B站 AI 字幕（agent-reach / OpenCLI 提取，242 段逐句时间轴…",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "Agent 系统架构设计：Harness、Loop、Graph 到底怎么选",
+    "url": "notes/clippings/bilibili/2026-07-31-agent-harness-loop-graph.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "UP 主：AI架构师Leo | 时长 16:14 | 发布 2026-07 互动：❤️ 48 · ⭐ 178 · 💬 1 · 🪙 9 事实主干：B站 AI 字幕（agent-reach / OpenCLI 提取，343 段逐句时间轴） 证据…",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "从\"第一性原理\"速通大厂技术岗实习（花绿青ovo）",
+    "url": "notes/clippings/bilibili/2026-07-31-ovo.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "UP 主：花绿青ovo（九本，Java 主语言，TikTok/字节实习中） 时长 39:45 | 事实主干：B站 AI 字幕（agent-reach / OpenCLI，917 段逐句） 证据等级：bilibili-ai-subtitles",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "Claude Code 为什么不会撑爆上下文？",
+    "url": "notes/clippings/bilibili/2026-08-03-claude-code.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "UP 主：唐国梁Tommy | 时长：14:35 互动：播放约 3,222 · 点赞 73 · 收藏 185 · 投币 30 证据说明：已通过 OpenCLI 提取 B站 AI 字幕，共 401 段、约 14:35；同时参考视频简介和 B站…",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "【保姆教程】卡帕西 LLM Wiki 强在哪？手把手教你改造 AI 个人知识库",
+    "url": "notes/clippings/bilibili/2026-08-04-llm-wiki.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "UP 主：啊喵什么都会一点点 | 时长：09:18 互动：播放约 2,542 · 点赞 74 · 收藏 254 · 投币 28 证据说明：本笔记依据 B站 AI 字幕（OpenCLI 提取，228 段）整理。字幕存在语音识别错误，已将 LL…",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "AI Agent 面试复盘：从会用框架到构建可靠系统",
+    "url": "notes/clippings/bilibili/2026-08-20-ai-agent.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "视频：我的 AI Agent 面试复盘https://www.bilibili.com/video/BV1hubZ6WEfU/ UP 主：假如今天可以躺平｜发布：2026-08-20｜时长：36:12 事实主干：B站 AI 字幕（agent…",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "[中配] 我如何使用 AI 进行高效学习",
+    "url": "notes/clippings/bilibili/2026-08-21-ai.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "视频：我如何使用AI进行高效学习https://www.bilibili.com/video/BV1Y7bR6nEBv/ 原标题：How I Use AI to Learn Things UP 主：豚工智能｜发布：2026-08-17｜时长…",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "7 分钟了解 10 种 RAG 策略",
+    "url": "notes/clippings/bilibili/2026-08-23-710rag.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "视频：7 分钟了解 10 种 RAG 策略https://www.bilibili.com/video/BV17J3B6PEGK/ UP 主：Hucci写代码｜发布：2026-07-30｜时长：07:31 事实主干：视频音频离线转写（fas…",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "Agent 后端基础设施：15 个知识点整理",
+    "url": "notes/clippings/bilibili/2026-08-25-agent15.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "视频：agent 15个小知识点（比较基础）https://www.bilibili.com/video/BV11yhN6iE37/ UP 主：假如今天可以躺平｜时长：25:20｜整理日期：2026-08-25 证据说明：视频部分来自 B …",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "Agent 开发对应的系统设计知识",
+    "url": "notes/clippings/bilibili/2026-08-25-agent.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "视频：agent开发对应的系统设计知识https://www.bilibili.com/video/BV1SgMz67ESb/ UP 主：假如今天可以躺平｜时长：40:58｜整理日期：2026-08-25 配套仓库：donnemartin/…",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "我的 B 站收藏夹分类索引（2026-08-25）",
+    "url": "notes/clippings/bilibili/2026-08-25-b.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "这次整理对应你选中的 Probe → Plan → Teach：先 Probe 盘点当前收藏，再 Plan 按学习主题分类，后续可按分类逐步观看、整理成笔记并回写状态。 本索引只整理 vault 中的收藏快照，没有移动、删除或改动 B 站远…",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "三套现行 LLM API 对照详解：Chat Completions · Responses · Anthropic Messages",
+    "url": "notes/clippings/bilibili/2026-09-01-llm-api.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "视频：从 Completions 到 Responses：三代 LLM API 演化实录https://www.bilibili.com/video/BV1ZWgs6FEZ9/ UP 主：是的iamrio｜发布：2026-08-13｜时长：…",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "Matt Pocock Skills 原作者手把手教程（官方主流流程）",
+    "url": "notes/clippings/bilibili/matt-pocock/2026-07-31-matt-pocock-skills.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "UP 主：ChHsich（搬运翻译） | 原作者：Matt Pocock 时长 17:17 | 事实主干：B站 AI 字幕（agent-reach / OpenCLI，302 段逐句） 证据等级：bilibili-ai-subtitles",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "Matt Pocock 实战教程：teach skill——让 AI 像真老师一样教你任何东西",
+    "url": "notes/clippings/bilibili/matt-pocock/2026-07-31-matt-pocock-teach-skillai.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "UP 主：ChHsich（搬运翻译） | 原作者：Matt Pocock 时长 26:24（分 P，字幕重复） | 事实主干：B站 AI 字幕（agent-reach / OpenCLI） 证据等级：bilibili-ai-subtitle…",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "Matt Pocock 实战教程：从原型到 spec-driven 开发",
+    "url": "notes/clippings/bilibili/matt-pocock/2026-07-31-matt-pocock-spec-driven.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "UP 主：ChHsich（搬运翻译） | 原作者：Matt Pocock 时长 ~8 分钟 | 事实主干：B站 AI 字幕（agent-reach / OpenCLI，164 段逐句） 证据等级：bilibili-ai-subtitles",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "Matt Pocock 直播实战：从零搭建一个全新项目（SlopWatch 完整实录）",
+    "url": "notes/clippings/bilibili/matt-pocock/2026-07-31-matt-pocock-slopwatch.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "原作者：Matt Pocock（@mattpocockuk）| 直播 2026-04-18 | 时长 ~1:47 事实主干：YouTube 直播完整字幕（用户提供） 证据等级：youtube-transcript",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "Matt Pocock 直播实战：Wayfinder 从想法到 spec 全流程",
+    "url": "notes/clippings/bilibili/matt-pocock/2026-07-31-matt-pocock-wayfinderspec.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "UP 主：ChHsich（搬运翻译） | 原作者：Matt Pocock 时长 ~1 小时 | 事实主干：B站 AI 字幕（agent-reach / OpenCLI，777 段逐句） 证据等级：bilibili-ai-subtitles",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "Matt Pocock 实战教程：Wayfinder 概念详解与 FAQ",
+    "url": "notes/clippings/bilibili/matt-pocock/2026-08-01-matt-pocock-wayfinderfaq.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "原作者：Matt Pocock | 时长 ~13 分钟 | 事实主干：B站 AI 字幕（agent-reach / OpenCLI，234 段逐句） 证据等级：bilibili-ai-subtitles 🔗 互补视频：2026-07-31-…",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "Matt Pocock：别让你的 Agent 问你 200 个问题 —— grill skill 的 9 个误区",
+    "url": "notes/clippings/bilibili/matt-pocock/2026-08-02-matt-pocock-grill-skill9.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "原作者：Matt Pocock | 时长 24:58 | 事实主干：YouTube 英文字幕（yt-dlp 提取，1228 段） 证据等级：youtube-transcript 主题：Grill Me / Grill with Docs 两…",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "Matt Pocock 实战：用 Claude Code 从零开发一个真实项目（ghost course 全流程）",
+    "url": "notes/clippings/bilibili/matt-pocock/2026-08-05-matt-pocock-claude-code.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "UP 主：ChHsich（搬运翻译） | 原作者：Matt Pocock（Total TypeScript 创始人） 时长 1:31:26 | 事实主干：B站 AI 字幕（agent-reach / OpenCLI，734 段逐句） 证据等…",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "Matt Pocock 科普：大多数人根本没搞懂 Agent 到底是什么",
+    "url": "notes/clippings/bilibili/matt-pocock/2026-08-06-matt-pocock-agent-vs-workflow.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "原作者：Matt Pocock（Total TypeScript / AI Hero） | 时长 16:19 | 事实主干：B站 AI 字幕（agent-reach / OpenCLI，206 段逐句） 证据等级：bilibili-ai-s…",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "Matt Pocock 实战教程：5 条 Prompt 从零搭一个 MCP Server",
+    "url": "notes/clippings/bilibili/matt-pocock/2026-08-17-matt-pocock-5promptmcp-server.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "UP 主：ChHsich（搬运翻译） | 原作者：Matt Pocock 时长：25:40（分 P，英文字幕） | 事实主干：B站 AI 字幕（agent-reach / OpenCLI） 证据等级：bilibili-ai-subtitle…",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "Matt Pocock Skills 仓库全量分类汇总",
+    "url": "notes/clippings/bilibili/matt-pocock/matt-pocock-skills.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "仓库：mattpocock/skillshttps://github.com/mattpocock/skills | 理念：Skills For Real Engineers（真实工程，不是 vibe coding） 规模：21.6 万 s…",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "Matt Pocock 方法论精华：从想法到交付的完整 Agent 工作流",
+    "url": "notes/clippings/bilibili/matt-pocock/matt-pocock.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "本页是五篇 Matt Pocock 系列笔记的汇总精华，整合了他「如何用 AI 从零构建项目」的完整方法论——从探索需求、到设计架构、到交付实现、再到教学传承。",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "Claude.ai 近期聊天记录汇总",
+    "url": "notes/clippings/claude/2026-07-30-claude.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "采集自 Claude.ai Recent 页面，2026-07-31 更新",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "大学四年比课本有用的 GitHub 仓库",
+    "url": "notes/clippings/github/pe2edde/2026-07-03-github.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "来源：小黑盒\"亓孑\"文章推荐 · 2026-07-04 采集 这 5 个仓库解决的是课堂不教、但工作中天天遇到的问题。",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "last30days-skill：用 5 万 Star 的 Skill 学习 AI 新知识",
+    "url": "notes/clippings/github/pe2edde/2026-07-06-last30days-skillskillai.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "来源：微信公众号\"逛逛GitHub\" · 2026-07-06 发布 让 AI agent 帮你扒一遍近 30 天国外各大社交媒体的真实讨论，综合成带引用报告",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "Python-100-Days：从新手到大师",
+    "url": "notes/clippings/github/pe2edde/2026-07-21-python-100-days-python.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "Python - 100天从新手到大师 — 作者：骆昊 jackfrued",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "System Design Primer：系统设计面试指南",
+    "url": "notes/clippings/github/pe2edde/2026-07-21-system-design-primer.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "Learn how to design large-scale systems. Prep for the system design interview.",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "DeepSeek Harness 生态：高星项目与应用场景",
+    "url": "notes/clippings/github/pe2edde/2026-08-03-deepseek-harness.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "deepseek-harness-applicantshttps://github.com/Octo-o-o-o/deepseek-harness-applicants 不是一个 Agent 框架，而是 DeepSeek Harness 内…",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "GitHub 高星项目速览 · 2026 年中",
+    "url": "notes/clippings/github/p25f9c7/2026-07-28-github.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "数据来源：GitHub Trending + GitHub Search（stars10k, created in 2026），2026-07-28 采集。",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "我的 GitHub 加星项目 · 分类汇总",
+    "url": "notes/clippings/github/p25f9c7/2026-07-28-github-2.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "共 64 个项目，2026-07-31 采集自 github.com/NorthAdbhttps://github.com/NorthAdb?tab=stars 研究方向：网络安全，西电研一 🆕 相比上次（07-28）新增 12 个项目，以…",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "Karpathy 深度解析：ChatGPT 这类 LLM 到底是怎么来的",
+    "url": "notes/clippings/youtube/karpathy/2026-08-07-karpathy-llm-chatgpt.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "作者：Andrej Karpathy（OpenAI 创始成员、前特斯拉 AI 总监、Eureka Labs 创始人） | 发布：2025-02-05 | 时长 3:31:23 | 事实主干：YouTube 自动字幕（46875 段，全程覆盖…",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "Agent",
+    "url": "notes/clippings/p72191b/ai-agents-in-depth-zh-cn.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "设计原理与工程实践 李博杰 著",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "小红书热议：AI Agent 开发用什么框架？",
+    "url": "notes/clippings/pae26bb/2026-07-07-aiagent.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "来源：小红书用户\"点点\"发起的讨论帖 · 编辑于 07-01 北京 原帖：ai agent 开发目前用什么框架？基于opencode类似的agent开发skills还是传统langchain体系构建 共 93 条评论 · 采集于 2026-…",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "AI Agent 落地铁三角：Graph、Loop、Harness",
+    "url": "notes/clippings/pae26bb/2026-07-30-ai-agent-graph-loop-harness.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "作者：咔嗒库栗 | 平台：小红书 互动：❤️ 302 · ⭐ 443 · 💬 16",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "28届个人 Java + Agent 学习路线",
+    "url": "notes/clippings/pae26bb/2026-07-31-28javaagent.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "来源：小红书用户「天才美少女卡莎」 这是一份以 Java 后端求职和 Agent 项目落地为目标的个人经验路线。核心策略是：基础快速过一遍 → 尽早确定项目并写简历 → 围绕项目补知识和八股 → 算法与投递并行推进。",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "为什么现在的顶级大模型都在卷 MoE？",
+    "url": "notes/clippings/pae26bb/2026-07-31-moe.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "作者：新物种日记 | 平台：小红书 互动：❤️ 379 · ⭐ 545 · 💬 8",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "果然能找到好工作的计算机生都是狠角色",
+    "url": "notes/clippings/pae26bb/2026-08-03.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "作者：小鱼 这是一篇面向普通本科计算机学生的求职经验分享。作者自述最终拿到腾讯 Offer；以下内容是个人经验，不代表所有公司和岗位的普遍规律。",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "从 Context 到 Graph：Agent 工程的四个层次",
+    "url": "notes/clippings/pae26bb/2026-08-04-contextgraph-agent-qoder.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "这篇图文以 Qoder CLI 和 Qoder Cloud Agents 为例，解释 Agent 工程从一次模型调用走向持续运行、多 Agent 协作时需要解决的四个层次。",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "实战：从零开始构建一个 Coding Agent——Violin",
+    "url": "notes/clippings/pae26bb/2026-08-07-coding-agent-violin.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "来源：得物技术 · 小红书 主题：从底层循环出发，用 Zig、Python 和 Lua 构建一个可运行的 Coding Agent。",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "小黑盒推荐：适合新手学习/练手的 AI 项目",
+    "url": "notes/clippings/p0ba988/ai.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "来源：小黑盒用户\"你蒸芝士\"（Lv.16）· 昨天发布 lz 是大二学生，主学 Java 后端，用 Codex 做了两个 AI 方向的项目",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "Claude Code Skill 机制源码剖析",
+    "url": "notes/clippings/p44a38b/2026-07-21-claude-code-skill.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "来源：公众号「小林coding」2026-07-21 核心主题：Skill 不是普通的提示词，而是一套精密的「上下文懒加载系统」",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "Claude Code 工程化六件套详解",
+    "url": "notes/clippings/p44a38b/2026-07-28-claude-code-coding.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "作者：小林coding 来源：微信公众号 日期：2026-07-28",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "Agent 高频面试题全解析：从 LLM 到 A2A 协议",
+    "url": "notes/clippings/p44a38b/2026-07-30-agent.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "作者：小林面试笔记 | 来源：微信公众号",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "面试官：“大模型参数，温度值、Top-P、Top-K 分别是什么？”—— 采样参数全解析",
+    "url": "notes/clippings/p44a38b/2026-07-31-topp-topk.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "作者：小林面试笔记 | 来源：微信公众号 日期：2026-07-31",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "GraphRAG 与 LightRAG：从传统 RAG 到图增强检索",
+    "url": "notes/clippings/p44a38b/2026-08-04-graphraglightrag.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "原文标题：字节二面，我霸气反问：“别光吹RAG，说说GraphRAG的多跳推理，你们线上跑通了吗” 本笔记以原文为基础重新整理。文中的成本、性能和论文数据属于作者转述，使用前应回到论文或官方文档核验。",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "AI Agent 开发框架全解析：LangChain / LangGraph / LlamaIndex 怎么选",
+    "url": "notes/clippings/p44a38b/2026-08-06-ai-agent-langchain-langgraph-llamaindex.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "作者：小林面试笔记（小林哥） | 来源：微信公众号 | 发布：2026-08-06",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "Codex 工程化五件套详解：AGENTS.md / Skills / Subagents / MCP / Hooks",
+    "url": "notes/clippings/p44a38b/2026-08-07-codex-agents-md-skills-subagents-mcp-hooks-coding.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "作者：小林coding 来源：微信公众号 日期：2026-08-07",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "Graph Engineering：从 Loop 到 Graph 的工程化学习笔记",
+    "url": "notes/clippings/p44a38b/2026-08-09-graph-engineering-datawhale.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "主要文章：腾讯技术工程《Loop Engineering 已死？一文带你了解 Graph Engineering》（作者：lukiexing，2026-07-28） 补充材料：Datawhale 整理的 Codez《Graph Engine…",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "这 7 个 AI 编程提示词，建议直接收藏！",
+    "url": "notes/clippings/p44a38b/2026-08-09-7ai-coding.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "作者：小林coding | 来源：微信公众号 | 发布：2026-08-09",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "Agent 治理：用 Hook 堵住 LLM 的偷懒、越权与失忆",
+    "url": "notes/clippings/p44a38b/2026-08-11-agent-hookllm.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "来源：腾讯技术工程《Agent 治理：用 Hook 堵住 LLM 的偷懒、越权与失忆》（作者：xiangnzhang，2026-08-06） 原文：https://mp.weixin.qq.com/s/ISwjIw5lj7JlcQJV7BO…",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "Claude Code 大代码库实战：模型是地板，harness 才是天花板",
+    "url": "notes/clippings/p44a38b/2026-08-11-claude-codeharness-coding.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "来源：小林coding《面试官皱眉：\"公司项目几百万行代码，Claude Code 怎么扛得住？\"我：\"换 Opus 4.7\"，他叹气：模型是地板，harness 才是天花板》（2026-05-22） 原文：https://mp.weixi…",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "腾讯把 Agent 记忆系统开源了，TencentDB Agent Memory 实测！",
+    "url": "notes/clippings/p44a38b/2026-08-11-tencentdb-agent-memory.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "来源：Datawhale《腾讯把 Agent 记忆系统开源了，TencentDB Agent Memory 实测！》（作者：李秀奇，2026-08-03） 原文：https://mp.weixin.qq.com/s/Rwf1z890uUt1…",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "多 Agent 通信实践全景：从编排到终端直连",
+    "url": "notes/clippings/p44a38b/2026-08-13-agent.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "来源：Datawhale《刚刚，Claude Code 的重大更新来了！》（2026-08-08）+ 网络调研综合 原文：https://mp.weixin.qq.com/s/R4EyCcdcBr50LIV1ZuuHA",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "从胡言乱语到精准改代码：我是如何让 AI 读懂老项目的",
+    "url": "notes/clippings/p44a38b/2026-08-13-ai-ai.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "来源：腾讯技术工程《从胡言乱语到精准改代码：我是如何让 AI 读懂老项目的》（作者：被删，2026-08-07） 原文：https://mp.weixin.qq.com/s/acuC164Eh5bfQJfS8hOXg 副题：将真实债务项目重…",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "DeepSeek Harness 拆解：一套能拼装的 Agent 架构",
+    "url": "notes/clippings/p44a38b/2026-08-14-deepseek-harness-agent.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "来源：腾讯技术工程《DeepSeek Harness 拆解：一套能拼装的 Agent 架构》（作者：chino，腾讯 WXG 微信小店前端开发工程师，2026-08-14） 原文：https://mp.weixin.qq.com/s/DeI…",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "任何错误只犯一次：TencentDB Agent Memory 的团队记忆实践",
+    "url": "notes/clippings/p44a38b/2026-08-18-tencentdb-agent-memory.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "来源：腾讯技术工程《任何错误只犯一次：TencentDB Agent Memory 的团队记忆实践》（2026-08-18） 原文：https://mp.weixin.qq.com/s/-ghlUNmB8HvzX9cFYXlDKg 副题：任…",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "重磅！一文读懂 DeepSeek Harness 插件！",
+    "url": "notes/clippings/p44a38b/2026-08-18-deepseek-harness-datawhale.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "来源：Datawhale《重磅！一文读懂 DeepSeek Harness 插件！》（2026-08-17） 原文：https://mp.weixin.qq.com/s/r4C-RR1CthFooA7iZl6hzg 系列：DeepSeek …",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "Agent的上限，可能不在模型，而在团队知识",
+    "url": "notes/clippings/p44a38b/2026-08-19-agent.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "来源：腾讯程序员《Agent的上限，可能不在模型，而在团队知识》（作者：danteyang，2026-08-17） 原文：https://mp.weixin.qq.com/s/VmH96QDoqrcV0tSUF2YCMQ 副题：团队 AI …",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "Agent 自进化飞轮：评测 → 记忆 → 落地 → 控制",
+    "url": "notes/clippings/p44a38b/2026-08-26-agent.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "自进化不是让 Agent 自己“变聪明”，而是建立一条让执行结果被评测、经验被治理、改进被验证、风险被控制的工程闭环。",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "Anthropic AI Native SDLC：当 AI 承担大部分编码后，如何重构开发流程",
+    "url": "notes/clippings/p44a38b/2026-08-26-anthropic-ai-native-sdlc-playbook.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "重磅！Anthropic 内部 AI Native 经验公开了！https://mp.weixin.qq.com/s/cUiGeUUGyhuhBSn3n2n2w 公众号：Datawhale｜发布时间：2026-08-26 22:22 延伸阅…",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "LangChain4j：Java LLM 应用框架的能力与边界",
+    "url": "notes/clippings/p44a38b/2026-08-27-langchain4j-java-llm.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "面试官笑问：“LangChain4j 是什么？它主要解决了什么问题？”https://mp.weixin.qq.com/s/pCBR1RAwgKMcSp87KqIjWQ 公众号：小林面试笔记｜发布时间：2026-08-27",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "靠这 10 个优化点，把 Multi-Agent 工作流成本降了 50%+",
+    "url": "notes/clippings/p44a38b/2026-08-27-multi-agent-10.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "作者：lemonye | 来源：微信公众号「腾讯技术工程」 | 发布日期：2026-08-21 本文是对原文的结构化整理与实践提炼；图片已通过 PicGo 上传至 Gitee 图床。",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "字节面试官：“RAG 不就是给大模型挂个知识库？”—— RAG 核心知识全解析（附范式演进专题）",
+    "url": "notes/clippings/p44a38b/2026-09-01-rag.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "作者：小林面试笔记（正文）· 小码AI笔记（🧬 范式演进专题） 来源：微信公众号 发布：2026-07-29｜更新：2026-09-01（补充范式演进专题：Vector RAG / BM25 / GraphRAG / SAG / PageI…",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "DeepSeek Harness 背后的「心脏」：Cordis 到底是什么",
+    "url": "notes/clippings/p44a38b/2026-09-04-cordis-deepseek-harness.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "作者：lss233 | 来源：微信公众号「腾讯技术工程」 | 发布：2026-09-04 副题：从 Koishi 到 DeepSeek Harness——Cordis 的前世今生 本笔记基于原文重新整理；框架与论文表述均以原文、官方文档和预…",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "LangChain 和 LlamaIndex 有什么区别？",
+    "url": "notes/clippings/p44a38b/2026-09-04-langchainllamaindex.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "作者：小林面试笔记 | 来源：微信公众号 | 发布时间：2026-09-04 本笔记基于原文重新整理；框架能力会随版本变化，具体 API 和特性应以官方文档为准。",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "从一次 LLM 调用到完整 Harness，Agent 到底经历了什么？",
+    "url": "notes/clippings/p44a38b/2026-09-07-llmharness-agent.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "作者：ivanxxie、davoszhang | 来源：微信公众号「腾讯技术工程」 | 发布：2026-09-07 副题：新一代 LLM 应用层的 Agent Harness——从一次模型调用，到上下文、循环、工具、记忆，再到 Pi / O…",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "Google 多智能体最佳实践：该不该上多智能体，是可以算出来的",
+    "url": "notes/clippings/p44a38b/2026-09-11-google-towards-a-science-of-scaling-agent-systems-datawhale.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "来源：公众号「Datawhale」，《重磅！Google发布多智能体最佳实践！》（2026-09-11），解读 Google Research / DeepMind / MIT 联合论文 Towards a Science of Scali…",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "Codex Harness 架构拆解",
+    "url": "notes/clippings/p44a38b/2026-09-13-codex-harness-coding.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "来源：公众号「小林coding」，《面试官得瑟：“你懂 Codex 的 Harness 架构吗？”，我笑了：“何止懂？我还看过源码”，他愣了....》（发布 2026-09-11，属于《图解 Codex 源码》系列开篇） 一句话总结：模型负…",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "重磅！从 Agent 开发到 Agent 算法，进阶指南来了",
+    "url": "notes/clippings/p44a38b/2026-09-21-agentagent-datawhale.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "来源：公众号「Datawhale」，作者郭子扬（东南大学研究生），2026-09-21。原文为个人观点分享，文中明确说明\"后面慢慢展开\"的部分尚未展开。 一句话总结：开发是把一个 Agent 从 0 快速做到 60，算法是做到 80 并不断…",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "Agent 时代，RAG 怎么选？这份指南一次讲清",
+    "url": "notes/clippings/p44a38b/2026-09-22-agentrag-datawhale.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "来源：公众号「Datawhale」，作者卞一岚，2026-09-22。 一句话总结：RAG 的核心不是 retrieval，而是 context construction——它只是在推理时补上下文的手段之一。选型应该由「信息缺口长什么样」反…",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "给项目建 Agent 知识库，一套完整方法来了",
+    "url": "notes/clippings/p44a38b/2026-09-24-agent-datawhale.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "来源：公众号「Datawhale」，作者王大鹏，2026-09-24。 一句话总结：给项目建 Agent 知识库，难点不在\"资料从哪里找\"，而在\"查到资料以后凭什么判断\"。所以要反过来做——先确定知识库要支持什么判断，再决定整理什么、整理到…",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "大模型幻觉的系统性解析（11分钟）",
+    "url": "notes/clippings/p277a98/2026-07-29.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "创作者：AI大模型学习（16.8万粉丝） 合集：《每天讲透一个知识点》第 147 集 发布时间：2026-06-08 | 播放 2.5万 | 点赞 448 | 评论 3901",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "Claude Code 结构化记忆工作流：AutoMemory 实战详解",
+    "url": "notes/clippings/p277a98/2026-07-31-claude-code-automemory.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "UP 主：李云放而已（@李云放而已） | 时长 14:51 发布时间：2026-07-23 | ❤️ 8812 · ⭐ 209 · 💬 1717 事实主干：Whisper base ASR 转写（14:51 音频，CPU 转写耗时 ~9mi…",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "AI + Obsidian 知识库搭建指南",
+    "url": "notes/clippings/p277a98/aiobsidian.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "两个视频的核心共识：AI 可以参与思考，但不能替你理解；AI 负责整理执行，人负责判断决策。",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "AI精读：DeepSeek把KV Cache压到极限",
+    "url": "notes/clippings/p277a98/deepseek-v4-1-flashkvcache.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "DeepSeek-V4.1-Flash 技术报告（51 页）的核心主张只有一个数字：全局 KV Cache 每 token 只占 890 字节——上一代 V4-Flash 是它的 4 倍，初代 V1 是它的 437 倍。 实现路径 = 架构…",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "2026 开发学习路线及资源汇总",
+    "url": "notes/clippings/pa5cfe6/2026-07-28-2026.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "来源：飞书云文档 修改时间：2026-07-28 创建时间：2026-07-26",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "后端学习路线（大二 TikTok 实习生分享）",
+    "url": "notes/clippings/pa5cfe6/2026-08-05-tiktok.html",
+    "category": "笔记库 · 内容剪藏",
+    "excerpt": "来源：飞书云文档《后端学习路线》，最新修改 07-27，写于 2026.7.10 北京 作者背景：9 本（九校联盟?）Java 主语言，第一段实习同期拿到初创 AI 开发、央企 AI 开发、中厂后端、字节后端等 offer，目前在 TikT…",
+    "type": "note",
+    "featured": false,
+    "keywords": "内容剪藏"
+  },
+  {
+    "title": "MiniMax — 校招/实习 JD",
+    "url": "notes/jd/jd-by-company/minimax.html",
+    "category": "笔记库 · JD 情报",
+    "excerpt": "官网: https://www.minimaxi.com/ → careers 页 → 实习/校招岗位托管在飞书招聘系统",
+    "type": "note",
+    "featured": false,
+    "keywords": "JD 情报"
+  },
+  {
+    "title": "OPPO — 校招/实习 JD",
+    "url": "notes/jd/jd-by-company/oppo.html",
+    "category": "笔记库 · JD 情报",
+    "excerpt": "官网: https://careers.oppo.com/（自动跳转校招板块 /university/oppo/，2027届寻梦实习招聘，238 个职位）",
+    "type": "note",
+    "featured": false,
+    "keywords": "JD 情报"
+  },
+  {
+    "title": "国内中大互联网厂商 校招/实习 JD 合集（按公司分类）",
+    "url": "notes/jd/jd-by-company/jd-by-company.html",
+    "category": "笔记库 · JD 情报",
+    "excerpt": "抓取日期: 2026-08-06 · 来源: 各公司校招官网（+BOSS直聘补充，仅智谱） 用途: 2028 届硕士 · 目标 2027 暑期实习 · 学习方向参考 说明: 每家公司一个文件，JD 为官网原文提取，未做删改过滤。",
+    "type": "note",
+    "featured": false,
+    "keywords": "JD 情报"
+  },
+  {
+    "title": "vivo — 校招/实习 JD",
+    "url": "notes/jd/jd-by-company/vivo.html",
+    "category": "笔记库 · JD 情报",
+    "excerpt": "官网: https://hr.vivo.com/（校招板块 https://hr-campus.vivo.com/，实习生共 152 个职位：暑期实习生 57 + 日常实习生 69） 注: \"27届暑期实习\"为 2027 届转正实习，\"实习…",
+    "type": "note",
+    "featured": false,
+    "keywords": "JD 情报"
+  },
+  {
+    "title": "京东 — 校招/实习 JD",
+    "url": "notes/jd/jd-by-company/p135a69.html",
+    "category": "笔记库 · JD 情报",
+    "excerpt": "官网: https://zhaopin.jd.com/ → 实习生招聘 https://campus.jd.com/ 项目: JD YOUNG-实习生计划（27届在校生优先）",
+    "type": "note",
+    "featured": false,
+    "keywords": "JD 情报"
+  },
+  {
+    "title": "华为 — 校招/实习 JD",
+    "url": "notes/jd/jd-by-company/pd63e7e.html",
+    "category": "笔记库 · JD 情报",
+    "excerpt": "官网: https://career.huawei.com/（校园招聘 → 校招职位列表，实习生共 31 条） 说明: 研发类实习岗为\"岗位意向\"制，同一职位含多个方向，需选定方向后展示对应 JD",
+    "type": "note",
+    "featured": false,
+    "keywords": "JD 情报"
+  },
+  {
+    "title": "哔哩哔哩 — 校招/实习 JD",
+    "url": "notes/jd/jd-by-company/p502d80.html",
+    "category": "笔记库 · JD 情报",
+    "excerpt": "官网: https://jobs.bilibili.com/campus/positions?type=0（校园招聘→实习生招聘，260 个实习岗，含日常/暑期实习）",
+    "type": "note",
+    "featured": false,
+    "keywords": "JD 情报"
+  },
+  {
+    "title": "商汤科技 — 校招/实习 JD",
+    "url": "notes/jd/jd-by-company/p3100b5.html",
+    "category": "笔记库 · JD 情报",
+    "excerpt": "官网: https://hr.sensetime.com/（sensetime.com/cn/careers 404；校招投递页: https://hr-jobs.sensetime.com/edu/，校招实习岗 162 个）",
+    "type": "note",
+    "featured": false,
+    "keywords": "JD 情报"
+  },
+  {
+    "title": "大疆 — 校招/实习 JD",
+    "url": "notes/jd/jd-by-company/p905efd.html",
+    "category": "笔记库 · JD 情报",
+    "excerpt": "官网: https://careers.dji.com/（原 we.dji.com 自动跳转） 说明: 实习板块当前仅 5 个岗位（均非技术岗）；以下为\"2027 拓疆者\"校园招聘中 AI/软件相关技术岗",
+    "type": "note",
+    "featured": false,
+    "keywords": "JD 情报"
+  },
+  {
+    "title": "字节跳动 — 校招/实习 JD",
+    "url": "notes/jd/jd-by-company/p0be084.html",
+    "category": "笔记库 · JD 情报",
+    "excerpt": "官网: https://jobs.bytedance.com/campus/position 类型: ByteIntern（2027届，可转正）+ 日常实习（面向全体在校生）",
+    "type": "note",
+    "featured": false,
+    "keywords": "JD 情报"
+  },
+  {
+    "title": "小米 — 校招/实习 JD",
+    "url": "notes/jd/jd-by-company/p2be446.html",
+    "category": "笔记库 · JD 情报",
+    "excerpt": "官网: https://hr.xiaomi.com/（careers.xiaomi.com DNS 解析失败；岗位详情托管于 xiaomi.jobs.f.mioffice.cn） 板块: 招聘项目\"实习\"（共 539 个实习职位）",
+    "type": "note",
+    "featured": false,
+    "keywords": "JD 情报"
+  },
+  {
+    "title": "小红书 — 校招/实习 JD",
+    "url": "notes/jd/jd-by-company/pae26bb.html",
+    "category": "笔记库 · JD 情报",
+    "excerpt": "官网: https://job.xiaohongshu.com/campus/position（校园招聘→日常实习生，285 个实习岗）",
+    "type": "note",
+    "featured": false,
+    "keywords": "JD 情报"
+  },
+  {
+    "title": "快手 — 校招/实习 JD",
+    "url": "notes/jd/jd-by-company/pf32c0a.html",
+    "category": "笔记库 · JD 情报",
+    "excerpt": "官网: https://zhaopin.kuaishou.com/（实际: https://zhaopin.kuaishou.cn//official/trainee/，1070 个日常实习岗位，含可灵AI专项）",
+    "type": "note",
+    "featured": false,
+    "keywords": "JD 情报"
+  },
+  {
+    "title": "拼多多 — 校招/实习 JD",
+    "url": "notes/jd/jd-by-company/p4bdab8.html",
+    "category": "笔记库 · JD 情报",
+    "excerpt": "官网: https://careers.pinduoduo.com/（实际: careers.pddglobalhr.com/campus） 注意: 实习生板块当前仅 1 个岗位（校园大使），无研发实习岗；以下为应届生招聘板块（2027届，…",
+    "type": "note",
+    "featured": false,
+    "keywords": "JD 情报"
+  },
+  {
+    "title": "携程 — 校招/实习 JD",
+    "url": "notes/jd/jd-by-company/pbcf059.html",
+    "category": "笔记库 · JD 情报",
+    "excerpt": "官网: https://job.ctrip.com//campus（注意：jobs.ctrip.com 域名无法解析；岗位详情页需登录账号才能打开，以下 JD 原文经官方招聘 API 完整提取）",
+    "type": "note",
+    "featured": false,
+    "keywords": "JD 情报"
+  },
+  {
+    "title": "智谱AI — 校招/实习 JD",
+    "url": "notes/jd/jd-by-company/ai.html",
+    "category": "笔记库 · JD 情报",
+    "excerpt": "来源: BOSS直聘（智谱官网 careers 页无职位列表，招聘系统入口均不可访问） 公司: 智谱华章，北京海淀",
+    "type": "note",
+    "featured": false,
+    "keywords": "JD 情报"
+  },
+  {
+    "title": "月之暗面 Moonshot AI（Kimi）— 校招/实习 JD",
+    "url": "notes/jd/jd-by-company/pe562c5.html",
+    "category": "笔记库 · JD 情报",
+    "excerpt": "官网: https://careers.kimi.com/（www.moonshot.cn/careers 为 nginx 默认页；招聘系统为 Moka） 说明: 含校招（全职）与实习岗位",
+    "type": "note",
+    "featured": false,
+    "keywords": "JD 情报"
+  },
+  {
+    "title": "滴滴 — 校招/实习 JD",
+    "url": "notes/jd/jd-by-company/pb552bd.html",
+    "category": "笔记库 · JD 情报",
+    "excerpt": "官网: https://talent.didiglobal.com/（\"实习生招聘\"板块 → Moka ATS: https://app.mokahr.com/apply/didiglobal/6222，实习岗 448 个）",
+    "type": "note",
+    "featured": false,
+    "keywords": "JD 情报"
+  },
+  {
+    "title": "百度 — 校招/实习 JD",
+    "url": "notes/jd/jd-by-company/pa3f4a5.html",
+    "category": "笔记库 · JD 情报",
+    "excerpt": "官网: https://talent.baidu.com/ 类型: 日常实习项目（全年开放，420 条职位；2027 届暑期实习已结束）",
+    "type": "note",
+    "featured": false,
+    "keywords": "JD 情报"
+  },
+  {
+    "title": "科大讯飞 — 校招/实习 JD",
+    "url": "notes/jd/jd-by-company/p7a598c.html",
+    "category": "笔记库 · JD 情报",
+    "excerpt": "官网: https://iflytek.zhiye.com/（jobs.iflytek.com DNS 失败，经主站\"加入讯飞\"找到招聘官网） 说明: 实习生招聘板块（飞YOUNG计划）2027届已结束，当前 0 个实习岗位，故收录校园招聘…",
+    "type": "note",
+    "featured": false,
+    "keywords": "JD 情报"
+  },
+  {
+    "title": "米哈游 — 校招/实习 JD",
+    "url": "notes/jd/jd-by-company/p1e22fe.html",
+    "category": "笔记库 · JD 情报",
+    "excerpt": "官网: https://jobs.mihoyo.com/campus/campus/position（校招含应届生 117 + 实习 139 个职位）",
+    "type": "note",
+    "featured": false,
+    "keywords": "JD 情报"
+  },
+  {
+    "title": "网易 — 校招/实习 JD",
+    "url": "notes/jd/jd-by-company/pf396b4.html",
+    "category": "笔记库 · JD 情报",
+    "excerpt": "官网: https://hr.163.com/ → 实习生招聘 → 日常实习生（397 个实习职位）",
+    "type": "note",
+    "featured": false,
+    "keywords": "JD 情报"
+  },
+  {
+    "title": "美团 — 校招/实习 JD",
+    "url": "notes/jd/jd-by-company/p470c1c.html",
+    "category": "笔记库 · JD 情报",
+    "excerpt": "官网: https://campus.meituan.com/（跳转 https://zhaopin.meituan.com/web/campus，\"日常实习\"筛选 URL: https://zhaopin.meituan.com/web/…",
+    "type": "note",
+    "featured": false,
+    "keywords": "JD 情报"
+  },
+  {
+    "title": "腾讯 — 校招/实习 JD",
+    "url": "notes/jd/jd-by-company/p197780.html",
+    "category": "笔记库 · JD 情报",
+    "excerpt": "官网: https://join.qq.com/post.html（岗位列表页，详情经官方 API 读取） 类型: 日常实习 / 应届实习 / 青云计划-实习生",
+    "type": "note",
+    "featured": false,
+    "keywords": "JD 情报"
+  },
+  {
+    "title": "蚂蚁集团 — 校招/实习 JD",
+    "url": "notes/jd/jd-by-company/pc36ad7.html",
+    "category": "笔记库 · JD 情报",
+    "excerpt": "官网: https://talent.antgroup.com/campus-full-list 类型: 蚂蚁星-Plan A人才计划实习 / 研究型实习生",
+    "type": "note",
+    "featured": false,
+    "keywords": "JD 情报"
+  },
+  {
+    "title": "阿里巴巴 — 校招/实习 JD",
+    "url": "notes/jd/jd-by-company/p49edab.html",
+    "category": "笔记库 · JD 情报",
+    "excerpt": "官网: https://campus-talent.alibaba.com/campus/index（校园招聘，含研究型/日常实习生板块）",
+    "type": "note",
+    "featured": false,
+    "keywords": "JD 情报"
+  },
+  {
+    "title": "JD 原始要求合集（未过滤）",
+    "url": "notes/jd/jd-requirements-raw.html",
+    "category": "笔记库 · JD 情报",
+    "excerpt": "抓取日期: 2026-08-06 · 来源: BOSS直聘（登录态）+ 字节跳动校园招聘官网 用途: 2028 届硕士 · 目标 2027 暑期实习 · 学习方向参考 说明: 以下内容为各 JD 页面原文提取，未做任何删改/过滤，仅供个人阅…",
+    "type": "note",
+    "featured": false,
+    "keywords": "JD 情报"
+  },
+  {
+    "title": "学习路径：2028 届硕士 → 2027 暑期实习（AI 后端/Agent 方向）",
+    "url": "notes/jd/learning-path-2027-internship.html",
+    "category": "笔记库 · JD 情报",
+    "excerpt": "生成日期: 2026-08-06 · 基于 117 份实抓 JD（25 家中大互联网/AI 厂商校招+实习，详见 output/jd-by-company/） 目标画像: 2028 届硕士 · 技术栈 Python/Java/Go · 方向…",
+    "type": "note",
+    "featured": false,
+    "keywords": "JD 情报"
+  },
+  {
+    "title": "2026-08 国内 AI/后端/Agent 岗位要求画像（实习 & 校招）",
+    "url": "notes/jd/requirements-intel-2026-08.html",
+    "category": "笔记库 · JD 情报",
+    "excerpt": "用途：为 2028 届硕士、目标 2027 暑期实习的学习方向规划。 数据来源：BOSS直聘（登录态）实时抓取的 JD + 字节/腾讯/美团校招官网。",
+    "type": "note",
+    "featured": false,
+    "keywords": "JD 情报"
+  },
+  {
+    "title": "Agent Memory",
+    "url": "notes/wiki/concepts/agent-memory.html",
+    "category": "笔记库 · LLM Wiki",
+    "excerpt": "Agent Memory（智能体记忆）是与 RAG、LLM Wiki 并列的第三类知识架构，以事实、偏好、事件、技能和状态为持久化对象，核心动作是跨轮次召回与写回。它与 LLM Wiki 的关键区别在于：尽管两者都涉及写回，Memory 关…",
+    "type": "note",
+    "featured": false,
+    "keywords": "LLM Wiki"
+  },
+  {
+    "title": "Agentic RAG",
+    "url": "notes/wiki/concepts/agentic-rag.html",
+    "category": "笔记库 · LLM Wiki",
+    "excerpt": "Agentic RAG（Agent 式 RAG）是检索增强生成（RAG）的一种进阶变体。它将一次性的\"检索 → 生成\"函数调用扩展为一个决策循环：Agent 先识别目标与约束，选择检索工具并执行搜索，随后判断证据是否充分；若不足，则改写问题…",
+    "type": "note",
+    "featured": false,
+    "keywords": "LLM Wiki"
+  },
+  {
+    "title": "BM25",
+    "url": "notes/wiki/concepts/bm25.html",
+    "category": "笔记库 · LLM Wiki",
+    "excerpt": "BM25（Best Matching 25，亦称 Okapi BM25）是一种基于词项倒排索引的稀疏/关键词检索算法，属于概率检索模型，用于对查询与文档之间的词项匹配程度进行相关性打分。它在 TF-IDF 基础上引入了词频饱和度、文档长度归…",
+    "type": "note",
+    "featured": false,
+    "keywords": "LLM Wiki"
+  },
+  {
+    "title": "Chunking",
+    "url": "notes/wiki/concepts/chunking.html",
+    "category": "笔记库 · LLM Wiki",
+    "excerpt": "Chunking（切块/分块）是 RAG（检索增强生成）系统中将解析后的文档切分为可独立检索的最小知识单元的过程。该过程位于文档解析与索引之间，直接决定检索的粒度与上下文完整性。切分过小会丢失上下文；切分过大则会引入噪声、降低检索精度并增加…",
+    "type": "note",
+    "featured": false,
+    "keywords": "LLM Wiki"
+  },
+  {
+    "title": "Code Wiki",
+    "url": "notes/wiki/concepts/code-wiki.html",
+    "category": "笔记库 · LLM Wiki",
+    "excerpt": "Code Wiki 是把代码库编译成可追溯的架构与模块文档的一种特殊 Wiki 形态，属于 LLM Wiki 在代码领域的特化。其核心动作可概括为：代码库 → 结构理解 → 可追溯的架构与模块文档。它明确\"是一种特殊 Wiki\"，区别于个人…",
+    "type": "note",
+    "featured": false,
+    "keywords": "LLM Wiki"
+  },
+  {
+    "title": "Context Engineering",
+    "url": "notes/wiki/concepts/context-engineering.html",
+    "category": "笔记库 · LLM Wiki",
+    "excerpt": "Context Engineering（上下文工程）指在候选资料被召回（Retrieval）之后、进入 Prompt 之前的编排层，负责决定哪些资料真正进入上下文、是否需要引入父块/摘要/邻居/历史记忆、资料按什么顺序放置、如何标注来源与版…",
+    "type": "note",
+    "featured": false,
+    "keywords": "LLM Wiki"
+  },
+  {
+    "title": "Embedding",
+    "url": "notes/wiki/concepts/embedding.html",
+    "category": "笔记库 · LLM Wiki",
+    "excerpt": "Embedding（向量嵌入）是将文本映射为稠密向量的核心技术，形式化表示为：文本 x → fx ∈ Rᵈ，即把任意文本编码为 d 维实数向量。语义相近的文本在向量空间中彼此靠近，因此它构成 RAG 体系中 dense 检索（语义检索）的基…",
+    "type": "note",
+    "featured": false,
+    "keywords": "LLM Wiki"
+  },
+  {
+    "title": "Hybrid Search",
+    "url": "notes/wiki/concepts/hybrid-search.html",
+    "category": "笔记库 · LLM Wiki",
+    "excerpt": "Hybrid Search（混合检索）是一种将多种异构检索方式融合的召回策略，通常并行执行 dense 向量检索（concepts/embedding|embedding）、BM25/sparse 词法检索（concepts/bm25|bm…",
+    "type": "note",
+    "featured": false,
+    "keywords": "LLM Wiki"
+  },
+  {
+    "title": "HyDE",
+    "url": "notes/wiki/concepts/hyde.html",
+    "category": "笔记库 · LLM Wiki",
+    "excerpt": "HyDE（Hypothetical Document Embeddings，假设文档嵌入）是一种查询扩展技术。其核心做法是：在检索前先让 LLM 根据用户问题生成一个假设性回答文档，再利用该文档的向量表示去检索知识库，从而使查询向量更接近文…",
+    "type": "note",
+    "featured": false,
+    "keywords": "LLM Wiki"
+  },
+  {
+    "title": "Knowledge Compilation",
+    "url": "notes/wiki/concepts/knowledge-compilation.html",
+    "category": "笔记库 · LLM Wiki",
+    "excerpt": "Knowledge Compilation（知识编译）是一种描述 concepts/llm-wiki|llm-wiki 运作方式的理论框架：把 LLM Wiki 视为一个持续运行的编译器。其中，Raw Sources（原始资料）是源代码，S…",
+    "type": "note",
+    "featured": false,
+    "keywords": "LLM Wiki"
+  },
+  {
+    "title": "Knowledge Graph",
+    "url": "notes/wiki/concepts/knowledge-graph.html",
+    "category": "笔记库 · LLM Wiki",
+    "excerpt": "Knowledge Graph（知识图谱，KG）是一种以图结构组织和存储知识的方式，将实体表示为节点、关系表示为边，并以属性与类型标记节点和边的语义。它的持久化对象是节点、边、属性与类型，主要动作是关系查询与图遍历，解决的核心问题是\"哪些实…",
+    "type": "note",
+    "featured": false,
+    "keywords": "LLM Wiki"
+  },
+  {
+    "title": "llm-wiki",
+    "url": "notes/wiki/concepts/llm-wiki.html",
+    "category": "笔记库 · LLM Wiki",
+    "excerpt": "- \"LLM Wiki 是一种持续维护的知识编译模式：新资料进入后，LLM 不只建立索引，还会更新实体页、概念页、综述页、链接和维护日志。\" — 领域/RAG与LLM Wiki：原理、架构与开源实现|RAG与LLM Wiki：原理、架构与开…",
+    "type": "note",
+    "featured": false,
+    "keywords": "LLM Wiki"
+  },
+  {
+    "title": "Naive RAG",
+    "url": "notes/wiki/concepts/naive-rag.html",
+    "category": "笔记库 · LLM Wiki",
+    "excerpt": "Naive RAG（朴素 RAG）是检索增强生成（RAG）最基础的实现形态。其处理流程为：用户问题 → 问题 Embedding → 向量库 Top-K 检索 → 将检索到的文本块拼接进 Prompt → LLM 生成回答。整个流程不包含重…",
+    "type": "note",
+    "featured": false,
+    "keywords": "LLM Wiki"
+  },
+  {
+    "title": "Provenance",
+    "url": "notes/wiki/concepts/provenance.html",
+    "category": "笔记库 · LLM Wiki",
+    "excerpt": "Provenance（来源溯源）是 RAG 系统中记录证据来源元数据的机制：它保存每条主张（claim）来自哪个 sourceid、chunkid、URL、page、section、相关性评分以及索引版本，使回答中的每个结论都能逐级追溯回原…",
+    "type": "note",
+    "featured": false,
+    "keywords": "LLM Wiki"
+  },
+  {
+    "title": "RAG-Sequence",
+    "url": "notes/wiki/concepts/rag-sequence.html",
+    "category": "笔记库 · LLM Wiki",
+    "excerpt": "RAG-Sequence 是 Lewis et al.（2020）在论文 Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks 中定义的 RAG 两种生成变体之一。…",
+    "type": "note",
+    "featured": false,
+    "keywords": "LLM Wiki"
+  },
+  {
+    "title": "RAG-Token",
+    "url": "notes/wiki/concepts/rag-token.html",
+    "category": "笔记库 · LLM Wiki",
+    "excerpt": "RAG-Token 是原始 RAG 论文（Lewis et al., 2020）定义的两种标准生成模式之一。在该模式下，模型生成回答中的每一个 token 时，都会独立地从检索文档分布 pz|x 中采样一个潜在文档 z，并以该文档为条件生成…",
+    "type": "note",
+    "featured": false,
+    "keywords": "LLM Wiki"
+  },
+  {
+    "title": "rag",
+    "url": "notes/wiki/concepts/rag.html",
+    "category": "笔记库 · LLM Wiki",
+    "excerpt": "- \"RAG 是一种运行时的信息访问机制：提问时检索证据，把证据放进上下文，再让模型生成答案。\" — 领域/RAG与LLM Wiki：原理、架构与开源实现|RAG与LLM Wiki：原理、架构与开源实现 - \"Lewis 等人在 2020 …",
+    "type": "note",
+    "featured": false,
+    "keywords": "LLM Wiki"
+  },
+  {
+    "title": "RAG与LLM Wiki：原理、架构与开源实现",
+    "url": "notes/wiki/concepts/ragllm-wiki.html",
+    "category": "笔记库 · LLM Wiki",
+    "excerpt": "RAG与LLM Wiki：原理、架构与开源实现是一套系统梳理大语言模型知识增强两大范式的理论框架与工程指南。它以 2020 年 Lewis 等人的 RAG 论文为起点，将外部文档索引视为非参数记忆、参数化模型作为生成核心，形成\"检索-生成\"…",
+    "type": "note",
+    "featured": false,
+    "keywords": "LLM Wiki"
+  },
+  {
+    "title": "Reranker",
+    "url": "notes/wiki/concepts/reranker.html",
+    "category": "笔记库 · LLM Wiki",
+    "excerpt": "Reranker（重排器/重排模型）是 RAG 检索后处理阶段的关键组件，负责在粗召回结果上进一步判断候选文档与查询的真实相关性，将候选文档从 Top-N 精排到 Top-K。典型实现使用 Cross-Encoder 或 LLM Reran…",
+    "type": "note",
+    "featured": false,
+    "keywords": "LLM Wiki"
+  },
+  {
+    "title": "RRF",
+    "url": "notes/wiki/concepts/rrf.html",
+    "category": "笔记库 · LLM Wiki",
+    "excerpt": "RRF（Reciprocal Rank Fusion，倒数排名融合）是一种只依赖排名、不依赖分数尺度的多路检索结果融合方法。其计算公式为 RRFd = Σᵢ 1/k + rankᵢd，其中 rankᵢd 是文档 d 在第 i 条检索路由中的…",
+    "type": "note",
+    "featured": false,
+    "keywords": "LLM Wiki"
+  },
+  {
+    "title": "semantic-search",
+    "url": "notes/wiki/concepts/semantic-search.html",
+    "category": "笔记库 · LLM Wiki",
+    "excerpt": "- \"| Semantic Search | 向量和相似度 | 找语义相近文本 | 不是 |\" — 领域/RAG与LLM Wiki：原理、架构与开源实现|RAG与LLM Wiki：原理、架构与开源实现 - \"Semantic Search：…",
+    "type": "note",
+    "featured": false,
+    "keywords": "LLM Wiki"
+  },
+  {
+    "title": "Vector Database",
+    "url": "notes/wiki/concepts/vector-database.html",
+    "category": "笔记库 · LLM Wiki",
+    "excerpt": "Vector Database（向量数据库）是面向大规模向量近邻检索优化设计的数据基础设施。它以高维向量（embedding）为核心数据对象，通过近似最近邻（ANN）索引实现高效检索。来源指出，向量数据库除保存向量本身外，还必须同时保存原始…",
+    "type": "note",
+    "featured": false,
+    "keywords": "LLM Wiki"
+  },
+  {
+    "title": "Andrej Karpathy",
+    "url": "notes/wiki/entities/andrej-karpathy.html",
+    "category": "笔记库 · LLM Wiki",
+    "excerpt": "Andrej Karpathy 是 LLM Wiki 概念的最初提出者，其 gist《LLM Wiki idea file》被视为这一理念的源头。他在原文中明确指出该 gist 只是一个 idea file，不是完整应用，也不等同于官方的 …",
+    "type": "note",
+    "featured": false,
+    "keywords": "LLM Wiki"
+  },
+  {
+    "title": "AnythingLLM",
+    "url": "notes/wiki/entities/anythingllm.html",
+    "category": "笔记库 · LLM Wiki",
+    "excerpt": "AnythingLLM 是 Mintplex-Labs 维护的开源 AI 聊天与 RAG 平台，其 GitHub 仓库为 Mintplex-Labs/anything-llm，许可证为 MIT，截至 2026-08-11 星标约 64.6k…",
+    "type": "note",
+    "featured": false,
+    "keywords": "LLM Wiki"
+  },
+  {
+    "title": "claude-obsidian",
+    "url": "notes/wiki/entities/claude-obsidian.html",
+    "category": "笔记库 · LLM Wiki",
+    "excerpt": "claude-obsidian 是 AgriciDaniel 维护的开源项目（MIT 许可，截至 2026-08-11 星标约 10.7k），将 entities/andrej-karpathy|andrej-karpathy 提出的 co…",
+    "type": "note",
+    "featured": false,
+    "keywords": "LLM Wiki"
+  },
+  {
+    "title": "Cognee",
+    "url": "notes/wiki/entities/cognee.html",
+    "category": "笔记库 · LLM Wiki",
+    "excerpt": "Cognee 是一个图与向量混合的知识记忆引擎，采用 Apache-2.0 许可，截至 2026-08-11 在 GitHub 上拥有约 29.9k 星。它通过 cognify 流程将数据加工为实体、关系、摘要与 Embedding，并提供…",
+    "type": "note",
+    "featured": false,
+    "keywords": "LLM Wiki"
+  },
+  {
+    "title": "DeepWiki-Open",
+    "url": "notes/wiki/entities/deepwiki-open.html",
+    "category": "笔记库 · LLM Wiki",
+    "excerpt": "DeepWiki-Open 是一个 MIT 许可的开源 concepts/code-wiki|Code Wiki 项目，截至 2026-08-11 在 GitHub 上获得约 17.6k 星，目标是把代码库编译成可浏览的结构化 Wiki 文…",
+    "type": "note",
+    "featured": false,
+    "keywords": "LLM Wiki"
+  },
+  {
+    "title": "GraphRAG",
+    "url": "notes/wiki/entities/graphrag.html",
+    "category": "笔记库 · LLM Wiki",
+    "excerpt": "GraphRAG 是微软开源的图增强检索生成框架，仓库为 microsoft/graphrag，采用 MIT 许可证，目前约 35.4k 星。其索引流程先将文档拆分为 Text Units，再抽取实体、关系与声明，经过实体合并、社区检测后生…",
+    "type": "note",
+    "featured": false,
+    "keywords": "LLM Wiki"
+  },
+  {
+    "title": "Haystack",
+    "url": "notes/wiki/entities/haystack.html",
+    "category": "笔记库 · LLM Wiki",
+    "excerpt": "Haystack 是 deepset 团队维护的 Apache-2.0 开源 concepts/rag|RAG 管线框架，截至 2026-08-11 在 GitHub 上约有 26.2k 星。与 entities/langchain|lan…",
+    "type": "note",
+    "featured": false,
+    "keywords": "LLM Wiki"
+  },
+  {
+    "title": "LangChain",
+    "url": "notes/wiki/entities/langchain.html",
+    "category": "笔记库 · LLM Wiki",
+    "excerpt": "LangChain 是一个以 MIT 许可证开源的 LLM/Agent 基础框架，GitHub 仓库为 langchain-ai/langchain，截至 2026-08-11 星标约 143.9k。它并非一个单一的 RAG 产品，而是把模…",
+    "type": "note",
+    "featured": false,
+    "keywords": "LLM Wiki"
+  },
+  {
+    "title": "LightRAG",
+    "url": "notes/wiki/entities/lightrag.html",
+    "category": "笔记库 · LLM Wiki",
+    "excerpt": "LightRAG 是香港大学数据科学实验室（HKUDS）开源的轻量级图增强检索增强生成（RAG）项目，代码托管于 GitHub 仓库 HKUDS/LightRAG，采用 MIT 许可证，目前约 38.7k 星。它在索引阶段保留实体、关系和向…",
+    "type": "note",
+    "featured": false,
+    "keywords": "LLM Wiki"
+  },
+  {
+    "title": "LlamaIndex",
+    "url": "notes/wiki/entities/llamaindex.html",
+    "category": "笔记库 · LLM Wiki",
+    "excerpt": "LlamaIndex（run-llama/llamaindex）是一个以数据为中心的 RAG 与 Agent 开源框架，GitHub 星标约 51.5k（2026-08-11 快照），采用 MIT 许可证。它将 Documents、Node…",
+    "type": "note",
+    "featured": false,
+    "keywords": "LLM Wiki"
+  },
+  {
+    "title": "Mem0",
+    "url": "notes/wiki/entities/mem0.html",
+    "category": "笔记库 · LLM Wiki",
+    "excerpt": "Mem0（mem0ai/mem0）是一个面向 AI Agent 的开源长期记忆项目，GitHub 星标约 63.0k（2026-08-11 快照），采用 Apache-2.0 许可证。与 entities/nashsullmwiki|nas…",
+    "type": "note",
+    "featured": false,
+    "keywords": "LLM Wiki"
+  },
+  {
+    "title": "nashsu/llm_wiki",
+    "url": "notes/wiki/entities/nashsullm-wiki.html",
+    "category": "笔记库 · LLM Wiki",
+    "excerpt": "nashsu/llmwiki 是与 entities/andrej-karpathy|Andrej Karpathy 的 concepts/llm-wiki|LLM Wiki gist 理念最贴近的产品化开源实现，仓库以 GPLv3 许可证…",
+    "type": "note",
+    "featured": false,
+    "keywords": "LLM Wiki"
+  },
+  {
+    "title": "Onyx",
+    "url": "notes/wiki/entities/onyx.html",
+    "category": "笔记库 · LLM Wiki",
+    "excerpt": "Onyx 是一个面向企业和团队知识系统的开源搜索与 RAG 项目（onyx-dot-app/onyx），截至 2026-08-11 在 GitHub 上拥有约 31.5k 星标，采用 MIT + Enterprise 混合许可证。其核心能力…",
+    "type": "note",
+    "featured": false,
+    "keywords": "LLM Wiki"
+  },
+  {
+    "title": "Open WebUI",
+    "url": "notes/wiki/entities/open-webui.html",
+    "category": "笔记库 · LLM Wiki",
+    "excerpt": "Open WebUI 是一个自托管的 AI 与 concepts/rag|RAG 平台，截至 2026-08-11 GitHub 星标约 148.4k，是笔记项目总览中星标最高的项目。它不只做向量检索，还同时覆盖文件、网页、YouTube …",
+    "type": "note",
+    "featured": false,
+    "keywords": "LLM Wiki"
+  },
+  {
+    "title": "Qdrant",
+    "url": "notes/wiki/entities/qdrant.html",
+    "category": "笔记库 · LLM Wiki",
+    "excerpt": "Qdrant 是一个用 Rust 编写的开源向量数据库，采用 Apache-2.0 许可证，其 GitHub 仓库 qdrant/qdrant 在 2026-08-11 快照中约有 33.9k 星标。它支持 dense、sparse 与 m…",
+    "type": "note",
+    "featured": false,
+    "keywords": "LLM Wiki"
+  },
+  {
+    "title": "Ragas",
+    "url": "notes/wiki/entities/ragas.html",
+    "category": "笔记库 · LLM Wiki",
+    "excerpt": "Ragas 是面向 concepts/rag|RAG 系统的开源评测工具，托管于 vibrantlabsai/ragas 仓库，采用 Apache-2.0 许可，截至 2026-08-11 星标约 15.3k。其设计目标是把\"感觉好用\"这类…",
+    "type": "note",
+    "featured": false,
+    "keywords": "LLM Wiki"
+  },
+  {
+    "title": "RAGFlow",
+    "url": "notes/wiki/entities/ragflow.html",
+    "category": "笔记库 · LLM Wiki",
+    "excerpt": "RAGFlow 是 InfiniFlow 开源的完整 RAG 引擎，GitHub 仓库为 infiniflow/ragflow，采用 Apache-2.0 许可证，截至资料记录时拥有约 87.2k 星。它的重点不只在于向量搜索，还覆盖文档理…",
+    "type": "note",
+    "featured": false,
+    "keywords": "LLM Wiki"
+  },
+  {
+    "title": "TencentDB-Agent-Memory",
+    "url": "notes/wiki/entities/tencentdb-agent-memory.html",
+    "category": "笔记库 · LLM Wiki",
+    "excerpt": "TencentDB-Agent-Memory 是腾讯云开源的团队级 Agent Memory Hub（TencentCloud/TencentDB-Agent-Memory），2026-08-11 时 GitHub 星标约 19.5k，采用…",
+    "type": "note",
+    "featured": false,
+    "keywords": "LLM Wiki"
+  },
+  {
+    "title": "Wiki 操作日志",
+    "url": "notes/wiki/log.html",
+    "category": "笔记库 · LLM Wiki",
+    "excerpt": "每次摄入、Lint 运行和维护操作都会自动记录在这里。推荐使用操作历史面板获得更好的可视化呈现： - Cmd+P → \"查看操作历史\" - 或从 设置 → 自动维护 → 操作历史 进入",
+    "type": "note",
+    "featured": false,
+    "keywords": "LLM Wiki"
+  },
+  {
+    "title": "Wiki Schema Configuration",
+    "url": "notes/wiki/schema/config.html",
+    "category": "笔记库 · LLM Wiki",
+    "excerpt": "This file governs how the LLM builds and maintains your Wiki. Edit it freely.",
+    "type": "note",
+    "featured": false,
+    "keywords": "LLM Wiki"
+  },
+  {
+    "title": "RAG 与 LLM Wiki：从检索增强到知识编译 - Summary",
+    "url": "notes/wiki/sources/ragllm-wiki-a74e83.html",
+    "category": "笔记库 · LLM Wiki",
+    "excerpt": "- 原始文件：领域/RAG与LLM Wiki：原理、架构与开源实现.md|RAG 与 LLM Wiki：原理、架构与开源实现 - 摄取日期：2026-08-11",
+    "type": "note",
+    "featured": false,
+    "keywords": "LLM Wiki"
+  },
+  {
+    "title": "Welcome to your LLM-Wiki",
+    "url": "notes/wiki/welcometokarpathyllmwiki.html",
+    "category": "笔记库 · LLM Wiki",
+    "excerpt": "This note is auto-generated by the Karpathy LLM Wiki plugin on first run. You don't need to edit it — read once, then st…",
+    "type": "note",
+    "featured": false,
+    "keywords": "LLM Wiki"
+  },
+  {
+    "title": "00 — 答辩索引",
+    "url": "notes/pqsectunnel/defense/00.html",
+    "category": "笔记库 · PQ-SecTunnel",
+    "excerpt": "状态：文档集已完成初稿 | 最后更新：2026-07-14 主套件：mlkem512-mlkem768-sm4gcm-sm3 命名约定：本目录（doc/defense/）内 md / 子目录 一律中文命名；配图放在 配图/配图/。",
+    "type": "note",
+    "featured": false,
+    "keywords": "PQ-SecTunnel"
+  },
+  {
+    "title": "00a — WireGuard 背景与 PQ-SecTunnel 对比",
+    "url": "notes/pqsectunnel/defense/00a-wireguard.html",
+    "category": "笔记库 · PQ-SecTunnel",
+    "excerpt": "状态：正文 | 权威源：WireGuard 官方文档 + 白皮书 + 本仓库源码 建议：先读本章再读 0101-项目定位与改造动机.md | 调研笔记：../research/wireguard-background.md../resear…",
+    "type": "note",
+    "featured": false,
+    "keywords": "PQ-SecTunnel"
+  },
+  {
+    "title": "01 — 项目定位与改造动机",
+    "url": "notes/pqsectunnel/defense/01.html",
+    "category": "笔记库 · PQ-SecTunnel",
+    "excerpt": "状态：正文 | 权威源：CONTEXT.md../../CONTEXT.md | 预计篇幅：2 min 讲稿（答辩开场）",
+    "type": "note",
+    "featured": false,
+    "keywords": "PQ-SecTunnel"
+  },
+  {
+    "title": "02 — 协议总览",
+    "url": "notes/pqsectunnel/defense/02.html",
+    "category": "笔记库 · PQ-SecTunnel",
+    "excerpt": "状态：正文 | 权威源：时序图 + KE.md../../KE.md + CONTEXT.md../../CONTEXT.md 主套件：mlkem512-mlkem768-sm4gcm-sm3 | 预计篇幅：3 min 讲稿",
+    "type": "note",
+    "featured": false,
+    "keywords": "PQ-SecTunnel"
+  },
+  {
+    "title": "03 — 握手协议逐步详解",
+    "url": "notes/pqsectunnel/defense/03.html",
+    "category": "笔记库 · PQ-SecTunnel",
+    "excerpt": "状态：正文 | 权威源：KE.md../../KE.md、CONTEXT.md../../CONTEXT.md、noise.c 主套件：mlkem512-mlkem768-sm4gcm-sm3（Static ML-KEM-512 + Eph…",
+    "type": "note",
+    "featured": false,
+    "keywords": "PQ-SecTunnel"
+  },
+  {
+    "title": "04 — 密码原语与套件",
+    "url": "notes/pqsectunnel/defense/04.html",
+    "category": "笔记库 · PQ-SecTunnel",
+    "excerpt": "状态：正文 | 权威源：CONTEXT.md../../CONTEXT.md + messages.h + build.sh + wgtest vars 主套件：mlkem512-mlkem768-sm4gcm-sm3 | 预计篇幅：2 m…",
+    "type": "note",
+    "featured": false,
+    "keywords": "PQ-SecTunnel"
+  },
+  {
+    "title": "05 — 内核实现路径",
+    "url": "notes/pqsectunnel/defense/05.html",
+    "category": "笔记库 · PQ-SecTunnel",
+    "excerpt": "状态：正文 | 权威源：KE.md../../KE.md L3 + receive.c / send.c / noise.c 主套件：mlkem512-mlkem768-sm4gcm-sm3 | 预计篇幅：5 min 讲稿（30 min 版…",
+    "type": "note",
+    "featured": false,
+    "keywords": "PQ-SecTunnel"
+  },
+  {
+    "title": "05a — 用户态与内核态握手分工",
+    "url": "notes/pqsectunnel/defense/05a.html",
+    "category": "笔记库 · PQ-SecTunnel",
+    "excerpt": "状态：正文 | 关联：05 内核实现路径05-内核实现路径.md、07 工程架构07-工程架构与实验验证.md、KE.md../../KE.md 主套件：mlkem512-mlkem768-sm4gcm-sm3 | 预计篇幅：3–5 min…",
+    "type": "note",
+    "featured": false,
+    "keywords": "PQ-SecTunnel"
+  },
+  {
+    "title": "06 — 分片与 MTU",
+    "url": "notes/pqsectunnel/defense/06-mtu.html",
+    "category": "笔记库 · PQ-SecTunnel",
+    "excerpt": "状态：正文 | 权威源：CONTEXT.md../../CONTEXT.md + pqcfragment.c / send.c / receive.c 主套件：mlkem512-mlkem768-sm4gcm-sm3 | 预计篇幅：3–4 …",
+    "type": "note",
+    "featured": false,
+    "keywords": "PQ-SecTunnel"
+  },
+  {
+    "title": "07 — 工程架构与实验验证（完整流程）",
+    "url": "notes/pqsectunnel/defense/07.html",
+    "category": "笔记库 · PQ-SecTunnel",
+    "excerpt": "状态：正文 | 主套件：mlkem512-mlkem768-sm4gcm-sm3 预计篇幅：答辩 5–8 min（可拆成「架构 2 min + 实验演示 5 min」）",
+    "type": "note",
+    "featured": false,
+    "keywords": "PQ-SecTunnel"
+  },
+  {
+    "title": "08 — PKI 与密钥管理",
+    "url": "notes/pqsectunnel/defense/08-pki.html",
+    "category": "笔记库 · PQ-SecTunnel",
+    "excerpt": "状态：正文 | 权威源：CONTEXT.md + certificate-management/ + setupconfigs.py 答辩主套件默认：random 模式 | PKI 为可选能力",
+    "type": "note",
+    "featured": false,
+    "keywords": "PQ-SecTunnel"
+  },
+  {
+    "title": "09 — 已知差异与答辩备查",
+    "url": "notes/pqsectunnel/defense/09.html",
+    "category": "笔记库 · PQ-SecTunnel",
+    "excerpt": "状态：正文 | 权威源：KE.md + 源码对照 | 主动说明可避评委追问",
+    "type": "note",
+    "featured": false,
+    "keywords": "PQ-SecTunnel"
+  },
+  {
+    "title": "10 — 常见问题（答辩 Q&A）",
+    "url": "notes/pqsectunnel/defense/10-qa.html",
+    "category": "笔记库 · PQ-SecTunnel",
+    "excerpt": "状态：正文 | 基于 CONTEXT.md../../CONTEXT.md + doc/defense/ 全文 建议配合 /grill-with-docs 演练后补充个人化答案",
+    "type": "note",
+    "featured": false,
+    "keywords": "PQ-SecTunnel"
+  },
+  {
+    "title": "AIGIS-ENC 原生集成实施计划",
+    "url": "notes/pqsectunnel/defense/aigis-enc.html",
+    "category": "笔记库 · PQ-SecTunnel",
+    "excerpt": "范围：把 AIGIS-ENC mode 1（K=2，pk=672，ct=736，sk=1568）作为 static KEM 接入 PQ-SecTunnel， ephemeral 继续走现有 ML-KEM-512，端到端握手通过 PQSTKE…",
+    "type": "note",
+    "featured": false,
+    "keywords": "PQ-SecTunnel"
+  },
+  {
+    "title": "diagrams/",
+    "url": "notes/pqsectunnel/defense/diagrams/diagrams.html",
+    "category": "笔记库 · PQ-SecTunnel",
+    "excerpt": "答辩用 Mermaid 源文件与导出图存放目录。",
+    "type": "note",
+    "featured": false,
+    "keywords": "PQ-SecTunnel"
+  },
+  {
+    "title": "WireGuard 背景调研",
+    "url": "notes/pqsectunnel/research/wireguard-background.html",
+    "category": "笔记库 · PQ-SecTunnel",
+    "excerpt": "本文档为 PQ-SecTunnel 答辩材料撰写，内容均来自一手资料。 主要来源：WireGuard 官网、技术白皮书、Noise Protocol Framework 规范。",
+    "type": "note",
+    "featured": false,
+    "keywords": "PQ-SecTunnel"
+  },
+  {
+    "title": "WireGuard 动手实践笔记",
+    "url": "notes/pqsectunnel/research/wireguard-hands-on-practice.html",
+    "category": "笔记库 · PQ-SecTunnel",
+    "excerpt": "本文档整理自 PQ-SecTunnel 开发过程中的 WireGuard 原生学习实验。 目标：理解标准 WireGuard 的配置流程，为对照和调整 PQ-SecTunnel（pqst / pqst-quick）提供基线。",
+    "type": "note",
+    "featured": false,
+    "keywords": "PQ-SecTunnel"
+  },
+  {
+    "title": "流程",
+    "url": "notes/pqsectunnel/pf630b9.html",
+    "category": "笔记库 · PQ-SecTunnel",
+    "excerpt": "各位老师好。我按这张流程图，把双方如何完成后量子握手、最终得到会话密钥说清楚。",
+    "type": "note",
+    "featured": false,
+    "keywords": "PQ-SecTunnel"
+  },
+  {
+    "title": "claude-memory-vault",
+    "url": "notes/memory/claude-memory-vault.html",
+    "category": "笔记库 · Claude 记忆",
+    "excerpt": "Claude Code 的长期记忆目录通过用户级 settings 中的 autoMemoryDirectory 指向 E:\\north-my-note\\claude-memoryObsidian vault north-my-note 的…",
+    "type": "note",
+    "featured": false,
+    "keywords": "Claude 记忆"
+  },
+  {
+    "title": "Claude Code Memory Index",
+    "url": "notes/memory/memory.html",
+    "category": "笔记库 · Claude 记忆",
+    "excerpt": "- Memory 接入 Obsidian vaultclaude-memory-vault.md — 记忆目录指向 north-my-note 的 claude-memory 子文件夹,所有项目共用",
+    "type": "note",
+    "featured": false,
+    "keywords": "Claude 记忆"
+  },
+  {
+    "title": "2026-07-04 周六",
+    "url": "notes/diary/2026-07-04.html",
+    "category": "笔记库 · 日记",
+    "excerpt": "- 整理知识库结构 - ...",
+    "type": "note",
+    "featured": false,
+    "keywords": "日记"
   }
 ]

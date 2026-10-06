@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code Skill 机制源码剖析 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="来源：公众号「小林coding」2026-07-21 核心主题：Skill 不是普通的提示词，而是一套精密的「上下文懒加载系统」">
+<link rel="canonical" href="https://northadb.github.io/notes/clippings/p44a38b/2026-07-21-claude-code-skill.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Claude Code Skill 机制源码剖析 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="来源：公众号「小林coding」2026-07-21 核心主题：Skill 不是普通的提示词，而是一套精密的「上下文懒加载系统」">
+<meta property="og:url" content="https://northadb.github.io/notes/clippings/p44a38b/2026-07-21-claude-code-skill.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Claude Code Skill 机制源码剖析 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="来源：公众号「小林coding」2026-07-21 核心主题：Skill 不是普通的提示词，而是一套精密的「上下文懒加载系统」">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../feed.xml">
+<link rel="stylesheet" href="../../../css/style.css">
+<link rel="stylesheet" href="../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Claude Code Skill 机制源码剖析", "description": "来源：公众号「小林coding」2026-07-21 核心主题：Skill 不是普通的提示词，而是一套精密的「上下文懒加载系统」", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/clippings/p44a38b/2026-07-21-claude-code-skill.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../index.html">首页</a><span>/</span><a href="../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../notes/clippings/index.html">内容剪藏</a></div>
+          <h1>Claude Code Skill 机制源码剖析</h1>
+          <p class="post-sub">来源：公众号「小林coding」2026-07-21 核心主题：Skill 不是普通的提示词，而是一套精密的「上下文懒加载系统」</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../notes/clippings/index.html">内容剪藏</a></span><span class="sep"></span>
+            <span>阅读约 6 分钟</span><span class="sep"></span><span>更新于 2026-07-21</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p><strong>来源</strong>：公众号「小林coding」2026-07-21<br>
+<strong>核心主题</strong>：Skill 不是普通的提示词，而是一套精密的「上下文懒加载系统」</p>
+</blockquote>
+<hr>
+<h2 id="面试题skill-和提示词有什么区别">面试题：Skill 和提示词有什么区别？</h2>
+<p>Skill 的载体确实就是几个 Markdown 文件，但面试官的追问才是关键：</p>
+<blockquote>
+<p>「既然就是提示词，那我直接把内容塞进 system prompt，跟用 skill 有什么区别？」</p>
+</blockquote>
+<p><strong>核心答案</strong>：Skill 的内容确实就是提示词，但区别不在内容，在<strong>加载方式</strong>。</p>
+<table>
+<thead>
+<tr>
+<th>对比</th>
+<th>提示词（直接塞）</th>
+<th>Skill（渐进式披露）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>加载方式</strong></td>
+<td>一股脑全塞进上下文</td>
+<td>分层按需加载</td>
+</tr>
+<tr>
+<td><strong>常驻内容</strong></td>
+<td>全文</td>
+<td>只常驻一行描述（~250 字符）</td>
+</tr>
+<tr>
+<td><strong>触发时机</strong></td>
+<td>始终存在</td>
+<td>模型自己判断，用时才注入</td>
+</tr>
+<tr>
+<td><strong>扩展文档</strong></td>
+<td>无</td>
+<td>第三层懒加载，用才读</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="一skill-到底是什么">一、Skill 到底是什么？</h2>
+<h3 id="文件结构">文件结构</h3>
+<pre><code>pdf/
+├── SKILL.md          # 主文件，必须叫这个名字
+├── reference.md      # 进阶操作的详细文档
+├── forms.md          # 表单填写的专项说明
+└── scripts/
+    ├── fill_form.py  # 现成的表单填写脚本
+    └── ...
+</code></pre>
+<h3 id="skillmd-的核心格式">SKILL.md 的核心格式</h3>
+<pre><code class="language-markdown">---
+name: pdf
+description: 处理 PDF 文件的技能。当用户需要读取、
+  生成、合并 PDF，或者填写 PDF 表单时使用。
+---
+
+# PDF 处理指南
+
+读取 PDF 文本用 pdftotext 命令...
+表单填写这种复杂操作，先阅读 forms.md...
+</code></pre>
+<ul>
+<li><strong>frontmatter</strong>：<code>name</code>（技能名）+ <code>description</code>（描述，模型选它的唯一依据）</li>
+<li><strong>正文</strong>：操作指南，告诉模型用什么工具、遇到复杂情况去读哪个补充文档</li>
+</ul>
+<blockquote>
+<p>打个比方：Skill 就是 Claude 的「入职手册」。模型能力没变，变的是手头多了一份你家业务的说明书。</p>
+</blockquote>
+<hr>
+<h2 id="二五分钟写一个最小-skill">二、五分钟写一个最小 Skill</h2>
+<h3 id="三步搞定">三步搞定</h3>
+<pre><code class="language-bash"># 第一步：建目录
+mkdir -p ~/.claude/skills/style-check
+</code></pre>
+<p>创建 <code>~/.claude/skills/style-check/SKILL.md</code>：</p>
+<pre><code class="language-markdown">---
+name: style-check
+description: 检查代码是否符合团队风格规范。
+  当用户要求检查代码风格、评审代码时使用。
+---
+
+# 代码风格检查清单
+
+逐条检查以下规则，输出违反项和修改建议。
+
+1. 变量名要有业务含义，不许用 a、b、tmp 这种
+2. 魔法数字必须提成有名字的常量
+3. 捕获异常不许静默吞掉，至少打一行日志
+</code></pre>
+<h3 id="两种使用方式">两种使用方式</h3>
+<table>
+<thead>
+<tr>
+<th>方式</th>
+<th>操作</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>手动挡</strong></td>
+<td>敲 <code>/style-check</code></td>
+<td>你自己召唤</td>
+</tr>
+<tr>
+<td><strong>自动挡</strong></td>
+<td>说「帮我看看这段代码规范吗」</td>
+<td>模型自己翻出 style-check</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="三渐进式披露progressive-disclosure-核心机制">三、渐进式披露（Progressive Disclosure）—— 核心机制</h2>
+<p>这是 Skill 系统的灵魂。Claude Code 把加载拆成三层：</p>
+<h3 id="第一层常驻的只有书脊2000-token">第一层：常驻的只有「书脊」（~2000 token）</h3>
+<p>所有 skill 的<strong>名字和描述</strong>拼成清单，跟着 system-reminder 送进上下文。</p>
+<pre><code class="language-markdown">- style-check: 检查代码是否符合团队风格规范...
+- pdf: 处理 PDF 文件的技能。当用户需要读取...
+- commit: 根据暂存区变更生成规范的提交信息...
+</code></pre>
+<p><strong>预算控制</strong>（源码中的关键常量）：</p>
+<pre><code class="language-typescript">// src/tools/SkillTool/prompt.ts
+export const SKILL_BUDGET_CONTEXT_PERCENT = 0.01    // 整个清单只占上下文 1%
+export const MAX_LISTING_DESC_CHARS = 250            // 单条描述硬上限 250 字符
+</code></pre>
+<p><strong>降级方案</strong>：装两百个 skill 装不下时，先等比截短描述，最极端时第三方 skill 只留名字，官方内置 skill 永远不被截断。</p>
+<h3 id="第二层选中了才把整本书拿出来">第二层：选中了，才把整本书拿出来</h3>
+<p>模型判断需要某个 skill → 发起调用 → SKILL.md 完整正文以 <strong>user message</strong>（标记 <code>isMeta: true</code>）注入对话流。</p>
+<pre><code class="language-typescript">// src/tools/SkillTool/SkillTool.ts
+newMessages: tagMessagesWithToolUseID(
+  [createUserMessage({ content: finalContent, isMeta: true })],
+  toolUseID,
+),
+</code></pre>
+<blockquote>
+<p><strong>为什么走 user message 而不是改 system prompt？</strong><br>
+改动 system prompt 会导致提示词缓存大面积失效，每轮重新计费。追加一条消息是纯增量，缓存不伤。</p>
+</blockquote>
+<h3 id="第三层附录连第二层都懒得进">第三层：附录，连第二层都懒得进</h3>
+<p>SKILL.md 里只写指路的话，更细的文档（如参考文档、脚本）等模型真正需要时才自己去 Read 进来。不需要任何专门机制，靠的就是 Claude 本来就会读文件。</p>
+<h3 id="效果对比">效果对比</h3>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th style="text-align: center;">50 个 skill 的开销</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>全文常驻</td>
+<td style="text-align: center;">~15 万 token（75%）</td>
+</tr>
+<tr>
+<td>渐进式披露</td>
+<td style="text-align: center;"><strong>~2000 token（1%）</strong></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>本质</strong>：Skill 骨子里就是一套「上下文的懒加载系统」。</p>
+</blockquote>
+<hr>
+<h2 id="四claude-怎么知道该用哪个-skill">四、Claude 怎么知道该用哪个 Skill？</h2>
+<p><strong>答案：没有检索系统。全靠模型自己读。</strong></p>
+<p>模型每轮生成回复前会通读上下文。清单就在里面，用户需求也在里面——这就是语言模型最擅长的阅读理解。</p>
+<pre><code class="language-typescript">// src/tools/SkillTool/prompt.ts
+const desc = cmd.whenToUse
+  ? `${cmd.description} - ${cmd.whenToUse}`
+  : cmd.description
+</code></pre>
+<ul>
+<li><code>description</code>：说清「我是干什么的」</li>
+<li><code>when_to_use</code>（可选）：补一句「什么时候该用我」</li>
+</ul>
+<h3 id="强制调用机制">强制调用机制</h3>
+<pre><code class="language-typescript">// 工具说明中的强硬指令：
+// &quot;When a skill matches the user's request, this is a
+//  BLOCKING REQUIREMENT: invoke the relevant Skill tool
+//  BEFORE generating any other response about the task&quot;
+</code></pre>
+<p>有 skill 匹配就必须先调 skill，再干别的。</p>
+<blockquote>
+<p><strong>哲学</strong>：能靠模型自身理解力解决的问题，绝不外挂一套额外系统。模型的阅读理解能力是随着模型升级白嫖变强的。</p>
+</blockquote>
+<hr>
+<h2 id="五斜杠命令和-skill-是同一个东西">五、斜杠命令和 Skill 是同一个东西</h2>
+<pre><code class="language-typescript">// 源码内部，slash command 和 skill 已经统一成了一套 Command 体系
+// 用的同一个数据结构，加载和执行走同一条路
+// &quot;When users reference a 'slash command' or '/&lt;something&gt;',
+//  they are referring to a skill.&quot;
+</code></pre>
+<h3 id="两个入口-两个开关">两个入口 + 两个开关</h3>
+<table>
+<thead>
+<tr>
+<th>入口</th>
+<th>手动</th>
+<th>自动</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>方式</strong></td>
+<td>敲 <code>/名字</code></td>
+<td>模型自主匹配</td>
+</tr>
+<tr>
+<td><strong>开关</strong></td>
+<td><code>user-invocable: false</code> 从菜单隐藏</td>
+<td><code>disable-model-invocation: true</code> 禁止模型调用</td>
+</tr>
+</tbody>
+</table>
+<p><strong>应用场景举例：</strong>
+- <code>disable-model-invocation: true</code> → 「一键发布上线」skill，必须人扣扳机
+- <code>user-invocable: false</code> → 「数据库表结构说明」这类纯背景知识，人敲没意义</p>
+<hr>
+<h2 id="六动态内容参数和命令执行">六、动态内容：参数和命令执行</h2>
+<p>Skill 的正文不是写死的，有两个动态花样：</p>
+<h3 id="1-参数替换">1. 参数替换</h3>
+<pre><code class="language-markdown"># 代码风格检查
+
+检查 $ARGUMENTS 文件
+</code></pre>
+<p>敲 <code>/style-check UserService.java</code> → <code>$ARGUMENTS</code> 被替换为 <code>UserService.java</code></p>
+<h3 id="2-命令预执行">2. 命令预执行</h3>
+<pre><code class="language-markdown">待检查的代码如下：
+
+!`cat $ARGUMENTS`
+</code></pre>
+<p>调用时先执行 <code>cat</code> 命令，把输出填进正文再交给模型。</p>
+<h3 id="安全防线">安全防线</h3>
+<pre><code class="language-typescript">// src/skills/loadSkillsDir.ts
+if (loadedFrom !== 'mcp') {
+  finalContent = await executeShellCommandsInPrompt(...)
+}
+</code></pre>
+<p>来自 MCP 服务器的远程 skill <strong>永远不执行</strong>嵌入的命令。本地才执行——自己放的文件，出了事怪不着别人。</p>
+<hr>
+<h2 id="七skill-的五个来源">七、Skill 的五个来源</h2>
+<table>
+<thead>
+<tr>
+<th>来源</th>
+<th>路径</th>
+<th>范围</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>官方内置</strong></td>
+<td>Claude Code 自带</td>
+<td>全局</td>
+</tr>
+<tr>
+<td><strong>用户级</strong></td>
+<td><code>~/.claude/skills/</code></td>
+<td>全局</td>
+</tr>
+<tr>
+<td><strong>项目级</strong></td>
+<td><code>.claude/skills/</code></td>
+<td>仅当前项目（会进 git）</td>
+</tr>
+<tr>
+<td><strong>插件</strong></td>
+<td>随插件打包</td>
+<td>全局</td>
+</tr>
+<tr>
+<td><strong>MCP</strong></td>
+<td>远程服务器提供</td>
+<td>动态</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>项目级的亮点</strong>：skill 跟代码一起进 git 仓库。新同事克隆项目，团队沉淀的所有操作手册自动就位。</p>
+</blockquote>
+<p><strong>命名冲突</strong>：按固定顺序扫描，先到先得。项目级排在用户级后面，所以不要在项目里试图覆盖用户级的同名 skill。</p>
+<hr>
+<h2 id="八怎么写好一个-skill三条心法">八、怎么写好一个 Skill？三条心法</h2>
+<h3 id="①-description-按广告词写">① description 按广告词写</h3>
+<ul>
+<li>模型全靠它做匹配，进清单时最多留 250 字符</li>
+<li>❌「这是一个功能强大的代码质量工具，支持多种语言」</li>
+<li>✅「检查代码是否符合团队风格规范。当用户要求检查代码风格、评审代码时使用」</li>
+</ul>
+<h3 id="②-skillmd-管今天references-管细节">② SKILL.md 管今天，references 管细节</h3>
+<ul>
+<li>SKILL.md 只写高频主干流程</li>
+<li>低频/超长细节拆到 references 目录，正文里留指路的话</li>
+<li><strong>经验标准</strong>：SKILL.md 超 500 行就该拆附录了</li>
+</ul>
+<h3 id="③-重复劳动写成脚本">③ 重复劳动写成脚本</h3>
+<ul>
+<li>固定的机械操作（如格式转换）直接写脚本放 scripts 目录</li>
+<li>模型现想有失败率，脚本跑一万次一个样</li>
+<li>能固化成脚本的就别让模型现想</li>
+</ul>
+<hr>
+<h2 id="总结">总结</h2>
+<blockquote>
+<p><strong>Skill 内容确实就是提示词，但区别不在内容，在加载方式。<br>
+提示词是知识本身，Skill 是知识的加载策略。</strong></p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>实现</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>放得下</strong></td>
+<td>三层渐进式披露，50 个 skill 常驻开销压到 1%</td>
+</tr>
+<tr>
+<td><strong>选得准</strong></td>
+<td>一行 description + 模型阅读理解，不上检索系统</td>
+</tr>
+<tr>
+<td><strong>命令统一</strong></td>
+<td>斜杠命令和 skill 是同一个东西的两个入口</td>
+</tr>
+<tr>
+<td><strong>动态能力</strong></td>
+<td>参数插值 + 命令预执行，不只是一份静态文档</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="关联笔记">🔗 关联笔记</h2>
+<ul>
+<li>
+<p><a class="wl" href="../../../notes/clippings/bilibili/2026-07-30-agentskilltool.html">2026-07-30-Agent架构Skill和Tool本质区别-动画详解</a> — Skill vs Tool 本质（互证）</p>
+</li>
+<li>
+<p><a class="wl" href="../../../notes/domains/aiagent2026.html">领域/AI Agent 智能体学习路线 2026</a> — Stage 6 涵盖 Skills 生态</p>
+</li>
+<li><a class="wl" href="../../../notes/domains/claudecodeagent.html">领域/Claude Code记忆系统与Agent记忆架构</a> — Claude Code 记忆机制</li>
+<li><a class="wl" href="../../../notes/domains/claudecode-commandskill.html">领域/Claude Code - Command与Skill区别</a> — 对比分析</li>
+</ul>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">内容剪藏</span><span class="chip">Claude Code</span><span class="chip">Skill</span><span class="chip">源码分析</span><span class="chip">Agent</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/Clippings/%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7/2026-07-21-Claude-Code-Skill%E6%9C%BA%E5%88%B6%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../notes/clippings/p0ba988/ai.html"><span class="dir">← 上一篇</span><span class="t">小黑盒推荐：适合新手学习/练手的 AI 项目</span></a><a class="next" href="../../../notes/clippings/p44a38b/2026-07-28-claude-code-coding.html"><span class="dir">下一篇 →</span><span class="t">Claude Code 工程化六件套详解</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../index.html">首页</a>
+      <a href="../../../learn.html">课件</a>
+      <a href="../../../notes/index.html">笔记库</a>
+      <a href="../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../about.html">关于</a>
+      <a href="../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../js/main.js" defer></script>
+</body>
+</html>

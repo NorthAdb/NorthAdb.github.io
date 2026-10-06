@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LangChain4j：Java LLM 应用框架的能力与边界 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="面试官笑问：“LangChain4j 是什么？它主要解决了什么问题？”https://mp.weixin.qq.com/s/pCBR1RAwgKMcSp87KqIjWQ 公众号：小林面试笔记｜发布时间：2026-08-27">
+<link rel="canonical" href="https://northadb.github.io/notes/clippings/p44a38b/2026-08-27-langchain4j-java-llm.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="LangChain4j：Java LLM 应用框架的能力与边界 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="面试官笑问：“LangChain4j 是什么？它主要解决了什么问题？”https://mp.weixin.qq.com/s/pCBR1RAwgKMcSp87KqIjWQ 公众号：小林面试笔记｜发布时间：2026-08-27">
+<meta property="og:url" content="https://northadb.github.io/notes/clippings/p44a38b/2026-08-27-langchain4j-java-llm.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="LangChain4j：Java LLM 应用框架的能力与边界 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="面试官笑问：“LangChain4j 是什么？它主要解决了什么问题？”https://mp.weixin.qq.com/s/pCBR1RAwgKMcSp87KqIjWQ 公众号：小林面试笔记｜发布时间：2026-08-27">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../feed.xml">
+<link rel="stylesheet" href="../../../css/style.css">
+<link rel="stylesheet" href="../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "LangChain4j：Java LLM 应用框架的能力与边界", "description": "面试官笑问：“LangChain4j 是什么？它主要解决了什么问题？”https://mp.weixin.qq.com/s/pCBR1RAwgKMcSp87KqIjWQ 公众号：小林面试笔记｜发布时间：2026-08-27", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/clippings/p44a38b/2026-08-27-langchain4j-java-llm.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../index.html">首页</a><span>/</span><a href="../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../notes/clippings/index.html">内容剪藏</a></div>
+          <h1>LangChain4j：Java LLM 应用框架的能力与边界</h1>
+          <p class="post-sub">面试官笑问：“LangChain4j 是什么？它主要解决了什么问题？”https://mp.weixin.qq.com/s/pCBR1RAwgKMcSp87KqIjWQ 公众号：小林面试笔记｜发布时间：2026-08-27</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../notes/clippings/index.html">内容剪藏</a></span><span class="sep"></span>
+            <span>阅读约 7 分钟</span><span class="sep"></span><span>更新于 2026-08-27</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+
+<div class="callout" data-callout="info"><p class="callout-title">原文信息</p>
+<p><a href="https://mp.weixin.qq.com/s/pCBR1RAwgKMcSp87KqIjWQ">面试官笑问：“LangChain4j 是什么？它主要解决了什么问题？”</a><br>
+公众号：小林面试笔记｜发布时间：2026-08-27</p>
+</div>
+<h2 id="一句话结论">一句话结论</h2>
+<p><strong>LangChain4j 不是 Python LangChain 的官方 Java 移植版，而是一套独立、遵循 Java 编程习惯的 JVM LLM 应用框架。</strong> 它用统一抽象和 AI Services 减少模型接入、Tools、Chat Memory、RAG、结构化输出等环节的胶水代码，但不会替代权限控制、业务校验、评测、可观测性和可靠工作流。</p>
+<h2 id="面试简答">面试简答</h2>
+<p>LangChain4j 主要解决三类问题：</p>
+<ol>
+<li><strong>供应商接口不统一</strong>：通过 <code>ChatModel</code>、<code>EmbeddingModel</code>、<code>EmbeddingStore</code> 等接口隔离常见模型和向量库差异。</li>
+<li><strong>LLM 应用胶水代码过多</strong>：通过 AI Services 将 Prompt、Tools、Chat Memory、RAG 和结构化输出组装成类型化 Java 服务。</li>
+<li><strong>Java 工程接入成本较高</strong>：融入 Spring Boot、Quarkus、Helidon、Micronaut 等生态，复用依赖注入、配置、测试和监控体系。</li>
+</ol>
+<p>它适合已有 Java 技术栈、需要构建知识库问答、智能客服、文档抽取、内容生成，或让模型受控调用现有 Java 服务的团队。</p>
+
+<div class="callout" data-callout="warning"><p class="callout-title">回答时应主动说明的边界</p>
+<p>统一接口不等于模型能力完全一致；Chat Memory 不等于完整聊天档案；Guardrails 不等于权限系统；复杂长事务仍需要工作流引擎或业务编排层。</p>
+</div>
+<h2 id="一定位不是-langchain-的-java-移植版">一、定位：不是 LangChain 的 Java 移植版</h2>
+<p>LangChain4j 的名字受 LangChain 启发，但其 API、内部实现和发布周期均独立于 Python LangChain。它从 Java 开发习惯出发，强调：</p>
+<ul>
+<li>类型安全；</li>
+<li>POJO、<code>record</code> 和接口；</li>
+<li>注解式声明；</li>
+<li>依赖注入与主流 JVM 框架集成。</li>
+</ul>
+<p><img alt="LangChain4j 的框架定位" src="https://gitee.com/cheng-jiaqing/images/raw/master/img_001.png"></p>
+<p>框架提供两个层次：</p>
+<table>
+<thead>
+<tr>
+<th>层次</th>
+<th>典型抽象</th>
+<th>适用情况</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>低层组件</td>
+<td><code>ChatModel</code>、<code>EmbeddingModel</code>、<code>ChatMemory</code></td>
+<td>需要精细控制模型、消息、向量和存储</td>
+</tr>
+<tr>
+<td>高层 AI Services</td>
+<td>Java 接口、注解、代理实现</td>
+<td>更关心业务服务接口，希望框架组装通用流程</td>
+</tr>
+</tbody>
+</table>
+<p>官方文档已将旧式 Chains 标记为 legacy。新项目不应因为名字中有 <code>Chain</code>，就把 <code>ConversationalChain</code> 当作主入口。</p>
+<h2 id="二统一抽象隔离变化不是消灭差异">二、统一抽象：隔离变化，不是消灭差异</h2>
+<p>不同模型供应商的认证、请求对象、消息格式、流式回调和异常类型并不一致。LangChain4j 用核心接口将变化限制在适配层：</p>
+<ul>
+<li>聊天模型：<code>ChatModel</code>、<code>StreamingChatModel</code>；</li>
+<li>向量化：<code>EmbeddingModel</code>；</li>
+<li>向量存储：<code>EmbeddingStore</code>。</li>
+</ul>
+<p><img alt="LangChain4j 的统一接口层" src="https://gitee.com/cheng-jiaqing/images/raw/master/img_002.png"></p>
+<p>这带来的实际价值是：业务层可以依赖稳定接口，测试时替换实现，试验不同模型或向量库时减少上层改动。</p>
+<p>但抽象只能覆盖能力交集。更换供应商后，仍需重新验证：</p>
+<ul>
+<li>Tools、原生 JSON Schema、多模态、流式输出等能力；</li>
+<li>Prompt 效果与 Token 计算；</li>
+<li>限流、异常处理和重试策略；</li>
+<li>质量、延迟、成本和安全评测基线。</li>
+</ul>
+<h2 id="三ai-services把-ai-能力包装成-java-服务">三、AI Services：把 AI 能力包装成 Java 服务</h2>
+<p>AI Services 的核心思路类似 Spring Data JPA 或 Retrofit：开发者声明 Java 接口，框架在运行时提供代理，将方法参数转换为模型消息，并把响应解析为返回类型。</p>
+<p><img alt="AI Services 组装 Prompt、Tools、Memory 与 RAG" src="https://gitee.com/cheng-jiaqing/images/raw/master/img_003.png"></p>
+<p>下面是原文案例的精简版本：</p>
+<pre><code class="language-java">record SupportReply(
+        @Description(&quot;给用户展示的中文答复&quot;) String answer,
+        @Description(&quot;查到的订单状态，未查询时返回空字符串&quot;) String orderStatus,
+        @Description(&quot;是否需要转人工&quot;) boolean needsHuman) {}
+
+interface SupportAssistant {
+    @SystemMessage(&quot;&quot;&quot;
+            你是订单客服。涉及订单状态时必须调用查询工具，
+            不得猜测系统中不存在的信息；高风险请求必须建议转人工。
+            &quot;&quot;&quot;)
+    SupportReply chat(
+            @MemoryId String conversationId,
+            @UserMessage String question);
+}
+
+final class OrderTools {
+    private final OrderService orderService;
+
+    OrderTools(OrderService orderService) {
+        this.orderService = orderService;
+    }
+
+    @Tool(&quot;根据订单号查询订单状态，只读，不执行退款或修改&quot;)
+    String findOrder(@P(&quot;订单号&quot;) String orderId) {
+        return orderService.findStatus(orderId);
+    }
+}
+</code></pre>
+<p>组装服务时，可以同时配置模型、工具、检索器和按会话隔离的记忆：</p>
+<pre><code class="language-java">SupportAssistant assistant = AiServices.builder(SupportAssistant.class)
+        .chatModel(chatModel)
+        .tools(new OrderTools(orderService))
+        .contentRetriever(retriever)
+        .chatMemoryProvider(memoryId -&gt; MessageWindowChatMemory.builder()
+                .id(memoryId)
+                .maxMessages(20)
+                .chatMemoryStore(chatMemoryStore)
+                .build())
+        .build();
+
+SupportReply reply = assistant.chat(
+        &quot;conversation-1001&quot;,
+        &quot;订单 A1024 到哪了？&quot;);
+</code></pre>
+<p>一次调用可能依次经历：参数转消息 → RAG 补充上下文 → 模型选择 Tool → Java 执行工具 → 模型生成答案 → 转换为 <code>record</code> 或 POJO。</p>
+<p>结构化反序列化成功只代表数据形状匹配，不代表金额、权限或订单状态符合业务规则。确定性的业务校验仍应放在 Java 业务层。</p>
+<h2 id="四tools模型提出请求应用执行动作">四、Tools：模型提出请求，应用执行动作</h2>
+<p>LangChain4j 可通过 <code>@Tool</code> 暴露 Java 方法，并将工具说明和参数 Schema 提供给模型。模型决定调用哪个工具及其参数，真正执行方法的仍是应用程序。</p>
+<p><img alt="Tools 的模型与应用调用循环" src="https://gitee.com/cheng-jiaqing/images/raw/master/img_004.png"></p>
+<p>生产环境必须保留以下控制：</p>
+<ul>
+<li>用户身份、租户和数据权限校验；</li>
+<li>写操作的幂等、额度、审批和审计；</li>
+<li>工具超时、重试和异常降级；</li>
+<li>敏感信息与内部堆栈脱敏；</li>
+<li>高风险动作的人机确认。</li>
+</ul>
+<p><strong>工具描述只约束模型行为，服务端权限才约束真实能力。</strong></p>
+<h2 id="五chat-memory上下文窗口不是完整历史">五、Chat Memory：上下文窗口，不是完整历史</h2>
+<p><code>ChatMemory</code> 管理下一次送给模型的上下文。常用实现包括：</p>
+<ul>
+<li><code>MessageWindowChatMemory</code>：按消息数量淘汰；</li>
+<li><code>TokenWindowChatMemory</code>：按 Token 窗口淘汰。</li>
+</ul>
+<p><img alt="Chat Memory 与完整聊天历史的区别" src="https://gitee.com/cheng-jiaqing/images/raw/master/img_005.png"></p>
+<p>需要注意：</p>
+<ul>
+<li>Memory 可被淘汰、压缩或注入，不等同于产品展示和审计所需的完整 history；</li>
+<li>默认实现位于内存中，持久化需要实现 <code>ChatMemoryStore</code>；</li>
+<li>多用户使用 <code>@MemoryId</code> 和 <code>ChatMemoryProvider</code> 隔离；</li>
+<li>同一 <code>MemoryId</code> 的并发控制仍由应用负责；</li>
+<li>用户偏好、业务事实等长期记忆应进入数据库或检索系统，而不是无限扩展消息窗口。</li>
+</ul>
+<h2 id="六rag框架提供积木效果取决于工程">六、RAG：框架提供积木，效果取决于工程</h2>
+<p>LangChain4j 覆盖文档加载、解析、切分、Embedding、向量存储、在线检索和上下文注入。简单场景可直接配置 <code>ContentRetriever</code>；复杂场景可用 <code>RetrievalAugmentor</code> 组合查询改写、多路检索、融合、重排和注入。</p>
+<p><img alt="LangChain4j 的 RAG 组件" src="https://gitee.com/cheng-jiaqing/images/raw/master/img_006.png"></p>
+<p>检索来源不限于向量库，还可以接入全文搜索、Web 搜索、知识图谱或业务数据库。但框架不能替代：</p>
+<ul>
+<li>文档清洗与切分策略；</li>
+<li>召回率和重排评测；</li>
+<li>权限过滤与数据隔离；</li>
+<li>引用溯源；</li>
+<li>离线评测和线上反馈闭环。</li>
+</ul>
+<h2 id="七java-生态集成">七、Java 生态集成</h2>
+<p>选集成方案时应优先沿用团队现有技术栈：</p>
+<table>
+<thead>
+<tr>
+<th>现状或目标</th>
+<th>优先评估方案</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>普通 Java 项目，需要丰富的模型、Tools、Memory 和 RAG 组件</td>
+<td>LangChain4j</td>
+</tr>
+<tr>
+<td>Spring Boot 是统一底座，希望遵循 Spring 官方抽象</td>
+<td>Spring AI，并对比 LangChain4j Spring Boot Starter</td>
+</tr>
+<tr>
+<td>Quarkus、原生镜像和 Dev Services 是核心诉求</td>
+<td>Quarkus LangChain4j</td>
+</tr>
+<tr>
+<td>深度绑定单一供应商的最新专属能力</td>
+<td>厂商官方 Java SDK</td>
+</tr>
+<tr>
+<td>长时间、可恢复、强确定性的业务流程</td>
+<td>工作流引擎或图编排层，再组合 LLM 框架</td>
+</tr>
+</tbody>
+</table>
+<p>依赖版本建议使用 <code>langchain4j-bom</code> 集中管理，并从官方 Release Notes 选择经过验证的版本，避免核心包、模型集成和 Starter 版本错位。</p>
+<h2 id="八可观测性与-guardrails">八、可观测性与 Guardrails</h2>
+<p>排查 AI Service 不能只看最终文本，还应沿调用链检查：</p>
+<ol>
+<li>送给模型的消息；</li>
+<li>Retriever 找回的内容；</li>
+<li>Tool 的参数、结果和异常；</li>
+<li>输入输出校验是否生效；</li>
+<li>每阶段耗时、Token 与错误。</li>
+</ol>
+<p><img alt="AI Service 的可观测链路" src="https://gitee.com/cheng-jiaqing/images/raw/master/img_007.png"></p>
+<p><code>ChatModelListener</code> 等监听入口可用于采集请求、响应、耗时和错误。Guardrails 可在模型调用前后检测越界请求、Prompt Injection、格式错误或违反业务规则的回答。</p>
+<p>截至原文调研时间，Guardrails 和 AI Service Observability 仍标为实验性，且仅适用于 AI Services。即便未来功能成熟，也不能替代认证、授权、数据隔离、资金风控与审计。</p>
+<h2 id="九适用与不适用场景">九、适用与不适用场景</h2>
+<h3 id="适合">适合</h3>
+<ul>
+<li>Java 业务系统内嵌企业知识库问答或智能客服；</li>
+<li>合同、简历等文档的结构化抽取；</li>
+<li>摘要、分类和内容生成；</li>
+<li>让模型受控调用订单、工单等已有领域服务；</li>
+<li>在多个模型或向量库之间进行 PoC 和选型。</li>
+</ul>
+<h3 id="不一定适合">不一定适合</h3>
+<ul>
+<li>只调用单一模型完成一次简单文本生成：官方 SDK 更轻；</li>
+<li>深度依赖某家模型刚发布的专属能力：官方 SDK 通常更早暴露完整参数；</li>
+<li>跨小时运行、可暂停恢复、强事务补偿的流程：需要工作流引擎、消息系统或图编排层。</li>
+</ul>
+<h2 id="选型检查清单">选型检查清单</h2>
+<ul>
+<li class="task"><span class="cb" aria-hidden="true"></span>用真实业务样本做小型 PoC，而不是只比较功能清单</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>验证回答质量和工具参数准确率</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>验证结构化输出成功率及业务字段校验</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>测量延迟、Token 和总成本</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>检查 RAG 权限过滤和引用溯源</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>检查日志、指标、追踪和故障恢复</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>锁定版本并对 beta、实验性模块做专项回归</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>切换模型后重新建立评测基线</li>
+</ul>
+<h2 id="最终提炼">最终提炼</h2>
+<ol>
+<li><strong>定位要准确</strong>：LangChain4j 是独立的 Java LLM 应用框架，不是 LangChain 官方移植版。</li>
+<li><strong>核心价值是工程抽象</strong>：统一模型/向量库接口，并用 AI Services 组合 Prompt、Tools、Memory、RAG 和结构化输出。</li>
+<li><strong>抽象不消灭差异</strong>：供应商能力、Prompt 效果、成本和可靠性仍需逐一验证。</li>
+<li><strong>框架不替代业务系统</strong>：权限、数据隔离、校验、审计、评测与可靠工作流必须由确定性工程兜底。</li>
+</ol>
+<h2 id="图片说明">图片说明</h2>
+<p>本文保留了 7 张用于解释定位、统一接口、AI Services、Tools、Chat Memory、RAG 和可观测性的原文配图，并通过本机 PicGo 桌面端上传至已配置的 Gitee 图床。</p>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">内容剪藏</span><span class="chip">- LangChain4j</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/Clippings/%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7/2026-08-27-LangChain4j-Java-LLM%E5%BA%94%E7%94%A8%E6%A1%86%E6%9E%B6%E8%83%BD%E5%8A%9B%E4%B8%8E%E8%BE%B9%E7%95%8C.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../notes/clippings/p44a38b/2026-08-26-anthropic-ai-native-sdlc-playbook.html"><span class="dir">← 上一篇</span><span class="t">Anthropic AI Native SDLC：当 AI 承担大部分编码后，如何重构开发流程</span></a><a class="next" href="../../../notes/clippings/p44a38b/2026-08-27-multi-agent-10.html"><span class="dir">下一篇 →</span><span class="t">靠这 10 个优化点，把 Multi-Agent 工作流成本降了 50%+</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../index.html">首页</a>
+      <a href="../../../learn.html">课件</a>
+      <a href="../../../notes/index.html">笔记库</a>
+      <a href="../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../about.html">关于</a>
+      <a href="../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../js/main.js" defer></script>
+</body>
+</html>

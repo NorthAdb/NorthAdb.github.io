@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WireGuard 动手实践笔记 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="本文档整理自 PQ-SecTunnel 开发过程中的 WireGuard 原生学习实验。 目标：理解标准 WireGuard 的配置流程，为对照和调整 PQ-SecTunnel（pqst / pqst-quick）提供基线。">
+<link rel="canonical" href="https://northadb.github.io/notes/pqsectunnel/research/wireguard-hands-on-practice.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="WireGuard 动手实践笔记 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="本文档整理自 PQ-SecTunnel 开发过程中的 WireGuard 原生学习实验。 目标：理解标准 WireGuard 的配置流程，为对照和调整 PQ-SecTunnel（pqst / pqst-quick）提供基线。">
+<meta property="og:url" content="https://northadb.github.io/notes/pqsectunnel/research/wireguard-hands-on-practice.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="WireGuard 动手实践笔记 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="本文档整理自 PQ-SecTunnel 开发过程中的 WireGuard 原生学习实验。 目标：理解标准 WireGuard 的配置流程，为对照和调整 PQ-SecTunnel（pqst / pqst-quick）提供基线。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../feed.xml">
+<link rel="stylesheet" href="../../../css/style.css">
+<link rel="stylesheet" href="../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "WireGuard 动手实践笔记", "description": "本文档整理自 PQ-SecTunnel 开发过程中的 WireGuard 原生学习实验。 目标：理解标准 WireGuard 的配置流程，为对照和调整 PQ-SecTunnel（pqst / pqst-quick）提供基线。", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/pqsectunnel/research/wireguard-hands-on-practice.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../index.html">首页</a><span>/</span><a href="../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../notes/pqsectunnel/index.html">PQ-SecTunnel</a></div>
+          <h1>WireGuard 动手实践笔记</h1>
+          <p class="post-sub">本文档整理自 PQ-SecTunnel 开发过程中的 WireGuard 原生学习实验。 目标：理解标准 WireGuard 的配置流程，为对照和调整 PQ-SecTunnel（pqst / pqst-quick）提供基线。</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../notes/pqsectunnel/index.html">PQ-SecTunnel</a></span><span class="sep"></span>
+            <span>阅读约 14 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p>本文档整理自 PQ-SecTunnel 开发过程中的 WireGuard 原生学习实验。<br>
+目标：理解标准 WireGuard 的配置流程，为对照和调整 PQ-SecTunnel（<code>pqst</code> / <code>pqst-quick</code>）提供基线。</p>
+</blockquote>
+<hr>
+<h2 id="1-实验目标与架构">1. 实验目标与架构</h2>
+<p>在本机用 <strong>network namespace（netns）</strong> 模拟两台机器，完成标准 WireGuard 端到端隧道。</p>
+<pre><code>┌─ wg-server-t1 ─────────────────────┐     ┌─ wg-client-t1 ─────────────────────┐
+│  veth-t1s: 172.30.0.1  (底层网络)  │     │  veth-t1c: 172.30.0.2  (底层网络)  │
+│  server-t1: 10.30.0.1  (隧道内网)  │◄───►│  client-t1: 10.30.0.2  (隧道内网)  │
+│  lo: 127.0.0.1        (回环)       │ UDP │  lo: 127.0.0.1        (回环)       │
+└────────────────────────────────────┘     └────────────────────────────────────┘
+</code></pre>
+<h3 id="ip-规划避免与-pq-实验的-10200024-冲突">IP 规划（避免与 PQ 实验的 <code>10.20.0.0/24</code> 冲突）</h3>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>底层网卡</th>
+<th>底层 IP</th>
+<th>隧道网卡</th>
+<th>隧道 IP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Server</td>
+<td><code>veth-t1s</code></td>
+<td><code>172.30.0.1/24</code></td>
+<td><code>server-t1</code>*</td>
+<td><code>10.30.0.1/24</code></td>
+</tr>
+<tr>
+<td>Client</td>
+<td><code>veth-t1c</code></td>
+<td><code>172.30.0.2/24</code></td>
+<td><code>client-t1</code>*</td>
+<td><code>10.30.0.2/24</code></td>
+</tr>
+</tbody>
+</table>
+<p>* 接口名由 <code>wg-quick</code> 配置文件名决定（<code>server-t1.conf</code> → 接口 <code>server-t1</code>）。纯命令行方式可自定名为 <code>wg0</code>。</p>
+<h3 id="每个-netns-中的三张网卡">每个 netns 中的三张网卡</h3>
+<table>
+<thead>
+<tr>
+<th>网卡</th>
+<th>来源</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>lo</code></td>
+<td>系统自带</td>
+<td>回环，每个 namespace 都有</td>
+</tr>
+<tr>
+<td><code>veth-t1s</code> / <code>veth-t1c</code></td>
+<td>手动创建</td>
+<td>底层网络，UDP 握手包经此收发</td>
+</tr>
+<tr>
+<td><code>server-t1</code> / <code>client-t1</code></td>
+<td>WireGuard</td>
+<td>隧道内网，加密流量走此接口</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="2-前置检查">2. 前置检查</h2>
+<h3 id="21-确认-wireguard-已安装">2.1 确认 WireGuard 已安装</h3>
+<pre><code class="language-bash">which wg wg-quick
+wg --version
+</code></pre>
+<p>Ubuntu 典型安装：<code>wireguard</code>（元包）+ <code>wireguard-tools</code>（<code>wg</code> / <code>wg-quick</code>）。</p>
+<h3 id="22-加载内核模块并验证">2.2 加载内核模块并验证</h3>
+<pre><code class="language-bash">sudo modprobe wireguard
+
+# 功能验证：能创建 wireguard 类型网卡即 OK
+sudo ip link add test-wg type wireguard
+sudo ip link del test-wg
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>工具/模块</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>用户态</td>
+<td><code>wg</code>、<code>wg-quick</code>（wireguard-tools）</td>
+<td>配置、查看状态</td>
+</tr>
+<tr>
+<td>内核态</td>
+<td><code>wireguard.ko</code></td>
+<td>实现隧道网卡、握手、加解密</td>
+</tr>
+<tr>
+<td>通信机制</td>
+<td>netlink</td>
+<td>用户态与内核的配置通道</td>
+</tr>
+</tbody>
+</table>
+<p><strong>说明</strong>：<code>ip link add ... type wireguard</code> 走 RTNETLINK；<code>wg set</code> 走 WireGuard 的 Generic Netlink。二者配合完成隧道搭建。VPN 数据本身走 UDP socket，不走 netlink。</p>
+<p><strong>常见报错</strong>：</p>
+<pre><code>Error: Unknown device type.
+Unable to access interface: Protocol not supported
+</code></pre>
+<p>原因：<code>wireguard.ko</code> 未加载。先 <code>sudo modprobe wireguard</code>。注意内置模块不会出现在 <code>lsmod</code> 中，应以能否创建接口为准。</p>
+<hr>
+<h2 id="3-密钥生成">3. 密钥生成</h2>
+<pre><code class="language-bash">mkdir -p ~/wg-learn &amp;&amp; cd ~/wg-learn
+
+# Server
+wg genkey | tee server.key | wg pubkey &gt; server.pub
+
+# Client
+wg genkey | tee client.key | wg pubkey &gt; client.pub
+
+chmod 600 server.key client.key
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>*.key</code></td>
+<td>私钥，绝不外传</td>
+</tr>
+<tr>
+<td><code>*.pub</code></td>
+<td>公钥，写入对端 <code>[Peer]</code> 段</td>
+</tr>
+</tbody>
+</table>
+<p>管道数据流：</p>
+<pre><code>wg genkey → tee（写 server.key + 转发）→ wg pubkey → server.pub
+</code></pre>
+<hr>
+<h2 id="4-搭建-netns-底层网络">4. 搭建 netns 底层网络</h2>
+<h3 id="41-创建-namespace">4.1 创建 namespace</h3>
+<pre><code class="language-bash">sudo ip netns add wg-server-t1
+sudo ip netns add wg-client-t1
+</code></pre>
+<p>命名空间在 <code>/run/netns/&lt;名字&gt;</code> 注册。若报 <code>File exists</code>，说明已存在，可 <code>sudo ip netns del &lt;名字&gt;</code> 后重建，或直接复用。</p>
+<h3 id="42-用-veth-连接两端">4.2 用 veth 连接两端</h3>
+<pre><code class="language-bash">sudo ip link add veth-t1s type veth peer name veth-t1c
+sudo ip link set veth-t1s netns wg-server-t1
+sudo ip link set veth-t1c netns wg-client-t1
+</code></pre>
+<p>可分两步移动并改名，也可一步完成：</p>
+<pre><code class="language-bash">sudo ip link set veth-t1s netns wg-server-t1 name eth0   # 若 eth0 已存在会报 File exists
+</code></pre>
+<h3 id="43-配置底层-ip">4.3 配置底层 IP</h3>
+<pre><code class="language-bash">sudo ip netns exec wg-server-t1 ip addr add 172.30.0.1/24 dev veth-t1s
+sudo ip netns exec wg-server-t1 ip link set veth-t1s up
+sudo ip netns exec wg-server-t1 ip link set lo up
+
+sudo ip netns exec wg-client-t1 ip addr add 172.30.0.2/24 dev veth-t1c
+sudo ip netns exec wg-client-t1 ip link set veth-t1c up
+sudo ip netns exec wg-client-t1 ip link set lo up
+
+# 验证底层连通
+sudo ip netns exec wg-client-t1 ping -c 2 172.30.0.1
+</code></pre>
+<hr>
+<h2 id="5-方案-a纯命令行配置wg-set-ip">5. 方案 A：纯命令行配置（<code>wg set</code> + <code>ip</code>）</h2>
+<p>配置写入<strong>内核内存</strong>，重启或 <code>ip link del</code> 后消失，<strong>不会自动生成配置文件</strong>。</p>
+<h3 id="51-server-端">5.1 Server 端</h3>
+<pre><code class="language-bash">cd ~/wg-learn
+
+sudo ip netns exec wg-server-t1 ip link add wg0 type wireguard
+
+sudo ip netns exec wg-server-t1 wg set wg0 \
+    private-key ./server.key \
+    listen-port 51820
+
+sudo ip netns exec wg-server-t1 wg set wg0 \
+    peer $(cat client.pub) \
+    allowed-ips 10.30.0.2/32
+
+sudo ip netns exec wg-server-t1 ip addr add 10.30.0.1/24 dev wg0
+sudo ip netns exec wg-server-t1 ip link set wg0 up
+</code></pre>
+<h3 id="52-client-端">5.2 Client 端</h3>
+<pre><code class="language-bash">cd ~/wg-learn
+
+sudo ip netns exec wg-client-t1 ip link add wg0 type wireguard
+
+sudo ip netns exec wg-client-t1 wg set wg0 \
+    private-key ./client.key
+
+sudo ip netns exec wg-client-t1 wg set wg0 \
+    peer $(cat server.pub) \
+    endpoint 172.30.0.1:51820 \
+    allowed-ips 10.30.0.0/24 \
+    persistent-keepalive 25
+
+sudo ip netns exec wg-client-t1 ip addr add 10.30.0.2/24 dev wg0
+sudo ip netns exec wg-client-t1 ip link set wg0 up
+</code></pre>
+<h3 id="53-各命令职责">5.3 各命令职责</h3>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>工具</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ip link add wg0 type wireguard</code></td>
+<td>iproute2（RTNETLINK）</td>
+<td>创建隧道网卡壳子</td>
+</tr>
+<tr>
+<td><code>wg set ... private-key / peer / endpoint</code></td>
+<td>wireguard-tools（genl）</td>
+<td>写密钥、对端、路由策略</td>
+</tr>
+<tr>
+<td><code>ip addr add ... dev wg0</code></td>
+<td>iproute2</td>
+<td>配隧道 IP</td>
+</tr>
+<tr>
+<td><code>ip link set wg0 up</code></td>
+<td>iproute2</td>
+<td>启用接口</td>
+</tr>
+</tbody>
+</table>
+<h3 id="54-从内核导出配置可选">5.4 从内核导出配置（可选）</h3>
+<pre><code class="language-bash">sudo ip netns exec wg-server-t1 wg showconf wg0 &gt; server-export.conf
+</code></pre>
+<p><code>wg showconf</code> 不含 <code>Address</code> 字段（Address 由 <code>ip addr</code> 或 <code>wg-quick</code> 单独配置）。</p>
+<hr>
+<h2 id="6-方案-bwg-quick-配置文件推荐用于可复现部署">6. 方案 B：<code>wg-quick</code> + 配置文件（推荐用于可复现部署）</h2>
+<p><strong>持久化的是磁盘上的 <code>.conf</code> 文件</strong>；<code>wg-quick</code> 负责读文件并写入内核。</p>
+<h3 id="61-编写配置文件">6.1 编写配置文件</h3>
+<p><strong><code>~/wg-learn/server-t1.conf</code></strong>（Server）：</p>
+<pre><code class="language-ini">[Interface]
+PrivateKey = &lt;server.key 内容&gt;
+Address = 10.30.0.1/24
+ListenPort = 51820
+
+[Peer]
+PublicKey = &lt;client.pub 内容&gt;
+AllowedIPs = 10.30.0.2/32
+</code></pre>
+<p><strong><code>~/wg-learn/client-t1.conf</code></strong>（Client）：</p>
+<pre><code class="language-ini">[Interface]
+PrivateKey = &lt;client.key 内容&gt;
+Address = 10.30.0.2/24
+
+[Peer]
+PublicKey = &lt;server.pub 内容&gt;
+Endpoint = 172.30.0.1:51820
+AllowedIPs = 10.30.0.0/24
+PersistentKeepalive = 25
+</code></pre>
+<p>用命令生成（避免手抄密钥）：</p>
+<pre><code class="language-bash">cd ~/wg-learn
+
+cat &gt; server-t1.conf &lt;&lt; EOF
+[Interface]
+PrivateKey = $(cat server.key)
+Address = 10.30.0.1/24
+ListenPort = 51820
+
+[Peer]
+PublicKey = $(cat client.pub)
+AllowedIPs = 10.30.0.2/32
+EOF
+
+cat &gt; client-t1.conf &lt;&lt; EOF
+[Interface]
+PrivateKey = $(cat client.key)
+Address = 10.30.0.2/24
+
+[Peer]
+PublicKey = $(cat server.pub)
+Endpoint = 172.30.0.1:51820
+AllowedIPs = 10.30.0.0/24
+PersistentKeepalive = 25
+EOF
+
+chmod 600 server-t1.conf client-t1.conf
+</code></pre>
+<h3 id="62-启动与停止">6.2 启动与停止</h3>
+<pre><code class="language-bash">cd ~/wg-learn
+
+# 若已有手动创建的 wg0，先删除
+sudo ip netns exec wg-server-t1 ip link del wg0 2&gt;/dev/null
+sudo ip netns exec wg-client-t1 ip link del wg0 2&gt;/dev/null
+
+# 启动（接口名 = 配置文件名去掉 .conf）
+sudo ip netns exec wg-server-t1 wg-quick up ./server-t1.conf
+sudo ip netns exec wg-client-t1 wg-quick up ./client-t1.conf
+
+# 停止（.conf 文件保留）
+sudo ip netns exec wg-server-t1 wg-quick down ./server-t1.conf
+sudo ip netns exec wg-client-t1 wg-quick down ./client-t1.conf
+</code></pre>
+<p><code>wg-quick up</code> 等价于：<code>ip link add</code> → <code>wg set</code> → <code>ip addr add</code> → <code>ip link set up</code>。</p>
+<h3 id="63-配置存储对比">6.3 配置存储对比</h3>
+<table>
+<thead>
+<tr>
+<th>方式</th>
+<th>配置真源</th>
+<th>重启后</th>
+<th>查看配置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>纯命令行 <code>wg set</code></td>
+<td>内核内存</td>
+<td>消失</td>
+<td><code>wg show</code> / <code>wg showconf</code></td>
+</tr>
+<tr>
+<td><code>wg-quick</code> + <code>.conf</code></td>
+<td>磁盘文件</td>
+<td>文件仍在，需再 <code>up</code></td>
+<td><code>cat xxx.conf</code></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>配置项</th>
+<th>归属</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>私钥、peer、endpoint、allowed-ips</td>
+<td><code>[Interface]</code> / <code>[Peer]</code>（WireGuard）</td>
+</tr>
+<tr>
+<td>隧道 IP（Address）</td>
+<td><code>[Interface]</code>，由 wg-quick 用 <code>ip addr</code> 应用</td>
+</tr>
+<tr>
+<td>底层 veth IP</td>
+<td>独立 <code>ip addr</code>，不在 .conf 中</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="7-握手自动触发无需手动命令">7. 握手：自动触发，无需手动命令</h2>
+<p>WireGuard <strong>没有</strong>单独的「开始握手」命令。满足条件后内核自动完成 Noise IK 握手（1-RTT）。</p>
+<h3 id="71-触发条件">7.1 触发条件</h3>
+<table>
+<thead>
+<tr>
+<th>动作</th>
+<th>是否触发握手</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Client <code>wg set ... endpoint ...</code></td>
+<td><strong>立刻触发</strong></td>
+</tr>
+<tr>
+<td>接口 up 后有待发送流量</td>
+<td>触发</td>
+</tr>
+<tr>
+<td><code>ping</code> 隧道 IP</td>
+<td>若尚未握手，先握手再传数据</td>
+</tr>
+<tr>
+<td>Server 仅 <code>listen-port</code>，无 endpoint</td>
+<td>被动等待，不主动发起</td>
+</tr>
+</tbody>
+</table>
+<h3 id="72-角色分工">7.2 角色分工</h3>
+<pre><code>Server（被动方）：listen-port 51820，不设 endpoint → 等客
+Client（主动方）：endpoint 172.30.0.1:51820 → 主动发 Handshake Initiation
+</code></pre>
+<h3 id="73-时序">7.3 时序</h3>
+<pre><code>Client                              Server
+  │── Handshake Initiation (UDP) ──►│
+  │◄── Handshake Response (UDP) ────│
+  │  双方派生会话密钥，隧道就绪         │
+</code></pre>
+<p>配置完成 ≠ 仅「就绪」；Client 写上 <code>endpoint</code> 后握手即自动完成。</p>
+<hr>
+<h2 id="8-wg-show-使用">8. <code>wg show</code> 使用</h2>
+<h3 id="81-基本查看">8.1 基本查看</h3>
+<pre><code class="language-bash">sudo ip netns exec wg-server-t1 wg show
+sudo ip netns exec wg-client-t1 wg show
+
+# 指定接口（wg-quick 创建的接口名可能不是 wg0）
+sudo ip netns exec wg-server-t1 wg show server-t1
+</code></pre>
+<h3 id="82-输出字段解读">8.2 输出字段解读</h3>
+<pre><code>interface: server-t1
+  public key: kkwhGzuvpAa/...          # 本机公钥
+  private key: (hidden)
+  listening port: 51820                 # UDP 监听端口
+
+peer: yy9VxersE54y...                   # 对端公钥
+  endpoint: 172.30.0.2:37989            # 看到的对端 UDP 地址（含源端口）
+  allowed ips: 10.30.0.2/32              # 允许通过的隧道 IP
+  latest handshake: 26 seconds ago      # ★ 有值 = 握手已成功
+  transfer: 3.20 KiB received, 920 B sent # 加密流量统计
+  persistent keepalive: every 25 seconds # Client 侧 NAT 保活
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>latest handshake</code></td>
+<td>上次 Noise 握手完成时间；<code>(none)</code> 表示尚未握手</td>
+</tr>
+<tr>
+<td><code>endpoint</code></td>
+<td>对端 UDP 地址；Server 侧是动态学到的 Client 源地址</td>
+</tr>
+<tr>
+<td><code>transfer</code></td>
+<td>该 peer 的加解密字节计数</td>
+</tr>
+<tr>
+<td><code>listening port</code></td>
+<td>本机 UDP 端口；Client 侧常为随机高端口</td>
+</tr>
+</tbody>
+</table>
+<h3 id="83-验证隧道">8.3 验证隧道</h3>
+<pre><code class="language-bash">sudo ip netns exec wg-client-t1 ping -c 3 10.30.0.1
+sudo ip netns exec wg-server-t1 ping -c 3 10.30.0.2
+</code></pre>
+<p><code>ping</code> 走隧道 IP → 经 <code>wg0</code>/<code>server-t1</code> 加密；<code>ping 172.30.0.x</code> 走底层 veth，不加密。</p>
+<hr>
+<h2 id="9-查看-netns-中的全套网卡">9. 查看 netns 中的全套网卡</h2>
+<pre><code class="language-bash"># 简要一览（推荐）
+sudo ip netns exec wg-server-t1 ip -br addr
+sudo ip netns exec wg-client-t1 ip -br addr
+
+# 链路层详情
+sudo ip netns exec wg-server-t1 ip link show
+
+# 路由表
+sudo ip netns exec wg-server-t1 ip route show
+
+# 两端汇总
+for ns in wg-server-t1 wg-client-t1; do
+  echo &quot;========== $ns ==========&quot;
+  sudo ip netns exec $ns ip -br addr
+  sudo ip netns exec $ns ip route
+  sudo ip netns exec $ns wg show 2&gt;/dev/null
+  echo
+done
+</code></pre>
+<hr>
+<h2 id="10-systemd-服务真实场景-vs-netns-实验">10. systemd 服务：真实场景 vs netns 实验</h2>
+<h3 id="101-真实单机部署">10.1 真实单机部署</h3>
+<p>配置文件放在 <code>/etc/wireguard/</code>：</p>
+<pre><code class="language-bash">sudo cp ~/wg-learn/server-t1.conf /etc/wireguard/wg0.conf
+sudo chmod 600 /etc/wireguard/wg0.conf
+
+sudo wg-quick up wg0
+sudo wg-quick down wg0
+
+# 开机自启
+sudo systemctl enable wg-quick@wg0
+sudo systemctl start wg-quick@wg0
+sudo systemctl status wg-quick@wg0
+sudo journalctl -u wg-quick@wg0
+</code></pre>
+<p>此时可在主机上直接查看服务状态、日志、开机自启。</p>
+<h3 id="102-netns-实验环境">10.2 netns 实验环境</h3>
+<p>默认 <strong>不能</strong> 在 netns 内直接 <code>systemctl start wg-quick@wg0</code>——systemd 服务跑在主机 init namespace，看不到 netns 内的接口。</p>
+<p>实验中的做法（与 PQ-SecTunnel <code>setup_ns.sh</code> 一致）：</p>
+<pre><code class="language-bash">sudo ip netns exec wg-server-t1 wg-quick up ./server-t1.conf
+</code></pre>
+<p>状态查看用 <code>wg show</code> / <code>ip -br addr</code>，而非 <code>systemctl</code>。</p>
+<h3 id="103-若一定要在-netns-中服务化管理">10.3 若一定要在 netns 中服务化管理</h3>
+<p>在主机上创建 wrapper unit，内部用 <code>ip netns exec</code>：</p>
+<pre><code class="language-ini"># /etc/systemd/system/wg-quick-server-t1.service
+[Unit]
+Description=WireGuard server-t1 in netns wg-server-t1
+After=network.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/home/northadb/wg-learn
+ExecStart=/usr/bin/ip netns exec wg-server-t1 /usr/bin/wg-quick up /home/northadb/wg-learn/server-t1.conf
+ExecStop=/usr/bin/ip netns exec wg-server-t1 /usr/bin/wg-quick down /home/northadb/wg-learn/server-t1.conf
+
+[Install]
+WantedBy=multi-user.target
+</code></pre>
+<p>较新 systemd（248+）也可用 <code>NetworkNamespacePath=/run/netns/wg-server-t1</code>。</p>
+<hr>
+<h2 id="11-与-pq-sectunnel-对照">11. 与 PQ-SecTunnel 对照</h2>
+<table>
+<thead>
+<tr>
+<th>标准 WireGuard</th>
+<th>PQ-SecTunnel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>wireguard.ko</code></td>
+<td><code>pqsectunnel.ko</code></td>
+</tr>
+<tr>
+<td><code>wg</code> / <code>wg-quick</code></td>
+<td><code>pqst</code> / <code>pqst-quick</code></td>
+</tr>
+<tr>
+<td><code>PrivateKey</code> / <code>PublicKey</code></td>
+<td><code>InitiatorPrivateKey</code> / <code>ResponderPublicKey</code> 等</td>
+</tr>
+<tr>
+<td>2 轮握手（Init + Response）</td>
+<td>3 轮（+ Key Confirmation）</td>
+</tr>
+<tr>
+<td>X25519 ECDH</td>
+<td>ML-KEM 封装/解封装</td>
+</tr>
+<tr>
+<td>netns 名（学习用）<code>wg-server-t1</code></td>
+<td>测试框架 <code>srv0_ns</code> / <code>cli0_ns</code></td>
+</tr>
+<tr>
+<td>底层网段（学习用）<code>172.30.0.0/24</code></td>
+<td>测试框架 <code>10.20.0.0/24</code>（index=0）</td>
+</tr>
+<tr>
+<td>配置文件 <code>*.conf</code></td>
+<td><code>pqst0.conf</code> / <code>server0.pqst0.conf</code></td>
+</tr>
+<tr>
+<td>触发机制</td>
+<td>同样自动；<code>endpoint</code> 触发主动方</td>
+</tr>
+</tbody>
+</table>
+<p>PQ 实验目录典型用法：</p>
+<pre><code class="language-bash">cd experiments/mlkem512-mlkem768-sm4gcm-sm3/
+sudo insmod pqsectunnel.ko
+sudo ./setup_ns.sh
+sudo ip netns exec srv0_ns ./pqst show
+</code></pre>
+<hr>
+<h2 id="12-清理命令">12. 清理命令</h2>
+<pre><code class="language-bash"># 停止隧道
+cd ~/wg-learn
+sudo ip netns exec wg-server-t1 wg-quick down ./server-t1.conf 2&gt;/dev/null
+sudo ip netns exec wg-client-t1 wg-quick down ./client-t1.conf 2&gt;/dev/null
+
+# 删除 netns（会先清理内部网卡）
+sudo ip netns del wg-server-t1
+sudo ip netns del wg-client-t1
+
+# 查看残留
+sudo ip netns list
+ls -la /run/netns/
+</code></pre>
+<hr>
+<h2 id="13-两种方式选择建议">13. 两种方式选择建议</h2>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>推荐</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>理解内核配置路径、对照源码</td>
+<td>方案 A：纯 <code>wg set</code></td>
+</tr>
+<tr>
+<td>可复现实验、对照 PQ 配置文件</td>
+<td>方案 B：<code>wg-quick</code> + <code>.conf</code></td>
+</tr>
+<tr>
+<td>本机 netns 学习</td>
+<td><code>ip netns exec ... wg-quick up</code></td>
+</tr>
+<tr>
+<td>生产部署</td>
+<td><code>/etc/wireguard/wg0.conf</code> + <code>systemctl enable wg-quick@wg0</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="14-相关文档">14. 相关文档</h2>
+<ul>
+<li><a href="../../../notes/pqsectunnel/research/wireguard-background.html">wireguard-background.md</a> — WireGuard 协议与密码学背景调研</li>
+<li><a href="https://github.com/NorthAdb/north-my-note/blob/main/docs/zh/handshake.md">../../docs/zh/handshake.md</a> — PQ-SecTunnel 握手流程</li>
+<li><a href="https://github.com/NorthAdb/north-my-note/blob/main/KE.md">../../KE.md</a> — Noise_IKpsk1kem 协议规范</li>
+<li><a href="https://github.com/NorthAdb/north-my-note/blob/main/CONTEXT.md">../../CONTEXT.md</a> — PQ-SecTunnel 领域词汇表</li>
+</ul>
+<hr>
+<h2 id="15-漫游roaming实验">15. 漫游（Roaming）实验</h2>
+<p>WireGuard <strong>内置漫游</strong>：当对端从新的 UDP 源地址发来<strong>已认证</strong>的数据包时，本机自动更新该 peer 的 <code>endpoint</code>，无需改配置文件、无需重启接口。</p>
+<h3 id="151-漫游机制简述">15.1 漫游机制简述</h3>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>配置里的 <code>Endpoint</code></td>
+<td>只是<strong>初始/_hint</strong> 地址，主动方用来发起第一次通信</td>
+</tr>
+<tr>
+<td>运行时的 <code>endpoint</code></td>
+<td><code>wg show</code> 里看到的<strong>动态</strong>地址，可被漫游更新</td>
+</tr>
+<tr>
+<td>更新触发</td>
+<td>收到对端合法加密包时，用包的源 IP:port 覆盖 peer endpoint</td>
+</tr>
+<tr>
+<td>双向</td>
+<td>Server、Client 都会学习对端新地址，不是单向</td>
+</tr>
+</tbody>
+</table>
+<p>典型场景：手机从 WiFi 切到 4G，公网 IP 变了；笔记本换网络；NAT 重新分配端口。</p>
+<h3 id="152-实验前提">15.2 实验前提</h3>
+<ul>
+<li>隧道已用 <code>wg-quick</code> 跑通（<code>latest handshake</code> 有值）</li>
+<li>使用本文档的 <code>wg-server-t1</code> / <code>wg-client-t1</code> 环境</li>
+<li>开一个辅助终端实时监控 endpoint：</li>
+</ul>
+<pre><code class="language-bash"># 终端 A：盯 Server 侧 peer endpoint
+watch -n 1 'sudo ip netns exec wg-server-t1 wg show server-t1'
+
+# 终端 B：盯 Client 侧 peer endpoint
+watch -n 1 'sudo ip netns exec wg-client-t1 wg show client-t1'
+</code></pre>
+<h3 id="153-实验一client-底层-ip-变化最常见">15.3 实验一：Client 底层 IP 变化（最常见）</h3>
+<p>模拟 Client「换了个网络，公网 IP 变了」，Server 自动学到新地址。</p>
+<p><strong>① 记录当前 endpoint</strong></p>
+<pre><code class="language-bash">sudo ip netns exec wg-server-t1 wg show server-t1
+# peer 的 endpoint 应为 172.30.0.2:&lt;随机端口&gt;
+</code></pre>
+<p><strong>② 改 Client 底层 IP（不动 WireGuard 配置、不 restart）</strong></p>
+<pre><code class="language-bash">sudo ip netns exec wg-client-t1 ip addr del 172.30.0.2/24 dev veth-t1c
+sudo ip netns exec wg-client-t1 ip addr add 172.30.0.22/24 dev veth-t1c
+</code></pre>
+<p><strong>③ 从 Client 发隧道流量</strong></p>
+<pre><code class="language-bash">sudo ip netns exec wg-client-t1 ping -c 3 10.30.0.1
+</code></pre>
+<p><strong>④ 再看 Server 的 wg show</strong></p>
+<pre><code class="language-bash">sudo ip netns exec wg-server-t1 wg show server-t1
+# endpoint 应变为 172.30.0.22:&lt;端口&gt;  ← 漫游成功
+</code></pre>
+<p><strong>⑤ 反向验证：Server 无需改配置即可回 ping</strong></p>
+<pre><code class="language-bash">sudo ip netns exec wg-server-t1 ping -c 3 10.30.0.2
+</code></pre>
+<p>全程<strong>没有</strong>改 <code>client-t1.conf</code> / <code>server-t1.conf</code>，也没有 <code>wg-quick down/up</code>。</p>
+<h3 id="154-实验二server-底层-ip-变化">15.4 实验二：Server 底层 IP 变化</h3>
+<p>模拟 Server 地址变了，Client 通过对端发来的包学习新地址。</p>
+<p><strong>① 改 Server 底层 IP</strong></p>
+<pre><code class="language-bash">sudo ip netns exec wg-server-t1 ip addr del 172.30.0.1/24 dev veth-t1s
+sudo ip netns exec wg-server-t1 ip addr add 172.30.0.11/24 dev veth-t1s
+</code></pre>
+<p>此时 Client 配置的 <code>Endpoint = 172.30.0.1:51820</code> 已失效：</p>
+<pre><code class="language-bash">sudo ip netns exec wg-client-t1 ping -c 2 10.30.0.1   # 可能失败
+</code></pre>
+<p><strong>② 从 Server 主动 ping Client（关键一步）</strong></p>
+<pre><code class="language-bash">sudo ip netns exec wg-server-t1 ping -c 3 10.30.0.2
+</code></pre>
+<p>Server 从<strong>新地址</strong> <code>172.30.0.11</code> 发出已认证包 → Client 收到后更新 peer endpoint。</p>
+<p><strong>③ 检查 Client 是否学到新 Server 地址</strong></p>
+<pre><code class="language-bash">sudo ip netns exec wg-client-t1 wg show client-t1
+# peer endpoint 应变为 172.30.0.11:51820
+</code></pre>
+<p><strong>④ Client 再 ping，应恢复</strong></p>
+<pre><code class="language-bash">sudo ip netns exec wg-client-t1 ping -c 3 10.30.0.1
+</code></pre>
+<p>要点：被动方 IP 变了之后，需要<strong>对端先发来一个合法包</strong>，本机才能完成 endpoint 更新。Client 侧的 <code>PersistentKeepalive = 25</code> 在真实 NAT 场景下有助于维持/触发这类更新。</p>
+<h3 id="155-实验三观察-nat-端口变化可选进阶">15.5 实验三：观察 NAT 端口变化（可选进阶）</h3>
+<p>用 <code>iptables SNAT</code> 模拟 NAT 端口改写：</p>
+<pre><code class="language-bash"># 在 Client netns 对发出的 UDP 做 SNAT（需 root）
+sudo ip netns exec wg-client-t1 iptables -t nat -A POSTROUTING \
+    -o veth-t1c -p udp -j SNAT --to-source 172.30.0.2:60000
+</code></pre>
+<p>再从 Client ping 隧道 IP，观察 Server 侧 <code>endpoint</code> 端口是否变为 <code>60000</code>（或你指定的值）。</p>
+<h3 id="156-判断漫游成功的标准">15.6 判断漫游成功的标准</h3>
+<table>
+<thead>
+<tr>
+<th>检查项</th>
+<th>漫游成功</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>wg show</code> 中 peer <code>endpoint</code> 变为新 IP:port</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>未修改 <code>.conf</code> 文件</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>未执行 <code>wg-quick down/up</code></td>
+<td>✓</td>
+</tr>
+<tr>
+<td>隧道 IP <code>ping</code> 恢复</td>
+<td>✓</td>
+</tr>
+<tr>
+<td><code>latest handshake</code> 更新</td>
+<td>✓</td>
+</tr>
+</tbody>
+</table>
+<h3 id="157-与配置文件的关系">15.7 与配置文件的关系</h3>
+<ul>
+<li><code>.conf</code> 里的 <code>Endpoint</code> <strong>不会</strong>被漫游自动写回磁盘</li>
+<li>漫游只更新<strong>内核运行时状态</strong></li>
+<li>重启 <code>wg-quick up</code> 后仍从 <code>.conf</code> 读初始 <code>Endpoint</code></li>
+<li>导出当前运行态：<code>wg showconf</code>（仍可能不含漫游后的 endpoint，视版本而定；<strong>以 <code>wg show</code> 为准</strong>）</li>
+</ul>
+<h3 id="158-与-pq-sectunnel-的关系">15.8 与 PQ-SecTunnel 的关系</h3>
+<p>PQ-SecTunnel fork 自 WireGuard，数据面与 endpoint 学习逻辑同源。若 PQ 隧道已跑通，可用同样方法在 <code>srv0_ns</code> / <code>cli0_ns</code> 上改底层 veth IP，观察 <code>pqst show</code> 中 endpoint 是否自动更新——可作为 PQ 改造后的回归验证项。</p>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">PQ-SecTunnel</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/doc-pqsectunnel/research/wireguard-hands-on-practice.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../notes/pqsectunnel/research/wireguard-background.html"><span class="dir">← 上一篇</span><span class="t">WireGuard 背景调研</span></a><a class="next" href="../../../notes/pqsectunnel/pf630b9.html"><span class="dir">下一篇 →</span><span class="t">流程</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../index.html">首页</a>
+      <a href="../../../learn.html">课件</a>
+      <a href="../../../notes/index.html">笔记库</a>
+      <a href="../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../about.html">关于</a>
+      <a href="../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../js/main.js" defer></script>
+</body>
+</html>

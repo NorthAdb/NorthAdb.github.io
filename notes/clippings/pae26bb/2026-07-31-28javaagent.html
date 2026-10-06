@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>28届个人 Java + Agent 学习路线 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="来源：小红书用户「天才美少女卡莎」 这是一份以 Java 后端求职和 Agent 项目落地为目标的个人经验路线。核心策略是：基础快速过一遍 → 尽早确定项目并写简历 → 围绕项目补知识和八股 → 算法与投递并行推进。">
+<link rel="canonical" href="https://northadb.github.io/notes/clippings/pae26bb/2026-07-31-28javaagent.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="28届个人 Java + Agent 学习路线 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="来源：小红书用户「天才美少女卡莎」 这是一份以 Java 后端求职和 Agent 项目落地为目标的个人经验路线。核心策略是：基础快速过一遍 → 尽早确定项目并写简历 → 围绕项目补知识和八股 → 算法与投递并行推进。">
+<meta property="og:url" content="https://northadb.github.io/notes/clippings/pae26bb/2026-07-31-28javaagent.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="28届个人 Java + Agent 学习路线 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="来源：小红书用户「天才美少女卡莎」 这是一份以 Java 后端求职和 Agent 项目落地为目标的个人经验路线。核心策略是：基础快速过一遍 → 尽早确定项目并写简历 → 围绕项目补知识和八股 → 算法与投递并行推进。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../feed.xml">
+<link rel="stylesheet" href="../../../css/style.css">
+<link rel="stylesheet" href="../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "28届个人 Java + Agent 学习路线", "description": "来源：小红书用户「天才美少女卡莎」 这是一份以 Java 后端求职和 Agent 项目落地为目标的个人经验路线。核心策略是：基础快速过一遍 → 尽早确定项目并写简历 → 围绕项目补知识和八股 → 算法与投递并行推进。", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/clippings/pae26bb/2026-07-31-28javaagent.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../index.html">首页</a><span>/</span><a href="../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../notes/clippings/index.html">内容剪藏</a></div>
+          <h1>28届个人 Java + Agent 学习路线</h1>
+          <p class="post-sub">来源：小红书用户「天才美少女卡莎」 这是一份以 Java 后端求职和 Agent 项目落地为目标的个人经验路线。核心策略是：基础快速过一遍 → 尽早确定项目并写简历 → 围绕项目补知识和八股 → 算法与投递并行推进。</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../notes/clippings/index.html">内容剪藏</a></span><span class="sep"></span>
+            <span>阅读约 7 分钟</span><span class="sep"></span><span>更新于 2026-07-31</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p>来源：小红书用户「天才美少女卡莎」</p>
+<p>这是一份以 Java 后端求职和 Agent 项目落地为目标的个人经验路线。核心策略是：<strong>基础快速过一遍 → 尽早确定项目并写简历 → 围绕项目补知识和八股 → 算法与投递并行推进</strong>。</p>
+</blockquote>
+<h2 id="一作者的学习时间线">一、作者的学习时间线</h2>
+<h3 id="1-java-后端基础阶段">1. Java 后端基础阶段</h3>
+<ul>
+<li><strong>2025 年 9 月</strong>决定走开发方向。</li>
+<li>9—12 月随缘学习 JavaSE、JavaWeb、苍穹外卖、Redis、RabbitMQ 等黑马系列课程。</li>
+<li>作者的建议是：JavaSE 和 JavaWeb 可以快速过两遍，先对名词和整体结构形成印象，不必前期强行记住所有细节。</li>
+</ul>
+<h3 id="2-rag-agent-项目阶段">2. RAG → Agent 项目阶段</h3>
+<ul>
+<li>2025 年 12 月购买知识星球并完成一个 RAG 项目。</li>
+<li>后续在 5 月将 RAG 项目升级为 Agent 项目。</li>
+<li>作者认为，纯 RAG 项目在当时的求职竞争力有限，最好继续补充 Agent 能力。</li>
+<li>Agent 项目重点不在“调用了哪个模型”，而在于：</li>
+<li>循环（Loop）设计</li>
+<li>记忆机制</li>
+<li>上下文管理</li>
+<li>评测与效果验证</li>
+<li>文章建议参考小林 coding 关于 Agent 的架构图解，理解项目如何设计和流转。</li>
+</ul>
+<h3 id="3-面试与算法阶段">3. 面试与算法阶段</h3>
+<ul>
+<li>开学后开始系统准备面试，结合面渣逆袭和小林 coding 的八股资料。</li>
+<li>从 9 月开始持续刷题，Hot 100 刷了四遍。</li>
+<li>面试准备内容包括：</li>
+<li>Hot 100、Top 150</li>
+<li>SQL 高频题</li>
+<li>多线程打印</li>
+<li>双重检查锁</li>
+<li>归并排序等常见手撕题</li>
+<li>作者建议在项目、简历和视频基本完成后，再集中建立自己的八股题库并反复背诵。</li>
+</ul>
+<h2 id="二技术学习建议">二、技术学习建议</h2>
+<h3 id="java-后端基础">Java 后端基础</h3>
+<ul>
+<li><strong>苍穹外卖</strong>：主要用于熟悉 CRUD 和后端项目流程。作者认为当前很多代码可以借助 AI 生成，重点是理解项目整体流程。</li>
+<li><strong>Redis</strong>：先看基础和高级篇，再结合面试题掌握常见八股；原理细节可以根据目标岗位和面试要求补充。</li>
+<li><strong>RabbitMQ</strong>：快速理解核心概念，再找一个“MQ 改造黑马点评”类项目实践。</li>
+<li>简历上可以体现 RabbitMQ、Kafka、RocketMQ 等消息队列，但必须能讲清楚使用场景、可靠性和失败兜底。</li>
+</ul>
+<h3 id="agent-项目">Agent 项目</h3>
+<p>作者没有推荐某一个具体项目，而是建议重点观察项目是否具备以下设计点：</p>
+<ol>
+<li>Agent 循环如何运行和终止</li>
+<li>工具调用如何编排</li>
+<li>记忆如何保存、召回和更新</li>
+<li>上下文如何组织和压缩</li>
+<li>RAG 如何检索、重排和评测</li>
+<li>错误、超时和工具失败如何恢复</li>
+<li>如何记录 Trace、评估效果和定位问题</li>
+</ol>
+<blockquote>
+<p>这些部分比简单地“接入一个大模型 API”更能体现 Agent 工程能力。</p>
+</blockquote>
+<h2 id="三简历与项目策略">三、简历与项目策略</h2>
+<h3 id="尽早确定项目">尽早确定项目</h3>
+<p>作者建议不要等全部课程学完才开始项目：</p>
+<ol>
+<li>尽早确定一个可展示的项目。</li>
+<li>项目进行中同步写简历。</li>
+<li>围绕简历中的技术名词补知识。</li>
+<li>能解释每个设计：为什么这样做、替代方案是什么、失败时如何兜底。</li>
+<li>把项目的亮点和关键流程整理成面试叙事。</li>
+</ol>
+<h3 id="研究同岗位简历">研究同岗位简历</h3>
+<p>图片中建议在小红书、牛客等平台搜索同岗位的简历求拷打或简历分析内容，观察：</p>
+<ul>
+<li>同岗位常见项目如何表述</li>
+<li>技术栈如何组织</li>
+<li>项目亮点如何量化</li>
+<li>面试官可能围绕哪些关键词追问</li>
+</ul>
+<h3 id="面试八股">面试八股</h3>
+<ul>
+<li>视频看完、项目做完、简历写完后，再系统整理八股。</li>
+<li>建立自己的题库，至少完整背诵两三遍。</li>
+<li>再看与目标岗位相关的面经，用于补充传统八股。</li>
+<li>不要过度关注别人项目的专属问题；优先掌握与你自己简历和通用基础相关的内容。</li>
+</ul>
+<h2 id="四投递与面试策略">四、投递与面试策略</h2>
+<ul>
+<li>作者建议同时投递大厂和中小厂，不要只盯一个目标。</li>
+<li>可以使用 Boss 等平台持续投递，作者分享了“一天投递 150 份”的激进做法；这属于个人经验，不应机械照搬。</li>
+<li>Java 后端、Go 后端和 Agent 开发岗位都可以尝试，但每个方向的简历和项目叙事应有所区别。</li>
+<li>面试过程中要掌握主动权：</li>
+<li>不要把面试官当成上级或审判者。</li>
+<li>不会专业术语时，可以用自己的话、举例或项目经验解释。</li>
+<li>回答自己真正理解的内容，不要为了显得懂而编造。</li>
+<li>把面试看成双向选择，失败不等于能力被否定。</li>
+</ul>
+<h2 id="五这份路线的可复用框架">五、这份路线的可复用框架</h2>
+<pre><code class="language-text">Java 基础
+  ↓
+JavaWeb / Spring Boot / MySQL / Redis / MQ
+  ↓
+完成一个后端项目
+  ↓
+RAG 项目：切分、Embedding、检索、重排、引用
+  ↓
+Agent 项目：工具、循环、记忆、上下文、评测、观测
+  ↓
+项目简历化：亮点、指标、替代方案、故障兜底
+  ↓
+八股题库 + 算法 + 模拟面试 + 持续投递
+</code></pre>
+<h2 id="六结合我的学习路线的落地建议">六、结合我的学习路线的落地建议</h2>
+<p>这份笔记的求职导向很强，但“基础快速过、后期集中背八股”不适合作为长期学习的全部策略。可以采用<strong>快速建立全景认知 + 在项目中补深度 + 面试前结构化复习</strong>的折中方案。</p>
+<h3 id="java-后端最低能力底座">Java 后端最低能力底座</h3>
+<ul>
+<li>Java：集合、并发、JVM、IO、异常和常用设计模式</li>
+<li>Spring Boot：IOC、AOP、事务、配置、Web 接口和测试</li>
+<li>数据库：MySQL 索引、事务、锁、慢查询和基本优化</li>
+<li>Redis：数据结构、缓存一致性、穿透/击穿/雪崩、分布式锁</li>
+<li>MQ：消息可靠性、重复消费、顺序、积压和最终一致性</li>
+<li>网络：HTTP、TCP、鉴权、限流和基本安全</li>
+</ul>
+<h3 id="agent-工程最低能力底座">Agent 工程最低能力底座</h3>
+<ul>
+<li>LLM API、结构化输出和 Tool Calling</li>
+<li>RAG 全链路与检索质量评测</li>
+<li>Agent Loop、状态管理和上下文控制</li>
+<li>Memory 的存储、召回、更新和遗忘</li>
+<li>多 Agent/工作流编排</li>
+<li>Trace、成本、延迟、失败重试和安全护栏</li>
+</ul>
+<h2 id="七原帖正文要点">七、原帖正文要点</h2>
+<p>作者原文的核心建议可以概括为：</p>
+<ol>
+<li>前期基础知识不必强行记忆，先快速过一遍建立印象。</li>
+<li>尽早确定项目并写简历，围绕简历内容反向学习。</li>
+<li>项目、视频和简历完成后，系统建立八股题库并反复背诵。</li>
+<li>算法保持持续练习。</li>
+<li>面试保持良好心态，把面试看作双向选择。</li>
+</ol>
+<h2 id="八图片识别记录">八、图片识别记录</h2>
+<h3 id="图-1封面">图 1：封面</h3>
+<p><img alt="图1：封面" src="https://gitee.com/cheng-jiaqing/images/raw/master/2026-07-31-28届个人Java-Agent学习路线-01.webp"></p>
+<p>标题为“28届个人 Java + Agent 学习路线”，提示右划查看全文。</p>
+<h3 id="图-2学习时间线">图 2：学习时间线</h3>
+<p><img alt="图2：学习时间线" src="https://gitee.com/cheng-jiaqing/images/raw/master/2026-07-31-28届个人Java-Agent学习路线-02.webp"></p>
+<p>记录从 2025 年 9 月开始学习 Java 后端，到 RAG，再到 Agent 项目的过程。</p>
+<h3 id="图-3后端基础与-agent-项目选择">图 3：后端基础与 Agent 项目选择</h3>
+<p><img alt="图3：后端基础与 Agent 项目选择" src="https://gitee.com/cheng-jiaqing/images/raw/master/2026-07-31-28届个人Java-Agent学习路线-03.webp"></p>
+<p>强调 Redis、RabbitMQ 的学习深度可以围绕面试和项目展开；Agent 项目应关注循环、记忆、上下文和评测。</p>
+<h3 id="图-4agent-项目与面试加分点">图 4：Agent 项目与面试加分点</h3>
+<p><img alt="图4：Agent 项目与面试加分点" src="https://gitee.com/cheng-jiaqing/images/raw/master/2026-07-31-28届个人Java-Agent学习路线-04.webp"></p>
+<p>建议理解 Claude Code 等 Agent 的设计方式，并把自己的项目亮点、流程和设计理由写入简历。</p>
+<h3 id="图-5八股算法与投递">图 5：八股、算法与投递</h3>
+<p><img alt="图5：八股、算法与投递" src="https://gitee.com/cheng-jiaqing/images/raw/master/2026-07-31-28届个人Java-Agent学习路线-05.webp"></p>
+<p>图片中提到 Hot 100、Top 150、SQL、多线程、双重检查锁、归并排序；同时建议同时投递不同规模的公司。</p>
+<h3 id="图-6面试心态">图 6：面试心态</h3>
+<p><img alt="图6：面试心态" src="https://gitee.com/cheng-jiaqing/images/raw/master/2026-07-31-28届个人Java-Agent学习路线-06.webp"></p>
+<p>核心观点是保持主动、自信和大方，不要把面试官当作上级，也不要为了显得懂而唯唯诺诺。</p>
+<h3 id="图-7搜索-agent-面经">图 7：搜索 Agent 面经</h3>
+<p><img alt="图7：搜索 Agent 面经" src="https://gitee.com/cheng-jiaqing/images/raw/master/2026-07-31-28届个人Java-Agent学习路线-07.webp"></p>
+<p>示例搜索词为“agent 面经”，展示了字节 Agent 开发二面经等内容，建议用相似岗位面经补充面试准备。</p>
+<h3 id="图-8参考同岗位简历">图 8：参考同岗位简历</h3>
+<p><img alt="图8：参考同岗位简历" src="https://gitee.com/cheng-jiaqing/images/raw/master/2026-07-31-28届个人Java-Agent学习路线-08.webp"></p>
+<p>建议搜索同岗位的简历求拷打内容，研究如何写简历和展示项目。</p>
+<h3 id="图-9java-笔面试题库">图 9：Java 笔面试题库</h3>
+<p><img alt="图9：Java 笔面试题库" src="https://gitee.com/cheng-jiaqing/images/raw/master/2026-07-31-28届个人Java-Agent学习路线-09.webp"></p>
+<p>展示 Java 题库中的算法篇、SQL 篇、AI 篇、Shell 篇和前端篇，并提示关注大厂笔面试题。</p>
+<h2 id="九信息边界">九、信息边界</h2>
+<ul>
+<li>本笔记整理的是作者个人学习和求职经验，不是通用保证。</li>
+<li>“RAG 不够看”“一天投递 150 份”等判断具有明显的时间和个人背景依赖。</li>
+<li>简历中出现的技术、项目和指标必须真实可解释，不能只为了关键词堆砌。</li>
+<li>具体课程、项目和面试题应根据目标岗位 JD、招聘周期和个人基础动态调整。</li>
+</ul>
+<hr>
+<h2 id="关联笔记">🔗 关联笔记</h2>
+<ul>
+<li><a class="wl" href="../../../notes/domains/javaagent2026.html">领域/Java后端+Agent开发学习路线 2026</a> — Vault 整合双修路线</li>
+<li><a class="wl" href="../../../notes/domains/aiagent2026.html">领域/AI Agent 智能体学习路线 2026</a> — 9 阶段 Agent 学习路线</li>
+<li><a class="wl" href="../../../notes/clippings/p44a38b/2026-09-01-rag.html">2026-09-01-RAG核心知识全解析（范式演进）</a> — RAG 面试题（对应项目 7 设计点）</li>
+</ul>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">内容剪藏</span><span class="chip">小红书</span><span class="chip">Java</span><span class="chip">Agent</span><span class="chip">学习路线</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/Clippings/%E5%B0%8F%E7%BA%A2%E4%B9%A6/2026-07-31-28%E5%B1%8A%E4%B8%AA%E4%BA%BAJava%2BAgent%E5%AD%A6%E4%B9%A0%E8%B7%AF%E7%BA%BF-%E5%B0%8F%E7%BA%A2%E4%B9%A6.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../notes/clippings/pae26bb/2026-07-30-ai-agent-graph-loop-harness.html"><span class="dir">← 上一篇</span><span class="t">AI Agent 落地铁三角：Graph、Loop、Harness</span></a><a class="next" href="../../../notes/clippings/pae26bb/2026-07-31-moe.html"><span class="dir">下一篇 →</span><span class="t">为什么现在的顶级大模型都在卷 MoE？</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../index.html">首页</a>
+      <a href="../../../learn.html">课件</a>
+      <a href="../../../notes/index.html">笔记库</a>
+      <a href="../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../about.html">关于</a>
+      <a href="../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../js/main.js" defer></script>
+</body>
+</html>

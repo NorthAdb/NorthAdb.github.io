@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>为什么现在的顶级大模型都在卷 MoE？ · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="作者：新物种日记 | 平台：小红书 互动：❤️ 379 · ⭐ 545 · 💬 8">
+<link rel="canonical" href="https://northadb.github.io/notes/clippings/pae26bb/2026-07-31-moe.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="为什么现在的顶级大模型都在卷 MoE？ · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="作者：新物种日记 | 平台：小红书 互动：❤️ 379 · ⭐ 545 · 💬 8">
+<meta property="og:url" content="https://northadb.github.io/notes/clippings/pae26bb/2026-07-31-moe.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="为什么现在的顶级大模型都在卷 MoE？ · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="作者：新物种日记 | 平台：小红书 互动：❤️ 379 · ⭐ 545 · 💬 8">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../feed.xml">
+<link rel="stylesheet" href="../../../css/style.css">
+<link rel="stylesheet" href="../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "为什么现在的顶级大模型都在卷 MoE？", "description": "作者：新物种日记 | 平台：小红书 互动：❤️ 379 · ⭐ 545 · 💬 8", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/clippings/pae26bb/2026-07-31-moe.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../index.html">首页</a><span>/</span><a href="../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../notes/clippings/index.html">内容剪藏</a></div>
+          <h1>为什么现在的顶级大模型都在卷 MoE？</h1>
+          <p class="post-sub">作者：新物种日记 | 平台：小红书 互动：❤️ 379 · ⭐ 545 · 💬 8</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../notes/clippings/index.html">内容剪藏</a></span><span class="sep"></span>
+            <span>阅读约 9 分钟</span><span class="sep"></span><span>更新于 2026-07-31</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p><strong>作者</strong>：新物种日记 | <strong>平台</strong>：小红书
+<strong>互动</strong>：❤️ 379 · ⭐ 545 · 💬 8</p>
+</blockquote>
+<hr>
+<h2 id="帖子原文">帖子原文</h2>
+<blockquote>
+<p>如果你最近关注 DeepSeek V4、GLM-5.1、Gemma 4，会发现一个明显趋势：旗舰模型正在从 Dense 走向 MoE。MoE 的本质不是简单堆参数，而是让模型拥有更大的总容量，同时每次只激活少数专家。本文从原理、架构和模型案例出发，系统拆解 MoE 为什么正在成为新一代大模型的底层答案。</p>
+</blockquote>
+<hr>
+<h2 id="图解内容12-张轮播图">图解内容（12 张轮播图）</h2>
+<blockquote>
+<p>以下是对轮播图的识图/OCR 整理；模型版本、参数规模和上下文长度均按图片原文记录，未在本笔记中独立核验。图片仍保留在每个小节下方，便于对照。</p>
+</blockquote>
+<h3 id="1-moe-的工作原理router-按-token-选择专家">1. MoE 的工作原理：Router 按 token 选择专家</h3>
+<p>MoE 层可以理解为「Router + 多个 Expert FFN」：</p>
+<ol>
+<li>上一层输出的 token/hidden state 进入 Router。</li>
+<li>Router 通过一个 FFN 对每个专家打分，再用 Softmax 得到概率分布。</li>
+<li>只激活得分最高的 Top-K 个专家，未选中的专家不参与该 token 的计算。</li>
+<li>将被选专家的输出按路由权重加权求和，作为 MoE 层输出传给下一层。</li>
+</ol>
+<p>示意图中的专家得分为 <code>0.45 / 0.19 / 0.05 / 0.31</code>；若采用 Top-1，则只激活 Expert 1，输出按 <code>p = 0.45</code> 加权。</p>
+<p><img alt="xhs-moe-01" src="https://gitee.com/cheng-jiaqing/images/raw/master/xhs-moe-01.jpg"></p>
+<h3 id="2-为什么大模型越来越需要-moe">2. 为什么大模型越来越需要 MoE？</h3>
+<p>Dense 模型的参数基本每次都参与计算：模型越大，能力和容量可能越强，但训练成本、推理成本、显存占用与通信开销也同步上升。MoE 则把一个巨大的通用 FFN 拆成多个分工不同的专家：</p>
+<ul>
+<li><strong>总参数量可以很大</strong>，模型拥有更大的知识与能力容量；</li>
+<li><strong>每个 token 只激活少数专家</strong>，单次计算量不必与总参数量同比增长；</li>
+<li>模型从「每次都把全部参数算一遍」变成「按需调用」，即<strong>按需变大</strong>。</li>
+</ul>
+<p>因此，MoE 解决的不是简单的「堆更多参数」，而是模型容量与单次计算成本之间的矛盾。</p>
+<p><img alt="xhs-moe-02" src="https://gitee.com/cheng-jiaqing/images/raw/master/xhs-moe-02.jpg"></p>
+<h3 id="3-用医院分诊理解-moe">3. 用医院分诊理解 MoE</h3>
+<p>图片给出的类比是：</p>
+<table>
+<thead>
+<tr>
+<th>医院分诊系统</th>
+<th>MoE 对应物</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>病人</td>
+<td>输入 token / hidden state</td>
+</tr>
+<tr>
+<td>导诊台</td>
+<td>Router / Gate</td>
+</tr>
+<tr>
+<td>内科、外科等科室专家</td>
+<td>Expert FFN</td>
+</tr>
+<tr>
+<td>挑选最合适的几个科室</td>
+<td>Top-K 路由</td>
+</tr>
+<tr>
+<td>汇总各科室意见</td>
+<td>按权重融合输出</td>
+</tr>
+</tbody>
+</table>
+<p>在 Transformer 中，MoE 通常替换的是 <strong>FeedForward/MLP（FFN）模块</strong>，不是 Attention 模块。Attention 一般保留，FFN 则变成 Router 加多个并行的 Expert FFN。</p>
+<p><img alt="xhs-moe-03" src="https://gitee.com/cheng-jiaqing/images/raw/master/xhs-moe-03.jpg"></p>
+<h3 id="4-dense-decoder-与-moe-decoder-的结构差异">4. Dense Decoder 与 MoE Decoder 的结构差异</h3>
+<p>传统 Decoder Layer 大致是：</p>
+<pre><code class="language-text">LayerNorm → Masked Self-Attention → 残差连接
+         → LayerNorm → FFN → 残差连接
+</code></pre>
+<p>MoE Decoder 则将第二个 FFN 替换为：</p>
+<pre><code class="language-text">LayerNorm → Router → 多个 Expert FFN → Weighted Sum/Combine → 残差连接
+</code></pre>
+<p>所以读模型结构图时，看到 MoE 出现在 FeedForward/MLP 那一块是正常的；它并不意味着整个 Transformer 层都被专家化。</p>
+<p><img alt="xhs-moe-04" src="https://gitee.com/cheng-jiaqing/images/raw/master/xhs-moe-04.jpg"></p>
+<h3 id="5-moe-的核心优势与工程难点">5. MoE 的核心优势与工程难点</h3>
+<p><strong>三个核心优势：</strong></p>
+<ol>
+<li><strong>总参数容量更大</strong>：专家数量增加后，模型能覆盖更丰富的模式、知识和任务能力。</li>
+<li><strong>单次激活参数更少</strong>：每个 token 只调用少数专家，推理 FLOPs 增长慢于总参数量。</li>
+<li><strong>更适合大规模扩展</strong>：相比不断扩大 Dense 模型，MoE 可以通过增加专家扩展容量，同时控制单次计算。</li>
+</ol>
+<p><strong>必须解决的工程问题：</strong></p>
+<ul>
+<li>Router 是否偏爱少数专家，造成专家塌缩或负载不均？</li>
+<li>专家之间如何做负载均衡，避免部分专家训练不足？</li>
+<li>Expert Parallel 训练时，跨设备通信成本如何控制？</li>
+<li>总参数量很大时，如何让部署、显存和推理延迟可控？</li>
+</ul>
+<blockquote>
+<p><strong>结论</strong>：MoE 不是「天然收益」，而是需要路由、负载均衡、并行通信、训练稳定性和部署系统共同支撑的工程方案。</p>
+</blockquote>
+<p><img alt="xhs-moe-05" src="https://gitee.com/cheng-jiaqing/images/raw/master/xhs-moe-05.jpg"></p>
+<h3 id="6-deepseek-v4moe-系统工程-长上下文">6. DeepSeek V4：MoE + 系统工程 + 长上下文</h3>
+<p>图片将 DeepSeek V4 的路线概括为：<strong>MoE 扩容、系统工程提效、面向 1M context 设计</strong>。图中列出的对比数据如下：</p>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th style="text-align: right;">总参数</th>
+<th style="text-align: right;">单 token 激活参数</th>
+<th style="text-align: right;">上下文</th>
+<th>每层 MoE</th>
+<th style="text-align: right;">每 token 路由激活</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DeepSeek V4-Pro</td>
+<td style="text-align: right;">1.6T</td>
+<td style="text-align: right;">49B</td>
+<td style="text-align: right;">1M</td>
+<td>1 shared + 384 routed experts</td>
+<td style="text-align: right;">1 shared + 6 routed</td>
+</tr>
+<tr>
+<td>DeepSeek V4-Flash</td>
+<td style="text-align: right;">284B</td>
+<td style="text-align: right;">13B</td>
+<td style="text-align: right;">1M</td>
+<td>1 shared + 384 routed experts</td>
+<td style="text-align: right;">1 shared + 6 routed</td>
+</tr>
+</tbody>
+</table>
+<p>图中强调的 V4 设计：</p>
+<ul>
+<li><strong>shared expert</strong> 始终参与，负责通用、稳定、反复出现的模式；</li>
+<li><strong>routed experts</strong> 根据 Router 选择，负责更细粒度、更有差异的处理；</li>
+<li>目标不是单纯把模型做大，而是让大模型在百万上下文中保持可用的推理效率。</li>
+</ul>
+<p>图片还列出 CSA（Compressed Sparse Attention）、HCA（Heavily Compressed Attention）、混合注意力架构和 mHC（Manifold-Constrained Hyper-Connections）等系统组件，用于降低长上下文中的 Attention/KV Cache/通信压力。这里应将 MoE 理解为容量方案，而不是完整的长上下文解决方案。</p>
+<p><img alt="xhs-moe-06" src="https://gitee.com/cheng-jiaqing/images/raw/master/xhs-moe-06.jpg"></p>
+<h4 id="deepseek-v4-pro-与-v4-flash-架构对照按图整理">DeepSeek V4-Pro 与 V4-Flash 架构对照（按图整理）</h4>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th style="text-align: right;">V4-Pro</th>
+<th style="text-align: right;">V4-Flash</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>词表</td>
+<td style="text-align: right;">129k</td>
+<td style="text-align: right;">129k</td>
+</tr>
+<tr>
+<td>上下文</td>
+<td style="text-align: right;">1M tokens</td>
+<td style="text-align: right;">1M tokens</td>
+</tr>
+<tr>
+<td>层数</td>
+<td style="text-align: right;">61</td>
+<td style="text-align: right;">43</td>
+</tr>
+<tr>
+<td>注意力头数</td>
+<td style="text-align: right;">128</td>
+<td style="text-align: right;">64</td>
+</tr>
+<tr>
+<td>Embedding 维度</td>
+<td style="text-align: right;">7,168</td>
+<td style="text-align: right;">4,096</td>
+</tr>
+<tr>
+<td>FFN 中间维度</td>
+<td style="text-align: right;">3,072</td>
+<td style="text-align: right;">2,048</td>
+</tr>
+<tr>
+<td>前 3 层</td>
+<td style="text-align: right;">hash-based MoE</td>
+<td style="text-align: right;">hash-based MoE</td>
+</tr>
+<tr>
+<td>MoE 专家</td>
+<td style="text-align: right;">1 shared + 384 routed</td>
+<td style="text-align: right;">1 shared + 256 routed</td>
+</tr>
+<tr>
+<td>mHC</td>
+<td style="text-align: right;">4 条并行残差流</td>
+<td style="text-align: right;">4 条并行残差流</td>
+</tr>
+</tbody>
+</table>
+<p>两者共同体现「总参数很大，但每次只激活少量参数」；Pro 更大、更深、激活参数更多，Flash 则以更低推理成本为目标。</p>
+<p><img alt="xhs-moe-07" src="https://gitee.com/cheng-jiaqing/images/raw/master/xhs-moe-07.jpg"></p>
+<h3 id="7-glm-51面向-agent-tool-use-的国产-moe-路线">7. GLM-5.1：面向 Agent / Tool-use 的国产 MoE 路线</h3>
+<p>图片给出的关键信息：</p>
+<ul>
+<li>总参数 <strong>744B</strong>，激活参数 <strong>40B</strong>；</li>
+<li>核心结构为 MoE，整体思路与 DeepSeek-V3.2 有相似之处，但层数更深；</li>
+<li>前几层保留 Dense FFN，后续层使用 MoE；</li>
+<li>MoE 的价值不止是预训练容量，也用于浏览、代码、工具调用和复杂任务链等 Agent 场景；</li>
+<li>图片将 DeepSeek V4 概括为「长上下文 / 系统效率」侧重，将 GLM-5.1 概括为「旗舰开源能力 / agentic 任务表现」侧重。</li>
+</ul>
+<p>其结构示意中的参数包括：词表 155k、上下文长度 202k、78 层、Embedding 维度 6,144；前 3 层使用 Dense FFN（隐藏维度 12,288），MoE 层包含 256 个专家，每个 token 激活 8 个 routed experts 加 1 个 shared expert。</p>
+<p><img alt="xhs-moe-08" src="https://gitee.com/cheng-jiaqing/images/raw/master/xhs-moe-08.jpg"></p>
+<p><img alt="xhs-moe-09" src="https://gitee.com/cheng-jiaqing/images/raw/master/xhs-moe-09.jpg"></p>
+<h3 id="8-gemma-4dense-与-moe-并存">8. Gemma 4：Dense 与 MoE 并存</h3>
+<p>Gemma 4 的启发不是「所有模型都必须 MoE」，而是同一模型家族同时提供 Dense 和 MoE 两种答案：</p>
+<ul>
+<li><strong>Gemma 4 31B Dense</strong>：不是 MoE，但采用 GQA、5:1 的局部滑窗 + 全局混合注意力，支持更长上下文、多模态和更灵活的开源部署。</li>
+<li><strong>Gemma 4 MoE</strong>：总参数较大，但 active parameters 更可控；在性能接近时，具有更好的性能/成本比、硬件部署灵活性和边缘设备适配性。</li>
+</ul>
+<p>图中 Gemma 4 MoE（26B-A4B）的结构数据：词表 262k、上下文 256k、Embedding 维度 2,816、前 30 层重复模块、128 个专家；每个 token 激活 8 个专家加 1 个 shared expert，总参数约 25.2B，单步激活约 3.8B，FFN 中间隐藏维度 704，使用 GEGLU。</p>
+<p><img alt="xhs-moe-10" src="https://gitee.com/cheng-jiaqing/images/raw/master/xhs-moe-10.jpg"></p>
+<p><img alt="xhs-moe-11" src="https://gitee.com/cheng-jiaqing/images/raw/master/xhs-moe-11.jpg"></p>
+<h3 id="9-三个模型放在一起看moe-正从结构技巧变成系统路线">9. 三个模型放在一起看：MoE 正从结构技巧变成系统路线</h3>
+<p>三组案例的共同点是：未来评价旗舰模型不能只看总参数，还要看：</p>
+<ul>
+<li><strong>激活参数量</strong>：决定单 token 的主要计算成本；</li>
+<li><strong>Router 与负载均衡</strong>：决定专家是否被有效利用；</li>
+<li><strong>Expert Parallel 与通信效率</strong>：决定大规模部署是否可行；</li>
+<li><strong>训练稳定性、KV Cache 管理和长上下文效率</strong>：决定真实使用体验；</li>
+<li><strong>Agent / tool-use 能力</strong>：决定模型在浏览器、终端、代码和复杂任务链中的实际价值。</li>
+</ul>
+<p>Dense 不会消失：中等规模模型、训练配方成熟、部署简单或硬件适配更重要时，Dense 仍然有优势。更准确的结论是：<strong>当模型继续扩大、又要求控制单次计算时，MoE 会越来越接近旗舰模型的主流扩展路线。</strong></p>
+<p><img alt="xhs-moe-12" src="https://gitee.com/cheng-jiaqing/images/raw/master/xhs-moe-12.jpg"></p>
+<hr>
+<h2 id="moe-知识补充非帖子原文供学习参考">📌 MoE 知识补充（非帖子原文，供学习参考）</h2>
+<blockquote>
+<p>💡 以下为基于帖子主题的通用补充知识，用于巩固图解中的概念；上面的「图解内容」才是本次对轮播图的识图整理。</p>
+</blockquote>
+<h3 id="dense-vs-moe-核心区别">Dense vs MoE 核心区别</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">维度</th>
+<th style="text-align: left;">Dense（稠密）</th>
+<th style="text-align: left;">MoE（混合专家）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">推理时激活</td>
+<td style="text-align: left;"><strong>全部</strong>参数参与计算</td>
+<td style="text-align: left;">只激活<strong>少数专家</strong>（如 8 选 2）</td>
+</tr>
+<tr>
+<td style="text-align: left;">总参数量</td>
+<td style="text-align: left;">= 实际计算量</td>
+<td style="text-align: left;">总参数大，激活参数小</td>
+</tr>
+<tr>
+<td style="text-align: left;">例子</td>
+<td style="text-align: left;">70B Dense 每次用满 70B</td>
+<td style="text-align: left;">Mixtral 8×7B 总参 47B，每 token 激活 13B</td>
+</tr>
+<tr>
+<td style="text-align: left;">成本</td>
+<td style="text-align: left;">推理算力固定</td>
+<td style="text-align: left;">用较少推理算力获得接近大模型效果</td>
+</tr>
+<tr>
+<td style="text-align: left;">缺点</td>
+<td style="text-align: left;">参数效率低</td>
+<td style="text-align: left;">显存按总参数量算；路由不均衡可能让专家训练不充分</td>
+</tr>
+</tbody>
+</table>
+<h3 id="为什么旗舰模型都在转向-moe">为什么旗舰模型都在转向 MoE</h3>
+<ol>
+<li><strong>参数效率</strong>：MoE 用「大总容量 + 稀疏激活」，让模型记住更多知识，但推理成本只按激活部分算</li>
+<li><strong>算力约束</strong>：训练/推理成本受限时，MoE 是「用更少算力换更大模型」的主流方案</li>
+<li><strong>容量提升</strong>：专家可以 specialize（专精不同领域/任务），总容量远大于同等算力的 Dense</li>
+</ol>
+<h3 id="提到的模型案例">提到的模型案例</h3>
+<ul>
+<li><strong>DeepSeek V4</strong>：深度求索，开源 MoE 路线（此前 V3/R1 已是 MoE 架构）</li>
+<li><strong>GLM-5.1</strong>：智谱，GLM 系列转向 MoE</li>
+<li><strong>Gemma 4</strong>：Google，Gemma 开源系列的新一代</li>
+</ul>
+<h3 id="moe-的关键组件">MoE 的关键组件</h3>
+<ul>
+<li><strong>Router/Gating</strong>：决定每个 token 激活哪些专家（Top-K routing）</li>
+<li><strong>Experts</strong>：复制多份 FFN 子网络，各自专精</li>
+<li><strong>共享专家</strong>（可选）：部分模型加共享专家兜底通用能力</li>
+</ul>
+<h3 id="常见误解">常见误解</h3>
+<ul>
+<li>❌ MoE 就是「把多个小模型合在一起」——实际上专家不是独立模型，是 Transformer 内部的 FFN 副本</li>
+<li>❌ MoE 参数量虚标——总参数量是真的，但「激活参数量」才是推理成本的真实指标</li>
+<li>❌ MoE 只在训练时省钱——推理时稀疏激活同样省算力，但显存要装下全部专家</li>
+</ul>
+<hr>
+<h2 id="关联笔记">关联笔记</h2>
+<ul>
+<li><a class="wl" href="../../../notes/clippings/claude/2026-07-30-claude.html">2026-07-30-Claude聊天记录汇总</a> — ⑮ 大模型参数定义与 dense、moe 概念</li>
+<li><a class="wl" href="../../../notes/clippings/p44a38b/2026-07-31-topp-topk.html">2026-07-31-大模型采样参数全解析-温度值TopP-TopK-小林面试笔记</a> — 大模型采样参数</li>
+<li><a class="wl" href="../../../notes/clippings/p44a38b/2026-09-01-rag.html">2026-09-01-RAG核心知识全解析（范式演进）</a> — RAG 与模型架构</li>
+</ul>
+<h2 id="来源覆盖与局限">来源、覆盖与局限</h2>
+<ul>
+<li><strong>URL</strong>：https://www.xiaohongshu.com/explore/69f1b1600000000036018c0e</li>
+<li><strong>作者</strong>：新物种日记 | <strong>互动</strong>：379 赞 / 545 收藏 / 8 评论</li>
+<li><strong>正文</strong>：OpenCLI 提取的帖子文字（仅引言+结尾，详细内容在轮播图）</li>
+<li><strong>图片</strong>：12 张轮播图已下载并上传 Gitee 图床，已完成识图/OCR 整理；图片细节仍可直接对照原图</li>
+<li>⚠️ 补充的 MoE 知识为通用背景，非帖子图片原文，两者已明确区分</li>
+</ul>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">内容剪藏</span><span class="chip">MoE</span><span class="chip">混合专家</span><span class="chip">Dense</span><span class="chip">DeepSeek</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/Clippings/%E5%B0%8F%E7%BA%A2%E4%B9%A6/2026-07-31-%E4%B8%BA%E4%BB%80%E4%B9%88%E9%A1%B6%E7%BA%A7%E5%A4%A7%E6%A8%A1%E5%9E%8B%E9%83%BD%E5%9C%A8%E5%8D%B7MoE-%E6%96%B0%E7%89%A9%E7%A7%8D%E6%97%A5%E8%AE%B0.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../notes/clippings/pae26bb/2026-07-31-28javaagent.html"><span class="dir">← 上一篇</span><span class="t">28届个人 Java + Agent 学习路线</span></a><a class="next" href="../../../notes/clippings/pae26bb/2026-08-03.html"><span class="dir">下一篇 →</span><span class="t">果然能找到好工作的计算机生都是狠角色</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../index.html">首页</a>
+      <a href="../../../learn.html">课件</a>
+      <a href="../../../notes/index.html">笔记库</a>
+      <a href="../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../about.html">关于</a>
+      <a href="../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../js/main.js" defer></script>
+</body>
+</html>

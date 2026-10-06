@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matt Pocock 实战教程：Wayfinder 概念详解与 FAQ · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="原作者：Matt Pocock | 时长 ~13 分钟 | 事实主干：B站 AI 字幕（agent-reach / OpenCLI，234 段逐句） 证据等级：bilibili-ai-subtitles 🔗 互补视频：2026-07-31-…">
+<link rel="canonical" href="https://northadb.github.io/notes/clippings/bilibili/matt-pocock/2026-08-01-matt-pocock-wayfinderfaq.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Matt Pocock 实战教程：Wayfinder 概念详解与 FAQ · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="原作者：Matt Pocock | 时长 ~13 分钟 | 事实主干：B站 AI 字幕（agent-reach / OpenCLI，234 段逐句） 证据等级：bilibili-ai-subtitles 🔗 互补视频：2026-07-31-…">
+<meta property="og:url" content="https://northadb.github.io/notes/clippings/bilibili/matt-pocock/2026-08-01-matt-pocock-wayfinderfaq.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Matt Pocock 实战教程：Wayfinder 概念详解与 FAQ · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="原作者：Matt Pocock | 时长 ~13 分钟 | 事实主干：B站 AI 字幕（agent-reach / OpenCLI，234 段逐句） 证据等级：bilibili-ai-subtitles 🔗 互补视频：2026-07-31-…">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../../feed.xml">
+<link rel="stylesheet" href="../../../../css/style.css">
+<link rel="stylesheet" href="../../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Matt Pocock 实战教程：Wayfinder 概念详解与 FAQ", "description": "原作者：Matt Pocock | 时长 ~13 分钟 | 事实主干：B站 AI 字幕（agent-reach / OpenCLI，234 段逐句） 证据等级：bilibili-ai-subtitles 🔗 互补视频：2026-07-31-…", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/clippings/bilibili/matt-pocock/2026-08-01-matt-pocock-wayfinderfaq.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../../index.html">首页</a><span>/</span><a href="../../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../../notes/clippings/index.html">内容剪藏</a></div>
+          <h1>Matt Pocock 实战教程：Wayfinder 概念详解与 FAQ</h1>
+          <p class="post-sub">原作者：Matt Pocock | 时长 ~13 分钟 | 事实主干：B站 AI 字幕（agent-reach / OpenCLI，234 段逐句） 证据等级：bilibili-ai-subtitles 🔗 互补视频：2026-07-31-…</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../../notes/clippings/index.html">内容剪藏</a></span><span class="sep"></span>
+            <span>阅读约 6 分钟</span><span class="sep"></span><span>更新于 2026-08-01</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p><strong>原作者</strong>：Matt Pocock | <strong>时长</strong> ~13 分钟 | <strong>事实主干</strong>：B站 AI 字幕（agent-reach / OpenCLI，234 段逐句）
+<strong>证据等级</strong>：<code>bilibili-ai-subtitles</code>
+🔗 <strong>互补视频</strong>：<a class="wl" href="../../../../notes/clippings/bilibili/matt-pocock/2026-07-31-matt-pocock-wayfinderspec.html">2026-07-31-Matt-Pocock直播-Wayfinder从想法到spec全流程</a> —— 那篇是<strong>直播实战演示</strong>（跑一个真实需求），本篇是<strong>概念讲解 + FAQ</strong>（Wayfinder 是什么、怎么用、何时用）</p>
+</blockquote>
+<hr>
+<h2 id="一句话总论">一句话总论</h2>
+<blockquote>
+<p><strong>Wayfinder 是一个把"超大块工作"建模成"地图"的 skill：起点是模糊想法，终点由你定，中间是战争迷雾，每个待决策点是一张 ticket，分布在 issue tracker 里由 skill 跨多次会话编排。</strong> 它解决的问题是——单次会话的 context window（尤其 smart zone）塞不下大任务，而旧方法（Grill with Docs）把工作预先拆小块、在单次会话里推进，一遇迷雾就卡住。</p>
+</blockquote>
+<hr>
+<h2 id="为什么需要-wayfindermotivation">为什么需要 Wayfinder（Motivation）</h2>
+<ul>
+<li>已有/自己做的规划工具都<strong>太受限、太绑死单次会话</strong></li>
+<li>有些工作大到塞不进 context window（尤其是 agent 的 <strong>smart zone</strong>），而且你在开始之前就知道这点</li>
+<li>旧做法：会话前先手动拆小块（"我就先啃这一小口"），推进过程中撞上回答不了的问题，<strong>迷失在迷雾里</strong>，全程还要管理 smart zone、省 token</li>
+<li>反过来的结果是"把要做的东西<strong>削足适履去迁就 AI</strong>"，这感觉不对</li>
+<li>Wayfinder 没有这个限制：<strong>可以规划超大块工作，跨多种会话编排整个规划过程</strong>，理解决策依赖，甚至允许并行规划</li>
+</ul>
+<hr>
+<h2 id="核心概念地图map隐喻">核心概念：地图（Map）隐喻</h2>
+<pre><code>   起点（模糊想法） ── 迷雾 ── 迷雾 ── 终点（大概知道自己想去哪）
+        │                                    ↑
+        └── 每个决策点 = 一张 ticket（单独一次 agent 会话）
+</code></pre>
+<ul>
+<li>你有一个起点（模糊的想法，不清楚怎么到达）和一个终点（大概知道想结束在哪），<strong>中间步骤超级模糊</strong></li>
+<li>大地图上的每一样东西都是一张 <strong>ticket</strong>；每张 ticket 需要和 agent <strong>单独开一次会话</strong>（原型会话 / grilling 会话 / 调研会话）</li>
+<li>Wayfinder 只靠一个 skill 就编排所有这一切，<strong>跟任何 coding agent 都能配合</strong></li>
+<li>第一件事通常是先做一次 grilling 会话（让 AI 采访你，搞清楚基本前提）；有的工作到这就能直达终点，很多则仍身陷迷雾 → 继续加原型/调研/grilling 会话</li>
+</ul>
+<h3 id="frontier-与战争迷雾fog-of-war">Frontier 与战争迷雾（Fog of War）</h3>
+<ul>
+<li><strong>Frontier</strong>：Wayfinder 掌握的一批"现在就能做"的决策集合</li>
+<li><strong>迷雾里</strong>：还没法决定的事——因为还没做调研、还没原型可看、或 grilling 谈得不够</li>
+<li>推进方式：解决一张 ticket → 看看<strong>打开了哪些新 ticket</strong> → frontier 移到哪</li>
+<li>到某个时刻迷雾全部解决，做出足够多决策，最终到达终点</li>
+</ul>
+<hr>
+<h2 id="四种-ticket-类型比直播笔记多一种task">四种 Ticket 类型（比直播笔记多一种：task）</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">类型</th>
+<th style="text-align: left;">用途</th>
+<th style="text-align: left;">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Research</strong></td>
+<td style="text-align: left;">agent 去找信息并带回来</td>
+<td style="text-align: left;">通常在 <strong>sub-agent</strong> 里立刻开干，你不需要盯着，做完回报</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Prototype</strong></td>
+<td style="text-align: left;">建原型获得<strong>高保真反馈</strong></td>
+<td style="text-align: left;">规划时让东西真正活起来，无比珍贵；复用他的 prototype skill</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Grilling</strong></td>
+<td style="text-align: left;">讨论计划的某方面/实现细节</td>
+<td style="text-align: left;">针对需要做决策的具体问题</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Task</strong></td>
+<td style="text-align: left;">真实世界里要做的事</td>
+<td style="text-align: left;">agent 自己做不了的（联系某人/跑一趟办事），或 agent 能做但排在后面</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<ul>
+<li>ticket 类型会带进 issue tracker（如 "Wayfinder research" 标签），不只是口头概念</li>
+<li>Wayfinder 在 ticket 之间建立 <strong>blocking 关系</strong>——有些决策只能在其他决策做出之后才能做</li>
+</ul>
+</blockquote>
+<hr>
+<h2 id="怎么用workflow">怎么用（Workflow）</h2>
+<ol>
+<li><strong>开新会话</strong>：先决定<strong>终点</strong>（想要什么样的产出）。例：给 CVM 应用加 command palette，终点 = buildable spec</li>
+<li><strong>初始 Wayfinder prompt</strong>：描述你想要什么 → 它探索仓库、调用 grilling skill 问你要什么（会问"done 长什么样"、推荐用 spec）→ 创建第一批 ticket 和第一张 map（其余作为 sub-issue）
+   - 真实例子：立刻就有 <strong>7 张 ticket，但只有 3 张现在就能做</strong>（icon 名字来源 / 组件存储 schema / palette 信息架构和 grid 键盘）</li>
+<li><strong>逐张处理 ticket</strong>：在<strong>新会话</strong>里对<strong>具体的 ticket</strong> 调用 Wayfinder（Wayfinder + ticket URL）
+   - 进阶：用 <strong>handoff skill</strong> 自动写好 prompt 并 spawn 一个 Claude subagent</li>
+<li><strong>解决后看 frontier 移动</strong>：好，解决了那张 ticket，打开了哪些新 ticket？</li>
+<li><strong>map 完成后</strong>：toSpec 把 map 转成 spec → toTickets 拆实现 ticket → 实现每张 → code review</li>
+</ol>
+<blockquote>
+<p>注意：map 太密时可能不好直接生成 spec——Matt 喜欢先 <code>toSpec</code> 把决策全部拉进一份长文档（他实际生成的 spec <strong>初稿大到超出 GitHub 字符数限制</strong>），然后再 <code>toTickets</code>。流程是 <strong>toSpec → toTickets</strong>，不是直接拿 map 开跑。</p>
+</blockquote>
+<hr>
+<h2 id="wayfinder-在-matt-工作流中的位置">Wayfinder 在 Matt 工作流中的位置</h2>
+<pre><code>Grill with Docs → toSpec → toTickets   （旧，单次会话）
+          ↓
+Wayfinder map → toSpec → toTickets → 实现 → code review   （新，跨会话）
+</code></pre>
+<ul>
+<li>Wayfinder <strong>正好嵌在 Grill with Docs 所在的位置</strong>：不是在单次会话里 grilling，而是花多得多的时间创建巨大的 map</li>
+<li>生成的 spec <strong>极其密，且全部链回原始决策 ticket</strong>——你（或 agent）在搞不清任何东西时能看<strong>第一手原始资料</strong></li>
+<li>这正是 Grill with Docs 的弱点：你依赖 spec 作为真相来源，但 spec 只是会议内容的<strong>总结</strong>；Wayfinder 让你拿到原始决策</li>
+</ul>
+<hr>
+<h2 id="关键观点spec-是非持久化的">关键观点：spec 是"非持久化"的</h2>
+<ul>
+<li>spec = <strong>一份跨多次会话工作的终点文档</strong>，让到达终点时能搞清楚本来要去哪</li>
+<li>与 <strong>spec-driven development（SDD）</strong> 的本质区别：</li>
+<li>SDD 的人会把 spec 当长期真理，回去改 spec、维护 spec</li>
+<li>Matt：<strong>spec 一旦体现在代码里就可以删掉</strong>——关掉装 spec 的 issue，spec 就没了，极少甚至从不再翻它</li>
+<li>每个实现会话都在一张实现 ticket 里完成（决策 ticket ≠ 实现 ticket）</li>
+</ul>
+<hr>
+<h2 id="faq什么时候用-是不是-sdd-是不是瀑布流">FAQ（什么时候用 / 是不是 SDD / 是不是瀑布流）</h2>
+<p><strong>Q：流程太多了，对我做的工作太重，什么时候该用它？</strong>
+- 工作能在<strong>单次会话内完成和规划</strong> → 就在单次会话里规划
+- 大概<strong>已经知道去终点的路</strong> → 没必要用（单次会话自己摸过去搞定）
+- <strong>有战争迷雾、完全不知道往哪走</strong> → 用 Wayfinder（先开始，看能走到哪）
+- 非编码任务也在用：规划 garden office（花园办公室）——安排场地勘测、搞清该联系谁、找不同施工公司</p>
+<p><strong>Q：这是 spec-driven development 吗？我不想搞 SDD</strong>
+- 不是：Matt 的 spec 是<strong>非持久化</strong>的终点文档，实现完就删；SDD 会回去维护 spec</p>
+<p><strong>Q：这不是瀑布流吗？</strong>
+- <strong>原型就是防止瀑布流的办法</strong>——大量低保真的前期规划 + 高保真原型验证（Wayfinder 鼓励你建那么多原型，产出质量好得惊人）</p>
+<hr>
+<h2 id="关键洞察">关键洞察</h2>
+<ol>
+<li><strong>终点完全由你定</strong>：可以让它生成 spec 交给 AFK agent 去跑（Matt 的默认做法）；也可以只让 task 直接替你实现工作</li>
+<li><strong>issue tracker 中立</strong>：GitHub / Linear / JIRA 都行，通过 <code>setup-matt-pocock-skills</code> 配置；GitHub issues 只是他个人的默认</li>
+<li><strong>决策会写回父级 map</strong>：sub-issue 解决后（如"发布竞态时关闭 clips"），解决方案会写回父级 map，Wayfinder 记录所有已做的决策/原型/task</li>
+<li><strong>真实数据</strong>：一个公开 map 下有 12 个子任务/sub-issue；某个 map "17 张里做完了 14 张"，但围绕的 skill 还没建——建完还得回头处理派生事项</li>
+<li><strong>John 效应</strong>：有用户因为太喜欢 Wayfinder 思路，自己搭了一套 harness 并做了"星图"可视化；有人"一次原型搞定，一连好几个月反复从头开始"</li>
+</ol>
+<hr>
+<h2 id="证据与原文位置">证据与原文位置</h2>
+<ul>
+<li>字幕来源：agent-reach / OpenCLI <code>opencli bilibili subtitle BV1VoGK6kEQj</code>（234 段逐句带时间轴）</li>
+</ul>
+<h2 id="来源覆盖与局限">来源、覆盖与局限</h2>
+<ul>
+<li><strong>URL</strong>：https://www.bilibili.com/video/BV1VoGK6kEQj/</li>
+<li><strong>BVID</strong>：BV1VoGK6kEQj | <strong>原作者</strong>：Matt Pocock</li>
+<li><strong>字幕</strong>：agent-reach OpenCLI 提取 B站 AI 字幕（234 段，全程覆盖）</li>
+<li>⚠️ B站 AI 字幕为英文音轨的翻译字幕，个别术语可能因音译有偏差（Wayfinder/spec/ticket 等已结合语境校正）</li>
+<li>⚠️ 本篇为概念讲解，未演示完整实操流程；实操看互补的直播演示笔记</li>
+</ul>
+<h2 id="关联笔记">关联笔记</h2>
+<ul>
+<li><a class="wl" href="../../../../notes/clippings/bilibili/matt-pocock/2026-07-31-matt-pocock-wayfinderspec.html">2026-07-31-Matt-Pocock直播-Wayfinder从想法到spec全流程</a> — Wayfinder <strong>直播实战演示</strong>（理念 vs 实操，两篇互补）</li>
+<li><a class="wl" href="../../../../notes/clippings/bilibili/matt-pocock/2026-07-31-matt-pocock-slopwatch.html">Matt-Pocock/2026-07-31-Matt-Pocock直播-SlopWatch从零搭建完整实录</a> — GrillMe + DDD 方法论（Wayfinder 前身）</li>
+<li><a class="wl" href="../../../../notes/clippings/bilibili/matt-pocock/matt-pocock-skills.html">Matt-Pocock-Skills仓库全量分类汇总未命名</a> — Matt Pocock skills 仓库全景</li>
+</ul>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">内容剪藏</span><span class="chip">Matt Pocock</span><span class="chip">Wayfinder</span><span class="chip">Skill</span><span class="chip">Ticket</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/Clippings/Bilibili/Matt-Pocock/2026-08-01-Matt-Pocock-Wayfinder%E6%A6%82%E5%BF%B5%E8%AF%A6%E8%A7%A3%E4%B8%8EFAQ.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../../notes/clippings/bilibili/matt-pocock/2026-07-31-matt-pocock-wayfinderspec.html"><span class="dir">← 上一篇</span><span class="t">Matt Pocock 直播实战：Wayfinder 从想法到 spec 全流程</span></a><a class="next" href="../../../../notes/clippings/bilibili/matt-pocock/2026-08-02-matt-pocock-grill-skill9.html"><span class="dir">下一篇 →</span><span class="t">Matt Pocock：别让你的 Agent 问你 200 个问题 —— grill skill 的 9 个误区</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../../index.html">首页</a>
+      <a href="../../../../learn.html">课件</a>
+      <a href="../../../../notes/index.html">笔记库</a>
+      <a href="../../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../../about.html">关于</a>
+      <a href="../../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../../js/main.js" defer></script>
+</body>
+</html>

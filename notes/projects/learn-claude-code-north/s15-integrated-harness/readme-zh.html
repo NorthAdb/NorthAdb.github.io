@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>s15: Agent Harness 集成 — 多种机制，一个循环 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="EnglishREADME.md · 中文README.zh.md · 日本語README.ja.md">
+<link rel="canonical" href="https://northadb.github.io/notes/projects/learn-claude-code-north/s15-integrated-harness/readme-zh.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="s15: Agent Harness 集成 — 多种机制，一个循环 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="EnglishREADME.md · 中文README.zh.md · 日本語README.ja.md">
+<meta property="og:url" content="https://northadb.github.io/notes/projects/learn-claude-code-north/s15-integrated-harness/readme-zh.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="s15: Agent Harness 集成 — 多种机制，一个循环 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="EnglishREADME.md · 中文README.zh.md · 日本語README.ja.md">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../../feed.xml">
+<link rel="stylesheet" href="../../../../css/style.css">
+<link rel="stylesheet" href="../../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "s15: Agent Harness 集成 — 多种机制，一个循环", "description": "EnglishREADME.md · 中文README.zh.md · 日本語README.ja.md", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/projects/learn-claude-code-north/s15-integrated-harness/readme-zh.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../../index.html">首页</a><span>/</span><a href="../../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../../notes/projects/index.html">项目笔记</a></div>
+          <h1>s15: Agent Harness 集成 — 多种机制，一个循环</h1>
+          <p class="post-sub">EnglishREADME.md · 中文README.zh.md · 日本語README.ja.md</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../../notes/projects/index.html">项目笔记</a></span><span class="sep"></span>
+            <span>阅读约 8 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<p><a href="../../../../notes/index.html">English</a> · <a href="../../../../notes/projects/learn-claude-code-north/s15-integrated-harness/readme-zh.html">中文</a> · <a href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/learn-claude-code-north/s15_integrated_harness/README.ja.md">日本語</a></p>
+<p>s01 → ... → s13 → <a href="https://github.com/NorthAdb/north-my-note/tree/main/%E9%A1%B9%E7%9B%AE/learn-claude-code-north/s14_mcp_plugin">s14</a> → <code>s15</code> → <a href="https://github.com/NorthAdb/north-my-note/tree/main/%E9%A1%B9%E7%9B%AE/learn-claude-code-north/s16_workflow_runtime">s16</a> → s17</p>
+<blockquote>
+<p><em>"多种机制，一个循环"</em> — 工具、权限、记忆、任务、团队、插件都挂在同一个 while True 上。</p>
+<p><strong>Harness 层</strong>: 集成 — 把本章示例实际使用的机制放进同一个可运行系统。</p>
+</blockquote>
+<hr>
+<h2 id="问题">问题</h2>
+<p>前面的章节把不同机制放在各自独立的示例中。本章把集成运行时需要的机制接到一起。</p>
+<p>一个能长期工作的 coding agent 需要同时拥有：</p>
+<ul>
+<li>工具分发和权限边界</li>
+<li>hooks 扩展点</li>
+<li>todo 计划和任务图</li>
+<li>技能、记忆、系统 prompt 组装</li>
+<li>压缩和错误恢复</li>
+<li>后台任务和 cron 调度</li>
+<li>团队、协议和 idle 任务认领</li>
+<li>任务绑定的 worktree</li>
+<li>MCP 外部工具接入</li>
+</ul>
+<p>S15 不再引入一个独立机制，而是展示现有机制从哪里进入模型循环，以及它们产生的事件如何回到同一段对话。</p>
+<hr>
+<h2 id="解决方案">解决方案</h2>
+<p><img alt="System Architecture" src="https://gitee.com/cheng-jiaqing/images/raw/master/system-architecture.svg"></p>
+<p>S15 不再引入新机制，而是把前面各章的组件集成到同一个 harness：</p>
+<pre><code class="language-text">用户输入
+  → UserPromptSubmit hooks
+  → cron/background 通知注入
+  → context compact
+  → memory + skills + MCP 状态组装 system prompt
+  → LLM
+  → has tool_use block?
+      否 → Stop hooks → 返回
+      是 → PreToolUse hooks + permission
+          → TOOL_HANDLERS / MCP handlers / background dispatch
+          → PostToolUse hooks
+          → tool_result / task_notification 回 messages
+          → 下一轮
+</code></pre>
+<p>循环仍是同一个结构：调用模型，检查响应里是否出现 <code>tool_use</code> block，执行工具，再把结果追加回 <code>messages</code>。是否继续工具轮，由响应中有没有实际的 <code>tool_use</code> block 决定。</p>
+<hr>
+<h2 id="组件在循环中的位置">组件在循环中的位置</h2>
+<table>
+<thead>
+<tr>
+<th>位置</th>
+<th>组件</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>用户输入前后</td>
+<td><code>UserPromptSubmit</code> hooks</td>
+<td>记录、注入、审计用户输入</td>
+</tr>
+<tr>
+<td>LLM 前</td>
+<td>cron queue</td>
+<td>把定时触发的 prompt 注入 <code>messages</code></td>
+</tr>
+<tr>
+<td>LLM 前</td>
+<td>background notifications</td>
+<td>后台任务完成后以 <code>&lt;task_notification&gt;</code> 注入</td>
+</tr>
+<tr>
+<td>LLM 前</td>
+<td>compaction pipeline</td>
+<td>先压大输出，再裁历史，再压旧 tool_result，必要时摘要</td>
+</tr>
+<tr>
+<td>LLM 前</td>
+<td>memory / skills / MCP state</td>
+<td>组装 system prompt，让模型看到当前能力和长期上下文</td>
+</tr>
+<tr>
+<td>LLM 调用</td>
+<td>error recovery</td>
+<td>429/529 重试，<code>max_tokens</code> 升级，prompt too long 触发 reactive compact</td>
+</tr>
+<tr>
+<td>工具执行前</td>
+<td><code>PreToolUse</code> hooks + permission</td>
+<td>拦截危险命令、写越界、破坏性 MCP 工具</td>
+</tr>
+<tr>
+<td>工具分发</td>
+<td><code>assemble_tool_pool</code></td>
+<td>组装内置工具和 MCP 动态工具</td>
+</tr>
+<tr>
+<td>工具执行时</td>
+<td>background dispatch</td>
+<td>显式标记的 bash 操作放入 daemon thread，主循环先返回占位结果</td>
+</tr>
+<tr>
+<td>工具执行后</td>
+<td><code>PostToolUse</code> hooks</td>
+<td>大输出告警、日志等后处理</td>
+</tr>
+<tr>
+<td>返回循环</td>
+<td>tool_result</td>
+<td>每个 <code>tool_use</code> 对应一个 <code>tool_result</code>，再回到下一轮</td>
+</tr>
+<tr>
+<td>本轮没有 tool_use / 停止时</td>
+<td><code>Stop</code> hooks</td>
+<td>统计、清理、审计</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="codepy-包含什么">code.py 包含什么</h2>
+<h3 id="工具与分发">工具与分发</h3>
+<p>内置工具池包含 26 个工具：</p>
+<pre><code class="language-text">bash, read_file, write_file, edit_file, glob
+todo_write, task, load_skill, compact
+create_task, update_task, list_tasks, get_task, claim_task, complete_task
+schedule_cron, list_crons, cancel_cron
+spawn_teammate, list_teammates, send_message
+request_shutdown, request_plan, review_plan
+create_worktree
+connect_mcp
+</code></pre>
+<p><code>assemble_tool_pool()</code> 每轮组装：</p>
+<pre><code class="language-text">BUILTIN_TOOLS + connected MCP tools
+BUILTIN_HANDLERS + mcp__server__tool handlers
+</code></pre>
+<p>所以 <code>connect_mcp("docs")</code> 后，下一轮工具池里会出现 <code>mcp__docs__search</code>。</p>
+<h3 id="权限和-hooks">权限和 hooks</h3>
+<p>权限不写死在工具执行行里，而是作为 <code>PreToolUse</code> hook：</p>
+<pre><code class="language-python">blocked = trigger_hooks(&quot;PreToolUse&quot;, block)
+if blocked:
+    results.append(tool_result(block.id, blocked))
+    continue
+</code></pre>
+<p>这样 permission、log、审计都可以挂在同一个 hook 点上。Lead、一次性 subagent 和队友的工具都会先经过 <code>PreToolUse</code>；允许执行的调用会在 handler 返回后触发 <code>PostToolUse</code>。</p>
+<p>权限判断不会把 MCP server 自己写的 description 当成授权依据。宿主维护一组精确的已知只读工具名单，其他 MCP 工具都要询问用户。文件工具越过 <code>WORKDIR</code> 会直接拒绝，每条 bash 命令执行前都会询问。只有前台用户轮次可以弹出交互确认；异步轮次直接拒绝需要确认的操作，不和主 CLI 争抢输入。</p>
+<h3 id="计划与任务">计划与任务</h3>
+<p>S15 同时保留两层计划：</p>
+<ul>
+<li><code>todo_write</code>：当前会话内的轻量计划，保存在内存中</li>
+<li>task graph：跨会话、可依赖、可认领的任务文件，写入 <code>.tasks/task_*.json</code></li>
+</ul>
+<p>前者帮助单个 Agent 不漂移；后者支撑团队协作。</p>
+<p>两者目标相近，但实现不同：<code>todo_write</code> 整表替换当前会话清单，task record 则有稳定 ID 和单条生命周期更新。下面单独出现的 <code>task</code> 工具表示“一次性派发隔离 subagent”，不是 Task System。</p>
+<p>集成宿主中的任务图仍采用两阶段构建：Lead 先创建所有任务节点，再使用 <code>create_task</code> 返回的运行时 ID 调用 <code>update_task</code>。队友只能列举、认领和完成任务，因此依赖结构由 Lead 在分发工作前确定。</p>
+<h3 id="子-agent-与团队">子 agent 与团队</h3>
+<p>S15 有两种 delegation：</p>
+<ul>
+<li><code>task</code>：一次性 subagent。独立 <code>messages[]</code>，中间过程丢弃，只返回最终摘要。</li>
+<li><code>spawn_teammate</code>：持久队友线程。传入 ready <code>task_id</code> 时，运行时会在线程启动前完成认领；不传时，队友可以在 IDLE 中等待后续任务。没有 assignment 的队友不能使用文件或 Shell 工具。它按 <code>WORK → result → IDLE</code> 运行，不设固定的工具轮数上限；模型或分发失败会发出 <code>error</code>，线程清理会把未完成 assignment 释放回任务板。每次调用模型前都会先读取收件箱，因此直接消息和关机请求不会被连续的 tool-use 轮次饿死。idle 时先等待 <code>MessageBus</code> 消息，只在超时后扫描就绪 task，并以原子操作最多认领一个。</li>
+</ul>
+<p>Lead 启动队友后结束当前轮次，不在模型循环里反复查询状态。队友事件进入 Lead 收件箱后，运行时会自动唤醒下一轮。</p>
+<p>一次性 subagent 解决“上下文隔离”；持久队友解决“长期并行协作”。</p>
+<h3 id="记忆技能和-prompt">记忆、技能和 prompt</h3>
+<p>S15 直接复用 s09 的 Memory runtime。每轮调用模型前，它读取 <code>.memory/MEMORY.md</code> 目录，根据当前请求选择相关记录，再把选中的正文交给 <code>assemble_system_prompt(context)</code>。本轮结束后，<code>extract_memories()</code> 提取可跨会话使用的信息；有新增记录时再运行 <code>consolidate_memories()</code>。</p>
+<p>同一份 system prompt 还会加入身份、工具说明、workspace、skills catalog 和已连接的 MCP server。技能只放目录，完整内容通过 <code>load_skill(name)</code> 按需加载。</p>
+<h3 id="压缩和恢复">压缩和恢复</h3>
+<p>LLM 前先跑压缩管线：</p>
+<pre><code class="language-text">tool_result_budget → snip_compact → micro_compact → compact_history
+</code></pre>
+<p><code>snip_compact</code> 会先归档完整历史，再裁掉中段消息。<code>micro_compact</code> 只在上下文超限时运行：它先保存较早且已读取的结果，再用恢复路径替换；最近 3 条保持完整，并在接近阈值 80% 时停止。如果未读取的新结果本身过大，S15 会先保留预览和完整输出路径，再考虑总结历史。</p>
+<p>调用模型时再包一层恢复：</p>
+<ul>
+<li>429：指数退避重试</li>
+<li>529：指数退避，连续失败可切 fallback model</li>
+<li><code>max_tokens</code>：先提高 max_tokens，再要求 continuation</li>
+<li>prompt too long：reactive compact 后重试</li>
+</ul>
+<h3 id="后台和-cron">后台和 cron</h3>
+<p>bash 调用设置 <code>run_in_background=true</code> 后，主循环不再等待命令结束，而是先返回占位结果：</p>
+<pre><code class="language-text">should_run_background → start_background_task → placeholder tool_result
+后台完成 → task_notification → 下一轮注入 messages
+</code></pre>
+<p>只有显式标记的 bash 调用会进入后台路径。命令非零退出或 worker 抛出异常时会发出 <code>failed</code> 通知。每条 Shell 命令都在独立进程组中运行；命令结束，或 Agent 经正常路径、<code>SIGTERM</code> 退出时，运行时会停止原进程组。另建 session 的进程可以离开这个进程组。</p>
+<p>cron 调度器独立 daemon thread 每秒检查一次。durable 的一次性任务会先持久化为 <code>pending_delivery</code>，再进入队列，并保留到包含该 prompt 的模型调用成功；调用失败会放回队列，重启后也会再次入队，因此交付语义是至少一次。CLI 同时监听 <code>cron_queue</code>、Lead 收件箱和已经结束的后台任务，任一事件都能自动唤醒一轮 Agent。</p>
+<h3 id="worktree-与-mcp">worktree 与 MCP</h3>
+<p>从 s13 继承的任务级 worktree 机制负责管理任务工作目录：</p>
+<ul>
+<li>pending 且未被认领的 task 可以留在主工作区，也可以通过 <code>create_worktree(name, task_id)</code> 绑定独立分支和目录</li>
+<li>创建前会校验 task、名称、路径、分支和 Git registry；Git 命令失败后还会核对 registry 和分支状态，任何部分创建的 checkout 都保持未绑定并保留供人工恢复</li>
+<li>idle 队友以原子操作认领一个就绪 task，assignment 同时记录 <code>task_id</code> 和有效 <code>cwd</code></li>
+<li>Lead 也可以把 ready <code>task_id</code> 直接传给 <code>spawn_teammate</code>，认领成功后才启动线程</li>
+<li>队友所有文件工具都使用该 <code>cwd</code>；只有 task owner 能完成任务，assignment 会保留到当前模型轮次结束</li>
+<li>移除保留在宿主侧的 <code>remove_worktree()</code> 函数中，模型不能调用。用户或宿主先检查任务所有权、assignment lease、后台工作和 Git 状态；破坏性移除需要另行取得用户确认</li>
+</ul>
+<p>worktree 只改变工具的默认工作目录，用于分离 working copy，并不是安全沙箱。进程组清理也无法约束另建 session 的进程，因此删除保留为宿主操作。</p>
+<p>认领或释放 task 会改变 assignment version，使旧的 plan approval 失效；普通 <code>send_message</code> 只传递消息，不会改变 task identity 或 plan 状态。</p>
+<p>MCP 负责外部能力：</p>
+<ul>
+<li><code>connect_mcp(name)</code> 连接 mock server</li>
+<li><code>assemble_tool_pool()</code> 把 MCP 工具组装进工具池，并拒绝规范化后的名称冲突</li>
+<li>工具名统一为 <code>mcp__server__tool</code></li>
+</ul>
+<hr>
+<h2 id="相对-s14-的变化">相对 s14 的变化</h2>
+<table>
+<thead>
+<tr>
+<th>范围</th>
+<th>s14 MCP</th>
+<th>s15 Integrated Harness</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>内置工具</td>
+<td>6 个</td>
+<td>25 个</td>
+</tr>
+<tr>
+<td>外部工具</td>
+<td>已连接的 MCP 工具</td>
+<td>沿用同一套动态 MCP 路径和宿主策略</td>
+</tr>
+<tr>
+<td>本地机制</td>
+<td>S04 工具、hooks、权限和 MCP</td>
+<td>todo、subagent、skills、compaction、memory、task graph、后台 bash、cron、teams 和 worktrees</td>
+</tr>
+<tr>
+<td>事件来源</td>
+<td>用户输入和工具结果</td>
+<td>用户输入、工具结果、cron prompt、后台通知和 team events</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="试一下">试一下</h2>
+<pre><code class="language-sh">cd learn-claude-code
+python s15_integrated_harness/code.py
+</code></pre>
+<p>可以试：</p>
+<ol>
+<li><code>检查这个仓库，告诉我哪些 Python 文件最重要。</code></li>
+<li><code>从已连接的文档中查一下 agent loop 的相关说明。</code></li>
+<li><code>请在独立的 worktree 中并行重构认证模块和登录页，修改前先把各自的计划给我看。</code></li>
+<li><code>3 分钟后提醒我开会。</code></li>
+<li><code>在后台安装依赖，同时继续阅读 README.md。</code></li>
+</ol>
+<p>观察重点：</p>
+<ul>
+<li>工具调用前是否经过 hooks/permission</li>
+<li><code>connect_mcp</code> 后下一轮是否出现 MCP 工具</li>
+<li>设置 <code>run_in_background=true</code> 的 bash 调用是否返回 background placeholder</li>
+<li>到点是不是自动提醒开会</li>
+<li>队友是否提交 plan，并在 approval 前暂停</li>
+<li>idle 队友是否只原子认领一个就绪 task</li>
+<li>队友所有文件工具是否都切换到已认领 task 的 <code>cwd</code></li>
+<li>完成任务后是否在本轮剩余工具调用中保持 task <code>cwd</code>，并在 IDLE 时释放</li>
+</ul>
+<hr>
+<h2 id="接下来">接下来</h2>
+<p><a href="https://github.com/NorthAdb/north-my-note/tree/main/%E9%A1%B9%E7%9B%AE/learn-claude-code-north/s16_workflow_runtime">s16 Workflow Runtime</a> 会在这个 host 中加入 <code>Workflow</code> 工具。Workflow 把固定的编排路径写在代码中，并记录运行进度，使同一次运行可以继续执行。</p>
+<!-- translation-sync: zh@v14, en@v14, ja@v14 -->
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">项目笔记</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/learn-claude-code-north/s15_integrated_harness/README.zh.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../../notes/projects/learn-claude-code-north/s14-mcp-plugin/readme-zh.html"><span class="dir">← 上一篇</span><span class="t">s14: MCP Tools — 发现并调用外部工具</span></a><a class="next" href="../../../../notes/projects/learn-claude-code-north/s16-workflow-runtime/readme-zh.html"><span class="dir">下一篇 →</span><span class="t">s16: Workflow Runtime — 模型决定单步，脚本决定编排</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../../index.html">首页</a>
+      <a href="../../../../learn.html">课件</a>
+      <a href="../../../../notes/index.html">笔记库</a>
+      <a href="../../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../../about.html">关于</a>
+      <a href="../../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../../js/main.js" defer></script>
+</body>
+</html>

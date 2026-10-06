@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>10 分钟讲透 AI Agent 8 种主流架构 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="UP 主：AI架构师Leo | 时长 10:13 | 发布 2026-07-18 互动：❤️ 65 · ⭐ 123 · 💬 7 · 🪙 23 事实主干：B站 AI 字幕（agent-reach / OpenCLI 提取，242 段逐句时间轴…">
+<link rel="canonical" href="https://northadb.github.io/notes/clippings/bilibili/2026-07-31-10ai-agent-8.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="10 分钟讲透 AI Agent 8 种主流架构 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="UP 主：AI架构师Leo | 时长 10:13 | 发布 2026-07-18 互动：❤️ 65 · ⭐ 123 · 💬 7 · 🪙 23 事实主干：B站 AI 字幕（agent-reach / OpenCLI 提取，242 段逐句时间轴…">
+<meta property="og:url" content="https://northadb.github.io/notes/clippings/bilibili/2026-07-31-10ai-agent-8.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="10 分钟讲透 AI Agent 8 种主流架构 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="UP 主：AI架构师Leo | 时长 10:13 | 发布 2026-07-18 互动：❤️ 65 · ⭐ 123 · 💬 7 · 🪙 23 事实主干：B站 AI 字幕（agent-reach / OpenCLI 提取，242 段逐句时间轴…">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../feed.xml">
+<link rel="stylesheet" href="../../../css/style.css">
+<link rel="stylesheet" href="../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "10 分钟讲透 AI Agent 8 种主流架构", "description": "UP 主：AI架构师Leo | 时长 10:13 | 发布 2026-07-18 互动：❤️ 65 · ⭐ 123 · 💬 7 · 🪙 23 事实主干：B站 AI 字幕（agent-reach / OpenCLI 提取，242 段逐句时间轴…", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/clippings/bilibili/2026-07-31-10ai-agent-8.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../index.html">首页</a><span>/</span><a href="../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../notes/clippings/index.html">内容剪藏</a></div>
+          <h1>10 分钟讲透 AI Agent 8 种主流架构</h1>
+          <p class="post-sub">UP 主：AI架构师Leo | 时长 10:13 | 发布 2026-07-18 互动：❤️ 65 · ⭐ 123 · 💬 7 · 🪙 23 事实主干：B站 AI 字幕（agent-reach / OpenCLI 提取，242 段逐句时间轴…</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../notes/clippings/index.html">内容剪藏</a></span><span class="sep"></span>
+            <span>阅读约 7 分钟</span><span class="sep"></span><span>更新于 2026-07-31</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p><strong>UP 主</strong>：AI架构师Leo | <strong>时长</strong> 10:13 | <strong>发布</strong> 2026-07-18
+<strong>互动</strong>：❤️ 65 · ⭐ 123 · 💬 7 · 🪙 23
+<strong>事实主干</strong>：B站 AI 字幕（agent-reach / OpenCLI 提取，242 段逐句时间轴）
+<strong>证据等级</strong>：<code>bilibili-ai-subtitles</code></p>
+</blockquote>
+<hr>
+<h2 id="一句话总论">一句话总论</h2>
+<blockquote>
+<p><strong>8 种 Agent 架构不是「八选一」。</strong> 真实产品通常从 Tools + ReAct 的最小闭环开始，再按任务复杂度逐步叠加 RAG、Memory、Plan、Reflection、多智能体和自主循环。一个 Agent = 模型 + 设计模式 + 运行边界（权限、预算、中止条件、审计）。</p>
+</blockquote>
+<hr>
+<h2 id="学完你应该获得什么">学完你应该获得什么</h2>
+<ul>
+<li>能说出 8 种主流 Agent 架构各自的适用场景、优点和坑</li>
+<li>理解「Agent = 模型 + 设计模式 + 运行边界」的三层结构</li>
+<li>能根据任务复杂度选择从哪个最小闭环起步、该叠加哪些能力</li>
+<li>知道为什么「更自主」不等于「更成熟」——边界比能力更重要</li>
+</ul>
+<hr>
+<h2 id="核心模型agent-的三层运行系统">核心模型：Agent 的三层运行系统</h2>
+<p>把 Agent 看成一个运行系统：<strong>左边输入目标、权限和约束；右边输出不只是文字，也可能是工具操作结果；处理结果会回流成为下一轮的输入。</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">层</th>
+<th style="text-align: left;">回答的问题</th>
+<th style="text-align: left;">对应架构</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>第一层</strong></td>
+<td style="text-align: left;">下一步怎么做</td>
+<td style="text-align: left;">ReAct、Plan-and-Execute、Reflection</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>第二层</strong></td>
+<td style="text-align: left;">完成任务需要什么能力</td>
+<td style="text-align: left;">Tools、Memory、RAG</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>第三层</strong></td>
+<td style="text-align: left;">系统如何扩展运行</td>
+<td style="text-align: left;">Multi-Agent、Autonomous Loop</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>底座</strong></td>
+<td style="text-align: left;">安全与可靠性</td>
+<td style="text-align: left;">权限、预算、中止条件、审计</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>真正可靠的 Agent，底部必须加上<strong>权限、预算、中止条件和审计</strong>——没有边界的自主不是能力，是风险。</p>
+</blockquote>
+<hr>
+<h2 id="8-种架构详解">8 种架构详解</h2>
+<h3 id="1-react-边做边判断">1️⃣ ReAct — 边做边判断</h3>
+<p><strong>是什么</strong>：Reason + Act 的结合，不断循环「判断下一步 → 调用工具 → 观察结果」三个动作。</p>
+<p><strong>例子</strong>：制作竞品报告，先发现缺市场数据→去搜索→拿到结果发现两来源数据不一致→继续查证→证据足够后才进入写作。</p>
+<p><strong>适用</strong>：路线无法提前预判的开放任务。</p>
+<p><strong>坑</strong>：可能重复用工具甚至死循环，<strong>必须设置停止条件</strong>（目标完成 / 预算耗尽 / 请求人工）。</p>
+<blockquote>
+<p>一句话：走一步，看结果，再定下一步。</p>
+</blockquote>
+<h3 id="2-plan-and-execute-先规划再执行">2️⃣ Plan-and-Execute — 先规划再执行</h3>
+<p><strong>是什么</strong>：规划器把目标拆成任务图，执行器按依赖关系逐步完成；每一步把完成状态交给系统。</p>
+<p><strong>例子</strong>：竞品报告拆成「确定竞品名单 → 收集产品信息 → 比较价格评价 → 生成结论和引用」。</p>
+<p><strong>与 ReAct 的区别</strong>：ReAct 像一边走一边找路，Plan-and-Execute 像先看地图再出发。某一步被阻塞时，成熟系统<strong>重新规划</strong>而非死守原计划。</p>
+<p><strong>适用</strong>：研究报告、软件开发、项目交付等确定性较强的任务。</p>
+<h3 id="3-multi-agent-多角色协作">3️⃣ Multi-Agent — 多角色协作</h3>
+<p><strong>是什么</strong>：主管智能体拆解任务，分给不同专业角色——研究员检索证据、分析师比较数据、撰稿人生成报告、审查员验证事实；所有角色通过<strong>共享工作区</strong>同步任务状态、中间产物和证据。</p>
+<p><strong>适用</strong>：确实需要不同专业视角的复杂任务。</p>
+<p><strong>坑</strong>：Agent 越多≠越好。会增加通信成本、上下文冲突和劳动重复。<strong>价值来自有效分工，不是看起来热闹。</strong></p>
+<h3 id="4-reflection-检查并改进">4️⃣ Reflection — 检查并改进</h3>
+<p><strong>是什么</strong>：把「生成」和「评价」拆成独立环节。生成端给出候选答案，评价端按明确标准（完整性、准确性、适用性）打分；不达标时生成具体反馈（如「缺少来源」「结论过度」）送回修改，达标后才交付。</p>
+<p><strong>适用</strong>：报告、方案等可以定义质量标准的任务。</p>
+<p><strong>坑</strong>：模型自己评价自己可能存在盲区，最好结合外部测试、可观测数据和人工审核，并<strong>限制最大反思次数</strong>。</p>
+<h3 id="5-tools-调用外部工具">5️⃣ Tools — 调用外部工具</h3>
+<p><strong>是什么</strong>：大模型本身只能生成内容，接入搜索、代码执行、系统命令和企业 API 后才会「从会说变成会做」。模型负责选工具和生成参数，<strong>网关</strong>负责参数校验、权限检查、用量控制。</p>
+<p><strong>难点</strong>：不是接入多少工具，而是<strong>怎么控制副作用</strong>——涉及发消息、转账、付款等操作必须加人工审批和审计记录。模型负责决策，工具负责执行。</p>
+<h3 id="6-memory-延续历史状态">6️⃣ Memory — 延续历史状态</h3>
+<p><strong>是什么</strong>：<strong>工作记忆</strong>保存当前任务运行的目标、事实和状态；<strong>记忆管理器</strong>提取重要信息，经过去重和冲突处理后写入<strong>长期记忆</strong>（情景记忆、语义记忆、用户偏好规则）。</p>
+<p><strong>例子</strong>：记住你关注商业模式、喜欢表格、要求所有结论附带来源。</p>
+<p><strong>坑</strong>：记忆不是越多越好，必须处理过期、错误、隐私和冲突。<strong>好的记忆不仅会记住，也知道什么时候该忘记。</strong></p>
+<h3 id="7-rag-寻找可信证据">7️⃣ RAG — 寻找可信证据</h3>
+<p><strong>是什么</strong>：普通 Agent 检索一次就直接回答；RAG Agent 会自己拆解问题、改写查询、选择数据源、判断是否需要继续搜索。可同时访问公司文档、公开网页和私有数据库，按相关性、完整性和时间进程<strong>去重、重排</strong>。</p>
+<p><strong>例子</strong>：两个来源给出的竞品数据不一致，验证器会要求继续查财报或官网公告，而不是随便选一个数字。</p>
+<p><strong>上限</strong>：RAG 的能力上限很大程度取决于<strong>知识库质量、文档质量和引用可追溯性</strong>。</p>
+<h3 id="8-autonomous-loop-持续推进目标">8️⃣ Autonomous Loop — 持续推进目标</h3>
+<p><strong>是什么</strong>：用户给出高层目标后，系统保存目标和当前状态，持续循环「观察 → 决策 → 行动 → 评估」，直到完成、暂停或请求人工。</p>
+<p><strong>例子</strong>：按美洲时区跟踪竞品动态，按计划搜索新资讯、判断哪些变化值得关注、更新报告、重大事件时主动通知用户。</p>
+<p><strong>风险</strong>：自主程度最高、风险最大。<strong>必须设置权限边界、预算上限、最大循环次数、检查点、审计制和人工审批。</strong> 一旦目标理解错误，自动循环会持续放大这个错误——自主性越高，停止机制和控制力必须越强。</p>
+<hr>
+<h2 id="选型从最小闭环开始">选型：从最小闭环开始</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">场景</th>
+<th style="text-align: left;">起步/叠加</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">需要访问外部系统</td>
+<td style="text-align: left;"><strong>Tools + ReAct</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">回答依赖文档/事实数据</td>
+<td style="text-align: left;">+ <strong>RAG</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">任务需要跨会话延续</td>
+<td style="text-align: left;">+ <strong>Memory</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">步骤多、依赖明确</td>
+<td style="text-align: left;">+ <strong>Plan-and-Execute</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">交付质量波动大</td>
+<td style="text-align: left;">+ <strong>Reflection</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">确实需要专业分工</td>
+<td style="text-align: left;"><strong>Multi-Agent</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">已具备权限/预算/终止机制</td>
+<td style="text-align: left;">才开启 <strong>Autonomous Loop</strong></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>这张图越往右上方走，系统的自主性和任务复杂度越高，但每增加一层也同步增加排障成本、控制成本和安全性风险。</p>
+</blockquote>
+<hr>
+<h2 id="真实组合案例竞品报告">真实组合案例：竞品报告</h2>
+<ol>
+<li><strong>Plan-and-Execute</strong> 拆解任务</li>
+<li><strong>主管智能体</strong>把任务分给研究员、分析师、撰稿人</li>
+<li>每个角色内部使用 <strong>ReAct</strong></li>
+<li><strong>Tools</strong> 提供实际操作能力</li>
+<li><strong>RAG</strong> 提供知识支持</li>
+<li><strong>Memory</strong> 保存会话历史和任务状态</li>
+<li>出稿后 <strong>Reflection</strong> 做事实审查和反复修改</li>
+<li>底层 <strong>Autonomous Loop</strong> 设定目标、检查进度，触发预算限制、权限检查和人工审批</li>
+</ol>
+<hr>
+<h2 id="关键洞察">关键洞察</h2>
+<blockquote>
+<p><strong>成熟的 Agent 不是最自主的 Agent，而是能在明确边界内稳定、可评估、可停止地完成目标的 Agent。</strong></p>
+</blockquote>
+<p>这就是「复杂度之间的真正关系」：8 种模式是互补叠加的积木，不是互斥的选项。</p>
+<hr>
+<h2 id="评论区的学习价值">评论区的学习价值</h2>
+<ul>
+<li><strong>比官网低价全模型api</strong>：建议把架构内容拆成「概念、适用场景、坑点」三栏——这套方法本身就是一个很好的 Agent 架构学习框架</li>
+<li><strong>糖水加糖会变甜嘛</strong>：希望 UP 主详细讲 Plan-and-Execute（UP 主回复「好」，后续可能有续集）</li>
+<li><strong>一看就是糟老头子</strong>：问课件工具——回复「HTML」，说明 UP 主的动画是 HTML 做的</li>
+</ul>
+<hr>
+<h2 id="自测题">自测题</h2>
+<ol>
+<li>8 种架构分别对应 Agent 三层模型中的哪一层？</li>
+<li>ReAct 和 Plan-and-Execute 的核心区别是什么？</li>
+<li>为什么说「Agent 越多不代表越好」？</li>
+<li>Reflection 架构最大的盲区是什么？如何弥补？</li>
+<li>Tools 架构真正的难点是接入工具，还是控制副作用？</li>
+<li>好的记忆系统为什么「知道什么时候该忘记」？</li>
+<li>RAG 的能力上限由什么决定？</li>
+<li>为什么 Autonomous Loop 必须设置停止机制？</li>
+<li>一个「只说会做」的 Agent 和一个「真的会做」的 Agent 差在哪？</li>
+<li>如果要做一个需要搜索资料、跨多轮会话、质量要求高的工具，该选哪些架构组合？</li>
+</ol>
+<details>
+<summary>参考答案</summary>
+
+1. 第一层：ReAct/Plan/Reflection；第二层：Tools/Memory/RAG；第三层：Tools/Autonomous；底座：权限预算审计
+2. ReAct 边走边找路（每步决策），Plan-and-Execute 先看地图再出发（先规划后执行）
+3. 会增加通信成本、上下文冲突、劳动重复；价值来自有效分工
+4. 模型自己评价自己可能有盲区；需结合外部测试、可观测数据、人工审核，限制反思次数
+5. 难点是控制副作用（发消息/付款要人工审批），不是接入多少工具
+6. 记忆需要处理过期、错误、隐私和冲突；记住一切反而降低检索质量
+7. 知识库质量、文档质量、引用可追溯性
+8. 目标理解错误时自动循环会持续放大错误；必须用权限/预算/循环上限/检查点/人工审批兜底
+9. 差在 Tools（工具调用）——模型只生成内容，工具让它能真正执行
+10. Tools + ReAct 起步 → 加 RAG（知识）→ 加 Memory（跨会话）→ 加 Reflection（质量），预算/权限兜底
+
+</details>
+
+<hr>
+<h2 id="证据与原文位置">证据与原文位置</h2>
+<ul>
+<li>字幕来源：agent-reach / OpenCLI <code>opencli bilibili subtitle BV1CrKA6YETu</code>（242 段逐句带时间轴）</li>
+</ul>
+<h2 id="来源覆盖与局限">来源、覆盖与局限</h2>
+<ul>
+<li><strong>URL</strong>：https://www.bilibili.com/video/BV1CrKA6YETu/</li>
+<li><strong>BVID</strong>：BV1CrKA6YETu | <strong>UP</strong>：AI架构师Leo | <strong>发布</strong>：2026-07-18</li>
+<li><strong>字幕</strong>：agent-reach OpenCLI 提取 B站 AI 字幕（242 段，全程 10:13 覆盖）</li>
+<li><strong>评论</strong>：5 条主评论 + 2 条回复，全部覆盖</li>
+<li>⚠️ B站 AI 字幕对英文术语识别仍有误差（RIG= RAG、mountain= Multi-、REFLEICATION= Reflection），已结合视频简介校正</li>
+<li>⚠️ 视频为幻灯片讲解，画面细节（图表动画）未通过画面分析获取</li>
+</ul>
+<h2 id="关联笔记">关联笔记</h2>
+<ul>
+<li><a class="wl" href="../../../notes/clippings/bilibili/2026-07-31-agent-harness-loop-graph.html">2026-07-31-Agent系统架构设计-Harness-Loop-Graph怎么选</a> — Harness/Loop/Graph 深度版</li>
+<li>
+<p><a class="wl" href="../../../notes/clippings/pae26bb/2026-08-04-contextgraph-agent-qoder.html">2026-08-04-从Context到Graph-Agent工程的四个层次-Qoder</a> — 工程层次演进视角</p>
+</li>
+<li>
+<p><a class="wl" href="../../../notes/clippings/pae26bb/2026-07-30-ai-agent-graph-loop-harness.html">2026-07-30-AI-Agent落地铁三角-Graph-Loop-Harness</a> — Graph/Loop/Harness 与本文的 Agent 架构互补</p>
+</li>
+<li><a class="wl" href="../../../notes/clippings/claude/2026-07-30-claude.html">Clippings/Claude/2026-07-30-Claude聊天记录汇总</a> — ⑦⑧ 有 Agent 架构的补充讨论</li>
+<li><a class="wl" href="../../../notes/clippings/p44a38b/2026-09-01-rag.html">2026-09-01-RAG核心知识全解析（范式演进）</a> — RAG 架构深入版</li>
+</ul>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">内容剪藏</span><span class="chip">Agent</span><span class="chip">架构</span><span class="chip">ReAct</span><span class="chip">Plan-and-Execute</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/Clippings/Bilibili/2026-07-31-10%E5%88%86%E9%92%9F%E8%AE%B2%E9%80%8FAI-Agent-8%E7%A7%8D%E4%B8%BB%E6%B5%81%E6%9E%B6%E6%9E%84.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../notes/clippings/bilibili/2026-07-30-agentskilltool.html"><span class="dir">← 上一篇</span><span class="t">Agent 架构中 Skill 和 Tool 到底有啥本质区别？</span></a><a class="next" href="../../../notes/clippings/bilibili/2026-07-31-agent-harness-loop-graph.html"><span class="dir">下一篇 →</span><span class="t">Agent 系统架构设计：Harness、Loop、Graph 到底怎么选</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../index.html">首页</a>
+      <a href="../../../learn.html">课件</a>
+      <a href="../../../notes/index.html">笔记库</a>
+      <a href="../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../about.html">关于</a>
+      <a href="../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../js/main.js" defer></script>
+</body>
+</html>

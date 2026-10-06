@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weather工作流重构历程（中文翻译） · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="中文翻译自 reports/learning-journey-weather-reporter-redesign.md../reports/learning-journey-weather-reporter-redesign.md">
+<link rel="canonical" href="https://northadb.github.io/notes/projects/claude-code-best-practice/doc/reports/weather.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Weather工作流重构历程（中文翻译） · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="中文翻译自 reports/learning-journey-weather-reporter-redesign.md../reports/learning-journey-weather-reporter-redesign.md">
+<meta property="og:url" content="https://northadb.github.io/notes/projects/claude-code-best-practice/doc/reports/weather.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Weather工作流重构历程（中文翻译） · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="中文翻译自 reports/learning-journey-weather-reporter-redesign.md../reports/learning-journey-weather-reporter-redesign.md">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../../../feed.xml">
+<link rel="stylesheet" href="../../../../../css/style.css">
+<link rel="stylesheet" href="../../../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Weather工作流重构历程（中文翻译）", "description": "中文翻译自 reports/learning-journey-weather-reporter-redesign.md../reports/learning-journey-weather-reporter-redesign.md", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/projects/claude-code-best-practice/doc/reports/weather.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../../../index.html">首页</a><span>/</span><a href="../../../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../../../notes/projects/index.html">项目笔记</a></div>
+          <h1>Weather工作流重构历程（中文翻译）</h1>
+          <p class="post-sub">中文翻译自 reports/learning-journey-weather-reporter-redesign.md../reports/learning-journey-weather-reporter-redesign.md</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../../../notes/projects/index.html">项目笔记</a></span><span class="sep"></span>
+            <span>阅读约 9 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p>中文翻译自 <a href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/reports/learning-journey-weather-reporter-redesign.md">reports/learning-journey-weather-reporter-redesign.md</a></p>
+</blockquote>
+<h1 id="学习历程天气预报员weather-reporter重设计划">学习历程——天气预报员（Weather Reporter）重设计划</h1>
+<p>← 返回 <a href="../../../../../notes/index.html">README</a></p>
+<h2 id="概述">概述</h2>
+<p>围绕一个贯穿始终的示例——<strong>天气预报员代理（weather reporter agent）</strong>——重设计从第 7 页开始的所有幻灯片。叙事弧线按照目录的可见顺序（代理 Agent → 技能 Skill → 上下文 Context → CLAUDE.md → 命令 Command + 工作流 Workflow）展开，让观众先认识天气预报员，然后理解他们知道什么、如何思考、遵循哪些规则，最后了解如何用一个命令触发他们。</p>
+<hr>
+<h2 id="1-当前-新章节映射">1. 当前 → 新章节映射</h2>
+<table>
+<thead>
+<tr>
+<th>当前章节</th>
+<th>当前幻灯片</th>
+<th>操作</th>
+<th>新位置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>主题 1：上下文</td>
+<td>7-11（第 7 页为章节页）</td>
+<td>移至主题 3</td>
+<td>第 17-21 页</td>
+</tr>
+<tr>
+<td>主题 2：CLAUDE.md</td>
+<td>12-17（第 12 页为章节页）</td>
+<td>移至主题 4</td>
+<td>第 22-27 页</td>
+</tr>
+<tr>
+<td>主题 3：代理</td>
+<td>18-23（第 18 页为章节页）</td>
+<td>移至主题 1</td>
+<td>第 7-12 页</td>
+</tr>
+<tr>
+<td>主题 4：技能</td>
+<td>24-29（第 24 页为章节页）</td>
+<td>移至主题 2</td>
+<td>第 13-18 页</td>
+</tr>
+<tr>
+<td>主题 5：命令</td>
+<td>30-32（第 30 页为章节页）</td>
+<td>与工作流合并为主题 5</td>
+<td>第 28-32 页</td>
+</tr>
+<tr>
+<td>主题 6：工作流</td>
+<td>33-36（第 33 页为章节页）</td>
+<td>合并入命令章节</td>
+<td>（无独立章节页）</td>
+</tr>
+<tr>
+<td>结束页</td>
+<td>37</td>
+<td>保留，更新副标题</td>
+<td>第 33 页</td>
+</tr>
+</tbody>
+</table>
+<p><strong>新总数：33 页</strong>（当前 37 页减去工作流章节页和 3 页工作流内容页，这些内容合并到了命令章节中，该章节因此增加 3 页）。</p>
+<p>等等，让我重新计算：</p>
+<p>当前：第 7-37 页 = 31 页。
+- 代理章节：6 页（18-23）→ 成为主题 1（7-12）
+- 技能章节：6 页（24-29）→ 成为主题 2（13-18）
+- 上下文章节：5 页（7-11）→ 成为主题 3（19-23）
+- CLAUDE.md 章节：6 页（12-17）→ 成为主题 4（24-29）
+- 命令 + 工作流合并：3 + 1 章节页 + 4 内容页 = 命令（3）+ 工作流（1 章节页 + 3 内容页）= 7 页 → 成为主题 5（30-36）
+- 结束页：1 页（37）</p>
+<p><strong>新总数：37 页</strong>（没有页面被删除；工作流章节页成为合并后的命令+工作流章节的一部分——我们将其保留为子章节，或删除其 <code>data-level</code> 以避免出现第二个章节分隔符）。</p>
+<p><strong>决定</strong>：保留全部 37 页。删除原有工作流章节分隔符（第 33 页）的 <code>data-level</code>，使其被视为内容页而非章节分隔符。命令章节覆盖 30-36 页。工作流章节分隔符成为命令章节内的可视化"章节标题"。</p>
+<p>实际上，更简单：将工作流章节分隔符保留为没有 <code>data-level</code> 的内容页。旅程栏保持在 <code>commands</code> 级别。章节编号文字从"主题 6"改为只是一个副标题。</p>
+<hr>
+<h2 id="2-新-levels-映射键名和颜色不变">2. 新 LEVELS 映射（键名和颜色不变）</h2>
+<p>新的章节顺序是：<strong>代理 Agent → 技能 Skill → 上下文 Context → CLAUDE.md → 命令 Command</strong>。<code>workflow</code> 级别键从 <code>data-level</code> 使用中退役（章节分隔符失去 <code>data-level</code>）。<code>LEVELS</code> 映射仍会携带 <code>workflow</code> 用于旅程栏历史显示，但没有幻灯片会触发它。</p>
+<p><strong>修订方案</strong>：由于没有幻灯片携带 <code>data-level="workflow"</code>，因此从 <code>LEVELS</code> 映射中彻底移除 <code>workflow</code> 级别。旅程栏最高到 <code>commands</code>（83%）。这没问题——工作流章节作为命令章节内部的高潮呈现，而非独立主题。</p>
+<p>实际上旅程栏填充到 83% 而不是 100% 作为结尾章节感觉不够完满。更好的方案：<strong>将命令 + 工作流合并为一个名为"命令与工作流"的章节</strong>，使用 <code>data-level="commands"</code>。在 <code>LEVELS</code> 中将 <code>workflow</code> 级别保留为 100%，并将 <code>data-level="workflow"</code> 分配给<em>原</em>工作流章节分隔符页——它在命令章节内成为一个视觉过渡。这样旅程栏在工作流幻灯片处填充到 100%。</p>
+<p><strong>最终决定</strong>：在 <code>LEVELS</code> 中同时保留 <code>commands</code>（83%）和 <code>workflow</code>（100%）。将 <code>data-level="commands"</code> 分配给命令章节分隔符，将 <code>data-level="workflow"</code> 分配给工作流子章节页。旅程刻度保持不变。这与当前结构完全一致——只是内容页重新排序。</p>
+<hr>
+<h2 id="3-逐页内容大纲">3. 逐页内容大纲</h2>
+<h3 id="第-1-6-页不变">第 1-6 页（不变）</h3>
+<p>第 1 页（标题）、第 2 页（Boris GIF）、第 3 页（Vibe→Agentic）、第 4 页（什么是 Vibe Coding）、第 5 页（好提示 vs 差提示）、第 6 页（目录——仅更新 goToSlide 目标）。</p>
+<p><strong>第 6 页的目录更新：</strong>
+- 代理行：<code>goToSlide(7)</code>（原为 18）
+- 技能行：<code>goToSlide(13)</code>（原为 24）
+- 上下文行：<code>goToSlide(19)</code>（原为 7）
+- CLAUDE.md 行：<code>goToSlide(25)</code>（原为 12）
+- 命令行：<code>goToSlide(30)</code>（原为 30——不变）</p>
+<hr>
+<h3 id="第-1-节代理第-7-12-页这个人">第 1 节：代理（第 7-12 页）——"这个人"</h3>
+<p><strong>第 7 页</strong>——章节分隔符（<code>data-level="agents"</code>，主题 1）
+- 标题："代理——天气预报员"
+- 描述："代理是扮演特定角色的 Claude。认识一下天气预报员——一个被雇用来获取和报告迪拜天气数据的专家。"</p>
+<p><strong>第 8 页</strong>——"餐厅厨房"（当前第 19 页）
+- 内容：相同的类比（普通提示词 = 在随机厨房里喊叫；代理 = 特定专家）
+- 将代理示例统一更新为"天气预报员"的框架
+- 保留对比普通提示词与天气代理的两列卡片</p>
+<p><strong>第 9 页</strong>——"提示词 vs. 代理——并排对比"（当前第 20 页）
+- 保留表格。已很好地使用了天气示例。</p>
+<p><strong>第 10 页</strong>——"代理拥有自己的大脑"（当前第 21 页）
+- 保留 Thariq 的建议。联系到："天气预报员在自己的大脑中工作——所有网页抓取都留在他们的脑子里。"</p>
+<p><strong>第 11 页</strong>——"如何创建自己的代理"（当前第 22 页）
+- 保留 <code>/agents</code> 操作说明模式
+- 更新代码块以显示真实的 <code>weather-agent.md</code> 路径</p>
+<p><strong>第 12 页</strong>——"代理配置字段"（当前第 23 页）
+- 保留字段行表格。添加一个标注框，展示 <code>skills: [weather-fetcher]</code> 字段的上下文。</p>
+<hr>
+<h3 id="第-2-节技能第-13-18-页天气预报员知道什么">第 2 节：技能（第 13-18 页）——"天气预报员知道什么"</h3>
+<p><strong>第 13 页</strong>——章节分隔符（<code>data-level="skills"</code>，主题 2）
+- 标题："技能——天气预报员知道什么"
+- 描述："技能是天气预报员被训练做特定事情的能力。我们的天气预报员有两个：获取数据，并将其呈现为卡片。"</p>
+<p><strong>第 14 页</strong>——"培训手册"（当前第 25 页）
+- 重新框架：天气预报员有两项技能：weather-fetcher（获取温度）和 weather-svg-creator（创建视觉卡片）。
+- 将"Shayan"示例替换为天气预报员的两项技能。</p>
+<p><strong>第 15 页</strong>——"何时将某些内容变成技能"（当前第 26 页）
+- 保留 Boris 的建议。将 weather-fetcher 和 weather-svg-creator 作为其中两个示例。</p>
+<p><strong>第 16 页</strong>——"为什么将代理和技能分开？"（当前第 27 页）
+- 保留两列。更新以强调：weather-agent = 这个人，weather-fetcher = 他们的训练。</p>
+<p><strong>第 17 页</strong>——"如何创建自己的技能"（当前第 28 页）
+- 保留。代码块已显示真实的 <code>weather-fetcher</code> SKILL.md 内容——完美。</p>
+<p><strong>第 18 页</strong>——"技能配置字段"（当前第 29 页）
+- 保留。添加说明：weather-fetcher 上设置了 <code>user-invocable: false</code>，因为它仅由代理使用。</p>
+<hr>
+<h3 id="第-3-节上下文第-19-23-页天气预报员的大脑">第 3 节：上下文（第 19-23 页）——"天气预报员的大脑"</h3>
+<p><strong>第 19 页</strong>——章节分隔符（<code>data-level="context"</code>，主题 3）
+- 标题："上下文——天气预报员的大脑"
+- 描述："现在你已经认识了天气预报员并了解了他们的技能，让我们理解他们实际上能同时记住多少。"</p>
+<p><strong>第 20 页</strong>——"Claude 的大脑"（当前第 8 页）
+- 保留。添加一句联系天气预报员的话："当 weather-agent 被派遣时，它获得一个全新的独立大脑——而 weather-fetcher 在启动时就被固定在其中。"
+- 保留两个图示（context-window.jpeg 保持在此处）。</p>
+<p><strong>第 21 页</strong>——"会话启动时加载什么"（当前第 9 页）
+- 保留。联系天气预报员："启动时，Claude <em>知道</em> weather-fetcher 的存在（仅描述）。当命令运行时，完整技能内容被加载到代理的大脑中。"
+- 保留 context.jpg 在此处。</p>
+<p><strong>第 22 页</strong>——"保持大脑清晰"（当前第 10 页）
+- 保留分支点表格。</p>
+<p><strong>第 23 页</strong>——"如何管理你的上下文"（当前第 11 页）
+- 保留 <code>/context</code>、<code>/compact</code>、<code>/clear</code> 操作说明。</p>
+<hr>
+<h3 id="第-4-节claudemd第-24-29-页口袋规则手册">第 4 节：CLAUDE.md（第 24-29 页）——"口袋规则手册"</h3>
+<p><strong>第 24 页</strong>——章节分隔符（<code>data-level="claude-md"</code>，主题 4）
+- 标题："CLAUDE.md——天气预报员的口袋规则手册"
+- 描述："天气预报员在每个班次开始时查阅这本手册——即使他们的大脑每晚会重置。"</p>
+<p><strong>第 25 页</strong>——"员工手册"（当前第 13 页）
+- 保留。更新为天气预报员框架：CLAUDE.md 是天气预报员在播报前阅读的规则手册——"除非被问到，始终以摄氏度报告，始终注明来源。"</p>
+<p><strong>第 26 页</strong>——"如何创建你的 CLAUDE.md"（当前第 14 页）
+- 保留 <code>/init</code> 操作说明。</p>
+<p><strong>第 27 页</strong>——"每次犯错后完善 CLAUDE.md"（当前第 15 页）
+- 保留 Boris 的建议。</p>
+<p><strong>第 28 页</strong>——"CLAUDE.md 中应该放什么"（当前第 16 页）
+- 保留代码块。天气预报员联系：添加一条注释展示天气相关规则。</p>
+<p><strong>第 29 页</strong>——"CLAUDE.md 的加载方式"（当前第 17 页）
+- 保留。</p>
+<hr>
+<h3 id="第-5-节命令-工作流第-30-36-页触发器">第 5 节：命令 + 工作流（第 30-36 页）——"触发器"</h3>
+<p><strong>第 30 页</strong>——章节分隔符（<code>data-level="commands"</code>，主题 5）
+- 标题："命令——触发器"
+- 描述："一个词启动整个链条。<code>/weather-orchestrator</code> → 代理 → 技能 → SVG 卡片。"</p>
+<p><strong>第 31 页</strong>——"命令——入口点"（当前第 31 页）
+- 保留。很好的介绍。已引用 weather-orchestrator。</p>
+<p><strong>第 32 页</strong>——"如何创建自己的命令"（当前第 32 页）
+- 保留。代码块已显示 weather-orchestrator.md。</p>
+<p><strong>第 33 页</strong>——工作流子章节（原第 33 页，<code>data-level="workflow"</code>）
+- 将章节编号文字从"主题 6"改为"整合所有要素"
+- 保留 <code>data-level="workflow"</code> 以便旅程栏填充到 100%。
+- 更新标题为："工作流——五个部分协同运作"
+- 描述："观看天气预报员示例从一次按键到 SVG 卡片输出的完整运行。"</p>
+<p><strong>第 34 页</strong>——"命令 → 代理 → 技能"（当前第 34 页）
+- 保留代码块流程图。已经完美。</p>
+<p><strong>第 35 页</strong>——"技能的两种使用方式"（当前第 35 页）
+- 保留比较预加载与直接调用的两列。</p>
+<p><strong>第 36 页</strong>——"如何连接你自己的工作流"（当前第 36 页）
+- 保留。已使用天气工作流作为示例。</p>
+<p><strong>第 37 页</strong>——结束页（当前第 37 页）
+- 保留。更新副标题为："五个概念，一个贯穿示例"
+- 更新正文以引用天气预报员的故事线。</p>
+<hr>
+<h2 id="4-资产复用清单">4. 资产复用清单</h2>
+<table>
+<thead>
+<tr>
+<th>资产</th>
+<th>当前位置</th>
+<th>新位置</th>
+<th>操作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>context-window.jpeg</code></td>
+<td>第 8 页（Claude 的大脑）</td>
+<td>第 20 页（相同内容，重新编号）</td>
+<td>保留——无需更改</td>
+</tr>
+<tr>
+<td><code>context.jpg</code></td>
+<td>第 9 页（会话启动时加载什么）</td>
+<td>第 21 页（相同内容，重新编号）</td>
+<td>保留——无需更改</td>
+</tr>
+<tr>
+<td><code>../../!/claude-jumping.svg</code></td>
+<td>第 1 页、页头</td>
+<td>不变</td>
+<td>无需操作</td>
+</tr>
+<tr>
+<td><code>../../!/root/boris-slider.gif</code></td>
+<td>第 2 页</td>
+<td>不变</td>
+<td>无需操作</td>
+</tr>
+</tbody>
+</table>
+<p>两个上下文图示完全保留在原位——包含它们的页面仅被重新编号（8→20，9→21）。</p>
+<hr>
+<h2 id="5-记录影响">5. 记录影响</h2>
+<h3 id="新章节分隔符位置和-data-level-分配">新章节分隔符位置和 <code>data-level</code> 分配</h3>
+<table>
+<thead>
+<tr>
+<th>幻灯片</th>
+<th>主题</th>
+<th><code>data-level</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>7</td>
+<td>代理</td>
+<td><code>agents</code></td>
+</tr>
+<tr>
+<td>13</td>
+<td>技能</td>
+<td><code>skills</code></td>
+</tr>
+<tr>
+<td>19</td>
+<td>上下文</td>
+<td><code>context</code></td>
+</tr>
+<tr>
+<td>25</td>
+<td>CLAUDE.md</td>
+<td><code>claude-md</code></td>
+</tr>
+<tr>
+<td>30</td>
+<td>命令</td>
+<td><code>commands</code></td>
+</tr>
+<tr>
+<td>33</td>
+<td>工作流子章节</td>
+<td><code>workflow</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="第-6-页目录的-gotoslide-目标">第 6 页目录的 <code>goToSlide</code> 目标</h3>
+<table>
+<thead>
+<tr>
+<th>行</th>
+<th>主题</th>
+<th>原目标</th>
+<th>新目标</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>行 1</td>
+<td>代理</td>
+<td>18</td>
+<td>7</td>
+</tr>
+<tr>
+<td>行 2</td>
+<td>技能</td>
+<td>24</td>
+<td>13</td>
+</tr>
+<tr>
+<td>行 3</td>
+<td>上下文</td>
+<td>7</td>
+<td>19</td>
+</tr>
+<tr>
+<td>行 4</td>
+<td>CLAUDE.md</td>
+<td>12</td>
+<td>25</td>
+</tr>
+<tr>
+<td>行 5</td>
+<td>命令</td>
+<td>30</td>
+<td>30</td>
+</tr>
+</tbody>
+</table>
+<h3 id="旅程刻度不变">旅程刻度（不变）</h3>
+<p>旅程刻度轨道的顺序已是从上到下为：工作流、命令、技能、代理、CLAUDE.md、上下文。这是故事线顺序的<em>反向</em>（顶部 = 最高级别 = 最后达到）。无需更改。</p>
+<h3 id="levels-映射不变">LEVELS 映射（不变）</h3>
+<p>所有 6 个级别键（<code>context</code>、<code>claude-md</code>、<code>agents</code>、<code>skills</code>、<code>commands</code>、<code>workflow</code>）保持不变。未添加或删除任何键。</p>
+<hr>
+<h2 id="6-实施方法">6. 实施方法</h2>
+<p>HTML 是一个大文件。幻灯片当前顺序不符合新的故事线。最清晰的实施方法是：</p>
+<ol>
+<li>剪切幻灯片 div 并按新顺序粘贴（7-12 = 原 18-23，13-18 = 原 24-29，19-23 = 原 7-11，24-29 = 原 12-17，30-37 不变）。</li>
+<li>按顺序重新编号所有 <code>data-slide</code> 属性。</li>
+<li>更新章节页的 <code>data-level</code> 属性。</li>
+<li>更新章节分隔符上的章节编号文字和 h1。</li>
+<li>更新第 6 页目录的 <code>goToSlide</code> 目标。</li>
+<li>更新工作流章节页（原第 33 页）的章节编号文字。</li>
+<li>在需要的地方进行有针对性的内容编辑，调整为天气预报员框架。</li>
+</ol>
+<p>总幻灯片数：<strong>37</strong>（不变）。</p>
+<hr>
+<h2 id="7-歧义无关键性问题">7. 歧义——无关键性问题</h2>
+<p>所有歧义已在上文中解决。直接进入实施阶段。</p>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">项目笔记</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/reports/Weather%E5%B7%A5%E4%BD%9C%E6%B5%81%E9%87%8D%E6%9E%84%E5%8E%86%E7%A8%8B.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../../../notes/projects/claude-code-best-practice/doc/reports/spinner.html"><span class="dir">← 上一篇</span><span class="t">Spinner动词与提示（中文翻译）</span></a><a class="next" href="../../../../../notes/projects/claude-code-best-practice/doc/reports/harness.html"><span class="dir">下一篇 →</span><span class="t">为什么 Harness 如此重要</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../../../index.html">首页</a>
+      <a href="../../../../../learn.html">课件</a>
+      <a href="../../../../../notes/index.html">笔记库</a>
+      <a href="../../../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../../../about.html">关于</a>
+      <a href="../../../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../../../js/main.js" defer></script>
+</body>
+</html>

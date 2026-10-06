@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>字节面试官：“RAG 不就是给大模型挂个知识库？”—— RAG 核心知识全解析（附范式演进专题） · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="作者：小林面试笔记（正文）· 小码AI笔记（🧬 范式演进专题） 来源：微信公众号 发布：2026-07-29｜更新：2026-09-01（补充范式演进专题：Vector RAG / BM25 / GraphRAG / SAG / PageI…">
+<link rel="canonical" href="https://northadb.github.io/notes/clippings/p44a38b/2026-09-01-rag.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="字节面试官：“RAG 不就是给大模型挂个知识库？”—— RAG 核心知识全解析（附范式演进专题） · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="作者：小林面试笔记（正文）· 小码AI笔记（🧬 范式演进专题） 来源：微信公众号 发布：2026-07-29｜更新：2026-09-01（补充范式演进专题：Vector RAG / BM25 / GraphRAG / SAG / PageI…">
+<meta property="og:url" content="https://northadb.github.io/notes/clippings/p44a38b/2026-09-01-rag.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="字节面试官：“RAG 不就是给大模型挂个知识库？”—— RAG 核心知识全解析（附范式演进专题） · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="作者：小林面试笔记（正文）· 小码AI笔记（🧬 范式演进专题） 来源：微信公众号 发布：2026-07-29｜更新：2026-09-01（补充范式演进专题：Vector RAG / BM25 / GraphRAG / SAG / PageI…">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../feed.xml">
+<link rel="stylesheet" href="../../../css/style.css">
+<link rel="stylesheet" href="../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "字节面试官：“RAG 不就是给大模型挂个知识库？”—— RAG 核心知识全解析（附范式演进专题）", "description": "作者：小林面试笔记（正文）· 小码AI笔记（🧬 范式演进专题） 来源：微信公众号 发布：2026-07-29｜更新：2026-09-01（补充范式演进专题：Vector RAG / BM25 / GraphRAG / SAG / PageI…", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/clippings/p44a38b/2026-09-01-rag.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../index.html">首页</a><span>/</span><a href="../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../notes/clippings/index.html">内容剪藏</a></div>
+          <h1>字节面试官：“RAG 不就是给大模型挂个知识库？”—— RAG 核心知识全解析（附范式演进专题）</h1>
+          <p class="post-sub">作者：小林面试笔记（正文）· 小码AI笔记（🧬 范式演进专题） 来源：微信公众号 发布：2026-07-29｜更新：2026-09-01（补充范式演进专题：Vector RAG / BM25 / GraphRAG / SAG / PageI…</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../notes/clippings/index.html">内容剪藏</a></span><span class="sep"></span>
+            <span>阅读约 15 分钟</span><span class="sep"></span><span>更新于 2026-09-01</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p><strong>作者</strong>：小林面试笔记（正文）· 小码AI笔记（🧬 范式演进专题）
+<strong>来源</strong>：微信公众号
+<strong>发布</strong>：2026-07-29｜<strong>更新</strong>：2026-09-01（补充范式演进专题：Vector RAG / BM25 / GraphRAG / SAG / PageIndex）</p>
+<p>RAG（检索增强生成）已成为企业落地 AI 应用的标配技术。本文整理了近期大厂 RAG 高频面试题，涵盖从概念到实战的十个核心问题。</p>
+</blockquote>
+<hr>
+<h2 id="本文涵盖的面试问题">📋 本文涵盖的面试问题</h2>
+<ul>
+<li>🌟 什么是 RAG？</li>
+<li>🌟 RAG 整体工作流程是怎样的？</li>
+<li>🌟 微调和 RAG 各自区别是什么？</li>
+<li>🌟 RAG 中的文档切割策略有哪些？</li>
+<li>🌟 Re-rank 是什么？</li>
+<li>🌟 Embedding 有哪几种算法？</li>
+<li>🌟 什么是向量数据库？如何选型？</li>
+<li>🌟 什么是多路召回？具体怎么做？</li>
+<li>🌟 怎么量化你的 RAG 效果？</li>
+<li>🌟 什么是大模型幻觉？怎么降低幻觉？</li>
+<li>🧬 补充专题：RAG 范式演进 —— Vector RAG / BM25 混合检索 / GraphRAG / SAG / PageIndex</li>
+</ul>
+<hr>
+<h2 id="1-什么是-rag">1️⃣ 什么是 RAG？</h2>
+<h3 id="大模型的知识困局">大模型的「知识困局」</h3>
+<p>大模型有三个核心困境：</p>
+<table>
+<thead>
+<tr>
+<th>困境</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>知识截止日期</strong></td>
+<td>训练数据有时间窗口，之后的事不知道</td>
+</tr>
+<tr>
+<td><strong>私有数据不可知</strong></td>
+<td>公司内部文档从未出现在训练集中</td>
+</tr>
+<tr>
+<td><strong>幻觉</strong></td>
+<td>自信地编造听起来专业但错误的内容</td>
+</tr>
+</tbody>
+</table>
+<h3 id="rag-的解决思路开卷考试">RAG 的解决思路：开卷考试</h3>
+<p>RAG = <strong>R</strong>etrieval-<strong>A</strong>ugmented <strong>G</strong>eneration（检索增强生成）</p>
+<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-02.png"></p>
+<ol>
+<li><strong>检索（Retrieval）</strong>：从外部知识库中找到和问题相关的资料</li>
+<li><strong>增强（Augmented）</strong>：将检索到的资料作为上下文和问题一起给大模型</li>
+<li><strong>生成（Generation）</strong>：大模型基于真实资料生成回答</li>
+</ol>
+<h3 id="rag-的起源">RAG 的起源</h3>
+<p>2020 年由 Facebook（Meta）研究团队提出，2023 年 ChatGPT 爆红后真正火起来。</p>
+<h3 id="rag-不是万能的">RAG 不是万能的</h3>
+<ul>
+<li>× 不能改变大模型的推理能力</li>
+<li>× 不能改变大模型的输出风格</li>
+<li>× 不能保证 100% 准确性</li>
+</ul>
+<hr>
+<h2 id="2-rag-整体工作流程">2️⃣ RAG 整体工作流程</h2>
+<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-03.png"></p>
+<p>RAG 系统分为<strong>两个大阶段</strong>：</p>
+<h3 id="索引阶段离线-把知识整理好">索引阶段（离线）— 把知识整理好</h3>
+<pre><code>文档加载 → 文档切割(Chunking) → 向量化(Embedding) → 存入向量数据库
+</code></pre>
+<ol>
+<li><strong>文档加载</strong>：PDF/Word/Excel/HTML → 统一纯文本</li>
+<li><strong>文档切割</strong>：长文档切成小块（Chunk），每个块几百到几千字符</li>
+<li><strong>向量化</strong>：用 Embedding 模型把文本转成数学向量</li>
+<li><strong>存入向量数据库</strong>：专门用于相似度搜索的数据库</li>
+</ol>
+<h3 id="查询阶段在线-让大模型翻书找答案">查询阶段（在线）— 让大模型翻书找答案</h3>
+<pre><code>用户提问 → 问题向量化 → 向量检索(相似度搜索) → 构造增强Prompt → 大模型生成回答
+</code></pre>
+<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-04.png"></p>
+<p>这是最基础的 <strong>Naive RAG（朴素 RAG）</strong>。实际生产中还会加入查询改写、多路召回、Re-rank 等高级技术。</p>
+<hr>
+<h2 id="3-微调-vs-rag">3️⃣ 微调 vs RAG</h2>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th style="text-align: center;">微调（Fine-tuning）</th>
+<th style="text-align: center;">RAG</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>类比</td>
+<td style="text-align: center;">让学生去上课（闭卷）</td>
+<td style="text-align: center;">配参考书架（开卷）</td>
+<td></td>
+</tr>
+<tr>
+<td>知识更新</td>
+<td style="text-align: center;">重新训练，成本高</td>
+<td style="text-align: center;">替换文档即可，即时更新</td>
+<td></td>
+</tr>
+<tr>
+<td>准确性</td>
+<td style="text-align: center;">靠记忆，可能记错</td>
+<td style="text-align: center;">基于真实文档，可追溯</td>
+<td></td>
+</tr>
+<tr>
+<td>风格控制</td>
+<td style="text-align: center;">✅ 强项（学风格/话术）</td>
+<td style="text-align: center;">❌ 有限</td>
+<td></td>
+</tr>
+<tr>
+<td>初始成本</td>
+<td style="text-align: center;">高（训练数据+GPU）</td>
+<td style="text-align: center;">低（建知识库即可）</td>
+<td></td>
+</tr>
+<tr>
+<td>推理成本</td>
+<td style="text-align: center;">较低</td>
+<td style="text-align: center;">较高（检索+更多 token）</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-05.png"></p>
+<h3 id="怎么选">怎么选？</h3>
+<ul>
+<li><strong>大多数场景优先选 RAG</strong>：需严格基于文档、知识频繁更新、需可追溯</li>
+<li><strong>微调更适合</strong>：特定输出风格/格式、某种"能力"而非"知识"、数据不大不常更新</li>
+<li><strong>最佳实践</strong>：<strong>微调 + RAG 结合</strong> — 微调学风格，RAG 提供知识支撑</li>
+</ul>
+<hr>
+<h2 id="4-文档切割策略chunking">4️⃣ 文档切割策略（Chunking）</h2>
+<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-06.png"></p>
+<p>文档切割是索引阶段最关键的一步。切割的<strong>两难</strong>：</p>
+<ul>
+<li>切太小 → 丢失上下文</li>
+<li>切太大 → 检索精度下降</li>
+</ul>
+<h3 id="五种切割策略">五种切割策略</h3>
+<table>
+<thead>
+<tr>
+<th>策略</th>
+<th>原理</th>
+<th style="text-align: center;">优点</th>
+<th style="text-align: center;">缺点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>① 固定大小切割</strong></td>
+<td>按固定字符/token 数切</td>
+<td style="text-align: center;">简单可预测</td>
+<td style="text-align: center;">破坏语义完整性</td>
+</tr>
+<tr>
+<td><strong>② 递归字符切割</strong></td>
+<td>按自然边界（段落→句子→短语）逐级切</td>
+<td style="text-align: center;">保持自然完整性</td>
+<td style="text-align: center;">仍可能跨语义单元</td>
+</tr>
+<tr>
+<td><strong>③ 基于文档结构</strong></td>
+<td>按 Markdown 标题/代码函数/HTML 标签切</td>
+<td style="text-align: center;">语义完整</td>
+<td style="text-align: center;">只适用于结构规范文档</td>
+</tr>
+<tr>
+<td><strong>④ 语义切割</strong></td>
+<td>用 Embedding 计算相邻句子的相似度，转折点切割</td>
+<td style="text-align: center;">切割质量最高</td>
+<td style="text-align: center;">计算成本大</td>
+</tr>
+<tr>
+<td><strong>⑤ Agent 驱动切割</strong></td>
+<td>用 LLM 判断合并/拆分</td>
+<td style="text-align: center;">效果最好</td>
+<td style="text-align: center;">成本最高</td>
+</tr>
+</tbody>
+</table>
+<h3 id="实战建议">实战建议</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">阶段</th>
+<th>做法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">🚀 起步</td>
+<td><code>RecursiveCharacterTextSplitter</code>，256-512 tokens，重叠 10%-20%</td>
+</tr>
+<tr>
+<td style="text-align: center;">⚡ 优化</td>
+<td>文档结构清晰的切换为结构切割</td>
+</tr>
+<tr>
+<td style="text-align: center;">🔥 进阶</td>
+<td>语义切割或「父子块」策略（小块检索，父块返回）</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-07.png"></p>
+<hr>
+<h2 id="5-re-rank重排序">5️⃣ Re-rank（重排序）</h2>
+<h3 id="为什么需要-re-rank">为什么需要 Re-rank？</h3>
+<p>向量检索（Bi-Encoder）有两个先天不足：</p>
+<ol>
+<li><strong>信息压缩损失</strong>：几百字文本压缩成向量，细节可能丢失</li>
+<li><strong>缺乏查询意图感知</strong>：文档向量是预计算的，不知道用户会问什么</li>
+</ol>
+<h3 id="cross-encoder-解决问题">Cross-Encoder 解决问题</h3>
+<p>Bi-Encoder 是「各自写好简历然后匹配」，Cross-Encoder 是「面对面面试」。</p>
+<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-08.png"></p>
+<p>把查询和文档拼在一起，通过自注意力机制让两者充分交互。</p>
+<h3 id="两阶段检索架构">两阶段检索架构</h3>
+<pre><code>第一阶段: Bi-Encoder 快速从全部文档中筛出 Top-50~100（追求召回率）
+第二阶段: Cross-Encoder 对候选做精细化重排序（追求精准度）
+</code></pre>
+<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-09.png"></p>
+<h3 id="主流-re-rank-模型">主流 Re-rank 模型</h3>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Cohere Rerank</strong></td>
+<td>SaaS API，效果好、接入简单</td>
+</tr>
+<tr>
+<td><strong>BGE-Reranker</strong></td>
+<td>⭐ 开源标杆，中文场景表现好（智源研究院）</td>
+</tr>
+<tr>
+<td><strong>ms-marco-MiniLM</strong></td>
+<td>轻量级，推理速度快</td>
+</tr>
+<tr>
+<td><strong>Jina Reranker</strong></td>
+<td>支持多语言</td>
+</tr>
+<tr>
+<td><strong>bce-reranker</strong></td>
+<td>网易有道，中英双语</td>
+</tr>
+</tbody>
+</table>
+<h3 id="实战效果">实战效果</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">查询类型</th>
+<th style="text-align: center;">准确率提升</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">复杂多跳推理</td>
+<td style="text-align: center;"><strong>40%-50%</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">模糊查询</td>
+<td style="text-align: center;"><strong>30%-40%</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">简单事实查询</td>
+<td style="text-align: center;">~18%</td>
+</tr>
+<tr>
+<td style="text-align: center;">幻觉率降低</td>
+<td style="text-align: center;"><strong>~35%</strong>（Databricks 测试）</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="6-embedding-算法演进">6️⃣ Embedding 算法演进</h2>
+<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-10.png"></p>
+<h3 id="第一代静态词向量2013">第一代：静态词向量（2013）</h3>
+<p><strong>Word2Vec</strong>（Google）：上下文相似的词语义也相似</p>
+<ul>
+<li>CBOW：用上下文预测中间词</li>
+<li>Skip-Gram：用词预测上下文</li>
+</ul>
+<p>⚠️ 缺陷：一词一向量，无法处理多义词（"苹果"水果 vs 手机）</p>
+<h3 id="第二代上下文嵌入2018">第二代：上下文嵌入（2018）</h3>
+<p><strong>BERT</strong>（Google）：同一词在不同语境下生成不同向量</p>
+<ul>
+<li>MLM：遮盖语言模型预训练</li>
+<li>NSP：下一句预测</li>
+</ul>
+<p>⚠️ 缺陷：早期版本仅 512 tokens 上下文窗口</p>
+<h3 id="第三代融合与优化2023至今">第三代：融合与优化（2023至今）</h3>
+<p><strong>BGE-M3</strong>（智源）— "M3" 代表三个多：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">M3</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">Multi-Granularity</td>
+<td>多粒度，最大 8192 tokens</td>
+</tr>
+<tr>
+<td style="text-align: center;">Multi-Functionality</td>
+<td>稠密检索+稀疏检索+多向量</td>
+</tr>
+<tr>
+<td style="text-align: center;">Multi-Language</td>
+<td>支持 100+ 种语言</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-11.png"></p>
+<h3 id="第四代基于大模型2025">第四代：基于大模型（2025）</h3>
+<p>LLM2Vec、Qwen3-Embedding、<strong>Seed1.5-Embedding</strong>（字节跳动）—— 用大模型的理解能力做 Embedding，MTEB 中英文 SOTA。</p>
+<h3 id="选型建议">选型建议</h3>
+<ul>
+<li>看 MTEB 排行榜</li>
+<li>中文场景优先 BGE、M3E 系列</li>
+<li>长文档选支持长上下文的模型（如 BGE-M3 8192 tokens）</li>
+<li>数据安全要求高 → 开源模型私有化部署</li>
+</ul>
+<hr>
+<h2 id="7-向量数据库">7️⃣ 向量数据库</h2>
+<h3 id="核心原理">核心原理</h3>
+<p>海量向量 → 建立索引结构 → 毫秒级近似最近邻搜索（ANN）</p>
+<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-12.png"></p>
+<h3 id="三种主流索引思路">三种主流索引思路</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">索引</th>
+<th>类比</th>
+<th style="text-align: center;">特点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><strong>HNSW</strong></td>
+<td>大楼导航系统，层层缩小范围</td>
+<td style="text-align: center;">⭐ 最快，召回率高，默认首选</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>IVF</strong></td>
+<td>快递分拣，先分区再搜索</td>
+<td style="text-align: center;">内存效率高，适合超大规模</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>PQ</strong></td>
+<td>高清图→缩略图压缩</td>
+<td style="text-align: center;">节省内存，常和 IVF 结合</td>
+</tr>
+</tbody>
+</table>
+<h3 id="主流数据库对比">主流数据库对比</h3>
+<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-13.png"></p>
+<table>
+<thead>
+<tr>
+<th>数据库</th>
+<th>特点</th>
+<th style="text-align: center;">适合场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Milvus</strong></td>
+<td>十亿级规模，生态完善</td>
+<td style="text-align: center;">⭐ 企业级大规模生产</td>
+</tr>
+<tr>
+<td><strong>Pinecone</strong></td>
+<td>全托管 SaaS，零运维</td>
+<td style="text-align: center;">快速上线，不在意费用</td>
+</tr>
+<tr>
+<td><strong>Weaviate</strong></td>
+<td>原生混合检索（向量+BM25）</td>
+<td style="text-align: center;">⭐ 混合检索场景</td>
+</tr>
+<tr>
+<td><strong>Chroma</strong></td>
+<td>pip 安装即用，极致轻量</td>
+<td style="text-align: center;">POC 验证、个人项目</td>
+</tr>
+<tr>
+<td><strong>Qdrant</strong></td>
+<td>Rust 编写，单机性能极强</td>
+<td style="text-align: center;">高性能自建方案</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>趋势</strong>：传统数据库的向量扩展（PG pgvector、ES 向量搜索）—— 如果已在用 PG/ES，运维成本几乎为零。</p>
+</blockquote>
+<hr>
+<h2 id="8-多路召回">8️⃣ 多路召回</h2>
+<h3 id="单路召回的局限">单路召回的局限</h3>
+<p>向量检索擅长语义匹配，但在<strong>精确匹配</strong>（产品编号、型号）方面有短板。</p>
+<h3 id="多路召回的核心思想">多路召回的核心思想</h3>
+<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-14.png"></p>
+<p><strong>多条路各自召回，最后合并结果：</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">路</th>
+<th>方法</th>
+<th style="text-align: center;">擅长</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">①</td>
+<td><strong>向量检索（Dense）</strong></td>
+<td style="text-align: center;">语义匹配</td>
+</tr>
+<tr>
+<td style="text-align: center;">②</td>
+<td><strong>关键词检索（BM25）</strong></td>
+<td style="text-align: center;">精确关键词匹配</td>
+</tr>
+<tr>
+<td style="text-align: center;">③</td>
+<td><strong>知识图谱检索（可选）</strong></td>
+<td style="text-align: center;">实体关系推理</td>
+</tr>
+</tbody>
+</table>
+<h3 id="融合算法rrf倒数排名融合">融合算法：RRF（倒数排名融合）</h3>
+<blockquote>
+<p>不看绝对分数，只看在各路中的排名。排名越靠前得分越高，被越多路命中的文档综合得分越高。</p>
+</blockquote>
+<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-15.png"></p>
+<h3 id="实施效果">实施效果</h3>
+<p>混合检索通常比单路好 <strong>10%-30%</strong>，精确匹配场景提升更明显。</p>
+<h3 id="高级召回策略">高级召回策略</h3>
+<ul>
+<li><strong>查询改写（Query Rewriting）</strong>：用 LLM 把原始问题改写成更适合检索的形式</li>
+<li><strong>HyDE</strong>：先生成假设性答案文档，再用它的向量去检索</li>
+<li><strong>多查询扩展（Multi-Query）</strong>：一个改写成多个子问题分别检索</li>
+</ul>
+<hr>
+<h2 id="9-量化-rag-效果">9️⃣ 量化 RAG 效果</h2>
+<h3 id="为什么评估更复杂">为什么评估更复杂？</h3>
+<p>RAG 由<strong>检索器 + 生成器</strong>两部分组成，需要分别评估。</p>
+<h3 id="检索质量指标">检索质量指标</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">指标</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><strong>Recall@K</strong></td>
+<td>找全了没有？（相关文档召回比例）</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>Precision@K</strong></td>
+<td>找对了没有？（召回结果中正确比例）</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>NDCG</strong></td>
+<td>排对了没有？（相关文档排序质量）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="生成质量指标">生成质量指标</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">指标</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><strong>Faithfulness（忠实度）</strong></td>
+<td>⭐ 最重要的指标：回答是否忠实于检索文档？</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>Answer Relevance</strong></td>
+<td>回答是否真正回答了用户问题？</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>Context Relevance</strong></td>
+<td>检索到的文档是否和问题相关？</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ragas-框架">RAGAS 框架</h3>
+<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-16.png"></p>
+<p>目前最流行的 RAG 评估框架。用更强的大模型（如 GPT-4）作为"裁判"，自动化评估。</p>
+<pre><code class="language-python"># RAGAS 使用示例
+from ragas import evaluate
+
+dataset = {
+    &quot;question&quot;: [...],       # 问题
+    &quot;contexts&quot;: [...],       # 检索到的文档
+    &quot;answer&quot;: [...],         # 模型生成的回答
+    &quot;ground_truth&quot;: [...]    # 标准答案
+}
+evaluate(dataset)
+</code></pre>
+<p>其他工具：<strong>DeepEval</strong>（单元测试集成）、<strong>TruLens</strong>（可观测性）、<strong>ARES</strong>（合成评估数据）</p>
+<hr>
+<h2 id="大模型幻觉与防范">🔟 大模型幻觉与防范</h2>
+<h3 id="什么是幻觉">什么是幻觉？</h3>
+<blockquote>
+<p>大模型自信地说出一些听起来很专业但实际上是编造的内容。不是"错误"，而是"不知道但假装知道"。</p>
+</blockquote>
+<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-17.png"></p>
+<h3 id="幻觉的两大类型">幻觉的两大类型</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><strong>事实性幻觉</strong></td>
+<td>内容与客观事实不符（内在/外在）</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>忠实性幻觉</strong></td>
+<td>⭐ RAG 场景常见：偏离检索文档内容</td>
+</tr>
+</tbody>
+</table>
+<h3 id="rag-降低幻觉的机制">RAG 降低幻觉的机制</h3>
+<ol>
+<li><strong>注入真实知识</strong>：减少凭空编造，研究表明可降低 <strong>20%-40%</strong> 事实性幻觉</li>
+<li><strong>注意力机制偏向</strong>：大模型约 70%-80% 注意力集中在检索片段</li>
+<li><strong>可追溯可验证</strong>：错误可定位到具体文档</li>
+</ol>
+<h3 id="降低幻觉的五道防线">降低幻觉的五道防线</h3>
+<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-18.png"></p>
+<p><strong>第一道：Prompt 工程约束</strong>（零成本，立即生效）</p>
+<pre><code>- 限制知识范围：「仅基于参考资料回答，没有相关信息就说不知道」
+- 要求标注来源：「每句标注出处」
+- 鼓励承认不确定：「不确定就说不知道」
+- 结构化推理：「先列事实再推理」
+</code></pre>
+<p><strong>第二道：RAG 检索增强</strong>（中等成本）— 标配方案</p>
+<p><strong>第三道：输出验证</strong>（增加延迟，高风险场景必备）</p>
+<ul>
+<li>LLM-as-Judge：用另一模型交叉验证</li>
+<li>规则引擎校验关键数据（数字/日期/人名）</li>
+<li>多次采样一致性验证</li>
+</ul>
+<p><strong>第四道：领域微调</strong>（高成本，特定领域最佳）</p>
+<ul>
+<li>SFT + 高质量领域数据</li>
+<li>RLHF 引导"诚实"（奖励说真话，惩罚瞎猜）</li>
+</ul>
+<p><strong>第五道：不确定性量化（UQ）</strong>（前沿技术）</p>
+<ul>
+<li>基于 token 概率分布</li>
+<li>基于多次采样一致性</li>
+<li>基于模型内部状态监控</li>
+</ul>
+<h3 id="风险分层管控">风险分层管控</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">风险等级</th>
+<th>场景</th>
+<th style="text-align: center;">必须措施</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">🔴 高</td>
+<td>医疗/法律/金融</td>
+<td style="text-align: center;">RAG + 人工审核 + 输出验证 + 免责声明</td>
+</tr>
+<tr>
+<td style="text-align: center;">🟡 中</td>
+<td>客服/内容生产/代码辅助</td>
+<td style="text-align: center;">Prompt 约束 + RAG + 输出验证 + 置信度阈值</td>
+</tr>
+<tr>
+<td style="text-align: center;">🟢 低</td>
+<td>头脑风暴/草稿/创意</td>
+<td style="text-align: center;">基础 Prompt 优化</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="补充专题rag-范式演进-从-vector-rag-到-pageindex">🧬 补充专题：RAG 范式演进 —— 从 Vector RAG 到 PageIndex</h2>
+<blockquote>
+<p>补充自公众号「小码AI笔记」《RAG入门：一文搞懂向量RAG、BM25、知识图谱(GraphRAG)、SAG、PageIndex工作逻辑、演进》（2026-07-23）。
+核心观点：「干翻 RAG」多是吸引眼球的噱头，这些新技术大都属于<strong>广义 RAG</strong>。RAG 存在的目的就是解决大模型<strong>上下文受限</strong>与<strong>幻觉</strong>问题 —— 给 LLM 外挂一个知识库，问答时给它「塞小抄」。其中最难的部分是<strong>检索</strong>的构建（做知识库其实就是在做检索引擎）。</p>
+</blockquote>
+<h3 id="演进总览">演进总览</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">阶段</th>
+<th>范式</th>
+<th>核心思路</th>
+<th style="text-align: center;">解决什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><strong>RAG 1.0</strong></td>
+<td>Vector RAG</td>
+<td>解析 → 切片 → 向量化 → 向量召回</td>
+<td style="text-align: center;">知识注入的基本盘</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>RAG 1.5</strong></td>
+<td>混合检索</td>
+<td>向量 + BM25 关键词双路</td>
+<td style="text-align: center;">精确匹配短板</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>RAG 2.0</strong></td>
+<td>GraphRAG</td>
+<td>LLM 提取实体关系，构建知识图谱</td>
+<td style="text-align: center;">多跳推理</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>演进增强</strong></td>
+<td>SAG / SQL-RAG</td>
+<td>实体、事件存 SQL，向量+SQL 动态拼接</td>
+<td style="text-align: center;">GraphRAG 太贵、太慢</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>另辟蹊径</strong></td>
+<td>PageIndex</td>
+<td>无向量、不切片，LLM 导航目录树</td>
+<td style="text-align: center;">摆脱切片/向量依赖</td>
+</tr>
+</tbody>
+</table>
+<h3 id="rag-10-的地基向量为什么能理解语义">RAG 1.0 的地基：向量为什么能「理解」语义</h3>
+<ul>
+<li>Embedding 把词句转成数字序列：<code>苹果 -&gt; [0.8, 0.7, 0.9]</code>（实际常是 1024 维高维空间）</li>
+<li>含义相近 → 向量空间距离近：苹果≈香蕉，苹果⇎电脑；用<strong>空间距离</strong>判断语义相似度</li>
+</ul>
+<h3 id="向量检索的三大短板">向量检索的三大短板</h3>
+<ol>
+<li><strong>缺乏多跳推理</strong>：「张三在李四的公司做过什么项目？」</li>
+<li><strong>无法应对复杂逻辑/条件筛选查询</strong>：「2025 年之后、Agent 落地、大于 5000 字的调研报告」—— 这在 SQL 数据库里轻松拿捏</li>
+<li><strong>容易产生语义噪音</strong>：「我去年买了台苹果电脑」与「我昨天吃了个苹果」向量化后数值很近，会被判为高相关，不相关内容进入上下文拉低回答质量</li>
+</ol>
+<blockquote>
+<p>一句话：向量只擅长基于语义的「模糊匹配」。</p>
+</blockquote>
+<h3 id="rag-15混合检索向量-bm25">RAG 1.5：混合检索（向量 + BM25）</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">关键点</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">名字来历</td>
+<td><strong>BM</strong> = Best Match（最佳匹配），<strong>25</strong> = 第 25 次算法调整的版本（前 24 次都不太行）</td>
+</tr>
+<tr>
+<td style="text-align: center;">历史</td>
+<td>上世纪 90 年代诞生，很多搜索引擎的底层算法</td>
+</tr>
+<tr>
+<td style="text-align: center;">核心逻辑</td>
+<td>看关键词在文中出现的<strong>次数</strong>与<strong>稀有度</strong>：次数越高、越稀有，文档权重越高（排前面）</td>
+</tr>
+<tr>
+<td style="text-align: center;">工程现状</td>
+<td>Milvus 已内置 BM25 与混合检索模式；<strong>向量 + BM25 已成主流知识库标配</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="rag-20graphrag">RAG 2.0：GraphRAG</h3>
+<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-evo-01.png"></p>
+<p>图数据库把知识变成一张<strong>带关系的网</strong>：</p>
+<ul>
+<li><strong>节点</strong> = 知识的「实体」：人物、地点、事件、公司等</li>
+<li><strong>边</strong> = 知识的「关系」：任职于、发生在、推出等</li>
+</ul>
+<p>例：「张三在 2026 年加入了腾讯公司，主要负责知识库产品 ima 的开发」→</p>
+<pre><code>张三 - 2026年加入 -&gt; 腾讯公司
+张三 - 负责开发 -&gt; ima知识库
+腾讯公司 - 拥有产品 -&gt; ima知识库
+</code></pre>
+<p><strong>构建流程</strong>（实体关系主要靠 LLM 提取，人工提取不现实；注意还是需要分片，向量化是为了以后的混合检索）：</p>
+<pre><code>文档解析 → 文本分片 ─┬→ 提取实体关系 → 全局融合(合并去重) → 存入图数据库
+                    └→ 计算文本向量化 → 存入向量数据库
+</code></pre>
+<p><strong>多跳推理</strong>（图数据库的强项）：问「张三的公司做了什么产品？」→ ① 找到"张三" → ② 顺边找到"腾讯" → ③ 找到"ima 知识库"。基于 2 次关系即得答案，数据再大，图数据库处理关系检索也极快。</p>
+<p><strong>GraphRAG 三大痛点</strong>：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">痛点</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">⚠️ <strong>幻觉悖论</strong></td>
+<td>靠 LLM 提取实体关系，LLM 自身就有幻觉 —— 本想用 RAG 治幻觉，构建 RAG 时先引入了幻觉</td>
+</tr>
+<tr>
+<td style="text-align: center;">💰 <strong>成本高</strong></td>
+<td>LLM 提取实体关系的 token 消耗巨大</td>
+</tr>
+<tr>
+<td style="text-align: center;">🐢 <strong>维护慢</strong></td>
+<td>一个文件的更新可能要重算整个图关系</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>关联：<strong>LightRAG</strong>（开源）= GraphRAG 轻量版，图增强文本索引 + 双层检索，大幅降低 Token 开销。对需要<strong>全局理解</strong>的问题（财报分析、合同义务梳理），GraphRAG 类方案比传统 RAG 效果更好。</p>
+</blockquote>
+<h3 id="演进增强结构化-rag-sagsql-rag">演进增强：结构化 RAG / SAG（SQL-RAG）</h3>
+<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-evo-02.png"></p>
+<p>思路转变：<strong>不建复杂的「全局图」</strong>，把分片抽成「实体」「事件」存入 SQL 数据库，用户提问时通过 SQL 语句<strong>动态拼接</strong>关联事件。</p>
+<ul>
+<li><strong>向量依然是 C 位</strong>：SAG 本质 = 向量 RAG 之上加一层 SQL 结构查询</li>
+<li>落地简化版：给 <strong>Chunk 打标签</strong>（LLM 提取关键词），检索时经 Chunk 映射用 SQL 回查关系数据库</li>
+</ul>
+<p><strong>数据模型（两张表）</strong>：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">表</th>
+<th>记录内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">事件表</td>
+<td>事件内容、发生时间</td>
+</tr>
+<tr>
+<td style="text-align: center;">实体关联表</td>
+<td>哪个事件提到了哪个实体</td>
+</tr>
+</tbody>
+</table>
+<p>例：「张三在 2026 年加入腾讯，负责 ima 开发」被 LLM 提取为 →
+事件：<code>张三入职腾讯并开发 ima（发生时间：2026年）</code>；关联实体：<code>张三、腾讯、ima</code></p>
+<p><strong>多跳查询执行链条</strong>（向量语义检索 × SQL 精确查询「双剑合璧」）：</p>
+<pre><code>1. 向量语义搜索找到&quot;种子&quot;Chunk
+2. 经 Chunk 映射取出 SQL 中的实体、事件
+3. 拿实体到 SQL 精确查询，拿到所有相关事件
+4. 原始 Chunk + SQL 拼出的事件结果一起打包注入 LLM 上下文
+</code></pre>
+<p>实战例子 —— 问「2026 年加入腾讯的那个谁，他以前在阿里做什么？」：
+向量匹配含"腾讯"的 Chunk → 映射出实体"腾讯" → SQL 精确查询 → 事件「张三 2026 入职腾讯」→ 发现新实体"张三" → 继续 SQL 查询 → 拿到张三的全部经历与事件（<strong>2 跳</strong>，等价于图数据库的多跳查询）。</p>
+<p><strong>事件的双重角色</strong>：既是检索的<strong>桥梁和线索</strong>，又是注入上下文的高纯度「小抄」。</p>
+<ul>
+<li>📄 论文：<code>arxiv.org/abs/2606.15971</code></li>
+<li>💻 开源参考仓库：<code>github.com/Zleap-AI/SAG</code></li>
+</ul>
+<blockquote>
+<p>SAG 依然是 RAG。能否替代 GraphRAG 尚无定论，但其思想值得学习 —— 用更低成本轻量实现"图能力"。</p>
+</blockquote>
+<h3 id="另辟蹊径pageindex-无向量不切片">另辟蹊径：PageIndex —— 无向量、不切片</h3>
+<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-evo-03.png"></p>
+<p>由 <strong>Vectify AI</strong> 提出（开源：<code>github.com/VectifyAI/PageIndex</code>），完全<strong>不用向量、不切片</strong>，工作逻辑非常像<strong>人类查资料</strong>：先通过目录看答案在第几页，再翻到对应页码。</p>
+<p><strong>流程</strong>：</p>
+<pre><code>文档解析 → LLM 构建目录树(JsonTree：章节/节点/页码行数定位/摘要) → 目录树存储
+        → 问答时 LLM 看目录树定位章节 → 返回原文对应正文 → 完整注入上下文
+</code></pre>
+<p><strong>两点局限</strong>：</p>
+<ol>
+<li>每一步都<strong>强依赖 LLM</strong>（构建目录索引、摘要、检索导航）→ 小尺寸模型玩不转：能力不足、幻觉严重，目录树都建不好</li>
+<li><strong>海量文档难应对</strong>：单篇 100 页的文档问答挺好，100 篇？1000 篇呢？</li>
+</ol>
+<p>海量文档的两个思路：</p>
+<ul>
+<li>先用<strong>向量检索缩小命中范围</strong>，再对命中的文档分别注入 JsonTree</li>
+<li>给整体文档建立<strong>文件级目录树</strong>，让 AI 像人浏览文件夹一样一级级打开子目录</li>
+</ul>
+<h3 id="范式选型结论">范式选型结论</h3>
+<ul>
+<li><strong>没有最好的单一选择</strong>，实际落地通常多种模式混合使用</li>
+<li><strong>向量 RAG + BM25</strong>：企业知识库落地最扎实、性价比最高的路径 ⭐</li>
+<li><strong>GraphRAG</strong>：补全多跳推理的关系检索</li>
+<li><strong>SAG</strong>：值得尝试的轻量化"图能力"实现</li>
+<li>🏆 推荐项目：腾讯开源企业级 RAG 知识库 <strong>WeKnora</strong>（1.8 万 Star，开箱即用，支持 Wiki）</li>
+</ul>
+<blockquote>
+<p>💡 技术没有绝对的优劣，只有最适合业务的场景。</p>
+</blockquote>
+<hr>
+<h2 id="总结速查">📝 总结速查</h2>
+<p><img alt="" src="https://gitee.com/cheng-jiaqing/images/raw/master/rag-19.png"></p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">问题</th>
+<th style="text-align: left;">核心答案</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">RAG 是什么？</td>
+<td style="text-align: left;">检索增强生成，给大模型开卷考试</td>
+</tr>
+<tr>
+<td style="text-align: left;">工作流程？</td>
+<td style="text-align: left;">索引（离线建库）+ 查询（在线检索+生成）</td>
+</tr>
+<tr>
+<td style="text-align: left;">微调 vs RAG？</td>
+<td style="text-align: left;">微调「内化知识」，RAG「外挂参考书」，互补</td>
+</tr>
+<tr>
+<td style="text-align: left;">文档切割？</td>
+<td style="text-align: left;">递归字符切割起步，结构/语义切割进阶</td>
+</tr>
+<tr>
+<td style="text-align: left;">Re-rank？</td>
+<td style="text-align: left;">Cross-Encoder 精排，准确率提升 30-50%</td>
+</tr>
+<tr>
+<td style="text-align: left;">Embedding？</td>
+<td style="text-align: left;">Word2Vec → BERT → BGE-M3 → LLM-based</td>
+</tr>
+<tr>
+<td style="text-align: left;">向量数据库？</td>
+<td style="text-align: left;">Milvus/Pinecone/Weaviate 按需选型</td>
+</tr>
+<tr>
+<td style="text-align: left;">多路召回？</td>
+<td style="text-align: left;">向量 + BM25 混合，RRF 融合，提升 10-30%</td>
+</tr>
+<tr>
+<td style="text-align: left;">效果量化？</td>
+<td style="text-align: left;">RAGAS 评估 Faithfulness/Relevance 等</td>
+</tr>
+<tr>
+<td style="text-align: left;">幻觉怎么降？</td>
+<td style="text-align: left;">Prompt → RAG → 输出验证 → 微调 → UQ 分层设防</td>
+</tr>
+<tr>
+<td style="text-align: left;">范式演进？</td>
+<td style="text-align: left;">Vector RAG → 混合检索(BM25) → GraphRAG → SAG → PageIndex，混合使用</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>💡 <strong>核心观点</strong>：把幻觉当作工程问题而非模型缺陷，用系统设计来约束 AI 的行为边界。</p>
+</blockquote>
+<hr>
+<h2 id="关联笔记">🔗 关联笔记</h2>
+<ul>
+<li><a class="wl" href="../../../notes/clippings/p44a38b/2026-08-04-graphraglightrag.html">2026-08-04-GraphRAG与LightRAG-小林面试笔记</a> — GraphRAG/LightRAG 进阶</li>
+<li><a class="wl" href="../../../notes/clippings/p277a98/2026-07-29.html">2026-07-29-大模型幻觉的系统性解析-抖音笔记</a> — 幻觉成因原理（互补）</li>
+<li>
+<p><a class="wl" href="../../../notes/clippings/pae26bb/2026-07-31-28javaagent.html">2026-07-31-28届个人Java+Agent学习路线-小红书</a> — Agent 项目 7 设计点（RAG 应用）</p>
+</li>
+<li>
+<p><a class="wl" href="../../../notes/clippings/p44a38b/2026-07-28-claude-code-coding.html">2026-07-28-Claude-Code工程化六件套详解-小林coding</a> — Claude Code 工程化</p>
+</li>
+<li><a class="wl" href="../../../notes/clippings/p44a38b/2026-07-21-claude-code-skill.html">2026-07-21-Claude-Code-Skill机制源码剖析</a> — Skill 源码分析</li>
+<li><a class="wl" href="../../../notes/clippings/bilibili/2026-07-28-bai.html">Clippings/Bilibili/2026-07-28-我的B站AI编程收藏清单</a> — B站收藏清单（含 RAG 相关视频）</li>
+</ul>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">内容剪藏</span><span class="chip">RAG</span><span class="chip">面试</span><span class="chip">大模型</span><span class="chip">检索增强生成</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/Clippings/%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7/2026-09-01-RAG%E6%A0%B8%E5%BF%83%E7%9F%A5%E8%AF%86%E5%85%A8%E8%A7%A3%E6%9E%90%EF%BC%88%E8%8C%83%E5%BC%8F%E6%BC%94%E8%BF%9B%EF%BC%89.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../notes/clippings/p44a38b/2026-08-27-multi-agent-10.html"><span class="dir">← 上一篇</span><span class="t">靠这 10 个优化点，把 Multi-Agent 工作流成本降了 50%+</span></a><a class="next" href="../../../notes/clippings/p44a38b/2026-09-04-cordis-deepseek-harness.html"><span class="dir">下一篇 →</span><span class="t">DeepSeek Harness 背后的「心脏」：Cordis 到底是什么</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../index.html">首页</a>
+      <a href="../../../learn.html">课件</a>
+      <a href="../../../notes/index.html">笔记库</a>
+      <a href="../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../about.html">关于</a>
+      <a href="../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../js/main.js" defer></script>
+</body>
+</html>

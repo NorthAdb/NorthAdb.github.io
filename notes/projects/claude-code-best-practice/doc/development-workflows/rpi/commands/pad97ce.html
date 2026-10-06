@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>研究命令（中文翻译） · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="中文翻译自 development-workflows/rpi/.claude/commands/rpi/research.mdhttps://github.com/NorthAdb/claude-code-best-practice/bl…">
+<link rel="canonical" href="https://northadb.github.io/notes/projects/claude-code-best-practice/doc/development-workflows/rpi/commands/pad97ce.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="研究命令（中文翻译） · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="中文翻译自 development-workflows/rpi/.claude/commands/rpi/research.mdhttps://github.com/NorthAdb/claude-code-best-practice/bl…">
+<meta property="og:url" content="https://northadb.github.io/notes/projects/claude-code-best-practice/doc/development-workflows/rpi/commands/pad97ce.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="研究命令（中文翻译） · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="中文翻译自 development-workflows/rpi/.claude/commands/rpi/research.mdhttps://github.com/NorthAdb/claude-code-best-practice/bl…">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../../../../../feed.xml">
+<link rel="stylesheet" href="../../../../../../../css/style.css">
+<link rel="stylesheet" href="../../../../../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "研究命令（中文翻译）", "description": "中文翻译自 development-workflows/rpi/.claude/commands/rpi/research.mdhttps://github.com/NorthAdb/claude-code-best-practice/bl…", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/projects/claude-code-best-practice/doc/development-workflows/rpi/commands/pad97ce.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../../../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../../../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../../../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../../../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../../../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../../../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../../../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../../../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../../../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../../../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../../../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../../../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../../../../../index.html">首页</a><span>/</span><a href="../../../../../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../../../../../notes/projects/index.html">项目笔记</a></div>
+          <h1>研究命令（中文翻译）</h1>
+          <p class="post-sub">中文翻译自 development-workflows/rpi/.claude/commands/rpi/research.mdhttps://github.com/NorthAdb/claude-code-best-practice/bl…</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../../../../../notes/projects/index.html">项目笔记</a></span><span class="sep"></span>
+            <span>阅读约 7 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p>中文翻译自 <a href="https://github.com/NorthAdb/claude-code-best-practice/blob/main/development-workflows/rpi/.claude/commands/rpi/research.md">development-workflows/rpi/.claude/commands/rpi/research.md</a></p>
+</blockquote>
+<hr>
+<p>description: Research and analyze feature viability - GO/NO-GO decision gate
+argument-hint: "<feature-slug>"</p>
+<hr>
+<h2 id="用户输入">用户输入</h2>
+<pre><code class="language-text">$ARGUMENTS
+</code></pre>
+<p>你<strong>必须</strong>解析用户输入以提取功能slug（<code>rpi/</code>中的文件夹名称）。</p>
+<p><strong>预期输入格式</strong>：<code>rpi/{feature-slug}/REQUEST.md</code></p>
+<h2 id="目的">目的</h2>
+<p>此命令在<strong>规划</strong>阶段开始之前对功能需求进行全面的研究和分析。它作为一个关键的GO/NO-GO关卡，用于确定功能想法是否应进入详细规划阶段。</p>
+<p><strong>关键目标</strong>：
+- 评估产品市场契合度和用户价值
+- 评估技术可行性和复杂性
+- 识别风险和潜在阻碍因素
+- 确定正确的方法（构建、购买、合作或拒绝）
+- 做出带有明确理由的可行/不可行建议</p>
+<p><strong>前置条件</strong>：
+- 功能文件夹存在于 <code>rpi/{feature-slug}/</code>
+- 功能需求文件存在于 <code>rpi/{feature-slug}/REQUEST.md</code></p>
+<p><strong>输出位置</strong>：<code>rpi/{feature-slug}/research/RESEARCH.md</code></p>
+<p><strong>这是RPI工作流的第2步</strong>（在步骤1初始功能描述之后）。</p>
+<h2 id="大纲">大纲</h2>
+<ol>
+<li><strong>加载上下文</strong>：从 <code>rpi/{feature-slug}/</code> 读取功能描述和项目宪法（如存在）</li>
+<li><strong>解析功能需求</strong>：使用需求解析器Agent提取结构化需求</li>
+<li><strong>执行多阶段研究</strong>：
+   - 阶段1：解析功能需求（需求解析器Agent）
+   - 阶段2：产品分析与宪法一致性（产品经理Agent）
+   - 阶段2.5：技术发现（Explore Agent）——<strong>关键：深度代码探索</strong>
+   - 阶段3：技术可行性（高级软件工程师Agent）
+   - 阶段4：战略评估（技术CTO顾问Agent）
+   - 阶段5：生成研究报告（文档分析师/撰写者Agent）</li>
+<li><strong>综合建议</strong>：将所有分析整合为清晰的可行/不可行建议</li>
+<li><strong>验证输出</strong>：对照质量关卡进行检查</li>
+<li><strong>报告完成</strong>：提供建议、后续步骤和报告位置</li>
+</ol>
+<h2 id="阶段">阶段</h2>
+<h3 id="阶段0加载上下文">阶段0：加载上下文</h3>
+<p><strong>前置条件</strong>：提供了功能slug，<code>rpi/{feature-slug}/REQUEST.md</code> 存在</p>
+<p><strong>流程</strong>：
+1. <strong>读取功能描述</strong>：
+   - 读取 <code>rpi/{feature-slug}/REQUEST.md</code>（必需）
+   - 从REQUEST.md提取功能需求和目标</p>
+<ol start="2">
+<li>
+<p><strong>检查项目宪法</strong>（可选）：
+   - 在仓库中查找宪法或原则文档
+   - 常见位置：<code>constitution.md</code>、<code>PRINCIPLES.md</code>、<code>.project/constitution.md</code>
+   - 如果找到，提取核心原则、约束和目标</p>
+</li>
+<li>
+<p><strong>创建研究上下文</strong>：
+   - 综合成简洁摘要供Agent使用
+   - 识别关键一致性标准</p>
+</li>
+</ol>
+<p><strong>输出</strong>：
+- 功能描述摘要
+- 宪法原则（如找到）
+- 评估一致性标准</p>
+<p><strong>验证</strong>：
+- [ ] 功能文件夹存在于 <code>rpi/{feature-slug}/</code>
+- [ ] 功能描述已提取
+- [ ] 宪法已检查并加载（如存在）</p>
+<hr>
+<h3 id="阶段1解析功能需求">阶段1：解析功能需求</h3>
+<p><strong>前置条件</strong>：阶段0完成</p>
+<p><strong>Agent</strong>：requirement-parser（规划领域）</p>
+<p><strong>流程</strong>：
+1. <strong>启动需求解析器Agent</strong>，传入功能描述
+2. <strong>Agent提取</strong>：
+   - 功能名称和类型
+   - 目标组件
+   - 目标和目的
+   - 功能和非功能需求
+   - 约束和假设
+   - 复杂性估算
+   - 澄清问题（如有）</p>
+<ol start="3">
+<li><strong>审查解析结果</strong>：
+   - 如果存在澄清问题，<strong>停止并向用户提问</strong>，然后再继续</li>
+</ol>
+<p><strong>输出</strong>：
+- 结构化需求文档
+- 功能元数据（名称、类型、组件、复杂性）
+- 澄清问题（如有）</p>
+<hr>
+<h3 id="阶段2产品分析与宪法一致性">阶段2：产品分析与宪法一致性</h3>
+<p><strong>前置条件</strong>：阶段1完成，需求清晰</p>
+<p><strong>Agent</strong>：product-manager</p>
+<p><strong>流程</strong>：
+1. <strong>启动产品经理Agent</strong>，传入：
+   - 阶段1解析的需求
+   - 阶段0的宪法上下文</p>
+<ol start="2">
+<li>
+<p><strong>Agent分析</strong>：
+   - <strong>用户价值</strong>：谁受益？影响有多大？
+   - <strong>市场契合度</strong>：这与市场需求一致吗？
+   - <strong>产品愿景</strong>：这符合我们的产品策略吗？
+   - <strong>宪法一致性</strong>：这与项目原则一致吗？
+   - <strong>约束检查</strong>：是否违反任何宪法约束？</p>
+</li>
+<li>
+<p><strong>Agent提供</strong>：
+   - 产品可行性评分（高/中/低）
+   - 用户价值评估
+   - 战略一致性评估
+   - 优先级建议
+   - 产品问题或危险信号</p>
+</li>
+</ol>
+<p><strong>输出</strong>：
+- 产品可行性评估
+- 用户价值分析
+- 战略一致性评分
+- 宪法一致性摘要（如适用）</p>
+<hr>
+<h3 id="阶段25技术发现代码探索">阶段2.5：技术发现（代码探索）</h3>
+<p><strong>前置条件</strong>：阶段1-2完成，产品可行性已确定</p>
+<p><strong>Agent</strong>：Explore（通过Task工具配合 subagent_type="Explore"）</p>
+<p><strong>目的</strong>：<strong>关键阶段</strong>——在进行技术可行性评估之前，深入分析现有代码库。</p>
+<p><strong>流程</strong>：
+1. <strong>启动Explore Agent</strong>，传入目标组件
+2. <strong>Agent调查</strong>：
+   - <strong>现有实现</strong>：类似功能的代码已经存在什么？
+   - <strong>集成点</strong>：此功能将触及哪些系统/模块？
+   - <strong>当前架构</strong>：当前系统是如何构建的？
+   - <strong>数据模型</strong>：存在哪些数据库模式或数据结构？
+   - <strong>依赖项</strong>：已经集成了哪些库和服务？
+   - <strong>现有模式</strong>：使用了哪些编码模式和约定？</p>
+<ol start="3">
+<li><strong>Agent提供</strong>：
+   - <strong>当前状态摘要</strong>：今天存在什么
+   - <strong>集成分析</strong>：提议的功能将放在哪里
+   - <strong>代码冲突</strong>：什么会被破坏或冲突
+   - <strong>可复用机会</strong>：哪些可以重用 vs. 需要重写
+   - <strong>技术约束</strong>：现有代码带来的实际约束</li>
+</ol>
+<p><strong>输出</strong>：
+- 当前实现摘要
+- 集成点映射
+- 已识别的代码冲突
+- 已识别的可复用组件
+- 代码中的技术约束</p>
+<p><strong>关键</strong>：此阶段确保阶段3基于<strong>实际的代码现实</strong>，而非假设。</p>
+<hr>
+<h3 id="阶段3技术可行性评估">阶段3：技术可行性评估</h3>
+<p><strong>前置条件</strong>：阶段1-2.5完成，代码已探索</p>
+<p><strong>Agent</strong>：senior-software-engineer</p>
+<p><strong>流程</strong>：
+1. <strong>启动高级软件工程师Agent</strong>，传入：
+   - 阶段1解析的需求
+   - 阶段2的产品上下文
+   - <strong>阶段2.5的技术发现结果</strong></p>
+<ol start="2">
+<li>
+<p><strong>Agent分析</strong>（基于阶段2.5的发现）：
+   - <strong>技术方法</strong>：有哪些实施选项？
+   - <strong>复杂性</strong>：构建此功能有多难？
+   - <strong>依赖项</strong>：需要哪些系统/服务？
+   - <strong>技术债务</strong>：这会创造还是减少技术债务？
+   - <strong>风险</strong>：存在哪些技术风险？</p>
+</li>
+<li>
+<p><strong>Agent提供</strong>：
+   - 技术可行性评分（高/中/低）
+   - 推荐方法（附替代方案）
+   - 复杂性估算（简单/中等/复杂）
+   - 技术风险和缓解措施</p>
+</li>
+</ol>
+<p><strong>输出</strong>：
+- 技术可行性评分
+- 推荐实施方法
+- 复杂性和工作量估算
+- 技术风险和缓解措施</p>
+<hr>
+<h3 id="阶段4战略评估">阶段4：战略评估</h3>
+<p><strong>前置条件</strong>：阶段1-3完成</p>
+<p><strong>Agent</strong>：technical-cto-advisor</p>
+<p><strong>流程</strong>：
+1. <strong>启动技术CTO顾问Agent</strong>，传入所有先前阶段的输出</p>
+<ol start="2">
+<li>
+<p><strong>Agent综合</strong>：
+   - <strong>总体评估</strong>：结合产品和技术视角
+   - <strong>战略一致性</strong>：这与工程原则和项目宪法一致吗？
+   - <strong>风险与回报</strong>：价值是否值得付出努力和承担风险？
+   - <strong>替代选项</strong>：构建、购买、合作、推迟还是拒绝？</p>
+</li>
+<li>
+<p><strong>Agent提供</strong>：
+   - <strong>可行/不可行建议</strong>：明确的决策及置信度
+   - <strong>理由</strong>：详细推理
+   - <strong>推荐方法</strong>：如果"可行"，最佳前进路径是什么？
+   - <strong>条件</strong>：是否有任何继续的前提条件？
+   - <strong>风险</strong>：如果我们继续进行，存在哪些关键风险？</p>
+</li>
+</ol>
+<p><strong>输出</strong>：
+- 可行/不可行建议
+- 战略理由
+- 推荐方法
+- 风险摘要</p>
+<hr>
+<h3 id="阶段5生成研究报告">阶段5：生成研究报告</h3>
+<p><strong>前置条件</strong>：阶段1-4完成</p>
+<p><strong>Agent</strong>：documentation-analyst-writer（通过Task工具）</p>
+<p><strong>流程</strong>：
+1. <strong>启动文档分析师/撰写者Agent</strong>，传入所有阶段的输出</p>
+<ol start="2">
+<li>
+<p><strong>Agent生成报告</strong>，包含以下部分：
+   - <strong>执行摘要</strong>：一段话的概览及建议
+   - <strong>功能概览</strong>：名称、类型、组件、目标
+   - <strong>需求摘要</strong>：关键功能和非功能需求
+   - <strong>产品分析</strong>：用户价值、市场契合度、战略一致性
+   - <strong>技术发现</strong>：当前状态、集成点、代码中的约束
+   - <strong>技术分析</strong>：可行性、方法、复杂性、风险
+   - <strong>战略建议</strong>：可行/不可行及详细理由
+   - <strong>后续步骤</strong>：基于建议的操作</p>
+</li>
+<li>
+<p><strong>Agent创建markdown文件</strong>：<code>rpi/{feature-slug}/research/RESEARCH.md</code></p>
+</li>
+</ol>
+<p><strong>输出</strong>：
+- 完整的研究报告保存到 <code>rpi/{feature-slug}/research/RESEARCH.md</code></p>
+<hr>
+<h2 id="子agent委派">子Agent委派</h2>
+<p>此命令协调6个专门Agent：</p>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>Agent</th>
+<th>类型</th>
+<th>位置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>阶段1</td>
+<td>requirement-parser</td>
+<td>自定义</td>
+<td>.claude/agents/requirement-parser.md</td>
+</tr>
+<tr>
+<td>阶段2</td>
+<td>product-manager</td>
+<td>自定义</td>
+<td>.claude/agents/product-manager.md</td>
+</tr>
+<tr>
+<td>阶段2.5</td>
+<td>Explore</td>
+<td>内置</td>
+<td>Task工具配合 subagent_type="Explore"</td>
+</tr>
+<tr>
+<td>阶段3</td>
+<td>senior-software-engineer</td>
+<td>自定义</td>
+<td>.claude/agents/senior-software-engineer.md</td>
+</tr>
+<tr>
+<td>阶段4</td>
+<td>technical-cto-advisor</td>
+<td>自定义</td>
+<td>.claude/agents/technical-cto-advisor.md</td>
+</tr>
+<tr>
+<td>阶段5</td>
+<td>documentation-analyst-writer</td>
+<td>内置</td>
+<td>Task工具配合 subagent_type="documentation-analyst-writer"</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="完成报告">完成报告</h2>
+<p>成功完成后报告以下内容：</p>
+<h3 id="研究建议">研究建议</h3>
+<p><strong>决策</strong>：[可行 | 不可行 | 有条件可行 | 推迟]</p>
+<p><strong>置信度</strong>：[高 | 中 | 低]</p>
+<p><strong>理由</strong>（1-2句话）：
+[建议的关键原因]</p>
+<hr>
+<h3 id="研究摘要">研究摘要</h3>
+<p><strong>功能</strong>：{feature-name}
+<strong>类型</strong>：{feature-type}
+<strong>组件</strong>：{target-component}
+<strong>复杂性</strong>：{简单 | 中等 | 复杂}</p>
+<p><strong>评分</strong>：
+- 产品可行性：[高/中/低]
+- 技术可行性：[高/中/低]
+- 总体评估：[高/中/低]</p>
+<p><strong>关键风险</strong>：
+1. {risk-1}
+2. {risk-2}
+3. {risk-3}</p>
+<hr>
+<h3 id="报告位置">报告位置</h3>
+<p><strong>完整研究报告</strong>：<code>rpi/{feature-slug}/research/RESEARCH.md</code></p>
+<hr>
+<h3 id="后续步骤">后续步骤</h3>
+<p>基于<strong>[可行/不可行]</strong>建议：</p>
+<p><strong>如果可行</strong>：
+1. 审查研究报告：<code>rpi/{feature-slug}/research/RESEARCH.md</code>
+2. 进入规划阶段：<code>/rpi:plan "{feature-slug}"</code></p>
+<p><strong>如果有条件可行</strong>：
+1. 审查报告中的条件
+2. 在继续之前满足条件
+3. 如果需要，重新运行研究</p>
+<p><strong>如果推迟</strong>：
+1. 审查报告中的时间建议
+2. 在时机合适时重新审视</p>
+<p><strong>如果不可行</strong>：
+1. 审查报告中的理由
+2. 考虑提到的替代方案
+3. 存档以备将来参考</p>
+<hr>
+<h2 id="错误处理">错误处理</h2>
+<p><strong>如果REQUEST.md不存在</strong>：
+- 操作：停止并通知用户
+- 消息："功能需求文件 <code>rpi/{feature-slug}/REQUEST.md</code> 未找到。请先创建功能文件夹和REQUEST.md（步骤1：在规划模式下描述）。"</p>
+<p><strong>如果功能描述过于模糊</strong>：
+- 操作：需求解析器将识别澄清问题
+- 消息："需要更多信息。请回答："
+- 下一步：等待答案，然后继续</p>
+<p><strong>如果Agent失败或超时</strong>：
+- 操作：重试一次
+- 下一步：如果重试失败，询问用户是否要以不完整的研究继续</p>
+<hr>
+<h2 id="备注">备注</h2>
+<ul>
+<li><strong>何时使用</strong>：在步骤1（描述）创建功能文件夹之后</li>
+<li><strong>关键关卡</strong>：这可以防止在不可行的功能上浪费精力</li>
+<li><strong>RPI工作流的一部分</strong>：步骤2 / 4（描述 → 研究 → 规划 → 实施）</li>
+</ul>
+<hr>
+<h2 id="完成后的操作">完成后的操作</h2>
+<p><strong>重要</strong>：完成研究工作流后，始终提示用户压缩对话：</p>
+<blockquote>
+<p><strong>上下文管理</strong>：此研究工作流消耗了大量上下文。为了释放下一步的空间，请运行：</p>
+<p><code>/compact</code></p>
+<p>这将总结对话并保留重要发现，同时减少后续命令的令牌消耗。</p>
+</blockquote>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">项目笔记</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/development-workflows/rpi/commands/%E7%A0%94%E7%A9%B6%E5%91%BD%E4%BB%A4.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../../../../../notes/projects/claude-code-best-practice/doc/development-workflows/rpi/commands/p84b6cb.html"><span class="dir">← 上一篇</span><span class="t">实现命令（中文翻译）</span></a><a class="next" href="../../../../../../../notes/projects/claude-code-best-practice/doc/development-workflows/rpi/commands/pf3c5cb.html"><span class="dir">下一篇 →</span><span class="t">规划命令（中文翻译）</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../../../../../index.html">首页</a>
+      <a href="../../../../../../../learn.html">课件</a>
+      <a href="../../../../../../../notes/index.html">笔记库</a>
+      <a href="../../../../../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../../../../../about.html">关于</a>
+      <a href="../../../../../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../../../../../js/main.js" defer></script>
+</body>
+</html>

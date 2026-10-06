@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>面试官：“大模型参数，温度值、Top-P、Top-K 分别是什么？”—— 采样参数全解析 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="作者：小林面试笔记 | 来源：微信公众号 日期：2026-07-31">
+<link rel="canonical" href="https://northadb.github.io/notes/clippings/p44a38b/2026-07-31-topp-topk.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="面试官：“大模型参数，温度值、Top-P、Top-K 分别是什么？”—— 采样参数全解析 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="作者：小林面试笔记 | 来源：微信公众号 日期：2026-07-31">
+<meta property="og:url" content="https://northadb.github.io/notes/clippings/p44a38b/2026-07-31-topp-topk.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="面试官：“大模型参数，温度值、Top-P、Top-K 分别是什么？”—— 采样参数全解析 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="作者：小林面试笔记 | 来源：微信公众号 日期：2026-07-31">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../feed.xml">
+<link rel="stylesheet" href="../../../css/style.css">
+<link rel="stylesheet" href="../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "面试官：“大模型参数，温度值、Top-P、Top-K 分别是什么？”—— 采样参数全解析", "description": "作者：小林面试笔记 | 来源：微信公众号 日期：2026-07-31", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/clippings/p44a38b/2026-07-31-topp-topk.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../index.html">首页</a><span>/</span><a href="../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../notes/clippings/index.html">内容剪藏</a></div>
+          <h1>面试官：“大模型参数，温度值、Top-P、Top-K 分别是什么？”—— 采样参数全解析</h1>
+          <p class="post-sub">作者：小林面试笔记 | 来源：微信公众号 日期：2026-07-31</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../notes/clippings/index.html">内容剪藏</a></span><span class="sep"></span>
+            <span>阅读约 6 分钟</span><span class="sep"></span><span>更新于 2026-07-31</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p><strong>作者</strong>：小林面试笔记 | <strong>来源</strong>：微信公众号
+<strong>日期</strong>：2026-07-31</p>
+</blockquote>
+<p><img alt="llm-params-01" src="https://gitee.com/cheng-jiaqing/images/raw/master/llm_params_01.png"></p>
+<hr>
+<h2 id="面试场景还原">面试场景还原</h2>
+<p><strong>面试官</strong>：讲讲大模型的几个采样参数：温度值、Top-P、Top-K 分别是什么？各场景下怎么设置？</p>
+<p><strong>候选人</strong>：温度高输出更有创意，温度低就稳定。Top-P 和 Top-K 听说过但没调过。</p>
+<p><strong>面试官</strong>：「更有创意」是结果，没说原理。温度具体怎么影响概率分布的？再说，Top-P 和 Top-K 都是「截断长尾」，区别在哪？哪个更智能？</p>
+<p><strong>候选人</strong>：Top-K 是固定保留前 K 个词，Top-P 是按累积概率截断？</p>
+<p><strong>面试官</strong>：方向对了。如果同时把 temperature 调高、top_p 调低，会有什么后果？协同还是冲突？</p>
+<p><strong>候选人</strong>：呃……没试过。</p>
+<p><strong>面试官</strong>：典型的「会用 API 但没真的理解参数关系」。这两个参数是<strong>叠加约束</strong>的关系，同时调反而互相干扰。工业界最佳实践是「<strong>只调 temperature，top_p 保持 0.9 左右，top_k 不设置</strong>」。</p>
+<blockquote>
+<p><strong>核心结论</strong>：这三个参数从来不是「各调各的」，是一套协同关系。温度负责「整体平滑度」，Top-P/Top-K 负责「候选范围」，前者×后者才决定最后的生成风格。</p>
+</blockquote>
+<hr>
+<h2 id="简要回答">💡 简要回答</h2>
+<ul>
+<li><strong>Temperature</strong> 控制输出的随机性：越低越稳定可复现，越高越发散有创意</li>
+<li><strong>Top-P</strong> 从累积概率达到 P 的候选词里采样，比 Top-K 更灵活自适应</li>
+<li><strong>Top-K</strong> 固定从概率最高的 K 个词里选</li>
+</ul>
+<p><strong>实践配置</strong>：
+- 代码生成 / 精确问答：<strong>Temperature 0~0.2</strong>
+- 创意写作：<strong>0.8~1.2</strong>
+- 日常对话：<strong>0.5~0.7</strong>
+- Top-P 和 Top-K 保持默认，同时调多个参数反而互相干扰</p>
+<hr>
+<h2 id="详细解析">📝 详细解析</h2>
+<h3 id="先理解大模型是怎么选下一个词的">先理解大模型是怎么「选下一个词」的</h3>
+<p>大模型生成的本质是<strong>不断选词</strong>的过程。每生成一个 token，模型计算词汇表里所有词（典型 5 万~15 万个）的<strong>概率分布</strong>。例如「今天天气真」之后：「好」70%、「不错」15%、「热」8%……</p>
+<p>最简单的策略是<strong>贪心解码（greedy decoding）</strong>：每次直接选概率最高的词。完全确定但过于保守，文本缺乏多样性，长一点还会陷入重复循环（「复读机问题」）。</p>
+<p>为避免贪心死板，业界发展出三个采样调节参数：<strong>Temperature、Top-K、Top-P</strong>，各自从不同维度调控「怎么从概率分布里采样」。</p>
+<h3 id="temperature热水和冷水的类比">Temperature：热水和冷水的类比</h3>
+<p>数学上，Temperature 在采样前对概率分布做「缩放」：每个词的 <strong>logit（未归一化分数）除以温度 T</strong>，再做 softmax。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">温度</th>
+<th style="text-align: left;">类比</th>
+<th style="text-align: left;">效果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>低（T=0.1）</strong></td>
+<td style="text-align: left;">冷水——分子运动慢、状态稳定</td>
+<td style="text-align: left;">分布变<strong>尖锐</strong>，高概率词更高、低概率词接近零 → 稳定但单调</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>高（T=1.5）</strong></td>
+<td style="text-align: left;">热水——分子运动快、状态混沌</td>
+<td style="text-align: left;">分布变<strong>均匀</strong>，低概率词也有机会 → 有创意但易跑偏</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>T=1</strong></td>
+<td style="text-align: left;">临界点</td>
+<td style="text-align: left;">概率分布不变，模型「原始」采样</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>T=0</strong></td>
+<td style="text-align: left;">另一临界点</td>
+<td style="text-align: left;">退化成贪心解码，完全相同输入 → 完全相同输出</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Temperature 解决「分布的松紧」</strong>，还有另一维度：候选词的数量——这就是 Top-K 和 Top-P。</p>
+</blockquote>
+<h3 id="top-k限制候选词数量">Top-K：限制候选词数量</h3>
+<p>思路直觉：每次采样前把概率分布<strong>截断</strong>到只保留概率最高的 K 个词，其余置零，在这 K 个词里按比例采样。</p>
+<ul>
+<li>Top-K=50 → 每步只从前 50 个词里选</li>
+<li>K 越小越保守，K 越大范围越广</li>
+<li>有效避免「采到长尾噪声词」（词表 10 万+ 词大多无用）</li>
+</ul>
+<p><strong>⚠️ Top-K 的明显问题：K 固定，对不同情境不够自适应</strong></p>
+<ul>
+<li>「中国的首都是____」：模型对「北京」概率高达 99%，Top-K=50 让你从前 50 个里选 → 候选池有 49 个概率极低的离谱词，不合理</li>
+<li>「写一首关于秋天的诗」：前 50 个词概率分散，Top-K=50 又不够——可能第 51 个词更有诗意</li>
+</ul>
+<blockquote>
+<p>固定 K 的本质问题：<strong>不知道当前上下文的概率分布有多尖锐或多平坦</strong>。需要更智能的截断方式——Top-P。</p>
+</blockquote>
+<h3 id="top-pnucleus-sampling自适应的截断">Top-P（Nucleus Sampling）：自适应的截断</h3>
+<p><strong>Top-P 也叫核采样（Nucleus Sampling）</strong>，解决 Top-K「不自适应」的问题。</p>
+<p>逻辑：按概率从高到低排列所有词，<strong>累加概率</strong>，当累加值超过阈值 P 时停止，只保留这个「核」（Nucleus）里的词，在其中采样。</p>
+<p><strong>对比示例</strong>：
+- 「中国的首都是____」：「北京」概率 99%，Top-P=0.9 一个词就超过阈值 → 候选池<strong>只有「北京」</strong>，结果确定 ✅
+- 「写一首关于秋天的诗」：前几个词分散，前 30 个词累加才到 0.9 → 候选池 <strong>30 个词</strong>，保留多样性 ✅</p>
+<blockquote>
+<p><strong>Top-P 核心优势 = 自适应</strong>。候选池大小根据当前上下文的「确定性」自动调整：确定时小、开放时大，比固定 K 合理得多。</p>
+</blockquote>
+<p><img alt="llm-params-02" src="https://gitee.com/cheng-jiaqing/images/raw/master/llm_params_02.png"></p>
+<h3 id="实际工程怎么配三个参数">实际工程怎么配三个参数</h3>
+<blockquote>
+<p><strong>绝大多数情况，只调 Temperature 一个参数就够了，Top-P 和 Top-K 保持默认。</strong></p>
+</blockquote>
+<p>原因：三个参数作用有重叠，都在控制「采样随机性」，只是维度不同。同时调多个会互相干扰，分不清是哪个在起作用。OpenAI、Anthropic 官方文档都建议通常只调 temperature 或 top_p 其中一个；Qwen、DeepSeek 开源模型以对应推理框架和模型卡建议为准。</p>
+<p><strong>三档场景配置</strong>：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">场景</th>
+<th style="text-align: center;">Temperature</th>
+<th style="text-align: center;">Top-P</th>
+<th style="text-align: left;">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>精确任务</strong>（代码/SQL/JSON/信息抽取/数学）</td>
+<td style="text-align: center;"><strong>0~0.2</strong></td>
+<td style="text-align: center;">1.0（不限制）</td>
+<td style="text-align: left;">有标准答案，T=0 等价贪心，可复现</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>日常对话/总结/翻译</strong></td>
+<td style="text-align: center;"><strong>0.5~0.7</strong></td>
+<td style="text-align: center;">0.9 或默认</td>
+<td style="text-align: left;">自然流畅但不能太离谱</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>创意任务</strong>（写作/头脑风暴/角色扮演/文案）</td>
+<td style="text-align: center;"><strong>0.8~1.2</strong></td>
+<td style="text-align: center;">0.95</td>
+<td style="text-align: left;">要「惊喜感」，允许偶尔跑偏</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-python"># 代码生成 / 精确问答（要可重复、不能出错）
+temperature=0.0 ~ 0.2
+top_p=1.0  # 不做限制
+
+# 日常对话 / 总结摘要（要连贯自然但不能太发散）
+temperature=0.5 ~ 0.7
+top_p=0.9
+
+# 创意写作 / 头脑风暴（要多样性，允许偶尔出奇）
+temperature=0.8 ~ 1.2
+top_p=0.95
+</code></pre>
+<blockquote>
+<p>⚠️ 不要把某个产品某个版本的默认值当成行业固定标准——模型更新后默认策略也会变。</p>
+</blockquote>
+<p><img alt="llm-params-03" src="https://gitee.com/cheng-jiaqing/images/raw/master/llm_params_03.png"></p>
+<h3 id="两个常见踩坑">两个常见踩坑</h3>
+<p><strong>① 同时调 temperature 高 + top_p 低</strong>
+如 temperature=1.2 + top_p=0.5 =「让分布变平坦再截掉一半」，两个参数互相打架，结果完全不可预测。</p>
+<p><strong>② 同时设置 top_k 和 top_p</strong>
+两者都在截断，先后截断会让候选池变得很奇怪。最佳实践：<strong>top_k 不设置或用默认，只用 top_p</strong>（更智能）。</p>
+<blockquote>
+<p><strong>口诀</strong>：先只调 temperature，top_p 保持默认或 0.9~1.0，top_k 不设置。如果决定调 top_p，就先固定 temperature，不要两个一起大幅改。</p>
+</blockquote>
+<p><img alt="llm-params-04" src="https://gitee.com/cheng-jiaqing/images/raw/master/llm_params_04.png"></p>
+<hr>
+<h2 id="面试回答模板">🎯 面试回答模板</h2>
+<h3 id="讲作用维度原理">讲作用维度（原理）</h3>
+<ul>
+<li><strong>Temperature</strong> 控制「分布的松紧」（缩放概率分布的尖锐度）</li>
+<li><strong>Top-K</strong> 是「固定截断」（只保留前 K 个词）</li>
+<li><strong>Top-P</strong> 是「自适应截断」（按累积概率截断到 P）</li>
+<li>三者从不同维度控制采样的随机性</li>
+</ul>
+<h3 id="讲-top-p-vs-top-k加分点">讲 Top-P vs Top-K（加分点）</h3>
+<blockquote>
+<p>Top-P 能根据当前上下文的概率分布形状自动调整候选池大小：确定性问题候选池小，开放性问题候选池大——比固定 K 智能。这一句就比死记硬背深刻一层。</p>
+</blockquote>
+<h3 id="讲实战经验关键">讲实战经验（关键）</h3>
+<blockquote>
+<p><strong>一次主要调一个参数</strong>。先调 Temperature，Top-P 保持默认或 0.9~1.0，Top-K 不设置；要调 Top-P 就固定 Temperature。不要同时大幅调 temperature 和 top_p。这直接说出来，面试官就知道你真的调过参数。</p>
+</blockquote>
+<h3 id="讲场景配置再加分">讲场景配置（再加分）</h3>
+<blockquote>
+<p>精确任务（代码、SQL）T=0~0.2；日常对话 T=0.5~0.7；创意任务 T=0.8~1.2。能讲出「按任务选 T 值」的工程视角，这道题就答得很完整了。</p>
+</blockquote>
+<hr>
+<h2 id="速查卡">📌 速查卡</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">参数</th>
+<th style="text-align: left;">作用维度</th>
+<th style="text-align: left;">一句话理解</th>
+<th style="text-align: left;">默认建议</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Temperature</strong></td>
+<td style="text-align: left;">分布的松紧</td>
+<td style="text-align: left;">缩放 logit，控制随机性</td>
+<td style="text-align: left;">按任务 0~1.2</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Top-K</strong></td>
+<td style="text-align: left;">固定截断</td>
+<td style="text-align: left;">只留前 K 个词</td>
+<td style="text-align: left;">不设置</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Top-P</strong></td>
+<td style="text-align: left;">自适应截断</td>
+<td style="text-align: left;">累积概率到 P 的核</td>
+<td style="text-align: left;">0.9~1.0</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="关联笔记">关联笔记</h2>
+<ul>
+<li><a class="wl" href="../../../notes/clippings/p44a38b/2026-09-01-rag.html">2026-09-01-RAG核心知识全解析（范式演进）</a> — 同系列：RAG 面试题</li>
+<li><a class="wl" href="../../../notes/clippings/p44a38b/2026-07-30-agent.html">2026-07-30-Agent高频面试题全解析-小林面试笔记</a> — 同系列：Agent/LLM/MCP 面试题</li>
+<li><a class="wl" href="../../../notes/clippings/claude/2026-07-30-claude.html">2026-07-30-Claude聊天记录汇总</a> — ⑬ 提示词缓存和 KV 缓存（同为大模型原理类）</li>
+</ul>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">内容剪藏</span><span class="chip">大模型</span><span class="chip">采样参数</span><span class="chip">Temperature</span><span class="chip">Top-P</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/Clippings/%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7/2026-07-31-%E5%A4%A7%E6%A8%A1%E5%9E%8B%E9%87%87%E6%A0%B7%E5%8F%82%E6%95%B0%E5%85%A8%E8%A7%A3%E6%9E%90-%E6%B8%A9%E5%BA%A6%E5%80%BCTopP-TopK-%E5%B0%8F%E6%9E%97%E9%9D%A2%E8%AF%95%E7%AC%94%E8%AE%B0.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../notes/clippings/p44a38b/2026-07-30-agent.html"><span class="dir">← 上一篇</span><span class="t">Agent 高频面试题全解析：从 LLM 到 A2A 协议</span></a><a class="next" href="../../../notes/clippings/p44a38b/2026-08-04-graphraglightrag.html"><span class="dir">下一篇 →</span><span class="t">GraphRAG 与 LightRAG：从传统 RAG 到图增强检索</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../index.html">首页</a>
+      <a href="../../../learn.html">课件</a>
+      <a href="../../../notes/index.html">笔记库</a>
+      <a href="../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../about.html">关于</a>
+      <a href="../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../js/main.js" defer></script>
+</body>
+</html>

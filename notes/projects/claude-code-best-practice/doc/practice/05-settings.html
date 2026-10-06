@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>设置（Settings）最佳实践 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="中文翻译整理自 best-practice/claude-settings.md 学习顺序：第 5 篇 官方文档：Settingshttps://code.claude.com/docs/en/settings">
+<link rel="canonical" href="https://northadb.github.io/notes/projects/claude-code-best-practice/doc/practice/05-settings.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="设置（Settings）最佳实践 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="中文翻译整理自 best-practice/claude-settings.md 学习顺序：第 5 篇 官方文档：Settingshttps://code.claude.com/docs/en/settings">
+<meta property="og:url" content="https://northadb.github.io/notes/projects/claude-code-best-practice/doc/practice/05-settings.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="设置（Settings）最佳实践 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="中文翻译整理自 best-practice/claude-settings.md 学习顺序：第 5 篇 官方文档：Settingshttps://code.claude.com/docs/en/settings">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../../../feed.xml">
+<link rel="stylesheet" href="../../../../../css/style.css">
+<link rel="stylesheet" href="../../../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "设置（Settings）最佳实践", "description": "中文翻译整理自 best-practice/claude-settings.md 学习顺序：第 5 篇 官方文档：Settingshttps://code.claude.com/docs/en/settings", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/projects/claude-code-best-practice/doc/practice/05-settings.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../../../index.html">首页</a><span>/</span><a href="../../../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../../../notes/projects/index.html">项目笔记</a></div>
+          <h1>设置（Settings）最佳实践</h1>
+          <p class="post-sub">中文翻译整理自 best-practice/claude-settings.md 学习顺序：第 5 篇 官方文档：Settingshttps://code.claude.com/docs/en/settings</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../../../notes/projects/index.html">项目笔记</a></span><span class="sep"></span>
+            <span>阅读约 11 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p>中文翻译整理自 <code>best-practice/claude-settings.md</code>
+学习顺序：第 5 篇
+官方文档：<a href="https://code.claude.com/docs/en/settings">Settings</a></p>
+</blockquote>
+<hr>
+<h2 id="什么是-settings">什么是 Settings？</h2>
+<p>Settings 是 Claude Code 的<strong>配置文件体系</strong>。通过 <code>settings.json</code>，你可以控制 Claude 的行为、权限、模型、外观等几乎所有方面。</p>
+<p>截至 v2.1.215，Claude Code 提供了 <strong>80+ 个设置项</strong> 和 <strong>200+ 个环境变量</strong>（使用 <code>"env"</code> 字段在 settings.json 中配置，无需 wrapper 脚本）。</p>
+<hr>
+<h2 id="配置优先级">配置优先级</h2>
+<p>从高到低（高优先级覆盖低优先级）：</p>
+<table>
+<thead>
+<tr>
+<th>优先级</th>
+<th>位置</th>
+<th>范围</th>
+<th>共享？</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>托管设置</strong>（MDM/注册表）</td>
+<td>组织</td>
+<td>是（IT 部署）</td>
+<td>安全策略，不可覆盖</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>命令行参数</strong></td>
+<td>会话</td>
+<td>不适用</td>
+<td>临时单次覆盖</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>.claude/settings.local.json</code></td>
+<td>项目</td>
+<td>否（git-ignored）</td>
+<td>个人项目配置</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>.claude/settings.json</code></td>
+<td>项目</td>
+<td>是（git 提交）</td>
+<td>团队共享配置</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>~/.claude/settings.json</code></td>
+<td>用户</td>
+<td>不适用</td>
+<td>全局默认配置</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>关键规则：</strong>
+- <code>deny</code> 规则拥有最高安全优先级，不能被低优先级的 allow/ask 规则覆盖
+- 数组配置（如 <code>permissions.allow</code>）是跨作用域<strong>合并并去重</strong>的
+- 托管设置可以通过 MDM（macOS）、注册表（Windows）或 <code>managed-settings.json</code> 文件部署
+- v2.1.126+：<code>/config</code> 的更改持久化到 <code>~/.claude/settings.json</code>，重启后保留</p>
+</blockquote>
+<hr>
+<h2 id="一通用设置general-settings">一、通用设置（General Settings）</h2>
+<h3 id="11-基本配置">1.1 基本配置</h3>
+<table>
+<thead>
+<tr>
+<th>键</th>
+<th>类型</th>
+<th>默认值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>$schema</code></td>
+<td>string</td>
+<td>-</td>
+<td>JSON Schema URL，用于 IDE 校验和自动补全</td>
+</tr>
+<tr>
+<td><code>model</code></td>
+<td>string</td>
+<td><code>"default"</code></td>
+<td>默认模型（支持别名 <code>sonnet</code>、<code>opus</code>、<code>haiku</code> 或完整模型 ID）</td>
+</tr>
+<tr>
+<td><code>agent</code></td>
+<td>string</td>
+<td>-</td>
+<td>主对话的默认 agent，值为 <code>.claude/agents/</code> 中的 agent 名称</td>
+</tr>
+<tr>
+<td><code>language</code></td>
+<td>string</td>
+<td><code>"english"</code></td>
+<td>Claude 首选响应语言</td>
+</tr>
+<tr>
+<td><code>outputStyle</code></td>
+<td>string</td>
+<td><code>"default"</code></td>
+<td>输出风格（如 <code>"Explanatory"</code>）</td>
+</tr>
+<tr>
+<td><code>plansDirectory</code></td>
+<td>string</td>
+<td><code>~/.claude/plans</code></td>
+<td><code>/plan</code> 输出目录</td>
+</tr>
+<tr>
+<td><code>autoMemoryEnabled</code></td>
+<td>boolean</td>
+<td><code>true</code></td>
+<td>启用自动记忆</td>
+</tr>
+<tr>
+<td><code>autoMemoryDirectory</code></td>
+<td>string</td>
+<td>-</td>
+<td>自定义自动记忆存储目录</td>
+</tr>
+<tr>
+<td><code>fileCheckpointingEnabled</code></td>
+<td>boolean</td>
+<td><code>true</code></td>
+<td>编辑前自动创建快照（支持 <code>/rewind</code> 回退）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="12-工作区与-worktree">1.2 工作区与 Worktree</h3>
+<table>
+<thead>
+<tr>
+<th>键</th>
+<th>类型</th>
+<th>默认值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>worktree.symlinkDirectories</code></td>
+<td>array</td>
+<td><code>[]</code></td>
+<td>从主仓库符号链接到 worktree 的目录（避免重复）</td>
+</tr>
+<tr>
+<td><code>worktree.sparsePaths</code></td>
+<td>array</td>
+<td><code>[]</code></td>
+<td>worktree 中通过 sparse checkout 检出的路径</td>
+</tr>
+<tr>
+<td><code>worktree.baseRef</code></td>
+<td>string</td>
+<td><code>"fresh"</code></td>
+<td>worktree 分支来源：<code>"fresh"</code> 从远端分支创建，<code>"head"</code> 从本地 HEAD</td>
+</tr>
+<tr>
+<td><code>worktree.bgIsolation</code></td>
+<td>string</td>
+<td><code>"worktree"</code></td>
+<td>后台会话隔离模式</td>
+</tr>
+<tr>
+<td><code>claudeMdExcludes</code></td>
+<td>array</td>
+<td>-</td>
+<td>跳过加载的 CLAUDE.md 文件 glob 模式</td>
+</tr>
+</tbody>
+</table>
+<h3 id="13-归属与认证">1.3 归属与认证</h3>
+<table>
+<thead>
+<tr>
+<th>键</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>attribution.commit</code></td>
+<td>string</td>
+<td>Git commit 归属信息（支持 trailers）</td>
+</tr>
+<tr>
+<td><code>attribution.pr</code></td>
+<td>string</td>
+<td>PR 描述归属信息</td>
+</tr>
+<tr>
+<td><code>attribution.sessionUrl</code></td>
+<td>boolean</td>
+<td>在 web/Remote Control 会话的 commit 中加入会话 URL 链接</td>
+</tr>
+<tr>
+<td><code>prUrlTemplate</code></td>
+<td>string</td>
+<td>PR 徽章链接的 URL 模板（自托管 GitLab/Bitbucket 等）</td>
+</tr>
+<tr>
+<td><code>apiKeyHelper</code></td>
+<td>string</td>
+<td>动态生成认证 token 的脚本路径（token 以 <code>X-Api-Key</code> 和 <code>Authorization: Bearer</code> 两个头发送）</td>
+</tr>
+<tr>
+<td><code>forceLoginMethod</code></td>
+<td>string</td>
+<td>限制登录方式：<code>"claudeai"</code>、<code>"console"</code>、<code>"gateway"</code></td>
+</tr>
+<tr>
+<td><code>forceLoginOrgUUID</code></td>
+<td>string/array</td>
+<td>限制登录到指定组织 UUID</td>
+</tr>
+<tr>
+<td><code>gcpAuthRefresh</code></td>
+<td>string</td>
+<td>GCP 凭证刷新脚本</td>
+</tr>
+</tbody>
+</table>
+<h3 id="14-技能与模型控制">1.4 技能与模型控制</h3>
+<table>
+<thead>
+<tr>
+<th>键</th>
+<th>类型</th>
+<th>默认值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>maxSkillDescriptionChars</code></td>
+<td>number</td>
+<td><code>1536</code></td>
+<td>技能描述的字符上限</td>
+</tr>
+<tr>
+<td><code>skillListingBudgetFraction</code></td>
+<td>number</td>
+<td><code>0.01</code></td>
+<td>技能列表占上下文窗口的比例（1%）</td>
+</tr>
+<tr>
+<td><code>skillOverrides</code></td>
+<td>object</td>
+<td>-</td>
+<td>技能可见性覆盖。按 skill 名设置：<code>"on"</code>（全显）、<code>"name-only"</code>（仅显示名称，不加载描述）、<code>"user-invocable-only"</code>（只显示用户可调用的 skill，过滤 agent 内部 skill）、<code>"off"</code>（完全隐藏）。见 <a href="../../../../../notes/projects/claude-code-best-practice/doc/practice/04-skills.html#skill-可见性控制"><code>04-技能-skills.md</code></a> 的完整说明</td>
+</tr>
+<tr>
+<td><code>disableBundledSkills</code></td>
+<td>boolean</td>
+<td><code>false</code></td>
+<td>隐藏内置技能</td>
+</tr>
+<tr>
+<td><code>dynamicWorkflowSize</code></td>
+<td>string</td>
+<td>-</td>
+<td>动态工作流默认 agent 数量的建议值：<code>"small"</code>、<code>"medium"</code>、<code>"large"</code>。通过 <code>/config</code> 的 "Workflow size" 设置。v2.1.202+/v2.1.205 规范化</td>
+</tr>
+<tr>
+<td><code>alwaysThinkingEnabled</code></td>
+<td>boolean</td>
+<td><code>false</code></td>
+<td>默认启用扩展思考</td>
+</tr>
+<tr>
+<td><code>thinkingBudgetTokens</code></td>
+<td>number</td>
+<td>-</td>
+<td>每次响应的固定思考 token 预算</td>
+</tr>
+<tr>
+<td><code>showThinkingSummaries</code></td>
+<td>boolean</td>
+<td><code>false</code></td>
+<td>在交互会话中显示思考摘要</td>
+</tr>
+<tr>
+<td><code>advisorModel</code></td>
+<td>string</td>
+<td>-</td>
+<td>顾问模式使用的模型（<code>opus</code>、<code>sonnet</code>、<code>fable</code>）</td>
+</tr>
+<tr>
+<td><code>fastMode</code></td>
+<td>boolean</td>
+<td><code>false</code></td>
+<td>全局启用快速模式（所有会话使用较快模型）。用户也可通过 <code>/fast</code> 按会话切换。与 <code>fastModePerSessionOptIn</code> 配合使用</td>
+</tr>
+<tr>
+<td><code>askUserQuestionTimeout</code></td>
+<td>string</td>
+<td><code>"never"</code></td>
+<td>AskUserQuestion 对话框等待超时。值：<code>"60s"</code>、<code>"5m"</code>、<code>"10m"</code>、<code>"never"</code>（默认，永不超时）。通过 <code>/config</code> 的 "Ask user question timeout" 设置。v2.1.200+</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="二权限系统permissions">二、权限系统（Permissions）</h2>
+<h3 id="21-权限模式">2.1 权限模式</h3>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>"default"</code></td>
+<td>标准权限检查，需要确认</td>
+</tr>
+<tr>
+<td><code>"manual"</code></td>
+<td><code>"default"</code> 的别名，v2.1.200 引入。在 CLI、VS Code、JetBrains UI 中名称更清晰</td>
+</tr>
+<tr>
+<td><code>"acceptEdits"</code></td>
+<td>自动接受文件编辑和常见文件系统命令（v2.1.160 起对构建工具配置文件仍会提示）</td>
+</tr>
+<tr>
+<td><code>"dontAsk"</code></td>
+<td>自动拒绝未预批准的调用</td>
+</tr>
+<tr>
+<td><code>"bypassPermissions"</code></td>
+<td>跳过所有权限检查（⚠️ 危险）</td>
+</tr>
+<tr>
+<td><code>"auto"</code></td>
+<td>自动安全检查 + 确认（Shift+Tab 切换，v2.1.111 起默认加入循环）</td>
+</tr>
+<tr>
+<td><code>"plan"</code></td>
+<td>只读探索模式（v2.1.136 起即使有 Edit allow 规则也会阻止写入）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="22-权限结构">2.2 权限结构</h3>
+<pre><code class="language-json">{
+  &quot;permissions&quot;: {
+    &quot;allow&quot;: [&quot;Edit(*)&quot;, &quot;Write(*)&quot;, &quot;Bash(npm run *)&quot;],
+    &quot;ask&quot;: [&quot;Bash(rm *)&quot;, &quot;Bash(git push *)&quot;],
+    &quot;deny&quot;: [&quot;Read(.env)&quot;, &quot;Read(./secrets/**)&quot;],
+    &quot;additionalDirectories&quot;: [&quot;../shared-libs/&quot;],
+    &quot;defaultMode&quot;: &quot;acceptEdits&quot;,
+    &quot;disableBypassPermissionsMode&quot;: &quot;disable&quot;
+  }
+}
+</code></pre>
+<h3 id="23-工具权限语法">2.3 工具权限语法</h3>
+<table>
+<thead>
+<tr>
+<th>工具</th>
+<th>语法</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Bash</code></td>
+<td><code>Bash(命令模式)</code></td>
+<td><code>Bash(npm run *)</code>、<code>Bash(git * main)</code></td>
+</tr>
+<tr>
+<td><code>PowerShell</code></td>
+<td><code>PowerShell(cmd *)</code></td>
+<td><code>PowerShell(Get-ChildItem *)</code></td>
+</tr>
+<tr>
+<td><code>Read</code></td>
+<td><code>Read(路径模式)</code></td>
+<td><code>Read(.env)</code>、<code>Read(./secrets/**)</code></td>
+</tr>
+<tr>
+<td><code>Edit</code></td>
+<td><code>Edit(路径模式)</code></td>
+<td><code>Edit(src/**)</code>、<code>Edit(*.ts)</code></td>
+</tr>
+<tr>
+<td><code>Write</code></td>
+<td><code>Write(路径模式)</code></td>
+<td><code>Write(*.md)</code></td>
+</tr>
+<tr>
+<td><code>WebFetch</code></td>
+<td><code>WebFetch(domain:模式)</code></td>
+<td><code>WebFetch(domain:example.com)</code></td>
+</tr>
+<tr>
+<td><code>Agent</code> / <code>Task</code></td>
+<td><code>Agent(agent-name)</code></td>
+<td><code>Agent(researcher)</code>、<code>Agent(*)</code></td>
+</tr>
+<tr>
+<td><code>Skill</code></td>
+<td><code>Skill(名称)</code></td>
+<td><code>Skill(weather-fetcher)</code></td>
+</tr>
+<tr>
+<td><code>MCP</code></td>
+<td><code>mcp__server__tool</code></td>
+<td><code>mcp__memory__*</code></td>
+</tr>
+<tr>
+<td><code>Tool</code></td>
+<td><code>Tool(参数:值)</code></td>
+<td><code>Agent(model:opus)</code> — 匹配工具的输入参数</td>
+</tr>
+<tr>
+<td><code>Cd</code></td>
+<td><code>Cd(路径模式)</code></td>
+<td><code>Cd(/home/*)</code> — 控制 <code>/cd</code> 的导航范围</td>
+</tr>
+</tbody>
+</table>
+<p><strong>路径前缀：</strong>
+- <code>//</code> — 文件系统绝对路径
+- <code>~/</code> — 用户 home 目录
+- <code>/</code> — 项目根目录
+- <code>./</code> — 相对路径</p>
+<p><strong>Bash 通配符说明：</strong>
+- <code>*</code> 可出现在任意位置：<code>Bash(* install)</code>、<code>Bash(npm *)</code>
+- <code>Bash(ls *)</code>（空格 + <code>*</code>）匹配 <code>ls -la</code> 但不匹配 <code>lsof</code>
+- 复合命令（<code>&amp;&amp;</code>、<code>||</code>、<code>|</code>、<code>;</code>）的每个子命令必须独立匹配</p>
+<h3 id="24-自动模式配置automode">2.4 自动模式配置（autoMode）</h3>
+<pre><code class="language-json">{
+  &quot;autoMode&quot;: {
+    &quot;classifyAllShell&quot;: false,
+    &quot;environment&quot;: [&quot;可信环境描述&quot;],
+    &quot;allow&quot;: [&quot;$defaults&quot;, &quot;例外规则&quot;],
+    &quot;soft_deny&quot;: [&quot;$defaults&quot;, &quot;有条件的阻止&quot;],
+    &quot;hard_deny&quot;: [&quot;无条件阻止（不可覆盖）&quot;]
+  }
+}
+</code></pre>
+<blockquote>
+<p>⚠️ <code>autoMode</code> 仅可在 <strong>用户级</strong>（<code>~/.claude/settings.json</code>）和 <strong>托管设置</strong> 中配置，不可在项目级或本地设置中配置，以防止仓库注入（v2.1.207 起也不再读取 <code>.claude/settings.local.json</code>）。</p>
+</blockquote>
+<hr>
+<h2 id="三mcp-服务器设置">三、MCP 服务器设置</h2>
+<table>
+<thead>
+<tr>
+<th>键</th>
+<th>类型</th>
+<th>作用域</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>enableAllProjectMcpServers</code></td>
+<td>boolean</td>
+<td>任意</td>
+<td>自动批准所有 <code>.mcp.json</code> 服务器</td>
+</tr>
+<tr>
+<td><code>enabledMcpjsonServers</code></td>
+<td>array</td>
+<td>任意</td>
+<td>白名单特定服务器名称</td>
+</tr>
+<tr>
+<td><code>disabledMcpjsonServers</code></td>
+<td>array</td>
+<td>任意</td>
+<td>黑名单特定服务器名称</td>
+</tr>
+<tr>
+<td><code>allowedMcpServers</code></td>
+<td>array</td>
+<td>托管</td>
+<td>带名称/命令/URL 匹配的白名单</td>
+</tr>
+<tr>
+<td><code>deniedMcpServers</code></td>
+<td>array</td>
+<td>托管</td>
+<td>带匹配的黑名单</td>
+</tr>
+<tr>
+<td><code>allowManagedMcpServersOnly</code></td>
+<td>boolean</td>
+<td>托管</td>
+<td>只允许托管白名单中的 MCP 服务器</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>详细 MCP 配置见 <a href="../../../../../notes/projects/claude-code-best-practice/doc/practice/06-mcp-mcp.html"><code>06-MCP服务器-mcp.md</code></a></p>
+<p>⚠️ 保留的 MCP 服务器名（v2.1.128+）：<code>workspace</code>、<code>Claude Browser</code>、<code>Claude Preview</code>。用户定义的服务器使用这些名称会被跳过并记录警告。</p>
+</blockquote>
+<h3 id="配置关联">配置关联</h3>
+<table>
+<thead>
+<tr>
+<th>相关概念</th>
+<th>文档</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>权限模式命令行</td>
+<td><a href="../../../../../notes/projects/claude-code-best-practice/doc/practice/08-cli-cli-startup-flags.html#-权限--安全"><code>08-CLI启动参数.md</code></a></td>
+<td><code>--permission-mode</code>、<code>--allowedTools</code> 等 CLI 参数</td>
+</tr>
+<tr>
+<td>环境变量（完整）</td>
+<td><a href="../../../../../notes/projects/claude-code-best-practice/doc/practice/08-cli-cli-startup-flags.html#仅启动时可用的环境变量"><code>08-CLI启动参数.md</code></a></td>
+<td>仅启动时可用的环境变量</td>
+</tr>
+<tr>
+<td>MCP 服务器</td>
+<td><a href="../../../../../notes/projects/claude-code-best-practice/doc/practice/06-mcp-mcp.html"><code>06-MCP服务器-mcp.md</code></a></td>
+<td>MCP 配置详解和推荐服务器</td>
+</tr>
+<tr>
+<td>权限模式实操</td>
+<td><a href="../../../../../notes/projects/claude-code-best-practice/doc/practice/07-memory.html#配置优先级总结"><code>07-记忆系统-memory.md</code></a></td>
+<td>配置优先级与记忆系统的关系</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="四沙盒sandbox">四、沙盒（Sandbox）</h2>
+<pre><code class="language-json">{
+  &quot;sandbox&quot;: {
+    &quot;enabled&quot;: true,
+    &quot;failIfUnavailable&quot;: false,
+    &quot;autoAllowBashIfSandboxed&quot;: true,
+    &quot;excludedCommands&quot;: [&quot;git&quot;, &quot;docker&quot;, &quot;gh&quot;],
+    &quot;allowUnsandboxedCommands&quot;: true,
+    &quot;network&quot;: {
+      &quot;allowUnixSockets&quot;: [&quot;/var/run/docker.sock&quot;],
+      &quot;allowLocalBinding&quot;: false,
+      &quot;allowedDomains&quot;: [],
+      &quot;deniedDomains&quot;: []
+    },
+    &quot;filesystem&quot;: {
+      &quot;allowWrite&quot;: [],
+      &quot;denyWrite&quot;: [],
+      &quot;denyRead&quot;: [],
+      &quot;allowRead&quot;: []
+    }
+  }
+}
+</code></pre>
+<p><code>sandbox.credentials</code> 支持两种模式：
+- <strong><code>"deny"</code>（默认）</strong>：阻止文件读取，从环境变量中剥离凭证
+- <strong><code>"mask"</code></strong>：配合 <code>injectHosts</code> 数组，选择性向特定受信主机暴露凭证</p>
+<p>完整配置示例参考 <code>best-practice/claude-settings.md</code>。</p>
+<hr>
+<h2 id="五模型配置">五、模型配置</h2>
+<h3 id="模型别名">模型别名</h3>
+<table>
+<thead>
+<tr>
+<th>别名</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>"default"</code></td>
+<td>账户推荐模型</td>
+</tr>
+<tr>
+<td><code>"sonnet"</code></td>
+<td>最新 Sonnet（Anthropic API 上为 Sonnet 5，Bedrock/Vertex 为 Sonnet 4.6）</td>
+</tr>
+<tr>
+<td><code>"opus"</code></td>
+<td>最新 Opus（Anthropic API 上为 Opus 4.8，默认快速模式）</td>
+</tr>
+<tr>
+<td><code>"haiku"</code></td>
+<td>快速 Haiku</td>
+</tr>
+<tr>
+<td><code>"sonnet[1m]"</code> / <code>"opus[1m]"</code></td>
+<td>1M token 上下文</td>
+</tr>
+<tr>
+<td><code>"opusplan"</code></td>
+<td>Opus 规划 + Sonnet 执行</td>
+</tr>
+<tr>
+<td><code>"fable"</code></td>
+<td>Claude Fable 5 — 长程推理模型（Anthropic API 专用）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="模型覆盖model-overrides">模型覆盖（Model Overrides）</h3>
+<p>用于将模型选择器映射到 Bedrock/Vertex/Foundry 的特定模型 ID：</p>
+<pre><code class="language-json">{
+  &quot;modelOverrides&quot;: {
+    &quot;claude-opus-4-6&quot;: &quot;arn:aws:bedrock:...:inference-profile/anthropic.claude-opus-4-6-v1:0&quot;
+  }
+}
+</code></pre>
+<h3 id="推理力度effort-level">推理力度（Effort Level）</h3>
+<table>
+<thead>
+<tr>
+<th>级别</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Max</td>
+<td>最大推理深度（Opus 4.6 专用）</td>
+</tr>
+<tr>
+<td>XHigh</td>
+<td>超强推理（Opus 4.7/4.8）</td>
+</tr>
+<tr>
+<td>High</td>
+<td>完整推理（默认）</td>
+</tr>
+<tr>
+<td>Medium</td>
+<td>平衡模式</td>
+</tr>
+<tr>
+<td>Low</td>
+<td>最少推理，最快响应</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="六显示-ux">六、显示 &amp; UX</h2>
+<table>
+<thead>
+<tr>
+<th>键</th>
+<th>类型</th>
+<th>默认值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>statusLine</code></td>
+<td>object</td>
+<td>-</td>
+<td>自定义状态栏（type, command, padding, refreshInterval）</td>
+</tr>
+<tr>
+<td><code>viewMode</code></td>
+<td>string</td>
+<td>-</td>
+<td>默认视图模式：<code>"default"</code>、<code>"verbose"</code>、<code>"focus"</code></td>
+</tr>
+<tr>
+<td><code>tui</code></td>
+<td>string</td>
+<td><code>"default"</code></td>
+<td>渲染模式：<code>"fullscreen"</code> 或 <code>"default"</code></td>
+</tr>
+<tr>
+<td><code>spinnerTipsEnabled</code></td>
+<td>boolean</td>
+<td><code>true</code></td>
+<td>等待时显示提示</td>
+</tr>
+<tr>
+<td><code>spinnerVerbs</code></td>
+<td>object</td>
+<td>-</td>
+<td>自定义加载动词（mode: "append"/"replace", verbs: []）</td>
+</tr>
+<tr>
+<td><code>spinnerTipsOverride</code></td>
+<td>object</td>
+<td>-</td>
+<td>自定义加载提示（tips, excludeDefault）</td>
+</tr>
+<tr>
+<td><code>respectGitignore</code></td>
+<td>boolean</td>
+<td><code>true</code></td>
+<td>文件选择器遵循 .gitignore</td>
+</tr>
+<tr>
+<td><code>prefersReducedMotion</code></td>
+<td>boolean</td>
+<td><code>false</code></td>
+<td>减少动画效果</td>
+</tr>
+<tr>
+<td><code>axScreenReader</code></td>
+<td>boolean</td>
+<td><code>false</code></td>
+<td>屏幕阅读器友好模式</td>
+</tr>
+<tr>
+<td><code>syntaxHighlightingDisabled</code></td>
+<td>boolean</td>
+<td><code>false</code></td>
+<td>禁用语法高亮</td>
+</tr>
+<tr>
+<td><code>autoScrollEnabled</code></td>
+<td>boolean</td>
+<td><code>true</code></td>
+<td>全屏模式自动滚动</td>
+</tr>
+<tr>
+<td><code>editorMode</code></td>
+<td>string</td>
+<td><code>"normal"</code></td>
+<td>输入模式：<code>"normal"</code> 或 <code>"vim"</code></td>
+</tr>
+<tr>
+<td><code>preferredNotifChannel</code></td>
+<td>string</td>
+<td><code>"auto"</code></td>
+<td>通知方式（terminal_bell, iterm2, kitty 等）</td>
+</tr>
+<tr>
+<td><code>teammateMode</code></td>
+<td>string</td>
+<td><code>"in-process"</code></td>
+<td>Agent 团队显示模式（auto, tmux, iterm2）</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="七aws-云凭证">七、AWS &amp; 云凭证</h2>
+<table>
+<thead>
+<tr>
+<th>键</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>awsAuthRefresh</code></td>
+<td>string</td>
+<td>AWS 认证刷新脚本</td>
+</tr>
+<tr>
+<td><code>awsCredentialExport</code></td>
+<td>string</td>
+<td>输出 AWS 凭证 JSON 的脚本</td>
+</tr>
+<tr>
+<td><code>otelHeadersHelper</code></td>
+<td>string</td>
+<td>动态 OpenTelemetry 头生成脚本</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="八环境变量通过-env-字段">八、环境变量（通过 <code>env</code> 字段）</h2>
+<p>在 <code>settings.json</code> 的 <code>env</code> 字段中设置，避免 wrapper 脚本：</p>
+<pre><code class="language-json">{
+  &quot;env&quot;: {
+    &quot;ANTHROPIC_API_KEY&quot;: &quot;...&quot;,
+    &quot;NODE_ENV&quot;: &quot;development&quot;
+  }
+}
+</code></pre>
+<h3 id="认证与-api">认证与 API</h3>
+<table>
+<thead>
+<tr>
+<th>变量</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ANTHROPIC_API_KEY</code></td>
+<td>API 密钥</td>
+</tr>
+<tr>
+<td><code>ANTHROPIC_AUTH_TOKEN</code></td>
+<td>OAuth token</td>
+</tr>
+<tr>
+<td><code>ANTHROPIC_BASE_URL</code></td>
+<td>自定义 API 端点</td>
+</tr>
+<tr>
+<td><code>ANTHROPIC_MODEL</code></td>
+<td>模型名称（覆盖 <code>model</code> 设置）</td>
+</tr>
+<tr>
+<td><code>CLAUDE_CODE_USE_BEDROCK</code></td>
+<td>使用 AWS Bedrock（<code>1</code> 启用）</td>
+</tr>
+<tr>
+<td><code>CLAUDE_CODE_USE_VERTEX</code></td>
+<td>使用 Google Vertex AI（<code>1</code> 启用）</td>
+</tr>
+<tr>
+<td><code>CLAUDE_CODE_USE_FOUNDRY</code></td>
+<td>使用 Microsoft Foundry（<code>1</code> 启用）</td>
+</tr>
+<tr>
+<td><code>ANTHROPIC_BEDROCK_SERVICE_TIER</code></td>
+<td>Bedrock 服务层级（default, flex, priority）</td>
+</tr>
+<tr>
+<td><code>CLAUDE_CODE_OAUTH_TOKEN</code></td>
+<td>Claude.ai OAuth 访问 token</td>
+</tr>
+<tr>
+<td><code>CLAUDE_CODE_OAUTH_REFRESH_TOKEN</code></td>
+<td>Claude.ai OAuth 刷新 token</td>
+</tr>
+</tbody>
+</table>
+<h3 id="模型与推理">模型与推理</h3>
+<table>
+<thead>
+<tr>
+<th>变量</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CLAUDE_CODE_SUBAGENT_MODEL</code></td>
+<td>子代理模型覆盖</td>
+</tr>
+<tr>
+<td><code>CLAUDE_CODE_EFFORT_LEVEL</code></td>
+<td>推理力度（low/medium/high/xhigh/max）</td>
+</tr>
+<tr>
+<td><code>MAX_THINKING_TOKENS</code></td>
+<td>最大思考 token 数</td>
+</tr>
+<tr>
+<td><code>CLAUDE_CODE_DISABLE_1M_CONTEXT</code></td>
+<td>禁用 1M token 上下文（<code>1</code> 禁用）</td>
+</tr>
+<tr>
+<td><code>CLAUDE_CODE_ALWAYS_ENABLE_EFFORT</code></td>
+<td>在所有模型上强制启用 effort 参数</td>
+</tr>
+</tbody>
+</table>
+<h3 id="上下文与压缩">上下文与压缩</h3>
+<table>
+<thead>
+<tr>
+<th>变量</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CLAUDE_AUTOCOMPACT_PCT_OVERRIDE</code></td>
+<td>自动压缩阈值百分比（1-100），默认 ~95%</td>
+</tr>
+<tr>
+<td><code>CLAUDE_CODE_AUTO_COMPACT_WINDOW</code></td>
+<td>自动压缩计算用的上下文容量（token）</td>
+</tr>
+<tr>
+<td><code>DISABLE_AUTO_COMPACT</code></td>
+<td>禁用自动压缩</td>
+</tr>
+<tr>
+<td><code>DISABLE_COMPACT</code></td>
+<td>禁用所有压缩（包括手动 <code>/compact</code>）</td>
+</tr>
+<tr>
+<td><code>CLAUDE_CODE_MAX_CONTEXT_TOKENS</code></td>
+<td>覆盖模型上下文窗口大小</td>
+</tr>
+</tbody>
+</table>
+<h3 id="超时与输出限制">超时与输出限制</h3>
+<table>
+<thead>
+<tr>
+<th>变量</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>API_TIMEOUT_MS</code></td>
+<td>API 请求超时（默认 600000ms）</td>
+</tr>
+<tr>
+<td><code>BASH_MAX_TIMEOUT_MS</code></td>
+<td>Bash 命令超时</td>
+</tr>
+<tr>
+<td><code>BASH_MAX_OUTPUT_LENGTH</code></td>
+<td>Bash 输出最大长度</td>
+</tr>
+<tr>
+<td><code>CLAUDE_CODE_MAX_OUTPUT_TOKENS</code></td>
+<td>每次响应最大输出 token（默认 32000，Opus 4.6 为 64000）</td>
+</tr>
+<tr>
+<td><code>CLAUDE_CODE_MAX_RETRIES</code></td>
+<td>API 请求重试次数（默认 10）</td>
+</tr>
+<tr>
+<td><code>CLAUDE_CODE_MAX_TOOL_USE_CONCURRENCY</code></td>
+<td>最大并行只读工具数（默认 10）</td>
+</tr>
+<tr>
+<td><code>MCP_TOOL_TIMEOUT</code></td>
+<td>MCP 工具执行超时</td>
+</tr>
+</tbody>
+</table>
+<h3 id="mcp-与工具">MCP 与工具</h3>
+<table>
+<thead>
+<tr>
+<th>变量</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MCP_TIMEOUT</code></td>
+<td>MCP 启动超时</td>
+</tr>
+<tr>
+<td><code>MAX_MCP_OUTPUT_TOKENS</code></td>
+<td>MCP 输出 token 上限（默认 25000）</td>
+</tr>
+<tr>
+<td><code>ENABLE_TOOL_SEARCH</code></td>
+<td>MCP 工具搜索阈值</td>
+</tr>
+<tr>
+<td><code>CLAUDE_CODE_DISABLE_MCP</code></td>
+<td>禁用所有 MCP 服务器（<code>1</code> 禁用）</td>
+</tr>
+<tr>
+<td><code>CLAUDE_CODE_MCP_ALLOWLIST_ENV</code></td>
+<td>使用安全基线环境运行 stdio MCP 服务器</td>
+</tr>
+</tbody>
+</table>
+<h3 id="显示与终端">显示与终端</h3>
+<table>
+<thead>
+<tr>
+<th>变量</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CLAUDE_CODE_NO_FLICKER</code></td>
+<td>启用无闪烁全屏渲染</td>
+</tr>
+<tr>
+<td><code>CLAUDE_CODE_DISABLE_ALTERNATE_SCREEN</code></td>
+<td>禁用全屏渲染</td>
+</tr>
+<tr>
+<td><code>CLAUDE_CODE_ACCESSIBILITY</code></td>
+<td>保持终端光标可见（辅助功能）</td>
+</tr>
+<tr>
+<td><code>CLAUDE_CODE_AX_SCREEN_READER</code></td>
+<td>屏幕阅读器友好输出</td>
+</tr>
+<tr>
+<td><code>CLAUDE_CODE_SYNTAX_HIGHLIGHT</code></td>
+<td>禁用 diff 语法高亮（<code>0</code> 禁用）</td>
+</tr>
+<tr>
+<td><code>CLAUDE_CODE_HIDE_CWD</code></td>
+<td>隐藏启动横幅中的当前目录</td>
+</tr>
+<tr>
+<td><code>CLAUDE_CODE_TMUX_TRUECOLOR</code></td>
+<td>在 tmux 中启用真彩色</td>
+</tr>
+<tr>
+<td><code>CLAUDE_CODE_DISABLE_MOUSE</code></td>
+<td>禁用鼠标跟踪</td>
+</tr>
+<tr>
+<td><code>CLAUDE_CODE_DISABLE_TERMINAL_TITLE</code></td>
+<td>禁用终端标题更新</td>
+</tr>
+</tbody>
+</table>
+<h3 id="特性开关">特性开关</h3>
+<table>
+<thead>
+<tr>
+<th>变量</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CLAUDE_CODE_DISABLE_AUTO_MEMORY</code></td>
+<td>禁用自动记忆</td>
+</tr>
+<tr>
+<td><code>CLAUDE_CODE_DISABLE_FILE_CHECKPOINTING</code></td>
+<td>禁用文件检查点</td>
+</tr>
+<tr>
+<td><code>CLAUDE_CODE_DISABLE_BACKGROUND_TASKS</code></td>
+<td>禁用后台任务</td>
+</tr>
+<tr>
+<td><code>CLAUDE_CODE_DISABLE_AGENT_VIEW</code></td>
+<td>禁用后台 agent</td>
+</tr>
+<tr>
+<td><code>CLAUDE_CODE_DISABLE_WORKFLOWS</code></td>
+<td>禁用动态工作流</td>
+</tr>
+<tr>
+<td><code>CLAUDE_CODE_DISABLE_BUNDLED_SKILLS</code></td>
+<td>禁用内置技能</td>
+</tr>
+<tr>
+<td><code>CLAUDE_CODE_DISABLE_ARTIFACT</code></td>
+<td>禁用 Artifact 发布工具</td>
+</tr>
+<tr>
+<td><code>CLAUDE_CODE_DISABLE_GIT_INSTRUCTIONS</code></td>
+<td>禁用 git 系统提示</td>
+</tr>
+<tr>
+<td><code>CLAUDE_CODE_DISABLE_ADVISOR_TOOL</code></td>
+<td>禁用顾问模式</td>
+</tr>
+<tr>
+<td><code>DISABLE_TELEMETRY</code> / <code>DO_NOT_TRACK</code></td>
+<td>禁用遥测</td>
+</tr>
+<tr>
+<td><code>DISABLE_ERROR_REPORTING</code></td>
+<td>禁用错误报告</td>
+</tr>
+<tr>
+<td><code>DISABLE_AUTOUPDATER</code></td>
+<td>禁用自动更新检查</td>
+</tr>
+</tbody>
+</table>
+<h3 id="开发者与调试">开发者与调试</h3>
+<table>
+<thead>
+<tr>
+<th>变量</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CLAUDE_CODE_DEBUG_LOGS_DIR</code></td>
+<td>调试日志文件路径</td>
+</tr>
+<tr>
+<td><code>CLAUDE_CODE_DEBUG_LOG_LEVEL</code></td>
+<td>调试日志级别</td>
+</tr>
+<tr>
+<td><code>CLAUDE_CODE_EXTRA_BODY</code></td>
+<td>注入到每个 API 请求体的 JSON 对象</td>
+</tr>
+<tr>
+<td><code>CLAUDE_CODE_PROPAGATE_TRACEPARENT</code></td>
+<td>传播 W3C traceparent 头</td>
+</tr>
+<tr>
+<td><code>CLAUDE_CODE_SESSION_ID</code></td>
+<td>只读，当前会话 ID</td>
+</tr>
+<tr>
+<td><code>CLAUDE_CODE_CHILD_SESSION</code></td>
+<td>在子进程中设为 <code>1</code></td>
+</tr>
+<tr>
+<td><code>CLAUDE_CODE_SKIP_PROMPT_HISTORY</code></td>
+<td>跳过写入提示历史和会话记录</td>
+</tr>
+</tbody>
+</table>
+<h3 id="网络与代理">网络与代理</h3>
+<table>
+<thead>
+<tr>
+<th>变量</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>HTTP_PROXY</code> / <code>HTTPS_PROXY</code></td>
+<td>HTTP/HTTPS 代理 URL</td>
+</tr>
+<tr>
+<td><code>NO_PROXY</code></td>
+<td>绕过代理的主机列表</td>
+</tr>
+<tr>
+<td><code>CLAUDE_CODE_CLIENT_CERT</code></td>
+<td>mTLS 客户端证书路径</td>
+</tr>
+<tr>
+<td><code>CLAUDE_CODE_CLIENT_KEY</code></td>
+<td>mTLS 客户端密钥路径</td>
+</tr>
+<tr>
+<td><code>CLAUDE_CODE_CERT_STORE</code></td>
+<td>CA 证书源（<code>bundled</code>, <code>system</code>）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="插件与-marketplace">插件与 Marketplace</h3>
+<table>
+<thead>
+<tr>
+<th>变量</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS</code></td>
+<td>插件 git clone 超时</td>
+</tr>
+<tr>
+<td><code>CLAUDE_CODE_PLUGIN_CACHE_DIR</code></td>
+<td>插件缓存目录</td>
+</tr>
+<tr>
+<td><code>CLAUDE_CODE_PLUGIN_PREFER_HTTPS</code></td>
+<td>使用 HTTPS 而非 SSH 克隆插件</td>
+</tr>
+<tr>
+<td><code>CLAUDE_CODE_PLUGIN_SEED_DIR</code></td>
+<td>只读插件种子目录</td>
+</tr>
+<tr>
+<td><code>ENABLE_CLAUDEAI_MCP_SERVERS</code></td>
+<td>启用 Claude.ai MCP 服务器</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="九一个完整配置示例">九、一个完整配置示例</h2>
+<pre><code class="language-json">{
+  &quot;$schema&quot;: &quot;https://json.schemastore.org/claude-code-settings.json&quot;,
+  &quot;model&quot;: &quot;sonnet&quot;,
+  &quot;advisorModel&quot;: &quot;fable&quot;,
+  &quot;language&quot;: &quot;english&quot;,
+  &quot;outputStyle&quot;: &quot;Explanatory&quot;,
+  &quot;alwaysThinkingEnabled&quot;: true,
+  &quot;showThinkingSummaries&quot;: true,
+  &quot;tui&quot;: &quot;fullscreen&quot;,
+  &quot;plansDirectory&quot;: &quot;./plans&quot;,
+
+  &quot;worktree&quot;: {
+    &quot;symlinkDirectories&quot;: [&quot;node_modules&quot;],
+    &quot;sparsePaths&quot;: [&quot;packages/my-app&quot;],
+    &quot;baseRef&quot;: &quot;fresh&quot;
+  },
+
+  &quot;skillOverrides&quot;: {
+    &quot;legacy-context&quot;: &quot;name-only&quot;
+  },
+
+  &quot;permissions&quot;: {
+    &quot;allow&quot;: [
+      &quot;Edit(*)&quot;,
+      &quot;Write(*)&quot;,
+      &quot;Bash(npm run *)&quot;,
+      &quot;Bash(git *)&quot;,
+      &quot;WebFetch(domain:*)&quot;,
+      &quot;mcp__*&quot;,
+      &quot;Agent(*)&quot;
+    ],
+    &quot;deny&quot;: [&quot;Read(.env)&quot;, &quot;Read(./secrets/**)&quot;],
+    &quot;additionalDirectories&quot;: [&quot;../shared/&quot;],
+    &quot;defaultMode&quot;: &quot;acceptEdits&quot;
+  },
+
+  &quot;enableAllProjectMcpServers&quot;: true,
+
+  &quot;attribution&quot;: {
+    &quot;commit&quot;: &quot;Co-Authored-By: Claude &lt;noreply@anthropic.com&gt;&quot;,
+    &quot;pr&quot;: &quot;&quot;
+  },
+
+  &quot;statusLine&quot;: {
+    &quot;type&quot;: &quot;command&quot;,
+    &quot;command&quot;: &quot;git branch --show-current&quot;
+  },
+
+  &quot;spinnerTipsEnabled&quot;: true,
+  &quot;spinnerVerbs&quot;: {
+    &quot;mode&quot;: &quot;replace&quot;,
+    &quot;verbs&quot;: [&quot;分析代码&quot;, &quot;思考方案&quot;, &quot;优化性能&quot;]
+  },
+
+  &quot;env&quot;: {
+    &quot;NODE_ENV&quot;: &quot;development&quot;,
+    &quot;CLAUDE_CODE_EFFORT_LEVEL&quot;: &quot;high&quot;,
+    &quot;CLAUDE_AUTOCOMPACT_PCT_OVERRIDE&quot;: &quot;80&quot;
+  }
+}
+</code></pre>
+<hr>
+<h2 id="十常用相关命令">十、常用相关命令</h2>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/config [key=value]</code></td>
+<td>交互式配置界面（v2.1.181+ 支持直接传参）</td>
+</tr>
+<tr>
+<td><code>/model [model]</code></td>
+<td>切换模型并调整推理力度</td>
+</tr>
+<tr>
+<td><code>/effort [level]</code></td>
+<td>直接设置推理力度</td>
+</tr>
+<tr>
+<td><code>/permissions</code></td>
+<td>管理权限规则</td>
+</tr>
+<tr>
+<td><code>/statusline</code></td>
+<td>配置状态栏</td>
+</tr>
+<tr>
+<td><code>/theme</code></td>
+<td>切换颜色主题</td>
+</tr>
+<tr>
+<td><code>/sandbox</code></td>
+<td>切换沙盒模式</td>
+</tr>
+<tr>
+<td><code>/doctor</code></td>
+<td>诊断配置问题</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<blockquote>
+<p>下一篇：<a href="../../../../../notes/projects/claude-code-best-practice/doc/practice/06-mcp-mcp.html">06-MCP服务器-mcp.md</a></p>
+</blockquote>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">项目笔记</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/practice/05-%E8%AE%BE%E7%BD%AE-settings.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../../../notes/projects/claude-code-best-practice/doc/practice/04-skills.html"><span class="dir">← 上一篇</span><span class="t">技能（Skills）最佳实践</span></a><a class="next" href="../../../../../notes/projects/claude-code-best-practice/doc/practice/06-mcp-mcp.html"><span class="dir">下一篇 →</span><span class="t">MCP 服务器最佳实践</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../../../index.html">首页</a>
+      <a href="../../../../../learn.html">课件</a>
+      <a href="../../../../../notes/index.html">笔记库</a>
+      <a href="../../../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../../../about.html">关于</a>
+      <a href="../../../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../../../js/main.js" defer></script>
+</body>
+</html>

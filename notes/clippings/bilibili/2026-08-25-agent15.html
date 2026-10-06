@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent 后端基础设施：15 个知识点整理 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="视频：agent 15个小知识点（比较基础）https://www.bilibili.com/video/BV11yhN6iE37/ UP 主：假如今天可以躺平｜时长：25:20｜整理日期：2026-08-25 证据说明：视频部分来自 B …">
+<link rel="canonical" href="https://northadb.github.io/notes/clippings/bilibili/2026-08-25-agent15.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Agent 后端基础设施：15 个知识点整理 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="视频：agent 15个小知识点（比较基础）https://www.bilibili.com/video/BV11yhN6iE37/ UP 主：假如今天可以躺平｜时长：25:20｜整理日期：2026-08-25 证据说明：视频部分来自 B …">
+<meta property="og:url" content="https://northadb.github.io/notes/clippings/bilibili/2026-08-25-agent15.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Agent 后端基础设施：15 个知识点整理 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="视频：agent 15个小知识点（比较基础）https://www.bilibili.com/video/BV11yhN6iE37/ UP 主：假如今天可以躺平｜时长：25:20｜整理日期：2026-08-25 证据说明：视频部分来自 B …">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../feed.xml">
+<link rel="stylesheet" href="../../../css/style.css">
+<link rel="stylesheet" href="../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Agent 后端基础设施：15 个知识点整理", "description": "视频：agent 15个小知识点（比较基础）https://www.bilibili.com/video/BV11yhN6iE37/ UP 主：假如今天可以躺平｜时长：25:20｜整理日期：2026-08-25 证据说明：视频部分来自 B …", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/clippings/bilibili/2026-08-25-agent15.html"}
+</script>
+<script src="../../../notes/assets/mermaid-init.js" defer></script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../index.html">首页</a><span>/</span><a href="../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../notes/clippings/index.html">内容剪藏</a></div>
+          <h1>Agent 后端基础设施：15 个知识点整理</h1>
+          <p class="post-sub">视频：agent 15个小知识点（比较基础）https://www.bilibili.com/video/BV11yhN6iE37/ UP 主：假如今天可以躺平｜时长：25:20｜整理日期：2026-08-25 证据说明：视频部分来自 B …</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../notes/clippings/index.html">内容剪藏</a></span><span class="sep"></span>
+            <span>阅读约 15 分钟</span><span class="sep"></span><span>更新于 2026-08-25</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p><strong>视频</strong>：<a href="https://www.bilibili.com/video/BV11yhN6iE37/">agent 15个小知识点（比较基础）</a><br>
+<strong>UP 主</strong>：假如今天可以躺平｜<strong>时长</strong>：25:20｜<strong>整理日期</strong>：2026-08-25<br>
+<strong>证据说明</strong>：视频部分来自 B 站字幕（OpenCLI / agent-reach）；扩展部分优先引用厂商官方文档、标准和一手项目文档。视频中的 <code>letter L M</code>、<code>Port key</code>、<code>script</code>、<code>SICE</code> 等明显近音词，按上下文校正为 LiteLLM、Portkey、Stripe、SSE 等。</p>
+</blockquote>
+<h2 id="一句话总论">一句话总论</h2>
+<p>做一个能承载真实流量的 AI/Agent 产品，难点不只是“调用一次模型 API”，而是要把<strong>模型依赖、成本、流式协议、知识、异步执行、安全、版本、评测和可观测性</strong>做成可治理的后端平台。一个实用判断是：<strong>把每次模型调用视为生产依赖，把每个 Agent 任务视为可恢复的分布式工作流，把每个输出视为需要评测和追踪的概率性产物。</strong></p>
+<h2 id="总体架构">总体架构</h2>
+<pre><code class="language-mermaid">flowchart LR
+  U[用户 / 客户端] --&gt; API[API 层]
+  API --&gt; GW[LLM Gateway / Router]
+  GW --&gt; CC[Context Assembly]
+  CC --&gt; RAG[RAG Serving]
+  CC --&gt; MEM[Memory / KB]
+  GW --&gt; CACHE[Semantic Cache]
+  GW --&gt; MODEL[多 Provider 模型]
+  MODEL --&gt; STREAM[Streaming Event Protocol]
+  GW --&gt; METER[Token Metering &amp; Billing]
+  GW --&gt; TRACE[LLM Observability]
+  AG[Agent Job Queue] --&gt; GW
+  GW --&gt; SANDBOX[Tool Sandbox]
+  GW --&gt; HOOK[Webhook / Event Fan-out]
+  CFG[Prompt &amp; Config Registry] --&gt; GW
+  EVAL[Eval Pipeline] --&gt; CFG
+  SEC[Guardrails] --&gt; GW
+</code></pre>
+<h2 id="15-个知识点">15 个知识点</h2>
+<h3 id="1-llm-gateway-proxy模型网关与代理层">1. LLM Gateway / Proxy（模型网关与代理层）</h3>
+<p><strong>视频要点（约 1:10–3:06）</strong>：统一接入 OpenAI、Anthropic 等 Provider，屏蔽协议差异；集中处理超时、限流、重试、退避、故障转移、虚拟 Key、预算和跨供应商成本追踪。Agent 每一轮“思考 → 调工具 → 再思考”都经过网关，多 Agent 并发时只有网关能做全局治理。</p>
+<p><strong>工程补充</strong>：网关不应只是 HTTP 转发器，而应提供：</p>
+<ul>
+<li><strong>能力归一化</strong>：内部统一 <code>generate / stream / tool_call / embedding</code> 事件模型，同时保留 Provider 能力探测，避免把“不支持结构化输出”伪装成支持。</li>
+<li><strong>策略执行</strong>：按租户、项目、用户、任务类型和模型设置 QPS、并发数、token 配额、每日预算。</li>
+<li><strong>可靠性</strong>：连接超时、读取超时、重试次数、指数退避 + 抖动、熔断、健康检查、幂等请求 ID。</li>
+<li><strong>路由</strong>：按质量、延迟、价格、区域、合规和当前容量选择模型；失败时只在“安全可重试”的阶段切换。</li>
+<li><strong>密钥隔离</strong>：业务代码只拿到虚拟 Key，真实 Provider Key 由网关保管并轮换。</li>
+</ul>
+<p><strong>常见实现</strong>：LiteLLM Proxy、Portkey Gateway，以及自建 Envoy/Nginx + LLM policy service。LiteLLM 的 Proxy 文档可作为多 Provider、预算、日志和 Key 管理的参考：<a href="https://docs.litellm.ai/docs/proxy/quick_start">LiteLLM Proxy</a>。</p>
+<p><strong>注意</strong>：不要把所有错误都重试。已经产生副作用的工具调用必须使用幂等键或进入人工确认；模型生成失败可以重试，支付/写库类工具调用则不能盲重试。</p>
+<h3 id="2-token-metering-billing-systemtoken-计量与计费">2. Token Metering &amp; Billing System（Token 计量与计费）</h3>
+<p><strong>视频要点（约 3:10–5:20）</strong>：精确统计每个用户/租户的输入、输出 token，把用量变成账单；要处理流式生成中途取消、Agent 一次任务调用十几次模型、工具和检索结果造成的隐形成本。没有任务级计量，单位经济模型就是一笔糊涂账。</p>
+<p><strong>建议的数据模型</strong>：</p>
+<pre><code class="language-text">usage_event(id, task_id, tenant_id, user_id, provider, model,
+            input_tokens, output_tokens, cached_tokens,
+            tool_tokens, embedding_tokens, latency_ms,
+            status, idempotency_key, occurred_at)
+</code></pre>
+<ul>
+<li>以<strong>不可变 usage event</strong> 为事实源，再异步聚合到租户账本；不要直接修改历史账单。</li>
+<li>同时记录 <code>requested / reserved / actual / billable</code>：请求取消时，Provider 返回的 usage 优先；没有 usage 时按保守规则估算并标记为 estimated。</li>
+<li>价格表必须版本化：模型价格、缓存 token 价格、输入/输出价格和生效时间都要进入账单快照。</li>
+<li>Agent 任务要建立父子层级：<code>task_cost = Σ model_call + embedding + rerank + tool_runtime + storage</code>，支持按任务、工作流、用户、租户分析。</li>
+<li>账单聚合应可重放；Stripe 的 usage-based billing 文档可参考“meter event → 聚合 → invoice”的模式：<a href="https://docs.stripe.com/billing/subscriptions/usage-based">Stripe usage-based billing</a>。</li>
+</ul>
+<p><strong>核心指标</strong>：每任务成本、每成功任务成本、毛利、预算拒绝率、估算用量占比、缓存节省金额、不同模型的质量/成本曲线。</p>
+<h3 id="3-streaming-response-infrastructure流式响应基础设施">3. Streaming Response Infrastructure（流式响应基础设施）</h3>
+<p><strong>视频要点（约 5:20–7:06）</strong>：用 SSE 或 WebSocket 逐步返回 token；要处理背压、断线重连、续传、长任务挂起恢复。用户感知的“快”主要是 TTFT（Time to First Token），不是完整回答耗时。Agent 应把状态、工具调用、工具结果和阶段进度作为事件流，而不是 UI 补丁。</p>
+<p><strong>建议把流式输出设计成协议</strong>：</p>
+<pre><code class="language-text">run.started → reasoning.delta → tool.call → tool.result
+→ message.delta → run.usage → run.completed / run.failed
+</code></pre>
+<ul>
+<li>每个事件带 <code>run_id</code>、单调递增 <code>sequence</code>、<code>event_id</code>、时间戳和可选 <code>parent_id</code>。</li>
+<li>SSE 适合服务器单向推送，使用 <code>id</code> + <code>Last-Event-ID</code> 做恢复；WebSocket 适合双向控制和人工审批，但连接状态管理更复杂。参见 <a href="https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events">MDN SSE</a>。</li>
+<li>事件必须可重放；客户端重复收到事件时按 <code>event_id</code> 幂等处理。</li>
+<li>长任务不要把业务状态只放在内存连接里；连接断开后，客户端应通过 <code>run_id</code> 查询快照或重新订阅。</li>
+<li>背压策略要明确：丢弃可重建的 delta，不能丢失工具结果、最终状态和计费事件。</li>
+</ul>
+<h3 id="4-rag-serving-pipelinerag-服务流水线">4. RAG Serving Pipeline（RAG 服务流水线）</h3>
+<p><strong>视频要点（约 7:06–8:39）</strong>：完整链路是摄取文档 → 切分 → 向量化 → 建索引 → 在线检索；关键不是某个向量库，而是增量更新、metadata filter、多租户隔离和查询改写。Agent 不应每轮对话无脑检索，而要结合上下文判断是否检索、检索几次。</p>
+<p><strong>推荐拆成离线与在线两条链</strong>：</p>
+<ol>
+<li><strong>离线</strong>：connector → 解析/OCR → 清洗 → chunk → embedding → metadata → index；文档以版本或内容 hash 去重，更新采用 upsert/delete，而非全量重建。</li>
+<li><strong>在线</strong>：query rewrite → tenant/ACL filter → hybrid retrieval → rerank → context packing → citation → answer。</li>
+</ol>
+<p>必须把 <code>document_id / chunk_id / source_version / ACL / created_at / expires_at</code> 作为一等元数据。Pinecone 的多租户资料展示了 namespace 隔离和按租户查询的设计：<a href="https://docs.pinecone.io/guides/indexes/implement-multitenancy">Pinecone multitenancy</a>。</p>
+<p><strong>质量指标</strong>：召回 Recall@K、MRR/NDCG、上下文精确率、引用正确率、过期文档命中率、索引延迟、删除传播延迟、每次检索 token 成本。</p>
+<h3 id="5-semantic-cache-layer语义缓存层">5. Semantic Cache Layer（语义缓存层）</h3>
+<p><strong>视频要点（约 8:39–10:06）</strong>：用 embedding 相似度判断问题是否与历史问题语义相近，命中则直接返回，降低成本和延迟；但必须防止过期答案驱动 Agent 做错决策。缓存命中率可成为产品控制指标。</p>
+<p><strong>缓存键不能只有 query</strong>，至少应包含：<code>tenant_id、model、system_prompt_version、tools_hash、knowledge_base_version、locale、safety_policy_version</code>。否则同一个问题在不同租户、不同知识库或不同模型下会发生串答。</p>
+<ul>
+<li>对普通 FAQ 可使用 embedding 相似度 + metadata filter + TTL。</li>
+<li>对 Agent 子任务，应只缓存无副作用、可验证的纯函数步骤；工具写操作和实时数据查询默认不缓存。</li>
+<li>设置相似度阈值、最大 staleness、负缓存和人工失效机制；命中后仍可做轻量 freshness check。</li>
+<li>另外区分<strong>语义结果缓存</strong>与<strong>Prompt prefix/KV cache</strong>。Anthropic 和 OpenAI 的 prompt caching 主要复用稳定前缀，并不等价于“问题答案缓存”： <a href="https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching">Anthropic prompt caching</a>、<a href="https://platform.openai.com/docs/guides/prompt-caching">OpenAI prompt caching</a>。</li>
+</ul>
+<h3 id="6-async-agent-job-queue异步-agent-任务队列">6. Async Agent Job Queue（异步 Agent 任务队列）</h3>
+<p><strong>视频要点（约 10:06–11:43）</strong>：长任务需要队列、检查点、重试和死信队列；不能依赖一个一直挂着的 HTTP 请求。每一步工具调用结果都应持久化，失败后从断点继续，用户通过状态查询或事件订阅获取进度。</p>
+<p><strong>任务状态机示例</strong>：<code>queued → running → waiting_tool / awaiting_approval → retrying → succeeded / failed / canceled</code>。</p>
+<ul>
+<li>每个 step 记录输入 hash、输出引用、重试次数、超时和 checkpoint；工作流重放必须可预测。</li>
+<li>重试采用指数退避 + jitter，设置最大尝试次数和 DLQ；外部工具使用幂等键。</li>
+<li>取消是协作式的：更新 cancel flag，worker 在 step 边界检查；不能粗暴杀掉正在写副作用的进程。</li>
+<li>Temporal 提供 durable execution、定时器、重试和事件历史，可作为持久化工作流参考：<a href="https://docs.temporal.io/workflow-execution">Temporal Workflow Execution</a>。队列较简单时也可以用 Cloudflare Queues、SQS、Kafka 等。</li>
+</ul>
+<h3 id="7-tool-execution-sandbox工具执行沙箱">7. Tool Execution Sandbox（工具执行沙箱）</h3>
+<p><strong>视频要点（约 11:43–13:22）</strong>：模型输出是不可信的，代码、Shell、SQL、浏览器和第三方 API 必须在隔离环境中执行。网络出口、文件访问、CPU/内存/时长都要最小权限；否则相当于把生产 root 权限交给黑盒。</p>
+<p><strong>纵深防御</strong>：</p>
+<ol>
+<li>进程/容器/微虚拟机隔离；非 root、只读文件系统、临时工作目录。</li>
+<li>默认无网络；按域名、方法、端口和请求体做 egress allowlist。</li>
+<li>CPU、内存、磁盘、进程数、执行时长和并发配额。</li>
+<li>工具 schema 校验参数，敏感操作采用审批或二次确认。</li>
+<li>密钥不直接暴露给模型；通过短期凭证和受控 broker 访问外部服务。</li>
+<li>记录完整审计日志，并对输出做 DLP/敏感信息扫描。</li>
+</ol>
+<p>Docker 安全模型可作容器边界的基础参考：<a href="https://docs.docker.com/engine/security/">Docker Engine security</a>。注意：普通容器不是完美安全边界；面对恶意代码应考虑 gVisor、Firecracker 或专用沙箱服务。</p>
+<h3 id="8-multi-tenant-knowledge-base多租户知识库">8. Multi-Tenant Knowledge Base（多租户知识库）</h3>
+<p><strong>视频要点（约 13:22–15:20）</strong>：每个租户至少要有 namespace 或行级隔离，并在检索层强制执行 metadata/ACL filter。不能指望在 Prompt 里写“注意隐私”来防止 A 公司读到 B 公司文档。</p>
+<p><strong>隔离层次</strong>：租户 ID → 数据库 Row-Level Security / namespace → 文档 ACL → 检索过滤 → context assembly → 缓存键 → 日志脱敏。任何一层漏掉 tenant scope 都可能造成越权。</p>
+<ul>
+<li>高风险租户可使用独立索引、独立加密密钥甚至独立数据库。</li>
+<li>删除、导出、备份和日志也必须带租户边界；测试中加入“跨租户 canary”查询。</li>
+<li>在向量库查询前注入不可绕过的租户过滤器，禁止业务调用方任意覆盖。</li>
+<li>对“共享公共文档”单独建公共 namespace，显式合并，而不是把所有数据放在一个默认空间。</li>
+</ul>
+<h3 id="9-prompt-config-versioning-serviceprompt-与配置版本服务">9. Prompt &amp; Config Versioning Service（Prompt 与配置版本服务）</h3>
+<p><strong>视频要点（约 15:20–16:53）</strong>：Prompt、模型选择、参数、工具描述和路由规则共同决定 Agent 行为，应像管理代码一样版本化；支持回滚、灰度和 A/B 路由。</p>
+<p><strong>版本对象建议</strong>：<code>prompt_version</code>、<code>model_policy_version</code>、<code>tool_schema_version</code>、<code>retrieval_policy_version</code>、<code>guardrail_policy_version</code>，每次运行写入完整版本 manifest。</p>
+<ul>
+<li>发布流程：draft → review → eval gate → canary → full rollout → rollback。</li>
+<li>配置不可变，使用别名指向当前生产版本；回滚只切换别名，不覆盖历史。</li>
+<li>灰度按租户、用户 hash、区域或流量比例稳定分桶。</li>
+<li>对 Prompt 做 secret scanning、变量 schema 校验、长度预算和 diff review。</li>
+<li>LangSmith 将 Prompt、评测、追踪和部署串起来，可参考其 Evaluation 文档：<a href="https://docs.smith.langchain.com/evaluation">LangSmith Evaluation</a>。</li>
+</ul>
+<h3 id="10-eval-pipeline-backend评测流水线后端">10. Eval Pipeline Backend（评测流水线后端）</h3>
+<p><strong>视频要点（约 16:53–18:25）</strong>：每次部署前自动跑黄金数据集，记录历史分数；Agent 要评测任务完成、工具调用准确性和多步骤决策，不能上线后等客户投诉。</p>
+<p><strong>评测分层</strong>：</p>
+<ul>
+<li>单元级：Prompt 模板、JSON schema、工具参数解析。</li>
+<li>组件级：检索 Recall@K、rerank、guardrail 命中率。</li>
+<li>轨迹级：工具选择、参数正确率、是否遵守审批、最大步数、恢复能力。</li>
+<li>任务级：任务成功率、事实正确率、引用覆盖率、人工偏好、成本和延迟。</li>
+<li>生产回放：从脱敏 trace 采样，形成回归集；对失败样本自动聚类。</li>
+</ul>
+<p>评测结果应关联 <code>code_sha、prompt_version、model、kb_version、tool_version</code>，并设置质量、成本、延迟的发布门槛。单一 LLM-as-a-judge 不够可靠，重要指标要配规则校验、执行结果和人工抽检。</p>
+<h3 id="11-llm-observabilityllm-可观测性">11. LLM Observability（LLM 可观测性）</h3>
+<p><strong>视频要点（约 18:25–19:56）</strong>：追踪 Prompt、输出、token、延迟和成本；Agent 是多跳调用链，必须看到模型当时看到了什么、在哪一步开始跑偏，而不是只看某一次 API 日志。</p>
+<p><strong>Trace 结构</strong>：一个 <code>agent.run</code> 为 root span，子 span 包括 <code>llm.generate</code>、<code>retrieval</code>、<code>rerank</code>、<code>tool.call</code>、<code>sandbox.exec</code>、<code>guardrail.check</code>、<code>webhook.publish</code>。OpenTelemetry 的 traces 概念可作为通用语义参考：<a href="https://opentelemetry.io/docs/concepts/signals/traces/">OpenTelemetry traces</a>。</p>
+<p><strong>必备字段</strong>：trace/run/task ID、tenant、prompt/model/config 版本、输入输出 token、cached token、TTFT/总延迟、重试、工具参数和结果摘要、检索文档 ID、错误分类、估算成本。生产日志应默认脱敏、采样，并限制原始 Prompt/输出的保留期限。</p>
+<h3 id="12-webhook-event-fan-outwebhook-与事件分发">12. Webhook &amp; Event Fan-out（Webhook 与事件分发）</h3>
+<p><strong>视频要点（约 19:56–21:19）</strong>：把 Agent 完成、工具调用、批处理、微调和长任务事件签名后可靠推送给客户系统；需要重试、幂等和失败告警，用事件驱动代替各系统轮询。</p>
+<ul>
+<li>事件 envelope：<code>event_id、type、created_at、tenant_id、run_id、payload、schema_version</code>。</li>
+<li>签名采用 HMAC/非对称签名，带时间戳防重放；接收方按 <code>event_id</code> 幂等。</li>
+<li>指数退避、最大重试窗口、DLQ、回放工具和 endpoint 健康度。</li>
+<li>Fan-out 先写 durable outbox，再由 dispatcher 投递，避免数据库提交成功但 webhook 丢失。</li>
+<li>事件 schema 需要向后兼容，敏感 payload 使用引用而不是直接嵌入。</li>
+</ul>
+<h3 id="13-context-assembly-service上下文组装服务">13. Context Assembly Service（上下文组装服务）</h3>
+<p><strong>视频要点（约 21:19–22:39）</strong>：把记忆、文档、工具描述和历史装入有 token 预算的上下文；必须按优先级裁剪。上下文太少会缺信息，太多会增加成本、噪声，甚至把关键指令挤出窗口。</p>
+<p>可将上下文视为一个带预算的背包问题：</p>
+<pre><code class="language-text">budget = model_context_limit - reserved_output - safety_margin
+priority = instruction &gt; current_user_goal &gt; tool_result &gt; fresh_retrieval
+           &gt; recent_history &gt; long_term_memory &gt; metadata
+</code></pre>
+<ul>
+<li>每个片段带 <code>source、priority、freshness、token_count、confidence、sensitivity</code>。</li>
+<li>先硬约束（系统指令、租户 ACL、工具 schema），再按相关性/新鲜度/成本排序。</li>
+<li>对历史做摘要或压缩，但保留可回溯引用；对工具结果保留结构化结果和短摘要。</li>
+<li>稳定前缀放在前面并配合 Prompt caching；动态内容放后面，减少缓存失效。</li>
+<li>组装结果要可观测：记录“入选了什么、裁掉了什么、为什么”。</li>
+</ul>
+<h3 id="14-guardrails-middleware安全防护中间件">14. Guardrails Middleware（安全/防护中间件）</h3>
+<p><strong>视频要点（约 22:39–24:00）</strong>：输入输出两端过滤、敏感信息脱敏、工具注入检测和参数校验应是独立中间件，而不是在 Prompt 里补一句安全提示。Agent 会读取网页、文档和文件，这些外部内容可能携带 Prompt injection。</p>
+<p><strong>建议三道闸门</strong>：</p>
+<ol>
+<li><strong>输入</strong>：越权意图、恶意 Prompt、PII、内容安全分类；必要时拒绝或脱敏。</li>
+<li><strong>工具边界</strong>：schema/类型/范围校验，权限检查，危险操作审批，网络和文件策略。</li>
+<li><strong>输出</strong>：敏感信息/DLP、引用要求、格式/schema、越权数据泄露和策略违规检测。</li>
+</ol>
+<p>OWASP 将 Prompt Injection 列为 LLM 应用的重要风险：<a href="https://genai.owasp.org/llmrisk/llm01-prompt-injection/">OWASP LLM01</a>。Guardrail 失败时要有明确策略：block、redact、ask-human、safe-fallback，而不是静默继续。</p>
+<h3 id="15-model-fallback-routing-engine模型回退与路由引擎">15. Model Fallback &amp; Routing Engine（模型回退与路由引擎）</h3>
+<p><strong>视频要点（约 24:00–25:20）</strong>：按任务复杂度选择便宜/昂贵模型；用健康检查发现 Provider 限流或宕机并切换备用模型。规划用强推理模型，抽取/分类用快而便宜的模型，低风险总结可用小模型；目标是质量可接受时把成本压到最低。</p>
+<p><strong>路由决策维度</strong>：任务类型、质量等级、上下文长度、工具能力、数据合规区域、实时价格、P95 延迟、当前错误率、租户预算和模型健康度。</p>
+<ul>
+<li>用 capability matrix 记录每个模型是否支持 vision、tools、JSON schema、长上下文、streaming、reasoning 等。</li>
+<li>Fallback 分为 provider fallback、model fallback、策略降级（减少工具/缩短上下文）；切换后要在 trace 中记录原因。</li>
+<li>多步 Agent 中途切换模型可能导致风格、工具决策或推理状态不一致；应在安全的 step 边界切换，并重新校验输出 schema。</li>
+<li>路由不是只看价格：使用质量-成本-延迟的 Pareto frontier，并用离线评测和线上 shadow traffic 校准。</li>
+</ul>
+<h2 id="贯穿全系统的-8-条原则">贯穿全系统的 8 条原则</h2>
+<ol>
+<li><strong>统一内部事件模型</strong>：Provider 的不同 API 适配在边界层，业务消费稳定的 <code>text/tool/status/usage</code> 事件。</li>
+<li><strong>每个运行都有 ID 和版本清单</strong>：<code>tenant_id + run_id + trace_id + config_manifest</code> 是审计、计费、评测和回放的连接点。</li>
+<li><strong>所有长任务可恢复</strong>：状态写入 durable store，连接只是观察窗口。</li>
+<li><strong>所有副作用可幂等</strong>：工具、账单、webhook、任务重试都需要幂等键。</li>
+<li><strong>安全边界早于模型</strong>：权限、沙箱和 Guardrail 不能由 Prompt 自觉保证。</li>
+<li><strong>上下文是有限资源</strong>：token 预算、缓存、检索和历史压缩必须统一编排。</li>
+<li><strong>质量、成本、延迟同时优化</strong>：只追求回答质量，可能得到不可负担或不可用的系统。</li>
+<li><strong>从生产 trace 反哺评测</strong>：线上失败样本、人工反馈和成本异常应进入回归集。</li>
+</ol>
+<h2 id="推荐的最小落地顺序">推荐的最小落地顺序</h2>
+<h3 id="phase-1单租户-mvp">Phase 1：单租户 MVP</h3>
+<ul>
+<li>一个统一 Gateway；</li>
+<li>基础 token usage 记录；</li>
+<li>SSE 流式协议；</li>
+<li>RAG 的增量索引和 metadata；</li>
+<li>基础 trace 与错误日志；</li>
+<li>工具白名单和超时。</li>
+</ul>
+<h3 id="phase-2生产可靠性">Phase 2：生产可靠性</h3>
+<ul>
+<li>Redis/向量语义缓存；</li>
+<li>durable job queue + checkpoint + DLQ；</li>
+<li>webhook outbox/fan-out；</li>
+<li>Prompt/config registry；</li>
+<li>基准集回归评测；</li>
+<li>多 Provider fallback。</li>
+</ul>
+<h3 id="phase-3企业级治理">Phase 3：企业级治理</h3>
+<ul>
+<li>强制多租户隔离与 RLS/namespace；</li>
+<li>微虚拟机或专用沙箱；</li>
+<li>预算、账单、成本分摊和配额；</li>
+<li>Guardrails、DLP、审批流；</li>
+<li>生产 trace 回放、自动评测和灰度发布。</li>
+</ul>
+<h2 id="快速检查清单">快速检查清单</h2>
+<ul>
+<li class="task"><span class="cb" aria-hidden="true"></span>业务代码是否直接散落着多个 Provider SDK 调用？</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>能否回答“这个 Agent 任务总共花了多少钱”？</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>客户端断线后能否恢复事件和任务进度？</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>RAG 更新是否增量、可删除、可追踪版本？</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>缓存键是否包含租户、Prompt、模型和知识库版本？</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>Agent 失败是否能从 checkpoint 继续，而不是从头重跑？</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>工具是否默认无网络、非 root、有限资源？</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>是否有自动化跨租户检索测试？</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>每次上线是否记录 Prompt/模型/工具/知识库版本？</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>是否有任务完成率、工具准确率和回归评测门禁？</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>Trace 能否看到模型输入、检索证据和每一步工具结果？</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>Webhook 是否签名、重试、幂等、可回放？</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>上下文裁剪是否可解释？</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>输入、工具、输出是否都有 Guardrail？</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>Provider 故障时是否能按能力切换，而不是只换一个字符串？</li>
+</ul>
+<h2 id="相关官方资料">相关官方资料</h2>
+<ul>
+<li><a href="https://docs.litellm.ai/docs/proxy/quick_start">LiteLLM Proxy</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events">MDN：Server-sent events</a></li>
+<li><a href="https://docs.pinecone.io/guides/indexes/implement-multitenancy">Pinecone：Multi-tenancy</a></li>
+<li><a href="https://docs.temporal.io/workflow-execution">Temporal：Workflow Execution</a></li>
+<li><a href="https://docs.docker.com/engine/security/">Docker Engine Security</a></li>
+<li><a href="https://docs.stripe.com/billing/subscriptions/usage-based">Stripe：Usage-based billing</a></li>
+<li><a href="https://opentelemetry.io/docs/concepts/signals/traces/">OpenTelemetry：Traces</a></li>
+<li><a href="https://developers.cloudflare.com/queues/">Cloudflare Queues</a></li>
+<li><a href="https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching">Anthropic：Prompt caching</a></li>
+<li><a href="https://platform.openai.com/docs/guides/prompt-caching">OpenAI：Prompt caching</a></li>
+<li><a href="https://openai.github.io/openai-agents-python/guardrails/">OpenAI Agents SDK：Guardrails</a></li>
+<li><a href="https://genai.owasp.org/llmrisk/llm01-prompt-injection/">OWASP GenAI：Prompt Injection</a></li>
+</ul>
+<h2 id="转写校正说明">转写校正说明</h2>
+<p>视频字幕存在大量中文近音词。本笔记将 <code>LM 网关</code> 统一为 <code>LLM Gateway</code>，<code>A键</code> 统一为 <code>Agent</code>，<code>ROG/RANG</code> 统一为 <code>RAG</code>，<code>trunk</code> 统一为 <code>chunk</code>，<code>manta data</code> 统一为 <code>metadata</code>，<code>letter l m policy</code> 统一为 <code>LiteLLM Proxy</code>，<code>Port key a i gateway</code> 统一为 <code>Portkey AI Gateway</code>，<code>SICE</code> 统一为 <code>SSE</code>，<code>long smith</code> 统一为 <code>LangSmith</code>，<code>web box</code> 统一为 <code>webhook</code>。这些修正用于可读性，不代表视频逐字稿本身使用了标准术语。</p>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">内容剪藏</span><span class="chip">LLM</span><span class="chip">Agent</span><span class="chip">后端基础设施</span><span class="chip">RAG</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/Clippings/Bilibili/2026-08-25-Agent%E5%90%8E%E7%AB%AF%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD15%E4%B8%AA%E7%9F%A5%E8%AF%86%E7%82%B9.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../notes/clippings/bilibili/2026-08-23-710rag.html"><span class="dir">← 上一篇</span><span class="t">7 分钟了解 10 种 RAG 策略</span></a><a class="next" href="../../../notes/clippings/bilibili/2026-08-25-agent.html"><span class="dir">下一篇 →</span><span class="t">Agent 开发对应的系统设计知识</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../index.html">首页</a>
+      <a href="../../../learn.html">课件</a>
+      <a href="../../../notes/index.html">笔记库</a>
+      <a href="../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../about.html">关于</a>
+      <a href="../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../js/main.js" defer></script>
+</body>
+</html>

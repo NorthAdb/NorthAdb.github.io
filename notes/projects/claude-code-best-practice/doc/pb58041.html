@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>翻译进度与文档缺口分析 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="本文件追踪 shanraisshan/claude-code-best-practice 项目中英文档的对照关系， 识别已翻译、待更新、待翻译的内容，作为后续翻译和学习的路线图。">
+<link rel="canonical" href="https://northadb.github.io/notes/projects/claude-code-best-practice/doc/pb58041.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="翻译进度与文档缺口分析 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="本文件追踪 shanraisshan/claude-code-best-practice 项目中英文档的对照关系， 识别已翻译、待更新、待翻译的内容，作为后续翻译和学习的路线图。">
+<meta property="og:url" content="https://northadb.github.io/notes/projects/claude-code-best-practice/doc/pb58041.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="翻译进度与文档缺口分析 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="本文件追踪 shanraisshan/claude-code-best-practice 项目中英文档的对照关系， 识别已翻译、待更新、待翻译的内容，作为后续翻译和学习的路线图。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../../feed.xml">
+<link rel="stylesheet" href="../../../../css/style.css">
+<link rel="stylesheet" href="../../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "翻译进度与文档缺口分析", "description": "本文件追踪 shanraisshan/claude-code-best-practice 项目中英文档的对照关系， 识别已翻译、待更新、待翻译的内容，作为后续翻译和学习的路线图。", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/projects/claude-code-best-practice/doc/pb58041.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../../index.html">首页</a><span>/</span><a href="../../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../../notes/projects/index.html">项目笔记</a></div>
+          <h1>翻译进度与文档缺口分析</h1>
+          <p class="post-sub">本文件追踪 shanraisshan/claude-code-best-practice 项目中英文档的对照关系， 识别已翻译、待更新、待翻译的内容，作为后续翻译和学习的路线图。</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../../notes/projects/index.html">项目笔记</a></span><span class="sep"></span>
+            <span>阅读约 6 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p>本文件追踪 <code>shanraisshan/claude-code-best-practice</code> 项目中英文档的对照关系，
+识别已翻译、待更新、待翻译的内容，作为后续翻译和学习的路线图。</p>
+</blockquote>
+<hr>
+<h2 id="一总览">一、总览</h2>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>英文文档数</th>
+<th>已翻译</th>
+<th>未翻译</th>
+<th>翻译覆盖率</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>best-practice/</code>（最佳实践）</td>
+<td>8</td>
+<td>8</td>
+<td>0</td>
+<td>100% ✅</td>
+</tr>
+<tr>
+<td><code>implementation/</code>（实现参考）</td>
+<td>6</td>
+<td>6</td>
+<td>0</td>
+<td>100% ✅</td>
+</tr>
+<tr>
+<td><code>reports/</code>（研究报告）</td>
+<td>12</td>
+<td>12</td>
+<td>0</td>
+<td>100% ✅</td>
+</tr>
+<tr>
+<td><code>tips/</code>（使用技巧）</td>
+<td>9</td>
+<td>9</td>
+<td>0</td>
+<td>100% ✅</td>
+</tr>
+<tr>
+<td><code>orchestration-workflow/</code>（编排工作流）</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>100% ✅</td>
+</tr>
+<tr>
+<td><code>development-workflows/</code>（开发工作流）</td>
+<td>13</td>
+<td>13</td>
+<td>0</td>
+<td>100% ✅</td>
+</tr>
+<tr>
+<td><code>agent-teams/</code>（Agent 团队）</td>
+<td>7</td>
+<td>7</td>
+<td>0</td>
+<td>100% ✅</td>
+</tr>
+<tr>
+<td><code>.claude/rules/</code>（规则）</td>
+<td>2</td>
+<td>2</td>
+<td>0</td>
+<td>100% ✅</td>
+</tr>
+<tr>
+<td><code>CLAUDE.md</code>（项目记忆）</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>100% ✅</td>
+</tr>
+<tr>
+<td><strong>总计</strong></td>
+<td><strong>59</strong></td>
+<td><strong>59</strong></td>
+<td><strong>0</strong></td>
+<td><strong>100% 🎉</strong></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="二已翻译文档质量评估">二、已翻译文档（质量评估）</h2>
+<h3 id="21-docpractice-概念实践系列">2.1 <code>doc/practice/</code> — 概念实践系列</h3>
+<p>对应英文 <code>best-practice/</code>，中文版本增加了额外的解释说明，适合初学者。</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>中文文档</th>
+<th>对应英文</th>
+<th>行数比 (CN:EN)</th>
+<th>完整度</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>01</td>
+<td><a href="../../../../notes/projects/claude-code-best-practice/doc/practice/01-concepts.html">CONCEPTS-概念总览</a></td>
+<td>README 概念表</td>
+<td>438:1</td>
+<td>🟢 远超</td>
+<td>已加入项目结构总览</td>
+</tr>
+<tr>
+<td>02</td>
+<td><a href="../../../../notes/projects/claude-code-best-practice/doc/practice/02-subagents.html">子代理-subagents</a></td>
+<td><a href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/best-practice/claude-subagents.md">claude-subagents.md</a></td>
+<td>109:56</td>
+<td>🟢 更详细</td>
+<td>中文有额外解释段落，已加交叉链接</td>
+</tr>
+<tr>
+<td>03</td>
+<td><a href="../../../../notes/projects/claude-code-best-practice/doc/practice/03-commands.html">命令-commands</a></td>
+<td><a href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/best-practice/claude-commands.md">claude-commands.md</a></td>
+<td>257:139</td>
+<td>🟢 已补全</td>
+<td>✅ <strong>本次更新</strong>：新增 86 个内置命令完整参考表（含分类速查图），交叉链接</td>
+</tr>
+<tr>
+<td>04</td>
+<td><a href="../../../../notes/projects/claude-code-best-practice/doc/practice/04-skills.html">技能-skills</a></td>
+<td><a href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/best-practice/claude-skills.md">claude-skills.md</a></td>
+<td>163:65</td>
+<td>🟢 更详细</td>
+<td>中文有更多解释，已加交叉链接</td>
+</tr>
+<tr>
+<td>05</td>
+<td><a href="../../../../notes/projects/claude-code-best-practice/doc/practice/05-settings.html">设置-settings</a></td>
+<td><a href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/best-practice/claude-settings.md">claude-settings.md</a></td>
+<td>~350:1287</td>
+<td>🟡 大幅扩充</td>
+<td>✅ <strong>本次更新</strong>：从 148 行→~350 行，新增权限系统、沙盒、插件、模型配置、环境变量（分类整理80+个）、完整配置示例、交叉链接</td>
+</tr>
+<tr>
+<td>06</td>
+<td><a href="../../../../notes/projects/claude-code-best-practice/doc/practice/06-mcp-mcp.html">MCP服务器-mcp</a></td>
+<td><a href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/best-practice/claude-mcp.md">claude-mcp.md</a></td>
+<td>136:132</td>
+<td>🟢 完整</td>
+<td>已加交叉链接</td>
+</tr>
+<tr>
+<td>07</td>
+<td><a href="../../../../notes/projects/claude-code-best-practice/doc/practice/07-memory.html">记忆系统-memory</a></td>
+<td><a href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/best-practice/claude-memory.md">claude-memory.md</a></td>
+<td>136:121</td>
+<td>🟡 格式不同</td>
+<td>中文使用段落叙述而非表格，内容覆盖一致</td>
+</tr>
+<tr>
+<td>08</td>
+<td><a href="../../../../notes/projects/claude-code-best-practice/doc/practice/08-cli-cli-startup-flags.html">CLI启动参数</a></td>
+<td><a href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/best-practice/claude-cli-startup-flags.md">claude-cli-startup-flags.md</a></td>
+<td>230:231</td>
+<td>🟢 完整</td>
+<td>✅ <strong>本次更新</strong>：从 128 行→230 行，新增完整分类参数表（15 类）、子命令、仅启动环境变量</td>
+</tr>
+<tr>
+<td>09</td>
+<td><a href="../../../../notes/projects/claude-code-best-practice/doc/practice/09-power-ups.html">能力强化-power-ups</a></td>
+<td><a href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/best-practice/claude-power-ups.md">claude-power-ups.md</a></td>
+<td>45:66</td>
+<td>🟢 完整</td>
+<td>已加交叉链接到各概念文档</td>
+</tr>
+<tr>
+<td>10</td>
+<td><a href="../../../../notes/projects/claude-code-best-practice/doc/practice/10.html">学习路径</a></td>
+<td>无对应</td>
+<td>215:0</td>
+<td>🟢 原创</td>
+<td>原创中文学习路径</td>
+</tr>
+</tbody>
+</table>
+<p><strong>更新历史：</strong>
+- 🔄 2026-07-04：03-命令 → 完整 86 命令表；05-设置 → 大幅扩充（权限、沙盒、环境变量、完整示例）；08-CLI 启动参数 → 完整参数表；各文档交叉链接
+- 🔄 2026-07-04：implementation 系列 → 全部加入与 practice 系列的交叉链接
+- 🔄 2026-07-04：新增 <code>doc/reports/</code>（2篇）、<code>doc/tips/</code>（1篇）中文翻译</p>
+<p><strong>翻译进度：</strong></p>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>总数</th>
+<th>已翻译</th>
+<th>覆盖率</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>best-practice/</code> → <code>practice/</code></td>
+<td>8</td>
+<td>8</td>
+<td>100% ✅</td>
+</tr>
+<tr>
+<td><code>implementation/</code> → <code>implementation/</code></td>
+<td>6</td>
+<td>6</td>
+<td>100% ✅</td>
+</tr>
+<tr>
+<td><code>reports/</code> → <code>doc/reports/</code></td>
+<td>12</td>
+<td><strong>2</strong></td>
+<td>17% 🔄</td>
+</tr>
+<tr>
+<td><code>tips/</code> → <code>doc/tips/</code></td>
+<td>9</td>
+<td><strong>1</strong></td>
+<td>11% 🔄</td>
+</tr>
+<tr>
+<td><code>orchestration-workflow/</code></td>
+<td>1</td>
+<td>0</td>
+<td>0% ❌</td>
+</tr>
+<tr>
+<td><code>development-workflows/</code></td>
+<td>10+</td>
+<td>0</td>
+<td>0% ❌</td>
+</tr>
+<tr>
+<td><code>agent-teams/</code></td>
+<td>7+</td>
+<td>0</td>
+<td>0% ❌</td>
+</tr>
+<tr>
+<td><strong>总计</strong></td>
+<td><strong>56+</strong></td>
+<td><strong>17</strong></td>
+<td><strong>~30%</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="22-docimplementation-实现参考系列">2.2 <code>doc/implementation/</code> — 实现参考系列</h3>
+<p>对应英文 <code>implementation/</code>，翻译完成度较好。</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>中文文档</th>
+<th>对应英文</th>
+<th>行数比 (CN:EN)</th>
+<th>完整度</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>01</td>
+<td><a href="../../../../notes/projects/claude-code-best-practice/doc/implementation/01-subagent.html">subagent-实现</a></td>
+<td><a href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/implementation/claude-subagents-implementation.md">claude-subagents-implementation.md</a></td>
+<td>172:98</td>
+<td>🟢 更详细</td>
+<td></td>
+</tr>
+<tr>
+<td>02</td>
+<td><a href="../../../../notes/projects/claude-code-best-practice/doc/implementation/02-command.html">command-实现</a></td>
+<td><a href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/implementation/claude-commands-implementation.md">claude-commands-implementation.md</a></td>
+<td>80:83</td>
+<td>🟢 接近</td>
+<td></td>
+</tr>
+<tr>
+<td>03</td>
+<td><a href="../../../../notes/projects/claude-code-best-practice/doc/implementation/03-skill.html">skill-实现</a></td>
+<td><a href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/implementation/claude-skills-implementation.md">claude-skills-implementation.md</a></td>
+<td>—</td>
+<td>🟢 待比对</td>
+<td></td>
+</tr>
+<tr>
+<td>04</td>
+<td><a href="../../../../notes/projects/claude-code-best-practice/doc/implementation/04-agent-teams.html">agent-teams-实现</a></td>
+<td><a href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/implementation/claude-agent-teams-implementation.md">claude-agent-teams-implementation.md</a></td>
+<td>—</td>
+<td>🟢 待比对</td>
+<td></td>
+</tr>
+<tr>
+<td>05</td>
+<td><a href="../../../../notes/projects/claude-code-best-practice/doc/implementation/05-goal.html">goal-实现</a></td>
+<td><a href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/implementation/claude-goal-implementation.md">claude-goal-implementation.md</a></td>
+<td>—</td>
+<td>🟢 待比对</td>
+<td></td>
+</tr>
+<tr>
+<td>06</td>
+<td><a href="../../../../notes/projects/claude-code-best-practice/doc/implementation/06.html">定时任务-实现</a></td>
+<td><a href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/implementation/claude-scheduled-tasks-implementation.md">claude-scheduled-tasks-implementation.md</a></td>
+<td>—</td>
+<td>🟢 待比对</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="三未翻译文档缺口列表">三、未翻译文档（缺口列表）</h2>
+<h3 id="31-高优先级-reports研究报告12-篇">3.1 高优先级 — <code>reports/</code>（研究报告，12 篇）</h3>
+<p>这些报告包含了深度的对比分析和实践洞察，对理解 Claude Code 的高级用法很有价值。</p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>行数</th>
+<th>最后更新</th>
+<th>内容概括</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>claude-advanced-tool-use.md</code></td>
+<td>~150</td>
+<td>2026-02</td>
+<td>高级工具使用技巧</td>
+</tr>
+<tr>
+<td><code>claude-agent-command-skill.md</code></td>
+<td>~200</td>
+<td>2026-03</td>
+<td>Agent-Command-Skill 三层架构分析</td>
+</tr>
+<tr>
+<td><code>claude-agent-memory.md</code></td>
+<td>~150</td>
+<td>2026-02</td>
+<td>子代理记忆系统</td>
+</tr>
+<tr>
+<td><code>claude-agent-sdk-vs-cli-system-prompts.md</code></td>
+<td>~300</td>
+<td>2026-02</td>
+<td>Agent SDK vs CLI 系统提示对比</td>
+</tr>
+<tr>
+<td><code>claude-global-vs-project-settings.md</code></td>
+<td>~100</td>
+<td>2026-02</td>
+<td>全局 vs 项目设置对比</td>
+</tr>
+<tr>
+<td><code>claude-in-chrome-v-chrome-devtools-mcp.md</code></td>
+<td>~100</td>
+<td>2026-02</td>
+<td>Chrome 集成 vs DevTools MCP</td>
+</tr>
+<tr>
+<td><code>claude-skills-for-larger-mono-repos.md</code></td>
+<td>~150</td>
+<td>2026-02</td>
+<td>大型 Monorepo 的 Skill 策略</td>
+</tr>
+<tr>
+<td><code>claude-spinner-verbs-and-tips.md</code></td>
+<td>~100</td>
+<td>2026-04</td>
+<td>Spinner 动词自定义技巧</td>
+</tr>
+<tr>
+<td><code>claude-usage-and-rate-limits.md</code></td>
+<td>~150</td>
+<td>2026-02</td>
+<td>使用量和速率限制</td>
+</tr>
+<tr>
+<td><code>learning-journey-weather-reporter-redesign.md</code></td>
+<td>~200</td>
+<td>2026-04</td>
+<td>Weather 工作流重构历程</td>
+</tr>
+<tr>
+<td><code>llm-day-to-day-degradation.md</code></td>
+<td>~100</td>
+<td>2026-03</td>
+<td>LLM 日常退化问题</td>
+</tr>
+<tr>
+<td><code>why-harness-is-important.md</code></td>
+<td>~100</td>
+<td>2026-04</td>
+<td>Harness 架构的重要性</td>
+</tr>
+</tbody>
+</table>
+<h3 id="32-高优先级-tips使用技巧9-篇">3.2 高优先级 — <code>tips/</code>（使用技巧，9 篇）</h3>
+<p>社区专家的使用技巧和经验分享，实用价值高。</p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>行数</th>
+<th>作者</th>
+<th>内容概括</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>claude-boris-10-tips-01-feb-26.md</code></td>
+<td>~80</td>
+<td>Boris</td>
+<td>10 个实用技巧</td>
+</tr>
+<tr>
+<td><code>claude-boris-12-tips-12-feb-26.md</code></td>
+<td>~80</td>
+<td>Boris</td>
+<td>12 个进阶技巧</td>
+</tr>
+<tr>
+<td><code>claude-boris-13-tips-03-jan-26.md</code></td>
+<td>~80</td>
+<td>Boris</td>
+<td>13 个技巧</td>
+</tr>
+<tr>
+<td><code>claude-boris-15-tips-30-mar-26.md</code></td>
+<td>~80</td>
+<td>Boris</td>
+<td>15 个技巧</td>
+</tr>
+<tr>
+<td><code>claude-boris-2-tips-10-mar-26.md</code></td>
+<td>~30</td>
+<td>Boris</td>
+<td>2 个技巧</td>
+</tr>
+<tr>
+<td><code>claude-boris-2-tips-25-mar-26.md</code></td>
+<td>~30</td>
+<td>Boris</td>
+<td>2 个技巧</td>
+</tr>
+<tr>
+<td><code>claude-boris-6-tips-16-apr-26.md</code></td>
+<td>~50</td>
+<td>Boris</td>
+<td>6 个技巧</td>
+</tr>
+<tr>
+<td><code>claude-thariq-tips-16-apr-26.md</code></td>
+<td>~50</td>
+<td>Thariq</td>
+<td>技巧分享</td>
+</tr>
+<tr>
+<td><code>claude-thariq-tips-17-mar-26.md</code></td>
+<td>~50</td>
+<td>Thariq</td>
+<td>技巧分享</td>
+</tr>
+</tbody>
+</table>
+<h3 id="33-中优先级-工作流与演示文档">3.3 中优先级 — 工作流与演示文档</h3>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>行数</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>orchestration-workflow/orchestration-workflow.md</code></td>
+<td>199</td>
+<td>天气工作流完整流程图解</td>
+</tr>
+<tr>
+<td><code>development-workflows/</code>（全部）</td>
+<td>2442</td>
+<td>开发工作流研究（含 RPI 完整实现）</td>
+</tr>
+<tr>
+<td><code>agent-teams/</code>（全部）</td>
+<td>361</td>
+<td>Agent Teams 实现与提示词</td>
+</tr>
+<tr>
+<td><code>development-workflows/cross-model-workflow/cross-model-workflow.md</code></td>
+<td>55</td>
+<td>跨模型工作流</td>
+</tr>
+</tbody>
+</table>
+<h3 id="34-低优先级-规则与配置">3.4 低优先级 — 规则与配置</h3>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>行数</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.claude/rules/markdown-docs.md</code></td>
+<td>~30</td>
+<td>Markdown 文档规范</td>
+</tr>
+<tr>
+<td><code>.claude/rules/presentation.md</code></td>
+<td>~20</td>
+<td>演示文稿工作规范</td>
+</tr>
+<tr>
+<td><code>CLAUDE.md</code></td>
+<td>126</td>
+<td>项目级 AI 记忆（已为中文内容，但可补充注释）</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="四翻译优先级建议">四、翻译优先级建议</h2>
+<pre><code>立即翻译（高收益）
+├── reports/claude-agent-command-skill.md      # 三层架构核心概念
+├── reports/claude-agent-memory.md             # 记忆系统深度分析
+├── reports/claude-advanced-tool-use.md        # 高级工具使用
+├── reports/why-harness-is-important.md        # 架构理解
+└── tips/claude-boris-*-tips.md                # 实用技巧（精选）
+
+更新现有翻译（补缺）
+├── practice/05-设置-settings.md              # 🔴 严重缺失（585→43 行表）
+├── practice/08-CLI启动参数.md                 # 🔴 严重缺失（102→43 行表）
+├── practice/03-命令-commands.md               # 🟡 缺失内置命令表
+└── practice/06-MCP服务器-mcp.md               # 🟡 缺失部分 MCP
+
+后续翻译（中等收益）
+├── orchestration-workflow/orchestration-workflow.md
+├── development-workflows/rpi/                  # RPI 工作流完整实现
+├── agent-teams/                                # Agent Teams 实现
+└── reports/* （剩余报告）
+
+按需翻译
+└── .claude/rules/*, CLAUDE.md
+</code></pre>
+<hr>
+<h2 id="五学习路径建议">五、学习路径建议</h2>
+<p>结合当前翻译状态，推荐的中文学习顺序如下：</p>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>内容</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>入门</strong> 🟢</td>
+<td><code>doc/practice/01</code> ~ <code>10</code></td>
+<td>全部已翻译，可直接学习</td>
+</tr>
+<tr>
+<td><strong>进阶</strong> 🟡</td>
+<td><code>doc/implementation/01</code> ~ <code>06</code></td>
+<td>已翻译，看实现细节</td>
+</tr>
+<tr>
+<td><strong>深化</strong> 🔴</td>
+<td><code>reports/</code> 中选读</td>
+<td>需先翻译或读英文原版</td>
+</tr>
+<tr>
+<td><strong>技巧</strong> 🟠</td>
+<td><code>tips/</code> 中选读</td>
+<td>可先看英文原版</td>
+</tr>
+<tr>
+<td><strong>工作流</strong> 🔵</td>
+<td><code>orchestration-workflow/</code></td>
+<td>可先看英文原版</td>
+</tr>
+<tr>
+<td><strong>研究</strong> 🟣</td>
+<td><code>development-workflows/</code></td>
+<td>深度研究，可晚些看</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<p><em>最后更新：2026-07-04</em>
+<em>由分析脚本自动生成 + 人工校验</em></p>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">项目笔记</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/%E7%BF%BB%E8%AF%91%E8%BF%9B%E5%BA%A6%E4%B8%8E%E6%96%87%E6%A1%A3%E7%BC%BA%E5%8F%A3%E5%88%86%E6%9E%90.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../../notes/projects/claude-code-best-practice/doc/tips/thariqclaudecode-0416.html"><span class="dir">← 上一篇</span><span class="t">使用Claude Code：会话管理与100万上下文——Thariq（中文翻译）</span></a><a class="next" href="../../../../notes/projects/claude-code-best-practice/helloagent.html"><span class="dir">下一篇 →</span><span class="t">HelloAgent 项目学习指南</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../../index.html">首页</a>
+      <a href="../../../../learn.html">课件</a>
+      <a href="../../../../notes/index.html">笔记库</a>
+      <a href="../../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../../about.html">关于</a>
+      <a href="../../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../../js/main.js" defer></script>
+</body>
+</html>

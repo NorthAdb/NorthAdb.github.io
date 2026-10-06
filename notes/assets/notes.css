@@ -1,0 +1,102 @@
+/* ============================================================
+   我的笔记库 — notes-zone overlay
+   Built on the site design tokens (css/style.css). No new colors.
+   ============================================================ */
+
+/* wikilinks */
+.prose .wl {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px dashed var(--accent-border);
+}
+.prose .wl:hover { color: var(--accent-strong); border-bottom-style: solid; }
+.prose .wl.dead {
+  color: var(--text-3);
+  border-bottom: 1px dashed var(--border);
+  cursor: default;
+}
+.prose .wl.dead:hover { color: var(--text-3); }
+.prose .wl.dead small { color: var(--text-3); opacity: .75; font-size: .78em; }
+
+/* Obsidian ==highlight== */
+.prose mark {
+  background: var(--accent-soft);
+  color: var(--text);
+  padding: .08em .3em;
+  border-radius: 4px;
+}
+
+/* Obsidian callouts */
+.callout {
+  margin: 1.6em 0;
+  padding: 13px 18px;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--r-md);
+  background: var(--bg-1);
+}
+.callout .callout-title {
+  margin: 0;
+  font-weight: 600;
+  font-size: 13.5px;
+  letter-spacing: .02em;
+  color: var(--text);
+}
+.callout .callout-title::before { content: "❖ "; color: var(--accent); }
+.callout > p { margin: .5em 0 0; }
+.callout > *:first-child { margin-top: 0; }
+.callout ul, .callout ol { margin: .5em 0 0; }
+
+/* task lists */
+.prose li.task { list-style: none; }
+.prose li.task .cb {
+  display: inline-block;
+  width: 13px; height: 13px;
+  border: 1.5px solid var(--text-3);
+  border-radius: 4px;
+  margin-right: 8px;
+  vertical-align: -2px;
+  position: relative;
+}
+.prose li.task.done { color: var(--text-3); }
+.prose li.task.done .cb {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.prose li.task.done .cb::after {
+  content: "✓";
+  position: absolute;
+  inset: 0;
+  color: #0a0a0a;
+  font-size: 10px;
+  line-height: 12px;
+  text-align: center;
+  font-weight: 700;
+}
+
+/* mermaid host: appears only after a successful render replaces the code block */
+.mermaid {
+  display: flex;
+  justify-content: center;
+  padding: 1.4em 1.2em;
+  margin: 1.8em 0;
+  background: var(--code-bg);
+  border: 1px solid var(--code-border);
+  border-radius: var(--r-md);
+  overflow-x: auto;
+}
+.mermaid svg { max-width: 100%; height: auto; }
+
+/* KaTeX display blocks can be wide on mobile */
+.katex-display { overflow-x: auto; overflow-y: hidden; padding: .3em 0; }
+
+/* section listing: directory group headers */
+.ls-group {
+  margin: 30px 0 10px;
+  font-size: 13px;
+  letter-spacing: .06em;
+  color: var(--text-3);
+  font-family: var(--font-mono);
+}
+.ls-group:first-child { margin-top: 0; }
+.prose-narrow { max-width: var(--prose-w); }

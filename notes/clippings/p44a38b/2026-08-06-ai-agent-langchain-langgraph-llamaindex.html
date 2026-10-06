@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Agent 开发框架全解析：LangChain / LangGraph / LlamaIndex 怎么选 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="作者：小林面试笔记（小林哥） | 来源：微信公众号 | 发布：2026-08-06">
+<link rel="canonical" href="https://northadb.github.io/notes/clippings/p44a38b/2026-08-06-ai-agent-langchain-langgraph-llamaindex.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="AI Agent 开发框架全解析：LangChain / LangGraph / LlamaIndex 怎么选 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="作者：小林面试笔记（小林哥） | 来源：微信公众号 | 发布：2026-08-06">
+<meta property="og:url" content="https://northadb.github.io/notes/clippings/p44a38b/2026-08-06-ai-agent-langchain-langgraph-llamaindex.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="AI Agent 开发框架全解析：LangChain / LangGraph / LlamaIndex 怎么选 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="作者：小林面试笔记（小林哥） | 来源：微信公众号 | 发布：2026-08-06">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../feed.xml">
+<link rel="stylesheet" href="../../../css/style.css">
+<link rel="stylesheet" href="../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "AI Agent 开发框架全解析：LangChain / LangGraph / LlamaIndex 怎么选", "description": "作者：小林面试笔记（小林哥） | 来源：微信公众号 | 发布：2026-08-06", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/clippings/p44a38b/2026-08-06-ai-agent-langchain-langgraph-llamaindex.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../index.html">首页</a><span>/</span><a href="../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../notes/clippings/index.html">内容剪藏</a></div>
+          <h1>AI Agent 开发框架全解析：LangChain / LangGraph / LlamaIndex 怎么选</h1>
+          <p class="post-sub">作者：小林面试笔记（小林哥） | 来源：微信公众号 | 发布：2026-08-06</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../notes/clippings/index.html">内容剪藏</a></span><span class="sep"></span>
+            <span>阅读约 7 分钟</span><span class="sep"></span><span>更新于 2026-08-06</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p><strong>作者</strong>：小林面试笔记（小林哥） | <strong>来源</strong>：微信公众号 | <strong>发布</strong>：2026-08-06</p>
+</blockquote>
+<hr>
+<h2 id="面试场景引入">🎬 面试场景引入</h2>
+<blockquote>
+<p>👔 面试官：你了解过哪些 AI Agent 开发框架？
+🙋 我：了解过 LangChain、LangGraph、LlamaIndex、CrewAI、AutoGen……反正都是封装大模型和工具调用的，用哪个都差不多。
+👔 面试官：只会报名字不算了解。它们解决的问题、抽象层次和适用场景都不同，怎么会差不多？
+👔 面试官（追问）：复杂的有状态流程还只想到 Chain？LangGraph 为什么会出现？LlamaIndex 又为什么长期强调数据和上下文增强？
+👔 面试官（点破）：框架名称说得多，不等于理解得深。你应该围绕项目难点说明为什么选，而不是拿热度和名词数量代替技术判断。</p>
+</blockquote>
+<p><strong>考点</strong>：这道题看似在考你知道多少框架，其实面试官想听的是——<strong>是否真正理解主流框架的定位，能不能根据业务问题完成技术选型。</strong></p>
+<hr>
+<h2 id="简要回答可直接背的版本">💡 简要回答（可直接背的版本）</h2>
+<p>我重点了解过 <strong>LangChain、LangGraph 和 LlamaIndex</strong>：</p>
+<ul>
+<li><strong>LangChain</strong>：提供模型、Prompt、工具、Agent 和中间件等通用抽象，集成范围广，适合快速构建<strong>工具调用、RAG、SQL 查询</strong>等 AI 应用</li>
+<li><strong>LangGraph</strong>：更偏底层的<strong>状态与流程编排</strong>。面对循环、分支、并行、断点恢复和人工审批等复杂流程，用图结构显式控制 Agent 执行路径。<strong>现在 LangChain 的 Agent 也运行在 LangGraph 之上</strong>——二者是上下层关系，不是互相替代</li>
+<li><strong>LlamaIndex</strong>：优势集中在<strong>数据接入、文档解析、索引和检索</strong>，适合企业知识库、文档问答和复杂 RAG 等数据密集型应用</li>
+</ul>
+<p>另外了解 <strong>OpenAI Agents SDK</strong>（适合以 OpenAI 模型为主的轻量 Agent）和 <strong>CrewAI</strong>（用角色和任务表达多 Agent 协作）。通用 Python Agent 岗位优先掌握前三者，再按公司技术栈补充。</p>
+<hr>
+<h2 id="详细解析">📝 详细解析</h2>
+<h3 id="agent-框架解决了什么">Agent 框架解决了什么？</h3>
+<p>不用框架自己实现一个 Agent，需要：接入模型、定义工具协议、实现 Agent 循环、把工具结果交回模型；还要处理<strong>状态、重试、超时、流式输出、人工确认、运行追踪</strong>。</p>
+<ul>
+<li>完成一次演示不难，难的是：<strong>系统执行十几步后能否恢复、出错时能否快速定位</strong></li>
+<li>框架把这些重复工程抽象成可复用组件，但侧重不同：</li>
+<li>LangChain → 通用组件与快速集成</li>
+<li>LangGraph → 状态与流程控制</li>
+<li>LlamaIndex → 数据与检索</li>
+</ul>
+<p><img alt="Agent框架解决什么：框架把重复工程抽象为可复用组件" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-fw-01.png"></p>
+<blockquote>
+<p>回答时不要只比谁更强，要说清楚<strong>在什么业务约束下，哪个框架更合适</strong>。</p>
+</blockquote>
+<h3 id="为什么重点看-langchain">为什么重点看 LangChain？</h3>
+<ul>
+<li>定位早已不只是「把多个 Prompt 串成 Chain」：提供模型、消息、Prompt、工具、结构化输出、中间件、Agent 等<strong>通用抽象</strong>，集成大量模型供应商、向量数据库、外部工具</li>
+<li>最大价值：<strong>集成范围广、开发速度快</strong>（切换模型、接搜索/数据库/MCP 工具、快速实现 RAG Agent / SQL Agent / 客服助手）</li>
+<li>局限：高层抽象更适合<strong>常见 Agent 模式</strong>；复杂循环、精细分支、长时间暂停、断点恢复时，需下沉 LangGraph</li>
+</ul>
+<h3 id="langgraph-和-langchain-是什么关系">LangGraph 和 LangChain 是什么关系？</h3>
+<ul>
+<li>LangGraph 用 <strong>State + Node + Edge</strong> 表达工作流：State 保存共享状态，Node 执行模型/工具，Edge 决定下一步</li>
+<li>重点解决：<strong>循环、条件分支、并行执行、持久化、暂停恢复、人工介入</strong></li>
+<li>例子：报销 Agent 必须先读单据 → 合规检查 → 金额超限暂停等主管审批 → 通过后调用付款工具——图结构比塞进一个 Agent 循环更清晰</li>
+<li><strong>关系</strong>：LangChain 的 Agent 高层接口运行在 LangGraph 之上。可把 LangChain 理解为"常用组件和预制路线"，LangGraph 是"支撑路线的道路系统"</li>
+<li>简单 Agent 优先 LangChain；要精细控制时下沉 LangGraph</li>
+</ul>
+<p><img alt="LangGraph与LangChain是上下层关系" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-fw-02.png"></p>
+<ul>
+<li><strong>不是两个互相替代的框架，而是上下层关系，经常组合使用</strong></li>
+</ul>
+<h3 id="llamaindex-强在哪里">LlamaIndex 强在哪里？</h3>
+<ul>
+<li>别把它当成"另一个 LangChain"——它最有辨识度的是<strong>在私有数据之上构建 AI 应用</strong></li>
+<li>长期积累：数据连接、文档解析、切分、索引、检索、重排、Query Engine、结构化数据访问；也能把 RAG Pipeline 封装为 Agent 工具</li>
+<li>企业知识库 Agent 真正难的不是工具调用循环，而是<strong>整条数据链路</strong>：PDF 表格解析、多源接入、文档切分建索引、召回过滤重排、权限隔离</li>
+<li>尤其适合：企业知识库、文档 Agent、研究助手、复杂 RAG</li>
+</ul>
+<p><img alt="LlamaIndex数据链路：问题沿整条数据链路出现" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-fw-03.png"></p>
+<ul>
+<li>它也有 Agent / Memory / 多 Agent Pattern / Workflow——只是选型入口不同：LangChain 偏通用 Agent 组装，LlamaIndex 偏数据密集型</li>
+</ul>
+<h3 id="三个框架怎么配合组合不是三选一">三个框架怎么配合？（组合不是三选一）</h3>
+<pre><code>企业知识库 Agent 示例：
+LlamaIndex 处理文档、建索引、提供检索
+      ↓ 把检索能力包装成 Tool
+LangChain Agent 决定何时调用
+      ↓ 外围有查询改写/答案校验/人工审核/失败恢复
+LangGraph 负责这些步骤如何衔接
+</code></pre>
+<ul>
+<li>三者分别解决：<strong>数据</strong>（LlamaIndex）、<strong>Agent 组装</strong>（LangChain）、<strong>流程控制</strong>（LangGraph），不在同一层重复造轮子</li>
+</ul>
+<p><img alt="三框架配合：数据→Agent组装→流程控制" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-fw-04.png"></p>
+<ul>
+<li>但<strong>是否同时引入取决于复杂度</strong>：简单工具调用不必引入 LlamaIndex；普通知识库问答不必上 LangGraph 工作流</li>
+</ul>
+<h3 id="其他框架要了解吗">其他框架要了解吗？</h3>
+<table>
+<thead>
+<tr>
+<th>框架</th>
+<th>定位</th>
+<th>适合场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>OpenAI Agents SDK</strong></td>
+<td>Agent / Runner / Tools / Handoffs / Guardrails / Sessions / Tracing 的轻量 SDK</td>
+<td>以 OpenAI 模型为主：客服分流、语音助手、工具 Agent</td>
+</tr>
+<tr>
+<td><strong>CrewAI</strong></td>
+<td>用角色、目标、任务、团队表达多 Agent 协作 + Flow 管理状态/条件/事件</td>
+<td>研究、内容生产、多角色审核；角色越多调用成本和协作不确定性越高</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="其他框架一览：OpenAI Agents SDK / CrewAI / AutoGen / Dify" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-fw-05.png"></p>
+<p>| <strong>AutoGen / Semantic Kernel / Microsoft Agent Framework</strong> | 偏微软生态或存量项目 | 知道定位即可，通用 Python Agent 题不用展开 |
+| <strong>Dify</strong> | 低代码 AI 应用开发平台 | 不和 Python Agent 框架放同一层面比较 |</p>
+<h3 id="到底该怎么选选型方法论">到底该怎么选？（选型方法论）</h3>
+<ol>
+<li><strong>最外层先判断是否真的需要 Agent</strong>：步骤固定、规则明确 → 普通函数/工作流更便宜更稳定。把本可写成 <code>if/else</code> 的流程交给模型 = 平白增加不确定性</li>
+<li><strong>确认需要 Agent 后，找项目真正困难的那一层</strong>：
+   - 模型和工具接入最费力 → LangChain
+   - 难点在私有数据、文档解析、检索质量 → LlamaIndex
+   - 业务路径含复杂分支、循环、状态恢复 → LangGraph</li>
+<li><strong>不能停在上线前</strong>：Demo 能跑 ≠ 系统能上线。流程越长越要追问生产约束：
+   - 中断后能否恢复？
+   - 敏感动作是否需要审批？
+   - 重复执行会不会产生副作用？
+   - 不同用户的数据能否隔离？
+   - 出错后是否留有完整轨迹？<blockquote>
+<p>真正决定框架是否合适的，往往是<strong>原型阶段看不见的生产约束</strong></p>
+</blockquote>
+</li>
+</ol>
+<h3 id="框架对比总表">框架对比总表</h3>
+<table>
+<thead>
+<tr>
+<th>框架</th>
+<th>核心定位</th>
+<th>更适合的场景</th>
+<th>掌握程度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>LangChain</strong></td>
+<td>通用模型、工具和 Agent 抽象</td>
+<td>工具型 Agent、RAG Agent、SQL Agent</td>
+<td>重点掌握</td>
+</tr>
+<tr>
+<td><strong>LangGraph</strong></td>
+<td>有状态的图式流程编排</td>
+<td>循环分支、暂停恢复、人工审批</td>
+<td>重点掌握</td>
+</tr>
+<tr>
+<td><strong>LlamaIndex</strong></td>
+<td>数据接入、索引和检索</td>
+<td>企业知识库、文档 Agent、复杂 RAG</td>
+<td>重点掌握</td>
+</tr>
+<tr>
+<td><strong>OpenAI Agents SDK</strong></td>
+<td>OpenAI 技术栈下的轻量 Agent SDK</td>
+<td>客服分流、语音助手、工具 Agent</td>
+<td>了解并按需深入</td>
+</tr>
+<tr>
+<td><strong>CrewAI</strong></td>
+<td>角色化多 Agent 协作</td>
+<td>研究、内容生产、多角色审核</td>
+<td>了解并按需深入</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="面试总结">🎯 面试总结</h2>
+<ol>
+<li><strong>不要一口气罗列十几个框架</strong>——说得越多越可能被追问，没有实际使用经验的框架容易露馅</li>
+<li><strong>围绕 LangChain / LangGraph / LlamaIndex 三个展开</strong>：
+   - LangChain 偏通用组件与快速集成
+   - LangGraph 偏有状态流程编排
+   - LlamaIndex 偏数据接入与检索
+   - 再补充对 OpenAI Agents SDK、CrewAI 等有所了解</li>
+<li><strong>把框架特点落到真实场景</strong>：简单 Agent 为什么选 LangChain？复杂审批流程为什么用 LangGraph？企业知识库为什么考虑 LlamaIndex？<blockquote>
+<p><strong>能讲清楚「什么场景为什么选」，比记住框架名称更有说服力。</strong></p>
+</blockquote>
+</li>
+</ol>
+<hr>
+<h2 id="关联笔记">关联笔记</h2>
+<ul>
+<li>
+<p><a class="wl" href="../../../notes/clippings/claude/2026-07-30-claude.html">2026-07-30-Claude聊天记录汇总</a> — Java 生态选型实况</p>
+</li>
+<li>
+<p><a class="wl" href="../../../notes/clippings/p44a38b/2026-07-30-agent.html">2026-07-30-Agent高频面试题全解析-小林面试笔记</a> — 同作者：Agent 基础八连问（LLM/MCP/Skills/A2A）</p>
+</li>
+<li><a class="wl" href="../../../notes/clippings/p44a38b/2026-09-01-rag.html">2026-09-01-RAG核心知识全解析（范式演进）</a> — 同作者：RAG 全链路</li>
+<li><a class="wl" href="../../../notes/clippings/pae26bb/2026-07-31-moe.html">2026-07-31-为什么顶级大模型都在卷MoE-新物种日记</a> — 大模型架构（MoE）</li>
+<li><a class="wl" href="../../../notes/clippings/pae26bb/2026-07-07-aiagent.html">2026-07-07-小红书热议AI Agent开发用什么框架</a> — Agent 框架选型讨论</li>
+<li><a class="wl" href="../../../notes/domains/aiagent2026.html">领域/AI Agent 智能体学习路线 2026</a> — Agent 学习路线</li>
+</ul>
+<h2 id="来源覆盖与局限">来源、覆盖与局限</h2>
+<ul>
+<li><strong>URL</strong>：https://mp.weixin.qq.com/s/-LRxcCjYTN5exg-egxvL5A</li>
+<li><strong>作者</strong>：小林面试笔记（小林哥）| <strong>发布</strong>：2026-08-06</li>
+<li><strong>获取方式</strong>：Playwright 浏览器抓取公众号文章全文</li>
+<li>⚠️ 文章含 3 张示意图（框架对比/三者配合等），文字部分已完整收录；图片以原文为准</li>
+</ul>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">内容剪藏</span><span class="chip">Agent</span><span class="chip">LLM</span><span class="chip">LangChain</span><span class="chip">LangGraph</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/Clippings/%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7/2026-08-06-AI-Agent%E5%BC%80%E5%8F%91%E6%A1%86%E6%9E%B6%E9%80%89%E5%9E%8B-LangChain-LangGraph-LlamaIndex-%E5%B0%8F%E6%9E%97%E9%9D%A2%E8%AF%95%E7%AC%94%E8%AE%B0.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../notes/clippings/p44a38b/2026-08-04-graphraglightrag.html"><span class="dir">← 上一篇</span><span class="t">GraphRAG 与 LightRAG：从传统 RAG 到图增强检索</span></a><a class="next" href="../../../notes/clippings/p44a38b/2026-08-07-codex-agents-md-skills-subagents-mcp-hooks-coding.html"><span class="dir">下一篇 →</span><span class="t">Codex 工程化五件套详解：AGENTS.md / Skills / Subagents / MCP / Hooks</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../index.html">首页</a>
+      <a href="../../../learn.html">课件</a>
+      <a href="../../../notes/index.html">笔记库</a>
+      <a href="../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../about.html">关于</a>
+      <a href="../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../js/main.js" defer></script>
+</body>
+</html>

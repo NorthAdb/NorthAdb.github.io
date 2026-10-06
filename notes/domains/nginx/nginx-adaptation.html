@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>基于 openHiTLS 的 nginx 1.29.6 适配与单端口国密/国际自适应研究文档 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="课题：基于 openHiTLS 的 nginx 1.29.6 版本适配与 HTTPS 能力，并实现支持国密/国际协议单端口自适应 本文档为课题前期调研与方案设计的基础材料，持续更新。">
+<link rel="canonical" href="https://northadb.github.io/notes/domains/nginx/nginx-adaptation.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="基于 openHiTLS 的 nginx 1.29.6 适配与单端口国密/国际自适应研究文档 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="课题：基于 openHiTLS 的 nginx 1.29.6 版本适配与 HTTPS 能力，并实现支持国密/国际协议单端口自适应 本文档为课题前期调研与方案设计的基础材料，持续更新。">
+<meta property="og:url" content="https://northadb.github.io/notes/domains/nginx/nginx-adaptation.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="基于 openHiTLS 的 nginx 1.29.6 适配与单端口国密/国际自适应研究文档 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="课题：基于 openHiTLS 的 nginx 1.29.6 版本适配与 HTTPS 能力，并实现支持国密/国际协议单端口自适应 本文档为课题前期调研与方案设计的基础材料，持续更新。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../feed.xml">
+<link rel="stylesheet" href="../../../css/style.css">
+<link rel="stylesheet" href="../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "基于 openHiTLS 的 nginx 1.29.6 适配与单端口国密/国际自适应研究文档", "description": "课题：基于 openHiTLS 的 nginx 1.29.6 版本适配与 HTTPS 能力，并实现支持国密/国际协议单端口自适应 本文档为课题前期调研与方案设计的基础材料，持续更新。", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/domains/nginx/nginx-adaptation.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../index.html">首页</a><span>/</span><a href="../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../notes/domains/index.html">知识领域</a></div>
+          <h1>基于 openHiTLS 的 nginx 1.29.6 适配与单端口国密/国际自适应研究文档</h1>
+          <p class="post-sub">课题：基于 openHiTLS 的 nginx 1.29.6 版本适配与 HTTPS 能力，并实现支持国密/国际协议单端口自适应 本文档为课题前期调研与方案设计的基础材料，持续更新。</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../notes/domains/index.html">知识领域</a></span><span class="sep"></span>
+            <span>阅读约 9 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p>课题：基于 openHiTLS 的 nginx 1.29.6 版本适配与 HTTPS 能力，并实现支持国密/国际协议单端口自适应
+本文档为课题前期调研与方案设计的基础材料，持续更新。</p>
+</blockquote>
+<hr>
+<h2 id="1-课题概述">1. 课题概述</h2>
+<h3 id="11-拟解决问题">1.1 拟解决问题</h3>
+<ul>
+<li>Web 服务安全通信需同时支持国际算法体系（TLS 1.2/1.3）与国密算法体系（TLCP，SM2/SM3/SM4）</li>
+<li>传统多端口部署（443 国际 + 8443 国密）增加运维复杂度与资源开销</li>
+<li>nginx 作为主流 Web 服务器，其 HTTPS 能力依赖底层 TLS 库实现</li>
+<li>基于 openHiTLS 适配 nginx 1.29.6，实现单端口下国密与国际协议的自适应协商</li>
+</ul>
+<h3 id="12-研究内容">1.2 研究内容</h3>
+<ol>
+<li>分析 nginx 1.29.6 的 SSL/TLS 接入模型与握手流程</li>
+<li>基于 openHiTLS 设计适配层：TLS 上下文、连接握手、数据收发、证书加载接口对接</li>
+<li>研究 TLCP 与国际 TLS 在 ClientHello 阶段的识别与分流机制，设计单端口协议自适应策略</li>
+<li>基于握手特征（版本、扩展、CipherSuite）实现协议判别与动态切换</li>
+<li>完成 TLS 1.2/1.3 与国密协议的统一接入，支持 SNI、ALPN、双向认证、会话复用</li>
+<li>处理异常回退与安全策略控制，优化性能与资源占用</li>
+</ol>
+<h3 id="13-交付物与验收指标">1.3 交付物与验收指标</h3>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>方案设计</td>
+<td>nginx 1.29.6 与 openHiTLS 适配方案（SSL 核心源文件改造、TLCP 双证书集成、单端口自适应架构）</td>
+</tr>
+<tr>
+<td>代码实现</td>
+<td>nginx 1.29.6 完整适配代码，支持 TLCP 双证书体系与 TLS 1.2/1.3 单端口 443 工作；适配 nginx 1.29.6 新特性（Provider 接口、HTTP/2 对上游、新版 SNI 回调）</td>
+</tr>
+<tr>
+<td>测试报告</td>
+<td>功能测试、性能测试（国密/国际单端口自适应互通性、与基于 OpenSSL 的国密 nginx 性能对比）、nginx 社区测试用例通过报告</td>
+</tr>
+<tr>
+<td>验收指标</td>
+<td>① 单端口 443 并发连接功能验证全部通过（TLCP 单/双向认证、TLS 1.3 初始化、Session 复用、HTTP/2 ALPN 协商等）② 性能评估与对比分析，确保正确性、兼容性、可部署性</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="2-核心概念澄清">2. 核心概念澄清</h2>
+<h3 id="21-nginx-与-openhitls-的职责边界">2.1 nginx 与 openHiTLS 的职责边界</h3>
+<pre><code>客户端(国密/TLS) ── TCP ──&gt; nginx（调度中心 + HTTP 管家）── 调用 ──&gt; openHiTLS（加密专家）
+                              │ 连接管理 / 事件循环 / 超时 / 路由 / HTTP处理 / 日志
+                              │ 调 HITLS_Accept/Read/Write，等待-重试循环
+                              └──────────────────────────────────────┘
+                                 协议实现 / 证书校验 / 加解密 / 会话管理
+</code></pre>
+<ul>
+<li><strong>nginx</strong>：不实现任何 TLS 协议。负责 TCP 连接调度、进程模型、事件驱动、握手过程的"等待-重试"循环、超时控制、HTTP 请求处理、SNI 虚拟主机选择、ALPN 协商结果应用</li>
+<li><strong>openHiTLS</strong>：实现 TLS 1.2/1.3 与 TLCP 协议的全部协议逻辑、证书加载与校验、密钥交换、数据加解密、会话管理</li>
+</ul>
+<h3 id="22-关键事实已在本仓库核实">2.2 关键事实（已在本仓库核实）</h3>
+<table>
+<thead>
+<tr>
+<th>事实</th>
+<th>证据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>openHiTLS 原生支持 TLCP</td>
+<td><code>include/tls/hitls_config.h:39</code>：<code>HITLS_VERSION_TLCP_DTLCP11 0x0101</code></td>
+</tr>
+<tr>
+<td>TLCP 1.1 版本号为 0x0101，与国际 TLS（0x0301~0x0304）可区分</td>
+<td>同上</td>
+</tr>
+<tr>
+<td>单个 HITLS_Ctx 可同时启用 TLS 与 TLCP 版本族</td>
+<td><code>include/tls/hitls_type.h</code>：<code>STREAM_VERSION_BITS = TLS13_VERSION_BIT \| TLCP11_VERSION_BIT</code></td>
+</tr>
+<tr>
+<td>openHiTLS API 非 OpenSSL 兼容</td>
+<td>公开接口为 <code>HITLS_New/Accept/Read/Write</code> + <code>BSL_UIO</code>（非 BIO）+ 自有错误码</td>
+</tr>
+<tr>
+<td>仓库内无 OpenSSL 兼容层</td>
+<td>全局搜索 <code>SSL_CTX/ngx_*</code> 无结果</td>
+</tr>
+<tr>
+<td>nginx 官方（配标准 OpenSSL）不支持 TLCP</td>
+<td>OpenSSL 主线无国密协议，需 Tongsuo/GmSSL 等分支；openHiTLS 的 TLCP 实现保证国密互通性</td>
+</tr>
+</tbody>
+</table>
+<h3 id="23-重要推论">2.3 重要推论</h3>
+<ul>
+<li><strong>协议层互通</strong>：openHiTLS 是标准 TLS/TLCP 协议栈，与任何标准实现可正常握手通信（此能力现成）</li>
+<li><strong>集成层不兼容</strong>：nginx 源码写死调用 OpenSSL API，openHiTLS 接口形状不同，无法直接链接</li>
+<li><strong>适配工作本质</strong>：做"转接头"——改 nginx 侧插槽形状（改造 nginx SSL 层），openHiTLS 侧原则上零改动</li>
+</ul>
+<hr>
+<h2 id="3-nginx-1296-ssltls-接入模型分析">3. nginx 1.29.6 SSL/TLS 接入模型分析</h2>
+<h3 id="31-nginx-代码获取">3.1 nginx 代码获取</h3>
+<p>nginx 不在 openhitls 仓库内，需单独获取：</p>
+<pre><code class="language-bash"># 官网源码包
+wget https://nginx.org/download/nginx-1.29.6.tar.gz
+
+# 或 GitHub 镜像
+git clone -b release-1.29.6 https://github.com/nginx/nginx.git
+</code></pre>
+<h3 id="32-改造文件清单">3.2 改造文件清单</h3>
+<table>
+<thead>
+<tr>
+<th>nginx 文件</th>
+<th>作用</th>
+<th>改造内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>src/event/ngx_event_openssl.c/.h</code></td>
+<td><strong>核心改造对象</strong>：全部 SSL/TLS 调用集中于此（约 5000 行）</td>
+<td><code>ngx_ssl_create</code>（ctx 创建）、<code>ngx_ssl_handshake</code>（握手状态机）、<code>ngx_ssl_read/write</code>、<code>ngx_ssl_shutdown</code>、<code>ngx_ssl_certificate</code>（证书加载）、<code>ngx_ssl_client_certificate/trusted_certificate</code>、<code>ngx_ssl_get_session/set_session</code>、<code>ngx_ssl_alpn_advertise</code>、SNI 回调、<code>ngx_ssl_verify_callback</code></td>
+</tr>
+<tr>
+<td><code>src/http/ngx_http_ssl_module.c/.h</code></td>
+<td>SSL 配置指令、变量、回调注册</td>
+<td><code>ssl_certificate</code> 等指令、<code>$ssl_protocol/$ssl_cipher</code> 变量、SNI/ALPN 回调注册、按 server 切换证书</td>
+</tr>
+<tr>
+<td><code>src/http/ngx_http_upstream_ssl_module.c</code> + <code>ngx_http_upstream.c</code></td>
+<td>HTTPS 对上游（客户端侧握手）</td>
+<td>上游连接握手流程适配（如需）</td>
+</tr>
+<tr>
+<td><code>src/event/ngx_event_openssl_stapling.c</code></td>
+<td>OCSP stapling</td>
+<td>可选，不需要可裁剪</td>
+</tr>
+<tr>
+<td><code>auto/lib/openssl/*</code>、<code>auto/options</code></td>
+<td>构建系统</td>
+<td><code>--with-openssl</code> 改为链接 openHiTLS 库</td>
+</tr>
+</tbody>
+</table>
+<h3 id="33-openssl-openhitls-接口映射适配层核心">3.3 OpenSSL ↔ openHiTLS 接口映射（适配层核心）</h3>
+<pre><code>OpenSSL 语义                          →    openHiTLS
+SSL_CTX_new / SSL_new                 →    HITLS_New(HITLS_Config) + HITLS_SetUio
+SSL_do_handshake（服务器端）            →    HITLS_Accept
+SSL_do_handshake（客户端端）            →    HITLS_Connect
+SSL_read / SSL_write                  →    HITLS_Read / HITLS_Write
+SSL_get_error 的 WANT_READ/WANT_WRITE →    HITLS_REC_NORMAL_RECV_BUF_EMPTY / HITLS_REC_NORMAL_IO_BUSY
+SSL_CTX_use_certificate_chain_file    →    HITLS_CTX 证书加载（PKI + codecs 解析 PEM/DER）
+SSL_CTX_set_session_cache             →    HITLS_Session 序列化/反序列化
+SSL_CTX_set_sni / set_alpn_select_cb  →    hitls_sni.h / hitls_alpn.h 回调
+SSL_shutdown                          →    HITLS_Close
+</code></pre>
+<p><strong>适配层建议独立成文件</strong>（如 <code>src/event/ngx_event_hitls.c</code>），不做散落式替换，便于维护与对比评审。</p>
+<hr>
+<h2 id="4-改造范围边界">4. 改造范围边界</h2>
+<h3 id="41-工作分配">4.1 工作分配</h3>
+<table>
+<thead>
+<tr>
+<th>侧</th>
+<th>工作量</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>nginx 侧</td>
+<td>约 85%</td>
+<td><code>ngx_event_openssl.c/.h</code>、<code>ngx_http_ssl_module.c/.h</code> 改写；TLCP 双证书配置指令；单端口自适应；构建系统</td>
+</tr>
+<tr>
+<td>openHiTLS 侧</td>
+<td>约 15%</td>
+<td>以只读调研 + 验证为主，原则上不改代码</td>
+</tr>
+</tbody>
+</table>
+<h3 id="42-openhitls-潜在缺口需实测确认">4.2 openHiTLS 潜在缺口（需实测确认）</h3>
+<table>
+<thead>
+<tr>
+<th>潜在缺口</th>
+<th>nginx 需要什么</th>
+<th>应对策略</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Session 序列化</td>
+<td><code>SSL_SESSION</code> 二进制跨 worker 共享（<code>ssl_session_cache shared:</code>）</td>
+<td>退化为进程内缓存，或向 openHiTLS 提增强</td>
+</tr>
+<tr>
+<td>SNI 回调中切换配置</td>
+<td>回调里换证书/配置后继续握手</td>
+<td>适配层获取 ClientHello 数据重建配置，或 openHiTLS 增强</td>
+</tr>
+<tr>
+<td>非阻塞错误码粒度</td>
+<td>精确区分"想读/想写/致命错误"</td>
+<td>openHiTLS 已有 <code>RECV_BUF_EMPTY/IO_BUSY</code>，大概率够用</td>
+</tr>
+</tbody>
+</table>
+<h3 id="43-重要原则">4.3 重要原则</h3>
+<p>若必须修改 openHiTLS，<strong>不得只改私有 fork</strong>：应以 PR 方式提交到官方仓 <code>openhitls/openhitls</code> 合入，本地 fork 保持同步跟踪。
+- nginx 侧改造：私有、随课题交付
+- openHiTLS 侧改动：社区化、走贡献流程（注册 GitCode、签署 CLA、提 Issue → PR → 流水线检查 → 评审）</p>
+<hr>
+<h2 id="5-单端口自适应架构设计">5. 单端口自适应架构设计</h2>
+<h3 id="51-判别依据国标-gbt-38636-gmt-0024-特征">5.1 判别依据（国标 GB/T 38636 / GM/T 0024 特征）</h3>
+<table>
+<thead>
+<tr>
+<th>特征</th>
+<th>TLCP 1.1</th>
+<th>国际 TLS</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ClientHello 版本号</td>
+<td><code>0x0101</code></td>
+<td><code>0x0301</code> ~ <code>0x0304</code></td>
+</tr>
+<tr>
+<td>CipherSuite</td>
+<td><code>0xE011/0xE013/0xE017/0xE019</code>（SM4+SM3 系）</td>
+<td><code>0x13xx/0xC0xx/0x00xx</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="52-推荐架构两层兜底">5.2 推荐架构（两层兜底）</h3>
+<p><strong>主路径：单 ctx 融合（库内自适应）</strong>
+- 一个 HITLS_CTX 同时开启 <code>TLS12 | TLS13 | TLCP11</code> 版本位
+- 同时挂载 SM2 签名证书 + SM2 加密证书 + RSA/ECDSA 证书
+- openHiTLS 服务端按 ClientHello 的版本号 + CipherSuite 自动选择协议族与证书
+- nginx 对协议判别完全无感知，适配层最薄</p>
+<p><strong>兜底路径：nginx 层嗅探分流</strong>
+- 在握手入口读取 5 字节 TLS record 头，<code>version == 0x0101</code> 走 TLCP ctx，否则走 TLS ctx
+- 两个独立 HITLS_CTX 配置不同证书/套件，支持"动态切换"
+- 用于处理异常场景（如库内融合协商异常）与课题要求的"基于握手特征的协议判别"</p>
+<h3 id="53-异常回退与安全策略">5.3 异常回退与安全策略</h3>
+<ul>
+<li>TLCP 协商失败不得静默降级到弱配置（防降级攻击）</li>
+<li>建立协议判别白名单：仅当 ClientHello 特征明确匹配时才按 TLCP 处理</li>
+<li>记录并监控异常握手（协议混用、版本回退探测）</li>
+</ul>
+<hr>
+<h2 id="6-tlcp-双证书集成方案">6. TLCP 双证书集成方案</h2>
+<ul>
+<li>TLCP 要求<strong>双证书</strong>：SM2 签名证书（sign）+ SM2 加密证书（encrypt）</li>
+<li>nginx 现有 <code>ssl_certificate</code> 为单证书指令，需新增指令（如 <code>ssl_sign_certificate</code> / <code>ssl_enc_certificate</code>），或设计 TLCP 模式下合并加载</li>
+<li>同一 ctx 内 SM2 双证书与国际 RSA/ECDSA 证书共存，按协商结果选择</li>
+<li>证书格式：PEM/DER 解析依赖 openHiTLS PKI + codecs 组件</li>
+</ul>
+<hr>
+<h2 id="7-nginx-1296-新特性适配">7. nginx 1.29.6 新特性适配</h2>
+<table>
+<thead>
+<tr>
+<th>新特性</th>
+<th>nginx 侧</th>
+<th>openHiTLS 侧</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Provider 接口（<code>ssl_provider</code> 指令，1.27+）</td>
+<td>将指令映射为 openHiTLS 的 provider 加载（<code>crypto/provider</code> 可加载算法模块），或做等价能力映射</td>
+<td>确认 provider 加载 API 语义</td>
+</tr>
+<tr>
+<td>HTTP/2 对上游</td>
+<td>保证 ALPN 协商正确（server 侧 <code>h2</code>，upstream 侧 <code>h2c</code>）</td>
+<td>原生支持 ALPN</td>
+</tr>
+<tr>
+<td>新版 SNI 回调（1.25+）</td>
+<td>适配"ClientHello 解析完成后回调、回调中可切换配置"的语义</td>
+<td>确认 SNI 回调切换 ctx/配置的支持度（<code>hitls_sni.h</code>）</td>
+</tr>
+<tr>
+<td>会话复用</td>
+<td><code>ssl_session_cache shared:SSL:10m</code> 跨 worker 共享</td>
+<td>确认 session 导出/导入（<code>hitls_session.h</code>）</td>
+</tr>
+<tr>
+<td>双向认证</td>
+<td><code>ssl_verify_client</code> → CA 列表 + 校验回调</td>
+<td>确认 TLS 1.3 CertificateRequest 语义</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="8-关键难点">8. 关键难点</h2>
+<ol>
+<li><strong>非阻塞事件模型映射</strong>：nginx 事件驱动，<code>ngx_ssl_handshake()</code> 依赖 WANT_READ/WANT_WRITE 决定挂哪个事件。错误码映射不精确会导致忙等或死锁，这是适配成败的关键</li>
+<li><strong>证书双轨</strong>：单证书指令 vs TLCP 双证书体系的配置与加载设计</li>
+<li><strong>SNI 回调配置切换</strong>：多虚拟主机场景下的证书/配置动态切换语义</li>
+<li><strong>Session 跨进程共享</strong>：共享内存缓存要求 session 可序列化</li>
+</ol>
+<hr>
+<h2 id="9-分阶段实施路径">9. 分阶段实施路径</h2>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>内容</th>
+<th>验证方式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>openHiTLS 构建与自测</td>
+<td>本仓库 <code>testcode/script</code> 三件套（build_hitls.sh / build_sdv.sh / execute_sdv.sh）</td>
+</tr>
+<tr>
+<td>1</td>
+<td>最小闭环：单证书 TLS 1.2/1.3 跑通 nginx HTTPS</td>
+<td>标准 OpenSSL s_client / 浏览器访问</td>
+</tr>
+<tr>
+<td>2</td>
+<td>TLCP 双证书握手</td>
+<td>Tongsuo / GmSSL 的 s_client（标准 s_client 不支持 TLCP）</td>
+</tr>
+<tr>
+<td>3</td>
+<td>单端口自适应</td>
+<td>国密客户端 + 国际客户端并发访问 443</td>
+</tr>
+<tr>
+<td>4</td>
+<td>补齐特性：SNI / ALPN / 会话复用 / 双向认证 / Provider / HTTP2 上游</td>
+<td>分项用例</td>
+</tr>
+<tr>
+<td>5</td>
+<td>性能对比</td>
+<td>与 OpenSSL + Tongsuo 的国密 nginx 对比（openssl s_time / wrk / nginx 日志）</td>
+</tr>
+<tr>
+<td>6</td>
+<td>社区用例</td>
+<td>nginx 官方测试套件 nginx-tests（Test::Nginx Perl 框架），跑 HTTPS/SNI/ALPN/session 相关组</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="10-测试与验证方案要点">10. 测试与验证方案要点</h2>
+<ul>
+<li><strong>国密互通</strong>：测试客户端必须支持 TLCP（Tongsuo/GmSSL s_client、国密浏览器）；标准 OpenSSL s_client 只能测国际 TLS 链路</li>
+<li><strong>验收指标 1</strong>：单端口 443 并发连接功能验证——TLCP 单/双向认证、TLS 1.3 初始化、Session 复用、HTTP/2 ALPN 协商</li>
+<li><strong>验收指标 2</strong>：性能评估与对比（与基于 OpenSSL 的国密 nginx 实现对比）</li>
+<li><strong>回归</strong>：nginx 社区测试用例通过报告</li>
+</ul>
+<hr>
+<h2 id="11-参考资料">11. 参考资料</h2>
+<ul>
+<li>openHiTLS 仓库：<code>docs/zh/5_开发指南/2_安全通信应用开发指南.md</code>（HITLS API 用法）</li>
+<li>openHiTLS 仓库：<code>docs/zh/5_开发指南/5_TLS证书接口参考.md</code>（证书加载）</li>
+<li>openHiTLS 仓库：<code>include/tls/hitls.h</code>（TLS 公开 API，约 1900 行）</li>
+<li>openHiTLS 仓库：<code>include/tls/hitls_config.h</code> / <code>hitls_type.h</code>（版本与特性位定义）</li>
+<li>nginx 1.29.6 源码：<code>src/event/ngx_event_openssl.c</code>（OpenSSL 调用面全清单）</li>
+<li>国标：GB/T 38636-2020（TLCP 1.1）、GM/T 0024-2023</li>
+<li>nginx-tests：http://hg.nginx.org/nginx-tests</li>
+</ul>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">知识领域</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A2%86%E5%9F%9F/nginx/nginx-adaptation.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../notes/domains/mysql-vs-postgresql-ai.html"><span class="dir">← 上一篇</span><span class="t">MySQL vs PostgreSQL vs SQLite：对比、AI 时代选型与学习曲线</span></a><a class="next" href="../../../notes/domains/nginx/nginx-notes.html"><span class="dir">下一篇 →</span><span class="t">Nginx 反代部署笔记（联机版）</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../index.html">首页</a>
+      <a href="../../../learn.html">课件</a>
+      <a href="../../../notes/index.html">笔记库</a>
+      <a href="../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../about.html">关于</a>
+      <a href="../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../js/main.js" defer></script>
+</body>
+</html>

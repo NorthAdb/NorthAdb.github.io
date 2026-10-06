@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>使用Claude Code：会话管理与100万上下文——Thariq（中文翻译） · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="中文翻译自 tips/claude-thariq-tips-16-apr-26.mdhttps://github.com/shanraisshan/claude-code-best-practice/blob/main/tips/claud…">
+<link rel="canonical" href="https://northadb.github.io/notes/projects/claude-code-best-practice/doc/tips/thariqclaudecode-0416.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="使用Claude Code：会话管理与100万上下文——Thariq（中文翻译） · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="中文翻译自 tips/claude-thariq-tips-16-apr-26.mdhttps://github.com/shanraisshan/claude-code-best-practice/blob/main/tips/claud…">
+<meta property="og:url" content="https://northadb.github.io/notes/projects/claude-code-best-practice/doc/tips/thariqclaudecode-0416.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用Claude Code：会话管理与100万上下文——Thariq（中文翻译） · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="中文翻译自 tips/claude-thariq-tips-16-apr-26.mdhttps://github.com/shanraisshan/claude-code-best-practice/blob/main/tips/claud…">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../../../feed.xml">
+<link rel="stylesheet" href="../../../../../css/style.css">
+<link rel="stylesheet" href="../../../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "使用Claude Code：会话管理与100万上下文——Thariq（中文翻译）", "description": "中文翻译自 tips/claude-thariq-tips-16-apr-26.mdhttps://github.com/shanraisshan/claude-code-best-practice/blob/main/tips/claud…", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/projects/claude-code-best-practice/doc/tips/thariqclaudecode-0416.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../../../index.html">首页</a><span>/</span><a href="../../../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../../../notes/projects/index.html">项目笔记</a></div>
+          <h1>使用Claude Code：会话管理与100万上下文——Thariq（中文翻译）</h1>
+          <p class="post-sub">中文翻译自 tips/claude-thariq-tips-16-apr-26.mdhttps://github.com/shanraisshan/claude-code-best-practice/blob/main/tips/claud…</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../../../notes/projects/index.html">项目笔记</a></span><span class="sep"></span>
+            <span>阅读约 7 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p>中文翻译自 <a href="https://github.com/shanraisshan/claude-code-best-practice/blob/main/tips/claude-thariq-tips-16-apr-26.md">tips/claude-thariq-tips-16-apr-26.md</a></p>
+</blockquote>
+<p>关于在Claude Code中管理会话、上下文窗口和压缩的指南，由Thariq（<a href="https://x.com/trq212">@trq212</a>）于2026年4月16日分享。</p>
+<table width="100%">
+<tr>
+<td><a href="https://github.com/NorthAdb/north-my-note/tree/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc">← 返回 Claude Code 最佳实践</a></td>
+<td align="right"><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/%21/claude-jumping.svg" alt="Claude" width="60" /></td>
+</tr>
+</table>
+
+<hr>
+<h2 id="背景">背景</h2>
+<p>借助100万token的上下文窗口，Claude Code可以更可靠地处理更长的任务——但如果你不刻意管理会话，它也为上下文污染打开了大门。会话管理比以往任何时候都重要：何时重新开始、何时压缩、何时回退、何时委托给子代理。</p>
+<p><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/thariq-26-4-16/1.png" alt="Thariq 介绍推文" width="50%" /></p>
+<p><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/thariq-26-4-16/2.png" alt="会话管理介绍" width="50%" /></p>
+<hr>
+<h2 id="关于上下文压缩和上下文腐败的快速入门">关于上下文、压缩和上下文腐败的快速入门</h2>
+<p>上下文窗口是模型在生成下一次响应时能够同时"看到"的所有内容。它包含系统提示、迄今为止的对话、每次工具调用及其输出，以及所有已读取的文件。Claude Code的上下文窗口为<strong>一百万个token</strong>。</p>
+<p>不幸的是，使用上下文有一点代价——<strong>上下文腐败</strong>。随着上下文的增长，模型性能会下降，因为注意力分散在更多的token上，而较旧的、不相关的内容开始干扰当前任务。对于100万上下文模型，某种程度的上下文腐败大约发生在 <strong>~300-400k tokens</strong> 时，但这高度依赖于具体任务——不是硬性规定。</p>
+<p>上下文窗口是一个硬性截断点。当你接近末尾时，你需要总结任务并在一个新的上下文窗口中继续——这就是<strong>压缩</strong>。你也可以自己触发压缩。</p>
+<p><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/thariq-26-4-16/3.png" alt="上下文窗口示意图" width="50%" /></p>
+<p><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/thariq-26-4-16/4.png" alt="上下文腐败说明" width="50%" /></p>
+<hr>
+<h2 id="每一轮都是分支点">每一轮都是分支点</h2>
+<p>在Claude完成一轮后，你有多种选择来决定接下来做什么：</p>
+<ul>
+<li><strong>继续（Continue）</strong> —— 在同一会话中发送另一条消息</li>
+<li><strong>/rewind（esc esc）</strong> —— 跳回到之前的某条消息，然后从那里重新开始</li>
+<li><strong>/clear</strong> —— 开始一个新会话，通常带上你从刚才学到的东西中提炼出的简报</li>
+<li><strong>压缩（Compact）</strong> —— 总结到目前为止的会话，然后在总结之上继续</li>
+<li><strong>子代理（Subagents）</strong> —— 将下一部分工作委托给一个拥有自己清晰上下文的代理，只将其结果拉回来</li>
+</ul>
+<p>虽然最自然的做法是继续，但其他四个选项的存在是为了帮助你管理上下文。</p>
+<p><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/thariq-26-4-16/5.png" alt="压缩和分支示意图" width="50%" /></p>
+<p><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/thariq-26-4-16/6.png" alt="一轮之后的五个选项" width="50%" /></p>
+<p>每个选项将不同程度的现有上下文带入下一步：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">全新会话</th>
+<th style="text-align: center;">压缩</th>
+<th style="text-align: center;">子代理</th>
+<th style="text-align: center;">回退</th>
+<th style="text-align: center;">继续</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">只有你的简报</td>
+<td style="text-align: center;">有损总结</td>
+<td style="text-align: center;">全部 + 结果</td>
+<td style="text-align: center;">保留前缀，截断尾部</td>
+<td style="text-align: center;">一切保留</td>
+</tr>
+<tr>
+<td style="text-align: center;"><em>其中没有</em></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"><em>其中全部</em></td>
+</tr>
+</tbody>
+</table>
+<p><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/thariq-26-4-16/7.png" alt="上下文延续光谱" width="50%" /></p>
+<hr>
+<h2 id="何时开始新会话">何时开始新会话</h2>
+<p>新的100万上下文窗口意味着你现在可以更可靠地完成更长的任务——例如，从头开始构建一个全栈应用。但仅仅因为你的模型没有耗尽上下文，并不意味着你不应该开始新会话。</p>
+<p><strong>一般经验法则：当你开始一个新任务时，你也应该开始一个新会话。</strong></p>
+<p>一个灰色区域是，你可能想做相关的任务，其中部分上下文仍然必要，但不是全部。例如，为你刚实现的功能编写文档。虽然你可以开始一个新会话，但Claude必须重新读取文件，这会更慢且更昂贵。由于文档可能不是高度智能敏感型任务，额外的上下文可能值得效率的提升。</p>
+<p><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/thariq-26-4-16/8.png" alt="何时开始新会话" width="50%" /></p>
+<hr>
+<h2 id="回退而非纠正">回退而非纠正</h2>
+<p>如果Thariq要选出一个标志着良好上下文管理的习惯，那就是<strong>回退</strong>。</p>
+<p>在Claude Code中，双击Esc（或运行 <code>/rewind</code>）可以让你跳回到之前的任何一条消息并从那里重新提示。该点之后的消息将从上下文中删除。</p>
+<p><strong>纠正（Correcting）</strong>（在失败的尝试A之后说"不，试试B"）会将失败的尝试留在上下文中：</p>
+<blockquote>
+<p>上下文 = 读取 + 2次失败尝试 + 2次纠正 + 修复</p>
+</blockquote>
+<p><strong>回退（Rewinding）</strong>（回到失败尝试之前，用你学到的东西重新提示）更干净：</p>
+<blockquote>
+<p>上下文 = 读取 + 一次有依据的提示 + 修复</p>
+</blockquote>
+<p>回退通常是更好的方法。例如，Claude读取了五个文件，尝试了一种方法，但不起作用。你的本能可能是输入"那没起作用，试试X吧。"但更好的做法是回退到刚刚读完文件的时候，然后用你学到的东西重新提示："不要使用方法A，foo模块没有暴露那个——直接使用B。"</p>
+<p>你也可以使用 <strong>"summarize from here"</strong> 让Claude总结它的学习成果并创建一条交接消息，有点像未来的自己——那个尝试了某种方法但没成功——给前一个迭代的Claude的消息。</p>
+<p><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/thariq-26-4-16/9.png" alt="纠正与回退示意图" width="50%" /></p>
+<p><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/thariq-26-4-16/10.png" alt="使用summarize from here回退" width="50%" /></p>
+<hr>
+<h2 id="压缩-vs-全新会话">压缩 vs. 全新会话</h2>
+<p>一旦会话变长，你有两种方式来减轻负担：<code>/compact</code> 或 <code>/clear</code>（并重新开始）。它们感觉相似但行为非常不同。</p>
+<p><strong>压缩（Compact）</strong> 要求模型总结迄今为止的对话，然后用那个总结替换历史记录。它是有损的——你相信Claude能决定什么重要，但你不需要自己写任何东西。Claude可能更彻底地包含重要的学习成果或文件。你也可以通过传递指令来引导它（<code>/compact 关注auth重构，忽略测试调试</code>）。</p>
+<ul>
+<li><strong>任务进行中</strong>，保持势头——细节可以模糊</li>
+<li>成本低，继续前进</li>
+</ul>
+<p><strong>全新+简报（Fresh + brief）</strong>（<code>/clear</code>）意味着<em>你</em>写下重要事项（"我们在重构auth中间件，约束条件是X，重要的文件是A和B，我们已经排除了方法Y"）并重新开始。这需要更多工作，但产生的上下文是<em>你</em>决定的相关内容。</p>
+<ul>
+<li><strong>高风险</strong>下一步——在10万token的探索中找到了一条关键信息</li>
+<li>更多工作，更精确</li>
+</ul>
+<p><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/thariq-26-4-16/11.png" alt="压缩 vs 全新会话" width="50%" /></p>
+<p><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/thariq-26-4-16/12.png" alt="压缩 vs 全新示意图" width="50%" /></p>
+<hr>
+<h2 id="什么导致压缩效果差">什么导致压缩效果差？</h2>
+<p>如果你运行大量长时间运行的会话，你可能已经注意到有时压缩效果特别差。当模型无法预测你的工作方向时，可能会发生糟糕的压缩。</p>
+<p>例如，自动压缩在长时间调试会话后触发并总结了调查过程。你的下一条消息是"现在修复我们在bar.ts中看到的那个其他警告。"但由于会话集中在调试上，那个其他警告可能已经从总结中被删除了。</p>
+<p>这特别棘手，因为由于上下文腐败，模型在压缩时正处于其最不智能的时刻。有了100万上下文，你有更多时间主动使用 <code>/compact</code> 并附上你想做什么的描述。</p>
+<p><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/thariq-26-4-16/13.png" alt="糟糕的压缩示意图" width="50%" /></p>
+<p><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/thariq-26-4-16/14.png" alt="糟糕的压缩说明" width="50%" /></p>
+<hr>
+<h2 id="子代理和全新的上下文窗口">子代理和全新的上下文窗口</h2>
+<p>子代理是上下文管理的一种形式，当你预先知道某部分工作会产生大量你不再需要的中间输出时，非常有用。</p>
+<p>当Claude通过Agent工具生成子代理时，该子代理获得自己全新的上下文窗口。它可以根据需要完成任意多的工作，然后综合其结果，只将最终报告返回给父代理。</p>
+<p>心理测试：<strong>我将来还会需要这个工具输出吗，还是只需要结论？</strong></p>
+<p>探索噪音在子代理退出时被垃圾回收——20次文件读取、12次grep搜索、3个死胡同——只有最终报告返回给父上下文。</p>
+<p>虽然Claude Code会自动调用子代理，但你可能想明确地告诉它这样做。例如：</p>
+<ul>
+<li>"启动一个子代理，根据以下规范文件验证此工作的结果"</li>
+<li>"启动一个子代理，阅读那个其他代码库并总结它是如何实现auth流程的，然后你以同样的方式实现它"</li>
+<li>"启动一个子代理，根据我的git变更为此功能编写文档"</li>
+</ul>
+<p><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/thariq-26-4-16/15.png" alt="子代理上下文示意图" width="50%" /></p>
+<p><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/thariq-26-4-16/16.png" alt="子代理说明" width="50%" /></p>
+<p><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/thariq-26-4-16/17.png" alt="何时使用子代理" width="50%" /></p>
+<hr>
+<h2 id="总结">总结</h2>
+<p>当Claude完成一轮而你将发送新消息时，你面临一个决策点。随着时间的推移，Claude会自己处理这个问题，但目前这是你可以引导Claude输出的方式之一。</p>
+<table>
+<thead>
+<tr>
+<th>情况</th>
+<th>使用</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>同一任务，上下文仍然相关</td>
+<td><strong>继续</strong></td>
+<td>窗口中的一切仍然重要——不要为重建付出代价</td>
+</tr>
+<tr>
+<td>Claude走错了路</td>
+<td><strong>回退</strong>（双击Esc）</td>
+<td>保留有用的文件读取，丢弃失败的尝试，用你学到的东西重新提示</td>
+</tr>
+<tr>
+<td>任务进行中但会话被陈旧的调试/探索信息塞满</td>
+<td><strong>/compact \&lt;提示&gt;</strong></td>
+<td>低投入；Claude决定什么重要。必要时用提示引导</td>
+</tr>
+<tr>
+<td>开始一个真正的新任务</td>
+<td><strong>/clear</strong></td>
+<td>零腐败；你精确控制什么延续下去</td>
+</tr>
+<tr>
+<td>下一步会产生大量你只需要结论的输出</td>
+<td><strong>子代理</strong></td>
+<td>中间工具噪音留在子代理的上下文中；只有结果返回</td>
+</tr>
+</tbody>
+</table>
+<p><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/thariq-26-4-16/18.png" alt="总结" width="50%" /></p>
+<p><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/thariq-26-4-16/19.png" alt="决策表" width="50%" /></p>
+<hr>
+<h2 id="来源">来源</h2>
+<ul>
+<li><a href="https://x.com/trq212">Thariq (@trq212) on X — April 16, 2026</a></li>
+</ul>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">项目笔记</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/Thariq%E7%9A%84ClaudeCode%E6%8A%80%E5%B7%A7-0416.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../../../notes/projects/claude-code-best-practice/doc/tips/thariqclaudecode-0317.html"><span class="dir">← 上一篇</span><span class="t">构建Claude Code的经验教训：我们如何使用技能——Thariq（中文翻译）</span></a><a class="next" href="../../../../../notes/projects/claude-code-best-practice/doc/pb58041.html"><span class="dir">下一篇 →</span><span class="t">翻译进度与文档缺口分析</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../../../index.html">首页</a>
+      <a href="../../../../../learn.html">课件</a>
+      <a href="../../../../../notes/index.html">笔记库</a>
+      <a href="../../../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../../../about.html">关于</a>
+      <a href="../../../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../../../js/main.js" defer></script>
+</body>
+</html>

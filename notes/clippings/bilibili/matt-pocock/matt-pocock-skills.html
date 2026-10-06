@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matt Pocock Skills 仓库全量分类汇总 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="仓库：mattpocock/skillshttps://github.com/mattpocock/skills | 理念：Skills For Real Engineers（真实工程，不是 vibe coding） 规模：21.6 万 s…">
+<link rel="canonical" href="https://northadb.github.io/notes/clippings/bilibili/matt-pocock/matt-pocock-skills.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Matt Pocock Skills 仓库全量分类汇总 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="仓库：mattpocock/skillshttps://github.com/mattpocock/skills | 理念：Skills For Real Engineers（真实工程，不是 vibe coding） 规模：21.6 万 s…">
+<meta property="og:url" content="https://northadb.github.io/notes/clippings/bilibili/matt-pocock/matt-pocock-skills.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Matt Pocock Skills 仓库全量分类汇总 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="仓库：mattpocock/skillshttps://github.com/mattpocock/skills | 理念：Skills For Real Engineers（真实工程，不是 vibe coding） 规模：21.6 万 s…">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../../feed.xml">
+<link rel="stylesheet" href="../../../../css/style.css">
+<link rel="stylesheet" href="../../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Matt Pocock Skills 仓库全量分类汇总", "description": "仓库：mattpocock/skillshttps://github.com/mattpocock/skills | 理念：Skills For Real Engineers（真实工程，不是 vibe coding） 规模：21.6 万 s…", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/clippings/bilibili/matt-pocock/matt-pocock-skills.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../../index.html">首页</a><span>/</span><a href="../../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../../notes/clippings/index.html">内容剪藏</a></div>
+          <h1>Matt Pocock Skills 仓库全量分类汇总</h1>
+          <p class="post-sub">仓库：mattpocock/skillshttps://github.com/mattpocock/skills | 理念：Skills For Real Engineers（真实工程，不是 vibe coding） 规模：21.6 万 s…</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../../notes/clippings/index.html">内容剪藏</a></span><span class="sep"></span>
+            <span>阅读约 6 分钟</span><span class="sep"></span><span>更新于 2026-08-13</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p><strong>仓库</strong>：<a href="https://github.com/mattpocock/skills">mattpocock/skills</a> | <strong>理念</strong>：Skills For Real Engineers（真实工程，不是 vibe coding）
+<strong>规模</strong>：21.6 万 star（215,920）· 1540 万 installs · 35 个 skills（工程 18 + 生产力 7 + misc 4 + 实验 6；插件含前 25 个）
+<strong>安装</strong>：<code>claude plugins install mattpocock-skills</code>（Claude Code 官方插件，自动更新）或 <code>npx skills@latest add mattpocock/skills</code>（可编辑副本）</p>
+</blockquote>
+<hr>
+<h2 id="本次更新2026-08-13对比-07-31-快照">📅 本次更新（2026-08-13，对比 07-31 快照）</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">类型</th>
+<th style="text-align: left;">变化</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>新增</strong></td>
+<td style="text-align: left;"><code>wait-what</code>（productivity）：一句话纠正模型啰嗦</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>改名 + 重构</strong></td>
+<td style="text-align: left;"><code>writing-great-skills</code> → <strong><code>writing-for-agents</code></strong>（覆盖所有 agent 消费的文档，改 model-invoked，旧名无别名）</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>转正</strong></td>
+<td style="text-align: left;"><code>wizard</code>：in-progress → <strong>engineering</strong>（model-invoked）；<code>to-questionnaire</code>：in-progress → <strong>productivity</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>移除</strong></td>
+<td style="text-align: left;"><code>edit-article</code>、<code>obsidian-vault</code>（原 Personal 类整体消失）、<code>batch-grill-me</code>、<code>design-an-interface</code>、<code>qa</code>、<code>request-refactor-plan</code>、<code>ubiquitous-language</code>（deprecated 桶已清空）</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>大改</strong></td>
+<td style="text-align: left;"><code>prototype</code>（单一 HTML 文件 + primary source）、<code>wayfinder</code>（decision ticket + research 子 agent 并行）、<code>ask-matt</code>（phase 决策树 + 新路由）、<code>diagnosing-bugs</code>（脱敏）、<code>improve-codebase-architecture</code>（YAGNI 范围过滤）</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>安装</strong></td>
+<td style="text-align: left;">新增官方 Claude Code 插件（<code>claude plugins install mattpocock-skills</code>，v1.2.3，25 个 skill，自动更新）；skills 全部带 Codex 元数据，双 harness 可用</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="设计哲学">设计哲学</h2>
+<blockquote>
+<p><strong>「Approaches like GSD, BMAD, and Spec-Kit try to own the process. But while doing so, they take away your control. These skills are designed to be small, easy to adapt, and composable. They work with any model.」</strong></p>
+</blockquote>
+<ul>
+<li>小而可组合，不搞大而全的流程框架</li>
+<li>基于数十年工程经验，不依赖特定模型</li>
+<li>大多需<strong>手动调用</strong>（不自动加载），描述精简精准；<code>wizard</code> / <code>writing-for-agents</code> 为 model-invoked（agent 可自动触发）</li>
+</ul>
+<hr>
+<h2 id="engineering-工程类18-个-核心">🏗️ Engineering 工程类（18 个）⭐ 核心</h2>
+<h3 id="探索与规划">探索与规划</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Skill</th>
+<th style="text-align: left;">作用</th>
+<th style="text-align: left;">何时用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>grill-with-docs</strong></td>
+<td style="text-align: left;">有状态盘问打磨方案，边聊边生成 ADR + 术语表</td>
+<td style="text-align: left;">开始设计/规划前</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>domain-modeling</strong></td>
+<td style="text-align: left;">建立并打磨项目领域模型（DDD 统一语言、ADR）</td>
+<td style="text-align: left;">想敲定领域术语时</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>wayfinder</strong></td>
+<td style="text-align: left;">规划超大会话容量的工作：把大块工作变成 issue tracker 上的决策 ticket map，逐个解决</td>
+<td style="text-align: left;">一个 agent 会话装不下的任务</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>research</strong></td>
+<td style="text-align: left;">针对高可信一手资料做调查，结果存为 Markdown</td>
+<td style="text-align: left;">需要调研/查证</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>triage</strong></td>
+<td style="text-align: left;">把 issue 和外部 PR 推过分类状态机：归类→验证→按需 grill→写 agent-ready brief</td>
+<td style="text-align: left;">管理 issue 流</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>to-spec</strong></td>
+<td style="text-align: left;">把当前对话合成为 spec 发布到 issue tracker（只综合，不采访）</td>
+<td style="text-align: left;">讨论完要固化 spec</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>to-tickets</strong></td>
+<td style="text-align: left;">把 plan/spec/对话拆成 tracer-bullet tickets，声明 blocking 边</td>
+<td style="text-align: left;">拆解实现任务</td>
+</tr>
+</tbody>
+</table>
+<h3 id="设计">设计</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Skill</th>
+<th style="text-align: left;">作用</th>
+<th style="text-align: left;">何时用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>codebase-design</strong></td>
+<td style="text-align: left;">深度模块设计的共享词汇表：设计模块接口、找深化机会</td>
+<td style="text-align: left;">设计/改进模块接口</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>prototype</strong></td>
+<td style="text-align: left;">做一次性原型回答设计问题（状态模型/逻辑是否对）</td>
+<td style="text-align: left;">需要 sanity-check 时</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>tdd</strong></td>
+<td style="text-align: left;">测试驱动开发（red-green-refactor）</td>
+<td style="text-align: left;">想测试先行时</td>
+</tr>
+</tbody>
+</table>
+<h3 id="实现与质量">实现与质量</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Skill</th>
+<th style="text-align: left;">作用</th>
+<th style="text-align: left;">何时用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>implement</strong></td>
+<td style="text-align: left;">基于 spec/tickets 实现一块工作</td>
+<td style="text-align: left;">有 spec 或 ticket 后</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>code-review</strong></td>
+<td style="text-align: left;">从固定点（commit/branch/tag/merge-base）审查改动，两个维度：Standards（是否遵循仓库标准）+ Spec（是否符合原始 issue/spec），并行子 agent 双审</td>
+<td style="text-align: left;">提交前</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>diagnosing-bugs</strong></td>
+<td style="text-align: left;">硬 bug 和性能回归的诊断循环</td>
+<td style="text-align: left;">debug/诊断</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>improve-codebase-architecture</strong></td>
+<td style="text-align: left;">扫描代码库找深化机会 → HTML 报告 → 挑一个 grill</td>
+<td style="text-align: left;">定期重构</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>resolving-merge-conflicts</strong></td>
+<td style="text-align: left;">解决进行中的 git merge/rebase 冲突</td>
+<td style="text-align: left;">冲突时</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>ask-matt</strong></td>
+<td style="text-align: left;">技能路由器：根据情况推荐该用哪个 skill/流程</td>
+<td style="text-align: left;">不知道用哪个时</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>setup-matt-pocock-skills</strong></td>
+<td style="text-align: left;">配置仓库：issue tracker、triage 标签词汇、领域文档布局（首次使用前跑一次）</td>
+<td style="text-align: left;">首次配置</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>wizard</strong></td>
+<td style="text-align: left;">生成交互式 bash 向导，带人走完<strong>只有人能做</strong>的步骤（配置密钥/CI secret、走陌生第三方面板、一次性迁移）</td>
+<td style="text-align: left;">遇到"只能人做"的步骤时（model-invoked）</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="productivity-生产力类7-个">🛠️ Productivity 生产力类（7 个）</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Skill</th>
+<th style="text-align: left;">作用</th>
+<th style="text-align: left;">何时用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>grill-me</strong></td>
+<td style="text-align: left;">无状态盘问打磨计划/设计</td>
+<td style="text-align: left;">想 stress-test 想法时</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>grilling</strong></td>
+<td style="text-align: left;">关于计划/决策/想法的持续盘问</td>
+<td style="text-align: left;">任何 grill 触发词</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>handoff</strong></td>
+<td style="text-align: left;">把当前对话 compact 成交接文档给另一个 agent</td>
+<td style="text-align: left;">换会话/交接</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>teach</strong></td>
+<td style="text-align: left;">在当前工作区教用户新技能/概念（有状态教学工作区）</td>
+<td style="text-align: left;">想学东西时</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>wait-what</strong></td>
+<td style="text-align: left;">🆕 一句话纠正模型啰嗦："停，这句没听懂，重新讲"（三行小 skill，user-invoked）</td>
+<td style="text-align: left;">模型输出没落地时</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>to-questionnaire</strong></td>
+<td style="text-align: left;">🆕 把无法独自回答的决策变成问卷，给别人（异步/会议上）填</td>
+<td style="text-align: left;">只有别人能回答时</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>writing-for-agents</strong></td>
+<td style="text-align: left;">写 agents 消费的文档（skills、AGENTS.md/CLAUDE.md、指针文档）的参考，model-invoked</td>
+<td style="text-align: left;">写/改 skill 或 agent 文档时</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="misc-杂项类4-个">🧰 Misc 杂项类（4 个）</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Skill</th>
+<th style="text-align: left;">作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>git-guardrails-claude-code</strong></td>
+<td style="text-align: left;">设置 Claude Code hooks 拦截危险 git 命令（push、reset --hard、clean、branch -D 等）</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>migrate-to-shoehorn</strong></td>
+<td style="text-align: left;">把测试文件从 <code>as</code> 类型断言迁移到 @total-typescript/shoehorn</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>scaffold-exercises</strong></td>
+<td style="text-align: left;">创建练习目录结构（sections/problems/solutions/explainers）通过 lint</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>setup-pre-commit</strong></td>
+<td style="text-align: left;">设置 Husky pre-commit hooks（Prettier + 类型检查 + 测试）</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="personal-个人类已移除">👤 Personal 个人类（已移除 🗑️）</h2>
+<blockquote>
+<p>原 <code>edit-article</code>、<code>obsidian-vault</code> 两个 skill 已从仓库删除（2026-08-13 前）。仓库现在只有 engineering / productivity / misc / in-progress 四个正式桶，不再有 personal 桶。</p>
+</blockquote>
+<hr>
+<h2 id="in-progress-实验类6-个">🧪 In-progress 实验类（6 个）</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Skill</th>
+<th style="text-align: left;">作用</th>
+<th style="text-align: left;">状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>claude-handoff</strong></td>
+<td style="text-align: left;">把当前对话交给一个全新的后台 agent 立即接续</td>
+<td style="text-align: left;">实验</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>loop-me</strong></td>
+<td style="text-align: left;">针对要构建的工作流 spec 盘问</td>
+<td style="text-align: left;">实验</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>setup-ts-deep-modules</strong></td>
+<td style="text-align: left;">把 dependency-cruiser 接入 TS 仓库，让每个包成为深度模块（实现藏在子目录、只能通过入口文件触达）</td>
+<td style="text-align: left;">实验</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>writing-beats</strong></td>
+<td style="text-align: left;">写作·exploit：把原材料组装成节奏（beats）旅程</td>
+<td style="text-align: left;">实验</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>writing-fragments</strong></td>
+<td style="text-align: left;">写作·explore：挖掘原始片段，还没结构</td>
+<td style="text-align: left;">实验</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>writing-shape</strong></td>
+<td style="text-align: left;">写作·exploit：把原材料逐段塑造成文章</td>
+<td style="text-align: left;">实验</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>写作三件套（fragments → shape → beats）是 Matt 在打磨的写作工作流：先无结构探索，再塑形，再组装成节奏。
+⚠️ 原 <code>batch-grill-me</code> 已被移除；<code>to-questionnaire</code> 和 <code>wizard</code> 已转正（见上）。</p>
+</blockquote>
+<hr>
+<h2 id="deprecated-已废弃类空">🗑️ Deprecated 已废弃类（空）</h2>
+<blockquote>
+<p>仓库的 deprecated 桶已清空。新规则：<strong>退役即删</strong>——一个 skill 不再使用时直接删除，由对应 changeset 注明替代品。原 4 个已删除：
+<code>design-an-interface</code>（→ codebase-design）、<code>qa</code>（→ diagnosing-bugs）、<code>request-refactor-plan</code>（→ improve-codebase-architecture / codebase-design）、<code>ubiquitous-language</code>（→ domain-modeling）</p>
+</blockquote>
+<hr>
+<h2 id="主流程链路这些-skills-如何配合">🔗 主流程链路（这些 skills 如何配合）</h2>
+<pre><code>wayfinder（决策 ticket map：把超大工作拆成 issue tracker 上的决策）   grill-with-docs（打磨方案）
+      │                              │
+      └──────► to-spec（合成 spec）
+                    │
+              to-tickets（拆 tickets）
+                    │
+              implement（逐个实现）
+                    │
+              code-review（审查）
+</code></pre>
+<p><strong>围绕主链路的辅助</strong>：
+- <code>research</code>：为决策做调研（wayfinder 的 research tickets 会派 <code>/research</code> 子 agent 并行烧毁，是"每会话一个 ticket"的唯一例外）
+- <code>prototype</code>：需要可运行答案时提保真度（产物变成单一 HTML 文件 + throwaway branch）
+- <code>domain-modeling</code>：敲定统一语言，让 spec/实现更精准
+- <code>triage</code>：管理 issue 流
+- <code>code-review</code> + <code>improve-codebase-architecture</code>：持续保证质量（后者现在按 YAGNI 只扫活跃开发的路径）
+- <code>ask-matt</code>：不知道用哪个时的路由器（覆盖 phase 边界决策 + 新路由 /grilling、/resolving-merge-conflicts）
+- <code>wizard</code>：流程卡在"只能人做"的步骤时，由 agent 自动拉起（model-invoked）</p>
+<hr>
+<h2 id="快速选型">📌 快速选型</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">我想…</th>
+<th style="text-align: left;">用这个</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">打磨一个模糊想法</td>
+<td style="text-align: left;"><strong>grill-me / grill-with-docs</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">规划一个大项目</td>
+<td style="text-align: left;"><strong>wayfinder</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">敲定领域术语</td>
+<td style="text-align: left;"><strong>domain-modeling</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">调研一个问题</td>
+<td style="text-align: left;"><strong>research</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">看看设计/逻辑对不对</td>
+<td style="text-align: left;"><strong>prototype</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">把讨论变 spec</td>
+<td style="text-align: left;"><strong>to-spec</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">拆实现任务</td>
+<td style="text-align: left;"><strong>to-tickets</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">动手实现</td>
+<td style="text-align: left;"><strong>implement</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">提交前检查</td>
+<td style="text-align: left;"><strong>code-review</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">修一个 bug</td>
+<td style="text-align: left;"><strong>diagnosing-bugs</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">让代码库更好改</td>
+<td style="text-align: left;"><strong>improve-codebase-architecture</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">学新东西</td>
+<td style="text-align: left;"><strong>teach</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">交接给别的 agent</td>
+<td style="text-align: left;"><strong>handoff</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">模型输出没落地/太啰嗦</td>
+<td style="text-align: left;"><strong>wait-what</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">需要别人才能回答的决策</td>
+<td style="text-align: left;"><strong>to-questionnaire</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">流程卡在"只能人做"的步骤</td>
+<td style="text-align: left;"><strong>wizard</strong></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="证据与原文位置">证据与原文位置</h2>
+<ul>
+<li><strong>仓库</strong>：https://github.com/mattpocock/skills（通过 gh API 读取目录结构 + SKILL.md frontmatter + CHANGELOG）</li>
+<li><strong>docs 目录</strong>：<code>docs/engineering/</code>（18 个 skill 各有 doc）+ <code>docs/productivity/</code>（7 个）</li>
+<li>各 SKILL.md frontmatter 的 description 字段为汇总依据</li>
+</ul>
+<h2 id="局限">局限</h2>
+<ul>
+<li>⚠️ In-progress 的 skill 可能随时变化/移除；deprecated 桶新规则为"退役即删"</li>
+<li>⚠️ 描述为英文原文的精简翻译，完整用法以仓库 SKILL.md 为准</li>
+<li>⚠️ 仓库持续更新（Matt 每周都在 ship 改动），本清单基于 <strong>2026-08-13</strong> 抓取（插件 v1.2.3）</li>
+</ul>
+<h2 id="关联笔记">关联笔记</h2>
+<ul>
+<li><a class="wl" href="../../../../notes/clippings/bilibili/matt-pocock/matt-pocock.html">Matt-Pocock/Matt-Pocock方法论精华-完整工作流与技能体系</a> — 方法论精华 + 主流流程</li>
+<li><a class="wl" href="../../../../notes/clippings/bilibili/matt-pocock/2026-07-31-matt-pocock-skills.html">Matt-Pocock/2026-07-31-Matt-Pocock-Skills原作者手把手教程</a> — 官方安装配置与主流程教程</li>
+<li><a class="wl" href="../../../../notes/clippings/bilibili/matt-pocock/2026-07-31-matt-pocock-slopwatch.html">Matt-Pocock/2026-07-31-Matt-Pocock直播-SlopWatch从零搭建完整实录</a> — GrillMe/domain-model 实战</li>
+</ul>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">内容剪藏</span><span class="chip">Matt Pocock</span><span class="chip">Skills</span><span class="chip">仓库清单</span><span class="chip">分类汇总</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/Clippings/Bilibili/Matt-Pocock/Matt-Pocock-Skills%E4%BB%93%E5%BA%93%E5%85%A8%E9%87%8F%E5%88%86%E7%B1%BB%E6%B1%87%E6%80%BB%E6%9C%AA%E5%91%BD%E5%90%8D.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../../notes/clippings/bilibili/matt-pocock/2026-08-17-matt-pocock-5promptmcp-server.html"><span class="dir">← 上一篇</span><span class="t">Matt Pocock 实战教程：5 条 Prompt 从零搭一个 MCP Server</span></a><a class="next" href="../../../../notes/clippings/bilibili/matt-pocock/matt-pocock.html"><span class="dir">下一篇 →</span><span class="t">Matt Pocock 方法论精华：从想法到交付的完整 Agent 工作流</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../../index.html">首页</a>
+      <a href="../../../../learn.html">课件</a>
+      <a href="../../../../notes/index.html">笔记库</a>
+      <a href="../../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../../about.html">关于</a>
+      <a href="../../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../../js/main.js" defer></script>
+</body>
+</html>

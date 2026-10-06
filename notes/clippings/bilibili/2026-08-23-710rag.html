@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>7 分钟了解 10 种 RAG 策略 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="视频：7 分钟了解 10 种 RAG 策略https://www.bilibili.com/video/BV17J3B6PEGK/ UP 主：Hucci写代码｜发布：2026-07-30｜时长：07:31 事实主干：视频音频离线转写（fas…">
+<link rel="canonical" href="https://northadb.github.io/notes/clippings/bilibili/2026-08-23-710rag.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="7 分钟了解 10 种 RAG 策略 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="视频：7 分钟了解 10 种 RAG 策略https://www.bilibili.com/video/BV17J3B6PEGK/ UP 主：Hucci写代码｜发布：2026-07-30｜时长：07:31 事实主干：视频音频离线转写（fas…">
+<meta property="og:url" content="https://northadb.github.io/notes/clippings/bilibili/2026-08-23-710rag.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="7 分钟了解 10 种 RAG 策略 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="视频：7 分钟了解 10 种 RAG 策略https://www.bilibili.com/video/BV17J3B6PEGK/ UP 主：Hucci写代码｜发布：2026-07-30｜时长：07:31 事实主干：视频音频离线转写（fas…">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../feed.xml">
+<link rel="stylesheet" href="../../../css/style.css">
+<link rel="stylesheet" href="../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "7 分钟了解 10 种 RAG 策略", "description": "视频：7 分钟了解 10 种 RAG 策略https://www.bilibili.com/video/BV17J3B6PEGK/ UP 主：Hucci写代码｜发布：2026-07-30｜时长：07:31 事实主干：视频音频离线转写（fas…", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/clippings/bilibili/2026-08-23-710rag.html"}
+</script>
+<script src="../../../notes/assets/mermaid-init.js" defer></script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../index.html">首页</a><span>/</span><a href="../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../notes/clippings/index.html">内容剪藏</a></div>
+          <h1>7 分钟了解 10 种 RAG 策略</h1>
+          <p class="post-sub">视频：7 分钟了解 10 种 RAG 策略https://www.bilibili.com/video/BV17J3B6PEGK/ UP 主：Hucci写代码｜发布：2026-07-30｜时长：07:31 事实主干：视频音频离线转写（fas…</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../notes/clippings/index.html">内容剪藏</a></span><span class="sep"></span>
+            <span>阅读约 9 分钟</span><span class="sep"></span><span>更新于 2026-08-23</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p><strong>视频</strong>：<a href="https://www.bilibili.com/video/BV17J3B6PEGK/">7 分钟了解 10 种 RAG 策略</a><br>
+<strong>UP 主</strong>：Hucci写代码｜<strong>发布</strong>：2026-07-30｜<strong>时长</strong>：07:31<br>
+<strong>事实主干</strong>：视频音频离线转写（faster-whisper small，中文）<br>
+<strong>证据等级</strong>：<code>local-asr-transcript</code>；英文术语和明显近音错误已结合上下文校正</p>
+</blockquote>
+<h2 id="一句话总论">一句话总论</h2>
+<blockquote>
+<p><strong>RAG 优化不是寻找一个万能组件，而是针对“分块、向量化、索引、查询处理、召回和架构路由”各阶段的失败模式逐层补强；刚开始落地时，视频建议优先采用 <code>Hybrid Search + Rerank</code>。</strong></p>
+</blockquote>
+<p>视频介绍了 10 种常见策略：</p>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>策略</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>分块</td>
+<td>Semantic Chunking、Proposition Chunking</td>
+</tr>
+<tr>
+<td>向量化</td>
+<td>Domain-specific Embedding</td>
+</tr>
+<tr>
+<td>索引</td>
+<td>GraphRAG</td>
+</tr>
+<tr>
+<td>查询处理</td>
+<td>Query Transformation、HyDE</td>
+</tr>
+<tr>
+<td>召回与精排</td>
+<td>Hybrid Search、Rerank</td>
+</tr>
+<tr>
+<td>整体架构</td>
+<td>Agentic RAG、Adaptive Routing</td>
+</tr>
+</tbody>
+</table>
+<h2 id="一长上下文为什么没有取代-rag">一、长上下文为什么没有取代 RAG</h2>
+<p>“RAG 已死”的常见理由是：旗舰模型已经拥有百万 token 级上下文，可以把所有资料直接塞给模型。视频认为，从工程角度看，这种做法仍绕不开三个问题：</p>
+<ol>
+<li><strong>成本</strong>：发送整份资料与只发送数百字相关证据，输入 token 成本可能相差数十乃至数百倍。</li>
+<li><strong>延迟</strong>：模型需要先处理完整输入才能开始输出，输入越长，首 token 等待时间通常越久。</li>
+<li><strong>上下文稀释</strong>：注意力要分配到所有输入内容；无关资料越多，真正有用的证据越容易被噪声淹没。</li>
+</ol>
+<p>因此，长上下文扩大了“可放入多少内容”的上限，却没有消除“应该放入哪些内容”的检索问题。</p>
+<h2 id="二基础-rag-流程">二、基础 RAG 流程</h2>
+<p>RAG 可分成离线的<strong>准备阶段</strong>和在线的<strong>检索阶段</strong>。</p>
+<pre><code class="language-mermaid">flowchart LR
+  subgraph Offline[准备阶段]
+    A[原始资料] --&gt; B[Chunking\n分块]
+    B --&gt; C[Embedding\n转成向量]
+    C --&gt; D[Indexing\n向量 + 原文 + Metadata]
+  end
+
+  subgraph Online[检索阶段]
+    Q[用户问题] --&gt; E[Query Processing\n查询处理]
+    E --&gt; F[Retrieval\n召回候选块]
+    F --&gt; G[Rerank\n精排]
+    G --&gt; H[LLM 基于证据回答]
+  end
+
+  D --&gt; F
+</code></pre>
+<h3 id="基础设施选择">基础设施选择</h3>
+<ul>
+<li>小项目可以考虑 <code>SQLite + sqlite-vec</code>。</li>
+<li>中大型项目可以考虑 <code>PostgreSQL + pgvector</code>。</li>
+<li>除向量和文本外，应保存日期、类型、来源等 Metadata，以便检索时过滤。</li>
+</ul>
+<p>Metadata 过滤是基础索引能力，不计入视频标题中的 10 种策略。</p>
+<h2 id="三策略-1semantic-chunking">三、策略 1：Semantic Chunking</h2>
+<h3 id="解决什么问题">解决什么问题</h3>
+<p>固定字符数切分可能从句子或语义单元中间截断内容。即使检索命中了这种碎片，模型也可能因为上下文不完整而无法理解。</p>
+<h3 id="怎么做">怎么做</h3>
+<ol>
+<li>将文档拆成句子或较小单元。</li>
+<li>计算相邻句子的 Embedding。</li>
+<li>语义接近的句子合并为一个 Chunk。</li>
+<li>向量距离明显增大时建立新的 Chunk 边界。</li>
+</ol>
+<h3 id="收益与限制">收益与限制</h3>
+<ul>
+<li>比固定长度分块更能保持局部语义完整，通常是实用的默认升级。</li>
+<li>只看语义相似度可能漏掉“词面差异大但逻辑上互相依赖”的句子。</li>
+<li>阈值、最大块大小和重叠窗口仍需结合数据集调优。</li>
+</ul>
+<h2 id="四策略-2proposition-chunking">四、策略 2：Proposition Chunking</h2>
+<h3 id="核心思路">核心思路</h3>
+<p>先对资料做粗分块，再交给 LLM 拆成一条条<strong>原子化、可独立理解的事实陈述（propositions）</strong>。一句复合表达可以产生多条命题，每条命题分别进入索引。</p>
+<h3 id="适用场景">适用场景</h3>
+<ul>
+<li>文档中一句话包含多个事实、约束或关系；</li>
+<li>需要按细粒度事实召回；</li>
+<li>语义相关性不能准确表达逻辑依赖。</li>
+</ul>
+<h3 id="代价">代价</h3>
+<ul>
+<li>索引阶段需要额外 LLM 调用，成本和耗时更高；</li>
+<li>拆解过程可能遗漏限定条件或产生错误命题；</li>
+<li>粒度过细会丢失段落级语境，需要保留父块引用或原文定位。</li>
+</ul>
+<h2 id="五策略-3domain-specific-embedding">五、策略 3：Domain-specific Embedding</h2>
+<p>通用 Embedding 模型，如 OpenAI <code>text-embedding-3</code>、BGE、Qwen3-Embedding，在一般语料上通常表现良好；但法律、代码、医学等领域存在大量近义词、术语和精确区分，通用向量空间未必能正确表达。</p>
+<p>视频举例：法律语境中的“定金”和“订金”含义不同，但通用模型可能因为字面接近而把它们映射得过近。</p>
+<h3 id="选择原则">选择原则</h3>
+<ul>
+<li>优先用真实业务查询和标注相关文档做检索评测，而不是只看公开榜单。</li>
+<li>若通用模型在专业术语、代码符号或医学名称上持续混淆，再换用领域模型或微调模型。</li>
+<li>更换 Embedding 模型意味着现有文档通常需要重新向量化和建索引。</li>
+</ul>
+<h2 id="六策略-4graphrag">六、策略 4：GraphRAG</h2>
+<p>普通向量库把 Chunk 当成相互独立的对象，容易丢失块之间的引用和关系。例如合同第 12 条引用第 5 条时，只召回第 12 条可能无法完整回答。</p>
+<p>GraphRAG 会抽取实体和关系并构建图：</p>
+<pre><code class="language-mermaid">flowchart LR
+  A[文档 Chunk] --&gt; B[实体 / 关系抽取]
+  B --&gt; C[(知识图谱)]
+  Q[查询] --&gt; D[定位命中节点]
+  D --&gt; C
+  C --&gt; E[沿边扩展关联节点]
+  E --&gt; F[组合证据]
+</code></pre>
+<h3 id="优势">优势</h3>
+<ul>
+<li>保留引用、隶属、因果等显式关系；</li>
+<li>适合关系密集和需要多跳检索的问题；</li>
+<li>能把与命中节点直接关联的内容一并找出。</li>
+</ul>
+<h3 id="风险">风险</h3>
+<ul>
+<li>需要 LLM 通读资料并抽取实体关系，索引成本高；</li>
+<li>图质量受实体消歧和关系抽取准确率影响；</li>
+<li>文档更新时要维护图的一致性，增量更新复杂。</li>
+</ul>
+<p>视频将 GraphRAG 评价为“收益与风险都很显著”，不应仅因概念先进就默认采用。更完整的对比见 <a class="wl" href="../../../notes/clippings/p44a38b/2026-08-04-graphraglightrag.html">Clippings/微信公众号/2026-08-04-GraphRAG与LightRAG-小林面试笔记</a>。</p>
+<h2 id="七策略-5query-transformation">七、策略 5：Query Transformation</h2>
+<p>用户的自然语言提问不一定适合直接检索。Query Transformation 让 LLM 在检索前改写问题，例如：</p>
+<ul>
+<li>将模糊问题改得更具体；</li>
+<li>将过窄表达适当泛化；</li>
+<li>生成多个不同表述；</li>
+<li>将复杂问题拆成若干子问题。</li>
+</ul>
+<p>它能缩小用户表达与文档表达之间的差异，但会增加一次或多次 LLM 调用，带来延迟、成本和查询漂移风险。延迟敏感的简单系统也可以不做预处理，直接检索原始 Query。</p>
+<h2 id="八策略-6hyde">八、策略 6：HyDE</h2>
+<p>HyDE（Hypothetical Document Embeddings）不直接用问题做向量检索，而是：</p>
+<pre><code class="language-text">用户问题
+  → LLM 生成一篇假设答案文档
+  → 对假设文档做 Embedding
+  → 在真实文档中检索相似内容
+</code></pre>
+<p>答案式文本在表达上往往比短问题更接近知识库文档，因此可以改善“问题空间”和“文档空间”不一致造成的召回困难。</p>
+<p>主要风险是：如果问题涉及模型不熟悉的冷门知识，假设文档可能一开始就是错的，检索方向也会随之偏离。详见 <a class="wl" href="../../../notes/wiki/concepts/hyde.html">HyDE</a>。</p>
+<h2 id="九策略-7hybrid-search">九、策略 7：Hybrid Search</h2>
+<p>纯向量检索擅长语义匹配，却不擅长精确区分专有名词、型号、编号或只有少量字词差异的概念。视频以“一型糖尿病”和“二型糖尿病”为例：两者语义接近，但查询时必须精确区分。</p>
+<p>Hybrid Search 同时使用：</p>
+<ul>
+<li><strong>Dense / Vector Search</strong>：寻找语义相近内容；</li>
+<li><strong>Keyword / Sparse Search</strong>：精确匹配关键词、编号和专有名词。</li>
+</ul>
+<p>两路结果经过融合后形成候选集，使语义召回和精确召回互补。生产链路通常还会叠加 Metadata 过滤与 Rerank，详见 <a class="wl" href="../../../notes/wiki/concepts/hybrid-search.html">Hybrid Search</a>。</p>
+<h2 id="十策略-8rerank">十、策略 8：Rerank</h2>
+<p>向量检索或 Hybrid Search 通常先对 Query 与每个 Chunk 独立计算相关性，适合从大量数据中低成本粗召回。Reranker 则把 Query 和每个候选 Chunk 放在一起重新评分，能进行更细致的相关性判断。</p>
+<pre><code class="language-text">全量文档
+  → 低成本召回 Top-N
+  → Reranker 精排
+  → 取 Top-K 给生成模型
+</code></pre>
+<p>Rerank 的单条判断成本较高，因此应放在粗召回之后，而不是直接扫描全库。视频认为它与 Hybrid Search 的收益成本比很高，适合作为新 RAG 项目的默认组合。详见 <a class="wl" href="../../../notes/wiki/concepts/reranker.html">Reranker</a>。</p>
+<h2 id="十一策略-9agentic-rag">十一、策略 9：Agentic RAG</h2>
+<p>传统 RAG 是一次性 Pipeline，而人类查资料通常是循环：先查一轮，判断信息是否够，不够就改问题、换方法或继续查。</p>
+<p>Agentic RAG 用 Loop 替代固定 Pipeline：</p>
+<pre><code class="language-mermaid">flowchart TD
+  A[理解问题] --&gt; B[选择检索工具与查询]
+  B --&gt; C[执行一轮检索]
+  C --&gt; D{证据是否充分?}
+  D --&gt;|否| E[改写 / 拆题 / 换检索方式]
+  E --&gt; B
+  D --&gt;|是| F[整理证据并生成回答]
+</code></pre>
+<h3 id="优势_1">优势</h3>
+<ul>
+<li>Agent 可以自主决定怎样搜索、是否继续和何时停止；</li>
+<li>适合研究型、多跳和开放性问题；</li>
+<li>相比堆叠固定补丁，复杂问题的工程表达可能更自然。</li>
+</ul>
+<h3 id="缺点">缺点</h3>
+<ul>
+<li>LLM 深度参与每轮决策，成本和延迟显著增加；</li>
+<li>必须限制最大轮数、token 预算和可用工具；</li>
+<li>需要处理错误判断、查询漂移和循环不终止。</li>
+</ul>
+<p>详见 <a class="wl" href="../../../notes/wiki/concepts/agentic-rag.html">Agentic RAG</a>。</p>
+<h2 id="十二策略-10adaptive-routing">十二、策略 10：Adaptive Routing</h2>
+<p>Agentic RAG 对简单问题往往过重。Adaptive Routing 先用轻量分类器或路由器判断问题复杂度：</p>
+<pre><code class="language-mermaid">flowchart LR
+  Q[用户问题] --&gt; R{复杂度 / 风险分类}
+  R --&gt;|简单| P[固定 RAG Pipeline]
+  R --&gt;|复杂| A[Agentic RAG Loop]
+</code></pre>
+<p>这样可以让高频、简单、事实型问题走低成本路径，只把复杂、多跳或证据不足的问题升级到 Agentic RAG。</p>
+<p>真正的难点是路由标准：错误地把复杂问题判为简单，会损失质量；错误地把简单问题判为复杂，则会浪费成本和时间。因此路由器也需要基于真实查询集评估。</p>
+<h2 id="十三十种策略对照表">十三、十种策略对照表</h2>
+<table>
+<thead>
+<tr>
+<th>策略</th>
+<th>主要解决的问题</th>
+<th>主要收益</th>
+<th>主要代价 / 风险</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Semantic Chunking</td>
+<td>固定切块破坏语义</td>
+<td>局部语义更完整</td>
+<td>阈值调优，逻辑关联仍可能丢失</td>
+</tr>
+<tr>
+<td>Proposition Chunking</td>
+<td>复合句难以精准召回</td>
+<td>原子事实级索引</td>
+<td>LLM 索引成本、上下文丢失</td>
+</tr>
+<tr>
+<td>Domain-specific Embedding</td>
+<td>通用模型不懂领域术语</td>
+<td>专业语义区分更准</td>
+<td>评测和重建索引成本</td>
+</tr>
+<tr>
+<td>GraphRAG</td>
+<td>Chunk 之间关系丢失</td>
+<td>图关系与多跳检索</td>
+<td>建图昂贵、维护复杂</td>
+</tr>
+<tr>
+<td>Query Transformation</td>
+<td>用户问法与文档不匹配</td>
+<td>改写、扩展、拆题</td>
+<td>延迟和查询漂移</td>
+</tr>
+<tr>
+<td>HyDE</td>
+<td>问题空间与文档空间不一致</td>
+<td>用假设答案对齐文档表达</td>
+<td>错误假设会带偏检索</td>
+</tr>
+<tr>
+<td>Hybrid Search</td>
+<td>向量检索不擅长精确词</td>
+<td>语义与关键词互补</td>
+<td>多路结果需要融合</td>
+</tr>
+<tr>
+<td>Rerank</td>
+<td>粗召回排序不够准</td>
+<td>提升 Top-K 相关性</td>
+<td>精排计算成本较高</td>
+</tr>
+<tr>
+<td>Agentic RAG</td>
+<td>单轮检索证据不足</td>
+<td>多轮探索和自主决策</td>
+<td>成本、延迟、非终止风险</td>
+</tr>
+<tr>
+<td>Adaptive Routing</td>
+<td>所有问题都走 Agent 太重</td>
+<td>按复杂度控制成本</td>
+<td>路由误判</td>
+</tr>
+</tbody>
+</table>
+<h2 id="十四落地顺序">十四、落地顺序</h2>
+<p>视频给出的起步建议是：<strong>先上 Hybrid Search 和 Rerank</strong>，因为两者通常能用相对可控的成本带来明显收益。</p>
+<p>更稳妥的演进顺序可以概括为：</p>
+<ol>
+<li>建立可评测的基础 RAG：合理分块、通用 Embedding、Metadata、向量召回。</li>
+<li>加入 Hybrid Search 和 Rerank，改善召回率与排序质量。</li>
+<li>根据失败样本选择专项优化：语义分块、领域 Embedding、Query Transformation 或 HyDE。</li>
+<li>只有在关系检索确实重要时引入 GraphRAG。</li>
+<li>只有在单轮 Pipeline 无法处理复杂问题时引入 Agentic RAG，并用 Adaptive Routing 控制成本。</li>
+</ol>
+
+<div class="callout" data-callout="important"><p class="callout-title">选型原则</p>
+<p>不要一次集齐 10 种策略。先定义检索评测集，观察失败发生在分块、召回、排序还是推理阶段，再选择最小的修复方案。</p>
+</div>
+<h2 id="相关笔记">相关笔记</h2>
+<ul>
+<li><a class="wl" href="../../../notes/domains/ragllmwiki.html">领域/RAG与LLM Wiki：原理、架构与开源实现</a>：RAG 架构、生产链路和开源实现的系统说明</li>
+<li><a class="wl" href="../../../notes/clippings/p44a38b/2026-09-01-rag.html">2026-09-01-RAG核心知识全解析（范式演进）</a>：RAG 基础概念、面试问题与评估方法</li>
+<li><a class="wl" href="../../../notes/clippings/p44a38b/2026-08-04-graphraglightrag.html">Clippings/微信公众号/2026-08-04-GraphRAG与LightRAG-小林面试笔记</a>：传统 RAG、GraphRAG 和 LightRAG 对比</li>
+<li><a class="wl" href="../../../notes/clippings/bilibili/2026-08-20-ai-agent.html">Clippings/Bilibili/2026-08-20-AI-Agent面试复盘-从框架到可靠系统</a>：RAG 切片、向量库选型与生产系统追问</li>
+</ul>
+<h2 id="转写校正说明">转写校正说明</h2>
+<p>视频没有可读取的 B站外挂或 AI 字幕，本笔记使用下载音频和本地 <code>faster-whisper small</code> 生成转录。转录中的 <code>trunking</code>、<code>inbetting</code>、<code>curry</code>、<code>hybrid research</code>、<code>retrieval rank</code>、<code>grefreg</code> 等近音词，分别按语境校正为 <code>chunking</code>、<code>embedding</code>、<code>query</code>、<code>hybrid search</code>、<code>rerank</code>、<code>GraphRAG</code>。模型名称与数据库组件按视频语境校正为 <code>text-embedding-3</code>、BGE、Qwen3-Embedding、<code>sqlite-vec</code> 和 <code>pgvector</code>。</p>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">内容剪藏</span><span class="chip">RAG</span><span class="chip">检索增强生成</span><span class="chip">Chunking</span><span class="chip">Embedding</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/Clippings/Bilibili/2026-08-23-7%E5%88%86%E9%92%9F%E4%BA%86%E8%A7%A310%E7%A7%8DRAG%E7%AD%96%E7%95%A5.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../notes/clippings/bilibili/2026-08-21-ai.html"><span class="dir">← 上一篇</span><span class="t">[中配] 我如何使用 AI 进行高效学习</span></a><a class="next" href="../../../notes/clippings/bilibili/2026-08-25-agent15.html"><span class="dir">下一篇 →</span><span class="t">Agent 后端基础设施：15 个知识点整理</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../index.html">首页</a>
+      <a href="../../../learn.html">课件</a>
+      <a href="../../../notes/index.html">笔记库</a>
+      <a href="../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../about.html">关于</a>
+      <a href="../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../js/main.js" defer></script>
+</body>
+</html>

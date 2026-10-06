@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>重磅！一文读懂 DeepSeek Harness 插件！ · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="来源：Datawhale《重磅！一文读懂 DeepSeek Harness 插件！》（2026-08-17） 原文：https://mp.weixin.qq.com/s/r4C-RR1CthFooA7iZl6hzg 系列：DeepSeek …">
+<link rel="canonical" href="https://northadb.github.io/notes/clippings/p44a38b/2026-08-18-deepseek-harness-datawhale.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="重磅！一文读懂 DeepSeek Harness 插件！ · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="来源：Datawhale《重磅！一文读懂 DeepSeek Harness 插件！》（2026-08-17） 原文：https://mp.weixin.qq.com/s/r4C-RR1CthFooA7iZl6hzg 系列：DeepSeek …">
+<meta property="og:url" content="https://northadb.github.io/notes/clippings/p44a38b/2026-08-18-deepseek-harness-datawhale.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="重磅！一文读懂 DeepSeek Harness 插件！ · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="来源：Datawhale《重磅！一文读懂 DeepSeek Harness 插件！》（2026-08-17） 原文：https://mp.weixin.qq.com/s/r4C-RR1CthFooA7iZl6hzg 系列：DeepSeek …">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../feed.xml">
+<link rel="stylesheet" href="../../../css/style.css">
+<link rel="stylesheet" href="../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "重磅！一文读懂 DeepSeek Harness 插件！", "description": "来源：Datawhale《重磅！一文读懂 DeepSeek Harness 插件！》（2026-08-17） 原文：https://mp.weixin.qq.com/s/r4C-RR1CthFooA7iZl6hzg 系列：DeepSeek …", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/clippings/p44a38b/2026-08-18-deepseek-harness-datawhale.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../index.html">首页</a><span>/</span><a href="../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../notes/clippings/index.html">内容剪藏</a></div>
+          <h1>重磅！一文读懂 DeepSeek Harness 插件！</h1>
+          <p class="post-sub">来源：Datawhale《重磅！一文读懂 DeepSeek Harness 插件！》（2026-08-17） 原文：https://mp.weixin.qq.com/s/r4C-RR1CthFooA7iZl6hzg 系列：DeepSeek …</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../notes/clippings/index.html">内容剪藏</a></span><span class="sep"></span>
+            <span>阅读约 8 分钟</span><span class="sep"></span><span>更新于 2026-08-18</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p><strong>来源</strong>：Datawhale《重磅！一文读懂 DeepSeek Harness 插件！》（2026-08-17）
+<strong>原文</strong>：https://mp.weixin.qq.com/s/r4C-RR1CthFooA7iZl6hzg
+<strong>系列</strong>：DeepSeek Harness 教程第 4 篇（前有保姆安装 / 插件教程 / 桌面版和 CLI）</p>
+<p><strong>一句话结论：DSH 不是"支持插件"，而是整个产品就是插件的组合——模型适配器、工具注册表、会话日志、agent loop 本身，每一部分都是插件，都能在运行时替换。</strong> 核心是 Cordis 微内核，配套 Fiber（生命周期）/ inject（依赖）/ effect（清理）三个机制让"动态"可靠。</p>
+</blockquote>
+<h2 id="为什么这套架构值得关注">🎯 为什么这套架构值得关注</h2>
+<p><strong>任意环节可替换</strong>是 DSH 与传统 Agent 框架最大的区别：
+- 换一个<strong>模型提供方</strong>不用改源码；
+- 换一个<strong>沙箱后端</strong>不用重启；
+- 换 <strong>agent loop 本身</strong>也不用动框架；
+- 连<strong>呈现方式</strong>都是插件：Web UI、CLI、API 是不同的前端插件，挂在同一棵插件树上。</p>
+<hr>
+<h2 id="一deepseek-harness-是怎么组装出来的">一、DeepSeek Harness 是怎么组装出来的？</h2>
+<p>DSH 不是一个装好了就定型的应用。启动时按顺序叠加各层配置，在内存里形成一套完整插件组合开始运行。三层结构从底到顶：</p>
+<pre><code>Cordis 微内核（管单个插件加载/卸载/协作）
+   ↓
+三层组装机制（管整套组合怎么搭）：Profile / Bundle / Patch
+   ↓
+四种运行模式（管最终跑哪套组合）：Standard / Code / Minimal / Creator
+</code></pre>
+<h3 id="底层cordis-微内核">底层：Cordis 微内核</h3>
+<p>Cordis 是专门管插件的框架，只管三件事：<strong>插件什么时候加载、什么时候卸载、彼此怎么协作</strong>。它最初由 Shigma 为聊天机器人框架 <strong>Koishi</strong> 编写，2022 年独立开源。<strong>DeepSeek 把 Shigma 和 Cordis 一起雇了，把整套源码并进自己的仓库</strong>——产品的每一部分（连驱动 Agent 的主循环）都是 Cordis 插件。</p>
+<h3 id="中层三层组装机制">中层：三层组装机制</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">层</th>
+<th style="text-align: left;">是什么</th>
+<th style="text-align: left;">作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Profile</strong></td>
+<td style="text-align: left;">存在本地的组装方案</td>
+<td style="text-align: left;">列出要叠放哪些组合包 + 存用户自己写的配置补丁</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Bundle</strong></td>
+<td style="text-align: left;">组合包</td>
+<td style="text-align: left;">把一组插件和配置打包分发——装一个 = 装一组配套插件</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Patch</strong></td>
+<td style="text-align: left;">补丁</td>
+<td style="text-align: left;">按名字定位到具体插件，替换它的配置</td>
+</tr>
+</tbody>
+</table>
+<p><strong>叠加顺序</strong>：先装各组合包 → 打 profile 补丁 → 打本地补丁 → 启动命令里临时再加一层补丁。<strong>每一层都能覆盖上一层的结果。</strong></p>
+<p><img alt="Profile / Bundle / Patch 三层组装" src="https://gitee.com/cheng-jiaqing/images/raw/master/dsh-plugin-guide-20260817-01.png"></p>
+<p><strong><code>dsh-base</code></strong> 是每个 profile 必装的第一层组合包——装上就有模型适配器、工具、数据持久化、安全策略、遥测等基础能力，后续组合包和用户补丁按名字覆盖它。</p>
+<h3 id="顶层四种运行模式">顶层：四种运行模式</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">模式</th>
+<th style="text-align: left;">定位</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Standard</strong></td>
+<td style="text-align: left;">功能最全</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Code</strong></td>
+<td style="text-align: left;">专门面向编程</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Minimal</strong></td>
+<td style="text-align: left;">只留 Shell 和文件编辑两个工具</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Creator</strong></td>
+<td style="text-align: left;">开放给想做实验的人</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>切换模式 = 换一套插件组合，不改任何代码。</p>
+</blockquote>
+<hr>
+<h2 id="二一切皆插件cordis-核心词汇表">二、一切皆插件：Cordis 核心词汇表</h2>
+<h3 id="插件三种写法地位平等加载卸载同一条路">插件三种写法（地位平等，加载/卸载同一条路）</h3>
+<pre><code class="language-ts">// 函数写法：最简单，适合注册几个监听器
+export const name = 'greeter'
+export function apply(ctx: Context) { /* ... */ }
+
+// 类的写法：适合提供给别人调用的能力
+export class GreeterService extends Service {
+  constructor(ctx: Context) { super(ctx, 'greeter') }
+}
+</code></pre>
+<h3 id="五个核心概念">五个核心概念</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">概念</th>
+<th style="text-align: left;">解决什么问题</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Context</strong></td>
+<td style="text-align: left;">存放各种能力的地方（<code>ctx.tools</code> 工具、<code>ctx.llm</code> 模型、<code>ctx.sessions</code> 会话），别的插件按名字取用，不关心实现是谁、跑在本地还是远程</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Service</strong></td>
+<td style="text-align: left;">一种可以被别人取用的能力；用类写会自动注册，插件卸载时自动注销</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Fiber</strong></td>
+<td style="text-align: left;">每个插件的生命周期记录（动态加载的核心）</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>inject</strong></td>
+<td style="text-align: left;">插件的依赖声明——框架等依赖都就位才启动，启动顺序由依赖关系决定，不由写的前后顺序决定</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>事件总线</strong></td>
+<td style="text-align: left;">插件之间不直接互相调用，全靠事件通信——发通知的插件不用知道谁在听</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="Cordis 核心词汇" src="https://gitee.com/cheng-jiaqing/images/raw/master/dsh-plugin-guide-20260817-02.png"></p>
+<h3 id="事件五种分发方式">事件五种分发方式</h3>
+<p>前几种是广播/定向通知，<strong>最后一种 <code>waterfall</code> 是实现拦截的模式</strong>：每个监听者拿到一个"继续往下传"的开关，调用它就把工作交给下一个监听者，不调用就直接拦下。DSH 的工具执行流水线就是四段 waterfall 串起来的。</p>
+<p><img alt="事件五种分发方式" src="https://gitee.com/cheng-jiaqing/images/raw/master/dsh-plugin-guide-20260817-03.png"></p>
+<hr>
+<h2 id="三fiberinjecteffect插件动态能力的三个关键机制">三、Fiber、inject、effect：插件动态能力的三个关键机制</h2>
+<h3 id="fiber加载与卸载都有迹可循">Fiber：加载与卸载都有迹可循</h3>
+<p>每个插件实例一条 Fiber，在六个阶段间转换：</p>
+<pre><code>排队等待 → 正在启动 → 正常运行 → 正在卸载 → 完全消失
+                ↘ 启动失败
+</code></pre>
+<ul>
+<li>声明插件后，Cordis 检查依赖：满足就启动，不满足就<strong>一直"排队等待"（静默，不报错）</strong>；</li>
+<li>热重载走同一条状态机：改代码保存 → 监视插件发现文件变了 → 先卸载旧实例到"完全消失" → 再加载新代码走一遍"排队→启动→运行"；</li>
+<li>改 <code>cordis.yml</code> 也触发更新，loader 按名字比对，<strong>只重新加载变化的部分</strong>。</li>
+</ul>
+<blockquote>
+<p>⚠️ "排队等待"最容易被误判成"插件坏了"——依赖没满足时它什么都不输出。排查方式：遍历所有 fiber，找 <code>FiberState.PENDING</code> 的。</p>
+</blockquote>
+<pre><code class="language-ts">for (const runtime of ctx.registry.values()) {
+  for (const fiber of runtime.fibers) {
+    if (fiber.state === FiberState.PENDING) {
+      console.log(`${fiber.name} 在排队等待，缺少某个依赖`)
+    }
+  }
+}
+</code></pre>
+<h3 id="inject持续跟踪的依赖关系">inject：持续跟踪的依赖关系</h3>
+<p><strong>加载顺序无关紧要</strong>：插件 A 声明需要 B 的能力，Cordis 让 A 排队直到 B 就位——配置里 A 写在 B 前还是后，结果一样。把 B 彻底移除，A 停在排队状态，不崩溃、不跑一半。</p>
+<p><strong>运行中仍在跟踪</strong>：某个能力消失（提供它的插件被卸载/热替换），所有依赖它的插件跟着卸载；能力恢复后它们再重新加载。这防止插件拿到某能力引用后，那个能力却突然不见了。</p>
+<blockquote>
+<p><strong>实际威力</strong>：把默认的 Shell 执行插件换掉，挂上另一个提供方——所有用到 Shell 的插件自动重启、用上新实现，不用改这些插件一行代码，整条依赖链自动重排。</p>
+</blockquote>
+<h3 id="effect卸载了副作用怎么办">effect：卸载了，副作用怎么办？</h3>
+<p>动态加载能跑不难，<strong>难的是卸载干净</strong>。插件启动时可能开了定时器、注册了监听器、挂载了子插件——Cordis 的办法：插件通过框架 API 做的所有注册都属于副作用，<strong>卸载时框架自动撤销</strong>。</p>
+<p>框架没直接管的资源（定时器、网络连接、文件监视），包进 <code>ctx.effect()</code> 并返回清理函数：</p>
+<pre><code class="language-ts">export function apply(ctx: Context) {
+  ctx.effect(() =&gt; {
+    const timer = setInterval(() =&gt; console.log('tick'), 200)
+    return () =&gt; {
+      clearInterval(timer)      // 卸载时跑这个
+      console.log('heartbeat cleaned up')
+    }
+  })
+}
+</code></pre>
+<p><strong>天生受 effect 管理、不用自己写清理的</strong>：注册事件监听器（卸载自动移除）、挂载子插件（父卸载子跟着清）、往工具注册表注册工具（卸载自动注销）。</p>
+<p><strong>清理执行纪律</strong>：按注册的反序启动，多个异步清理并发跑；有先后顺序要求的放进同一个清理函数里依次执行。</p>
+<p><img alt="Fiber / inject / effect 三机制" src="https://gitee.com/cheng-jiaqing/images/raw/master/dsh-plugin-guide-20260817-04.png"></p>
+<blockquote>
+<p><strong>三个机制各管一段、互不重叠：Fiber 管生命周期，inject 管依赖，effect 管清理。</strong></p>
+</blockquote>
+<hr>
+<h2 id="四一个真实例子工具运行时如何串起整条链路">四、一个真实例子：工具运行时如何串起整条链路</h2>
+<p>DSH 的工具运行时是前面所有概念/机制的总集成：
+- 本身是一个<strong>能力类</strong>（Service），自动注册进系统；
+- 往系统注册 <strong>6 种事件</strong>（4 种 waterfall 拦截型 + 2 种广播型）；
+- 声明依赖"提示词组装"能力，等就位才启动，启动时立刻注册自己用的提示词片段；
+- 提供"注册工具"方法——调用方每注册一个工具拿回一个<strong>卸载函数</strong>，想动态卸载某个工具时直接调用即可（"动态"在最细粒度的样子）。</p>
+<p><strong>工具执行是四段 waterfall 流水线</strong>：</p>
+<p><img alt="工具执行四段流水线" src="https://gitee.com/cheng-jiaqing/images/raw/master/dsh-plugin-guide-20260817-05.png"></p>
+<ul>
+<li><strong>审批插件</strong>在"执行前"一环直接拦下，工具实际逻辑从没运行；</li>
+<li><strong>结果屏蔽插件</strong>在"执行后"把成功结果改写成错误提示，模型看到的已是改写后的内容。</li>
+</ul>
+<p><strong>同一个工具运行时服务不同 Agent</strong>：每个 Agent 能看到哪几个工具，沿继承关系计算——先继承全局工具 → 叠加所在组合包层的工具 → 最后应用访问限制过滤。一个 Agent 被限制用某些工具，不影响另一个。</p>
+<hr>
+<h2 id="写在最后">写在最后</h2>
+<p>DSH 的插件架构是目前开源 Agent 框架里<strong>设计最彻底</strong>的一个：不是"支持插件"，而是<strong>整个产品就是插件的组合</strong>，任意环节都可以在运行时替换。</p>
+<ul>
+<li>不同场景需要不同工具集/上下文策略/执行流程，在 DSH 里都是<strong>换一套插件组合</strong>的事；</li>
+<li>模型可换、工具可换、agent loop 可换、呈现方式（Web UI/CLI/API）可换；</li>
+<li>后续方向：自定义 agent preset、第三方插件生态、场景化插件组合模板。</li>
+</ul>
+<blockquote>
+<p>现状：Harness 还是 <strong>v0.1 开发者预览版</strong>，接口随时可能变，但架构方向已经很清晰。单看"任意环节都能在运行时替换"这一条，就非常看好它的架构设计。</p>
+</blockquote>
+<hr>
+<h2 id="参考来源">📎 参考来源</h2>
+<ul>
+<li>Datawhale《重磅！一文读懂 DeepSeek Harness 插件！》：https://mp.weixin.qq.com/s/r4C-RR1CthFooA7iZl6hzg</li>
+<li>Datawhale 系列：DeepSeek Harness 保姆安装教程 / 插件教程 / 桌面版和 CLI</li>
+</ul>
+<hr>
+<h2 id="延伸思考">📌 延伸思考</h2>
+<ul>
+<li><strong>与架构拆解笔记互补</strong>：<a class="wl" href="../../../notes/clippings/p44a38b/2026-08-14-deepseek-harness-agent.html">Clippings/微信公众号/2026-08-14-DeepSeek-Harness拆解-一套能拼装的Agent架构</a>（腾讯技术工程，作者 chino）深挖 Cordis 的实现机制（Fiber 六状态、effect 撤销栈、系统边界、遮蔽算法），本文是 Datawhale 从<strong>概念入门</strong>角度的科普梳理——两篇对照读，先看这篇建立心智模型，再看那篇深挖实现。</li>
+<li><strong>与插件教程互补</strong>：<a class="wl" href="../../../notes/clippings/p44a38b/2026-08-14-deepseek-harness-agent.html">Clippings/微信公众号/2026-08-14-DeepSeek-Harness拆解-一套能拼装的Agent架构</a> 里的「🛠️ 实战」章节有写最小插件 greet 的完整代码 + 安装 Vision Toolkit 的步骤；本文把背后的 Fiber/inject/effect 概念讲清楚了——<strong>概念 + 代码</strong>拼起来就能自己写插件。</li>
+<li><strong>与 Cordis 深读互补</strong>：<a class="wl" href="../../../notes/clippings/p44a38b/2026-09-04-cordis-deepseek-harness.html">Clippings/微信公众号/2026-09-04-Cordis-DeepSeek-Harness的心脏-腾讯技术工程</a>（腾讯技术工程，作者 lss233）是 Cordis 本体的完整读本——五个核心概念逐一拆解 + 88 页论文定理解读——本篇是概念入门，那篇是理论深水区，按"入门 → 实现 → 理论"顺序读。</li>
+<li><strong>可迁移设计</strong>：Fiber（生命周期）/ inject（依赖跟踪）/ effect（可逆副作用）三机制是通用插件系统设计范式；结合 DECO 的 Hook 治理（<a class="wl" href="../../../notes/clippings/p44a38b/2026-08-11-agent-hookllm.html">Clippings/微信公众号/2026-08-11-Agent治理-用Hook堵住LLM的偷懒越权与失忆</a>），能看到"把横切逻辑挂到框架切面"的不同实现流派。</li>
+</ul>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">内容剪藏</span><span class="chip">AI</span><span class="chip">Agent</span><span class="chip">DeepSeek</span><span class="chip">Harness</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/Clippings/%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7/2026-08-18-%E4%B8%80%E6%96%87%E8%AF%BB%E6%87%82DeepSeek-Harness%E6%8F%92%E4%BB%B6-Datawhale.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../notes/clippings/p44a38b/2026-08-18-tencentdb-agent-memory.html"><span class="dir">← 上一篇</span><span class="t">任何错误只犯一次：TencentDB Agent Memory 的团队记忆实践</span></a><a class="next" href="../../../notes/clippings/p44a38b/2026-08-19-agent.html"><span class="dir">下一篇 →</span><span class="t">Agent的上限，可能不在模型，而在团队知识</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../index.html">首页</a>
+      <a href="../../../learn.html">课件</a>
+      <a href="../../../notes/index.html">笔记库</a>
+      <a href="../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../about.html">关于</a>
+      <a href="../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../js/main.js" defer></script>
+</body>
+</html>

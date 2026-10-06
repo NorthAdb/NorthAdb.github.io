@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📖 2026 暑假手账 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="周期：2026-07-04 ~ 2026-08-07（约 5 周） 主线：AI Agent ｜ Claude Code 工程化 ｜ Java 后端 定位：假期学习总结 + 全库导航（MOC）">
+<link rel="canonical" href="https://northadb.github.io/notes/domains/2026.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="📖 2026 暑假手账 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="周期：2026-07-04 ~ 2026-08-07（约 5 周） 主线：AI Agent ｜ Claude Code 工程化 ｜ Java 后端 定位：假期学习总结 + 全库导航（MOC）">
+<meta property="og:url" content="https://northadb.github.io/notes/domains/2026.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="📖 2026 暑假手账 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="周期：2026-07-04 ~ 2026-08-07（约 5 周） 主线：AI Agent ｜ Claude Code 工程化 ｜ Java 后端 定位：假期学习总结 + 全库导航（MOC）">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../feed.xml">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "📖 2026 暑假手账", "description": "周期：2026-07-04 ~ 2026-08-07（约 5 周） 主线：AI Agent ｜ Claude Code 工程化 ｜ Java 后端 定位：假期学习总结 + 全库导航（MOC）", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/domains/2026.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../index.html">首页</a><span>/</span><a href="../../notes/index.html">我的笔记库</a><span>/</span><a href="../../notes/domains/index.html">知识领域</a></div>
+          <h1>📖 2026 暑假手账</h1>
+          <p class="post-sub">周期：2026-07-04 ~ 2026-08-07（约 5 周） 主线：AI Agent ｜ Claude Code 工程化 ｜ Java 后端 定位：假期学习总结 + 全库导航（MOC）</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../notes/domains/index.html">知识领域</a></span><span class="sep"></span>
+            <span>阅读约 11 分钟</span><span class="sep"></span><span>更新于 2026-08-07</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p><strong>周期</strong>：2026-07-04 ~ 2026-08-07（约 5 周）
+<strong>主线</strong>：AI Agent ｜ Claude Code 工程化 ｜ Java 后端
+<strong>定位</strong>：假期学习总结 + 全库导航（MOC）</p>
+</blockquote>
+<hr>
+<h2 id="假期干了什么一句话版">🧭 假期干了什么（一句话版）</h2>
+<p>从零搭起这套知识库（<a class="wl" href="../../notes/index.html">README</a>），以 <strong>"Java 后端为底座、Agent 开发为目标"</strong> 双修，主线完整走通了：<code>JavaSE → Claude Code 工程化 → Agent 架构 → 框架选型 → 面试八股</code>，同时用 Claude Code 方法论（Matt-Pocock 系）重构了自己的工具链，并完成了 PQ-SecTunnel 后量子 VPN 项目的答辩准备。</p>
+<hr>
+<h2 id="主线一ai-agent-学习">主线一：AI Agent 学习 🧠</h2>
+<h3 id="路线总纲我的进度定位">路线总纲（我的进度定位）</h3>
+<table>
+<thead>
+<tr>
+<th>笔记</th>
+<th>作用</th>
+<th>当前进度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a class="wl" href="../../notes/domains/aiagent2026.html">领域/AI Agent 智能体学习路线 2026</a></td>
+<td>9 阶段路线（Stage 0-9）：LLM 基础 → Agent Loop → Tool/RAG/记忆 → Harness → 多 Agent → MCP/A2A/Skills → 浏览器 Agent → 评估/安全 → 生产部署</td>
+<td>已完成 Stage 0-3 理论，Stage 4-6 概念扫读，缺实战</td>
+</tr>
+<tr>
+<td><a class="wl" href="../../notes/domains/javaagent2026.html">领域/Java后端+Agent开发学习路线 2026</a></td>
+<td>Java 双修路线（6-8 周后端 + 8-12 周 Agent）+ 小红书评论区的真实问答集锦</td>
+<td>双线并行中</td>
+</tr>
+<tr>
+<td><a class="wl" href="../../notes/clippings/p72191b/ai-agents-in-depth-zh-cn.html">Clippings/书籍/AI-Agents-in-Depth-zh-CN</a></td>
+<td>李博杰《深入理解 AI Agent》开源书全文（10 章：构建 / 评估与进化 / 交互与协作）</td>
+<td>重点参考，配合 Stage 精读</td>
+</tr>
+</tbody>
+</table>
+<h3 id="架构演进三视角组互链">架构演进（三视角组互链）</h3>
+<pre><code>Prompt → Context → Harness → Loop → Graph   ← 工程关注点不断外移
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>视角</th>
+<th>笔记</th>
+<th>核心观点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>总览</td>
+<td><a class="wl" href="../../notes/clippings/bilibili/2026-07-31-10ai-agent-8.html">2026-07-31-10分钟讲透AI-Agent-8种主流架构</a></td>
+<td>8 种架构（ReAct/Plan-and-Execute/Multi-Agent/Reflection/Tools/Memory/RAG/Autonomous）；<strong>Agent = 模型 + 设计模式 + 运行边界</strong></td>
+</tr>
+<tr>
+<td>理论</td>
+<td><a class="wl" href="../../notes/clippings/bilibili/2026-07-31-agent-harness-loop-graph.html">2026-07-31-Agent系统架构设计-Harness-Loop-Graph怎么选</a></td>
+<td>三层嵌套职责；演进路径：<strong>先 Harness 跑起来 → 攒 trace → 固定成 Graph</strong>；Harness 的"四周能力"（上下文/工具/记忆/状态）</td>
+</tr>
+<tr>
+<td>企业落地</td>
+<td><a class="wl" href="../../notes/clippings/pae26bb/2026-07-30-ai-agent-graph-loop-harness.html">2026-07-30-AI-Agent落地铁三角-Graph-Loop-Harness</a></td>
+<td>Graph 锁死任务框架、Loop 给块内自由度、<strong>Harness 锁底线</strong>——模型再怎么发挥都不能突破安全边界</td>
+</tr>
+<tr>
+<td>工程演进</td>
+<td><a class="wl" href="../../notes/clippings/pae26bb/2026-08-04-contextgraph-agent-qoder.html">2026-08-04-从Context到Graph-Agent工程的四个层次-Qoder</a></td>
+<td>Prompt→Context→Harness→Loop→Graph 五层演进，"工程瓶颈外移"是 Agent 工程化的主线</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>一句话收获</strong>：先别急着上框架。把 Harness（上下文、工具、记忆、护栏、重试）打扎实，Loop 自然跑得稳，最后才用 Graph 把成熟的流程固化。</p>
+</blockquote>
+<h3 id="记忆体系五层模型-claude-code-落地">记忆体系（五层模型 + Claude Code 落地）</h3>
+<table>
+<thead>
+<tr>
+<th>记忆层</th>
+<th>技术实现</th>
+<th>我的笔记</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>工作记忆</td>
+<td>上下文窗口（100K-200K token，有 Context Rot）</td>
+<td><a class="wl" href="../../notes/domains/claudecodeagent.html">领域/Claude Code记忆系统与Agent记忆架构</a></td>
+</tr>
+<tr>
+<td>短期记忆</td>
+<td>会话历史 + 滑动窗口 + /compact</td>
+<td>同上</td>
+</tr>
+<tr>
+<td>情景记忆</td>
+<td>时间索引的事件记录（Mem0/Letta 代表）</td>
+<td>同上</td>
+</tr>
+<tr>
+<td>语义记忆</td>
+<td>向量库 + RAG（cognee/GraphRAG 代表）</td>
+<td>同上</td>
+</tr>
+<tr>
+<td>程序记忆</td>
+<td>Skills 定义 + 工具调用</td>
+<td>同上</td>
+</tr>
+</tbody>
+</table>
+<p>Claude Code 具体实现（<a class="wl" href="../../notes/clippings/bilibili/2026-08-03-claude-code.html">2026-08-03-Claude-Code上下文压缩与会话恢复机制</a>）：
+- <strong>三视图模型</strong>：UI 历史（你看到的）≠ 模型投影（模型看到的）≠ 磁盘会话链（事实源）——上下文管理本质是"事件持久化 + 状态管理 + 视图投影 + 压缩 + 可恢复执行"
+- <strong>MEMORY.md 索引</strong>：常驻前 200 行/25KB，细节放主题文件按需加载（<a class="wl" href="../../notes/clippings/p277a98/2026-07-31-claude-code-automemory.html">2026-07-31-Claude-Code结构化记忆工作流-AutoMemory详解</a> 讲透 Compact/Handover/CLAUDE.md 三大记忆误区）
+- 本库已落地：<code>claude-memory/</code> 目录接入 Claude Code 长期记忆（见 <a class="wl" href="../../notes/memory/claude-memory-vault.html">claude-memory-vault</a>）</p>
+<h3 id="框架选型三视角实况社区面试">框架选型（三视角：实况/社区/面试）</h3>
+<table>
+<thead>
+<tr>
+<th>视角</th>
+<th>笔记</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Claude 实况</td>
+<td><a class="wl" href="../../notes/clippings/claude/2026-07-30-claude.html">2026-07-30-Claude聊天记录汇总</a></td>
+<td>Java 生态选型：<strong>Spring AI（官方集成）vs LangChain4j（社区）vs AgentScope</strong>；Agent 框架对比 + MCP 更新</td>
+</tr>
+<tr>
+<td>社区</td>
+<td><a class="wl" href="../../notes/clippings/pae26bb/2026-07-07-aiagent.html">2026-07-07-小红书热议AI Agent开发用什么框架</a></td>
+<td>93 条评论：LangGraph 主流、<strong>"手搓派"兴起</strong>（框架太重不如自写循环）</td>
+</tr>
+<tr>
+<td>面试</td>
+<td><a class="wl" href="../../notes/clippings/p44a38b/2026-08-06-ai-agent-langchain-langgraph-llamaindex.html">2026-08-06-AI-Agent开发框架选型-LangChain-LangGraph-LlamaIndex-小林面试笔记</a></td>
+<td><strong>LangChain 通用抽象 / LangGraph 状态编排 / LlamaIndex 数据检索</strong>——定位差异 + 选型逻辑</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>对 Java 背景的我：<strong>面试要懂 LangChain/LangGraph 的定位，项目优先 Spring AI / LangChain4j</strong>（见 <a class="wl" href="../../notes/domains/javaagent2026.html">领域/Java后端+Agent开发学习路线 2026</a> Stage 2）。</p>
+</blockquote>
+<h3 id="面试知识链八股备料">面试知识链（八股备料）</h3>
+<table>
+<thead>
+<tr>
+<th>主题</th>
+<th>知识链</th>
+<th>核心考点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>RAG 链</strong></td>
+<td><a class="wl" href="../../notes/clippings/p44a38b/2026-09-01-rag.html">2026-09-01-RAG核心知识全解析（范式演进）</a> → <a class="wl" href="../../notes/clippings/p44a38b/2026-08-04-graphraglightrag.html">2026-08-04-GraphRAG与LightRAG-小林面试笔记</a></td>
+<td>工作流/切块/Re-rank/Embedding/向量库选型/多路召回/效果量化；GraphRAG 社区检测 vs LightRAG 双层检索</td>
+</tr>
+<tr>
+<td><strong>幻觉</strong></td>
+<td><a class="wl" href="../../notes/clippings/p277a98/2026-07-29.html">2026-07-29-大模型幻觉的系统性解析-抖音笔记</a>（原理）↔ RAG 篇（工程防御）</td>
+<td>Next Token 概率本质 + 无元认知；防御：RAG + CoT + 自我怀疑</td>
+</tr>
+<tr>
+<td><strong>Agent 八题</strong></td>
+<td><a class="wl" href="../../notes/clippings/p44a38b/2026-07-30-agent.html">2026-07-30-Agent高频面试题全解析-小林面试笔记</a></td>
+<td>LLM vs Agent、<strong>Agent vs Workflow（谁决定停止）</strong>、Function Call/MCP/Skills/A2A 协议</td>
+</tr>
+<tr>
+<td><strong>Skill vs Tool</strong></td>
+<td><a class="wl" href="../../notes/clippings/bilibili/2026-07-30-agentskilltool.html">2026-07-30-Agent架构Skill和Tool本质区别-动画详解</a></td>
+<td>Tool = 能不能做到（执行），Skill = 知不知道怎么做（渐进式披露）——附面试四步模板</td>
+</tr>
+<tr>
+<td><strong>大模型基础</strong></td>
+<td><a class="wl" href="../../notes/clippings/pae26bb/2026-07-31-moe.html">2026-07-31-为什么顶级大模型都在卷MoE-新物种日记</a>、<a class="wl" href="../../notes/clippings/p44a38b/2026-07-31-topp-topk.html">2026-07-31-大模型采样参数全解析-温度值TopP-TopK-小林面试笔记</a></td>
+<td>MoE 路由原理；<strong>只调 temperature，top_p≈0.9</strong></td>
+</tr>
+<tr>
+<td><strong>LLM 训练全栈</strong></td>
+<td><a class="wl" href="../../notes/clippings/youtube/karpathy/2026-08-07-karpathy-llm-chatgpt.html">2026-08-07-Karpathy-LLM深度解析-ChatGPT训练全栈</a></td>
+<td>预训练→SFT→RL 三阶段（读课本/看例题/刷练习）；44TB≈15 万亿 token；"你在跟一个标注者的神经网络模拟说话"</td>
+</tr>
+</tbody>
+</table>
+<h3 id="手搓实战参考">手搓实战参考</h3>
+<p><a class="wl" href="../../notes/clippings/pae26bb/2026-08-07-coding-agent-violin.html">2026-08-07-实战从零开始构建Coding-Agent-Violin-小红书</a>（得物，483 行）——Agent Loop 状态机 + EventBus + Compaction + Plugin 层，Zig/Python/Lua 手搓路线的最佳参考，与"手搓派"观点呼应。</p>
+<h3 id="关键认知沉淀">关键认知沉淀</h3>
+<blockquote>
+<p><strong>Agent = LLM + Harness</strong>（工具、上下文、记忆、护栏、重试逻辑）——模型会越来越强，Harness 永远是工程核心。
+<strong>Agent ≠ 独立新领域，它是后端工程在 AI 时代的延伸</strong>——链路搭建、降级重试、状态管理全是后端那一套，面试考后端基础是常态。
+<strong>上下文是稀缺资源</strong>：最少的 token + 最高信号 = 最佳结果（<a class="wl" href="../../notes/domains/claudecodeagent.html">领域/Claude Code记忆系统与Agent记忆架构</a> 第三部分）。
+<strong>实践在前，命名在后</strong>——Skill/harness/loop engineering 这些名词流行之前，头部公司早就在这么做；别等名词流行才动手（李博杰书引言）。
+<strong>没有评估，就没有进步</strong>——Agent 迭代不能靠直觉，要建立评测机制（李博杰书第 6 章）。</p>
+</blockquote>
+<hr>
+<h2 id="主线二claude-code-工程化">主线二：Claude Code 工程化 🔧</h2>
+<h3 id="概念体系六件套">概念体系（六件套）</h3>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>解决什么</th>
+<th>存放位置</th>
+<th>我的笔记</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>CLAUDE.md</strong></td>
+<td>项目规范/工作流（每次会话全量加载）</td>
+<td>项目根目录 + 五层作用域</td>
+<td><a class="wl" href="../../notes/domains/claudecodeagent.html">领域/Claude Code记忆系统与Agent记忆架构</a></td>
+</tr>
+<tr>
+<td><strong>Skills</strong></td>
+<td>可复用能力包（SKILL.md + 附属脚本）</td>
+<td><code>.claude/skills/&lt;name&gt;/</code></td>
+<td><a class="wl" href="../../notes/clippings/p44a38b/2026-07-21-claude-code-skill.html">2026-07-21-Claude-Code-Skill机制源码剖析</a></td>
+</tr>
+<tr>
+<td><strong>Subagents</strong></td>
+<td>专职子代理（上下文隔离）</td>
+<td><code>.claude/agents/*.md</code></td>
+<td>doc/practice/02（资料库）</td>
+</tr>
+<tr>
+<td><strong>MCP</strong></td>
+<td>外部工具/数据源协议</td>
+<td>配置在 settings.json</td>
+<td>doc/practice/06（资料库）</td>
+</tr>
+<tr>
+<td><strong>Hooks</strong></td>
+<td>生命周期钩子（命令前后触发）</td>
+<td><code>.claude/hooks/</code></td>
+<td>六件套篇</td>
+</tr>
+<tr>
+<td><strong>Plugins</strong></td>
+<td>扩展能力（marketplace）</td>
+<td>插件目录</td>
+<td>六件套篇</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Command 已并入 Skill</strong>：<code>.claude/skills/&lt;name&gt;/SKILL.md</code> 同时支持手动 <code>/name</code> 调用和自动语义触发，新建自定义能力不用再纠结格式（<a class="wl" href="../../notes/domains/claudecode-commandskill.html">领域/Claude Code - Command与Skill区别</a>）</li>
+<li><strong>Skill 机制精髓</strong>：渐进式披露三层懒加载——frontmatter 摘要 → 扩展文档 → 脚本，按需展开省上下文（<a class="wl" href="../../notes/clippings/p44a38b/2026-07-21-claude-code-skill.html">2026-07-21-Claude-Code-Skill机制源码剖析</a>）</li>
+<li>六件套全景见 <a class="wl" href="../../notes/clippings/p44a38b/2026-07-28-claude-code-coding.html">2026-07-28-Claude-Code工程化六件套详解-小林coding</a></li>
+</ul>
+<h3 id="上下文工程关键认知">上下文工程（关键认知）</h3>
+<ul>
+<li><strong>Context Rot</strong>：token 越多模型回忆越差；注意力预算有限；n² 复杂度</li>
+<li><strong>/compact 压缩</strong>：保留关键信息；注意子目录 CLAUDE.md 不会自动重载，重要指令要写进项目根 CLAUDE.md</li>
+<li><strong>Prompt Caching</strong>：系统提示/CLAUDE.md/工具定义被缓存，长会话降本增效</li>
+<li><strong>会话恢复</strong>：磁盘上的会话链是可恢复的事实源，"压缩 ≠ 删除，是生成更小的上下文视图"</li>
+</ul>
+<h3 id="方法论主线matt-pocock-系">方法论主线（Matt-Pocock 系）</h3>
+<blockquote>
+<p>从"vibe coding"走向"agentic engineering"——<strong>把 Agent 当成可编排的 junior 团队，而你是那个 lead</strong>。</p>
+</blockquote>
+<pre><code>grill 诘问需求 → wayfinder 探索决策 → prototype 提保真度 → spec/tickets 拆解 → implement 实现 → code-review → teach 传承
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>环节</th>
+<th>笔记</th>
+<th>关键收获</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>汇总 hub</td>
+<td><a class="wl" href="../../notes/clippings/bilibili/matt-pocock/matt-pocock.html">Matt-Pocock方法论精华-完整工作流与技能体系</a></td>
+<td>五大心法：Harness 收益 &gt; 换模型、聪明区 ~140K token、保真度、有状态/无状态 skill、原型到 production 小平步</td>
+</tr>
+<tr>
+<td>诘问</td>
+<td><a class="wl" href="../../notes/clippings/bilibili/matt-pocock/2026-08-02-matt-pocock-grill-skill9.html">2026-08-02-Matt-Pocock-grill-skill的9个误区</a></td>
+<td>高低保真问题区分、范围失控、<strong>变笨区 ~120k token</strong>、参数化知识 vs 上下文知识</td>
+</tr>
+<tr>
+<td>探索</td>
+<td><a class="wl" href="../../notes/clippings/bilibili/matt-pocock/2026-07-31-matt-pocock-wayfinderspec.html">2026-07-31-Matt-Pocock直播-Wayfinder从想法到spec全流程</a> + <a class="wl" href="../../notes/clippings/bilibili/matt-pocock/2026-08-01-matt-pocock-wayfinderfaq.html">2026-08-01-Matt-Pocock-Wayfinder概念详解与FAQ</a></td>
+<td>决策前沿/战争迷雾隐喻；grilling/research/prototype 三类决策 ticket</td>
+</tr>
+<tr>
+<td>原型</td>
+<td><a class="wl" href="../../notes/clippings/bilibili/matt-pocock/2026-07-31-matt-pocock-spec-driven.html">2026-07-31-Matt-Pocock实战-从原型到spec-driven开发</a></td>
+<td>保真度三档决定讨论方式；"关键问题是长什么样就该上原型"</td>
+</tr>
+<tr>
+<td>实战 1</td>
+<td><a class="wl" href="../../notes/clippings/bilibili/matt-pocock/2026-07-31-matt-pocock-slopwatch.html">2026-07-31-Matt-Pocock直播-SlopWatch从零搭建完整实录</a></td>
+<td>1:47 全程<strong>无代码</strong>完成架构定型：GrillMe 诘问 + DDD 统一语言 + 研究 5 个 Agent；ADR + 最小化 DDD 优于 RAG 长期记忆</td>
+</tr>
+<tr>
+<td>实战 2</td>
+<td><a class="wl" href="../../notes/clippings/bilibili/matt-pocock/2026-08-05-matt-pocock-claude-code.html">2026-08-05-Matt-Pocock实战-用Claude-Code从零开发真实项目</a></td>
+<td><strong>白班夜班模式</strong>：白天 GrillMe+DDD+PRD，夜间 AFK agent 在 Docker 沙箱用 Ralph loop 自动实现，QA 反馈循环</td>
+</tr>
+<tr>
+<td>教学</td>
+<td><a class="wl" href="../../notes/clippings/bilibili/matt-pocock/2026-07-31-matt-pocock-teach-skillai.html">2026-07-31-Matt-Pocock实战-teach-skill让AI像真老师</a></td>
+<td>有状态教学工作区（mission/lessons/glossary）+ 最近发展区 ZPD</td>
+</tr>
+<tr>
+<td>判定</td>
+<td><a class="wl" href="../../notes/clippings/bilibili/matt-pocock/2026-08-06-matt-pocock-agent-vs-workflow.html">2026-08-06-Matt-Pocock-Agent-vs-Workflow科普</a></td>
+<td><strong>谁决定停止</strong>：LLM 循环 = Agent，预设代码路径 = Workflow</td>
+</tr>
+</tbody>
+</table>
+<p><strong>已安装的配套 skills</strong>：grill-with-docs / to-spec / to-tickets / implement / code-review / tdd / wayfinder / handoff / research / prototype / domain-modeling 等（全量清单见 <a class="wl" href="../../notes/projects/claude-code-best-practice/doc/skills-inventory.html">项目/claude-code-best-practice/doc/skills-inventory</a>）——本手账的诞生本身就是这条方法论的一次实践。</p>
+<h3 id="资料库shannraisshan-仓库中文翻译">资料库（shannraisshan 仓库中文翻译）</h3>
+<pre><code>[[项目/claude-code-best-practice/claude-code-best-practice-实践指南]]   ← 入口（4 周上手）
+├── [[项目/claude-code-best-practice/doc/learning-guide]]    ← 学习导航中枢（13 章）
+├── [[项目/claude-code-best-practice/doc/skills-inventory]]  ← Skills/Agents/Commands 总清单
+└── doc/practice/01-11（概念）、implementation/01-06（实现）、reports/、tips/（Boris/Thariq 技巧）、agent-teams/、workflows/
+</code></pre>
+<h3 id="生态与工具">生态与工具</h3>
+<ul>
+<li><a class="wl" href="../../notes/domains/codewikigoogleai.html">领域/CodeWiki Google的AI驱动代码文档平台</a> — AI 自动生成/维护开源项目 Wiki + codewiki-mcp</li>
+<li><a class="wl" href="../../notes/clippings/github/pe2edde/2026-07-06-last30days-skillskillai.html">2026-07-06-last30days-skill用Skill学习AI新知识</a> — 跨平台 30 天调研 skill（本库 Python vs TS 调研就是它做的）</li>
+<li><a class="wl" href="../../notes/clippings/github/pe2edde/2026-08-03-deepseek-harness.html">2026-08-03-DeepSeek-Harness生态高星项目与应用场景</a> — DeepSeek Harness 内测生态（vLLM/DeerFlow/Spring AI DataAgent）</li>
+<li><a class="wl" href="../../notes/clippings/bilibili/2026-08-04-llm-wiki.html">2026-08-04-保姆教程-卡帕西LLM-Wiki强在哪</a> — Karpathy LLM Wiki 三层架构（raw/实体/综合分析）——本库的整理方式与之同构</li>
+</ul>
+<hr>
+<h2 id="主线三java-后端">主线三：Java 后端 ☕</h2>
+<h3 id="javase-学习进度">JavaSE 学习进度</h3>
+<p><a class="wl" href="../../notes/projects/javase/javase.html">项目/Javase/JavaSE 学习清单</a>（172 节，8 大模块）：</p>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>内容</th>
+<th style="text-align: center;">状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>一、走进Java语言</td>
+<td>JVM/跨平台、环境搭建、开发工具</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td>二、面向过程编程</td>
+<td>变量、运算符、流程控制、数组</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td>三、面向对象基础</td>
+<td>类与对象、封装继承多态、接口抽象类</td>
+<td style="text-align: center;">⏳ 进行中</td>
+</tr>
+<tr>
+<td>四、面向对象高级篇</td>
+<td>包装类、String、Lambda、异常</td>
+<td style="text-align: center;">⬜</td>
+</tr>
+<tr>
+<td>五、泛型程序设计</td>
+<td>泛型、数据结构基础</td>
+<td style="text-align: center;">⬜</td>
+</tr>
+<tr>
+<td>六、集合类与IO</td>
+<td>ArrayList/HashMap、Stream、I/O 流</td>
+<td style="text-align: center;">⬜</td>
+</tr>
+<tr>
+<td>七、多线程与反射</td>
+<td>synchronized、线程池、虚拟线程、反射注解</td>
+<td style="text-align: center;">⬜</td>
+</tr>
+<tr>
+<td>八、GUI程序开发</td>
+<td>Swing/AWT</td>
+<td style="text-align: center;">⬜ 可跳过</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>课程补充</strong>：<a class="wl" href="../../notes/projects/javase/javase-2.html">项目/Javase/JavaSE入门篇学习指南</a> + <a class="wl" href="../../notes/projects/javase/javase-3.html">项目/Javase/JavaSE入门篇逐节精讲</a>（青空の霞光 P1-P34：计算机基础 → 变量/进制/原反补码 → 数据类型 → 运算符 → 流程控制 → 水仙花数/乘法表/斐波那契实战）
+<strong>策略</strong>：GUI 可跳过，<strong>集合/多线程/反射绝对不能跳</strong>（面试重头）。</p>
+</blockquote>
+<h3 id="后端路线阶段-1-3">后端路线（阶段 1-3）</h3>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>内容</th>
+<th style="text-align: center;">时长</th>
+<th style="text-align: center;">进度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. JavaSE 核心</td>
+<td>语法 → 集合/多线程/反射</td>
+<td style="text-align: center;">2-3 周</td>
+<td style="text-align: center;">进行中</td>
+</tr>
+<tr>
+<td>2. Java Web</td>
+<td>MySQL（索引/事务/锁）→ MyBatis → Spring Boot（IoC/AOP）→ Redis/消息队列</td>
+<td style="text-align: center;">2-3 周</td>
+<td style="text-align: center;">未开始</td>
+</tr>
+<tr>
+<td>3. 工程进阶</td>
+<td>Maven/Gradle、Git、Docker、Linux、RESTful/JWT</td>
+<td style="text-align: center;">2 周</td>
+<td style="text-align: center;">未开始</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Agent 视角的提醒：<strong>阶段 2-3 就是 Agent 的 Harness 底座</strong>——连接池、缓存、消息队列、限流降级，全是 Agent 工程化的后端基本功（<a class="wl" href="../../notes/domains/javaagent2026.html">领域/Java后端+Agent开发学习路线 2026</a>）。</p>
+</blockquote>
+<h3 id="技术选型决策">技术选型决策</h3>
+<table>
+<thead>
+<tr>
+<th>选型</th>
+<th>结论</th>
+<th>笔记</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>数据库</strong></td>
+<td>服务端 AI 主学 <strong>PostgreSQL</strong>（pgvector/JSONB，Supabase/Neon 默认）；本地 Agent 用 <strong>SQLite</strong>（FTS5）；<strong>MySQL 求职兜底</strong>（存量业务/面试）</td>
+<td><a class="wl" href="../../notes/domains/mysql-vs-postgresql-ai.html">领域/mysql-vs-postgresql-ai时代选型</a></td>
+</tr>
+<tr>
+<td><strong>语言</strong></td>
+<td><strong>Python 统治模型层</strong>、TypeScript 吃掉 Agent 运行时、Java 在企业 Agent 开发重要——2026 是多语言栈时代</td>
+<td><a class="wl" href="../../notes/domains/pythonvstypescriptai.html">领域/Python vs TypeScript AI时代编程语言之争</a></td>
+</tr>
+<tr>
+<td><strong>Git</strong></td>
+<td>完整命令手册 + 配置作用域 + Windows 凭据 + PR 工作流</td>
+<td><a class="wl" href="../../notes/domains/git.html">领域/Git常用命令指南</a></td>
+</tr>
+</tbody>
+</table>
+<h3 id="求职方法论就业向三篇">求职方法论（就业向三篇）</h3>
+<table>
+<thead>
+<tr>
+<th>来源</th>
+<th>笔记</th>
+<th>核心方法论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>花绿青（TikTok 实习）</td>
+<td><a class="wl" href="../../notes/clippings/bilibili/2026-07-31-ovo.html">2026-07-31-从第一性原理速通大厂技术岗实习-花绿青ovo</a>（视频）↔ <a class="wl" href="../../notes/clippings/pa5cfe6/2026-08-05-tiktok.html">2026-08-05-后端学习路线-大二TikTok实习生</a>（文档）</td>
+<td><strong>学习 = 通过面试</strong>：AI 原住民 → 选语言 → 技术栈 → 算法 → 项目 → 八股；简历每句话不被问穿；八股理解式背诵；信息差是第一生产力</td>
+</tr>
+<tr>
+<td>28 届路线</td>
+<td><a class="wl" href="../../notes/clippings/pae26bb/2026-07-31-28javaagent.html">2026-07-31-28届个人Java+Agent学习路线-小红书</a></td>
+<td>基础快过 → <strong>RAG 项目升级 Agent</strong> → Agent 项目 7 设计点（循环/记忆/上下文/Trace/评测）；一天投递 150 份</td>
+</tr>
+<tr>
+<td>求职 9 条</td>
+<td><a class="wl" href="../../notes/clippings/pae26bb/2026-08-03.html">2026-08-03-果然能找到好工作的计算机生都是狠角色-小红书</a></td>
+<td>扩大信息源（公众号/官网/V2EX/国聘）、多版本简历、笔试城市纳入决策</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>实习策略</strong>：能刷到"一段 Agent 实习 + 一段后端实习"最佳；秋招后端 + Agent 都投（<a class="wl" href="../../notes/domains/javaagent2026.html">领域/Java后端+Agent开发学习路线 2026</a> 问答区）。</p>
+</blockquote>
+<h3 id="实战项目参考">实战项目参考</h3>
+<ul>
+<li><a class="wl" href="../../notes/clippings/p0ba988/ai.html">Clippings/小黑盒/小黑盒推荐适合新手学习的AI项目</a> — 两个同栈项目：Enterprise AI 知识库（Spring AI + ChromaDB）、Music AI Agent（LangChain4j + MCP）</li>
+<li><a class="wl" href="../../notes/clippings/claude/2026-07-30-claude.html">2026-07-30-Claude聊天记录汇总</a> — AgentScope vs Spring AI vs LangChain4j 选型实况</li>
+<li>建议：在 <strong>deerflow 等生产级框架上二次开发</strong>，避免项目被嫌"玩具"（We1L 建议）</li>
+</ul>
+<hr>
+<h2 id="主线四项目线">主线四：项目线 🛡️</h2>
+<h3 id="pq-sectunnel后量子-wireguard-改造答辩">PQ-SecTunnel（后量子 WireGuard 改造，答辩）</h3>
+<pre><code>[[doc-pqsectunnel/defense/00-答辩索引]]   ← 答辩文档总索引（15/30 分钟讲稿顺序）
+└── [[doc-pqsectunnel/流程]]              ← 握手流程讲演稿（1.5-RTT 三次握手串讲）
+    ├── defense/01-10：定位 / 协议 / 密码原语 / 内核路径 / 分片 MTU / PKI / QA
+    └── research/：wireguard 背景与实践
+</code></pre>
+<p>主套件：<code>mlkem512-mlkem768-sm4gcm-sm3</code>，Noise_IKpsk1kem 变体，1.5-RTT 三次握手。</p>
+<hr>
+<h2 id="下一步返校前">🚀 下一步（返校前）</h2>
+<ul>
+<li class="task"><span class="cb" aria-hidden="true"></span><strong>JavaSE 冲刺</strong>：完成（三）面向对象基础 →（八）GUI 之外的全部模块（集合/多线程/反射是面试重头）</li>
+<li class="task"><span class="cb" aria-hidden="true"></span><strong>后端补齐</strong>：Spring Boot + MySQL + Redis（<a class="wl" href="../../notes/domains/javaagent2026.html">领域/Java后端+Agent开发学习路线 2026</a> 阶段 2）</li>
+<li class="task"><span class="cb" aria-hidden="true"></span><strong>Agent 实战</strong>：按 8 级项目阶梯做 1-2 个（Calculator → Coding Agent），优先 Java 生态（Spring AI / LangChain4j）</li>
+<li class="task"><span class="cb" aria-hidden="true"></span><strong>八股刷题</strong>：RAG 链 + Agent 面试链过第二遍；LeetCode Hot 100 起步</li>
+<li class="task"><span class="cb" aria-hidden="true"></span><strong>答辩收尾</strong>：<a class="wl" href="../../notes/pqsectunnel/defense/10-qa.html">doc-pqsectunnel/defense/10-常见问题-QA</a> 演练区填充（grill-with-docs 模拟追问）</li>
+<li class="task"><span class="cb" aria-hidden="true"></span><strong>手账跟进</strong>：学习路线/清单中未勾选的项目逐步划掉，让知识库跟着进度长</li>
+</ul>
+<hr>
+<blockquote>
+<p>✍️ 假期 5 周，从一篇初始化日记到 160+ 篇结构化笔记。<strong>"Practice makes claude perfect"</strong> —— 下个学期见。</p>
+</blockquote>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">知识领域</span><span class="chip">总结</span><span class="chip">手账</span><span class="chip">AI</span><span class="chip">Agent</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A2%86%E5%9F%9F/2026%E6%9A%91%E5%81%87%E6%89%8B%E8%B4%A6.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><span></span><a class="next" href="../../notes/domains/aiagent2026.html"><span class="dir">下一篇 →</span><span class="t">AI Agent 智能体学习路线 2026</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../../notes/index.html">笔记库</a>
+      <a href="../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../about.html">关于</a>
+      <a href="../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../js/main.js" defer></script>
+</body>
+</html>

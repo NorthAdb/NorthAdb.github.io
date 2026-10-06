@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>00a — WireGuard 背景与 PQ-SecTunnel 对比 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="状态：正文 | 权威源：WireGuard 官方文档 + 白皮书 + 本仓库源码 建议：先读本章再读 0101-项目定位与改造动机.md | 调研笔记：../research/wireguard-background.md../resear…">
+<link rel="canonical" href="https://northadb.github.io/notes/pqsectunnel/defense/00a-wireguard.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="00a — WireGuard 背景与 PQ-SecTunnel 对比 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="状态：正文 | 权威源：WireGuard 官方文档 + 白皮书 + 本仓库源码 建议：先读本章再读 0101-项目定位与改造动机.md | 调研笔记：../research/wireguard-background.md../resear…">
+<meta property="og:url" content="https://northadb.github.io/notes/pqsectunnel/defense/00a-wireguard.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="00a — WireGuard 背景与 PQ-SecTunnel 对比 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="状态：正文 | 权威源：WireGuard 官方文档 + 白皮书 + 本仓库源码 建议：先读本章再读 0101-项目定位与改造动机.md | 调研笔记：../research/wireguard-background.md../resear…">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../feed.xml">
+<link rel="stylesheet" href="../../../css/style.css">
+<link rel="stylesheet" href="../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "00a — WireGuard 背景与 PQ-SecTunnel 对比", "description": "状态：正文 | 权威源：WireGuard 官方文档 + 白皮书 + 本仓库源码 建议：先读本章再读 0101-项目定位与改造动机.md | 调研笔记：../research/wireguard-background.md../resear…", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/pqsectunnel/defense/00a-wireguard.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../index.html">首页</a><span>/</span><a href="../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../notes/pqsectunnel/index.html">PQ-SecTunnel</a></div>
+          <h1>00a — WireGuard 背景与 PQ-SecTunnel 对比</h1>
+          <p class="post-sub">状态：正文 | 权威源：WireGuard 官方文档 + 白皮书 + 本仓库源码 建议：先读本章再读 0101-项目定位与改造动机.md | 调研笔记：../research/wireguard-background.md../resear…</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../notes/pqsectunnel/index.html">PQ-SecTunnel</a></span><span class="sep"></span>
+            <span>阅读约 7 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p>状态：正文 | 权威源：WireGuard 官方文档 + 白皮书 + 本仓库源码<br>
+建议：<strong>先读本章再读 <a href="../../../notes/pqsectunnel/defense/01.html">01</a></strong> | 调研笔记：<a href="../../../notes/pqsectunnel/research/wireguard-background.html">../research/wireguard-background.md</a></p>
+</blockquote>
+<hr>
+<h2 id="1-本章要回答什么">1. 本章要回答什么</h2>
+<p>答辩评委常问：「你们和 WireGuard 什么关系？改了什么、保留了什么？」<br>
+本章从 <strong>WireGuard 原版</strong> 讲起，再对照 <strong>PQ-SecTunnel</strong>，避免只讲改造点而说不清基线。</p>
+<hr>
+<h2 id="2-wireguard-是什么">2. WireGuard 是什么</h2>
+<p><strong>WireGuard</strong> 是 Jason Donenfeld 设计的 <strong>Layer 3 VPN</strong>：Linux 内核虚拟网卡（<code>wg0</code>）+ <strong>UDP</strong> 承载加密 IP 包，目标是用更简单、可审计的实现替代 IPsec / OpenVPN 等方案。</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>要点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>层次</td>
+<td>仅 <strong>L3</strong>（IP in IP），不做 L2 桥接</td>
+</tr>
+<tr>
+<td>实现</td>
+<td>内核模块 + 用户态 <code>wg</code> / <code>wg-quick</code></td>
+</tr>
+<tr>
+<td>管理</td>
+<td>配置静态密钥与 peer 后，<strong>握手/重连/漫游自动完成</strong></td>
+</tr>
+<tr>
+<td>哲学</td>
+<td><strong>密码学不协商</strong>——固定 Curve25519 + ChaCha20-Poly1305 + BLAKE2s</td>
+</tr>
+</tbody>
+</table>
+<p>来源：<a href="https://www.wireguard.com/papers/wireguard.pdf">WireGuard 白皮书</a> §1；<a href="https://www.wireguard.com/protocol/">Protocol 页</a>。</p>
+<hr>
+<h2 id="3-核心设计cryptokey-routing">3. 核心设计：Cryptokey Routing</h2>
+<p>WireGuard 最根本的规则（白皮书 §2）：</p>
+<blockquote>
+<p><strong>Peer = 静态公钥</strong>；每个 peer 绑定一组 <strong>AllowedIPs</strong>（允许使用的源 IP）。</p>
+</blockquote>
+<pre><code>出站：目的 IP → 查表 → 选 peer 公钥 → 加密发送
+入站：解密 → 源 IP 必须匹配该 peer 的 AllowedIPs → 否则丢弃
+</code></pre>
+<p>设备上有一张 <strong>AllowedIPs 路由表</strong>（实现上是前缀 Trie）：</p>
+<table>
+<thead>
+<tr>
+<th><strong>表里存什么</strong></th>
+<th><strong>含义</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IP 前缀（如 <code>10.0.8.2/32</code>）</td>
+<td>内层地址范围</td>
+</tr>
+<tr>
+<td>→ 指向某个 <strong>peer</strong></td>
+<td>该范围归哪个公钥管</td>
+</tr>
+</tbody>
+</table>
+<p>配置里每个 peer 的 <code>AllowedIPs</code> 合在一起，就是这张表。</p>
+<p>代码里：<code>wg-&gt;peer_allowedips</code>（<code>allowedips.c</code>）。</p>
+<hr>
+<h2 id="谁负责查表"><strong>谁负责查表</strong></h2>
+<p><strong>内核</strong>（<code>pqsectunnel.ko</code> / WireGuard），用户态只负责往表里<strong>填</strong>，不负责运行时查。</p>
+<table>
+<thead>
+<tr>
+<th><strong>时机</strong></th>
+<th><strong>谁查</strong></th>
+<th><strong>查什么</strong></th>
+<th><strong>API</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>出站</strong></td>
+<td><code>device.c</code> 发包路径</td>
+<td>内层<strong>目的 IP</strong> → peer</td>
+<td><code>wg_allowedips_lookup_dst</code></td>
+</tr>
+<tr>
+<td><strong>入站</strong></td>
+<td><code>receive.c</code> 解密后</td>
+<td>内层<strong>源 IP</strong> 是否属于该 peer</td>
+<td><code>wg_allowedips_lookup_src</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>填表</strong>：用户态 <code>pqst set</code> / Netlink 配 <code>AllowedIPs</code> → 内核 <code>wg_allowedips_insert_</code>*。</p>
+<p>效果：</p>
+<ul>
+<li>防火墙可把 <code>wg0</code> 上某源 IP 视为<strong>密码学认证过的身份</strong></li>
+<li>公钥即身份，无需 x509 用户名（密钥分发走 SSH 式 out-of-band）</li>
+</ul>
+<p><strong>PQ-SecTunnel 保留</strong>：<code>.conf</code> 里仍是 <code>PublicKey</code> + <code>AllowedIPs</code> + 可选 <code>Endpoint</code>；只是公钥从 32B Curve25519 变为 <strong>ML-KEM 静态公钥（800B）</strong>。</p>
+<hr>
+<h2 id="4-功能与用法原版">4. 功能与用法（原版）</h2>
+<h3 id="41-典型部署步骤">4.1 典型部署步骤</h3>
+<pre><code class="language-bash">ip link add dev wg0 type wireguard
+ip address add dev wg0 10.0.0.1/24 dev wg0
+wg setconf wg0 peer.conf    # 或 wg set / wg-quick up
+ip link set wg0 up
+ping 10.0.0.2
+</code></pre>
+<h3 id="42-配置里有什么">4.2 配置里有什么</h3>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PrivateKey</code> / <code>PublicKey</code></td>
+<td>长期 Curve25519 身份（Base64 44 字符）</td>
+</tr>
+<tr>
+<td><code>ListenPort</code></td>
+<td>UDP 监听（默认常 51820）</td>
+</tr>
+<tr>
+<td><code>Peer.PublicKey</code></td>
+<td>对端身份</td>
+</tr>
+<tr>
+<td><code>AllowedIPs</code></td>
+<td>路由 + 入站源 IP 校验</td>
+</tr>
+<tr>
+<td><code>Endpoint</code></td>
+<td>可选初始 <code>IP:Port</code></td>
+</tr>
+<tr>
+<td><code>PresharedKey</code></td>
+<td>可选 PSK，混入 Noise 链</td>
+</tr>
+</tbody>
+</table>
+<h3 id="43-漫游roaming">4.3 漫游（Roaming）</h3>
+<p>未固定 Endpoint 时：收到<strong>合法</strong>加密包 → 用外层 UDP 源地址更新 peer endpoint。<br>
+手机换网、NAT 映射变化时无需改配置。</p>
+<p><strong>PQ 保留</strong>：endpoint 学习与定时器逻辑仍在 <code>receive.c</code> / <code>timers.c</code>。</p>
+<h3 id="44-无状态用户体验">4.4 「无状态」用户体验</h3>
+<p>WireGuard 内核维护定时器（重握手、Keepalive、重密钥、超时丢弃），管理员<strong>不用手动 reconnect</strong>。<br>
+白皮书 §6 + protocol 页详述 <code>REKEY_TIMEOUT</code>、<code>KEEPALIVE</code> 等。</p>
+<p><strong>PQ 保留</strong>：<code>messages.h</code> 中同名常量与状态机框架。</p>
+<hr>
+<h2 id="5-wireguard-的-noise-是怎么设计的">5. WireGuard 的 Noise 是怎么设计的</h2>
+<h3 id="51-选用的模式noiseikpsk2">5.1 选用的模式：Noise_IKpsk2</h3>
+<pre><code>Noise_IKpsk2_25519_ChaChaPoly_BLAKE2s
+WireGuard v1 zx2c4 Jason@zx2c4.com
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>片段</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>IK</strong></td>
+<td>Initiator <strong>预先知道</strong> Responder 静态公钥（配置文件）</td>
+</tr>
+<tr>
+<td><strong>psk</strong></td>
+<td>可选 32B 预共享密钥混入链（<code>PresharedKey</code>）</td>
+</tr>
+<tr>
+<td><strong>2</strong></td>
+<td>Noise 内部版本号</td>
+</tr>
+</tbody>
+</table>
+<p>来源：<a href="https://www.wireguard.com/protocol/">protocol 页</a> CONSTRUCTION / IDENTIFIER。</p>
+<h3 id="52-两次握手1-rtt">5.2 两次握手，1-RTT</h3>
+<pre><code>Initiator                          Responder
+    │──── Handshake Initiation ────►│
+    │◄─── Handshake Response ───────│
+    │──── Transport Data (可空) ───►│  ← 隐式密钥确认
+    │◄─── Transport Data ───────────│
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>报文</th>
+<th>大小约</th>
+<th>核心字段</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Initiation</strong></td>
+<td>~148 B</td>
+<td>明文 ephemeral 32B；AEAD(static)；AEAD(TAI64N 时间戳)；mac1/mac2</td>
+</tr>
+<tr>
+<td><strong>Response</strong></td>
+<td>~92 B</td>
+<td>明文 ephemeral 32B；AEAD(空)；mac1/mac2</td>
+</tr>
+</tbody>
+</table>
+<p><strong>密码学操作</strong>（ECDH）：</p>
+<ul>
+<li>Initiation：<code>DH(e_i, S_r)</code> + 加密暴露 <code>S_i</code> 再 <code>DH(S_i, S_r)</code></li>
+<li>Response：<code>DH(e_r, e_i)</code> + <code>DH(e_r, S_i)</code> + <strong>mix_psk</strong></li>
+</ul>
+<h3 id="53-密钥确认wireguard-的做法重要">5.3 密钥确认：WireGuard 的做法（重要）</h3>
+<p>WireGuard <strong>没有第三条握手报文</strong>。</p>
+<p>官方说明（<a href="https://www.wireguard.com/protocol/">protocol 页 Connection-less Protocol</a>）：</p>
+<blockquote>
+<p>Response 之后 Initiator 可发加密数据；<strong>Responder 必须等到收到 Initiator 的第一条加密数据</strong>才启用新会话；若无业务数据，Initiator 应发<strong>空数据包</strong>作确认。</p>
+</blockquote>
+<p>这是 <strong>用数据面第一包作隐式 Key Confirmation</strong>。</p>
+<h3 id="54-数据面">5.4 数据面</h3>
+<p>握手后派生 <code>sending_key</code> / <code>receiving_key</code>，Transport 报文（type=4）：</p>
+<pre><code>type | reserved | receiver_index | counter | AEAD(内层 IP 包)
+</code></pre>
+<p>ChaCha20-Poly1305，64-bit counter，滑动窗口防重放。</p>
+<h3 id="55-dosmac1-mac2-cookie">5.5 DoS：MAC1 / MAC2 / Cookie</h3>
+<table>
+<thead>
+<tr>
+<th>机制</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>MAC1</strong></td>
+<td><code>BLAKE2s("mac1----" ‖ 接收方静态公钥)</code> 认证握手主体；<strong>不进 C/H 链</strong></td>
+</tr>
+<tr>
+<td><strong>MAC2</strong></td>
+<td>负载高时要求 Cookie MAC，证明 IP 所有权</td>
+</tr>
+<tr>
+<td><strong>Cookie Reply</strong></td>
+<td>type=3，加密回传 cookie</td>
+</tr>
+<tr>
+<td><strong>静默</strong></td>
+<td>mac1 无效 → <strong>不回复、不建状态</strong>（Silence is a Virtue）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>MAC1 ≠ PSK</strong>——PSK 只进 Noise mix_psk；与 PQ 相同。</p>
+<h3 id="56-可选-psk-与后量子">5.6 可选 PSK 与「后量子」</h3>
+<p>WireGuard 白皮书 §5.2：PSK 是为「录流量 + 将来破解 Curve25519」的<strong>经典混合</strong>方案，<strong>不是</strong>完整后量子替换。</p>
+<p>PQ-SecTunnel 则把 <strong>静态身份本身</strong>换成 ML-KEM，PSK 仍可选混入（默认由双方 static 公钥异或派生，见 KE.md）。</p>
+<hr>
+<h2 id="6-wireguard-报文类型原版">6. WireGuard 报文类型（原版）</h2>
+<table>
+<thead>
+<tr>
+<th>type</th>
+<th>名称</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Handshake Initiation</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Handshake Response</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Cookie Reply</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Transport Data</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="7-pq-sectunnel-改了什么">7. PQ-SecTunnel 改了什么</h2>
+<h3 id="71-一句话">7.1 一句话</h3>
+<blockquote>
+<p>保留 WireGuard 的 <strong>VPN 形态</strong>（TUN、Cryptokey Routing、UDP、Cookie、定时器、漫游）；把 <strong>Noise_IKpsk2 + X25519</strong> 换成 <strong>Noise_IKpsk1kem + 双 ML-KEM</strong>，并增加 <strong>显式 Key Confirmation</strong> 第三轮。</p>
+</blockquote>
+<h3 id="72-对照总表">7.2 对照总表</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>WireGuard</th>
+<th>PQ-SecTunnel（主套件）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Noise 名</td>
+<td><code>Noise_IKpsk2_25519_ChaChaPoly_BLAKE2s</code></td>
+<td><code>Noise_IKpsk1kem_SM4GCM_SM3_EphemMLKEM768</code></td>
+</tr>
+<tr>
+<td>握手报文数</td>
+<td><strong>2</strong></td>
+<td><strong>3</strong>（+ Key Confirmation）</td>
+</tr>
+<tr>
+<td>RTT</td>
+<td><strong>1-RTT</strong></td>
+<td><strong>1.5-RTT</strong></td>
+</tr>
+<tr>
+<td>密钥确认</td>
+<td>第一条<strong>数据包</strong>（可空）</td>
+<td>独立 <strong>Key Confirm</strong> 报文</td>
+</tr>
+<tr>
+<td>长期身份</td>
+<td>Curve25519 32B</td>
+<td><strong>Static ML-KEM-512</strong> 800B</td>
+</tr>
+<tr>
+<td>临时密钥</td>
+<td>Curve25519 32B</td>
+<td><strong>Ephemeral ML-KEM-768</strong> 1184B</td>
+</tr>
+<tr>
+<td>共享秘密</td>
+<td>ECDH × 多次</td>
+<td><strong>KEM ct₁/ct₂/ct₃</strong> 混链</td>
+</tr>
+<tr>
+<td>Hash/AEAD</td>
+<td>BLAKE2s / ChaCha20-Poly1305</td>
+<td><strong>SM3 / SM4-GCM</strong></td>
+</tr>
+<tr>
+<td>Initiation 大小</td>
+<td>~148 B</td>
+<td><strong>2068 B</strong></td>
+</tr>
+<tr>
+<td>Response 大小</td>
+<td>~92 B</td>
+<td><strong>1916 B</strong></td>
+</tr>
+<tr>
+<td>MTU</td>
+<td>通常单包</td>
+<td><strong>应用层分片</strong>（2 片）</td>
+</tr>
+<tr>
+<td>用户工具</td>
+<td><code>wg</code> / <code>wg-quick</code></td>
+<td><code>pqst</code> <strong>/</strong> <code>pqst-quick</code></td>
+</tr>
+<tr>
+<td>模块名</td>
+<td><code>wireguard.ko</code></td>
+<td><code>pqsectunnel.ko</code></td>
+</tr>
+<tr>
+<td>报文 type</td>
+<td>Cookie=3, Data=4</td>
+<td><strong>KeyConfirm=3, Cookie=4, Data=5</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="73-三次握手pq">7.3 三次握手（PQ）</h3>
+<pre><code>Initiator                          Responder
+    │──── Initiation (2068B) ──────►│
+    │◄─── Response (1916B) ─────────│
+    │──── Key Confirmation (60B) ──►│  ← 显式确认，用 TK 加密
+    │◄─── Transport Data ───────────│
+</code></pre>
+<p>Initiator 验 Response 密码学成功即知 Responder 完成；Responder 需 <strong>Key Confirm</strong> 才 <code>begin_session</code>（见 <a href="../../../notes/pqsectunnel/defense/02.html">02</a>）。</p>
+<h3 id="74-initiation-结构变化概念">7.4 Initiation 结构变化（概念）</h3>
+<table>
+<thead>
+<tr>
+<th>WireGuard Initiation</th>
+<th>PQ Initiation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>unencrypted_ephemeral[32]</code></td>
+<td><code>E_i^pub</code>（1184B，ML-KEM-768）</td>
+</tr>
+<tr>
+<td>（无）</td>
+<td><code>ct₁</code> 对 S_r 封装（768B）</td>
+</tr>
+<tr>
+<td><code>encrypted_static</code> = AEAD(32B 公钥)</td>
+<td>AEAD(<strong>Hash(S_i^pub)</strong>)</td>
+</tr>
+<tr>
+<td><code>encrypted_timestamp</code></td>
+<td>保留 TAI64N 语义</td>
+</tr>
+</tbody>
+</table>
+<p>Response：WireGuard 仅 <code>encrypted_nothing</code>；PQ 为 <strong>ct₂ + ct₃ + empty</strong>（见 <a href="../../../notes/pqsectunnel/defense/03.html">03</a>）。</p>
+<hr>
+<h2 id="8-保留了哪些-wireguard-功能">8. 保留了哪些 WireGuard 功能</h2>
+<table>
+<thead>
+<tr>
+<th>功能</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>TUN 虚拟接口</strong></td>
+<td>仍是 L3 VPN，非用户态 OpenVPN 式</td>
+</tr>
+<tr>
+<td><strong>Cryptokey Routing</strong></td>
+<td>PublicKey ↔ AllowedIPs 语义不变</td>
+</tr>
+<tr>
+<td><strong>UDP 传输</strong></td>
+<td>51820 等端口模型不变</td>
+</tr>
+<tr>
+<td><strong>Roaming</strong></td>
+<td>从合法包学习 endpoint</td>
+</tr>
+<tr>
+<td><strong>MAC1/MAC2/Cookie</strong></td>
+<td>DoS 框架保留；label 仍为 <code>mac1----</code></td>
+</tr>
+<tr>
+<td><strong>TAI64N 时间戳</strong></td>
+<td>Initiation 防重放</td>
+</tr>
+<tr>
+<td><strong>sender_index / receiver_index</strong></td>
+<td>index 表</td>
+</tr>
+<tr>
+<td><strong>定时器</strong></td>
+<td>REKEY、KEEPALIVE、HANDSHAKE 重试</td>
+</tr>
+<tr>
+<td><strong>PSK mix</strong></td>
+<td>可选；PQ 默认派生规则见 KE.md</td>
+</tr>
+<tr>
+<td><strong>数据面</strong></td>
+<td>counter + AEAD 封装 IP</td>
+</tr>
+<tr>
+<td><strong>Netlink 配置</strong></td>
+<td>结构同构，改名 PQST</td>
+</tr>
+</tbody>
+</table>
+<p><strong>管理员视角</strong>：仍是「生成密钥 → 写 conf → quick up → ping 通」，实验见 <a href="../../../notes/pqsectunnel/defense/07.html">07</a>。</p>
+<hr>
+<h2 id="9-主要不同答辩必讲三点">9. 主要不同（答辩必讲三点）</h2>
+<h3 id="①-密码学内核换血">① 密码学内核换血</h3>
+<p>经典 ECDH → <strong>后量子 KEM</strong>；国际算法 → 答辩套件 <strong>SM3/SM4-GCM</strong>。<br>
+编译时固定，<strong>无运行时协商</strong>（延续 WireGuard「不 agility」哲学，但套件由 build.sh 选）。</p>
+<h3 id="②-握手从-2-到-3">② 握手从 2 到 3</h3>
+<p>不仅多一轮 RTT，更是 <strong>隐式确认 → 显式 Key Confirmation</strong>。<br>
+KEM 握手下 Responder 更需要 Initiator 证明「我也算出了 TK」。</p>
+<h3 id="③-工程后果大包-分片">③ 工程后果：大包 + 分片</h3>
+<p>公钥/密文从几十字节到 <strong>KB 级</strong> → Initiation/Response 超 MTU → <code>pqc_fragment</code> <strong>应用层分片</strong>（MAC 后切）。WireGuard 无此需求。</p>
+<hr>
+<h2 id="10-兼容性说明">10. 兼容性说明</h2>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>答案</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>pqsectunnel 能否与官方 wireguard.ko 互通？</td>
+<td><strong>不能</strong>——报文格式、type 编号、密码原语均不同</td>
+</tr>
+<tr>
+<td>能否用 <code>wg</code> 命令配 PQ 接口？</td>
+<td>实验用 <code>pqst</code>（wg 分支重命名）</td>
+</tr>
+<tr>
+<td>配置语法像吗？</td>
+<td><strong>像</strong> WireGuard ini；字段长度与算法不同</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="11-答辩-1-分钟版">11. 答辩 1 分钟版</h2>
+<blockquote>
+<p>WireGuard 是 Layer3 内核 VPN，核心是 Cryptokey Routing：公钥绑定 AllowedIPs，Noise IKpsk2 两次握手、1-RTT，Curve25519 和 ChaCha20。我们 PQ-SecTunnel fork 其模块架构，保留 TUN、UDP、Cookie、漫游和配置模型，把密钥交换换成双 ML-KEM，握手加到 Initiation、Response 和 Key Confirmation 三轮，算法换成 SM3 和 SM4-GCM。握手包从约 150 字节涨到 2000 字节，所以加了应用层分片。功能上还是 VPN，密码内核和报文格式是后量子版。</p>
+</blockquote>
+<hr>
+<h2 id="12-交叉引用">12. 交叉引用</h2>
+<table>
+<thead>
+<tr>
+<th>主题</th>
+<th>文档</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PQ 改造动机（简版）</td>
+<td><a href="../../../notes/pqsectunnel/defense/01.html">01</a></td>
+</tr>
+<tr>
+<td>1.5-RTT 时序</td>
+<td><a href="../../../notes/pqsectunnel/defense/02.html">02</a></td>
+</tr>
+<tr>
+<td>逐步握手</td>
+<td><a href="../../../notes/pqsectunnel/defense/03.html">03</a></td>
+</tr>
+<tr>
+<td>分片</td>
+<td><a href="../../../notes/pqsectunnel/defense/06-mtu.html">06</a></td>
+</tr>
+<tr>
+<td>调研笔记（带 URL）</td>
+<td><a href="../../../notes/pqsectunnel/research/wireguard-background.html">../research/wireguard-background.md</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="13-外部链接">13. 外部链接</h2>
+<ul>
+<li><a href="https://www.wireguard.com/protocol/">WireGuard Protocol &amp; Cryptography</a></li>
+<li><a href="https://www.wireguard.com/papers/wireguard.pdf">WireGuard Whitepaper (PDF)</a></li>
+<li><a href="https://noiseprotocol.org/noise.html">Noise Protocol Framework</a></li>
+</ul>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">PQ-SecTunnel</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/doc-pqsectunnel/defense/00a-WireGuard%E8%83%8C%E6%99%AF%E4%B8%8E%E5%AF%B9%E6%AF%94.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../notes/pqsectunnel/defense/00.html"><span class="dir">← 上一篇</span><span class="t">00 — 答辩索引</span></a><a class="next" href="../../../notes/pqsectunnel/defense/01.html"><span class="dir">下一篇 →</span><span class="t">01 — 项目定位与改造动机</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../index.html">首页</a>
+      <a href="../../../learn.html">课件</a>
+      <a href="../../../notes/index.html">笔记库</a>
+      <a href="../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../about.html">关于</a>
+      <a href="../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../js/main.js" defer></script>
+</body>
+</html>

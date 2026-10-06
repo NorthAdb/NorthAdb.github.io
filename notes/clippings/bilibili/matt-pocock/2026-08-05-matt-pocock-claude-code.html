@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matt Pocock 实战：用 Claude Code 从零开发一个真实项目（ghost course 全流程） · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="UP 主：ChHsich（搬运翻译） | 原作者：Matt Pocock（Total TypeScript 创始人） 时长 1:31:26 | 事实主干：B站 AI 字幕（agent-reach / OpenCLI，734 段逐句） 证据等…">
+<link rel="canonical" href="https://northadb.github.io/notes/clippings/bilibili/matt-pocock/2026-08-05-matt-pocock-claude-code.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Matt Pocock 实战：用 Claude Code 从零开发一个真实项目（ghost course 全流程） · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="UP 主：ChHsich（搬运翻译） | 原作者：Matt Pocock（Total TypeScript 创始人） 时长 1:31:26 | 事实主干：B站 AI 字幕（agent-reach / OpenCLI，734 段逐句） 证据等…">
+<meta property="og:url" content="https://northadb.github.io/notes/clippings/bilibili/matt-pocock/2026-08-05-matt-pocock-claude-code.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Matt Pocock 实战：用 Claude Code 从零开发一个真实项目（ghost course 全流程） · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="UP 主：ChHsich（搬运翻译） | 原作者：Matt Pocock（Total TypeScript 创始人） 时长 1:31:26 | 事实主干：B站 AI 字幕（agent-reach / OpenCLI，734 段逐句） 证据等…">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../../feed.xml">
+<link rel="stylesheet" href="../../../../css/style.css">
+<link rel="stylesheet" href="../../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Matt Pocock 实战：用 Claude Code 从零开发一个真实项目（ghost course 全流程）", "description": "UP 主：ChHsich（搬运翻译） | 原作者：Matt Pocock（Total TypeScript 创始人） 时长 1:31:26 | 事实主干：B站 AI 字幕（agent-reach / OpenCLI，734 段逐句） 证据等…", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/clippings/bilibili/matt-pocock/2026-08-05-matt-pocock-claude-code.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../../index.html">首页</a><span>/</span><a href="../../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../../notes/clippings/index.html">内容剪藏</a></div>
+          <h1>Matt Pocock 实战：用 Claude Code 从零开发一个真实项目（ghost course 全流程）</h1>
+          <p class="post-sub">UP 主：ChHsich（搬运翻译） | 原作者：Matt Pocock（Total TypeScript 创始人） 时长 1:31:26 | 事实主干：B站 AI 字幕（agent-reach / OpenCLI，734 段逐句） 证据等…</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../../notes/clippings/index.html">内容剪藏</a></span><span class="sep"></span>
+            <span>阅读约 12 分钟</span><span class="sep"></span><span>更新于 2026-08-05</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p><strong>UP 主</strong>：ChHsich（搬运翻译） | <strong>原作者</strong>：Matt Pocock（Total TypeScript 创始人）
+<strong>时长</strong> 1:31:26 | <strong>事实主干</strong>：B站 AI 字幕（agent-reach / OpenCLI，734 段逐句）
+<strong>证据等级</strong>：<code>bilibili-ai-subtitles</code></p>
+<p><strong>证据说明</strong>：字幕为 AI 转录+人工校对的中英双语。视频为 Matt Pocock 在真实项目 course-video-manager 上开发 ghost course 功能的全程实录。字幕中部分数字（提交数、issue 数、token 数）为口述，未逐一核验仓库。</p>
+</blockquote>
+<hr>
+<h2 id="一句话总论">一句话总论</h2>
+<blockquote>
+<p>这是 Matt 的「<strong>白班夜班</strong>」模式的完整演示：人上白班——用 GrillMe 把模糊想法磨成 8 个明确要点、用 DDD 统一语言沉淀术语、产出 PRD 并拆成 GitHub issue；LLM 上夜班——AFK agent 在 Docker 沙箱里用 Ralph loop 逐个实现并关 issue；人醒来后走 QA 循环，发现问题再反馈成 issue，agent 在后台持续修复。</p>
+</blockquote>
+<p><strong>关键结论</strong>：难的部分（想清楚、人在回路的部分）做完后，剩下的实现工作基本可以放心交给 AFK agent；而 QA 反馈循环里发现的边界问题，是「从 spec 到代码」路线永远规划不到的。</p>
+<hr>
+<h2 id="一项目与需求背景">一、项目与需求背景</h2>
+<h3 id="course-video-manager-是什么">course-video-manager 是什么</h3>
+<p>Matt 日常内容创作（录视频、组织课程、写文章、封面编辑）的统一入口：</p>
+<ul>
+<li>技术栈：React Router + TypeScript + Node、Drizzle ORM、Postgres、Vitest、Effect</li>
+<li>规模：约 <strong>1200 次提交、关闭 637 个 issue</strong></li>
+<li>部署：不部署、本地 <code>npm start</code>（彩蛋：本视频就是用它制作的）</li>
+</ul>
+<h3 id="本次要做的功能三条模糊需求">本次要做的功能（三条模糊需求）</h3>
+<ol>
+<li><strong>直接创建 real lesson</strong>（不必先建 ghost 再 create on disk）</li>
+<li><strong>直接删除 real lesson</strong>（不必先转 ghost 再删）</li>
+<li><strong>创建 ghost course</strong>（文件系统上还不存在的课程，自由规划）</li>
+</ol>
+<h3 id="已有概念">已有概念</h3>
+<ul>
+<li><strong>ghost lesson</strong>：只存在于数据库、磁盘上不存在的课程单元；右键 "create on disk" 才创建，可再转回 ghost（删除磁盘文件）</li>
+<li><strong>real lesson</strong>：磁盘上真实存在的课程单元</li>
+</ul>
+<hr>
+<h2 id="二grillme22-分钟把想法磨成-8-个要点">二、GrillMe：22 分钟把想法磨成 8 个要点</h2>
+<h3 id="为什么为什么很重要">为什么「为什么」很重要</h3>
+<blockquote>
+<p>向 LLM 解释<strong>为什么</strong>特别重要——知道做什么只能理解要建什么；知道<strong>为什么</strong>，它才能给你替代方案。</p>
+</blockquote>
+<p>Matt 用语音输入口述想法直接丢给 <code>grill me</code>，进场第一件事是<strong>验证想法、打磨想法</strong>。</p>
+<h3 id="grillme-的完整工作流程">GrillMe 的完整工作流程</h3>
+<ol>
+<li><strong>粗糙输入</strong>：语音口述未打磨的模糊需求，不加整理直接丢给 LLM</li>
+<li><strong>explore 阶段</strong>：sub-agent 在自己的上下文窗口里大量读代码库文件，只回传总结（非常省 token）</li>
+<li><strong>挑战痛点描述</strong>：主动质疑你的问题描述，用代码证据纠正假设
+   - 例：它读代码发现 <code>CourseWriteService.deleteLesson</code> 已能直接删 real lesson，问题其实是 <strong>UI 缺口</strong></li>
+<li><strong>Socratic 式逼问</strong>：把含糊的话一点一点展开，拆成 A/B 方案并列出 trade-off，甚至给推荐</li>
+<li><strong>先看代码再问人</strong>：skill 内置规则——"如果一个问题靠看代码就能回答，它就先去看代码"</li>
+<li><strong>双向驱动</strong>：有时 AI 驱动追问，有时开发者驱动（"你能把两种方案的取舍讲讲吗？"）</li>
+<li><strong>产出清单并确认</strong>：结尾列出"我理解的完整范围"逐条确认，等你点头或补漏</li>
+<li><strong>不用内置提问工具</strong>：刻意不用 Ask User / Question 工具——①不喜欢那个 UI；②有"调用工具 vs 不调用工具"选择时不调用永远更省 token（工具调用要用 JSON 包裹）</li>
+<li><strong>产出即流水线素材</strong>：问答形式信息密度极高（问题和答案放一起，对 LLM 注意力机制是热点）</li>
+</ol>
+<h3 id="22-分钟磨出的-8-个要点">22 分钟磨出的 8 个要点</h3>
+<ol>
+<li>courses 表的 <strong>file path 改为可空</strong>（唯一 schema 改动）</li>
+<li>ghost course 的创建</li>
+<li>新的创建课程流程：<strong>只问名字，不要文件路径</strong></li>
+<li>ghost course 的 UI：隐藏 publish 和 export 操作</li>
+<li>"创建 real lesson"按钮在 real 和 ghost course 里都可用；ghost course 里触发 modal 先问文件路径，然后 <strong>cascade materialize</strong>（课程变 real → section materialize → lesson 在磁盘创建，一气呵成）</li>
+<li>ghost lesson 的创建保持不变，到处可用</li>
+<li><strong>real lesson 的直接删除</strong>：一步清掉磁盘和数据库；同时保留"转成 ghost"选项</li>
+<li>ghost lesson 的删除保持不变</li>
+</ol>
+<h3 id="关键边界决策grillme-逼出来的">关键边界决策（GrillMe 逼出来的）</h3>
+<ul>
+<li>real course 一旦有文件路径<strong>永远是 real</strong>（磁盘上的东西不会消失，不会变回 ghost course）</li>
+<li>section 状态由 lesson 推导：含任一 real lesson 即 real section（本质是磁盘目录）</li>
+<li>拒绝"比 ghost 更丰满的中间状态"</li>
+<li>应用不负责创建仓库，只指向已存在目录</li>
+<li>打磨 22 分钟后上下文仅 <strong>~40k token</strong>（explore 总结机制的功劳）</li>
+</ul>
+<hr>
+<h2 id="三ddd-统一语言让-ai-协作更精确">三、DDD 统一语言：让 AI 协作更精确</h2>
+<h3 id="理念">理念</h3>
+<p>Matt 在读《领域驱动设计》（Eric Evans），把 DDD 的<strong>术语表（glossary）</strong>重新解释为弥合「领域专家（他）与开发者（LLM）」之间的鸿沟——人和 AI 需要共同语言才能精确交流。</p>
+<h3 id="落点">落点</h3>
+<p>一份统一语言文档存在仓库里；"每当 LLM 搜索相关内容时就会碰到这份文档"，同时服务于人类阅读与 AI 检索。</p>
+<h3 id="本次新增的术语">本次新增的术语</h3>
+<ul>
+<li><strong>ghost lesson / ghost section / ghost course</strong> 三兄弟</li>
+<li><strong>materialize</strong>（动词）：把 ghost entity 转成 real entity——通过创建其磁盘表示的动作</li>
+<li><strong>create on disk</strong>（动作）+ 文档里列出"要避免的别名"</li>
+<li><strong>materialization cascade</strong>：在 ghost course 里 materialize 一个 lesson 引发的连锁反应（分配文件路径 → materialize section → materialize lesson）</li>
+</ul>
+<h3 id="维护方式">维护方式</h3>
+<p>grilling 产出新想法后，让 LLM 更新统一语言文档，<strong>先接受、之后再 review</strong>；废弃概念也在文档中标记（plan / plan section / plan lesson 已废弃，ghost course 是新的做法）。</p>
+<h3 id="收益">收益</h3>
+<ul>
+<li>之后可以说"materialization cascade 里有个 bug"，LLM 完全听懂</li>
+<li>统一语言让函数命名变得容易</li>
+<li>接口设计（如 course write service 加新方法）更自然</li>
+</ul>
+<hr>
+<h2 id="四prd-issues把范围拆成可执行单元">四、PRD → issues：把范围拆成可执行单元</h2>
+<h3 id="write-prd-skill">write PRD skill</h3>
+<ul>
+<li>直接把 grilling 对话转成更精炼的总结文档（问题+答案在一起，信息密度高）</li>
+<li><strong>先勾勒主要模块</strong>再写 PRD（"我不一定需要看进模块内部，我只想知道它们怎么变"）</li>
+<li>PRD = 用户故事 + 实现决策 + <strong>测试决策</strong>（测试决策让 LLM 更可能走 TDD、建反馈回路）</li>
+<li>Matt 凭信心接受 PRD 不 review（"LLM 做总结特别在行"）</li>
+</ul>
+<h3 id="prd-to-issues">PRD to issues</h3>
+<ul>
+<li>PRD 刚写完还在上下文里，直接拆 issue</li>
+<li>issue 带<strong>阻塞关系</strong>（blocked by）、验收标准、链接父 PRD</li>
+<li>任务粒度控制：太小不值得启动一个 agent（隐藏 publish/export 这种小任务合并掉）</li>
+<li>最终 6 个合并成 <strong>4 块</strong>：ghost course 创建、UI 相关、直接删除操作、materialization cascade</li>
+<li>粒度参考：一个 agent 启动一次有固定成本，任务要「不太大、也不太小」</li>
+</ul>
+<hr>
+<h2 id="五afk-agentsandcastle-ralph-loop">五、AFK Agent：Sandcastle + Ralph loop</h2>
+<h3 id="定位">定位</h3>
+<p>AFK（Away From Keyboard）agent = 人在离开时后台运行的 Claude Code。Matt 过去 24 小时打磨的配置，暂定名 <strong>Sandcastle</strong>。</p>
+<h3 id="sandcastledocker-隔离执行环境">Sandcastle：Docker 隔离执行环境</h3>
+<pre><code class="language-text">Dockerfile
+  → 起 Docker 容器
+  → 工作目录挂载进容器
+  → 容器内跑 Claude Code 做提交
+  → 把提交作为 patch 拉出来
+  → 应用到本地仓库
+</code></pre>
+<ul>
+<li>配置极其灵活：一份 Dockerfile + 一个 prompt，可以一遍又一遍跑 Ralph loop</li>
+<li><strong>隔离</strong>：agent 的提交不直接污染本地仓库，作为 patch 审查后应用</li>
+</ul>
+<h3 id="ralph-loop实现-测试-关-issue">Ralph loop：实现 → 测试 → 关 issue</h3>
+<pre><code class="language-text">pnpm ralph
+  → 拉起 AFK agent，最多 100 次迭代
+  → 拉取所有 GitHub issue，选一个干
+  → 每次提交都跑测试和类型检查
+  → 做出提交 → 关闭对应 issue
+  → 循环直到 issue 用光
+</code></pre>
+<ul>
+<li>本次结果：5 次干净的 agent 运行 → <strong>6 次提交</strong>，留下漂亮详细的提交信息</li>
+<li>关键：<strong>每次提交都跑测试 + 类型检查</strong>，否则 agent 会越走越偏；大多数 loop 里它也在补测试（更新 reducer 测试覆盖新 action）</li>
+</ul>
+<hr>
+<h2 id="六qa-验收循环人在回路-后台修复">六、QA 验收循环：人在回路 + 后台修复</h2>
+<h3 id="流程">流程</h3>
+<ol>
+<li>开新 Claude session：拿最近 5 次提交 → 生成 <strong>QA 计划</strong>（逐步指南，怎么测试新实现的每一部分）→ 存成 GitHub issue</li>
+<li>人（Matt）自己走一遍 QA 计划</li>
+<li>发现问题的反馈路径：<strong>反馈按钮</strong> → 详细描述 → haiku 生成标题 → 自动创建 GitHub issue（带来源路由和反馈原文）</li>
+<li>Ralph loop 在后台接走这些 issue 去修，人继续 QA</li>
+<li>需要人的任务：给 issue 加 label 或注明"人在回路"，agent 不会碰</li>
+</ol>
+<h3 id="本次-qa-发现的问题值得注意">本次 QA 发现的问题（值得注意）</h3>
+<ul>
+<li>add course modal 出现两个 tab 建 real/ghost course → 希望<strong>只静默创建 ghost course</strong>（UI 里不该出现 ghost 这个词）</li>
+<li>创建 ghost course 后没跳转新页面、modal 没关、出现 minified React error、按钮无 loading 状态</li>
+<li>右键菜单"创建 Ghost Lesson / 创建 Real Lesson"两个按钮不如一个 modal + <strong>"同时在文件系统上创建"复选框</strong>（这类问题不实际看到 UI 无法判断——GrillMe 阶段规划不到）</li>
+<li>删除 real lesson 要加<strong>确认 modal</strong>（防误删）</li>
+<li><strong>showstopper</strong>：如果 course 仓库不是 Git 仓库，相关操作失败时应该<strong>回滚已创建的目录</strong>，否则目录/文件系统和数据库不一致</li>
+</ul>
+<blockquote>
+<p>💡 <strong>核心洞察</strong>：有些问题在设计/原型阶段无法预见，只有在 QA 循环里撞上——"从 spec 到代码这条路永远走不通，因为当你朝某个东西迭代时，会撞上很难提前规划到的小而诡异的边界情况"。</p>
+</blockquote>
+<h3 id="数字">数字</h3>
+<ul>
+<li>QA 8 分钟创建 6-7 个 issue</li>
+<li>整个功能构建约 <strong>14 次提交</strong>，约 30 分钟跑完一轮</li>
+<li>灵活 backlog 的好处：任何时候都能往里塞一堆 bug 修复，agent 就会进去修</li>
+</ul>
+<hr>
+<h2 id="七白班夜班模式day-shift-night-shift">七、白班夜班模式（Day Shift / Night Shift）</h2>
+<blockquote>
+<p>朋友 <strong>Jamin</strong> 在 Twitter 上的比喻：<strong>我上白班</strong>——想点子、和 LLM grilling、把想法变成 PRD、PRD 变成 issue；<strong>LLM 上夜班</strong>——Claude 去 AFK 实现这些东西，我去歇一会儿、散个步。</p>
+</blockquote>
+<p><strong>为什么这不慢</strong>：</p>
+<blockquote>
+<p>它慢，是因为你在努力把想法从人脑里榨出来。而在这发生的同时，AFK agent 在后台实现你之前 grilling session 的产出。<strong>一旦想法理清楚，我们的工作其实就差不多做完了，直到要去 QA 产出。</strong></p>
+</blockquote>
+<p><strong>白班内容</strong>（人的时间线）：</p>
+<ol>
+<li>日历里留半小时专门想清楚要做的功能</li>
+<li>GrillMe grilling（22 分钟）→ 8 个要点</li>
+<li>更新统一语言文档（接受后 review）</li>
+<li>write PRD（不 review）</li>
+<li>PRD → issues（不 review，已预 review 过）</li>
+<li>启动 pnpm ralph，走开</li>
+</ol>
+<p><strong>夜班内容</strong>（agent 的时间线）：Sandcastle 容器内逐个实现 issue → 测试 + 类型检查 → 提交并关 issue</p>
+<p><strong>下一步并行化</strong>：Matt 想做的优化是把多个 Ralph loop 并行化，搞一支 agent 团队一起干。</p>
+<hr>
+<h2 id="八核心方法论洞察">八、核心方法论洞察</h2>
+<ol>
+<li><strong>你很少需要看代码</strong>：Matt 在整场几乎不看代码，他做的是 <strong>review 输入和输出</strong>——接口怎么变、模块长什么样，偶尔翻进去确认方向</li>
+<li><strong>接口思维优先于实现</strong>："我更多在想接口而不是实现；实现我不太在乎。但要确保可测，且仓库其余部分以及未来的 AI agent 都能看懂。"</li>
+<li><strong>人在回路边界</strong>：写代码可以放手，但<strong>提交代码、review 统一语言文档</strong>等仍自己控制</li>
+<li><strong>紧凑循环</strong>：review AI 产出 → 往里喂更多信息 → 形成紧凑反馈回路</li>
+<li><strong>并行红利</strong>：Claude 能 AFK 跑，就能把自己的 QA 和 bug 修复并行起来</li>
+<li><strong>测试基建是底座</strong>：Effect + E2E 测试（建测试数据库 + 临时 git 仓库）让"可测试单元"成为一等公民，降低 AI 改动风险</li>
+<li><strong>20 年老办法依然好用</strong>：关注架构、反馈回路、不过度前期规划——把 Claude Code 当"团队里可委派任务的人"</li>
+</ol>
+<hr>
+<h2 id="九时间轴索引">九、时间轴索引</h2>
+<table>
+<thead>
+<tr>
+<th>时间</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>00:00</td>
+<td>开场：老办法在 Claude Code 上依然好用；回应"来点实际的"</td>
+</tr>
+<tr>
+<td>00:50</td>
+<td>项目介绍：course-video-manager（1200 提交 / 637 issue）</td>
+</tr>
+<tr>
+<td>01:20</td>
+<td>技术栈：React Router + TS + Drizzle + Postgres + Vitest + Effect</td>
+</tr>
+<tr>
+<td>02:30</td>
+<td>现状：ghost lesson / real lesson 概念；"同一个界面既规划又创建"</td>
+</tr>
+<tr>
+<td>03:20</td>
+<td>三条模糊需求：直接建 real lesson、直接删 real lesson、建 ghost course</td>
+</tr>
+<tr>
+<td>04:10</td>
+<td>启动 grill me；为什么"为什么"重要</td>
+</tr>
+<tr>
+<td>05:00</td>
+<td>explore 机制解释（sub-agent 隔离上下文读文件，回传总结）</td>
+</tr>
+<tr>
+<td>06:20</td>
+<td>GrillMe 第一轮反诘：delete lesson 已支持，问题在 UI</td>
+</tr>
+<tr>
+<td>07:30</td>
+<td>DDD 统一语言引入：术语表弥合领域专家与 LLM 的鸿沟</td>
+</tr>
+<tr>
+<td>09:00</td>
+<td>CourseWriteService 讲解（写入侧、接口清晰、E2E 测试）</td>
+</tr>
+<tr>
+<td>11:30</td>
+<td>ghost course 拆解：无文件路径 → 无 git → 全 ghost</td>
+</tr>
+<tr>
+<td>13:30</td>
+<td>"materialize" 动词让按钮命名变干净；隐藏 publish/export</td>
+</tr>
+<tr>
+<td>15:00</td>
+<td>"这里花得越多，后面引导 LLM 要做的就越少"</td>
+</tr>
+<tr>
+<td>16:30</td>
+<td>A/B 方案权衡：ghost course 里建 real lesson 触发 materialization cascade</td>
+</tr>
+<tr>
+<td>~22:00</td>
+<td>GrillMe 列出完整范围 = 8 个要点（22 分钟视频产出）</td>
+</tr>
+<tr>
+<td>~23:00</td>
+<td>更新统一语言文档（ghost 三兄弟 / materialize / cascade）</td>
+</tr>
+<tr>
+<td>~24:00</td>
+<td>进入 write PRD：先勾勒模块，加测试决策</td>
+</tr>
+<tr>
+<td>~26:00</td>
+<td>PRD 拆 issue：阻塞关系、合并小任务、6→4 块</td>
+</tr>
+<tr>
+<td>~28:00</td>
+<td>回顾 GrillMe 为什么不带 Ask User（UI 不喜欢 + JSON 包裹成本）</td>
+</tr>
+<tr>
+<td>~30:00</td>
+<td>打磨 22 分钟后上下文仅 40k token</td>
+</tr>
+<tr>
+<td>~31:00</td>
+<td>启动 AFK：Sandcastle（Docker 容器 + patch）</td>
+</tr>
+<tr>
+<td>~32:00</td>
+<td>跑 pnpm ralph（最多 100 次迭代，提交关 issue）</td>
+</tr>
+<tr>
+<td>~34:00</td>
+<td>白班夜班：Jamin 的比喻；人散个步、agent 实现</td>
+</tr>
+<tr>
+<td>~40:00</td>
+<td>回来：5 次 agent 运行 → 6 次提交；生成 QA 计划</td>
+</tr>
+<tr>
+<td>~42:00</td>
+<td>QA：add course modal 问题 → 反馈按钮 → haiku 标题 → issue</td>
+</tr>
+<tr>
+<td>~44:00</td>
+<td>ghost course 创建 bug（不跳转 + React error + 无 loading）</td>
+</tr>
+<tr>
+<td>~46:00</td>
+<td>右键双按钮 vs modal + "文件系统上创建"复选框</td>
+</tr>
+<tr>
+<td>~48:00</td>
+<td>QA 8 分钟建 6-7 个 issue；Ralph 后台修；showstopper（非 git 仓库回滚）</td>
+</tr>
+<tr>
+<td>~50:00</td>
+<td>第 8 次迭代：删除确认 modal；14 次提交收尾</td>
+</tr>
+<tr>
+<td>~52:00</td>
+<td>检查：add lesson 不再分 ghost/real，只有一个复选框</td>
+</tr>
+<tr>
+<td>结尾</td>
+<td>复盘：很少看代码、review 输入输出、并行红利；训练营广告</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="十你能直接带走的东西">十、你能直接带走的东西</h2>
+<h3 id="工作流模板matt-完整链路">工作流模板（Matt 完整链路）</h3>
+<pre><code class="language-text">日历里留半小时 → 语音口述想法
+  → grill me（22 分钟磨出 8 要点，~40k token）
+  → 更新统一语言文档（先接受后 review）
+  → write PRD（模块勾勒 + 测试决策，不 review）
+  → PRD to issues（带阻塞关系，任务粒度适中）
+  → pnpm ralph（Sandcastle Docker 隔离 + 每次提交测试）
+  → 人走开 / 睡觉 / 散步
+  → 醒来生成 QA 计划 → 走 QA → 反馈按钮建 issue
+  → Ralph 后台修 → 循环直到验收通过
+</code></pre>
+<h3 id="三个可立即复用的习惯">三个可立即复用的习惯</h3>
+<ol>
+<li><strong>打磨想法花时间值得</strong>："这里花得越多，后面引导 LLM 要做的就越少"</li>
+<li><strong>explore 是省 token 杠杆</strong>：sub-agent 隔离上下文读文件回传总结，一个 session 用好几次</li>
+<li><strong>每次提交跑测试+类型检查</strong>：Ralph loop 成功的基石</li>
+</ol>
+<h3 id="对spec-先行的修正">对「spec 先行」的修正</h3>
+<ul>
+<li>GrillMe/原型阶段规划不到的边界问题（非 git 仓库回滚、删除确认、UI 措辞）<strong>只能靠 QA 循环发现</strong></li>
+<li>所以闭环必须是：<strong>打磨 → 实现 → QA 反馈 → 再实现</strong>，而不是 spec → 代码 一次性完成</li>
+</ul>
+<hr>
+<h2 id="关联笔记">关联笔记</h2>
+<ul>
+<li><a class="wl" href="../../../../notes/clippings/bilibili/matt-pocock/2026-07-31-matt-pocock-slopwatch.html">Matt-Pocock/2026-07-31-Matt-Pocock直播-SlopWatch从零搭建完整实录</a> — GrillMe + DDD 完整实战（首次亮相 domain model skill）</li>
+<li><a class="wl" href="../../../../notes/clippings/bilibili/matt-pocock/2026-07-31-matt-pocock-skills.html">Matt-Pocock/2026-07-31-Matt-Pocock-Skills原作者手把手教程</a> — grill-with-docs → to-spec → to-tickets → implement → code-review 主流流程</li>
+<li><a class="wl" href="../../../../notes/clippings/bilibili/matt-pocock/2026-07-31-matt-pocock-spec-driven.html">Matt-Pocock/2026-07-31-Matt-Pocock实战-从原型到spec-driven开发</a> — prototype + 保真度</li>
+<li><a class="wl" href="../../../../notes/clippings/bilibili/matt-pocock/2026-08-02-matt-pocock-grill-skill9.html">Matt-Pocock/2026-08-02-Matt-Pocock-grill-skill的9个误区</a> — GrillMe 使用误区</li>
+<li><a class="wl" href="../../../../notes/clippings/bilibili/matt-pocock/matt-pocock.html">Matt-Pocock/Matt-Pocock方法论精华-完整工作流与技能体系</a> — 完整方法论地图与技能体系汇总</li>
+<li><a class="wl" href="../../../../notes/clippings/bilibili/2026-08-03-claude-code.html">Clippings/Bilibili/2026-08-03-Claude-Code上下文压缩与会话恢复机制</a> — AFK 长任务运行背后的上下文机制</li>
+</ul>
+<blockquote>
+<p>💡 <strong>一句总括</strong>：这期视频是 Matt 方法论的"交付端"闭环——前几期讲探索（GrillMe/Wayfinder/prototype）和设计（DDD），这一期完整展示<strong>探索 → 统一语言 → PRD → issue → AFK 实现 → QA 反馈</strong>的整条流水线如何在一个真实项目上运转，以及为什么"白班夜班"让一个人的产能可以并行。</p>
+</blockquote>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">内容剪藏</span><span class="chip">Matt Pocock</span><span class="chip">Claude Code</span><span class="chip">GrillMe</span><span class="chip">DDD</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/Clippings/Bilibili/Matt-Pocock/2026-08-05-Matt-Pocock%E5%AE%9E%E6%88%98-%E7%94%A8Claude-Code%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%8F%91%E7%9C%9F%E5%AE%9E%E9%A1%B9%E7%9B%AE.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../../notes/clippings/bilibili/matt-pocock/2026-08-02-matt-pocock-grill-skill9.html"><span class="dir">← 上一篇</span><span class="t">Matt Pocock：别让你的 Agent 问你 200 个问题 —— grill skill 的 9 个误区</span></a><a class="next" href="../../../../notes/clippings/bilibili/matt-pocock/2026-08-06-matt-pocock-agent-vs-workflow.html"><span class="dir">下一篇 →</span><span class="t">Matt Pocock 科普：大多数人根本没搞懂 Agent 到底是什么</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../../index.html">首页</a>
+      <a href="../../../../learn.html">课件</a>
+      <a href="../../../../notes/index.html">笔记库</a>
+      <a href="../../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../../about.html">关于</a>
+      <a href="../../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../../js/main.js" defer></script>
+</body>
+</html>

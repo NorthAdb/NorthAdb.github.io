@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>多 Agent 通信实践全景：从编排到终端直连 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="来源：Datawhale《刚刚，Claude Code 的重大更新来了！》（2026-08-08）+ 网络调研综合 原文：https://mp.weixin.qq.com/s/R4EyCcdcBr50LIV1ZuuHA">
+<link rel="canonical" href="https://northadb.github.io/notes/clippings/p44a38b/2026-08-13-agent.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="多 Agent 通信实践全景：从编排到终端直连 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="来源：Datawhale《刚刚，Claude Code 的重大更新来了！》（2026-08-08）+ 网络调研综合 原文：https://mp.weixin.qq.com/s/R4EyCcdcBr50LIV1ZuuHA">
+<meta property="og:url" content="https://northadb.github.io/notes/clippings/p44a38b/2026-08-13-agent.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="多 Agent 通信实践全景：从编排到终端直连 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="来源：Datawhale《刚刚，Claude Code 的重大更新来了！》（2026-08-08）+ 网络调研综合 原文：https://mp.weixin.qq.com/s/R4EyCcdcBr50LIV1ZuuHA">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../feed.xml">
+<link rel="stylesheet" href="../../../css/style.css">
+<link rel="stylesheet" href="../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "多 Agent 通信实践全景：从编排到终端直连", "description": "来源：Datawhale《刚刚，Claude Code 的重大更新来了！》（2026-08-08）+ 网络调研综合 原文：https://mp.weixin.qq.com/s/R4EyCcdcBr50LIV1ZuuHA", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/clippings/p44a38b/2026-08-13-agent.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../index.html">首页</a><span>/</span><a href="../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../notes/clippings/index.html">内容剪藏</a></div>
+          <h1>多 Agent 通信实践全景：从编排到终端直连</h1>
+          <p class="post-sub">来源：Datawhale《刚刚，Claude Code 的重大更新来了！》（2026-08-08）+ 网络调研综合 原文：https://mp.weixin.qq.com/s/R4EyCcdcBr50LIV1ZuuHA</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../notes/clippings/index.html">内容剪藏</a></span><span class="sep"></span>
+            <span>阅读约 7 分钟</span><span class="sep"></span><span>更新于 2026-08-13</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p><strong>来源</strong>：Datawhale《刚刚，Claude Code 的重大更新来了！》（2026-08-08）+ 网络调研综合
+<strong>原文</strong>：https://mp.weixin.qq.com/s/R4EyCcdcBr50LIV_1ZuuHA</p>
+<p><strong>一句话结论：多 Agent 协作正在从「中心节点派生子任务」走向「平级会话直接对话」。</strong> Claude Code 2026-08 新增的跨会话 <code>SendMessage</code> + <code>ListAgents</code> 让两个用户各自开的终端会话能直接互发消息、无需人工搬运；而底层的行业标准正在收敛到 <strong>A2A（agent 之间）+ MCP（agent 与工具）+ 共享状态（agent 与记忆）</strong> 三件套。</p>
+</blockquote>
+<hr>
+<h2 id="引子claude-code-跨会话更新文章核心">🎯 引子：Claude Code 跨会话更新（文章核心）</h2>
+<p>2026-08-08 Anthropic 发布重大更新，18 小时近 500 万人看过：<strong>不同的 Claude Code 会话现在可以互相聊天了</strong>。</p>
+<p>以前多个会话一起跑（前端/后端两个终端、几个 worktree 并行开发），一个会话发现了什么、改了什么，得靠<strong>人工搬运</strong>（窗口 A 复制总结 → 粘贴到窗口 B）。现在：</p>
+<ul>
+<li>跟一个会话说"把刚才接口改动的事告诉另一个终端里跑的会话"，Claude 自己会<strong>找目标、写内容、发过去</strong>；</li>
+<li><strong>双向</strong>：可以向另一个会话提问，并在当前会话收到回复；</li>
+<li><strong>主动</strong>：当它的改动影响到另一个会话的工作时，Claude 能主动向其他会话发消息。</li>
+</ul>
+<p><img alt="Claude Code 跨会话更新" src="https://gitee.com/cheng-jiaqing/images/raw/master/multi-agent-comm-20260808-01.png"></p>
+<p>背后是两个新工具：<strong><code>ListAgents</code></strong>（找到能联系上的会话）+ <strong><code>SendMessage</code></strong>（把消息发过去）。</p>
+<p><img alt="SendMessage 演示" src="https://gitee.com/cheng-jiaqing/images/raw/master/multi-agent-comm-20260808-02.gif"></p>
+<blockquote>
+<p>⚠️ <strong>限制</strong>：传的是 Claude 自己写的一段文字——<strong>不是完整对话历史，也不带文件</strong>；改不了接收方配置，也批不了对方权限申请。想搬整个上下文，官方建议用 <code>resume</code>（恢复会话），不是发消息。</p>
+</blockquote>
+<h3 id="和之前的多会话协同有何不同">和之前的"多会话协同"有何不同</h3>
+<p>Claude Code 之前已有协作能力，但都属于<strong>同一棵树派生</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>机制</th>
+<th>特点</th>
+<th>归属</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>subagent</strong></td>
+<td>一个会话内部派生的子任务</td>
+<td>中心化</td>
+</tr>
+<tr>
+<td><strong>Agent Teams</strong></td>
+<td>今年二三月上线的实验功能，一组会话一起干活（需手动改 config 开启）</td>
+<td>中心化</td>
+</tr>
+<tr>
+<td><strong>跨会话 SendMessage</strong> 🆕</td>
+<td>连接用户自己分别在终端启动、原本互不知晓的会话，甚至<strong>不同机器</strong>。没有谁派生谁，也没有谁管着谁，是两个平级会话相互搭话</td>
+<td><strong>对等</strong></td>
+</tr>
+</tbody>
+</table>
+<p><img alt="Agent Teams 模式" src="https://gitee.com/cheng-jiaqing/images/raw/master/multi-agent-comm-20260808-03.png"></p>
+<h3 id="codex-一个月前的-multi-agent-v2">Codex 一个月前的 Multi-agent v2</h3>
+<p>Codex CLI 一个月前转正了 Multi-agent v2：有 <code>send_message</code> 工具，<code>/root</code> 主会话用 <code>spawn_agent</code> 生成 <code>/root/researcher</code>、<code>/root/builder</code> 挂在路径树上，<strong>兄弟节点之间可以直接 send_message，不绕回 <code>/root</code></strong>。但这棵树从头到尾仍由同一个 orchestrator 派生——本质上和 subagent / Agent Teams 是同一类机制。</p>
+<p>真正对应"两个用户自己开的、互不隶属的终端会话"的，是 Codex 原生的多会话用法：两个终端各敲一遍 <code>codex</code>，就是两个完全独立的进程，<strong>没有内置通信通道</strong>——要互通得靠 tmux、把 Codex 当 MCP server 外接（<code>codex-reply</code> 续接线程）、或手动复制粘贴。</p>
+<p><img alt="Codex Multi-agent v2" src="https://gitee.com/cheng-jiaqing/images/raw/master/multi-agent-comm-20260808-04.jpg"></p>
+<hr>
+<h2 id="一多-agent-通信的-4-种架构范式">一、多 Agent 通信的 4 种架构范式</h2>
+<h3 id="1-编排式-中心化orchestrator-worker-supervisor-当前绝对主流">1️⃣ 编排式 / 中心化（Orchestrator-Worker / Supervisor）— 当前绝对主流</h3>
+<p>一个主 agent 派生多个子 agent，派活、收结果、汇总。通信是<strong>父子关系</strong>：子 agent 有独立 context，跑完把摘要/结果回传主 agent。</p>
+<ul>
+<li><strong>Anthropic Research 系统</strong>（官方架构）：LeadResearcher 派并行 Subagent 搜索，各自独立 context 窗口，回传发现 → 主 agent 综合 → 必要时再派新子 agent。官方数据：多 agent 比单 agent 在内部 eval <strong>高 90.2%</strong>，代价是 token 约 <strong>15×</strong>。</li>
+<li><strong>Claude Code</strong>：<code>subagent</code>（会话内派生）、<code>Agent Teams</code>（多会话协同但都归一个主会话管）</li>
+<li><strong>Codex Multi-agent v2</strong>：<code>/root</code> 主会话派生、路径树管理</li>
+</ul>
+<blockquote>
+<p>适合：研究、审查、并行搜索这类<strong>一个任务拆多个子任务</strong>的场景。</p>
+</blockquote>
+<h3 id="2-对等式-去中心化peer-to-peer-mesh-刚成熟的新趋势">2️⃣ 对等式 / 去中心化（Peer-to-Peer / Mesh）— 刚成熟的新趋势</h3>
+<p>平级、各自独立的 agent 直接互发消息，<strong>不绕中心</strong>。</p>
+<ul>
+<li><strong>Claude Code 跨会话 SendMessage</strong>（2026-08 新增）：两个用户在不同终端/不同机器上各自启动的会话，原本互不知道对方存在，现在能互相发消息</li>
+<li><strong>Codex Multi-agent v2</strong> 的兄弟节点：<code>/root/researcher</code> ↔ <code>/root/builder</code> 直连</li>
+</ul>
+<blockquote>
+<p>适合：多个<strong>长期运行、并行开发</strong>的会话互相同步（前后端并行、worktree 并行）。</p>
+</blockquote>
+<h3 id="3-图-状态机式graph-shared-state-流程确定时">3️⃣ 图 / 状态机式（Graph / Shared-State）— 流程确定时</h3>
+<p><strong>LangGraph</strong> 是代表：agent 工作流建模为图，<strong>节点间通过共享 State + 消息传递通信</strong>（受 Google Pregel 启发，按 super-step 推进）。节点不是"互发消息"，而是往共享状态写更新，reducer 决定如何合并，下一跳节点读状态继续。</p>
+<blockquote>
+<p>适合：流程相对确定、需要状态管理、断点恢复（checkpointer）与条件路由的工作流。</p>
+</blockquote>
+<h3 id="4-黑板-共享存储式blackboard-shared-memory-解耦最彻底">4️⃣ 黑板 / 共享存储式（Blackboard / Shared Memory）— 解耦最彻底</h3>
+<p>agent 之间不直接通信，都读写同一块共享中介：数据库、文件系统、向量库、Redis、issue tracker。</p>
+<ul>
+<li><strong>TencentDB Agent Memory</strong>：记忆作为多 agent 的共享层（见 <a class="wl" href="../../../notes/clippings/p44a38b/2026-08-11-tencentdb-agent-memory.html">Clippings/微信公众号/2026-08-11-TencentDB-Agent-Memory-实测笔记</a>）</li>
+<li><strong>Matt Pocock skills</strong>：<code>to-spec</code>/<code>to-tickets</code> 把结论落到 issue tracker，另一个会话 <code>implement</code> 从 tracker 读，plan 文档做桥梁</li>
+</ul>
+<blockquote>
+<p>适合：完全解耦、可审计、跨机器跨进程天然可行；代价是约定"写哪里、什么格式、谁轮询"。</p>
+</blockquote>
+<hr>
+<h2 id="二成熟的通信手段-协议按层次">二、成熟的通信手段 / 协议（按层次）</h2>
+<table>
+<thead>
+<tr>
+<th>手段</th>
+<th>代表</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>进程内工具调用（Handoff）</strong></td>
+<td>OpenAI Agents SDK：handoff 就是一个 <code>transfer_to_xxx</code> 工具</td>
+<td>单进程内多 agent 分工，最简单</td>
+</tr>
+<tr>
+<td><strong>A2A 协议</strong>（Google 开源标准）</td>
+<td><a href="https://a2a-protocol.org/latest/">a2a-protocol.org</a></td>
+<td><strong>跨框架</strong> agent 互操作：HTTP + JSON，Task/Message/Artifact，agent 保持"不透明"（不共享内部 memory/工具）</td>
+</tr>
+<tr>
+<td><strong>MCP + Channels</strong></td>
+<td>Model Context Protocol</td>
+<td>agent↔工具标准；MCP server 可当 <strong>channel 把消息推进会话</strong>（Telegram/Discord/webhook 事件驱动），Claude Code 官方支持</td>
+</tr>
+<tr>
+<td><strong>共享状态 / 事件总线</strong></td>
+<td>Redis pub/sub、消息队列、数据库</td>
+<td>通用、语言无关、跨机器，自己定协议</td>
+</tr>
+<tr>
+<td><strong>文件系统 / git</strong></td>
+<td>共享文件、worktree、issue tracker、handoff 文档</td>
+<td>零依赖的"异步邮箱"，Agent Memory / Matt Pocock 流程都这么干</td>
+</tr>
+<tr>
+<td><strong>CLI 会话级工具</strong></td>
+<td>tmux/screen、Remote Control、claude self-hosted-runner</td>
+<td>人工或脚本层面共享终端/跨机器</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>行业共识的标准组合：工具用 MCP，agent 之间用 A2A。</strong> A2A 官方原话："Build with any framework, equip with MCP, communicate with A2A to remote agents, local agents, and humans."</p>
+</blockquote>
+<hr>
+<h2 id="三终端-终端无需人工干预重点场景">三、终端 ↔ 终端、无需人工干预（重点场景）</h2>
+<p>按"直接程度"从官方到自建：</p>
+<h3 id="claude-code-原生最新最接近你要的">🥇 Claude Code 原生（最新，最接近你要的）</h3>
+<p>核心工具：
+- <strong><code>ListAgents</code></strong>：发现当前能联系上的会话（含其他机器上的 Remote Control 会话、云会话）
+- <strong><code>SendMessage</code></strong>：把消息发给目标会话，<strong>双向</strong> + <strong>主动推送</strong></p>
+<p>官方 changelog 的关键细节：
+- 支持 <strong>macOS/Linux</strong>，<strong>跨机器</strong>（Remote Control 会话可按名字发起对话，<code>ListAgents</code> 显示 <code>name [ref]</code>）
+- 发送前过<strong>权限分类器</strong>评估（<code>SendMessage</code> 的消息先审后发）
+- <code>crossSessionInbound</code> + <code>dialogExpiry</code> 设置：发给"绕过权限"会话的消息会<strong>暂存等你批准</strong>，普通会话自动投递
+- 投递失败报错、超长摘要自动截断、断开的 Remote Control 会话标记为 offline</p>
+<h3 id="codex-multi-agent-v2一个月前转正">🥈 Codex Multi-agent v2（一个月前转正）</h3>
+<ul>
+<li><code>send_message</code> + 路径寻址：<code>/root/researcher</code> ↔ <code>/root/builder</code> 兄弟节点直连</li>
+<li>但整棵树仍由同一个 orchestrator 派生——<strong>本质是"中心化派生"</strong></li>
+<li>Codex 原生多会话（两个终端各跑 <code>codex</code>）<strong>没有内置通信</strong>，靠 tmux / MCP 外接 / 手动复制</li>
+</ul>
+<h3 id="通用自建方案不依赖某个工具">🥉 通用自建方案（不依赖某个工具）</h3>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>做法</th>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>MCP channel 桥接</strong></td>
+<td>让 agent B 以 MCP server 身份挂出去，agent A 通过 MCP 调用；或用 channels 把事件 push 进会话</td>
+<td>有标准、复用 MCP 生态</td>
+<td>要自己写 server 端逻辑</td>
+</tr>
+<tr>
+<td><strong>消息队列 / Redis</strong></td>
+<td>A 往队列写，B 订阅/轮询</td>
+<td>跨语言、跨机器、可持久化</td>
+<td>无标准格式，要约定协议</td>
+</tr>
+<tr>
+<td><strong>共享文件 / DB</strong></td>
+<td>A 写任务文件/记录，B 轮询目录或 DB</td>
+<td>零依赖、可审计</td>
+<td>有轮询延迟，需锁/幂等</td>
+</tr>
+<tr>
+<td><strong>A2A server</strong></td>
+<td>每个 agent 挂一个 A2A 端点，按 Task/Message 协议互调</td>
+<td>跨框架、官方标准</td>
+<td>生态早期，偏重</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="四选型建议">四、选型建议</h2>
+<table>
+<thead>
+<tr>
+<th>你的场景</th>
+<th>推荐</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>一个任务拆成多个并行子任务（研究/审查/搜索）</td>
+<td><strong>编排式</strong>：subagent / OpenAI handoff / LangGraph supervisor</td>
+</tr>
+<tr>
+<td>两个<strong>独立终端会话</strong>互相同步、平行开发</td>
+<td><strong>Claude Code SendMessage</strong>（官方原生，现在就能用）</td>
+</tr>
+<tr>
+<td>跨框架、跨厂商、生产级互操作</td>
+<td><strong>A2A 协议</strong></td>
+</tr>
+<tr>
+<td>多个 agent 共享知识/记忆、长期解耦</td>
+<td><strong>共享存储</strong>（DB/向量库/文件，如 Agent Memory）</td>
+</tr>
+<tr>
+<td>流程确定、要状态回溯与断点</td>
+<td><strong>LangGraph</strong>（共享 State + checkpoint）</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="参考来源">📎 参考来源</h2>
+<ul>
+<li>Datawhale《刚刚，Claude Code 的重大更新来了！》：https://mp.weixin.qq.com/s/R4EyCcdcBr50LIV_1ZuuHA</li>
+<li>Claude Code 官方 CHANGELOG（<code>SendMessage</code>/<code>ListAgents</code> 演进）：https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md</li>
+<li>A2A Protocol（Google 开源标准）：https://a2a-protocol.org/latest/</li>
+<li>MCP（Model Context Protocol）：https://modelcontextprotocol.io/introduction</li>
+<li>Anthropic《How we built our multi-agent research system》：https://www.anthropic.com/engineering/built-multi-agent-research-system</li>
+<li>OpenAI Agents SDK — Handoffs：https://openai.github.io/openai-agents-python/handoffs/</li>
+<li>LangGraph — 多 agent：https://langchain-ai.github.io/langgraph/concepts/multi_agent/</li>
+<li>Azure Architecture Center — AI Agent Orchestration Patterns</li>
+</ul>
+<hr>
+<h2 id="延伸思考">📌 延伸思考</h2>
+<ul>
+<li><strong>Claude Code harness</strong>（<a class="wl" href="../../../notes/clippings/p44a38b/2026-08-11-claude-codeharness-coding.html">Clippings/微信公众号/2026-08-11-Claude-Code大代码库harness-小林coding</a>）讲的是单个 agent 在大代码库怎么用（subagent 探索/会话拆分），本篇讲多个 agent 之间怎么通信——前者是"一个 agent 怎么拆活"，后者是"多个 agent 怎么对齐"。</li>
+<li><strong>Agent Memory</strong>（<a class="wl" href="../../../notes/clippings/p44a38b/2026-08-11-tencentdb-agent-memory.html">Clippings/微信公众号/2026-08-11-TencentDB-Agent-Memory-实测笔记</a>）是"黑板式"共享记忆的成熟实现——跨会话共享状态正是多 agent 协作的一种主力方案。</li>
+<li><strong>可动手验证</strong>：升级 Claude Code 后开两个终端会话，让 A 会话把改动发消息给 B 会话，体验一下"无需人工干预"的对等通信；这是理解编排式 vs 对等式差异最快的方式。</li>
+</ul>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">内容剪藏</span><span class="chip">AI</span><span class="chip">Agent</span><span class="chip">Multi-Agent</span><span class="chip">多Agent</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/Clippings/%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7/2026-08-13-%E5%A4%9AAgent%E9%80%9A%E4%BF%A1%E5%AE%9E%E8%B7%B5%E5%85%A8%E6%99%AF-%E4%BB%8E%E7%BC%96%E6%8E%92%E5%88%B0%E7%BB%88%E7%AB%AF%E7%9B%B4%E8%BF%9E.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../notes/clippings/p44a38b/2026-08-11-tencentdb-agent-memory.html"><span class="dir">← 上一篇</span><span class="t">腾讯把 Agent 记忆系统开源了，TencentDB Agent Memory 实测！</span></a><a class="next" href="../../../notes/clippings/p44a38b/2026-08-13-ai-ai.html"><span class="dir">下一篇 →</span><span class="t">从胡言乱语到精准改代码：我是如何让 AI 读懂老项目的</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../index.html">首页</a>
+      <a href="../../../learn.html">课件</a>
+      <a href="../../../notes/index.html">笔记库</a>
+      <a href="../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../about.html">关于</a>
+      <a href="../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../js/main.js" defer></script>
+</body>
+</html>

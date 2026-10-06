@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>后端学习路线（大二 TikTok 实习生分享） · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="来源：飞书云文档《后端学习路线》，最新修改 07-27，写于 2026.7.10 北京 作者背景：9 本（九校联盟?）Java 主语言，第一段实习同期拿到初创 AI 开发、央企 AI 开发、中厂后端、字节后端等 offer，目前在 TikT…">
+<link rel="canonical" href="https://northadb.github.io/notes/clippings/pa5cfe6/2026-08-05-tiktok.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="后端学习路线（大二 TikTok 实习生分享） · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="来源：飞书云文档《后端学习路线》，最新修改 07-27，写于 2026.7.10 北京 作者背景：9 本（九校联盟?）Java 主语言，第一段实习同期拿到初创 AI 开发、央企 AI 开发、中厂后端、字节后端等 offer，目前在 TikT…">
+<meta property="og:url" content="https://northadb.github.io/notes/clippings/pa5cfe6/2026-08-05-tiktok.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="后端学习路线（大二 TikTok 实习生分享） · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="来源：飞书云文档《后端学习路线》，最新修改 07-27，写于 2026.7.10 北京 作者背景：9 本（九校联盟?）Java 主语言，第一段实习同期拿到初创 AI 开发、央企 AI 开发、中厂后端、字节后端等 offer，目前在 TikT…">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../feed.xml">
+<link rel="stylesheet" href="../../../css/style.css">
+<link rel="stylesheet" href="../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "后端学习路线（大二 TikTok 实习生分享）", "description": "来源：飞书云文档《后端学习路线》，最新修改 07-27，写于 2026.7.10 北京 作者背景：9 本（九校联盟?）Java 主语言，第一段实习同期拿到初创 AI 开发、央企 AI 开发、中厂后端、字节后端等 offer，目前在 TikT…", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/clippings/pa5cfe6/2026-08-05-tiktok.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../index.html">首页</a><span>/</span><a href="../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../notes/clippings/index.html">内容剪藏</a></div>
+          <h1>后端学习路线（大二 TikTok 实习生分享）</h1>
+          <p class="post-sub">来源：飞书云文档《后端学习路线》，最新修改 07-27，写于 2026.7.10 北京 作者背景：9 本（九校联盟?）Java 主语言，第一段实习同期拿到初创 AI 开发、央企 AI 开发、中厂后端、字节后端等 offer，目前在 TikT…</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../notes/clippings/index.html">内容剪藏</a></span><span class="sep"></span>
+            <span>阅读约 9 分钟</span><span class="sep"></span><span>更新于 2026-08-05</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p><strong>来源</strong>：飞书云文档《后端学习路线》，最新修改 07-27，写于 2026.7.10 北京
+<strong>作者背景</strong>：9 本（九校联盟?）Java 主语言，第一段实习同期拿到初创 AI 开发、央企 AI 开发、中厂后端、字节后端等 offer，目前在 TikTok 实习
+<strong>未完待续</strong>：AI 开发篇、简历/面试篇、实习篇、信息差篇</p>
+<p><strong>采集说明</strong>：文档需飞书登录才能查看全文，本笔记通过浏览器 DOM 分屏采集（登录墙限制下主文+尾部约 95% 内容），算法与项目两章衔接处可能有极少量过渡段落遗漏。</p>
+</blockquote>
+<hr>
+<h2 id="一句话总结">一句话总结</h2>
+<blockquote>
+<p>一个「<strong>第一性原理</strong>」驱动的就业型学习路线：目标不是学知识，而是<strong>通过面试</strong>——用简历包装（面试深挖项目细节）+ 八股（理解式背诵）+ 算法（刷题节奏）三个杠杆，把 6 个月左右的学习投入最大化地转化为 offer。核心观点：<strong>AI 时代，古法学习（把所有知识点弄懂）除了感动自己没有意义，要聪明的学、有所取舍的学。</strong></p>
+</blockquote>
+<hr>
+<h2 id="一为什么选择本科就业">一、为什么选择本科就业</h2>
+<p>作者 25 年 10 月大二上学期，均分卡在保研线附近，看完 UP 主【优雅】的就业视频后开始思考，最终决定本科就业：</p>
+<ol>
+<li><strong>行业裂缝</strong>：处于 AI 发展飞速与企业招聘滞后的裂缝，AI 浪潮不知道何时"关门"；开发极度吃实践吃经验，AI 彻底重塑工作流。坚定走开发的读三年硕士不划算，三年后行业如何不得而知。</li>
+<li><strong>保研不划算</strong>：即使擦线保研也是弱组，没有论文进不了算法岗；差 0.01 分和差 60 分没有区别。就业提前规划就能拿到不错结果，没必要为保研冒险走把握更大、失败概率更小的路。</li>
+</ol>
+<h2 id="二哪些人不适合本科就业">二、哪些人不适合本科就业</h2>
+<ol>
+<li>没有充分的自驱力和决心，自学能力差</li>
+<li>想去垄断性央国企总部 or 省分</li>
+<li>想去做算法（搜广推、LLM、agent）、AI infra 训练、算子</li>
+<li>想去阿里云（"本科生最严厉的父亲"）</li>
+</ol>
+<h2 id="三聊聊大厂优缺点">三、聊聊大厂（优缺点）</h2>
+<p><strong>优点：</strong>
+1. 薪资可观：校招普遍是央国企两倍，五年内差距扩大到四五倍
+2. 福利好：体面的环境、零食饮料、北上广深繁华地段
+3. 人才密度大、平均年龄小、成长快、相对不吃背景、官僚作风少
+4. 不满意可跳槽，保留差异化能力选择更多</p>
+<p><strong>缺点：</strong>
+1. 强度大、加班常态：单位时间工作强度大，同时做两三件事是常态，磨洋工/能力跟不上/成长不达预期都会被淘汰
+2. 不稳定：三十五岁危机提前到三十岁危机，更多人因太累主动离职，选大厂基本告别安逸
+3. 行业未来无法预知：AI 迅速改变格局、颠覆工作方式，只能拥抱变化</p>
+<h2 id="四第一性原理核心方法论">四、第一性原理（核心方法论）</h2>
+<blockquote>
+<p>你学习的目标是就业，进入企业的必经卡点是面试。<strong>所以所做的任何事情都围绕着：①高效地通过面试 ②写出一份有辨识度的简历，迅速进入实习阶段，而非单纯学习。</strong></p>
+</blockquote>
+<ul>
+<li>"面试造火箭，工作打螺丝"——工作谁都能做，前提是你能进去</li>
+<li>古法学习派（每个知识点弄懂、几百集黑马网课看完）在 AI 时代<strong>除了感动自己没有任何意义</strong></li>
+<li>面试在短时间内无法试探你的全貌 → <strong>包装的艺术</strong>："确保简历上的每一句话都不会被问穿"</li>
+<li>第一层意思：知识储备足够扎实</li>
+<li>第二层意思：只要能圆回来就都是你的</li>
+<li>没人在意你做没做这个项目，只要你了解项目细节、极端情况、为什么这样选型、有哪些数据支撑——能答上来，你就是做过</li>
+<li>没人在意你懂不懂 Java 每个 API，只要你流畅回答问到的八股，你就是精通</li>
+<li>这也解释了为什么很多认真学习很久的同学反而过不了面试</li>
+<li>不是教"邪修抄近道"：要聪明地学、有所取舍地学、更高效地学</li>
+</ul>
+<h2 id="五简历与面试结构">五、简历与面试结构</h2>
+<h3 id="一份还算标准的简历">一份还算标准的简历</h3>
+<table>
+<thead>
+<tr>
+<th>变量</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>学历</td>
+<td>—</td>
+</tr>
+<tr>
+<td>实习经历</td>
+<td>—</td>
+</tr>
+<tr>
+<td>项目经历</td>
+<td>—</td>
+</tr>
+<tr>
+<td>奖项</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>重要性排序：学历 = 实习 = ACM &gt; 项目 &gt;&gt; 其他奖项</strong>（同样也是辨识度排序）</p>
+<h3 id="一场标准的面试流程">一场标准的面试（流程）</h3>
+<ol>
+<li>自我介绍（1-2min）</li>
+<li>深挖实习</li>
+<li>深挖项目</li>
+<li>八股拷打</li>
+<li>场景/智力题（不一定有）</li>
+<li>手撕算法（看面试官习惯，有的上来先手撕）</li>
+<li>反问</li>
+</ol>
+<hr>
+<h2 id="六学习路线完整版">六、学习路线（完整版）</h2>
+<h3 id="第一步成为-ai-时代原住民前置准备">第一步：成为 AI 时代原住民（前置准备）</h3>
+<ul>
+<li class="task"><span class="cb" aria-hidden="true"></span>学会魔法上网，找到稳定好用的梯子</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>注册 GitHub（最前沿的项目 + 任何想找的资料）</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>配置 codex / claude code / chatgpt / gemini 并<strong>深度使用</strong>（极大提升学习效率）</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>学习如何高效 vibe / spec coding</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>建立信息收集渠道，拿第一手信息，打破信息差</li>
+</ul>
+<h3 id="第二步选语言java-vs-go">第二步：选语言（Java vs Go）</h3>
+<ul>
+<li>后端只有 Java 和 Go 两种选择，别再纠结"Java 已死"</li>
+<li><strong>GO</strong>：应对高并发的原生语言，大厂标配，高速扩张，八股只有 Java 的 1/5</li>
+<li><strong>JAVA</strong>：中国存量最大的语言岗位，百搭，但八股繁多、竞争激烈、培训规模化</li>
+</ul>
+<p><strong>为什么永远推荐先学 Java：</strong>
+1. 存量最大，80% 岗位还是 Java，有退路
+2. Go 岗位接受 Java 转，Java 岗位不接受 Go 转 → Go 的路更窄，除非有把握一定能进大厂</p>
+<h3 id="第三步技术栈">第三步：技术栈</h3>
+<blockquote>
+<p>方法论：看网课效率极低，纸质笔记效率也低；<strong>喜欢看文章和博客，然后和 AI 对话学习，逐步用 AI 澄清自己对知识的"幻觉"</strong>。仍附上对应网课链接供选择。</p>
+</blockquote>
+<h4 id="31-408-计算机四大件数据结构计算机网络操作系统组成原理">3.1 408 计算机四大件（数据结构、计算机网络、操作系统、组成原理）</h4>
+<ul>
+<li>无论什么方向都应掌握，是基本素养与后续基石</li>
+<li>字节、腾讯非常爱考这部分来检查基础</li>
+<li>四本书相当有难度，<strong>不建议入门就啃</strong>（会摧毁自信心）；建议至少学完语言基础语法再开始</li>
+<li>学习技巧（"jia"）：遇到难懂的概念不要死磕细节，先站在更高视角理解它在这个情景/环节的作用，学得差不多（学完整个架构/整门课）再深入</li>
+</ul>
+<h4 id="32-语言-javajucjvm">3.2 语言 -- JAVA、JUC、JVM</h4>
+<ul>
+<li>JAVASE：Java 语法及常用 api</li>
+<li>JUC 并发编程：并发工具包</li>
+<li>JVM 虚拟机：Java 底层</li>
+<li>本质是语言学，尽可能让自己处于环境中，理解什么情况下用什么而非单纯背诵</li>
+<li>语言学习枯燥，深陷语言泥沼会打击积极性；JUC + JVM 是<strong>八股重灾区，可后置学习</strong></li>
+</ul>
+<h4 id="33-数据库-mysqlredis">3.3 数据库 -- MySQL、Redis</h4>
+<ul>
+<li>MySQL：存长期数据的硬盘数据库；Redis：跑在内存里的高速缓存数据库</li>
+<li>重要性：very 重要，面试拷打重灾区</li>
+<li>💡 <strong>AI 时代 MySQL 可替换为 PostgreSQL</strong>（原生支持向量数据、向量检索索引及丰富扩展生态，天平已倾斜）</li>
+</ul>
+<h4 id="34-框架-javawebspringbootmybatis-plus">3.4 框架 -- JavaWeb、SpringBoot、Mybatis-Plus</h4>
+<ul>
+<li>JavaWeb：最原始的网页接口底层技术，搞懂数据怎么在前后端流转</li>
+<li>SpringBoot：基于 Spring 的一站式框架，企业开发主流</li>
+<li>Mybatis-Plus：增强持久层框架，省去重复 SQL</li>
+<li>面试考察相对少，可以速通，学会如何使用就好</li>
+</ul>
+<h4 id="35-工程工具-gitlinuxdocker">3.5 工程工具 -- Git、Linux、Docker</h4>
+<ul>
+<li>Git：代码版本管理、分支合并、冲突处理；Linux：线上查日志、部署；Docker：统一运行环境</li>
+<li>工作和开发的必要前提，<strong>尤其是 git 和 linux 命令务必会使用</strong>（不会可能闯大祸）</li>
+<li>面试直接问的不多（默认你熟练），要动手实践</li>
+</ul>
+<h4 id="36-中间件-elasticsearchrocketmq">3.6 中间件 -- Elasticsearch、RocketMQ</h4>
+<ul>
+<li>ES：分布式检索中间件，擅长全文模糊搜索，辅助主库实现复杂查询</li>
+<li>RocketMQ：消息队列，异步消息完成解耦、削峰、异步通知，应对高并发神器</li>
+<li>重要性高，面试拷打重灾区；RocketMQ 可替换为 Kafka、RabbitMQ，建议边做项目边学（项目用哪个学哪个）</li>
+</ul>
+<h4 id="37-后端副本拓展-dlc略显过时想了解底层再学">3.7 后端副本拓展 DLC（略显过时，想了解底层再学）</h4>
+<ul>
+<li>底层：JDBC、Maven、SSM 原生框架</li>
+<li>微服务：Nginx、Nacos、SpringCloud</li>
+<li>编程：设计模式、DDD</li>
+<li>存储：Zookeeper、MongoDB、MinIO、向量数据库</li>
+<li>框架：Dubbo、Netty、gRPC</li>
+</ul>
+<h3 id="第四步算法">第四步：算法</h3>
+<ul>
+<li>面试官会在面试开始/结尾出 1~2 道 mid/hard 算法题</li>
+<li><strong>核心代码模式</strong>：不需要构造输入输出/导包/构造二叉树链表（LeetCode 默认）</li>
+<li><strong>ACM 模式</strong>：需要自己构造输入验证输出，通常可以和面试官商量写死出入（直接用示例固定例子）</li>
+<li>先建立认知：<strong>看到一道新算法题写不出来是完全正常的</strong></li>
+</ul>
+<p><strong>刷题节奏建议：</strong>
+- 把算法当成每天都要做的事情，留出一天上午专门做算法
+- 一次性做几道到十几道，效果比一天一道两道好得多
+- 越刷越熟练，看一眼题目就能默写；做一遍 hot100 可以在一天左右</p>
+<h3 id="第五步项目">第五步：项目</h3>
+<p><strong>项目是什么？</strong> 有完整目标、自己动手做完、能落地、能写进简历的完整作品（图书管理系统这种课程作业不算亮点，太 low）</p>
+<p><strong>关键认知：</strong>
+- 实现框架原有能力<strong>不是亮点</strong>，做出来完整系统<strong>也不是亮点</strong>，在此基础上的<strong>优化才是亮点</strong>
+- 项目不等于技术栈堆叠（像报菜名一样全用上不高级）
+- 举例（chunking 父子切分）：我为了解决什么痛难点？引入什么优化？为什么不用其他方案？优化前后数据怎么样？——<strong>这种"优化叙事"才是项目亮点</strong>
+- 项目在面试中考察架构设计、问题处理、八股理解；面试基本不会单独拷打八股，而是结合项目场景问</p>
+<p><strong>避坑：</strong>
+- ⚠️ 不要外卖和点评！一千份简历八百份外卖点评，怎么包装都看得出来
+- 项目面试官不感兴趣 → 接受一小时八股拷打，甚至简历筛都过不了
+- 黑马/尚硅谷这类教学项目很优秀，但<strong>学完理解后建议换其他项目</strong>放简历</p>
+<p><strong>项目配置建议：</strong> 一个传统后端项目 + 一个 AI agent 项目；有实习可只留一个项目，没实习至少两个</p>
+<p><strong>什么时候开始做？</strong> 两种思路：①学完语言开始，边做项目边学技术栈（用到什么学什么）；②学完技术栈再做（复习知识 + 新理解）</p>
+<p><strong>去哪找项目？</strong> ①竞赛项目（有技术亮点可讲）；②开源项目（GitHub / B站 / 小红书博主免费分享，质量参差需甄别）；③付费项目（知识星球/博主项目，付费降低撞脸率）</p>
+<p><strong>什么是好项目（4 个角度）：</strong>
+1. <strong>出发点</strong>：围绕用户痛点，不是拿着锤子找钉子
+2. <strong>完整性</strong>：核心功能完备 + 文档完备 + 测试用例覆盖大多数（70%）边界情况 + 压力测试
+3. <strong>闪光点</strong>：解决业务难点的"优化叙事"（xxx 场景出现 xxx 问题 → 对比 xxx 方案 → 采用 xxx（为什么）→ 解决 xxx → 优化 xxx）
+4. <strong>可沉淀性</strong>：能否把项目内容沉淀成一个个 SKILL</p>
+<h3 id="第六步八股">第六步：八股</h3>
+<ul>
+<li>是什么：面试官对技术栈的提问，因回答较为死板被戏称"八股"</li>
+<li>八股也能看出你对技术的理解，灵活表达处可拉开差距；工作后也常用</li>
+</ul>
+<p><strong>什么时候背？</strong> 建议最后快要面试再背；更激进一点可以直接通过理解八股来学技术栈</p>
+<p><strong>怎么背？</strong> 理解为主、背诵为辅（"别真把计算机学成文科"）；多看面经观察高频考点，通过面试背八股；善用飞书记录思考</p>
+<p><strong>去哪背？</strong> 秉持拿来主义——能用别人整理好的就不自己整理；面试问到没见过的再单独整理</p>
+<hr>
+<h2 id="七资源清单">七、资源清单</h2>
+<h3 id="八股网站">八股网站</h3>
+<ul>
+<li>小林 Coding：https://xiaolincoding.com/</li>
+<li>JavaGuide：https://javaguide.cn/</li>
+</ul>
+<h3 id="学习网站for-golang">学习网站（for Golang）</h3>
+<ul>
+<li>极客兔兔 七天用 Go 从零实现系列：https://geektutu.com/post/gee.html</li>
+<li>秀才的进阶之路：https://golangstar.cn/</li>
+<li>刘丹冰 Aceld：https://www.yuque.com/aceld</li>
+<li>技术摘抄：https://github.com/zhwei820/learn.lianglianglee.com</li>
+</ul>
+<h3 id="算法">算法</h3>
+<ul>
+<li>力扣 hot100：https://leetcode.cn/problem-list/2cktkvj/</li>
+<li>Top 面试手撕考察：https://codetop.cc/home</li>
+<li>代码随想录：https://programmercarl.com/</li>
+</ul>
+<h3 id="面经">面经</h3>
+<ul>
+<li>牛客网：https://www.nowcoder.com/?type=818_1</li>
+<li>面经高频：https://m.nowcoder.com/mianshi/top</li>
+</ul>
+<hr>
+<h2 id="关联笔记">关联笔记</h2>
+<ul>
+<li><a class="wl" href="../../../notes/clippings/pa5cfe6/2026-07-28-2026.html">Clippings/飞书文档/2026-07-28-2026开发学习路线及资源汇总</a> — 另一份 6 个月 Java + Agent 学习路线</li>
+<li><a class="wl" href="../../../notes/domains/javaagent2026.html">领域/Java后端+Agent开发学习路线 2026</a> — Vault 内整合的 Java 后端 + Agent 双修路线</li>
+<li><a class="wl" href="../../../notes/domains/aiagent2026.html">领域/AI Agent 智能体学习路线 2026</a> — Agent 方向完整路线</li>
+<li><a class="wl" href="../../../notes/clippings/bilibili/2026-07-31-ovo.html">Clippings/Bilibili/2026-07-31-从第一性原理速通大厂技术岗实习-花绿青ovo</a> — 同主题的 B 站视频笔记（第一性原理速通大厂实习）</li>
+</ul>
+<blockquote>
+<p>💡 <strong>一句总括</strong>：这份路线的独特价值不在于技术清单（与其他学习路线大同小异），而在于它的<strong>就业导向思维模型</strong>——以「通过面试」为第一性原理，反向设计简历包装、八股背诵、项目叙事的优先级；同时明确了 AI 时代的学习方式转变（用 AI 澄清知识幻觉、vibe/spec coding、信息差是第一生产力）。</p>
+</blockquote>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">内容剪藏</span><span class="chip">学习路线</span><span class="chip">后端</span><span class="chip">Java</span><span class="chip">就业</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/Clippings/%E9%A3%9E%E4%B9%A6%E6%96%87%E6%A1%A3/2026-08-05-%E5%90%8E%E7%AB%AF%E5%AD%A6%E4%B9%A0%E8%B7%AF%E7%BA%BF-%E5%A4%A7%E4%BA%8CTikTok%E5%AE%9E%E4%B9%A0%E7%94%9F.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../notes/clippings/pa5cfe6/2026-07-28-2026.html"><span class="dir">← 上一篇</span><span class="t">2026 开发学习路线及资源汇总</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../index.html">首页</a>
+      <a href="../../../learn.html">课件</a>
+      <a href="../../../notes/index.html">笔记库</a>
+      <a href="../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../about.html">关于</a>
+      <a href="../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../js/main.js" defer></script>
+</body>
+</html>

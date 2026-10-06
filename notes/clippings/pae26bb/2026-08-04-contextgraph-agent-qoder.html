@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>从 Context 到 Graph：Agent 工程的四个层次 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="这篇图文以 Qoder CLI 和 Qoder Cloud Agents 为例，解释 Agent 工程从一次模型调用走向持续运行、多 Agent 协作时需要解决的四个层次。">
+<link rel="canonical" href="https://northadb.github.io/notes/clippings/pae26bb/2026-08-04-contextgraph-agent-qoder.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="从 Context 到 Graph：Agent 工程的四个层次 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="这篇图文以 Qoder CLI 和 Qoder Cloud Agents 为例，解释 Agent 工程从一次模型调用走向持续运行、多 Agent 协作时需要解决的四个层次。">
+<meta property="og:url" content="https://northadb.github.io/notes/clippings/pae26bb/2026-08-04-contextgraph-agent-qoder.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="从 Context 到 Graph：Agent 工程的四个层次 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="这篇图文以 Qoder CLI 和 Qoder Cloud Agents 为例，解释 Agent 工程从一次模型调用走向持续运行、多 Agent 协作时需要解决的四个层次。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../feed.xml">
+<link rel="stylesheet" href="../../../css/style.css">
+<link rel="stylesheet" href="../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "从 Context 到 Graph：Agent 工程的四个层次", "description": "这篇图文以 Qoder CLI 和 Qoder Cloud Agents 为例，解释 Agent 工程从一次模型调用走向持续运行、多 Agent 协作时需要解决的四个层次。", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/clippings/pae26bb/2026-08-04-contextgraph-agent-qoder.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../index.html">首页</a><span>/</span><a href="../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../notes/clippings/index.html">内容剪藏</a></div>
+          <h1>从 Context 到 Graph：Agent 工程的四个层次</h1>
+          <p class="post-sub">这篇图文以 Qoder CLI 和 Qoder Cloud Agents 为例，解释 Agent 工程从一次模型调用走向持续运行、多 Agent 协作时需要解决的四个层次。</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../notes/clippings/index.html">内容剪藏</a></span><span class="sep"></span>
+            <span>阅读约 8 分钟</span><span class="sep"></span><span>更新于 2026-08-04</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p>这篇图文以 Qoder CLI 和 Qoder Cloud Agents 为例，解释 Agent 工程从一次模型调用走向持续运行、多 Agent 协作时需要解决的四个层次。</p>
+</blockquote>
+<h2 id="一句话总结">一句话总结</h2>
+<pre><code class="language-text">Context → Harness → Loop → Graph
+</code></pre>
+<ul>
+<li><strong>Context</strong>：一次模型调用能看到什么？</li>
+<li><strong>Harness</strong>：Agent 在什么环境和边界中运行？</li>
+<li><strong>Loop</strong>：Agent 如何持续推进、验证、重试并最终停止？</li>
+<li><strong>Graph</strong>：多个 Agent 或 Loop 如何连接、委派和传递状态？</li>
+</ul>
+<p>它们不是四种互相替代的架构，而是同一套 Agent 系统由内向外的四个工程层次。</p>
+<h2 id="一为什么工程关注点会不断外移">一、为什么工程关注点会不断外移</h2>
+<p>过去的 AI 应用更多关注 Prompt：如何把一次指令说清楚。随着模型能力增强，问题逐渐变成：</p>
+<ol>
+<li><strong>Prompt Engineering</strong>：怎么告诉模型要做什么？</li>
+<li><strong>Context Engineering</strong>：给模型哪些信息、什么时候给、如何压缩？</li>
+<li><strong>Harness Engineering</strong>：模型在什么工具、权限、文件系统和沙箱中运行？</li>
+<li><strong>Loop Engineering</strong>：如何反复执行、验证结果、失败重试和恢复？</li>
+<li><strong>Graph Engineering</strong>：多个 Agent/Loop 如何协作和传递状态？</li>
+</ol>
+<p>本质没有变，变化的是系统瓶颈：模型能力提升后，工程问题从“单次调用”扩展到了“运行环境、持续执行和协作编排”。</p>
+<h2 id="二四层架构总览">二、四层架构总览</h2>
+<table>
+<thead>
+<tr>
+<th>层次</th>
+<th>核心问题</th>
+<th>关键能力</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Context</td>
+<td>一次调用看见什么</td>
+<td>项目指令、Skills、历史、记忆、上下文压缩</td>
+</tr>
+<tr>
+<td>Harness</td>
+<td>Agent 在哪里运行</td>
+<td>工具、权限、文件系统、沙箱、状态、测试、可观测性</td>
+</tr>
+<tr>
+<td>Loop</td>
+<td>如何持续到目标达成</td>
+<td>触发、目标、验证、重试、恢复、停止、人工接管</td>
+</tr>
+<tr>
+<td>Graph</td>
+<td>多个执行单元如何连接</td>
+<td>节点、边、委派、反馈、状态传递、跨 Session 协作</td>
+</tr>
+</tbody>
+</table>
+<p>底层仍然是不断重复的模型调用循环：</p>
+<pre><code class="language-text">读取上下文 → 模型推理 → 调用工具 → 写回结果 → 再次读取上下文
+</code></pre>
+<h2 id="三context-engineering管理一次调用的注意力">三、Context Engineering：管理一次调用的注意力</h2>
+<h3 id="31-目标">3.1 目标</h3>
+<p>Context Engineering 解决的不是“塞更多内容”，而是管理有限的注意力预算：</p>
+<ul>
+<li>什么信息应该常驻？</li>
+<li>什么信息应该按需加载？</li>
+<li>什么信息需要压缩？</li>
+<li>什么信息可以丢弃？</li>
+<li>哪些信息应该隔离给 Subagent？</li>
+</ul>
+<h3 id="32-qoder-cli-的做法">3.2 Qoder CLI 的做法</h3>
+<ul>
+<li>用 <code>AGENTS.md</code> 分层加载全局、项目和目录级约定。</li>
+<li>先加载 Skill 名称和简介，任务命中后再完整读取 Skill。</li>
+<li>用 Subagent 隔离代码探索、文件阅读和试错过程。</li>
+<li>主上下文只接收必要的证据、结论和产物。</li>
+</ul>
+<p>这是一种<strong>渐进式披露（progressive disclosure）</strong>：不是把所有信息一次塞给模型，而是按任务需要逐步展开。</p>
+<h3 id="33-qoder-cloud-agents-的做法">3.3 Qoder Cloud Agents 的做法</h3>
+<p>云端 Agent 更强调：</p>
+<ul>
+<li>持久化 Session</li>
+<li>会话历史</li>
+<li>跨任务上下文</li>
+<li>Memory</li>
+<li>远程运行状态</li>
+</ul>
+<p>本地 CLI 主要优化一次任务的上下文；云端平台还要解决跨时间、跨会话和跨用户的上下文连续性。</p>
+<h3 id="34-关键启示">3.4 关键启示</h3>
+<blockquote>
+<p>Context Engineering 的重点不是“更多”，而是“在正确的时间给正确的信息”。</p>
+</blockquote>
+<h2 id="四harness-engineering构建模型的执行环境">四、Harness Engineering：构建模型的执行环境</h2>
+<p>同一个模型，直接调用 API 和放进成熟 Harness 后，执行质量可能差异很大。Harness 是模型之外、直接影响执行质量的环境层，通常包括：</p>
+<ul>
+<li>上下文组装</li>
+<li>工具注册与调用</li>
+<li>权限检查</li>
+<li>文件系统</li>
+<li>沙箱</li>
+<li>状态反馈</li>
+<li>测试与验证</li>
+<li>Hooks</li>
+<li>可观测性</li>
+</ul>
+<h3 id="41-qoder-cli-的-harness-能力">4.1 Qoder CLI 的 Harness 能力</h3>
+<p>图中列出的本地能力包括：</p>
+<ul>
+<li>Plan Mode：约束分析和规划状态</li>
+<li>Permission Mode：决定工具调用自动放行、询问确认还是拒绝</li>
+<li>受信目录：限制 Agent 可操作的项目范围</li>
+<li>工具和 settings：定义可用能力与配置</li>
+<li>Hooks：注入项目约束、确定性检查和自动化动作</li>
+</ul>
+<p>本地 Harness 的重点是：<strong>让 Agent 在一个受控的开发环境里工作</strong>。</p>
+<h3 id="42-qoder-cloud-agents-的扩展">4.2 Qoder Cloud Agents 的扩展</h3>
+<p>云端 Harness 需要额外处理多租户和远程运行问题：</p>
+<ul>
+<li>Agent：定义 Agent 能力</li>
+<li>Environment：提供具体运行环境</li>
+<li>Session：承载一次任务</li>
+<li>Sandbox：隔离执行环境</li>
+<li>Vault：安全注入凭证和敏感配置</li>
+<li>Event / SSE：暴露执行过程</li>
+<li>Managed Agents：平台托管的 Agent</li>
+<li>Template：复用运行配置</li>
+<li>Identity：区分不同终端用户</li>
+<li>Forward Mode：面向业务交付的上层模式</li>
+</ul>
+<h3 id="43-裸-api-与-harness-的区别">4.3 裸 API 与 Harness 的区别</h3>
+<pre><code class="language-text">裸 API：Prompt → LLM → Text
+
+Harness：
+LLM + 工具 + 权限 + 文件系统 + 沙箱
+    + 状态反馈 + 测试 + Hooks + 可观测性
+</code></pre>
+<p>安全不能只依赖 Prompt，还需要运行时权限、工具白名单、沙箱和执行规则共同约束。</p>
+<h2 id="五loop-engineering让系统持续运行到目标达成">五、Loop Engineering：让系统持续运行到目标达成</h2>
+<p>Loop Engineering 关注一次 Agent 运行以外的闭环：</p>
+<ul>
+<li>谁触发下一轮？</li>
+<li>什么条件算完成？</li>
+<li>谁验证结果？</li>
+<li>失败后是否重试？</li>
+<li>重试几次？</li>
+<li>什么时候恢复？</li>
+<li>什么时候交给人？</li>
+<li>如何跨多个 Session 继续？</li>
+</ul>
+<h3 id="51-本地-cli">5.1 本地 CLI</h3>
+<p>本地 CLI 中，人通常仍然是外层 Loop：</p>
+<pre><code class="language-text">人提出目标
+  → Agent 运行
+  → 人检查结果
+  → 决定继续 / 修改目标 / 停止
+</code></pre>
+<p>当目标、验证、重试和停止条件被固化后，系统才从“人不断提示 Agent”变成“人设计一个可持续推进的循环”。</p>
+<h3 id="52-云端-agent">5.2 云端 Agent</h3>
+<p>Qoder Cloud Agents 把外层 Loop 平台化：</p>
+<ul>
+<li>持久化 Session 保存状态</li>
+<li>Event 和 SSE 暴露执行过程</li>
+<li>Schedule 按时间触发</li>
+<li>IM Channel 通过外部消息触发</li>
+<li>Batch 批量运行同类任务</li>
+<li>外部系统可以取消当前 Turn 或继续下一轮</li>
+<li>控制者可以是业务系统、监控规则或审批流程</li>
+</ul>
+<pre><code class="language-text">Schedule / IM / Batch
+          ↓
+      Agent 运行
+          ↓
+      结果验证
+     ↙    ↓    ↘
+  重试   继续   停止
+          ↑
+       人工接管
+</code></pre>
+<h3 id="53-loop-的核心设计">5.3 Loop 的核心设计</h3>
+<p>一个可靠 Loop 至少需要：</p>
+<ol>
+<li>明确目标</li>
+<li>可观察状态</li>
+<li>可验证结果</li>
+<li>有限重试</li>
+<li>错误恢复</li>
+<li>停止条件</li>
+<li>人工接管入口</li>
+</ol>
+<h2 id="六graph-engineering连接多个-agent-或-loop">六、Graph Engineering：连接多个 Agent 或 Loop</h2>
+<p>Graph Engineering 的基础元素是：</p>
+<ul>
+<li><strong>State</strong>：节点之间需要共享的信息</li>
+<li><strong>Nodes</strong>：代码函数、模型调用、Agent、Subagent 或完整 Loop</li>
+<li><strong>Edges</strong>：执行顺序、条件分支、委派和结果反馈</li>
+</ul>
+<h3 id="61-subagent-如何成为-graph-节点">6.1 Subagent 如何成为 Graph 节点</h3>
+<p>可以把多 Agent 协作抽象成：</p>
+<pre><code class="language-text">Coordinator
+  ├─ 委派 → Agent A
+  │          └─ 结果 → Coordinator
+  └─ 委派 → Agent B
+             └─ 结果 → Coordinator
+</code></pre>
+<ul>
+<li>Subagent 是节点</li>
+<li>委派和结果反馈是边</li>
+<li>任务说明、证据和结论是动态 State</li>
+<li>Coordinator 负责拆分任务、汇总结果和决定下一步</li>
+</ul>
+<h3 id="62-qoder-cli-与-qoder-cloud-的差异">6.2 Qoder CLI 与 Qoder Cloud 的差异</h3>
+<table>
+<thead>
+<tr>
+<th>层次</th>
+<th>Qoder CLI</th>
+<th>Qoder Cloud Agents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Context</td>
+<td><code>AGENTS.md</code> 分层、Skills 按需、Subagent 隔离</td>
+<td>Skills、Session 历史、上下文和 Memory</td>
+</tr>
+<tr>
+<td>Harness</td>
+<td>Plan/Permission Mode、受信目录、工具、settings、Hooks</td>
+<td>Sandbox、Vault、Forward Mode、Template、Identity</td>
+</tr>
+<tr>
+<td>Loop</td>
+<td>目标、状态、验证、重试和人工接管</td>
+<td>Schedule、Batch、IM Channel 自动触发</td>
+</tr>
+<tr>
+<td>Graph</td>
+<td>Subagent 是节点，委派和反馈是边</td>
+<td>多 Agent 委派、Coordinator、API 上层编排</td>
+</tr>
+</tbody>
+</table>
+<h3 id="63-graph-什么时候有价值">6.3 Graph 什么时候有价值</h3>
+<p>当系统出现以下需求时，应该从单 Loop 升级到 Graph：</p>
+<ul>
+<li>多个 Agent 需要分工</li>
+<li>任务有清晰的前置依赖</li>
+<li>需要并行执行后汇总</li>
+<li>需要跨 Session 传递状态</li>
+<li>需要不同权限边界</li>
+<li>需要失败恢复和审计</li>
+<li>需要把 Agent 接入业务系统 API</li>
+</ul>
+<h2 id="七四层不是替代关系">七、四层不是替代关系</h2>
+<p>这四层是同一套 Agent 系统的嵌套关系：</p>
+<pre><code class="language-text">Graph：多个 Agent / Loop 如何协作
+  └── Loop：单个任务如何持续推进
+       └── Harness：Agent 在什么环境中运行
+            └── Context：一次调用能看到什么
+                 └── Model Call：推理与工具调用循环
+</code></pre>
+<p>每一层解决不同问题：</p>
+<ul>
+<li>Context 控制模型注意力</li>
+<li>Harness 控制执行环境和边界</li>
+<li>Loop 控制任务推进和结果验证</li>
+<li>Graph 控制多个执行单元之间的协作</li>
+</ul>
+<p>因此不能用“上层替代下层”来理解：一个 Graph 内部仍然包含多个 Loop，每个 Loop 又依赖 Harness，每次运行都要构建 Context。</p>
+<h2 id="八对-java-agent-开发的启示">八、对 Java + Agent 开发的启示</h2>
+<p>如果用 Java/Spring 实现类似系统，可以按层拆分：</p>
+<table>
+<thead>
+<tr>
+<th>层次</th>
+<th>Java 后端对应模块</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Context</td>
+<td>ContextBuilder、TokenBudget、PromptTemplate、MemoryRetriever</td>
+</tr>
+<tr>
+<td>Harness</td>
+<td>ToolRegistry、PermissionService、SandboxAdapter、HookRunner</td>
+</tr>
+<tr>
+<td>Loop</td>
+<td>AgentRunService、RetryPolicy、Verifier、Checkpoint、HumanApproval</td>
+</tr>
+<tr>
+<td>Graph</td>
+<td>Workflow/StateGraph、Coordinator、SubagentDispatcher、EventBus</td>
+</tr>
+</tbody>
+</table>
+<p>建议先做一个最小闭环：</p>
+<pre><code class="language-text">ContextBuilder
+  → Agent Loop
+  → Tool Calling
+  → Result Verifier
+  → Checkpoint
+</code></pre>
+<p>再逐层增加：</p>
+<ol>
+<li>Context：项目规则、Skill 按需加载和上下文压缩。</li>
+<li>Harness：工具权限、沙箱、Hook、状态和观测。</li>
+<li>Loop：重试、验证、恢复、定时任务和人工接管。</li>
+<li>Graph：并行 Subagent、状态传递和 Coordinator。</li>
+</ol>
+<h2 id="九结论">九、结论</h2>
+<blockquote>
+<p><strong>Context 决定模型看见什么，Harness 决定 Agent 在什么环境里运行，Loop 决定任务如何持续推进，Graph 决定多个 Agent 如何协作。</strong></p>
+</blockquote>
+<p>真正的 Agent 工程，不是单独选择 Context、Harness、Loop 或 Graph，而是根据当前系统最突出的瓶颈，优先补齐对应的一层。</p>
+<h2 id="原图">原图</h2>
+<p><img alt="图1：封面" src="https://gitee.com/cheng-jiaqing/images/raw/master/2026-08-04-从Context到Graph-Agent工程四个层次-01.webp"></p>
+<p><img alt="图2：文章引言" src="https://gitee.com/cheng-jiaqing/images/raw/master/2026-08-04-从Context到Graph-Agent工程四个层次-02.webp"></p>
+<p><img alt="图3：从 Prompt 到 Graph 的工程演进" src="https://gitee.com/cheng-jiaqing/images/raw/master/2026-08-04-从Context到Graph-Agent工程四个层次-03.webp"></p>
+<p><img alt="图4：四层架构与 Qoder 对比" src="https://gitee.com/cheng-jiaqing/images/raw/master/2026-08-04-从Context到Graph-Agent工程四个层次-04.webp"></p>
+<p><img alt="图5：Context Engineering" src="https://gitee.com/cheng-jiaqing/images/raw/master/2026-08-04-从Context到Graph-Agent工程四个层次-05.webp"></p>
+<p><img alt="图6：Context 窗口与渐进式披露" src="https://gitee.com/cheng-jiaqing/images/raw/master/2026-08-04-从Context到Graph-Agent工程四个层次-06.webp"></p>
+<p><img alt="图7：Harness Engineering" src="https://gitee.com/cheng-jiaqing/images/raw/master/2026-08-04-从Context到Graph-Agent工程四个层次-07.webp"></p>
+<p><img alt="图8：云端 Harness 与本地 Harness" src="https://gitee.com/cheng-jiaqing/images/raw/master/2026-08-04-从Context到Graph-Agent工程四个层次-08.webp"></p>
+<p><img alt="图9：Loop Engineering" src="https://gitee.com/cheng-jiaqing/images/raw/master/2026-08-04-从Context到Graph-Agent工程四个层次-09.webp"></p>
+<p><img alt="图10：本地与云端 Loop" src="https://gitee.com/cheng-jiaqing/images/raw/master/2026-08-04-从Context到Graph-Agent工程四个层次-10.webp"></p>
+<p><img alt="图11：Graph Engineering" src="https://gitee.com/cheng-jiaqing/images/raw/master/2026-08-04-从Context到Graph-Agent工程四个层次-11.webp"></p>
+<p><img alt="图12：四种 Engineering 组成一套 Agent 系统" src="https://gitee.com/cheng-jiaqing/images/raw/master/2026-08-04-从Context到Graph-Agent工程四个层次-12.webp"></p>
+<h2 id="信息边界">信息边界</h2>
+<ul>
+<li>本文是对小红书图文观点的整理与工程化延伸，不是 Qoder 官方技术文档。</li>
+<li>Qoder CLI 与 Qoder Cloud Agents 的具体能力、API 和实现细节应以官方文档和源码为准。</li>
+<li>“四个层次”更适合作为架构分析框架，不应理解为所有 Agent 系统都必须采用的固定产品架构。</li>
+</ul>
+<hr>
+<h2 id="关联笔记">🔗 关联笔记</h2>
+<ul>
+<li><a class="wl" href="../../../notes/clippings/bilibili/2026-07-31-agent-harness-loop-graph.html">2026-07-31-Agent系统架构设计-Harness-Loop-Graph怎么选</a> — 同主题视频深度版</li>
+<li><a class="wl" href="../../../notes/clippings/pae26bb/2026-07-30-ai-agent-graph-loop-harness.html">2026-07-30-AI-Agent落地铁三角-Graph-Loop-Harness</a> — 企业落地铁三角</li>
+<li><a class="wl" href="../../../notes/clippings/bilibili/2026-07-31-10ai-agent-8.html">2026-07-31-10分钟讲透AI-Agent-8种主流架构</a> — 8 种架构总览</li>
+</ul>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">内容剪藏</span><span class="chip">小红书</span><span class="chip">Agent</span><span class="chip">Context Engineering</span><span class="chip">Harness Engineering</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/Clippings/%E5%B0%8F%E7%BA%A2%E4%B9%A6/2026-08-04-%E4%BB%8EContext%E5%88%B0Graph-Agent%E5%B7%A5%E7%A8%8B%E7%9A%84%E5%9B%9B%E4%B8%AA%E5%B1%82%E6%AC%A1-Qoder.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../notes/clippings/pae26bb/2026-08-03.html"><span class="dir">← 上一篇</span><span class="t">果然能找到好工作的计算机生都是狠角色</span></a><a class="next" href="../../../notes/clippings/pae26bb/2026-08-07-coding-agent-violin.html"><span class="dir">下一篇 →</span><span class="t">实战：从零开始构建一个 Coding Agent——Violin</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../index.html">首页</a>
+      <a href="../../../learn.html">课件</a>
+      <a href="../../../notes/index.html">笔记库</a>
+      <a href="../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../about.html">关于</a>
+      <a href="../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../js/main.js" defer></script>
+</body>
+</html>

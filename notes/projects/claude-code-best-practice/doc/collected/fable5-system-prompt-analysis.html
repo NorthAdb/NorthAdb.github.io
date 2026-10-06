@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fable 5 系统提示词工程要点梳理 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="来源：公众号&quot;小林coding&quot; 原文：面试官皱眉：&quot;你看过 Claude Fable 5 系统提示词吗？&quot;https://mp.weixin.qq.com/s/QAhMamZY0m4gSyIzxKfVEg 泄露仓库：https://git…">
+<link rel="canonical" href="https://northadb.github.io/notes/projects/claude-code-best-practice/doc/collected/fable5-system-prompt-analysis.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Fable 5 系统提示词工程要点梳理 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="来源：公众号&quot;小林coding&quot; 原文：面试官皱眉：&quot;你看过 Claude Fable 5 系统提示词吗？&quot;https://mp.weixin.qq.com/s/QAhMamZY0m4gSyIzxKfVEg 泄露仓库：https://git…">
+<meta property="og:url" content="https://northadb.github.io/notes/projects/claude-code-best-practice/doc/collected/fable5-system-prompt-analysis.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Fable 5 系统提示词工程要点梳理 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="来源：公众号&quot;小林coding&quot; 原文：面试官皱眉：&quot;你看过 Claude Fable 5 系统提示词吗？&quot;https://mp.weixin.qq.com/s/QAhMamZY0m4gSyIzxKfVEg 泄露仓库：https://git…">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../../../feed.xml">
+<link rel="stylesheet" href="../../../../../css/style.css">
+<link rel="stylesheet" href="../../../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Fable 5 系统提示词工程要点梳理", "description": "来源：公众号\"小林coding\" 原文：面试官皱眉：\"你看过 Claude Fable 5 系统提示词吗？\"https://mp.weixin.qq.com/s/QAhMamZY0m4gSyIzxKfVEg 泄露仓库：https://git…", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/projects/claude-code-best-practice/doc/collected/fable5-system-prompt-analysis.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../../../index.html">首页</a><span>/</span><a href="../../../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../../../notes/projects/index.html">项目笔记</a></div>
+          <h1>Fable 5 系统提示词工程要点梳理</h1>
+          <p class="post-sub">来源：公众号&quot;小林coding&quot; 原文：面试官皱眉：&quot;你看过 Claude Fable 5 系统提示词吗？&quot;https://mp.weixin.qq.com/s/QAhMamZY0m4gSyIzxKfVEg 泄露仓库：https://git…</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../../../notes/projects/index.html">项目笔记</a></span><span class="sep"></span>
+            <span>阅读约 4 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p>来源：公众号"小林coding"
+原文：<a href="https://mp.weixin.qq.com/s/QAhMamZY0m4gSyIzxKfVEg">面试官皱眉："你看过 Claude Fable 5 系统提示词吗？"</a>
+泄露仓库：https://github.com/elder-plinius/CL4R1T4S
+作者：小林coding | 收藏日期：2026-06-21</p>
+</blockquote>
+<hr>
+<p><strong>背景：</strong> 2026 年 6 月 9 日 Anthropic 发布 Fable 5，不到两天有人通过越狱手段提取了完整的 system prompt（1600+ 行）并传至 GitHub。以下是从中提炼的工程原则。</p>
+<hr>
+<h2 id="一提示词结构概览">一、提示词结构概览</h2>
+<p>Fable 5 的 system prompt 近一半篇幅在定义工具，其骨架：</p>
+<pre><code>claude_behavior          → 产品信息 / 安全 / 语气 / 用户关怀
+memory_system
+mcp_app_suggestions
+computer_use             → skills / artifacts
+search_instructions
+Tool Definitions         → 十多个工具的完整定义（吃了半本）
+network / filesystem configuration
+</code></pre>
+<blockquote>
+<p>好的提示词 = 给模型搭「工作台」，不是写许愿池。</p>
+</blockquote>
+<hr>
+<h2 id="二工具定义的关键工程原则">二、工具定义的关键工程原则</h2>
+<h3 id="原则-1把什么时候别用写得比什么时候用更狠">原则 1：把「什么时候别用」写得比「什么时候用」更狠</h3>
+<p><code>ask_user_input</code> 工具的描述：</p>
+<blockquote>
+<p>WHEN NOT TO USE: User asks "A or B?" -&gt; They want YOUR analysis and recommendation, not the options repeated back as buttons. User is venting -&gt; Just listen.</p>
+<p>If you're about to write clarifying questions as prose bullets, STOP — those go in this tool instead.</p>
+</blockquote>
+<p>每个工具定义都配了一张写满「别这么用」的说明书——它不信模型会自动用对。</p>
+<h3 id="原则-2用参数顺序给模型的思考排序">原则 2：用参数顺序给模型的思考排序</h3>
+<p><code>create_file</code> 的三个参数被强制顺序：</p>
+<blockquote>
+<p>description: Why I'm creating this file. ALWAYS PROVIDE FIRST.
+path: ... ALWAYS PROVIDE SECOND.
+file_text: Content to write. ALWAYS PROVIDE LAST.</p>
+</blockquote>
+<p>大模型逐 token 生成，先写什么会影响后写什么——把「动机」放在最前面，逼模型想清楚再动手。</p>
+<h3 id="原则-3给策略方案而非语气版本">原则 3：给「策略方案」而非「语气版本」</h3>
+<p><code>message_compose</code> 不生成不同语气的版本，而是提供通向不同结果的策略：</p>
+<blockquote>
+<p>Generate 2-3 strategies that lead to different outcomes — not just tones. Label each: "Disagree and commit" vs "Push for alignment", "Rip the bandaid" vs "Soften the landing".</p>
+</blockquote>
+<p>每个策略标清楚在优先什么、牺牲什么。</p>
+<h3 id="原则-4针对模型已知弱点打补丁">原则 4：针对模型已知弱点打补丁</h3>
+<ul>
+<li><strong>地图工具</strong>：<code>Copy place_id values EXACTLY... do not type from memory</code> — 防模型"自信地记错"长 ID</li>
+<li><strong>体育比分</strong>：先取数据再开口，别靠记忆猜</li>
+<li><strong>第三方服务</strong>：<code>Never pick a partner for someone who didn't ask</code> — "速度不能成为替用户做主的理由"</li>
+</ul>
+<hr>
+<h2 id="三搜索与知识边界">三、搜索与知识边界</h2>
+<h3 id="决策原则能稳的别搜会变的必搜">决策原则：能稳的别搜，会变的必搜</h3>
+<blockquote>
+<p>partial recognition from training does not mean current knowledge. An unfamiliar capitalized word is almost certainly a name that postdates training.</p>
+</blockquote>
+<p>模型的知识有保质期。碰到首字母大写的生词 → 几乎肯定是训练后才出现的新名字。</p>
+<h3 id="webfetch-的硬约束">web_fetch 的硬约束</h3>
+<blockquote>
+<p>Can only fetch EXACT URLs provided by the user or returned by web_search.</p>
+</blockquote>
+<p>不允许模型自己"编"一个 URL。</p>
+<hr>
+<h2 id="四先读说明书required-first-step">四、先读说明书（required first step）</h2>
+<blockquote>
+<p>Reading the relevant SKILL.md is a required first step before writing any code, creating any file, or running any other tool.</p>
+</blockquote>
+<ul>
+<li><strong>required</strong> + <strong>first step</strong>，不给模型"自我判断要不要"的余地</li>
+<li>SKILL.md 编码了"环境特有的约束"（库、路径、渲染怪癖），模型训练数据里没有这些</li>
+</ul>
+<p>附带 <code>product-self-knowledge</code> 技能：</p>
+<blockquote>
+<p>Any time you would otherwise rely on memory for Anthropic product details, verify here — your training data may be outdated.</p>
+</blockquote>
+<p><strong>关联：</strong> 这与 Claude Code 的 skill 机制同源。详见本仓库的 <a href="../../../../../notes/projects/claude-code-best-practice/doc/practice/04-skills.html">skill 概念</a> 和 <a href="../../../../../notes/projects/claude-code-best-practice/doc/implementation/03-skill.html">skill 实现</a>。</p>
+<hr>
+<h2 id="五语气与产品伦理">五、语气与产品伦理</h2>
+<h3 id="反格式化">反格式化</h3>
+<blockquote>
+<p>Claude avoids over-formatting with bold emphasis, headers, lists, and bullet points.</p>
+<p>Claude never uses bullet points when declining a task; the additional care helps soften the blow.</p>
+</blockquote>
+<h3 id="防用户上瘾">防用户上瘾</h3>
+<blockquote>
+<p>Claude never thanks the person merely for reaching out... Claude avoids reiterating its willingness to continue talking.</p>
+</blockquote>
+<p>绝不为用户「愿意开口」而道谢，不反复表示"我随时都在"——主动防止过度依赖。</p>
+<h3 id="情绪安全">情绪安全</h3>
+<blockquote>
+<p>If someone mentions emotional distress and asks for info that could be used for self-harm — bridges, tall buildings, weapons, medications — Claude should address the underlying distress.</p>
+</blockquote>
+<p>额外约束：不给人贴没确诊的标签，不用"替代法"，求助资源必须指向仍在运作的机构。</p>
+<hr>
+<h2 id="六安全红线的写法讲原则藏机制">六、安全红线的写法：讲原则，藏机制</h2>
+<p><strong>恶意代码：</strong> <code>even with an ostensibly good reason such as education</code> — 不教育目的留口子</p>
+<p><strong>态度：</strong> <code>If the conversation feels risky or off, saying less and giving shorter replies is safer.</code></p>
+<p><strong>核心原则：</strong>
+1. 拒绝时只讲原则，不讲检测机制——"narrating the boundary teaches how to reframe around it"
+2. 模型发现自己正在"帮请求找理由"→ 这个念头本身就是拒绝信号——防的不是特定行为，而是模型"想妥协"的意图</p>
+<hr>
+<h2 id="七对本仓库的启发">七、对本仓库的启发</h2>
+<table>
+<thead>
+<tr>
+<th>Fable 5 原则</th>
+<th>本仓库对应</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>动手前先读 SKILL.md</td>
+<td><code>SKILL.md</code> + <code>allowed-tools</code> + 精确指令</td>
+</tr>
+<tr>
+<td>工具分寸写死</td>
+<td>skill 的 <code>description</code> 和 frontmatter</td>
+</tr>
+<tr>
+<td>拒绝时不泄露检测逻辑</td>
+<td>weather-agent 的 fail-closed guardrail</td>
+</tr>
+<tr>
+<td>参数排序影响思考顺序</td>
+<td>同上思路：CLAUDE.md 和 skills 的结构设计</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="关联">关联</h2>
+<ul>
+<li><a href="../../../../../notes/projects/claude-code-best-practice/doc/collected/claude-code-skill-injection.html">小黑盒：Claude Code 的 skill 注入上下文分析</a></li>
+<li><a href="../../../../../notes/projects/claude-code-best-practice/doc/practice/04-skills.html">本仓库 skill 概念讲解</a></li>
+<li><a href="../../../../../notes/projects/claude-code-best-practice/doc/implementation/03-skill.html">本仓库 skill 实现剖析</a></li>
+</ul>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">项目笔记</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/collected/fable5-system-prompt-analysis.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../../../notes/projects/claude-code-best-practice/doc/collected/claude-code-skill-injection.html"><span class="dir">← 上一篇</span><span class="t">ClaudeCode 的 Skill 注入上下文分析</span></a><a class="next" href="../../../../../notes/projects/claude-code-best-practice/doc/development-workflows/cross-model-workflow/p2bc9b4.html"><span class="dir">下一篇 →</span><span class="t">跨模型（Claude Code + Codex）工作流（中文翻译）</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../../../index.html">首页</a>
+      <a href="../../../../../learn.html">课件</a>
+      <a href="../../../../../notes/index.html">笔记库</a>
+      <a href="../../../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../../../about.html">关于</a>
+      <a href="../../../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../../../js/main.js" defer></script>
+</body>
+</html>

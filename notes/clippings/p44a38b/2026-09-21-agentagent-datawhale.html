@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>重磅！从 Agent 开发到 Agent 算法，进阶指南来了 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="来源：公众号「Datawhale」，作者郭子扬（东南大学研究生），2026-09-21。原文为个人观点分享，文中明确说明&quot;后面慢慢展开&quot;的部分尚未展开。 一句话总结：开发是把一个 Agent 从 0 快速做到 60，算法是做到 80 并不断…">
+<link rel="canonical" href="https://northadb.github.io/notes/clippings/p44a38b/2026-09-21-agentagent-datawhale.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="重磅！从 Agent 开发到 Agent 算法，进阶指南来了 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="来源：公众号「Datawhale」，作者郭子扬（东南大学研究生），2026-09-21。原文为个人观点分享，文中明确说明&quot;后面慢慢展开&quot;的部分尚未展开。 一句话总结：开发是把一个 Agent 从 0 快速做到 60，算法是做到 80 并不断…">
+<meta property="og:url" content="https://northadb.github.io/notes/clippings/p44a38b/2026-09-21-agentagent-datawhale.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="重磅！从 Agent 开发到 Agent 算法，进阶指南来了 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="来源：公众号「Datawhale」，作者郭子扬（东南大学研究生），2026-09-21。原文为个人观点分享，文中明确说明&quot;后面慢慢展开&quot;的部分尚未展开。 一句话总结：开发是把一个 Agent 从 0 快速做到 60，算法是做到 80 并不断…">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../feed.xml">
+<link rel="stylesheet" href="../../../css/style.css">
+<link rel="stylesheet" href="../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "重磅！从 Agent 开发到 Agent 算法，进阶指南来了", "description": "来源：公众号「Datawhale」，作者郭子扬（东南大学研究生），2026-09-21。原文为个人观点分享，文中明确说明\"后面慢慢展开\"的部分尚未展开。 一句话总结：开发是把一个 Agent 从 0 快速做到 60，算法是做到 80 并不断…", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/clippings/p44a38b/2026-09-21-agentagent-datawhale.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../index.html">首页</a><span>/</span><a href="../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../notes/clippings/index.html">内容剪藏</a></div>
+          <h1>重磅！从 Agent 开发到 Agent 算法，进阶指南来了</h1>
+          <p class="post-sub">来源：公众号「Datawhale」，作者郭子扬（东南大学研究生），2026-09-21。原文为个人观点分享，文中明确说明&quot;后面慢慢展开&quot;的部分尚未展开。 一句话总结：开发是把一个 Agent 从 0 快速做到 60，算法是做到 80 并不断…</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../notes/clippings/index.html">内容剪藏</a></span><span class="sep"></span>
+            <span>阅读约 14 分钟</span><span class="sep"></span><span>更新于 2026-09-27</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p><strong>来源</strong>：公众号「Datawhale」，作者郭子扬（东南大学研究生），2026-09-21。原文为个人观点分享，文中明确说明"后面慢慢展开"的部分尚未展开。</p>
+<p><strong>一句话总结</strong>：<strong>开发是把一个 Agent 从 0 快速做到 60，算法是做到 80 并不断追高</strong>；而从 60 到 80 靠的不是"自己视角下的过程指标"，是一套 <strong>Benchmark → 策略 → 上线</strong> 的闭环——<strong>用离线评测近似线上的先验，用上线后的真实后验反过来修正先验</strong>。整篇文章其实是这条闭环上的一次"逐级 scaling"：评测侧 Rubric → Human Judge → LLM Judge → Reward Model，策略侧 Prompt → SFT → RL。</p>
+</blockquote>
+<hr>
+<h2 id="0-立论开发-vs-算法差在谁来判断好">0. 立论：开发 vs 算法，差在"谁来判断好"</h2>
+<p>作者开头点出的争议问题：<strong>Agent 开发和 Agent 算法到底有什么区别？</strong>（也是很多人找工作关心的点）</p>
+<p>他的判断：</p>
+<blockquote>
+<p>把一个 Agent 从 <strong>0 快速做到 60</strong> 是<strong>开发</strong>；做到 <strong>80 并不断追高</strong> 就是<strong>算法</strong>。</p>
+</blockquote>
+<p>关键分歧不在技术栈，而在<strong>评价权归谁</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>主要动作</th>
+<th>效果由谁判定</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0 → 60（开发）</td>
+<td>用 Prompt / Context / Workflow 把闭环跑通</td>
+<td><strong>自己视角下的过程指标</strong>（"我觉得这次答得不错"）</td>
+</tr>
+<tr>
+<td>60 → 80+（算法）</td>
+<td>对齐真实业务目标、持续追高</td>
+<td><strong>上线后的真实业务指标</strong></td>
+</tr>
+</tbody>
+</table>
+<p>但这里立刻出现一个现实约束：</p>
+<ul>
+<li><strong>上线验证周期长、成本高</strong>，不可能每次迭代都等线上反馈；</li>
+<li>所以必须构建<strong>离线 Benchmark</strong>，尽可能对齐线上效果，<strong>用快速的离线评估来指导先验策略迭代</strong>；</li>
+<li>最后再上线获取<strong>真实后验</strong>，反过来<strong>修正和补充新的先验策略</strong>。</li>
+</ul>
+<blockquote>
+<p><strong>结论</strong>：一套相对完整的 Agent 业务迭代方法论是 <strong>Benchmark → 策略 → 上线</strong>。
+从一个 <strong>make sense</strong> 的方案，到真正 <strong>work</strong>，再到足够 <strong>solid</strong>，中间还有很多方法论。</p>
+</blockquote>
+<h3 id="先验-后验这对词是全文的骨架">先验 / 后验这对词是全文的骨架</h3>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>在这篇文章里的所指</th>
+<th>承载物</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>先验</strong></td>
+<td>我们当前相信"怎么做才有效"的那套知识</td>
+<td>Prompt / Workflow / Rubric / SFT 进去的参数</td>
+</tr>
+<tr>
+<td><strong>后验</strong></td>
+<td>上线后真实用户给出的结果</td>
+<td>Online Metric、线上 bad case</td>
+</tr>
+<tr>
+<td><strong>闭环</strong></td>
+<td>后验 → 更新 Rubric / 数据 / Reward → 成为下一轮先验</td>
+<td>Benchmark 的持续迭代</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="1-benchmark很多算法实习生的第一份工作">1. Benchmark：很多算法实习生的第一份工作</h2>
+<p>作者给了一个很具体的实习场景：<strong>审 ICLR 论文</strong>。</p>
+<h3 id="11-为什么必须拆维度主观标准没法一步评估">1.1 为什么必须拆维度：主观标准没法一步评估</h3>
+<p>"这篇论文好不好"天然主观、模糊，只能专家评，<strong>很难机器一步评估</strong>。做法是拆成<strong>写作、创新性、实验</strong>等多个维度，再分别定义<strong>什么情况下应该得高分、什么情况得低分</strong>。</p>
+<p>这个就叫 <strong>Rubric</strong>：</p>
+<blockquote>
+<p>把模糊的业务目标，<strong>翻译成能够被没那么专业的人、和 LLM、程序可以稳定执行的评价标准</strong>。</p>
+</blockquote>
+<p>作者在这里做了一个很漂亮的类比——<strong>三件事本质相同，都是"把模糊目标翻译成可执行物"</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>谁在翻译</th>
+<th>输入（模糊）</th>
+<th>输出（可执行）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Rubric</strong></td>
+<td>我要什么</td>
+<td>可<strong>评估</strong>条件</td>
+</tr>
+<tr>
+<td><strong>Agent</strong></td>
+<td>我要什么</td>
+<td>可<strong>执行</strong>步骤（plan / action）</td>
+</tr>
+<tr>
+<td><strong>Codex / Claude Code</strong></td>
+<td>我要什么</td>
+<td>可<strong>执行代码</strong></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>注意这个类比的落点：Rubric 之于评测，等于 Harness 之于执行。<strong>它们是同一种"翻译工程"在两条链路上的实例。</strong></p>
+</blockquote>
+<h3 id="12-四级-scalingrubric-human-llm-judge-rm">1.2 四级 scaling：Rubric → Human → LLM Judge → RM</h3>
+<p>这是全文最有价值的结构。<strong>评测的自动化程度是逐级 scaling 上去的</strong>，每一级解决上一级的瓶颈，同时引入新的风险：</p>
+<table>
+<thead>
+<tr>
+<th>级别</th>
+<th>做法</th>
+<th>解决了什么</th>
+<th>新的瓶颈 / 风险</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>① Rubric</strong></td>
+<td>拆维度、定义高低分边界</td>
+<td>"什么样的结果算好"变得<strong>可描述</strong></td>
+<td>描述不等于能稳定执行</td>
+</tr>
+<tr>
+<td><strong>② Human as a Judge</strong></td>
+<td>自己 / 业务专家按 Rubric 看几条 case，先做一批人标，看<strong>人人一致率</strong></td>
+<td>验证 <strong>Rubric 本身能不能被稳定执行</strong></td>
+<td>最可靠，但<strong>慢、贵、不能 scaling</strong></td>
+</tr>
+<tr>
+<td><strong>③ LLM as a Judge</strong></td>
+<td>以高质量人标为 ground truth，用<strong>手工 PE / AutoPE</strong> 调 Judge Prompt 与超参（温度、top k、top p）</td>
+<td>把人工判断<strong>自动化</strong></td>
+<td>每次评测都要跑一次大模型，<strong>规模一大成本/时延不可接受</strong></td>
+</tr>
+<tr>
+<td><strong>④ Reward Model as a Judge</strong></td>
+<td>把已验证的评价标准<strong>蒸馏成低延迟、高吞吐的 RM</strong></td>
+<td>把自动化判断<strong>规模化</strong></td>
+<td><strong>Reward Hacking</strong>，RM 不能当成永远正确</td>
+</tr>
+</tbody>
+</table>
+<h4 id="①-②发现问题常常不在-judge而在-rubric">① → ②：发现问题常常不在 Judge，而在 Rubric</h4>
+<p>先由自己或业务专家按 Rubric 看几条 case，验证 Rubric 本身到底能不能被稳定执行，通常会先找一批样本做人标、看<strong>人人一致率</strong>。</p>
+<blockquote>
+<p><strong>如果同一个 case，两个人按同一套 Rubric 仍然经常得出不同结论，那很多时候不是 Judge 不行，而是 Rubric 本身还不够清楚</strong>——需要继续拆标准、补边界 case。</p>
+</blockquote>
+<p>（"发现人可以标"之后，才谈得上研究怎么让 LLM 来标。）</p>
+<h4 id="②-③llm-judge-的验收标准是复现人工">② → ③：LLM Judge 的验收标准是"复现人工"</h4>
+<p>目标是让 LLM <strong>尽可能复现已经稳定下来的人工判断</strong>：</p>
+<ol>
+<li>用高质量人标数据作为 <strong>ground truth</strong>；</li>
+<li>通过<strong>手工 PE / AutoPE</strong> 反复调整 Judge Prompt，以及温度、top k、top p 等超参；</li>
+<li>人-机一致率高 → <strong>离线 Benchmark 初步可用</strong> → 再去看线上的真实业务指标。</li>
+</ol>
+<p>这里接上了第 0 节的闭环，也是全文最容易被忽略的一句：</p>
+<blockquote>
+<p>如果发现<strong>离线涨了、线上没涨</strong>，那问题不一定在策略，<strong>也可能说明 Benchmark 本身没有对齐真实业务目标</strong>——需要继续根据<strong>线上 bad case 和后验数据</strong>去更新 <strong>Cases、Rubric 和 Judge</strong>。</p>
+</blockquote>
+<p>所以：<strong>Benchmark 不是一次性做完的，而是跟着业务一起迭代</strong>（作者补充：LLM 泛化性很强，"一起迭代问题不大"）。</p>
+<h4 id="③-④llm-judge-解决了自动化没解决规模化">③ → ④：LLM Judge 解决了自动化，没解决规模化</h4>
+<p>为什么已经能复现人工判断了，还要训 RM？</p>
+<blockquote>
+<p>因为 <strong>LLM Judge 解决了自动化评测，但没有解决规模化评测</strong>。</p>
+</blockquote>
+<ul>
+<li>当 <strong>Benchmark、实验、RL rollout</strong> 规模继续扩大时，每次都调用一个大模型做 Judge，<strong>成本和时延会随评测量线性增长</strong>（原文提示：对成本没概念可以看看 MiMo 的直播 RL）；</li>
+<li>而且这个开销<strong>很难通过缩减 prompt 长度来优化</strong>；</li>
+<li>所以把<strong>已经验证过的评价标准蒸馏成一个低延迟、高吞吐的 RM</strong>。</li>
+</ul>
+<p><strong>为什么可以用更小的基模？</strong> 因为能力要求不同：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>需要的优势</th>
+<th>因此可以</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>LLM Judge</strong></td>
+<td>泛化能力强</td>
+<td>用通用大模型</td>
+</tr>
+<tr>
+<td><strong>Reward Model</strong></td>
+<td>只需在<strong>业务对应的数据分布</strong>里更强</td>
+<td>用更小的基模 + 前面已有的评测数据来训</td>
+</tr>
+</tbody>
+</table>
+<p><strong>RM 不是终点。</strong> 因为有 <strong>Reward Hacking</strong>，RM 不能被当成永远正确，仍需<strong>定期用人工 / LLM Judge 检测新的 bad case → 补充数据 → 重新训练和校准 RM</strong>。</p>
+<h3 id="13-一句话记住这一章">1.3 一句话记住这一章</h3>
+<blockquote>
+<p><strong>Rubric 定义什么叫好，Human 积累人工判断的经验，LLM Judge 把人工判断自动化，Reward Model 再把自动化判断规模化。</strong></p>
+</blockquote>
+<hr>
+<h2 id="2-策略从跑通-agent-到持续提升效果">2. 策略：从跑通 Agent 到持续提升效果</h2>
+<p>作者对"做 Agent 策略"的定义很直白：</p>
+<blockquote>
+<p>做 Agent 策略就是<strong>做先验</strong>，然后根据上线效果<strong>把后验转化为先验</strong>（数据驱动）。</p>
+</blockquote>
+<p>而具体流程——<strong>一定是从老实琢磨 Prompt 开始</strong>。</p>
+<h3 id="21-prompt-策略先用-token-换精准度把上限摸出来">2.1 Prompt 策略：先用 token 换精准度，把上限摸出来</h3>
+<p>来自作者的实务经验（与多位"优秀的小同行"讨论）：<strong>大部分业务，按专家先验知识调好 Prompt 就可以先上一版</strong>，再根据上线效果决定后续路线。</p>
+<p>合理的开发流程：</p>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>动作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>先用<strong>纯 Prompt 跑通最小闭环</strong></td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>系统性分析 <code>prompt → response</code> 这条 pipeline 上的 bad cases</strong></td>
+</tr>
+<tr>
+<td>3</td>
+<td>再用经典手法（<strong>RAG、few-shot、CoT</strong>）逐步逼近效果上限</td>
+</tr>
+<tr>
+<td>4</td>
+<td>一边做这个，一边<strong>优化 Benchmark</strong></td>
+</tr>
+</tbody>
+</table>
+<p>两个容易被低估的判断：</p>
+<ol>
+<li><strong>很多人低估了 Prompt 用 token 换精准度的潜力</strong>——大模型能力越来越强，很多你以为很难的 case，其实只是 <strong>prompt 没写好</strong>；</li>
+<li>那怎么系统评估 prompt 是否还有优化空间？→ <strong>Prompt 梯度测试</strong>：同一批样本上逐步增强 prompt，看效果是否<strong>持续提升</strong>。</li>
+</ol>
+<h4 id="prompt-梯度测试的迭代顺序">Prompt 梯度测试的迭代顺序</h4>
+<table>
+<thead>
+<tr>
+<th>顺序</th>
+<th>做什么</th>
+<th>目的</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>用最简单指令<strong>横向对比多个基模</strong>，pick 最合适的</td>
+<td>先排除"模型选错"这个变量</td>
+</tr>
+<tr>
+<td>2</td>
+<td>根据<strong>专家先验知识加 system prompt</strong></td>
+<td>对应上业务要求</td>
+</tr>
+<tr>
+<td>3</td>
+<td>拆一些 <strong>workflow 来强化 PE</strong>（比如手动/自动加上下文）</td>
+<td>让模型有参考信息</td>
+</tr>
+</tbody>
+</table>
+<h4 id="什么时候该换层prompt-燃尽的判据">什么时候该"换层"：Prompt 燃尽的判据</h4>
+<blockquote>
+<p>如果随着 Agent 里面流动的 prompt <strong>逐步增强，效果仍然几乎不变</strong>，说明对当前业务，<strong>Agent 策略已经燃尽</strong>，进入下一步 <strong>LLM 策略</strong>。</p>
+</blockquote>
+<h3 id="22-llm-策略把说给模型听变成让模型学会">2.2 LLM 策略：把"说给模型听"变成"让模型学会"</h3>
+<p>先纠正一个误解：<strong>LLM 策略不是为了替代 Agent 策略。</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Agent 阶段</th>
+<th>LLM 阶段</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>手段</td>
+<td>在 <strong>Prompt / Context / Workflow</strong> 里告诉模型<strong>应该怎么做</strong></td>
+<td>让模型<strong>自己学会</strong>应该怎么做</td>
+</tr>
+<tr>
+<td>收益</td>
+<td>灵活、迭代快</td>
+<td>减少每次都给 prompt 的成本，继续提高效果和稳定性</td>
+</tr>
+<tr>
+<td>定位</td>
+<td>已验证有效的<strong>非参数化先验</strong></td>
+<td>把它训成模型的<strong>参数化行为</strong></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>做 Agent 开发过程中，如果遇到了<strong>效果、稳定性、成本瓶颈</strong>，就可以考虑进入 LLM 策略——把 Agent 策略已经验证有效的 <strong>60 分方案</strong>，做得<strong>更稳定、更便宜、更 scalable</strong>。</p>
+</blockquote>
+<h3 id="23-sft把稳定先验写进参数">2.3 SFT：把稳定先验写进参数</h3>
+<p>SFT 的定位：<strong>把 Agent 策略已经验证有效的先验，固化成模型稳定的行为模式。</strong></p>
+<p>作者列了 Agent 开发阶段通常已经验证过的几类经验：</p>
+<table>
+<thead>
+<tr>
+<th>已验证的经验</th>
+<th>典型的承载位置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>某种<strong>任务理解方式</strong>有效</td>
+<td>Prompt</td>
+</tr>
+<tr>
+<td>某类 <strong>few-shot</strong> 能明显提升效果</td>
+<td>Prompt / Context</td>
+</tr>
+<tr>
+<td>某种 <strong>Tool Routing</strong> 更稳定</td>
+<td>Workflow</td>
+</tr>
+<tr>
+<td>某种<strong>输出格式</strong>更符合下游要求</td>
+<td>Prompt / 后处理</td>
+</tr>
+<tr>
+<td>某种<strong>拒答边界</strong>更符合业务预期</td>
+<td>Prompt / 策略</td>
+</tr>
+</tbody>
+</table>
+<p>这些东西<strong>一开始都可以写在 Prompt 和 Workflow 里</strong>；但如果它们<strong>已经过 Benchmark 验证</strong>、而且<strong>高频、稳定、长期不会频繁变化</strong>，就可以考虑通过 SFT 训进参数。</p>
+<h4 id="sft-前最重要的问题-一条可操作的分界线">SFT 前最重要的问题 + 一条可操作的分界线</h4>
+<blockquote>
+<p><strong>哪些 Agent 阶段学到的经验，真的值得被固化进模型？</strong></p>
+</blockquote>
+<p>作者给的原则：</p>
+<blockquote>
+<p><strong>高频变化的信息继续留在 Context，长期稳定的行为才值得训进 model。</strong></p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>例子</th>
+<th>该不该训进模型</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>高频变化的信息</td>
+<td>实时库存、活动规则、最新政策</td>
+<td>❌ 即使很重要，也不适合</td>
+</tr>
+<tr>
+<td>长期稳定的行为</td>
+<td>固定输出习惯、稳定业务 SOP、Tool 调用方式、任务拆解范式</td>
+<td>✅ 适合参数化</td>
+</tr>
+</tbody>
+</table>
+<h4 id="sft-的难点是数据而且难在行为一致性不是答案质量">SFT 的难点是数据——而且难在"行为一致性"，不是"答案质量"</h4>
+<p>SFT 本质上就是告诉模型：<strong>遇到这种情况，以后就应该这么做。</strong></p>
+<p>所以最怕的是<strong>行为分布自相矛盾</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>同一个业务场景里</th>
+<th>模型学到的不是"灵活"</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>一部分数据要求<strong>拒答</strong>，一部分要求<strong>正常回答</strong></td>
+<td>而是<strong>不确定性</strong></td>
+</tr>
+<tr>
+<td>一部分要求<strong>严格 JSON</strong>，一部分允许<strong>自由文本</strong></td>
+<td>而是<strong>不确定性</strong></td>
+</tr>
+<tr>
+<td>一部分要求<strong>先调用工具</strong>，一部分<strong>直接凭模型知识回答</strong></td>
+<td>而是<strong>不确定性</strong></td>
+</tr>
+</tbody>
+</table>
+<p>由此得出一个很有价值的视角转换：</p>
+<blockquote>
+<p><strong>SFT 的数据清洗，不是在清洗低质量答案，是在整理模型最终的行为分布。</strong></p>
+</blockquote>
+<p>推论：
+- <strong>SFT 数据不是越多越好</strong>，更重要的是<strong>数据质量、行为一致性</strong>；
+- <strong>未经 Benchmark 验证的 Prompt Hack，不能因为看起来有效就直接扩数据训进去</strong>——否则只是把一个<strong>还没想明白的策略永久写进参数</strong>。</p>
+<h3 id="24-rl把业务评价标准变成-reward">2.4 RL：把业务评价标准变成 Reward</h3>
+<p>作者用两个比喻区分 SFT 和 RL（原文的"抄版本答案"梗）：</p>
+<blockquote>
+<p><strong>SFT 是教模型抄版本答案拿到好结果</strong>（codex、簿肌、自媒体、孙学、早 C 晚 A 护肤、低糖高蛋白饮食、伪素颜、雅思 7.0、拿实体黄金）；
+<strong>RL 是放大好结果为大结果，让模型自己想办法拿到</strong>（来读研 or 去实习）。</p>
+<p>前面说 <strong>SFT 难在数据质量，那么 RL 难在反馈信号</strong>。</p>
+</blockquote>
+<h4 id="为什么前面要花那么多时间做-benchmark">为什么前面要花那么多时间做 Benchmark</h4>
+<blockquote>
+<p>因为<strong>到了 RL 阶段，Benchmark 不只是测试，是反馈</strong>。Rubric 定义什么叫好，Judge 判断好不好，这个判断<strong>转化成 RL 阶段的 Reward，直接影响模型往哪个方向优化</strong>。</p>
+</blockquote>
+<h4 id="rl-最危险的地方reward-可能不是业务真正要优化的东西">RL 最危险的地方：reward 可能不是业务真正要优化的东西</h4>
+<p>风险的传递链：</p>
+<pre><code>Rubric 没对齐业务  →  Judge 没对齐人工（不稳定）  →  Reward 只是离线指标的近似
+                                                          ↓
+                                          模型&quot;学好学坏都是学&quot;
+                                                          ↓
+                              离线 Reward 涨了 ≠ 线上业务指标一定会涨
+</code></pre>
+<p>最后仍然回到 <strong>Online Metric</strong>（闭环收口）：</p>
+<blockquote>
+<p>上线拿到新的<strong>用户后验</strong> → 更新 <strong>Benchmark</strong> → 拉 <strong>bad case</strong> → 修 <strong>Rubric</strong> → 调整<strong>数据和 Reward</strong> → 进入下一轮迭代。</p>
+</blockquote>
+<h3 id="25-三层分工一张表">2.5 三层分工一张表</h3>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>做什么</th>
+<th>输入</th>
+<th>输出</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Agent 阶段</strong></td>
+<td>积累<strong>专家先验</strong></td>
+<td>业务知识、bad case</td>
+<td>Prompt / Workflow / Rubric</td>
+</tr>
+<tr>
+<td><strong>SFT</strong></td>
+<td>把<strong>稳定先验写进参数</strong></td>
+<td>经过 Benchmark 验证的行为</td>
+<td>模型参数里的稳定行为</td>
+</tr>
+<tr>
+<td><strong>RL</strong></td>
+<td>把<strong>业务评价标准变成 Reward</strong></td>
+<td>Rubric + Judge</td>
+<td>模型朝目标继续优化</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>reward 设计得好，模型会更稳定地朝业务目标优化；reward 设计错了，模型会更极致地学错。</strong></p>
+</blockquote>
+<hr>
+<h2 id="3-写在最后四个有争议-maybe-有价值的讨论">3. 写在最后：四个"有争议 maybe 有价值"的讨论</h2>
+<p>作者最后列了四组对立观点（原文没有下结论）：</p>
+<table>
+<thead>
+<tr>
+<th>争议点</th>
+<th>一方</th>
+<th>另一方</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>过拟合</strong></td>
+<td>有过拟合的风险</td>
+<td>只要<strong>训练集 cover 业务场景</strong>，过拟合<strong>反而是我们的目标</strong></td>
+</tr>
+<tr>
+<td><strong>灾难性遗忘</strong></td>
+<td>有灾难性遗忘的风险</td>
+<td><strong>遗忘是一种数据提纯</strong></td>
+</tr>
+<tr>
+<td><strong>微调有没有必要</strong></td>
+<td>做 Agent 开发的朋友：<strong>workflow 才是通往 AGI 的道路</strong>，微调只是参数内卷、原地踏步</td>
+<td>（作者未给对立面，留给读者）</td>
+</tr>
+<tr>
+<td><strong>效果上限归谁</strong></td>
+<td>做 AIGC 的朋友：真正决定应用<strong>效果上限</strong>的，始终是<strong>模型自身的能力边界</strong></td>
+<td>（同上）</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>这四组的共同点：<strong>争的都不是技术能不能做，而是"目标该定在哪一层"</strong>。
+结合正文看，作者自己的答案其实已经给出——<strong>先验放在哪一层，取决于它的变化频率和验证状态</strong>（见 2.3 表）。</p>
+</blockquote>
+<hr>
+<h2 id="4-复习版结论">4. 复习版结论</h2>
+<ol>
+<li><strong>开发 vs 算法</strong>：0 → 60 是开发，60 → 80 并不断追高是算法；分水岭是<strong>评价标准从"过程指标"换成"真实业务指标"</strong>。</li>
+<li><strong>总闭环</strong>：<strong>Benchmark → 策略 → 上线</strong>。离线评测是"先验的近似"，上线后验再回来修先验。周期长、成本高是必须做离线 Benchmark 的原因。</li>
+<li><strong>Rubric 是根</strong>：把模糊业务目标翻译成"人 / LLM / 程序能稳定执行"的评价标准。<strong>Rubric 之于评测 ≈ Harness 之于执行</strong>（都是把模糊目标翻译成可执行物）。</li>
+<li><strong>人标不一致先怪 Rubric</strong>：人人一致率低，多半是 Rubric 不够清楚，要拆标准、补边界 case，而不是换 Judge。</li>
+<li><strong>离线涨、线上不涨 → 先怀疑 Benchmark 没对齐业务</strong>，而不是先调策略。</li>
+<li><strong>评测四级 scaling</strong>：Rubric（可描述）→ Human（可靠但不 scale）→ LLM Judge（自动化，但成本随规模线性涨）→ RM（规模化，但有 Reward Hacking，需定期校准）。</li>
+<li><strong>策略先 Prompt</strong>：纯 Prompt 跑通最小闭环 → 分析 bad case → RAG / few-shot / CoT 逼近上限 → 同步优化 Benchmark。用 <strong>Prompt 梯度测试</strong>判断是否燃尽。</li>
+<li><strong>换层判据</strong>：prompt 越加效果不变 → Agent 策略燃尽 → 进 LLM 策略；遇到效果/稳定性/成本瓶颈 → 把 60 分方案做稳、做便宜、做 scalable。</li>
+<li><strong>SFT 判据</strong>：<strong>高频变化的留 Context，长期稳定的才训进参数</strong>；难点是<strong>行为一致性</strong>（数据清洗 = 整理行为分布），不是答案质量，更不是数据量。</li>
+<li><strong>RL 判据</strong>：难在<strong>反馈信号</strong>；Benchmark 在 RL 阶段是<strong>反馈</strong>而非测试；Rubric/Judge 不对齐会让 reward 变成"离线指标的近似"，学坏也是学。</li>
+</ol>
+<hr>
+<h2 id="5-落点这篇对我们的用法求职向">5. 落点：这篇对我们的用法（求职向）</h2>
+<blockquote>
+<p>以下是本笔记的整理视角，不是原文内容。</p>
+</blockquote>
+<p>文章标题说的是"开发 → 算法"，而作者给的分水岭正好可以当<strong>面试/简历的分层自检</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>自检问题</th>
+<th>开发侧答法</th>
+<th>算法侧答法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>你怎么知道效果变好了？</td>
+<td>"跑的 case 都通了"</td>
+<td>"同一批样本上指标从 X 到 Y，且这批评测对齐了线上"</td>
+</tr>
+<tr>
+<td>效果不好怎么办？</td>
+<td>改 prompt 再试</td>
+<td>先归因到 <strong>Rubric / Case / Judge / 策略</strong> 哪一层，再动</td>
+</tr>
+<tr>
+<td>Prompt 优化到头了怎么走？</td>
+<td>——</td>
+<td>判断"燃尽"后进入 SFT / RL，并说明哪些先验值得参数化</td>
+</tr>
+<tr>
+<td>评测成本扛不住怎么办？</td>
+<td>——</td>
+<td>LLM Judge → 蒸馏 RM 的规模化路径</td>
+</tr>
+</tbody>
+</table>
+<p>这条线也和仓库里已有的两条线天然咬合：</p>
+<ul>
+<li><strong>与 <a class="wl" href="../../../notes/domains/aiagent2026.html">领域/AI Agent 智能体学习路线 2026</a> 的"评测"缺失块</strong>：路线图里只到 AgentBench（<a class="wl" href="../../../notes/clippings/p44a38b/2026-07-30-agent.html">Clippings/微信公众号/2026-07-30-Agent高频面试题全解析-小林面试笔记</a> 层面的八股），这篇文章补的是<strong>"评测怎么被一层层建起来"的工程路径</strong>；</li>
+<li><strong>与 JD 情报</strong>：<a class="wl" href="../../../notes/jd/jd-by-company/p49edab.html">JD/jd-by-company/阿里巴巴</a> 里"<strong>Rubric RL、RLVR、User Reward Modeling</strong>""弥合 Benchmark 指标与用户实际体验之间的鸿沟"、<a class="wl" href="../../../notes/jd/jd-by-company/p2be446.html">JD/jd-by-company/小米</a> / <a class="wl" href="../../../notes/jd/jd-by-company/p470c1c.html">JD/jd-by-company/美团</a> / <a class="wl" href="../../../notes/jd/jd-by-company/pf32c0a.html">JD/jd-by-company/快手</a> 的"Agent 算法实习生"，对应的正是本文第 1、2 章的技能面。</li>
+</ul>
+<hr>
+<h2 id="关联笔记">关联笔记</h2>
+<p><strong>评测 / 迭代闭环（本文主线）</strong></p>
+<ul>
+<li><a class="wl" href="../../../notes/clippings/p44a38b/2026-08-26-agent.html">Clippings/微信公众号/2026-08-26-Agent自进化飞轮-评测记忆落地控制</a> — 评测 → 记忆 → 控制飞轮；本文的"Benchmark → 策略 → 上线"是同一飞轮的<strong>先验/后验</strong>版本</li>
+<li><a class="wl" href="../../../notes/clippings/p72191b/ai-agents-in-depth-zh-cn.html">Clippings/书籍/AI-Agents-in-Depth-zh-CN</a> — 书里那条线：<strong>没有评估，就没有进步</strong>；第 6 章评测机制 ↔ 本文第 1 章</li>
+<li><a class="wl" href="../../../notes/clippings/p44a38b/2026-09-24-agent-datawhale.html">Clippings/微信公众号/2026-09-24-给项目建Agent知识库-一套完整方法来了-Datawhale</a> — 它的"用下一次问题验收"= 本文的 <strong>Online Metric 回归</strong>；知识侧 ↔ 评测侧</li>
+<li><a class="wl" href="../../../notes/clippings/p44a38b/2026-09-22-agentrag-datawhale.html">Clippings/微信公众号/2026-09-22-Agent时代RAG怎么选-五类场景选型指南-Datawhale</a> — 同为 Datawhale 选型方法论；RAG 是本文 Prompt 阶段"经典手法"之一</li>
+<li><a class="wl" href="../../../notes/clippings/youtube/karpathy/2026-08-07-karpathy-llm-chatgpt.html">Clippings/YouTube/Karpathy/2026-08-07-Karpathy-LLM深度解析-ChatGPT训练全栈</a> — 预训练 / SFT / RL 三阶段的上游原理（本文第 2 章是它在 Agent 业务上的投影）</li>
+<li><a class="wl" href="../../../notes/clippings/p44a38b/2026-08-27-multi-agent-10.html">Clippings/微信公众号/2026-08-27-Multi-Agent工作流成本优化-10个实践</a> — 成本这条线的工程侧；对应本文"效果/稳定性/<strong>成本</strong>瓶颈 → 进 LLM 策略"</li>
+</ul>
+<p><strong>Agent 开发 → 算法 的能力台阶</strong></p>
+<ul>
+<li><a class="wl" href="../../../notes/clippings/p44a38b/2026-07-30-agent.html">Clippings/微信公众号/2026-07-30-Agent高频面试题全解析-小林面试笔记</a> — 面试八股侧；本文补上"面试官真正想听的评测闭环"</li>
+<li><a class="wl" href="../../../notes/clippings/bilibili/2026-08-20-ai-agent.html">Clippings/Bilibili/2026-08-20-AI-Agent面试复盘-从框架到可靠系统</a> — 从"能跑"到"可靠"的面试复盘</li>
+<li><a class="wl" href="../../../notes/clippings/p44a38b/2026-08-19-agent.html">Clippings/微信公众号/2026-08-19-Agent上限不在模型而在团队知识-腾讯程序员</a> — 团队知识是上限：本文 Rubric / judge 就是"把判断标准变成资产"</li>
+<li><a class="wl" href="../../../notes/clippings/p44a38b/2026-08-26-anthropic-ai-native-sdlc-playbook.html">Clippings/微信公众号/2026-08-26-Anthropic-AI-Native-SDLC-Playbook</a> — AI Native 研发流程里，评测同样是回流环节</li>
+<li><a class="wl" href="../../../notes/clippings/bilibili/2026-07-31-ovo.html">Clippings/Bilibili/2026-07-31-从第一性原理速通大厂技术岗实习-花绿青ovo</a> — 求职方法论对照</li>
+<li><a class="wl" href="../../../notes/clippings/pae26bb/2026-07-31-28javaagent.html">Clippings/小红书/2026-07-31-28届个人Java+Agent学习路线-小红书</a> — 28 届路线里的"Agent 项目 7 设计点（循环/记忆/上下文/Trace/<strong>评测</strong>）"</li>
+<li><a class="wl" href="../../../notes/clippings/pae26bb/2026-08-03.html">Clippings/小红书/2026-08-03-果然能找到好工作的计算机生都是狠角色-小红书</a> — 求职心态/路径侧</li>
+</ul>
+<p><strong>参数与训练细节</strong></p>
+<ul>
+<li><a class="wl" href="../../../notes/clippings/p44a38b/2026-07-31-topp-topk.html">Clippings/微信公众号/2026-07-31-大模型采样参数全解析-温度值TopP-TopK-小林面试笔记</a> — 本文 LLM Judge 调的超参（温度 / top k / top p）的机制解释</li>
+<li><a class="wl" href="../../../notes/clippings/p44a38b/2026-09-01-rag.html">Clippings/微信公众号/2026-09-01-RAG核心知识全解析（范式演进）</a> — Prompt 阶段"经典手法"中 RAG 那条线的全景</li>
+</ul>
+<p><strong>路线与导航</strong></p>
+<ul>
+<li><a class="wl" href="../../../notes/domains/aiagent2026.html">领域/AI Agent 智能体学习路线 2026</a> — 路线图（评测这块由本文补齐）</li>
+<li><a class="wl" href="../../../notes/domains/javaagent2026.html">领域/Java后端+Agent开发学习路线 2026</a> — Java 后端 + Agent 双线定位</li>
+<li><a class="wl" href="../../../notes/domains/2026.html">领域/2026暑假手账</a> — 全库导航</li>
+</ul>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">内容剪藏</span><span class="chip">Datawhale</span><span class="chip">Agent开发</span><span class="chip">Agent算法</span><span class="chip">Benchmark</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/Clippings/%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7/2026-09-21-%E4%BB%8EAgent%E5%BC%80%E5%8F%91%E5%88%B0Agent%E7%AE%97%E6%B3%95-%E8%BF%9B%E9%98%B6%E6%8C%87%E5%8D%97%E6%9D%A5%E4%BA%86-Datawhale.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../notes/clippings/p44a38b/2026-09-13-codex-harness-coding.html"><span class="dir">← 上一篇</span><span class="t">Codex Harness 架构拆解</span></a><a class="next" href="../../../notes/clippings/p44a38b/2026-09-22-agentrag-datawhale.html"><span class="dir">下一篇 →</span><span class="t">Agent 时代，RAG 怎么选？这份指南一次讲清</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../index.html">首页</a>
+      <a href="../../../learn.html">课件</a>
+      <a href="../../../notes/index.html">笔记库</a>
+      <a href="../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../about.html">关于</a>
+      <a href="../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../js/main.js" defer></script>
+</body>
+</html>

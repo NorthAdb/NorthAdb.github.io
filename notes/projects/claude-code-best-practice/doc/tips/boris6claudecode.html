@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>从Opus 4.7中获得更多价值的6个技巧——来自Boris Cherny（中文翻译） · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="中文翻译自 tips/claude-boris-6-tips-16-apr-26.mdhttps://github.com/shanraisshan/claude-code-best-practice/blob/main/tips/clau…">
+<link rel="canonical" href="https://northadb.github.io/notes/projects/claude-code-best-practice/doc/tips/boris6claudecode.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="从Opus 4.7中获得更多价值的6个技巧——来自Boris Cherny（中文翻译） · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="中文翻译自 tips/claude-boris-6-tips-16-apr-26.mdhttps://github.com/shanraisshan/claude-code-best-practice/blob/main/tips/clau…">
+<meta property="og:url" content="https://northadb.github.io/notes/projects/claude-code-best-practice/doc/tips/boris6claudecode.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="从Opus 4.7中获得更多价值的6个技巧——来自Boris Cherny（中文翻译） · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="中文翻译自 tips/claude-boris-6-tips-16-apr-26.mdhttps://github.com/shanraisshan/claude-code-best-practice/blob/main/tips/clau…">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../../../feed.xml">
+<link rel="stylesheet" href="../../../../../css/style.css">
+<link rel="stylesheet" href="../../../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "从Opus 4.7中获得更多价值的6个技巧——来自Boris Cherny（中文翻译）", "description": "中文翻译自 tips/claude-boris-6-tips-16-apr-26.mdhttps://github.com/shanraisshan/claude-code-best-practice/blob/main/tips/clau…", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/projects/claude-code-best-practice/doc/tips/boris6claudecode.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../../../index.html">首页</a><span>/</span><a href="../../../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../../../notes/projects/index.html">项目笔记</a></div>
+          <h1>从Opus 4.7中获得更多价值的6个技巧——来自Boris Cherny（中文翻译）</h1>
+          <p class="post-sub">中文翻译自 tips/claude-boris-6-tips-16-apr-26.mdhttps://github.com/shanraisshan/claude-code-best-practice/blob/main/tips/clau…</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../../../notes/projects/index.html">项目笔记</a></span><span class="sep"></span>
+            <span>阅读约 4 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p>中文翻译自 <a href="https://github.com/shanraisshan/claude-code-best-practice/blob/main/tips/claude-boris-6-tips-16-apr-26.md">tips/claude-boris-6-tips-16-apr-26.md</a></p>
+</blockquote>
+<p>Claude Code创建者Boris Cherny（<a href="https://x.com/bcherny">@bcherny</a>）于2026年4月16日分享的一系列技巧——在亲身使用了Opus 4.7几周之后。</p>
+<table width="100%">
+<tr>
+<td><a href="https://github.com/NorthAdb/north-my-note/tree/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc">← 返回 Claude Code 最佳实践</a></td>
+<td align="right"><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/%21/claude-jumping.svg" alt="Claude" width="60" /></td>
+</tr>
+</table>
+
+<hr>
+<h2 id="背景">背景</h2>
+<p>在亲身使用Opus 4.7几周后，Boris感觉"生产力爆棚"，并分享了从新模型中获得更多价值的六种方式——从权限自动化到精力调节再到验证模式。</p>
+<p><a href="https://x.com/bcherny"><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/boris-26-4-16/0.png" alt="Boris Cherny 介绍推文——亲身使用Opus 4.7" width="50%" /></a></p>
+<hr>
+<h2 id="1-自动模式不再有权限提示">1/ 自动模式——不再有权限提示</h2>
+<p>Opus 4.7喜欢执行复杂、长时间运行的任务：深度研究、重构代码、构建复杂功能、迭代直到达到性能基准。过去，你要么需要在模型执行这类长任务时"保姆式"照看，要么使用 <code>--dangerously-skip-permissions</code>。</p>
+<p>Anthropic最近推出了<strong>自动模式</strong>作为更安全的替代方案。在此模式下，权限提示被路由到基于模型的分类器，由它决定命令是否安全运行：</p>
+<ul>
+<li>如果安全，自动批准</li>
+<li>如果有风险，暂停并询问</li>
+</ul>
+<p>这意味着模型运行时不再需要照看。更重要的是，这意味着你可以并行运行更多Claude——如果安全，你可以将注意力切换到下一个Claude。</p>
+<p>自动模式现在可供Max、Teams和企业用户用于Opus 4.7。在CLI中按 <strong>Shift+Tab</strong> 在 <code>Ask permissions</code> → <code>Plan mode</code> → <code>Auto mode</code> 之间切换，或在桌面版或VS Code的下拉菜单中选择。</p>
+<p><a href="https://x.com/bcherny"><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/boris-26-4-16/1.png" alt="Boris Cherny 关于自动模式" width="50%" /></a></p>
+<hr>
+<h2 id="2-新的-fewer-permission-prompts-技能">2/ 新的 /fewer-permission-prompts 技能</h2>
+<p>Anthropic发布了一个新的 <code>/fewer-permission-prompts</code> 技能。它会扫描你的会话历史，找出那些安全但反复提示权限的常见bash和MCP命令。然后它会推荐一个命令列表，供你添加到权限允许列表中。</p>
+<p>使用这个来优化你的权限设置，避免不必要的权限提示，尤其是如果你不使用自动模式的话。</p>
+<p><a href="https://x.com/bcherny"><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/boris-26-4-16/2.png" alt="Boris Cherny 关于 /fewer-permission-prompts 技能" width="50%" /></a></p>
+<hr>
+<h2 id="3-回顾recaps">3/ 回顾（Recaps）</h2>
+<p>Anthropic本周早些时候推出了<strong>回顾</strong>功能，为Opus 4.7做准备。回顾是代理做了什么以及下一步做什么的简短摘要。</p>
+<p>当几分钟或几小时后返回到一个长时间运行的会话时非常有用：</p>
+<pre><code>* 思考了 6m 27s
+
+* 回顾：修复提交后转录偏移bug。样式闪烁
+  部分已作为PR #29869提交（自动合并已开启，已发布到stamps）。下一步：
+  我需要一个 `cc -c` 上剩余水平重排问题的屏幕录制，
+  以针对那个单独的原因进行处理。（在 /config 中禁用回顾）
+</code></pre>
+<p>如果你不需要回顾，可以在 <code>/config</code> 中禁用。</p>
+<p><a href="https://x.com/bcherny"><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/boris-26-4-16/3.png" alt="Boris Cherny 关于回顾" width="50%" /></a></p>
+<hr>
+<h2 id="4-专注模式">4/ 专注模式</h2>
+<p>Boris非常喜欢CLI中新的<strong>专注模式</strong>，它隐藏所有中间工作，只关注最终结果。模型已经达到了他通常可以信任它执行正确命令和做出正确编辑的程度。他只看最终结果。</p>
+<p>使用 <code>/focus</code> 切换开关。</p>
+<p><a href="https://x.com/bcherny"><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/boris-26-4-16/4.png" alt="Boris Cherny 关于专注模式" width="50%" /></a></p>
+<hr>
+<h2 id="5-配置你的effort精力级别">5/ 配置你的Effort（精力）级别</h2>
+<p>Opus 4.7使用<strong>自适应思考</strong>而不是固定的思考预算。要调整模型思考更多或更少，调节effort即可。</p>
+<ul>
+<li><strong>较低的effort</strong> —— 更快的响应和更低的token使用量</li>
+<li><strong>较高的effort</strong> —— 最高的智能和能力</li>
+</ul>
+<p>滑块提供五个级别：<code>low</code> · <code>medium</code> · <code>high</code> · <code>xhigh</code> · <code>max</code> —— 左边是速度，右边是智能。</p>
+<p><a href="https://x.com/bcherny"><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/boris-26-4-16/5.png" alt="Boris Cherny 关于精力级别" width="50%" /></a></p>
+<hr>
+<h2 id="6-给claude一种验证其工作的方法">6/ 给Claude一种验证其工作的方法</h2>
+<p>最后，确保Claude有一种验证其工作的方法。这一点一直很重要——现在4.7的输出质量是之前的2-3倍，所以比以往任何时候都更重要。</p>
+<p>验证因任务而异：</p>
+<ul>
+<li><strong>后端工作</strong> —— 让Claude运行你的服务器/服务以进行端到端测试</li>
+<li><strong>前端工作</strong> —— 使用 <a href="https://code.claude.com/docs/en/chrome">Claude Chromium扩展</a> 让Claude控制你的浏览器</li>
+<li><strong>桌面应用</strong> —— 使用Computer Use</li>
+</ul>
+<p>Boris现在的提示词通常像 <code>Claude do blah blah /go</code>，其中 <code>/go</code> 是一个技能，它：</p>
+<ol>
+<li>使用bash、浏览器或computer use进行端到端自测</li>
+<li>运行 <code>/simplify</code></li>
+<li>提交一个PR</li>
+</ol>
+<p>对于长时间运行的工作，验证更加重要——当你回到任务时，你知道代码是能用的。</p>
+<p><a href="https://x.com/bcherny"><img src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/assets/boris-26-4-16/6.png" alt="Boris Cherny 关于验证" width="50%" /></a></p>
+<hr>
+<h2 id="来源">来源</h2>
+<ul>
+<li><a href="https://x.com/bcherny">Boris Cherny (@bcherny) on X — April 16, 2026</a></li>
+</ul>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">项目笔记</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/tips/Boris%E7%9A%846%E4%B8%AAClaudeCode%E6%8A%80%E5%B7%A7.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../../../notes/projects/claude-code-best-practice/doc/tips/boris2claudecode-0325.html"><span class="dir">← 上一篇</span><span class="t">Squash合并与PR大小分布——来自Boris Cherny的技巧（中文翻译）</span></a><a class="next" href="../../../../../notes/projects/claude-code-best-practice/doc/tips/thariqclaudecode-0317.html"><span class="dir">下一篇 →</span><span class="t">构建Claude Code的经验教训：我们如何使用技能——Thariq（中文翻译）</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../../../index.html">首页</a>
+      <a href="../../../../../learn.html">课件</a>
+      <a href="../../../../../notes/index.html">笔记库</a>
+      <a href="../../../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../../../about.html">关于</a>
+      <a href="../../../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../../../js/main.js" defer></script>
+</body>
+</html>

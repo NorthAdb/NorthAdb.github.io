@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>后记 回到 Agent = LLM + 上下文 + 工具 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="本书开篇提出了一个公式：Agent = LLM + 上下文 + 工具。全书十章，都在这三个词里展开。">
+<link rel="canonical" href="https://northadb.github.io/notes/projects/ai-agents-in-depth-md/agentllm/agentllm.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="后记 回到 Agent = LLM + 上下文 + 工具 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="本书开篇提出了一个公式：Agent = LLM + 上下文 + 工具。全书十章，都在这三个词里展开。">
+<meta property="og:url" content="https://northadb.github.io/notes/projects/ai-agents-in-depth-md/agentllm/agentllm.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="后记 回到 Agent = LLM + 上下文 + 工具 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="本书开篇提出了一个公式：Agent = LLM + 上下文 + 工具。全书十章，都在这三个词里展开。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../../feed.xml">
+<link rel="stylesheet" href="../../../../css/style.css">
+<link rel="stylesheet" href="../../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "后记 回到 Agent = LLM + 上下文 + 工具", "description": "本书开篇提出了一个公式：Agent = LLM + 上下文 + 工具。全书十章，都在这三个词里展开。", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/projects/ai-agents-in-depth-md/agentllm/agentllm.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../../index.html">首页</a><span>/</span><a href="../../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../../notes/projects/index.html">项目笔记</a></div>
+          <h1>后记 回到 Agent = LLM + 上下文 + 工具</h1>
+          <p class="post-sub">本书开篇提出了一个公式：Agent = LLM + 上下文 + 工具。全书十章，都在这三个词里展开。</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../../notes/projects/index.html">项目笔记</a></span><span class="sep"></span>
+            <span>阅读约 7 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<h2 id="后记回到-agent-llm-上下文-工具">后记：回到 Agent = LLM + 上下文 + 工具</h2>
+<p>本书开篇提出了一个公式：Agent = LLM + 上下文 + 工具。全书十章，都在这三个词里展开。</p>
+<p>第一章建立公式的三层理解——实现层、直觉层、学术层，并给出从工作流到自主 Agent 的编排光谱。随后的章节沿“构建—评估与进化—协作”逐步展开。</p>
+<p>构建 Agent（第二至六章）。上下文工程决定 Agent 在一次任务中看到什么，记忆与知识库把信息扩展到多次会话；工具定义它能做什么，代码生成则提供创造新工具与新系统的元能力；交互一章再把观察与动作空间从文本回合制推向语音、GUI 与物理世界。</p>
+<p>评估与进化（第七至九章）。评估把表现变成可信信号，后训练把高维能力写入模型参数，持续进化再把生产经验转化为知识、指令、程序或参数的受控更新。</p>
+<p>协作（第十章）。多 Agent 协作进一步改变上下文、工具与责任的组织方式。</p>
+<p>这三个层次并不是相互独立的书架。第九章尤其依赖前文的全部基础：没有轨迹和知识系统，经验无处保存；没有代码能力，Agent 无法修改工具与 Harness；没有评估，系统更无法判断一次修改究竟是进步还是退化。它由此成为全书从“怎样构建 Agent”转向“怎样让 Agent 长期变好”的汇合点。</p>
+<h2 id="两朵乌云">两朵乌云</h2>
+<p>1900 年，开尔文说物理学晴朗的天空上还飘着两朵乌云——后来，一朵变成了相对论，另一朵变成了量子力学。今天 Agent 的天空同样称不上晴朗，我也看到两朵乌云。</p>
+<p>第一朵乌云，是 Agent 如何流式地、实时地与环境交互。今天绝大多数 Agent 仍是按轮次（turn-by-turn）的“请求—应答”模式：你说完一句，它想一整段，再一次性吐出结果。但真实世界不会停下来等它想完——话会被打断，画面在持续变化，邮件在不断到达。一个真正“活着”的 Agent，应该能边听边想、边说边想，能在你话说到一半时就开始规划，也能在没人吩咐时主动发现“这封邮件该处理了”。走向这种实时性有两条路，往往并行推进：一是架构上做快慢分离——实时与智能几乎是两条正交的轴，单一模型难以兼顾，于是让前台快模型维持对话节奏、后台慢模型负责深度思考；二是把推理本身做快——当 decode 速度足够高，按轮次的等待就短到近乎消失，turn-by-turn与“实时”的界限也随之模糊。这条路正被芯片与推理引擎快速推进：小米 MiMo 已让一个 1T 参数模型在单个 8 卡节点上把生成速度推过 1000 token/s<sup>17</sup>，而把整个模型直接固化进芯片的专用方案（如 Taalas HC1）更是把 80 亿参数模型推到约 17000 token/s、响应低于 100 毫秒<sup>18</sup>。当模型每秒能吐出上千个字，“想完再说”和“边想边说”的体验差距就被抹平了。</p>
+<p>第二朵乌云，是 Agent 如何像人一样，从与环境交互的成功与失败中持续积累经验。今天的模型更像一个记性极好、却学不会新东西的天才：训练时把人类知识背得滚瓜烂熟，上岗后却几乎不再成长——每次任务结束，那些踩过的坑、试出来的窍门，大多随着上下文一起被丢掉。这究竟是不是一个真问题，取决于两种针锋相对的假设。</p>
+<p>一种是 “小世界假设”：一个足够大的模型——比如几万亿参数——本就装得下物理世界里几乎所有重要的通用知识，学一次就够。持这种看法的人（不乏 OpenAI、Anthropic 的研究者）会指出，AI 今天唯独在编程上最强，并不是因为代码对模型有什么特殊，而是因为编程是人类最开放的领域：海量开源代码摆在那里，可供学习；而绝大多数行业压根没有公开的信息与数据。于是前沿实验室真正在做的，是一家家去与各行各业合作，把各自的专业能力“蒸馏”进同一个大模型。按这种观点，瓶颈既不在模型的容量、也不在它学不学得会，而在数据够不够。把数据喂进去、训练一次，问题就解决了。</p>
+<p>但 “大世界假设”指向了单靠“训练一次”补不上的一层：属于某个具体用户、某家具体公司的知识。特定公司的代码规范、做 PPT 的口味、某个客户特有的脾气不在任何训练语料里，而且时时在变；要贴合这个由无数具体情境拼成的“大世界”，模型只能在上岗之后持续学习，没法指望出厂时一次配齐。这正是第三章的记忆与第九章的持续进化在摸索的方向：把经验写成知识文档、指令或程序，还是经过筛选后用于更新模型参数？更进一步，“RSI”（递归自我进化）和“AI for Science”都在推动 Agent 走到没有现成答案的前沿；在那里，它只能从一次次实验的成败中自主学习，而不是事事回头问人。所以，模型最强的能力，终将不是记住，而是学习与适应。</p>
+<p>这两朵乌云，都不是靠某一次模型升级就能凭空吹散的。要理解它们最终会怎样被跨越，得先看清一件事：模型和 Agent，从来不是上下游，而是一起往前走的。</p>
+<h2 id="模型与-agent-的共同演进">模型与 Agent 的共同演进</h2>
+<p>回头看那些 harness 里层层叠叠的兜底逻辑——多级上下文压缩、失败数千次才熔断的重试、悲观地默认“不安全”的权限判断——每一段看似丑陋的“屎山”，记录的都是模型此刻还做不稳的地方。当下一代模型把这些约束内化，对应的代码就可以删掉；而模型之所以能内化，又正是因为 Agent 早已在真实业务里替它把这些坑趟了一遍，沉淀成了下一轮训练的信号。用户提出真实的难题，应用层用 harness 把模型暂时做不好的事补上，这些补救再反过来变成模型下一次迭代的训练信号。这是一个自我强化的飞轮。</p>
+<p>这个飞轮，也回答了第一章悬下的那个问题：模型会不会最终吃掉 Harness？本书的观点是：会，但不是一次性吃掉，而是一层一层地吃，并且没有吃完的那一天。模型每稳定内化一种能力，对应的 Harness 层就可以删掉—第六章的交互模型就是这样一个例子：打断、插话这些曾经要靠外挂 harness 才能拼出的行为，如今被直接做进了模型内部。但这个“吃”永远不会完结。一是训练以月计，模型等得起，业务等不起；二是模型无法内化真实业务中所有的约束与偏好，总有一层最新的边界需要外部逻辑兜底；三是每一代模型都会打开新的能力前沿，而前沿处恰恰是模型最做不稳的地方。所以 Harness 不会消失，它只是随着模型，不断向新的前沿迁移。这也正是《苦涩的教训》在 Agent 时代的读法：通用方法终将胜出，但“终将”二字里的每一段路，都是 Harness 铺出来的。</p>
+<p>而飞轮转得最快的地方，是同时握住两端的人。Anthropic 用 Claude Code 做的，正是让自家模型和自家harness 互相喂养、共同进化：模型知道 harness 会怎样调用它，harness 也清楚模型的边界在哪，两端的每一次改动都能立刻反馈给对方。曾有人做过一个实验，不换模型、只改 harness，任务准确率就从 52.8% 跳到 66.5%。这既说明 harness 今天的杠杆有多大，也提醒你：它之所以有这么大杠杆，恰恰是因为模型还没走到那一步。也正因如此，这条飞轮本身，就是这个时代最深的一条护城河：真实业务、反馈数据与模型迭代咬合得越紧，别人越难从外部追上。</p>
+<p>这对你意味着什么，取决于你站在飞轮的哪一端。如果你在造模型，护城河就是把这条飞轮转起来——让真实场景的反馈尽快回流到训练里。如果你在模型之上造应用，harness 是你短期最锋利的技术杠杆，但要清醒：模型每内化一层约束，就会顺手抹平一批只靠 harness 建立的优势。应用层真正长久的护城河，往往在技术之外——独占的数据、稳固的渠道、用户的信任、网络效应，以及必须由人与 Agent 协作的物理世界场景等。把 harness 用来争取时间，把这段时间用来构筑技术之外的壁垒，才是稳妥的打法。</p>
+<p>所以，不必焦虑手里的框架会不会过时。模型每几个月迭代一次，具体的 API、产品和榜单都会翻篇，但“看到什么、能做什么、如何验证做得对不对”这三个问题不会过时——它们描述的不是某个模型的用法，而是一个智能系统与世界交互的基本方式。掌握了它们，无论下一代模型带来什么新能力，你都知道该把它放进公式的哪个位置，也能一眼看出，它离吹散那两朵乌云还有多远。</p>
+<p>Agent 技术仍在飞速演进，一本书追不上所有变化。但如果这本书让你带走的不是某个 API 的具体用法，而是一套能在技术浪潮里保持清醒的判断力，那它就完成了使命。本书全部正文、配图与配套实验代码都是开源的，欢迎你去仓库里把实验亲手跑一遍、提 issue 和 PR。而 Agent 最迷人的地方，正在于它能通过写代码创造新的能力，甚至改进自己；读到这里，你已经握住了“创造”的原则。接下来，去造点什么吧。</p>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">项目笔记</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/AI-Agents-in-Depth-md/%E5%90%8E%E8%AE%B0%20%E5%9B%9E%E5%88%B0%20Agent%20%3D%20LLM%20%2B%20%E4%B8%8A%E4%B8%8B%E6%96%87%20%2B%20%E5%B7%A5%E5%85%B7/%E5%90%8E%E8%AE%B0%20%E5%9B%9E%E5%88%B0%20Agent%20%3D%20LLM%20%2B%20%E4%B8%8A%E4%B8%8B%E6%96%87%20%2B%20%E5%B7%A5%E5%85%B7.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../../notes/projects/ai-agents-in-depth-md/ai-agents-in-depth-md.html"><span class="dir">← 上一篇</span><span class="t">AI Agents in Depth（深入理解 AI Agent）· 整理版</span></a><a class="next" href="../../../../notes/projects/ai-agents-in-depth-md/01aiagent/01aiagent.html"><span class="dir">下一篇 →</span><span class="t">第一次迭代 - LLM 看到上述轨迹, 生成响应</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../../index.html">首页</a>
+      <a href="../../../../learn.html">课件</a>
+      <a href="../../../../notes/index.html">笔记库</a>
+      <a href="../../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../../about.html">关于</a>
+      <a href="../../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../../js/main.js" defer></script>
+</body>
+</html>

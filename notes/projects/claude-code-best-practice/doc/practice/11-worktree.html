@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Worktree（工作树）最佳实践 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="翻译整理自 https://code.claude.com/docs/zh-CN/worktrees 学习顺序：第 11 篇 官方文档：Worktrees - 并行会话https://code.claude.com/docs/zh-CN/w…">
+<link rel="canonical" href="https://northadb.github.io/notes/projects/claude-code-best-practice/doc/practice/11-worktree.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Worktree（工作树）最佳实践 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="翻译整理自 https://code.claude.com/docs/zh-CN/worktrees 学习顺序：第 11 篇 官方文档：Worktrees - 并行会话https://code.claude.com/docs/zh-CN/w…">
+<meta property="og:url" content="https://northadb.github.io/notes/projects/claude-code-best-practice/doc/practice/11-worktree.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Worktree（工作树）最佳实践 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="翻译整理自 https://code.claude.com/docs/zh-CN/worktrees 学习顺序：第 11 篇 官方文档：Worktrees - 并行会话https://code.claude.com/docs/zh-CN/w…">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../../../feed.xml">
+<link rel="stylesheet" href="../../../../../css/style.css">
+<link rel="stylesheet" href="../../../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Worktree（工作树）最佳实践", "description": "翻译整理自 https://code.claude.com/docs/zh-CN/worktrees 学习顺序：第 11 篇 官方文档：Worktrees - 并行会话https://code.claude.com/docs/zh-CN/w…", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/projects/claude-code-best-practice/doc/practice/11-worktree.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../../../index.html">首页</a><span>/</span><a href="../../../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../../../notes/projects/index.html">项目笔记</a></div>
+          <h1>Worktree（工作树）最佳实践</h1>
+          <p class="post-sub">翻译整理自 https://code.claude.com/docs/zh-CN/worktrees 学习顺序：第 11 篇 官方文档：Worktrees - 并行会话https://code.claude.com/docs/zh-CN/w…</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../../../notes/projects/index.html">项目笔记</a></span><span class="sep"></span>
+            <span>阅读约 5 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p>翻译整理自 <code>https://code.claude.com/docs/zh-CN/worktrees</code>
+学习顺序：第 11 篇
+官方文档：<a href="https://code.claude.com/docs/zh-CN/worktrees">Worktrees - 并行会话</a></p>
+</blockquote>
+<hr>
+<h2 id="什么是-worktree">什么是 Worktree？</h2>
+<p><strong>Worktree（工作树）</strong>是 Git 的一个功能：它在同一个仓库中创建<strong>多个独立的工作目录</strong>，每个目录有自己的文件和分支，但共享相同的 <code>.git</code> 提交历史。</p>
+<p>用"<strong>分身术</strong>"来理解：</p>
+<pre><code>┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│  主工作区        │    │  worktree A       │    │  worktree B       │
+│  main 分支       │    │  feature-auth     │    │  bugfix-123       │
+│                  │    │                  │    │                  │
+│  D:\project\     │    │  D:\project\     │    │  D:\project\     │
+│                  │    │  .claude\        │    │  .claude\        │
+│                  │    │  worktrees\auth\ │    │  worktrees\bug\  │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                       │                       │
+         └─────────── 共享 .git ────────────────────────┘
+</code></pre>
+<p><strong>在 Claude Code 的场景下</strong>：Worktree 让你可以同时运行多个并行会话，每个会话编辑不同的文件而互不干扰。</p>
+<hr>
+<h2 id="worktree-解决了什么问题">Worktree 解决了什么问题？</h2>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>没有 Worktree</th>
+<th>有 Worktree</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>并行任务</strong></td>
+<td>一个 Claude 在改 A 文件，另一个也改 A 文件 → 冲突</td>
+<td>互不干扰</td>
+</tr>
+<tr>
+<td><strong>上下文隔离</strong></td>
+<td>一个会话里塞了太多任务 → 混淆</td>
+<td>每个 worktree 是干净的 git 状态</td>
+</tr>
+<tr>
+<td><strong>实验性修改</strong></td>
+<td>不敢让 Claude 大改，怕搞乱工作区</td>
+<td>放心改，worktree 删了也不影响主工作区</td>
+</tr>
+<tr>
+<td><strong>多人协作</strong></td>
+<td>一个 Claude 在写文档，另一个在重构代码 → 互相打断</td>
+<td>各干各的</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="使用方式">使用方式</h2>
+<h3 id="方式一cli-启动-worktree">方式一：CLI 启动 worktree</h3>
+<pre><code class="language-bash"># 创建 worktree 并在其中启动 Claude（会在 .claude/worktrees/feature-auth/ 创建）
+claude --worktree feature-auth
+
+# 简写 -w
+claude -w feature-auth
+
+# 省略名称 → Claude 自动生成（如 bright-running-fox）
+claude --worktree
+</code></pre>
+<p>打开另一个终端，用不同的名称即可并行运行：</p>
+<pre><code class="language-bash"># 终端 1：构建功能
+claude --worktree feature-auth
+
+# 终端 2：修 Bug  
+claude --worktree bugfix-123
+</code></pre>
+<h3 id="方式二会话中进入-worktree">方式二：会话中进入 worktree</h3>
+<p>在 Claude 会话中告诉它 <strong>"在 worktree 中工作"</strong>，它会使用 <code>EnterWorktree</code> 工具进入。进入后还可以直接切换到 <code>.claude/worktrees/</code> 下的另一个 worktree（之前的保留在磁盘上）。</p>
+<p>在桌面应用中，每个新会话会自动创建一个 worktree。</p>
+<hr>
+<h2 id="选择基础分支">选择基础分支</h2>
+<h3 id="默认行为从远程默认分支">默认行为：从远程默认分支</h3>
+<pre><code class="language-bash">claude --worktree feature-auth
+</code></pre>
+<p>↑ 从 <code>origin/HEAD</code>（远程默认分支）分出一个干净的 worktree。</p>
+<h3 id="从本地-head-分支">从本地 HEAD 分支</h3>
+<p>如果希望 worktree <strong>携带你还没推送的本地更改</strong>（比如在已有功能分支上 work）：</p>
+<pre><code class="language-json">// .claude/settings.json
+{
+  &quot;worktree&quot;: {
+    &quot;baseRef&quot;: &quot;head&quot;
+  }
+}
+</code></pre>
+<p>这样 worktree 从当前的 <code>HEAD</code> 分支，而不是远程默认分支。</p>
+<h3 id="从-pr-分支">从 PR 分支</h3>
+<pre><code class="language-bash"># 按 PR 编号
+claude --worktree &quot;#1234&quot;
+
+# 或用完整的 PR URL
+claude --worktree &quot;https://github.com/owner/repo/pull/1234&quot;
+</code></pre>
+<p>↑ 从 <code>origin</code> 拉取 PR 内容，在 <code>.claude/worktrees/pr-1234/</code> 创建 worktree。</p>
+<hr>
+<h2 id="worktreeinclude复制-gitignored-文件">.worktreeinclude：复制 gitignored 文件</h2>
+<p>Worktree 是一个<strong>全新的检出</strong>，所以主仓库里的 <code>.env</code>、<code>.env.local</code> 等 gitignored 文件不存在。需要一个专门的配置文件来告诉 Claude 自动复制它们。</p>
+<p>在项目<strong>根目录</strong>创建 <code>.worktreeinclude</code> 文件：</p>
+<pre><code class="language-text"># .worktreeinclude — 使用 .gitignore 语法
+.env
+.env.local
+config/secrets.json
+node_modules/.cache
+</code></pre>
+<p><strong>关键规则：</strong>
+- 使用 <code>.gitignore</code> 语法
+- <strong>只有被 gitignore 的文件才会被复制</strong>（已跟踪的文件永不重复）
+- 适用于 <code>--worktree</code>、子代理 worktrees、桌面应用并行会话</p>
+<hr>
+<h2 id="子代理隔离isolation-worktree">子代理隔离：<code>isolation: worktree</code></h2>
+<p>上一章（第 2 篇）讲过 Subagent 的 <code>isolation</code> 字段。<code>isolation: worktree</code> 让 Subagent 在自己的临时 worktree 中运行：</p>
+<pre><code class="language-yaml"># .claude/agents/safe-refactorer.md
+---
+name: safe-refactorer
+description: 重构代码，但不影响主工作区
+isolation: worktree
+---
+重构 src/ 下的代码，保持 API 不变。
+</code></pre>
+<p><strong>效果：</strong> 多个 Subagent 可以同时修改同一文件的不同版本，互不污染。</p>
+<pre><code class="language-yaml"># .claude/agents/code-writer-a.md
+---
+name: feature-writer
+isolation: worktree
+---
+# 实现用户认证功能
+
+# .claude/agents/code-writer-b.md
+---
+name: bug-fixer
+isolation: worktree
+---
+# 修复支付模块的边界条件
+</code></pre>
+<p><strong>注意：</strong> 子代理 worktrees 使用与 <code>--worktree</code> 相同的基础分支规则（<code>worktree.baseRef</code>），默认从远程默认分支分叉。</p>
+<hr>
+<h2 id="worktree-清理策略">Worktree 清理策略</h2>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>无未提交更改 + 无新提交</strong></td>
+<td>worktree 和分支自动删除</td>
+</tr>
+<tr>
+<td><strong>存在未提交更改 / 未跟踪文件 / 新提交</strong></td>
+<td>Claude 提示："保留还是删除？"</td>
+</tr>
+<tr>
+<td><strong>非交互式运行（<code>-p</code>）</strong></td>
+<td>不自动清理，需手动 <code>git worktree remove</code></td>
+</tr>
+<tr>
+<td><strong>子代理 worktree（无更改）</strong></td>
+<td>完成后自动删除</td>
+</tr>
+<tr>
+<td><strong>超过 <code>cleanupPeriodDays</code></strong></td>
+<td>无更改/未推送的 worktree 会被自动扫描删除</td>
+</tr>
+<tr>
+<td><strong><code>--worktree</code> 创建的</strong></td>
+<td>永远不会被自动扫描删除</td>
+</tr>
+</tbody>
+</table>
+<p><strong>注意：</strong> 运行代理时，Claude 会在 worktree 上执行 <code>git worktree lock</code>，防止并发清理误删。代理完成后释放锁。</p>
+<hr>
+<h2 id="手动管理">手动管理</h2>
+<p>如果想完全控制 worktree 的位置和分支：</p>
+<pre><code class="language-bash"># 在新分支上创建 worktree
+git worktree add ../project-feature-a -b feature-a
+
+# 从现有分支创建 worktree
+git worktree add ../project-bugfix bugfix-123
+
+# 在 worktree 中启动 Claude
+cd ../project-bugfix &amp;&amp; claude
+
+# 列出所有 worktrees
+git worktree list
+
+# 删除 worktree
+git worktree remove ../project-feature-a
+</code></pre>
+<blockquote>
+<p><strong>注意：</strong> 在每个 worktree 中需要重新初始化开发环境——安装依赖、设置虚拟环境等。</p>
+</blockquote>
+<hr>
+<h2 id="非-git-版本控制">非 Git 版本控制</h2>
+<p>对于 SVN、Perforce、Mercurial 等，需要配置 <code>WorktreeCreate</code> 和 <code>WorktreeRemove</code> hooks：</p>
+<pre><code class="language-json">{
+  &quot;hooks&quot;: {
+    &quot;WorktreeCreate&quot;: [
+      {
+        &quot;hooks&quot;: [
+          {
+            &quot;type&quot;: &quot;command&quot;,
+            &quot;command&quot;: &quot;bash -c 'NAME=$(jq -r .name); DIR=\&quot;$HOME/.claude/worktrees/$NAME\&quot;; svn checkout https://svn.example.com/repo/trunk \&quot;$DIR\&quot; &gt;&amp;2 &amp;&amp; echo \&quot;$DIR\&quot;'&quot;
+          }
+        ]
+      }
+    ]
+  }
+}
+</code></pre>
+<blockquote>
+<p><strong>注意：</strong> 使用 hook 时，<code>.worktreeinclude</code> 不会自动处理。需要在 hook 脚本中自行复制配置文件。</p>
+</blockquote>
+<hr>
+<h2 id="最佳实践总结">最佳实践总结</h2>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>建议</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>并行功能开发</strong></td>
+<td>每个功能一个 <code>claude --worktree &lt;功能名&gt;</code></td>
+</tr>
+<tr>
+<td><strong>同时修 Bug</strong></td>
+<td>每个 Bug 一个 <code>claude --worktree bug-编号</code></td>
+</tr>
+<tr>
+<td><strong>重构（怕搞乱）</strong></td>
+<td>Subagent 设置 <code>isolation: worktree</code></td>
+</tr>
+<tr>
+<td><strong>审查 PR</strong></td>
+<td><code>claude --worktree "#PR编号"</code></td>
+</tr>
+<tr>
+<td><strong>实验性修改</strong></td>
+<td>worktree 用完即删，主工作区不受影响</td>
+</tr>
+<tr>
+<td><strong>传敏感配置</strong></td>
+<td>项目根目录加 <code>.worktreeinclude</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="重要提醒">重要提醒</h3>
+<ol>
+<li><strong>先在目录中运行一次 <code>claude</code> 接受信任</strong> — <code>--worktree</code> 首次使用时需要信任确认</li>
+<li><strong>将 <code>.claude/worktrees/</code> 加入 <code>.gitignore</code></strong> — 防止 worktree 目录在主检出中显示为未跟踪文件</li>
+<li><strong>每个 worktree 需单独初始化环境</strong> — 不是共享 node_modules/ 的</li>
+<li><strong>使用 <code>git worktree lock</code> 保护运行中的 worktree</strong> — Claude 会自动做，手动管理时需要注意</li>
+</ol>
+<hr>
+<h2 id="与相关概念的对比">与相关概念的对比</h2>
+<table>
+<thead>
+<tr>
+<th>工具</th>
+<th>隔离什么？</th>
+<th>如何并行？</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Worktree</strong></td>
+<td>文件系统更改</td>
+<td>多个终端 + <code>--worktree</code></td>
+</tr>
+<tr>
+<td><strong>Subagent</strong></td>
+<td>上下文窗口</td>
+<td>在同一个会话中用 Agent 工具</td>
+</tr>
+<tr>
+<td><strong>Agent Teams</strong></td>
+<td>整个会话</td>
+<td>自动协调多个 Claude 会话</td>
+</tr>
+</tbody>
+</table>
+<p>三者可以配合使用：
+- Worktree 处理<strong>文件隔离</strong>
+- Subagent 处理<strong>任务委派</strong>
+- Agent Teams 处理<strong>会话协调</strong></p>
+<hr>
+<h2 id="关联文档">关联文档</h2>
+<table>
+<thead>
+<tr>
+<th>相关概念</th>
+<th>文档</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Subagent</td>
+<td><a href="../../../../../notes/projects/claude-code-best-practice/doc/practice/02-subagents.html"><code>02-子代理-subagents.md</code></a></td>
+<td><code>isolation: worktree</code> 字段详解</td>
+</tr>
+<tr>
+<td>Settings</td>
+<td><a href="../../../../../notes/projects/claude-code-best-practice/doc/practice/05-settings.html"><code>05-设置-settings.md</code></a></td>
+<td><code>worktree.baseRef</code> 等配置项</td>
+</tr>
+<tr>
+<td>CLI 启动参数</td>
+<td><a href="../../../../../notes/projects/claude-code-best-practice/doc/practice/08-cli-cli-startup-flags.html"><code>08-CLI启动参数-cli-startup-flags.md</code></a></td>
+<td><code>--worktree</code> / <code>-w</code> 参数</td>
+</tr>
+<tr>
+<td>实现参考</td>
+<td><a href="https://github.com/NorthAdb/north-my-note/tree/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/implementation"><code>../implementation/</code></a></td>
+<td>本仓库的 Worktree 实际配置</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<blockquote>
+<p>⏭️ 下一篇：你可以回到 <a href="../../../../../notes/projects/claude-code-best-practice/doc/practice/10.html">10-学习路径.md</a> 继续完整的学习路线</p>
+</blockquote>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">项目笔记</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/practice/11-Worktree-%E5%B7%A5%E4%BD%9C%E6%A0%91.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../../../notes/projects/claude-code-best-practice/doc/practice/10.html"><span class="dir">← 上一篇</span><span class="t">Claude Code 学习路径</span></a><a class="next" href="../../../../../notes/projects/claude-code-best-practice/doc/practice/mcpskill.html"><span class="dir">下一篇 →</span><span class="t">MCP 与 Skill：机制、安装、调用方式全面对比</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../../../index.html">首页</a>
+      <a href="../../../../../learn.html">课件</a>
+      <a href="../../../../../notes/index.html">笔记库</a>
+      <a href="../../../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../../../about.html">关于</a>
+      <a href="../../../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../../../js/main.js" defer></script>
+</body>
+</html>

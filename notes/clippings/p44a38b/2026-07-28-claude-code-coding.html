@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code 工程化六件套详解 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="作者：小林coding 来源：微信公众号 日期：2026-07-28">
+<link rel="canonical" href="https://northadb.github.io/notes/clippings/p44a38b/2026-07-28-claude-code-coding.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Claude Code 工程化六件套详解 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="作者：小林coding 来源：微信公众号 日期：2026-07-28">
+<meta property="og:url" content="https://northadb.github.io/notes/clippings/p44a38b/2026-07-28-claude-code-coding.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Claude Code 工程化六件套详解 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="作者：小林coding 来源：微信公众号 日期：2026-07-28">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../feed.xml">
+<link rel="stylesheet" href="../../../css/style.css">
+<link rel="stylesheet" href="../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Claude Code 工程化六件套详解", "description": "作者：小林coding 来源：微信公众号 日期：2026-07-28", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/clippings/p44a38b/2026-07-28-claude-code-coding.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../index.html">首页</a><span>/</span><a href="../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../notes/clippings/index.html">内容剪藏</a></div>
+          <h1>Claude Code 工程化六件套详解</h1>
+          <p class="post-sub">作者：小林coding 来源：微信公众号 日期：2026-07-28</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../notes/clippings/index.html">内容剪藏</a></span><span class="sep"></span>
+            <span>阅读约 7 分钟</span><span class="sep"></span><span>更新于 2026-07-28</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p><strong>作者</strong>：小林coding
+<strong>来源</strong>：微信公众号
+<strong>日期</strong>：2026-07-28</p>
+</blockquote>
+<p>!($baseUrl01-cover.png)</p>
+<hr>
+<h2 id="为什么需要工程化">为什么需要工程化</h2>
+<p>大部分人的 Claude Code 用法还停留在「打开终端，敲需求，等它干完」。每次开新会话，都要把项目背景重新交代一遍——用什么框架、构建命令是什么、哪些文件不能动。Claude Code 其实提供了六样东西来解决这些问题。</p>
+<p>Claude Code 的<strong>六件套</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>解决的问题</th>
+<th>对应的能力</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>每次会话都要重新交代项目背景</td>
+<td><strong>CLAUDE.md</strong></td>
+</tr>
+<tr>
+<td>专项知识和流程，用时才需要</td>
+<td><strong>Skills</strong></td>
+</tr>
+<tr>
+<td>中间过程太多，主对话被污染</td>
+<td><strong>Subagents</strong></td>
+</tr>
+<tr>
+<td>需要访问 GitHub、数据库等外部系统</td>
+<td><strong>MCP</strong></td>
+</tr>
+<tr>
+<td>规则必须百分百执行，不能靠自觉</td>
+<td><strong>Hooks</strong></td>
+</tr>
+<tr>
+<td>配置要跨项目复用、团队共享</td>
+<td><strong>Plugins</strong></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="01claudemd-项目记忆">01｜CLAUDE.md — 项目记忆</h2>
+<h3 id="为什么需要">为什么需要</h3>
+<p>大模型本身没有记忆，每次会话都是一张白纸。CLAUDE.md 相当于给新员工的<strong>入职手册</strong>——每次开新会话自动加载，塞进对话最前面。</p>
+<h3 id="存放层级">存放层级</h3>
+<p>!($baseUrl03-folder-structure.png)</p>
+<pre><code>~/.claude/
+└── CLAUDE.md          # 全局，所有项目都加载
+
+my-project/
+├── CLAUDE.md          # 项目级，启动就加载
+├── web/
+│   └── CLAUDE.md      # 动到 web 模块的文件才加载
+└── core/
+    └── CLAUDE.md      # 动到 core 模块才加载
+</code></pre>
+<ul>
+<li><strong>全局配置</strong> (<code>~/.claude/CLAUDE.md</code>)：个人偏好，如「回答用中文」「commit 信息别写太长」</li>
+<li><strong>项目根目录</strong>：技术栈、命令、规范</li>
+<li><strong>子目录</strong>：各模块独立规范，按需加载</li>
+</ul>
+<blockquote>
+<p>除了手写的 CLAUDE.md，Claude Code 还有自动记忆机制——会在干活过程中自己记下经验，存入记忆目录，下次会话自动想起。</p>
+</blockquote>
+<h3 id="写法要点">写法要点</h3>
+<p>!($baseUrl05-claudemd-example.png)</p>
+<pre><code class="language-markdown"># 项目说明
+Spring Boot 服务，JDK 8，禁止用高版本语法。
+
+## 常用命令
+- 单测：mvn test -pl web
+- 打包：mvn clean package -DskipTests
+
+## 铁律
+- core 模块是待下线的祖传代码，只读，不许改
+- 表结构变更必须走 Flyway，不许手写 ALTER TABLE
+</code></pre>
+<ul>
+<li>命令要写<strong>完整可复制执行</strong>的</li>
+<li>禁令要用<strong>绝对语气</strong>——「不许改」而非「尽量不要改」</li>
+<li>只放<strong>每次会话都用得上</strong>的信息，不要堆砌完整文档</li>
+<li>CLAUDE.md 是入职手册，不是公司图书馆</li>
+</ul>
+<hr>
+<h2 id="02skills-专项知识库">02｜Skills — 专项知识库</h2>
+<h3 id="设计思想">设计思想</h3>
+<p>!($baseUrl07-skills-concept.png)</p>
+<p>Skill 的核心在于<strong>拆两层加载</strong>：</p>
+<ul>
+<li><strong>启动时</strong>：只加载所有 Skill 的「一句话描述」（极低成本）</li>
+<li><strong>用时</strong>：任务匹配到描述后，才完整读取正文</li>
+</ul>
+<pre><code>code-review    审查代码改动时用，带团队检查清单
+deploy-check   上线发布前用，带发布步骤和回滚预案
+db-migrate     改表结构时用，带 Flyway 操作规范
+</code></pre>
+<p>三行描述几十个字，装二十个 Skill 常驻成本也就千把字，但每个 Skill 背后可以挂几千字的正文和参考文档。</p>
+<h3 id="skill-结构">Skill 结构</h3>
+<p><code>.claude/skills/code-review/SKILL.md</code>：</p>
+<pre><code class="language-markdown">---
+name: code-review
+description: 审查代码改动时使用，包含团队的检查清单和输出格式
+---
+
+审查改动时按以下重点检查：
+1. 有没有绕过 service 层直接查库
+2. 新接口有没有做参数校验
+3. 错误处理是吞掉了还是往上抛了
+
+审查结果按「问题、位置、建议」三栏输出。
+</code></pre>
+<p>!($baseUrl10-skill-example.png)</p>
+<ul>
+<li><code>description</code> 是门面，Claude 靠它判断何时唤起 Skill——要写清楚<strong>什么时候用</strong></li>
+<li>可附带参考文档和脚本在 Skill 目录中</li>
+<li>可直接用 <code>/skill-name</code> 斜杠命令强制唤起</li>
+</ul>
+<hr>
+<h2 id="03subagents-小团队分工">03｜Subagents — 小团队分工</h2>
+<h3 id="为什么需要_1">为什么需要</h3>
+<p>!($baseUrl11-subagents-concept.png)</p>
+<p>主对话越用越笨是因为上下文被中间过程垃圾灌满（搜索文件、分析日志等）。Subagent 相当于<strong>给主管派活的组员</strong>：</p>
+<ul>
+<li>Subagent 在<strong>独立上下文</strong>里干活，搜文件、试错都污染不到主对话</li>
+<li>干完后<strong>只把汇总结果交回来</strong></li>
+<li>支持<strong>并行</strong>执行，效率翻倍</li>
+</ul>
+<h3 id="配置方式">配置方式</h3>
+<p><code>.claude/agents/</code> 目录下，一个 markdown 文件就是一个 Subagent：</p>
+<pre><code class="language-markdown">---
+name: code-reviewer
+description: 代码改动的专项审查，检查安全、性能与规范
+tools: Read, Grep, Glob
+model: haiku
+---
+
+你是团队的代码审查员，只做审查不做修改。
+逐个检查改动文件，重点看安全漏洞与性能隐患。
+最终只输出问题列表与修改建议，不要贴大段代码原文。
+</code></pre>
+<ul>
+<li><code>tools</code> 字段限制权限（如审查 agent 不给写权限）</li>
+<li><code>model</code> 指定模型（体力活用便宜快的，深度推理上贵的）</li>
+<li>核心原则：<strong>只输出提纯后的结论</strong>，不贴大段代码</li>
+</ul>
+<h3 id="适用判断">适用判断</h3>
+<table>
+<thead>
+<tr>
+<th>适合拆</th>
+<th>不适合拆</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>过程重、结论轻的任务</td>
+<td>正在反复讨论的方案</td>
+</tr>
+<tr>
+<td>大范围搜索、日志分析</td>
+<td>需要完整上下文的任务</td>
+</tr>
+<tr>
+<td>边界干净的专项审查</td>
+<td>改到一半的需求</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="04mcp-外部系统连接">04｜MCP — 外部系统连接</h2>
+<h3 id="mcp-是什么">MCP 是什么</h3>
+<p>!($baseUrl16-mcp-concept.png)</p>
+<p>MCP（Model Context Protocol）是 Anthropic 牵头的统一协议，给 AI 和外部工具之间定一个<strong>统一插口</strong>——类似 USB-C 标准。</p>
+<h3 id="架构">架构</h3>
+<pre><code>Claude Code (Client)  ←→  MCP Server (工具方)
+</code></pre>
+<p>Server 对外声明自己有哪些 <strong>tools</strong>（工具），每个工具带着名字、说明和参数定义。Claude 按需调用，Server 执行并返回结果。</p>
+<h3 id="skill-vs-mcp">Skill vs MCP</h3>
+<p>!($baseUrl19-mcp-vs-skill.png)</p>
+<table>
+<thead>
+<tr>
+<th>Skill</th>
+<th>MCP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>给知识和流程（说明书）</td>
+<td>真正动手操作外部系统（手）</td>
+</tr>
+<tr>
+<td>告诉你怎么做</td>
+<td>替你做</td>
+</tr>
+</tbody>
+</table>
+<p>两者常配合使用：Skill 里写着「审查完提交到工单系统」是流程，真到提交那一步动手的是 MCP。</p>
+<h3 id="接入示例">接入示例</h3>
+<p>GitHub MCP 接入：</p>
+<pre><code class="language-bash">claude mcp add --transport http github https://api.githubcopilot.com/mcp/ \
+  --header &quot;Authorization: Bearer 你的GitHub令牌&quot;
+</code></pre>
+<p>接入后 Claude 可以直接拉取 PR 改动、结合 Skill 审查清单逐条过、把审查意见评论回 PR。</p>
+<blockquote>
+<p>如果工具本身就有好用的命令行（如 git、gh），Claude 直接在终端敲命令即可，不一定非要 MCP。</p>
+</blockquote>
+<hr>
+<h2 id="05hooks-铁的纪律">05｜Hooks — 铁的纪律</h2>
+<h3 id="为什么需要_2">为什么需要</h3>
+<p>!($baseUrl21-hooks-concept.png)</p>
+<p>提示词（CLAUDE.md / Skill）本质上是<strong>建议，不是法律</strong>。模型是概率生成的，上下文一长规则就被稀释了。Hooks 是 <strong>门禁系统</strong>——在关键节点上挂 shell 命令，节点一到命令就跑，没有商量余地。</p>
+<h3 id="挂载点">挂载点</h3>
+<p>Claude Code 会话生命周期中可挂 Hook 的关键事件：</p>
+<ul>
+<li>会话启动</li>
+<li>用户提交提示词</li>
+<li><strong>工具调用之前</strong>（PreToolUse）— 拦截不合规操作</li>
+<li><strong>工具调用之后</strong>（PostToolUse）— 自动善后</li>
+<li>Claude 准备结束回复</li>
+</ul>
+<h3 id="配置方式_1">配置方式</h3>
+<pre><code class="language-json">{
+  &quot;hooks&quot;: {
+    &quot;PostToolUse&quot;: [{
+      &quot;matcher&quot;: &quot;Edit|Write&quot;,
+      &quot;hooks&quot;: [{
+        &quot;type&quot;: &quot;command&quot;,
+        &quot;command&quot;: &quot;jq -r '.tool_input.file_path' | xargs npx prettier --write&quot;
+      }]
+    }]
+  }
+}
+</code></pre>
+<h3 id="退出码含义">退出码含义</h3>
+<ul>
+<li><code>exit 0</code>：放行</li>
+<li><code>exit 2</code>：拦截操作，报错信息回传给 Claude，它会自动调整做法</li>
+</ul>
+<h3 id="示例自动格式化">示例：自动格式化</h3>
+<p>文件被编辑后自动跑 prettier，无需在 CLAUDE.md 里再念叨格式化。</p>
+<h3 id="示例敏感文件保护">示例：敏感文件保护</h3>
+<p><code>~/.claude/hooks/protect.sh</code>：</p>
+<pre><code class="language-bash">#!/bin/bash
+file=$(jq -r '.tool_input.file_path')
+if [[ &quot;$file&quot; == *&quot;.env&quot;* || &quot;$file&quot; == *&quot;secret&quot;* ]]; then
+  echo &quot;敏感文件禁止修改&quot; &gt;&amp;2
+  exit 2
+fi
+</code></pre>
+<p>效果：Claude 想动 .env 文件 → Hook 拦截 → Claude 收到报错 → 自动换方案。</p>
+<hr>
+<h2 id="06plugins-打包分发">06｜Plugins — 打包分发</h2>
+<h3 id="为什么需要_3">为什么需要</h3>
+<p>!($baseUrl27-plugins-concept.png)</p>
+<p>六个配置工具散落项目各处，手动复制导致版本混乱、团队对齐困难。Plugin 就是 <strong>Claude Code 的包管理</strong>——将 Skills、Subagents、Hooks、MCP 配置打包进一个盒子，发布出去，一条命令安装。</p>
+<h3 id="plugin-结构">Plugin 结构</h3>
+<pre><code>my-review-kit/
+├── .claude-plugin/plugin.json   # 名字、版本、描述
+├── skills/        # Skill 们
+├── agents/        # Subagent 们
+├── hooks/         # Hook 配置
+└── .mcp.json      # MCP 接入配置
+</code></pre>
+<p>没有新概念，Plugin 纯粹是<strong>收纳盒</strong>。</p>
+<h3 id="分发">分发</h3>
+<p>基于 marketplace（可以是 git 仓库）：</p>
+<pre><code class="language-bash">/plugin marketplace add your-team/claude-plugins
+/plugin install my-review-kit@team-marketplace
+</code></pre>
+<blockquote>
+<p><strong>安全提醒</strong>：Plugin 的 Hook 能在机器上执行任意命令，MCP 能连外部服务。装前看来源，团队内部或靠谱开源项目再装。</p>
+</blockquote>
+<hr>
+<h2 id="07六件套完整配合示例">07｜六件套完整配合示例</h2>
+<p>!($baseUrl31-workflow-overview.png)</p>
+<p>以一次<strong>代码审查 + 修改</strong>为例：</p>
+<ol>
+<li><strong>会话开启</strong> → CLAUDE.md 自动进场（项目规范就位）</li>
+<li>用户输入「审一下今天这个 PR」</li>
+<li><strong>MCP</strong> 把 PR 改动从 GitHub 拉下来</li>
+<li>审查工作派给 <strong>code-reviewer Subagent</strong></li>
+<li>Subagent 持有 <strong>code-review Skill</strong> 的团队清单，在独立上下文中逐文件审查</li>
+<li><strong>主对话只收到</strong>一份干净的审查结论</li>
+<li>Claude 动手修问题 → <strong>Hook</strong> 自动格式化 + 拦截敏感文件操作</li>
+<li>审查意见通过 <strong>MCP</strong> 评论回 PR → 收工</li>
+</ol>
+<blockquote>
+<p>全程用户体验：敲一句话 → 等一会儿 → 收到结果。背后六件套各司其职。</p>
+</blockquote>
+<p>!($baseUrl34-summary-table.png)</p>
+<hr>
+<h2 id="核心洞见">核心洞见</h2>
+<blockquote>
+<p>模型决定 AI <strong>「能」</strong> 做到什么。能不能<strong>「稳定」</strong>做到，看你搭的脚手架。</p>
+</blockquote>
+<p>六件套背后的思路全都不新鲜——入职手册、翻书查资料、团队分工、标准接口、门禁系统、包管理——全是软件工程和团队管理里玩了几十年的老经验。</p>
+<blockquote>
+<p><strong>AI 变强了，但让 AI 好好干活的方法，还是那些让人好好干活的方法。</strong></p>
+</blockquote>
+<p>所以别光盯着模型跑分，回去把脚手架搭起来。工具明年可能又换一茬，但这个思路丢不了。</p>
+<hr>
+<h2 id="相关阅读">相关阅读</h2>
+<ul>
+<li><a class="wl" href="../../../notes/clippings/p44a38b/2026-07-21-claude-code-skill.html">2026-07-21-Claude-Code-Skill机制源码剖析</a></li>
+<li><a href="https://mp.weixin.qq.com/s/...">万字长文图解 Claude Code 入门</a></li>
+<li><a href="https://mp.weixin.qq.com/s/...">万字长文图解 Claude Code 源码：Skill 机制</a></li>
+<li><a href="https://mp.weixin.qq.com/s/...">万字长文图解 Claude Code 源码：多Agent实现机制</a></li>
+<li><a href="https://mp.weixin.qq.com/s/...">万字长文图解 Claude Code 源码：上下文窗口管理机制</a></li>
+</ul>
+<hr>
+<h2 id="关联笔记">🔗 关联笔记</h2>
+<ul>
+<li><a class="wl" href="../../../notes/domains/claudecodeagent.html">领域/Claude Code记忆系统与Agent记忆架构</a> — CLAUDE.md/记忆体系详解</li>
+<li><a class="wl" href="../../../notes/domains/claudecode-commandskill.html">领域/Claude Code - Command与Skill区别</a> — Command 与 Skill 区别</li>
+<li><a class="wl" href="../../../notes/clippings/bilibili/2026-07-31-agent-harness-loop-graph.html">2026-07-31-Agent系统架构设计-Harness-Loop-Graph怎么选</a> — Harness 工程化视角</li>
+</ul>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">内容剪藏</span><span class="chip">Claude Code</span><span class="chip">CLAUDE.md</span><span class="chip">Skills</span><span class="chip">Subagents</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/Clippings/%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7/2026-07-28-Claude-Code%E5%B7%A5%E7%A8%8B%E5%8C%96%E5%85%AD%E4%BB%B6%E5%A5%97%E8%AF%A6%E8%A7%A3-%E5%B0%8F%E6%9E%97coding.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../notes/clippings/p44a38b/2026-07-21-claude-code-skill.html"><span class="dir">← 上一篇</span><span class="t">Claude Code Skill 机制源码剖析</span></a><a class="next" href="../../../notes/clippings/p44a38b/2026-07-30-agent.html"><span class="dir">下一篇 →</span><span class="t">Agent 高频面试题全解析：从 LLM 到 A2A 协议</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../index.html">首页</a>
+      <a href="../../../learn.html">课件</a>
+      <a href="../../../notes/index.html">笔记库</a>
+      <a href="../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../about.html">关于</a>
+      <a href="../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../js/main.js" defer></script>
+</body>
+</html>

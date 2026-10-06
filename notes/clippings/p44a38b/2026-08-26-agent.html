@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent 自进化飞轮：评测 → 记忆 → 落地 → 控制 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="自进化不是让 Agent 自己“变聪明”，而是建立一条让执行结果被评测、经验被治理、改进被验证、风险被控制的工程闭环。">
+<link rel="canonical" href="https://northadb.github.io/notes/clippings/p44a38b/2026-08-26-agent.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Agent 自进化飞轮：评测 → 记忆 → 落地 → 控制 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="自进化不是让 Agent 自己“变聪明”，而是建立一条让执行结果被评测、经验被治理、改进被验证、风险被控制的工程闭环。">
+<meta property="og:url" content="https://northadb.github.io/notes/clippings/p44a38b/2026-08-26-agent.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Agent 自进化飞轮：评测 → 记忆 → 落地 → 控制 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="自进化不是让 Agent 自己“变聪明”，而是建立一条让执行结果被评测、经验被治理、改进被验证、风险被控制的工程闭环。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../feed.xml">
+<link rel="stylesheet" href="../../../css/style.css">
+<link rel="stylesheet" href="../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Agent 自进化飞轮：评测 → 记忆 → 落地 → 控制", "description": "自进化不是让 Agent 自己“变聪明”，而是建立一条让执行结果被评测、经验被治理、改进被验证、风险被控制的工程闭环。", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/clippings/p44a38b/2026-08-26-agent.html"}
+</script>
+<script src="../../../notes/assets/mermaid-init.js" defer></script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../index.html">首页</a><span>/</span><a href="../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../notes/clippings/index.html">内容剪藏</a></div>
+          <h1>Agent 自进化飞轮：评测 → 记忆 → 落地 → 控制</h1>
+          <p class="post-sub">自进化不是让 Agent 自己“变聪明”，而是建立一条让执行结果被评测、经验被治理、改进被验证、风险被控制的工程闭环。</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../notes/clippings/index.html">内容剪藏</a></span><span class="sep"></span>
+            <span>阅读约 6 分钟</span><span class="sep"></span><span>更新于 2026-08-26</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+
+<div class="callout" data-callout="summary"><p class="callout-title">核心观点</p>
+<p>自进化不是让 Agent 自己“变聪明”，而是建立一条让执行结果被评测、经验被治理、改进被验证、风险被控制的工程闭环。</p>
+</div>
+<h2 id="一句话结论">一句话结论</h2>
+<p><strong>评测是眼睛，记忆是大脑，Self-Improve 是手脚，人机协作是方向盘和刹车。</strong> 只有打通“评测信号 → 记忆/Skill → 候选改进 → 门控/灰度 → 新数据回流”，Agent 才能持续产生复利。</p>
+<p><img alt="Agent 自进化飞轮总览" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-evolution-overview.jpg"></p>
+<h2 id="一先区分自进化改什么">一、先区分自进化改什么</h2>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>修改对象</th>
+<th>持久性</th>
+<th>建议</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Artifacts 迭代</td>
+<td>本次答案、代码、方案</td>
+<td>任务结束消失</td>
+<td>已成熟，但不属于长期进化</td>
+</tr>
+<tr>
+<td>Harness 自改进</td>
+<td>Skill、Prompt、工具配置、工作流、记忆</td>
+<td>跨会话生效</td>
+<td>当前投入产出比最高</td>
+</tr>
+<tr>
+<td>Model 进化</td>
+<td>模型参数、微调权重</td>
+<td>最持久</td>
+<td>成本和风险最高</td>
+</tr>
+</tbody>
+</table>
+<p><strong>优先改 Harness，不要急着改模型。</strong> 经过验证的 Skill 通常比重新训练更快、更可控，也更容易回滚。</p>
+<h2 id="二评测飞轮的信号源">二、评测：飞轮的信号源</h2>
+<p>评测不仅负责上线前打分，还承担三项职责：</p>
+<ol>
+<li><strong>方向指引</strong>：发现问题并指出改进方向；</li>
+<li><strong>质量门控</strong>：证明候选 Prompt/Skill 优于基线，防止回归；</li>
+<li><strong>经验筛选</strong>：决定一次结果是否值得沉淀为记忆。</li>
+</ol>
+<h3 id="评测体系的难题">评测体系的难题</h3>
+<ul>
+<li>LLM Judge 偏爱长答案或表面格式；</li>
+<li>只评最终答案，无法覆盖轨迹、工具调用和中间结果；</li>
+<li>开放式任务难以量化；</li>
+<li>评测集会漂移；</li>
+<li>多采样、多重试带来的提升可能只是多花钱；</li>
+<li>全量评测成本过高。</li>
+</ul>
+<h3 id="分层评测">分层评测</h3>
+<ul>
+<li><strong>规则层</strong>：schema、SQL 结果、测试通过、耗时等客观指标；</li>
+<li><strong>语义层</strong>：独立 Judge，temperature 设为 0，结构化输出，分维度评分；</li>
+<li><strong>人工层</strong>：抽样复核 Judge，维护少量元评测集。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>数据集</th>
+<th>用途</th>
+<th>约束</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Train/诊断集</td>
+<td>找失败模式、生成修复方向</td>
+<td>可暴露给诊断模型</td>
+</tr>
+<tr>
+<td>Validation/筛选集</td>
+<td>比较候选和基线</td>
+<td>不暴露给修复生成模型</td>
+</tr>
+<tr>
+<td>Test/最终集</td>
+<td>发布门禁</td>
+<td>独立、冻结、低频使用</td>
+</tr>
+</tbody>
+</table>
+<p>Skill 还需做有/无对照、难度校准、轨迹追踪和关键路径验证。</p>
+<p><img alt="评测体系关键结构" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-evolution-evaluation.jpg"></p>
+<h2 id="三记忆核心是治理不是存储">三、记忆：核心是治理，不是存储</h2>
+<p>向量库只能回答“存在哪里”，不能回答什么值得存、何时遗忘、冲突如何解决、如何精准召回。记忆更像 Git：要有版本、来源、审核、冲突解决和回滚。</p>
+<h3 id="写入存储读取三环">写入、存储、读取三环</h3>
+<table>
+<thead>
+<tr>
+<th>环节</th>
+<th>关键问题</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>写入</td>
+<td>价值判断、反馈归因、粒度和反例</td>
+</tr>
+<tr>
+<td>存储</td>
+<td>污染、时效衰减、冲突和成本</td>
+</tr>
+<tr>
+<td>读取</td>
+<td>检索噪声、上下文预算、任务匹配</td>
+</tr>
+</tbody>
+</table>
+<h3 id="策展式写入">策展式写入</h3>
+<ul>
+<li>用户确认、评测通过或任务明确成功后，才写入长期记忆；</li>
+<li>失败经验可以保存，但标记为反例并解释不可行原因；</li>
+<li>临时记录经多次验证后，才能晋升为正式 Skill/规则；</li>
+<li>错误经验淘汰应快于正确经验强化（示意：正向 <code>+0.05</code>，负向 <code>-0.12</code>）。</li>
+</ul>
+<h3 id="分层与生命周期">分层与生命周期</h3>
+<pre><code class="language-text">L0 原始会话 / 完整轨迹
+L1 原子事实 / 经验
+L2 场景块 / 可复用模式
+L3 用户画像 / 稳定 Skill
+</code></pre>
+<p>默认读取高密度的 L3，需要证据时再向下回溯。每条记忆应记录版本、来源、触发原因和状态，并支持更新、合并、分裂、TTL、主动遗忘、冲突解决和乐观锁。</p>
+<p><img alt="记忆系统分层与治理" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-evolution-memory.jpg"></p>
+<p>读取建议采用渐进披露：会话开始只注入 Persona/Skill 前言；任务到来后并行检索 Facts/Scenario；遇到疑问时再回溯原始轨迹。示例预算：Skill ≤ 2000 token、Facts ≤ 800 token、Profile ≤ 500 token，单条记忆 ≤ 200 token，最多注入 6 条。</p>
+<h2 id="四落地把修复做成-cicd">四、落地：把修复做成 CI/CD</h2>
+<p>完全无人值守的“发现问题 → 修改 → 上线”风险很高。更稳妥的自动化范围是：<strong>候选生成 → 独立评测 → 门控筛选</strong>；高风险修改和关键决策保留人工确认。</p>
+<pre><code class="language-mermaid">flowchart LR
+  A[评测失败] --&gt; B[诊断归因]
+  B --&gt; C[汇聚诊断 + Playbook + 外部知识]
+  C --&gt; D[Diff 模式生成候选]
+  D --&gt; E[隔离环境独立评测]
+  E --&gt; F[自动门控]
+  F --&gt; G[人工确认]
+  G --&gt; H[灰度发布]
+  H --&gt; I[监控与失败回流]
+  I --&gt; J[Playbook / 记忆沉淀]
+  J --&gt; A
+</code></pre>
+<p>关键约束：</p>
+<ul>
+<li>修复方向至少汇聚本轮诊断、历史 Playbook、外部研究三路信号；</li>
+<li>使用 Diff 模式，只改必要片段；</li>
+<li>候选在独立沙箱中评测，避免相互污染；</li>
+<li>门控顺序：语法 → 回归 → 统计显著性 → Playbook 一致性 → 人工确认；</li>
+<li>通过后先小流量灰度，观察成功率、Token、延迟和用户反馈；</li>
+<li>P0 退化自动回滚；</li>
+<li>记录每次版本、diff、触发来源和关联评测结果。</li>
+</ul>
+<p><img alt="Agent CI/CD 工程化链路" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-evolution-engineering.jpg"></p>
+<h3 id="dreaming异步发现跨会话模式">Dreaming：异步发现跨会话模式</h3>
+<p>同步评测看不到慢变量。Dreaming 在空闲时审阅历史轨迹，寻找反复失败、低效成功路径和知识缺口，输出带优先级和影响评估的修订建议，但不应直接修改生产配置。建议每天或每周运行一次，人工审阅后进入流水线。</p>
+<h2 id="五控制分级自主人是正确性保障">五、控制：分级自主，人是正确性保障</h2>
+<p>稳定领域可逐步放权；新领域、高风险操作和安全边界必须有人。通过率持续超过 95%、连续多周期无回归且人工抽检稳定后才升级；出现 P0 回归自动降级到严格审核。</p>
+<p>必须有人参与的节点：</p>
+<ol>
+<li>规则级记忆写入前；</li>
+<li>Prompt/Skill 更新最终确认；</li>
+<li>评测回归时决定回滚和修复优先级；</li>
+<li>新领域冷启动时提供初始评测集和安全边界；</li>
+<li>设定和调整 Agent 权限边界。</li>
+</ol>
+<p>避免审核疲劳：自动门控先过滤大多数低质量候选，批量异步审核并附评测对比、影响范围、代表性样例和推荐理由；稳定运行后逐步放权，回归时自动降级。</p>
+<p>防止对齐漂移需要：定期方向审计、监控输出长度/工具调用/拒答率等方向性指标，并在评测集加入简洁性、格式、语气和安全风格维度。</p>
+<p><img alt="人机协作与控制" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-evolution-control.jpg"></p>
+<h2 id="六四个齿如何咬合">六、四个齿如何咬合</h2>
+<ol>
+<li><strong>评测 → 记忆</strong>：成功结果和可复用经验进入策展式记忆；</li>
+<li><strong>评测 → 落地</strong>：失败模式和诊断驱动 Skill/Prompt 修复；</li>
+<li><strong>落地 → 控制 → 生效</strong>：候选经过门控、人工确认和灰度后才影响生产；</li>
+<li><strong>生效 → 下一轮评测</strong>：灰度期间样本回流，成为下一轮燃料。</li>
+</ol>
+<p><img alt="四齿飞轮数据流" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-evolution-flywheel.jpg"></p>
+<h3 id="从零到一">从零到一</h3>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>周期</th>
+<th>目标</th>
+<th>人工占比</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Phase 1：最小闭环</td>
+<td>1～2 周</td>
+<td>评测发现问题，记忆记住教训</td>
+<td>80%</td>
+</tr>
+<tr>
+<td>Phase 2：半自动化</td>
+<td>2～4 周</td>
+<td>Skill 生成、CI 门禁、版本管理</td>
+<td>40%</td>
+</tr>
+<tr>
+<td>Phase 3：飞轮运转</td>
+<td>1～2 月</td>
+<td>灰度、回流、Dreaming、渐进放权</td>
+<td>15%</td>
+</tr>
+<tr>
+<td>Phase 4：元进化</td>
+<td>持续</td>
+<td>Auto-Research、策略自优化、多 Agent 协同</td>
+<td>5%</td>
+</tr>
+</tbody>
+</table>
+<p>优先跑通 Phase 1：能手动转一圈的粗糙飞轮，比自动化程度很高但从未闭环的蓝图更有价值。</p>
+<p><img alt="从零到一落地路线" src="https://gitee.com/cheng-jiaqing/images/raw/master/agent-evolution-roadmap.jpg"></p>
+<h2 id="工程化补充">工程化补充</h2>
+<ul>
+<li>每次运行绑定 <code>run_id</code>、<code>tenant_id</code>、<code>prompt_version</code>、<code>skill_version</code>、<code>memory_snapshot</code>、<code>eval_version</code>；</li>
+<li>将 Playbook（如何改 Agent）与任务记忆（Agent 如何完成任务）分开；</li>
+<li>规则级记忆、权限、安全策略和付费逻辑设置不可自动修改保护区；</li>
+<li>结果评测与轨迹评测同时纳入门禁，并约束 Token、延迟和工具次数；</li>
+<li>自动修复使用小范围 Diff、独立沙箱、可回滚版本和灰度流量。</li>
+</ul>
+<h2 id="最终提炼">最终提炼</h2>
+<ol>
+<li><strong>评测可信度 &gt; 系统复杂度</strong>：先校准“眼睛”，否则错误正反馈会加速污染；</li>
+<li><strong>记忆是治理问题</strong>：版本、来源、遗忘、冲突和晋升比向量库更重要；</li>
+<li><strong>闭环价值在箭头</strong>：评测、记忆、Skill、灰度和回流之间的数据通路才是复利来源。</li>
+</ol>
+<h2 id="相关资料">相关资料</h2>
+<ul>
+<li><a href="https://www.anthropic.com/research/when-ai-builds-itself">Anthropic：When AI Builds Itself</a></li>
+<li><a href="https://web.stanford.edu/class/cs329a/">Stanford CS329A：Self-Improving AI Agents</a></li>
+<li><a href="https://github.com/EvoAgentX/EvoAgentX">EvoAgentX</a></li>
+</ul>
+<h2 id="图片说明">图片说明</h2>
+<p>保留 7 张用于解释飞轮、评测、记忆、工程化、控制和落地路线的代表性配图，沿用原有 Gitee 图床链接。</p>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">内容剪藏</span><span class="chip">Agent</span><span class="chip">自进化</span><span class="chip">Eval</span><span class="chip">Agent-Memory</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/Clippings/%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7/2026-08-26-Agent%E8%87%AA%E8%BF%9B%E5%8C%96%E9%A3%9E%E8%BD%AE-%E8%AF%84%E6%B5%8B%E8%AE%B0%E5%BF%86%E8%90%BD%E5%9C%B0%E6%8E%A7%E5%88%B6.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../notes/clippings/p44a38b/2026-08-19-agent.html"><span class="dir">← 上一篇</span><span class="t">Agent的上限，可能不在模型，而在团队知识</span></a><a class="next" href="../../../notes/clippings/p44a38b/2026-08-26-anthropic-ai-native-sdlc-playbook.html"><span class="dir">下一篇 →</span><span class="t">Anthropic AI Native SDLC：当 AI 承担大部分编码后，如何重构开发流程</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../index.html">首页</a>
+      <a href="../../../learn.html">课件</a>
+      <a href="../../../notes/index.html">笔记库</a>
+      <a href="../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../about.html">关于</a>
+      <a href="../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../js/main.js" defer></script>
+</body>
+</html>

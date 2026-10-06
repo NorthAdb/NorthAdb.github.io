@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude.ai 近期聊天记录汇总 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="采集自 Claude.ai Recent 页面，2026-07-31 更新">
+<link rel="canonical" href="https://northadb.github.io/notes/clippings/claude/2026-07-30-claude.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Claude.ai 近期聊天记录汇总 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="采集自 Claude.ai Recent 页面，2026-07-31 更新">
+<meta property="og:url" content="https://northadb.github.io/notes/clippings/claude/2026-07-30-claude.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Claude.ai 近期聊天记录汇总 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="采集自 Claude.ai Recent 页面，2026-07-31 更新">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../feed.xml">
+<link rel="stylesheet" href="../../../css/style.css">
+<link rel="stylesheet" href="../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Claude.ai 近期聊天记录汇总", "description": "采集自 Claude.ai Recent 页面，2026-07-31 更新", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/clippings/claude/2026-07-30-claude.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../index.html">首页</a><span>/</span><a href="../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../notes/clippings/index.html">内容剪藏</a></div>
+          <h1>Claude.ai 近期聊天记录汇总</h1>
+          <p class="post-sub">采集自 Claude.ai Recent 页面，2026-07-31 更新</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../notes/clippings/index.html">内容剪藏</a></span><span class="sep"></span>
+            <span>阅读约 21 分钟</span><span class="sep"></span><span>更新于 2026-07-31</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p>采集自 Claude.ai Recent 页面，2026-07-31 更新</p>
+</blockquote>
+<p><strong>共 19 场对话</strong>，涵盖 Agent/架构（14 场）、RAG/知识库（4 场）、开发工具（1 场）</p>
+<hr>
+<h2 id="agent-harness-架构14-场">🤖 Agent / Harness / 架构（14 场）</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">#</th>
+<th style="text-align: left;">标题</th>
+<th style="text-align: center;">时间</th>
+<th style="text-align: left;">内容摘要</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">1</td>
+<td style="text-align: left;"><strong>Agent Skills Directory 网站介绍</strong></td>
+<td style="text-align: center;">53 min ago</td>
+<td style="text-align: left;">介绍 <a href="https://skills.sh">skills.sh</a> 网站，一个 Agent Skills 的目录/市场，可以查找、安装、分享 AI Agent 的 Skill 包</td>
+</tr>
+<tr>
+<td style="text-align: center;">2</td>
+<td style="text-align: left;"><strong>Agent reach vs Playwright 选择</strong></td>
+<td style="text-align: center;">2h ago</td>
+<td style="text-align: left;">对比 agent-reach（基于 CDP 的浏览器自动化）和 Playwright（微软的浏览器测试框架）的适用场景、API 设计、调试体验差异</td>
+</tr>
+<tr>
+<td style="text-align: center;">3</td>
+<td style="text-align: left;"><strong>浏览器自动化工具对比与选择</strong></td>
+<td style="text-align: center;">4h ago</td>
+<td style="text-align: left;">Playwright vs Puppeteer vs Selenium vs CDP 多款方案横向对比，侧重 AI Agent 场景的选型建议</td>
+</tr>
+<tr>
+<td style="text-align: center;">4</td>
+<td style="text-align: left;"><strong>工具的用途和功能</strong></td>
+<td style="text-align: center;">9h ago</td>
+<td style="text-align: left;">探讨各类 Agent 工具的能力边界——什么时候用 MCP、什么时候用 Function Call、什么时候直接写脚本</td>
+</tr>
+<tr>
+<td style="text-align: center;">5</td>
+<td style="text-align: left;"><strong>MCP 更新改动详解与对比分析</strong></td>
+<td style="text-align: center;">11h ago</td>
+<td style="text-align: left;">MCP 协议近期的更新内容分析，包含传输层改进、工具定义标准化、安全性增强等</td>
+</tr>
+<tr>
+<td style="text-align: center;">6</td>
+<td style="text-align: left;"><strong>GitHub MCP 和 gh CLI 的区别</strong></td>
+<td style="text-align: center;">yesterday</td>
+<td style="text-align: left;">对比 GitHub MCP（通过 MCP 协议操作 GitHub）和传统 gh CLI（命令行工具）的集成方式、使用场景、权限模型</td>
+</tr>
+<tr>
+<td style="text-align: center;">7</td>
+<td style="text-align: left;"><strong>Context7 查找与官网查询的区别</strong></td>
+<td style="text-align: center;">yesterday</td>
+<td style="text-align: left;">Context7 代码检索工具 vs 直接去官网查文档的区别和各自优势</td>
+</tr>
+<tr>
+<td style="text-align: center;">8</td>
+<td style="text-align: left;"><strong>Agent 的多种架构设计</strong></td>
+<td style="text-align: center;">yesterday</td>
+<td style="text-align: left;">Agent 系统架构方案讨论，包括 Graph/Loop/Harness 铁三角、ReAct、Plan-and-Execute、Reflection 等模式</td>
+</tr>
+<tr>
+<td style="text-align: center;">9</td>
+<td style="text-align: left;"><strong>主流 agent 框架概览</strong></td>
+<td style="text-align: center;">3 days ago</td>
+<td style="text-align: left;">对比 LangGraph、Dify、Coze、AutoGen、CrewAI、OpenAI Agents SDK 等主流框架的架构特点和适用场景</td>
+</tr>
+<tr>
+<td style="text-align: center;">10</td>
+<td style="text-align: left;"><strong>MCP 和 skill 的区别与应用</strong></td>
+<td style="text-align: center;">4 days ago</td>
+<td style="text-align: left;">MCP（外部系统连接协议）vs Skill（领域知识/SOP）的本质区别：MCP 是"手"，Skill 是"说明书"</td>
+</tr>
+<tr>
+<td style="text-align: center;">11</td>
+<td style="text-align: left;"><strong>agent eval 是什么</strong></td>
+<td style="text-align: center;">Jul 21</td>
+<td style="text-align: left;">Agent 评估机制概念介绍，包括 eval 的类型（功能性、安全性、鲁棒性）、评测方法和业界工具</td>
+</tr>
+<tr>
+<td style="text-align: center;">12</td>
+<td style="text-align: left;"><strong>Function calling 和 tool calling 的区别</strong></td>
+<td style="text-align: center;">today</td>
+<td style="text-align: left;">Function calling（函数调用）是 tool calling 的历史前身/子集，机制相同（结构化调用→外部执行→结果回传），但 tool 范畴更广包括内置搜索/代码执行等</td>
+</tr>
+</tbody>
+</table>
+<h3 id="2026-07-31-新增记录">🆕 2026-07-31 新增记录</h3>
+<table>
+<thead>
+<tr>
+<th>标题</th>
+<th style="text-align: right;">时间</th>
+<th>记录</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>AgentScope、Java Spring AI与LangChain4j对比</strong></td>
+<td style="text-align: right;">1 hour ago</td>
+<td>对比三种 Java/Agent 开发路线，并延伸讨论 AgentScope Java 2、原生 Agent SDK、Mastra、Vercel AI SDK 与 Pi</td>
+</tr>
+<tr>
+<td><strong>Deep Agents框架介绍</strong></td>
+<td style="text-align: right;">3 hours ago</td>
+<td>介绍 Deep Agents 的定位、内置能力，以及它与 LangChain、LangGraph、<code>create_agent</code> 的层级关系</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>注：以上两场对话已通过 Claude.ai 登录会话进入具体聊天页面，以下内容根据实际对话正文整理；其中 Claude 对话中提到的版本、能力和引用仍应以项目官方文档核验。</p>
+</blockquote>
+<h3 id="详细内容">详细内容</h3>
+<hr>
+<h4 id="agentscopejava-spring-ai-与-langchain4j-对比-1小时前">🆕 AgentScope、Java Spring AI 与 LangChain4j 对比 ⭐ 1小时前</h4>
+<p><strong>聊了什么</strong>：从 Java Agent 框架选型开始，对比 Spring AI Alibaba、LangChain4j 与 AgentScope Java 2 的定位；随后又讨论了它们与 Claude Agent SDK、OpenAI Agents SDK、Mastra、Vercel AI SDK、Pi 的关系。</p>
+<p><strong>对话还原</strong>：
+- 你先问：「AgentScope 2、Java Spring AI Alibaba、LangChain4j 有什么区别」。
+- <strong>Spring AI Alibaba</strong>：被定位为模型接入与 Spring 生态集成路线，适合已有 Spring/Alibaba 技术栈的企业应用；对话中提到 SupervisorAgent、SequentialAgent、LoopAgent，以及 Nacos、Higress AI 网关等生态集成。
+- <strong>LangChain4j</strong>：被定位为模型、工具、记忆和 Agent 流程的通用 Java 工具箱，强调模型供应商无关，并可与 Spring、Quarkus、Micronaut 等生态集成，适合自定义 RAG、Agent 流程和工具编排。
+- <strong>AgentScope Java 2</strong>：被定位为以 Agent 运行时和协作为中心的平台，不只是调用 LLM；对话重点提到事件系统、权限控制、Middleware/AOP、Workspace/沙箱、<code>agent_spawn</code>/<code>agent_send</code>、分布式 session 与 memory，以及故障恢复等企业运行时能力。
+- 进一步讨论了 AgentScope 的 <strong>ReActAgent + HarnessAgent</strong> 思路：ReActAgent 负责 Agent 主循环，HarnessAgent 在其上通过 Hook、Toolkit、SkillBox、状态和持久化能力扩展运行时。这里记录的是本场对话中的分析，不等同于已核验的官方架构定义。
+- 与原生 SDK 的对比：对话将 OpenAI Agents SDK 概括为 Agents、Handoffs、Guardrails、Tracing 的轻量路线；将 Claude Agent SDK 概括为围绕文件系统、Shell 和 MCP 的 Agent 工作台；AgentScope Java 则更偏向 JVM 原生、模型无关、可部署的 Agent 运行时。
+- 与 TypeScript 工具的对比：<strong>Vercel AI SDK</strong> 被定位为模型供应商统一接入层，<strong>Mastra</strong> 是建立在其上的高层 Agent/Workflow/RAG 框架，<strong>Pi</strong> 则强调小核心、少抽象和自行扩展。</p>
+<p><strong>选型结论</strong>：
+| 需求 | 倾向选择 |
+| :-- | :-- |
+| Spring/Alibaba 企业应用中的模型接入与 Agent | Spring AI Alibaba |
+| Java 中灵活组合模型、工具、RAG 和 Agent 流程 | LangChain4j |
+| 多 Agent 协作、沙箱、权限、分布式 session/memory 等运行时能力 | AgentScope Java 2 |</p>
+<hr>
+<h4 id="deep-agents-框架介绍-3小时前">🆕 Deep Agents 框架介绍 ⭐ 3小时前</h4>
+<p><strong>聊了什么</strong>：解释 Deep Agents 是什么，以及它与 LangChain、LangGraph、<code>create_agent</code> 的关系和使用边界。</p>
+<p><strong>对话还原</strong>：
+- 你问：「DeepAgents 是什么」。
+- <strong>Deep Agents</strong> 被介绍为 LangChain 团队提供的 Python/JavaScript 包（对话中提到 <code>pip install deepagents</code> / <code>npm i deepagents</code>），定位为构建在 LangGraph 之上的高层 Agent Harness/框架。
+- 它针对长任务和多步骤任务提供一组预置能力：<strong>规划/待办工具</strong>、<strong>文件系统</strong>、<strong>子 Agent 委派</strong>、<strong>Skills</strong>，并通过 <code>create_deep_agent()</code> 创建带有这些能力的 Agent。
+- 三者层级被概括为：
+  - <strong>LangGraph</strong>：底层有状态图执行引擎，负责节点、边、状态和持久化等流程运行时能力；
+  - <strong>LangChain 的 <code>create_agent</code></strong>：在 LangGraph 之上的通用 Agent 创建入口，适合相对简单的工具调用循环；
+  - <strong>Deep Agents</strong>：在更高层提供带有规划、文件系统、子 Agent 和 Skills 的“预装式” Agent Harness。
+- 选择建议：简单工具调用优先使用 <code>create_agent</code>；需要完全自定义循环、分支、回路和恢复逻辑时直接使用 LangGraph；需要现成的规划、文件系统和子 Agent 能力时考虑 Deep Agents。
+- 对话还将 Deep Agents 与 AgentScope 的 HarnessAgent、Pi/OpenCode 等 Agent Harness 思路做了类比：共同点是把 Agent 循环之外的上下文、工具、状态和执行环境封装起来，但具体 API、实现和成熟度不能仅凭该对话判断。</p>
+<p><strong>一句话理解</strong>：LangGraph 是执行底座，<code>create_agent</code> 是通用 Agent 封装，Deep Agents 是面向复杂长任务的预置能力更丰富的高层 Harness。</p>
+<hr>
+<h4 id="①-agent-skills-directory-网站介绍-53分钟前">① Agent Skills Directory 网站介绍 ⭐ 53分钟前</h4>
+<p><strong>聊了什么</strong>：关于 <a href="https://skills.sh">skills.sh</a> 网站的讨论，重点是用 <code>npx skills add</code> 命令安装 PicGo 上传技能。</p>
+<p><strong>对话还原</strong>：
+- 你发了一条命令 <code>npx skills add https://github.com/picgo/skills --skill picgo-upload</code>，问这条命令在做什么
+- 解释：<code>npx skills add</code> 临时调用 skills.sh 的 CLI 工具，从 picgo/skills 仓库下载 picgo-upload 这个技能到 agent 技能目录
+- 你追问「执行这条命令，它会安装到哪」——回答：落地到 <code>.agents/skills/picgo-upload/</code>，然后软链接到各 agent 自己的目录（Claude Code 的 <code>.claude/skills/</code>、Cursor 的 <code>.cursor/skills/</code> 等）
+- 你问 <code>npx</code> 提示安装 <code>skills@1.5.21</code> 是不是也是临时的——解释：npx 只是临时拉 CLI 工具本身，但下载后产生的技能文件是真实写到磁盘上的，持久保留</p>
+<p><strong>关键发现</strong>：
+- Skills.sh 上有大量社区贡献的 Skill，可一键安装
+- 安装位置分项目级（当前目录 <code>.agents/skills/</code>）和全局（<code>~/.agents/skills/</code>）
+- <code>npx skills list</code> / <code>npx skills list -g</code> 可验证安装
+- 有个常见坑：低于 1.5.16 版本的 CLI 符号链接可能不自动创建，导致 agent 检测不到</p>
+<p><strong>相关笔记</strong>：<a class="wl" href="../../../notes/clippings/p44a38b/2026-07-28-claude-code-coding.html">2026-07-28-Claude-Code工程化六件套详解-小林coding</a></p>
+<hr>
+<h4 id="②-agent-reach-vs-playwright-选择-2小时前">② Agent reach vs Playwright 选择 ⭐ 2小时前</h4>
+<p><strong>聊了什么</strong>：你正在做 Obsidian 笔记整理（B站/微信/小红书内容提取），询问 agent-reach 和 Playwright 选哪个好，还提到了之前装过 web-access skill。</p>
+<p><strong>对话还原</strong>：
+- 你问：「agent reach 和 playwright 有什么区别，我平时需要把 b站微信小红书的一些内容和视频转化成笔记存起来，用哪个比较好？」
+- <strong>核心区别</strong>：
+  - <strong>Playwright</strong> 是通用浏览器自动化库（控制 Chromium/Firefox/WebKit），能点击、滚动、等 JS 渲染。但它只是底层引擎，各平台的登录、反爬、页面解析需要自己写代码
+  - <strong>Agent Reach</strong> 是专门给 AI agent 用的技能层，已封装 17+ 个平台的现成命令（reach_bilibili、reach_xiaohongshu、微信文章抓取等），不需要 API key
+- <strong>结论</strong>：Agent Reach 更贴合你的需求，开箱即用；Playwright 做兜底方案
+- 你追问：「浏览器自动化主要分哪些场景？Browser Harness 是哪一类？Browser Use 是哪一类？」
+- <strong>浏览器自动化四类场景</strong>：
+  1. 测试/QA 自动化（Playwright、Selenium、Cypress）
+  2. 数据抓取/爬虫（Scrapy、Firecrawl）
+  3. AI Agent 自主操作浏览器（Browser Use、Stagehand、agent-browser、Browser Harness）
+  4. 托管基础设施（Browserbase、Steel、Comet、Atlas）
+- <strong>Browser Harness vs Browser Use</strong>：Browser Use 基于 Playwright 是重框架路线；Browser Harness 是反向实验——极简主义，直接通过 CDP 给 agent 裸接口，无预设抽象层
+- 你问如何「Playwright MCP + CDP 连接真实 Chrome」——给了三种实现方案的对比</p>
+<p><strong>相关笔记</strong>：本场聊天直接指导了后续用 CDP 代理提取各平台内容的实际操作</p>
+<hr>
+<h4 id="③-浏览器自动化工具对比与选择-4小时前">③ 浏览器自动化工具对比与选择 ⭐ 4小时前</h4>
+<p><strong>聊了什么</strong>：从 Browser Harness 这个新概念切入，深入讨论了浏览器自动化的分类、各框架的哲学差异以及落地细节。</p>
+<p><strong>对话还原</strong>：
+- 你之前已经聊过 agent-reach vs Playwright，这场继续深入 Browser Harness 这个"反向操作"方案
+- <strong>Browser Harness 核心思路</strong>：不包装，直接给原始 CDP。核心论点：连 click()、type()、scroll() 这些 helper 函数都是抽象——是你在替模型决定它需要什么。不如把 Chrome 最底层协议直接甩给模型
+- <strong>自愈循环</strong>：当某个 helper 缺失时，agent 的行为像开发者修缺失 import——grep helpers.py → 发现没有 → 直接写一个 → 重跑。作者举例忘了写 upload_file()，agent 遇到上传输入框，grep 没找到函数，直接用 <code>DOM.setFileInputFiles</code> 写了一个
+- <strong>Playwright MCP vs Stagehand vs Browser Harness</strong> 的本质区别：
+  - Playwright MCP/Stagehand：固定工具面（navigate/click/fill 写死），agent 只能在这个菜单里选
+  - Browser Harness：agent 拿到 Python REPL + 原始 CDP websocket + 编辑自己工具代码的权限
+- 你问：「Playwright MCP + CDP 连接真实 Chrome 怎么实现？」——给了三种方案从简到繁</p>
+<p><strong>相关笔记</strong>：后续实际采用了 CDP 方案连接真实 Chrome</p>
+<hr>
+<h4 id="④-工具的用途和功能-9小时前">④ 工具的用途和功能 ⭐ 9小时前</h4>
+<p><strong>聊了什么</strong>：你列了一批 Agent/RAG 相关的工具和技术名（LangGraph、Function Calling、Qdrant、Embedding、Rerank、MCP 等），询问每个是干什么的。</p>
+<p><strong>对话还原</strong>：
+- 你完整列举了一套 Agent + RAG 全栈技术组合：LangGraph、Function Calling、Qdrant、Embedding、Chunking、Hybrid Search、Rerank、Model Routing、RAG Trace、Agentic RAG、Async Worker、SSE、MCP、Docker Compose
+- 逐个解释：
+  - <strong>LangGraph</strong>：LangChain 生态的图结构编排框架，状态机管理任务规划
+  - <strong>Function Calling</strong>：让模型输出结构化 JSON 调用工具
+  - <strong>Qdrant</strong>：开源向量数据库
+  - <strong>Rerank</strong>：专门的重排序模型二次打分
+  - <strong>Agentic RAG</strong>：Agent 自主决定何时检索、检索什么、要不要多轮检索
+  - <strong>MCP</strong>：Anthropic 提出的统一协议标准
+- 整体上这是一套很典型的「Agent + RAG 全栈」技术组合，大厂面试都会考察</p>
+<hr>
+<h4 id="⑤-mcp-更新改动详解与对比分析-11小时前">⑤ MCP 更新改动详解与对比分析 ⭐ 11小时前</h4>
+<p><strong>聊了什么</strong>：你发了 Anthropic 官方博客链接（关于 MCP 2026-07-28 规范更新），要求详细整理改动内容。</p>
+<p><strong>对话还原</strong>：
+- 你要求：「详细整理一下这个文档，梳理一下 mcp 前后的区别所在，为什么要进行改动」
+- <strong>核心变化：去状态化</strong>——改动前 MCP 基于握手 + Session ID 维持有状态会话；改动后每个请求携带完整信息，不需要会话。这意味着 MCP server 可以像普通 HTTP 服务一样部署在无服务器/边缘架构上
+- <strong>去状态化的意义</strong>：请求可以落在负载均衡器后面的任意服务器实例上，不再需要共享存储，扩容不再受 sticky session 限制
+- 你嫌太专业：「有太多专业词汇了，有没有更通俗易懂的说法」——用打比方的方式重新解释了
+- <strong>其他机制变化</strong>：
+  - <strong>MRTR</strong>（Multi Round-Trip Requests）：把"服务端 push"改造成"客户端 retry-with-answer"
+  - <strong>Header 路由</strong>：Streamable HTTP 必须携带 Mcp-Method 和 Mcp-Name 头
+  - <strong>List 结果可缓存</strong>：tools/list 响应带 ttlMs 和 cacheScope
+- <strong>鉴权加固</strong>：RFC 9207 issuer 校验、application_type 声明、凭证与签发方绑定、DCR→CIMD 迁移
+- <strong>废弃项</strong>：Roots/Sampling/Logging 废弃，legacy HTTP+SSE 进入 12 个月退场窗口</p>
+<p><strong>一句话总结</strong>：MCP 从"能用的原型"打磨成"能撑住生产流量的基础设施"</p>
+<hr>
+<h4 id="⑥-github-mcp-和-gh-cli-的区别-昨天">⑥ GitHub MCP 和 gh CLI 的区别 ⭐ 昨天</h4>
+<p><strong>聊了什么</strong>：从工具选型角度对比 GitHub MCP 和 gh CLI 的差异，深入讨论 MCP vs CLI 的社区争议。</p>
+<p><strong>对话还原</strong>：
+- 你问：「github mcp 和 gh cli 的区别是什么」
+- <strong>核心区别</strong>：抽象层级和使用者
+  - <strong>gh CLI</strong>：官方命令行工具，本地执行，速度快、无网络中间层，AI 能直接写出正确的 gh 命令（Claude Code 训练数据里有）
+  - <strong>GitHub MCP</strong>：把操作包装成结构化 tool schema，通过 MCP 协议让 AI 用自然语言调用，需要连接 MCP server（本地或远程）
+- <strong>Token 消耗差距巨大</strong>：最简单任务，"这个仓库用什么语言"，CLI 耗 1365 token，MCP 耗 44026 token（差异来自 43 个工具定义注入上下文）
+- 你追问：「听说很多人开始放弃 mcp 转而使用 cli，这种说法有道理吗？」
+- <strong>分析</strong>：确实有退潮迹象，但主要发生在个人开发者场景
+  - Perplexity CTO 2026年3月宣布放弃 MCP（工具定义占 72% 上下文窗口）
+  - 对 1847 个公开 MCP server 审计：52% 已废弃，仅 17% 达到生产可用
+  - 但 2026年5月官方注册表已有 9652 个 server，月下载量 9700 万
+  - <strong>结论</strong>：个人开发者用 CLI 更理性（省 token、不依赖第三方）；企业级场景（鉴权、审计、跨服务编排）MCP 仍有不可替代性</p>
+<hr>
+<h4 id="⑦-context7-查找与官网查询的区别-昨天">⑦ Context7 查找与官网查询的区别 ⭐ 昨天</h4>
+<p><strong>聊了什么</strong>：你问 Context7 查文档和直接去官网查有什么区别和优势。</p>
+<p><strong>对话还原</strong>：
+- <strong>Context7 的优势</strong>：面向 LLM 优化过的文档索引，内容预先抓取、清洗、按库/版本组织好，噪音少（没有导航栏、广告），返回高信噪比的代码示例 + 用法说明。速度快、token 消耗低
+- <strong>直接查官网的优势</strong>：覆盖面更广（不是所有库都被 Context7 收录），时效性更强（索引更新有滞后），能获取"非 API 参考类"信息（架构设计理念、issue 踩坑经验）
+- <strong>建议</strong>：日常 API 用法查 Context7；涉及具体版本的 CVE、变更日志、冷门库，直接搜官网/GitHub</p>
+<hr>
+<h4 id="⑧-agent-的多种架构设计-昨天">⑧ Agent 的多种架构设计 ⭐ 昨天</h4>
+<p><strong>聊了什么</strong>：根据一个视频总结的七种 Agent 架构，逐一展开介绍。</p>
+<p><strong>对话还原</strong>：
+- 你问：「agent 的多种架构介绍一下」
+- 七个架构按复杂度梳理：
+  1. <strong>单 Agent 架构</strong>：一 LLM 循环处理所有任务，简单但上下文污染严重
+  2. <strong>ReAct 结构</strong>：推理和行动交替进行，可解释性好但 token 消耗大
+  3. <strong>Plan-and-Execute</strong>：先规划再执行，适合代码生成和长流程自动化，但计划有误就全盘崩溃
+  4. <strong>多 Agent 架构</strong>：拆给多个专职 Agent 协作，可扩展性强但成本高
+  5. <strong>Route + Skill 架构</strong>：路由层判断意图分发给对应技能模块，企业级可控但前期设计成本高
+  6. <strong>Blackboard（黑板）架构</strong>：多个组件共享公共状态空间协同工作，适合复杂协作但状态管理负担重
+  7. <strong>Graph Workflow（图工作流）架构</strong>：有向图建模流程，企业级稳定可调试</p>
+<p><strong>核心洞察</strong>：铁三角架构（Graph/Loop/Harness）最适合企业级落地，ReAct 适合简单任务</p>
+<p><strong>相关笔记</strong>：<a class="wl" href="../../../notes/clippings/pae26bb/2026-07-30-ai-agent-graph-loop-harness.html">2026-07-30-AI-Agent落地铁三角-Graph-Loop-Harness</a></p>
+<hr>
+<h4 id="⑨-主流-agent-框架概览-3天前">⑨ 主流 agent 框架概览 ⭐ 3天前</h4>
+<p><strong>聊了什么</strong>：汇总当前主流 Agent 框架并深入介绍了 PydanticAI。</p>
+<p><strong>对话还原</strong>：
+- 你问：「目前主流的 agent 框架有哪些」
+- <strong>分类整理</strong>：
+  - <strong>编排/工作流类</strong>：LangChain/LangGraph（生态最大 12.9 万星），AutoGen（微软）
+  - <strong>多 Agent 协作类</strong>：CrewAI、LlamaIndex
+  - <strong>低代码/快速落地类</strong>：Dify
+  - <strong>其他</strong>：PydanticAI（轻量生产就绪）、OpenAI Agents SDK、Anthropic MCP（行业基础设施）
+- 你追问：「PydanticAI 介绍下」
+  - Pydantic 团队推出，定位「把 FastAPI 开发体验带到 GenAI」
+  - 核心特点：类型安全、结构化输出（Pydantic 模型验证）、依赖注入、模型无关（OpenAI/Claude/Gemini）
+  - 1.7 万星，2025年9月 V1 稳定版
+  - 比 LangGraph 少约 120 行代码实现同等功能
+  - 适合类型安全要求高的 Python/FastAPI 团队，复杂多 Agent 编排不如 LangGraph</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">框架</th>
+<th style="text-align: left;">特点</th>
+<th style="text-align: center;">适合</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>LangGraph</strong></td>
+<td style="text-align: left;">图编排，状态持久化</td>
+<td style="text-align: center;">复杂多步流程</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Dify</strong></td>
+<td style="text-align: left;">可视化编排，低代码</td>
+<td style="text-align: center;">快速原型</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Coze</strong></td>
+<td style="text-align: left;">字节出品，插件生态</td>
+<td style="text-align: center;">对话类 Agent</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>AutoGen</strong></td>
+<td style="text-align: left;">Microsoft，多 Agent 对话</td>
+<td style="text-align: center;">多 Agent 协作</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>CrewAI</strong></td>
+<td style="text-align: left;">角色化 Agent 团队</td>
+<td style="text-align: center;">角色分工场景</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>OpenAI Agents SDK</strong></td>
+<td style="text-align: left;">官方出品，轻量</td>
+<td style="text-align: center;">简单 Agent</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>PydanticAI</strong></td>
+<td style="text-align: left;">类型安全，Python 原生</td>
+<td style="text-align: center;">强类型需求</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h4 id="⑩-mcp-和-skill-的区别与应用-4天前">⑩ MCP 和 skill 的区别与应用 ⭐ 4天前</h4>
+<p><strong>聊了什么</strong>：从 Context7 + DeepWiki 这个组合切入，扩展到 MCP 工具和 Skill 的设计差异。</p>
+<p><strong>对话还原</strong>：
+- 你问：「"Context7 + DeepWiki 一起用覆盖一切文档需求"怎么理解这两个 mcp 工具」
+- <strong>Context7</strong>：解决"库文档过时"问题——从源代码直接提取特定版本的文档和示例，保证内容最新
+- <strong>DeepWiki</strong>：解决"看不懂具体仓库"的问题——对 GitHub 仓库进行索引分析，生成结构化易读的文档，哪怕仓库没有像样文档也能用
+- <strong>两者互补</strong>：Context7 管"官方库文档怎么调"，DeepWiki 管"具体仓库代码结构是什么"
+- 局限：都依赖仓库公开可被索引；内部代码够不着；复杂密码学实现细节未必准</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">MCP</th>
+<th style="text-align: left;">Skill</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">外部系统连接协议（"手"）</td>
+<td style="text-align: left;">领域知识与 SOP（"说明书"）</td>
+</tr>
+<tr>
+<td style="text-align: left;">真正动手操作外部系统</td>
+<td style="text-align: left;">告诉你怎么做</td>
+</tr>
+<tr>
+<td style="text-align: left;">模型调用→Server 执行→返回结果</td>
+<td style="text-align: left;">渐进式披露，按需加载</td>
+</tr>
+<tr>
+<td style="text-align: left;">有副作用（改数据库、发消息）</td>
+<td style="text-align: left;">纯文本知识，无副作用</td>
+</tr>
+</tbody>
+</table>
+<p><strong>两者配合</strong>：Skill 定义流程规范，MCP 执行具体操作</p>
+<p><strong>相关笔记</strong>：
+- <a class="wl" href="../../../notes/clippings/bilibili/2026-07-30-agentskilltool.html">2026-07-30-Agent架构Skill和Tool本质区别-动画详解</a> 
+- <a class="wl" href="../../../notes/clippings/p44a38b/2026-07-28-claude-code-coding.html">2026-07-28-Claude-Code工程化六件套详解-小林coding</a></p>
+<hr>
+<h4 id="⑪-agent-eval-是什么-jul-21">⑪ agent eval 是什么 ⭐ Jul 21</h4>
+<p><strong>聊了什么</strong>：介绍 Agent 评估的概念和方法。</p>
+<p><strong>对话还原</strong>：
+- 你问：「agent eval 是什么」
+- <strong>定义</strong>：对 AI Agent 系统能力和表现进行评测的方法论和实践
+- <strong>评估对象</strong>：不同于传统 LLM 评测（单轮问答准确率），agent eval 关注多步骤、有工具调用、有状态的任务执行过程：能否正确规划任务、能否恰当调用工具、能否从错误中恢复、长程任务中是否会失忆
+- <strong>常见维度</strong>：任务成功率、路径效率（用了多少步/token）、工具使用正确性、鲁棒性（面对模糊指令/干扰信息时的表现）、安全性（prompt injection 攻击防护）
+- <strong>常见方法</strong>：基准测试集（SWE-bench、WebArena、AgentBench、GAIA）、LLM-as-judge、人工评估、沙盒/模拟环境评估</p>
+<hr>
+<h4 id="⑫-function-calling-和-tool-calling-的区别-今天">⑫ Function calling 和 tool calling 的区别 ⭐ 今天</h4>
+<p><strong>聊了什么</strong>：辨析 Function calling（函数调用）和 Tool calling（工具调用）的关系与术语演变。</p>
+<p><strong>对话还原</strong>：
+- 你问：「function calling 是什么，和 tool calling 有什么关系」
+- <strong>Function calling</strong>：大模型的能力——识别出需要调用外部函数时，按 JSON Schema 输出结构化调用请求（函数名+参数），由宿主程序执行，结果回传模型继续生成
+- <strong>Tool calling</strong>：Function calling 的泛化/演进说法。OpenAI 最早叫 function_call/functions，后行业内改为 tool use / tool calling——因为"工具"范畴更广，不仅包括自定义函数，还包括内置搜索、代码执行、文件读取、RAG 等
+- <strong>本质关系</strong>：function calling 是 tool calling 的历史前身/子集，<strong>机制完全相同</strong>（结构化请求→外部执行→结果回传的多轮循环），只是 tool 涵盖范围更宽
+- 在 Anthropic API 里这套机制叫 "tool use"
+- 你追问：「node_repl 是什么，这个 mcp 什么作用」</p>
+<hr>
+<h2 id="rag-检索-知识库4-场">🔬 RAG / 检索 / 知识库（4 场）</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">#</th>
+<th style="text-align: left;">标题</th>
+<th style="text-align: center;">时间</th>
+<th style="text-align: left;">内容摘要</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">13</td>
+<td style="text-align: left;"><strong>传统 RAG 与混合检索 RAG 的对比</strong></td>
+<td style="text-align: center;">yesterday</td>
+<td style="text-align: left;">从 CC/Codex 放弃 RAG 切入，对比传统 Naive RAG、混合检索（向量+BM25+RRF）和 agentic search 的优劣；延伸讨论了 LangChain/LangGraph/GraphRAG/LlamaIndex</td>
+</tr>
+<tr>
+<td style="text-align: center;">14</td>
+<td style="text-align: left;"><strong>提示词缓存和 KV 缓存的区别</strong></td>
+<td style="text-align: center;">2 days ago</td>
+<td style="text-align: left;">Prompt Cache（提示词缓存）和 KV Cache（键值缓存）在 LLM 推理中的不同作用和实现机制</td>
+</tr>
+<tr>
+<td style="text-align: center;">15</td>
+<td style="text-align: left;"><strong>LLM wiki 定义与概念</strong></td>
+<td style="text-align: center;">2 days ago</td>
+<td style="text-align: left;">Karpathy 提出的 LLM Wiki 概念——让 LLM 拥有持久化知识库的设计思路</td>
+</tr>
+<tr>
+<td style="text-align: center;">16</td>
+<td style="text-align: left;"><strong>大模型参数定义与 dense、moe 概念</strong></td>
+<td style="text-align: center;">3 days ago</td>
+<td style="text-align: left;">Dense（稠密）模型和 MoE（混合专家）架构的原理、参数计算方式和性能对比</td>
+</tr>
+</tbody>
+</table>
+<h3 id="详细内容_1">详细内容</h3>
+<hr>
+<h4 id="⑬-传统-rag-与混合检索-rag-的对比-昨天">⑬ 传统 RAG 与混合检索 RAG 的对比 ⭐ 昨天</h4>
+<p><strong>聊了什么</strong>：这场聊的并不是"传统 RAG vs 混合检索 RAG"的技术对比本身，而是从 <strong>Claude Code 和 Cursor 对 RAG 的不同取舍</strong>切入，分析了 RAG vs agentic search 的适用边界，以及 LangChain/LangGraph/GraphRAG/LlamaIndex 的定位差异。</p>
+<p><strong>背景：三种检索方案速览</strong>
+- <strong>传统 Naive RAG</strong>：文档切割→向量化→向量检索→生成。简单直接，但只依赖向量语义匹配，精确匹配能力弱
+- <strong>混合检索 RAG</strong>：向量检索 + BM25（关键词）+ 可选知识图谱 → RRF 融合 → 重排序。典型方案：BM25 管精确匹配、向量管语义泛化
+- <strong>Agentic Search</strong>：不给索引，让模型自己 grep/glob/read，动态决定搜什么。Claude Code 的方案，依赖强模型推理能力</p>
+<p><strong>对话还原</strong>：
+- 你问的是「langchain langgraph graphrag 分别是什么」，整场围绕这三个工具展开
+- <strong>CC/Codex 放弃 RAG 的原因</strong>：
+  - Claude Code 早期用过 RAG，换成 agentic search（模型自己 grep/glob/read）后性能大幅超越
+  - 理由：代码库结构清晰，模型能推理"bug 在哪个文件"，不需要提前建 embedding 索引
+  - 前提是强模型（Sonnet/Opus），弱模型会死循环
+- <strong>Cursor 为什么留 RAG</strong>：在概念性查询做补充。结构搜索用 grep，语义模糊的查询（"哪里处理了鉴权"）才走向量检索
+- <strong>核心权衡维度</strong>：模型能力/内容变化频率/查询类型/延迟容忍度
+- <strong>LangChain</strong>：LLM 应用开发框架/工具箱，胶水层
+- <strong>LangGraph</strong>：Agent 编排引擎，状态图建模流程，LangChain 团队出品
+- <strong>GraphRAG</strong>（微软）：用知识图谱做检索，构建成本比向量 RAG 高 100-1000 倍，但召回率提升 72-83%
+- <strong>LlamaIndex</strong>：专注"检索"这一步的框架，和 LangChain 是同类但更垂直</p>
+<p><strong>相关笔记</strong>：<a class="wl" href="../../../notes/clippings/p44a38b/2026-09-01-rag.html">2026-09-01-RAG核心知识全解析（范式演进）</a></p>
+<hr>
+<h4 id="⑭-提示词缓存和-kv-缓存的区别-2天前">⑭ 提示词缓存和 KV 缓存的区别 ⭐ 2天前</h4>
+<p><strong>聊了什么</strong>：区分两个容易混淆的缓存概念，并讨论了 MoE 模型部署的显存问题。</p>
+<p><strong>对话还原</strong>：
+- 你问：「提示词缓存和 kv 缓存是什么」
+- <strong>KV 缓存（KV Cache）</strong>：Transformer 自回归生成时，每生成一个新 token 都需要算注意力。KV Cache 把已算好的 K、V 向量存下来，新 token 只需算自己的 K、V，省重复计算。是所有 LLM 推理引擎的标配优化。代价是显存占用
+- <strong>提示词缓存（Prompt Caching）</strong>：API/应用层的优化——多次请求中前缀部分重复时，缓存这些前缀的 KV 结果，下次直接复用。好处是减少延迟、降低成本（很多提供商对命中缓存部分按更低价格计费）
+- <strong>两者关系</strong>：KV Cache 是底层机制（单次会话内复用），Prompt Cache 是上层应用（跨请求复用）。不是并列关系，Prompt Cache 构建在 KV Cache 之上
+- 你追问了一个关于 Kimi K3 部署显存的问题：「1.5T 吧，不考虑 kvcache 的话」——K3 是月之暗面 2.8 万亿参数 MoE 模型，MoE 总参数量大但不代表推理显存等于总参数</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;"></th>
+<th style="text-align: left;">Prompt Cache</th>
+<th style="text-align: left;">KV Cache</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>位置</strong></td>
+<td style="text-align: left;">应用层</td>
+<td style="text-align: left;">模型推理层</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>作用</strong></td>
+<td style="text-align: left;">缓存系统提示词等固定内容</td>
+<td style="text-align: left;">缓存 Transformer 的 K/V 矩阵</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>目的</strong></td>
+<td style="text-align: left;">减少重复传输，省网络开销</td>
+<td style="text-align: left;">避免重复计算，省算力</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>实现</strong></td>
+<td style="text-align: left;">缓存 - 响应配对</td>
+<td style="text-align: left;">存储在 GPU 显存中</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h4 id="⑮-llm-wiki-定义与概念-2天前">⑮ LLM wiki 定义与概念 ⭐ 2天前</h4>
+<p><strong>聊了什么</strong>：介绍 Andrej Karpathy 提出的 LLM Wiki 方法论，以及社区现有的开源实现。</p>
+<p><strong>对话还原</strong>：
+- 你问：「llm wiki 是什么」
+- <strong>LLM Wiki 核心</strong>：Karpathy 提出的个人知识管理方法论，用 LLM 当"知识编译器"，而不是每次查询都临时检索
+- <strong>和传统 RAG 的区别</strong>：
+  - 传统 RAG：每次提问重新检索、拼装上下文（"每次都重新翻图书馆"）
+  - LLM Wiki：LLM 读取新资料→提取关键信息→整合进已有 wiki——更新实体页面、修订主题摘要、标注矛盾之处。<strong>知识只编译一次，持续更新</strong>
+- 你追问：「有项目地址吗」——给了三个开源实现：
+  - <code>nashsu/llm_wiki</code>：跨平台桌面应用，支持多模态
+  - <code>luotwo/llm-wiki</code>：含 Claude Code Skill
+  - <code>liangdabiao/llm-wiki</code>：支持网页/推特/公众号/小红书/知乎/YouTube/PDF 多源导入，可发布为 Quartz 静态网站
+- 你追问：「llm wiki 是一个方法论，而不是一个具体的项目是吗」——对，方法论。那些 GitHub 项目都是不同实现
+- 典型目录结构：<code>raw/</code>（原始资料，LLM 只读）+ <code>wiki/</code>（LLM 生成维护的知识库页面：index.md 目录、log.md 操作日志、实体页、概念页）
+- <strong>和 Zettelkasten 的关系</strong>：精神上同类方法，但 LLM Wiki 把 Zettelkasten 中耗时却不产生思考的那部分工作全部接管了</p>
+<hr>
+<h4 id="⑯-大模型参数定义与-densemoe-概念-3天前">⑯ 大模型参数定义与 dense、moe 概念 ⭐ 3天前</h4>
+<p><strong>聊了什么</strong>：从 Dense 和 MoE 的基本概念开始，深入到大模型参数的计算方式，最后详细拆解了 Transformer 中 FFN 层的工作原理。</p>
+<p><strong>对话还原</strong>：
+- 你问：「dense、moe 是什么，大模型的参数是怎么定义的」
+- <strong>Dense（稠密模型）</strong>：推理时每个 token 激活全部参数。70B 模型每次前向传播用满 70B
+- <strong>MoE（混合专家模型）</strong>：模型包含多个"专家"子网络，每个 token 只选少数专家参与计算。例：Mixtral 8x7B 总参 47B，每 token 只激活 13B。优点是用较少推理算力获得接近大模型效果，但显存按总参数算
+- <strong>参数怎么数</strong>：Embedding 层（词表大小×隐藏维度）+ 注意力层（Q/K/V/O 投影矩阵，每层约 4×d_model²）+ FFN 层（参数量大头，标准 Transformer 是 8×d_model²）
+- 你追问：「详细展开下，比如 ffn 我就不懂是什么意思」
+- <strong>从头讲 Transformer 一层里有什么</strong>：
+  - Self-Attention：让每个 token"看"到其他 token，做信息交换
+  - FFN（前馈神经网络）：对每个 token 单独做非线性变换，提炼/加工信息
+  - FFN 结构：输入(d_model维)→升维到 d_ff→激活函数→降回 d_model 维。例：d_model=4096，d_ff 通常是 4 倍=16384
+  - MoE 的 FFN 层是复制多份专家，路由选择激活</p>
+<hr>
+<h2 id="开发环境-工具1-场">🛠️ 开发环境 / 工具（1 场）</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">#</th>
+<th style="text-align: left;">标题</th>
+<th style="text-align: center;">时间</th>
+<th style="text-align: left;">内容摘要</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">17</td>
+<td style="text-align: left;"><strong>React 及类似框架结构</strong></td>
+<td style="text-align: center;">yesterday</td>
+<td style="text-align: left;">前半段对比 React/Vue/Angular/Svelte 等前端框架，后半段发现你说的 ReAct 是 AI Agent 的 Reasoning+Acting 范式，延伸介绍了 CoT/ToT/Plan-and-Solve 等范式</td>
+</tr>
+</tbody>
+</table>
+<h3 id="详细内容_2">详细内容</h3>
+<hr>
+<h4 id="⑰-react-及类似框架结构-昨天">⑰ React 及类似框架结构 ⭐ 昨天</h4>
+<p><strong>聊了什么</strong>：一场「误会」引发的精彩对话——你先问 React 前端框架，后半段发现你实际问的是 ReAct 范式，正好把两个领域都覆盖了。</p>
+<p><strong>对话还原</strong>：
+- 你问：「react 是什么，类似的结构还有什么」
+- <strong>React 前端框架</strong>：Facebook 推出的 JS UI 库，核心思想：组件化、声明式编程、虚拟 DOM、单向数据流、JSX
+- <strong>类似前端框架对比</strong>：
+  - <strong>Vue.js</strong>：国内流行，学习曲线平缓，模板语法更接近 HTML
+  - <strong>Angular</strong>：Google 出品，全家桶（自带路由/状态管理），适合企业级
+  - <strong>Svelte</strong>：编译时框架，无虚拟 DOM，运行时体积小
+  - <strong>SolidJS</strong>：语法像 React，细粒度响应式替代虚拟 DOM diff
+  - <strong>Preact</strong>：React 轻量替代品，API 几乎兼容
+- 你说：「推理加行动这个 react」——哦原来是 <strong>ReAct（Reasoning + Acting）</strong>！
+- <strong>ReAct 范式</strong>（Google Research 2022）：让 LLM 交替进行推理（Thought）和行动（Action），观察结果后继续循环：Thought → Action → Observation → Thought… 直到得出答案
+- 你追问：「有没有类似的其他范式」
+  - <strong>链式推理类</strong>：Chain-of-Thought（CoT，逐步推理）、Tree of Thoughts（ToT，树状搜索+回溯）、Self-Ask（自问自答）
+  - <strong>带行动类</strong>：Plan-and-Solve（先规划再执行）、ReWOO（解耦推理+执行，省 token）、LATS（ReAct + ToT + 蒙特卡洛搜索）</p>
+<blockquote>
+<p><strong>数据来源</strong>：2026-07-30 从 Claude.ai recents 页面采集，含实际时间戳
+<strong>内容提取</strong>：通过 CDP 代理进入每场对话抓取实际聊天内容，经提炼汇总成此笔记</p>
+</blockquote>
+<hr>
+<h2 id="关联笔记">🔗 关联笔记</h2>
+<ul>
+<li><a class="wl" href="../../../notes/clippings/p44a38b/2026-08-06-ai-agent-langchain-langgraph-llamaindex.html">2026-08-06-AI-Agent开发框架选型-LangChain-LangGraph-LlamaIndex-小林面试笔记</a> — 框架选型面试视角</li>
+<li><a class="wl" href="../../../notes/clippings/pae26bb/2026-07-07-aiagent.html">2026-07-07-小红书热议AI Agent开发用什么框架</a> — 社区选型热议</li>
+<li><a class="wl" href="../../../notes/domains/javaagent2026.html">领域/Java后端+Agent开发学习路线 2026</a> — Java+Agent 主线</li>
+</ul>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">内容剪藏</span><span class="chip">Claude</span><span class="chip">聊天记录</span><span class="chip">汇总</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/Clippings/Claude/2026-07-30-Claude%E8%81%8A%E5%A4%A9%E8%AE%B0%E5%BD%95%E6%B1%87%E6%80%BB.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../notes/clippings/bilibili/matt-pocock/matt-pocock.html"><span class="dir">← 上一篇</span><span class="t">Matt Pocock 方法论精华：从想法到交付的完整 Agent 工作流</span></a><a class="next" href="../../../notes/clippings/github/pe2edde/2026-07-03-github.html"><span class="dir">下一篇 →</span><span class="t">大学四年比课本有用的 GitHub 仓库</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../index.html">首页</a>
+      <a href="../../../learn.html">课件</a>
+      <a href="../../../notes/index.html">笔记库</a>
+      <a href="../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../about.html">关于</a>
+      <a href="../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../js/main.js" defer></script>
+</body>
+</html>

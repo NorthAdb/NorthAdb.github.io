@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Graph Engineering：从 Loop 到 Graph 的工程化学习笔记 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="主要文章：腾讯技术工程《Loop Engineering 已死？一文带你了解 Graph Engineering》（作者：lukiexing，2026-07-28） 补充材料：Datawhale 整理的 Codez《Graph Engine…">
+<link rel="canonical" href="https://northadb.github.io/notes/clippings/p44a38b/2026-08-09-graph-engineering-datawhale.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Graph Engineering：从 Loop 到 Graph 的工程化学习笔记 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="主要文章：腾讯技术工程《Loop Engineering 已死？一文带你了解 Graph Engineering》（作者：lukiexing，2026-07-28） 补充材料：Datawhale 整理的 Codez《Graph Engine…">
+<meta property="og:url" content="https://northadb.github.io/notes/clippings/p44a38b/2026-08-09-graph-engineering-datawhale.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Graph Engineering：从 Loop 到 Graph 的工程化学习笔记 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="主要文章：腾讯技术工程《Loop Engineering 已死？一文带你了解 Graph Engineering》（作者：lukiexing，2026-07-28） 补充材料：Datawhale 整理的 Codez《Graph Engine…">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../feed.xml">
+<link rel="stylesheet" href="../../../css/style.css">
+<link rel="stylesheet" href="../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Graph Engineering：从 Loop 到 Graph 的工程化学习笔记", "description": "主要文章：腾讯技术工程《Loop Engineering 已死？一文带你了解 Graph Engineering》（作者：lukiexing，2026-07-28） 补充材料：Datawhale 整理的 Codez《Graph Engine…", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/clippings/p44a38b/2026-08-09-graph-engineering-datawhale.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../index.html">首页</a><span>/</span><a href="../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../notes/clippings/index.html">内容剪藏</a></div>
+          <h1>Graph Engineering：从 Loop 到 Graph 的工程化学习笔记</h1>
+          <p class="post-sub">主要文章：腾讯技术工程《Loop Engineering 已死？一文带你了解 Graph Engineering》（作者：lukiexing，2026-07-28） 补充材料：Datawhale 整理的 Codez《Graph Engine…</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../notes/clippings/index.html">内容剪藏</a></span><span class="sep"></span>
+            <span>阅读约 22 分钟</span><span class="sep"></span><span>更新于 2026-08-10</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p><strong>主要文章</strong>：腾讯技术工程《Loop Engineering 已死？一文带你了解 Graph Engineering》（作者：lukiexing，2026-07-28）<br>
+<strong>补充材料</strong>：Datawhale 整理的 Codez《Graph Engineering 实操手册》（2026-08-09）</p>
+</blockquote>
+<p><img alt="Graph Engineering 文章封面" src="https://gitee.com/cheng-jiaqing/images/raw/master/graph-engineering-20260728-cover.jpeg"></p>
+<hr>
+<h2 id="阅读地图三份材料各自解决什么问题">🧭 阅读地图：三份材料各自解决什么问题</h2>
+<table>
+<thead>
+<tr>
+<th>材料</th>
+<th>重点问题</th>
+<th>学习定位</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>腾讯技术工程文章</td>
+<td>为什么需要 Graph、Graph 是什么、什么时候值得用</td>
+<td>建立全局认知与选型判断</td>
+</tr>
+<tr>
+<td>Datawhale 14 步手册</td>
+<td>如何拆节点、定契约、并行、路由、验证、收敛</td>
+<td>把认知落成工程实践</td>
+</tr>
+<tr>
+<td><a class="wl" href="../../../notes/domains/aiagent2026.html">领域/AI Agent 智能体学习路线 2026</a></td>
+<td>应该先学什么、后学什么</td>
+<td>规划学习顺序</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>一句话结论：Graph 不是 Loop 的升级版，而是 Loop 的组织方式。</strong> 先把单体 loop 跑稳，再用 graph 管理多个执行节点之间的状态、路由、验证和恢复。</p>
+</blockquote>
+<hr>
+<h2 id="一腾讯技术工程文章graph-engineering-的核心认知">一、腾讯技术工程文章：Graph Engineering 的核心认知</h2>
+<h3 id="1-五层演进graph-建立在前四层之上">1. 五层演进：Graph 建立在前四层之上</h3>
+<pre><code class="language-text">Prompt Engineering  →  一次对话怎么说
+Context Engineering →  给模型哪些上下文
+Harness Engineering →  工具、护栏、状态、重试如何组织
+Loop Engineering    →  单个 Agent 如何持续发现、执行、验证
+Graph Engineering   →  多个节点如何协作、路由、恢复、审计
+</code></pre>
+<p><img alt="Prompt、Context、Harness、Loop 到 Graph 的五层演进" src="https://gitee.com/cheng-jiaqing/images/raw/master/graph-engineering-20260728-02.png"></p>
+<p>这五层不是互相淘汰，而是逐层叠加。<strong>Loop 解决“一个 Agent 如何持续工作”，Graph 解决“多个 Agent、工具和人如何组成可观测、可恢复、可扩展的系统”。</strong></p>
+<h3 id="2-loop-的结构性缺陷">2. Loop 的结构性缺陷</h3>
+<p>当任务变成长时、多角色、需要独立复核时，单循环会暴露出：</p>
+<ul>
+<li><strong>上下文腐烂</strong>：思考、工具调用和观察结果不断堆入同一窗口，原始目标被淹没。</li>
+<li><strong>错误级联</strong>：工具失败后，模型可能在同一条链上反复试错，直到预算耗尽。</li>
+<li><strong>工具过载</strong>：工具过多或功能相近时，选择准确率下降。</li>
+<li><strong>控制粒度不足</strong>：难以暂停子任务审批、给不同步骤配不同模型或插入独立质检。</li>
+<li><strong>可观测性差</strong>：只能从长对话里反推分支原因，难以复现和审计。</li>
+<li><strong>目标失明</strong>：单一指标被过度优化后，可能偏离真实目标，符合“古德哈特定律”。</li>
+</ul>
+<p><img alt="单个 Agent 的自主循环：观察、行动、检查、修正" src="https://gitee.com/cheng-jiaqing/images/raw/master/graph-engineering-20260728-03.png"></p>
+<p><img alt="指标上升但客户续费率下降：目标失明与古德哈特定律" src="https://gitee.com/cheng-jiaqing/images/raw/master/graph-engineering-20260728-04.png"></p>
+<h3 id="3-graph-的最小模型从四构件到生产级五构件">3. Graph 的最小模型：从四构件到生产级五构件</h3>
+<p>腾讯文章用下面的形式描述 Graph：</p>
+<blockquote>
+<p><strong>G = (V 节点, E 边, S 状态, P 策略)</strong></p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>构件</th>
+<th>工程含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>V — Nodes</strong></td>
+<td>一个 Agent、函数或工具步骤；输入输出清晰，只负责一件事</td>
+</tr>
+<tr>
+<td><strong>E — Edges</strong></td>
+<td>数据传递与路由；包括顺序、条件、扇出、扇入和回环</td>
+</tr>
+<tr>
+<td><strong>S — Shared State</strong></td>
+<td>任务、证据、预算、产物、检查点等沿图流动的状态</td>
+</tr>
+<tr>
+<td><strong>P — Policy</strong></td>
+<td>权限、工具范围、预算、副作用和人工审批等治理约束</td>
+</tr>
+</tbody>
+</table>
+<p>Datawhale 14 步手册进一步强调 <strong>Failure Routing（失败路由）</strong>。因此可以这样理解：</p>
+<blockquote>
+<p><strong>学习版 Graph = Nodes + Edges + State；生产版 Graph = 上述三者 + Policy + Failure Routing。</strong></p>
+</blockquote>
+<p>没有失败边的图只是流程图；没有策略约束的动态图则可能把“谁能改数据库、谁能绕过审批”交给模型临场发挥。</p>
+<p><img alt="研究、事实核查、写作与人工审批组成的可恢复图" src="https://gitee.com/cheng-jiaqing/images/raw/master/graph-engineering-20260728-05.png"></p>
+<h3 id="4-三种高频拓扑与-anthropic-五种模式">4. 三种高频拓扑与 Anthropic 五种模式</h3>
+<table>
+<thead>
+<tr>
+<th>拓扑/模式</th>
+<th>结构</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>菱形 / Parallelization</strong></td>
+<td>拆分 → 并行 → 合并</td>
+<td>多信源研究、多文件审查、多视角验证</td>
+</tr>
+<tr>
+<td><strong>Supervisor / Orchestrator-Workers</strong></td>
+<td>主管动态分派 → 专业节点 → 汇总</td>
+<td>子任务无法提前确定，需要运行时规划</td>
+</tr>
+<tr>
+<td><strong>Pipeline / Prompt Chaining</strong></td>
+<td>A → B → C，阶段间传递结构化结果</td>
+<td>固定、可验证的多步任务</td>
+</tr>
+<tr>
+<td><strong>Routing</strong></td>
+<td>分类 → 专用路径</td>
+<td>不同输入需要不同工具或提示</td>
+</tr>
+<tr>
+<td><strong>Evaluator-Optimizer</strong></td>
+<td>生成 → 评估 → 修订，直到达标</td>
+<td>有明确验收标准且迭代确实有收益</td>
+</tr>
+</tbody>
+</table>
+<p>Anthropic 的核心建议是：<strong>先用最简单的模式，只有在上下文保护、并行探索或专业化确实带来收益时才增加 Graph 复杂度。</strong></p>
+<p><img alt="Graph 的扇出、扇入：多个来源并行研究后交给写稿人" src="https://gitee.com/cheng-jiaqing/images/raw/master/graph-engineering-20260728-06.png"></p>
+<p><img alt="流水线中的检查点 Gate：不合格的中间结果不能进入下一步" src="https://gitee.com/cheng-jiaqing/images/raw/master/graph-engineering-20260728-07.png"></p>
+<h3 id="5-graph-的真正杠杆确定性而不是-agent-数量">5. Graph 的真正杠杆：确定性，而不是 Agent 数量</h3>
+<ul>
+<li><strong>模型负责判断</strong>：分类、规划、写作、风险判断、候选方案生成。</li>
+<li><strong>代码负责可靠性</strong>：schema 校验、去重、排序、预算计算、状态更新、边的选择。</li>
+<li><strong>独立验证器负责推翻结论</strong>：验证节点使用干净上下文，只看结果和验收标准。</li>
+<li><strong>现实负责最终锚定</strong>：测试真的跑过、数据真的对上、付款真的完成、线上指标真的恢复。</li>
+</ul>
+<blockquote>
+<p>如果所有节点都只互相引用模型生成的结论，而没有测试、数据库、用户行为或其他现实证据，Graph 只是“更有组织的幻觉”。</p>
+</blockquote>
+<p><img alt="单个 Agent 同时规划、执行、裁判，容易形成自我确认" src="https://gitee.com/cheng-jiaqing/images/raw/master/graph-engineering-20260728-08.png"></p>
+<p><img alt="独立验证器：通过则放行，失败则打回重做" src="https://gitee.com/cheng-jiaqing/images/raw/master/graph-engineering-20260728-09.png"></p>
+<h3 id="6-loop-与-graph同一个每日研究简报任务">6. Loop 与 Graph：同一个每日研究简报任务</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>臃肿 Loop</th>
+<th>三节点 Graph</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>上下文</td>
+<td>搜索、写作、审查混在一起</td>
+<td>每个节点上下文干净隔离</td>
+</tr>
+<tr>
+<td>搜集</td>
+<td>顺序读取信源</td>
+<td>多信源并行扇出</td>
+</tr>
+<tr>
+<td>审查</td>
+<td>作者自己审自己</td>
+<td>独立审稿节点挑错</td>
+</tr>
+<tr>
+<td>控制</td>
+<td>全有或全无</td>
+<td>可暂停、重试、回滚和人工介入</td>
+</tr>
+<tr>
+<td>成本</td>
+<td>起步便宜</td>
+<td>多提示词、状态和编排成本更高</td>
+</tr>
+<tr>
+<td>选择</td>
+<td>一次性、目标单一的任务</td>
+<td>高频运行、需要质量和可恢复性的任务</td>
+</tr>
+</tbody>
+</table>
+<p><strong>决策原则</strong>：如果任务一次性、目标单一、停止条件清晰，优先保留 Loop；如果需要并行、角色分工、独立验证、持久化或人工审批，Graph 才值得承担额外成本。</p>
+<p><img alt="是否需要 Graph：能否分叉、并行、汇合、兜底和治理" src="https://gitee.com/cheng-jiaqing/images/raw/master/graph-engineering-20260728-11.png"></p>
+<p><img alt="每日研究简报：臃肿 Loop 与三节点 Graph 的对比" src="https://gitee.com/cheng-jiaqing/images/raw/master/graph-engineering-20260728-10.png"></p>
+<h3 id="7-老工作流react-与-graph-的关系">7. 老工作流、ReAct 与 Graph 的关系</h3>
+<p>三者不是简单的替代关系：</p>
+<ul>
+<li><strong>老工作流</strong>：路径稳定但固定，遇到意外情况不会转弯。</li>
+<li><strong>ReAct Loop</strong>：节点内部足够灵活，但控制流泡在模型对话中，难复现、难审计。</li>
+<li><strong>Graph</strong>：用固定的边和策略框住动态节点，让结构可治理、节点内部仍保留自主推理。</li>
+</ul>
+<p><img alt="老工作流、ReAct 与 Graph：结构确定性和节点自主性的折中" src="https://gitee.com/cheng-jiaqing/images/raw/master/graph-engineering-20260728-12.png"></p>
+<h3 id="8-生产化信号">8. 生产化信号</h3>
+<p>文章给出的工程判断可以归纳为：</p>
+<ol>
+<li>多 Agent 的质量提升往往以更高 token 消耗为代价，不能只看成功率。</li>
+<li>Graph 的价值在于上下文隔离、并行搜索、专业化和可恢复执行。</li>
+<li>LangGraph、Google ADK、AutoGen 等框架早已在实践节点、边和状态；Graph Engineering 更多是一个新的观察视角。</li>
+<li><strong>工作图可以动态变化，权限图必须稳定、可审计。</strong></li>
+</ol>
+<h3 id="原文配图补全">原文配图补全</h3>
+<p>以下是原文中的装饰图和公众号尾图，保留在图床中但不参与核心论证：</p>
+<p><img alt="文章装饰图" src="https://gitee.com/cheng-jiaqing/images/raw/master/graph-engineering-20260728-01.gif"></p>
+<p><img alt="腾讯技术工程公众号" src="https://gitee.com/cheng-jiaqing/images/raw/master/graph-engineering-20260728-13.gif"></p>
+<p><img alt="公众号尾图" src="https://gitee.com/cheng-jiaqing/images/raw/master/graph-engineering-20260728-14.jpeg"></p>
+<hr>
+<h2 id="二datawhale-14-步手册如何把认知落成代码">二、Datawhale 14 步手册：如何把认知落成代码</h2>
+<h3 id="核心观点">核心观点</h3>
+<ul>
+<li><strong>Graph = Nodes + Edges + Shared State + Failure Routing</strong>（四个可单独验证的构件）</li>
+<li>拆图是为了<strong>腾出上下文、换取并行度</strong>，不是为了好看</li>
+<li>图里「用代码能做的」尽量用代码做——<strong>边是免费的</strong>，编排这一层不花 token</li>
+<li>关键公式：<strong>确定性（代码）+ 判断力（agent）</strong> 分置不同层</li>
+</ul>
+<hr>
+<h3 id="1-背景从-loop-engineering-到-graph-engineering">1. 背景：从 Loop Engineering 到 Graph Engineering</h3>
+<p>上个月（2026-07）刚流行过 Loop Engineering 实操手册，新词就来了：</p>
+<ul>
+<li><strong>7 月初</strong>，OpenClaw 创始人在 X 上发问：我们还在聊 loop，还是已经切到 graph 了？</li>
+<li>随即有人跟帖：<strong>「Loop Engineering 已死，Graph Engineering 永生」</strong></li>
+</ul>
+<p><img alt="Loop Engineering 已死，Graph Engineering 永生——X 上的讨论截图" src="https://gitee.com/cheng-jiaqing/images/raw/master/img1.png"></p>
+<p>这篇文章整理了 Codez（X 博主）总结的 <strong>14 步</strong> 方法论，全网 570w+ 人看过，讲的就是怎么从一个人的 loop，走到一张能自己路由的 graph。</p>
+<hr>
+<h3 id="2-动手前四个问题-一个附加题">2. 动手前：四个问题 + 一个附加题</h3>
+<blockquote>
+<p>Graph 烧的 token 比单个 loop 更多，协调开销更高，出了 bug 你要 debug 的是一整张你没亲眼看着跑的路由图。<strong>先答完四个问题，再决定要不要建图。</strong></p>
+</blockquote>
+<ol>
+<li>
+<p><strong>这个任务真的能拆成不同角色吗？</strong>
+   拆不出清晰的「谁负责什么」→ 那就还是一个 loop，加节点只是加成本。</p>
+</li>
+<li>
+<p><strong>有没有真正能并行的子任务？</strong>
+   没有独立并行的活，图比循环贵，却不比循环快。</p>
+</li>
+<li>
+<p><strong>单个 agent 的上下文装得下全部背景吗？</strong>
+   装得下，就别急着拆。拆分是为了腾出上下文，不是为了好看。</p>
+</li>
+<li>
+<p><strong>失败之后，你负担得起跳转分支的成本吗？</strong>
+   没想清楚重试耗尽后去哪，图会在你看不见的地方卡死或者乱跑。</p>
+</li>
+</ol>
+<p><img alt="So do you actually need a graph?——四问决策图" src="https://gitee.com/cheng-jiaqing/images/raw/master/img2.png"></p>
+<p><strong>附加题（比上面四个都重要）</strong>：你已经有一个跑得稳的单体 loop 了吗？</p>
+<blockquote>
+<p>没有，先别建图。<strong>图是循环的组织方式，不是循环的替代品。</strong></p>
+</blockquote>
+<h3 id="谁适合-谁不适合">谁适合 / 谁不适合</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>适合</th>
+<th>不适合</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>人</strong></td>
+<td>已经把至少一个 loop 跑稳的团队</td>
+<td>还没让一个 loop 稳定跑起来的个人开发者</td>
+</tr>
+<tr>
+<td><strong>任务</strong></td>
+<td>能明确拆开角色（调研、撰写、复核），接受更高 token 成本换质量和并行度</td>
+<td>线性依赖强、拆不开的任务</td>
+</tr>
+<tr>
+<td><strong>团队</strong></td>
+<td>瓶颈在单节点能力之外</td>
+<td>瓶颈在协调开销而不在单节点能力的团队</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>结论：<strong>Graph Engineering 真有用，但大部分人现在还用不上</strong>——因为大部分人的 loop 都还没跑稳，更别提图。</p>
+</blockquote>
+<hr>
+<h3 id="3-graph-engineering-的四个核心构件">3. Graph Engineering 的四个核心构件</h3>
+<p>一张能跑的图，拆开看就是四个能各自单独验证的部分：</p>
+<table>
+<thead>
+<tr>
+<th>构件</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Nodes（节点）</strong></td>
+<td>图的最小单位。一个节点 = 一个跑着自己 loop 的 agent 或确定性步骤，只认一件事，只对一件事负责。<strong>节点判断不出「完了」，就不是节点，是隐藏依赖。</strong></td>
+</tr>
+<tr>
+<td><strong>Edges（边）</strong></td>
+<td>决定谁接下一棒。顺序边永远触发；条件边看检查结果；并行边一次分给多个节点再汇合。<strong>边留给模型运行时判断得越多，图越灵活，但也越难预判。</strong></td>
+</tr>
+<tr>
+<td><strong>Shared State（共享状态）</strong></td>
+<td>大家都要读写的那份数据。下游节点要用的字段，必须有上游节点写进去。这个对象会逼你承认：这活儿里到底还有多少环节没被真正想清楚。</td>
+</tr>
+<tr>
+<td><strong>Failure Routing（失败路由）</strong></td>
+<td>失败之后的退路。重试耗尽后控制权去哪：退回上一步、转备用节点、还是转人工。<strong>没有失败边的图只是一张流程图，不是一个能跑的系统。</strong></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="4-14-步实操手册">4. 14 步实操手册</h3>
+<h4 id="第一步先分清节点和边">第一步：先分清节点和边</h4>
+<p><strong>01 | 节点是任务，边负责传数据</strong></p>
+<p>一张图其实只有两样东西：节点是工作单元（一个 agent / 一份边界明确的活 / 一个输入 / 一个输出），边是依赖关系（输出喂给下游当输入）。</p>
+<blockquote>
+<p>⚠️ 最容易犯的错：把「然后」当成边。<strong>「总结这个文件，然后告诉我天气」——这两步之间没有边</strong>，天气根本用不到那份总结。这其实是两个互不相干的节点被线性脚本硬凑成先后顺序。<strong>没真用上数据，就没有边。</strong></p>
+</blockquote>
+<p><img alt="节点是任务，边负责传数据" src="https://gitee.com/cheng-jiaqing/images/raw/master/img3.png"></p>
+<p><strong>02 | 你的线性脚本，其实是一张退化的图</strong></p>
+<p>把 agent 写成「先做 A、再做 B、再做 C」——你其实已经画出了一张图，只不过是一条不分岔的单链：每个节点只有一条边进、一条边出。能跑对，但慢、也脆：<strong>C 卡住了 D 就永远轮不到，A 的产出也被困在上游。</strong></p>
+<blockquote>
+<p>图工程的第一项真本事，是<strong>重新画这条链</strong>：对每一根箭头问「有数据真的传过去吗」。大多数链里都有两三根箭头没携带数据，只是当初顺手打的顺序。剪掉这些箭头，链就会塌缩成更宽的东西——几个可同时跑的独立节点，喂给一个需要它们全部到齐的节点。</p>
+</blockquote>
+<p><img alt="你的线性脚本，其实是一张退化的图" src="https://gitee.com/cheng-jiaqing/images/raw/master/img4.png"></p>
+<h4 id="第二步给节点和边定契约">第二步：给节点和边定契约</h4>
+<p><strong>03 | 给每个节点定一份契约</strong></p>
+<p>一个没法推理的节点，就没法拿去并行。契约三要素：<strong>输入有边界</strong>（必须显式传进去，不能指望蹭共享窗口）、<strong>输出有边界</strong>（定义好的形状，最好能校验）、<strong>只干一件事</strong>。</p>
+<p>在 workflow 里，契约靠 schema 强制执行——校验发生在工具调用这一层，格式不对 Claude 会自己重试，不会甩给你一堆自由文本自己解析。</p>
+<p><img alt="给每个节点定一份契约" src="https://gitee.com/cheng-jiaqing/images/raw/master/img5.png"></p>
+<pre><code class="language-js">// 一个有真契约的节点：输入有边界，输出经过校验，只干一件事
+const ITEM = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    title:  { type: 'string' },
+    url:    { type: 'string' },
+    impact: { type: 'string', enum: ['high', 'medium', 'low'] },
+  },
+  required: ['title', 'url', 'impact'],
+};
+
+const result = await agent(source.prompt, {
+  label: `research:${source.key}`,
+  schema: ITEM,             // 强制返回校验过的结构化数据
+  agentType: 'general-purpose',
+});
+// result 现在是下一个节点能信任的形状，不用再靠人工解析
+</code></pre>
+<p><strong>04 | 把边也当成一份数据契约</strong></p>
+<p>边不只是「B 排在 A 后面」，而是一个<strong>关于「传的是什么」的承诺</strong>：A 产出这个形状，B 就按这个形状设计来消费它。</p>
+<blockquote>
+<p>按<strong>数据</strong>给边命名（而不是按顺序命名），两件事立刻变简单：① 一眼看出这条边是不是真的存在；② 形状不变的前提下，换掉边两端的节点不会弄坏整张图。</p>
+</blockquote>
+<p><img alt="把边也当成一份数据契约" src="https://gitee.com/cheng-jiaqing/images/raw/master/img6.png"></p>
+<p>实际写的时候，边就活在普通 JS 里——派活和合成之间的归约（压平、去重、过滤）就是代码在处理节点返回的形状，不需要 agent。<strong>很多人花模型 token 去做的事，其实就是一条边，而边是免费的。</strong></p>
+<h4 id="第三步构建扇出扇入与菱形最常用的拓扑">第三步：构建扇出、扇入与菱形（最常用的拓扑）</h4>
+<p><strong>05 | 用 parallel() 扇出：把活儿一次性派出去</strong></p>
+<p>N 个独立节点（N 个要核实的信源、N 个要审的文件、N 条要查的路由），不要串起来跑，让 Claude 一次性派出去并发执行。</p>
+<p>两个决定稳定性的细节：
+1. <strong>parallel() 是一道屏障</strong>——等所有函数跑完才返回，下一阶段看到完整结果集合
+2. <strong>一个抛错的函数被解析成 null</strong>，而不是拖垮整个批次 → 记得 <code>.filter(Boolean)</code></p>
+<p><img alt="用 parallel() 扇出：把活儿一次性派出去" src="https://gitee.com/cheng-jiaqing/images/raw/master/img7.jpg"></p>
+<pre><code class="language-js">phase('Research');
+// 九个信源，九个 agent，同时开工
+const raw = await parallel(
+  SOURCES.map((s) =&gt; () =&gt;
+    agent(s.prompt, {
+      label: `research:${s.key}`,
+      phase: 'Research',
+      schema: ITEM_SCHEMA,      // 每个节点都返回校验过的 JSON
+      agentType: 'general-purpose',
+    }),
+  ),
+);
+const collected = raw.filter(Boolean);  // 把失败 agent 留下的 null 过滤掉
+</code></pre>
+<blockquote>
+<p>派活这一步活在<strong>代码</strong>里，不活在一轮模型对话里。Claude 的上下文从不同时装着九个信源，每个 subagent 带自己的一份，只有最终答案传回来。<strong>编排这一层不花 token，因为它不是 Claude 又想了一轮。</strong> 这就是一次 workflow 能扩展到几十上百个 subagent、却不会淹没会话的原因。</p>
+</blockquote>
+<p><strong>06 | 在屏障处做汇入</strong></p>
+<p>拢回来的节点 = 边汇聚的地方：一个 agent（或代码）一次性看到全部上游结果，做必须看到全集才能做的事——跨信源去重、按影响力排序、<strong>总数为零就提前退出</strong>。</p>
+<pre><code class="language-js">// 这条边就是普通 JS，没有 agent，零 token
+const flat = collected.flatMap((c) =&gt; c.items);
+log(`Collected ${flat.length} items`);
+
+phase('Curate');
+// 这个屏障节点需要全部结果凑齐才能去重排序
+const curated = await agent(
+  `Dedupe and rank these by impact:\n${JSON.stringify(flat)}`,
+  { phase: 'Curate', schema: CURATED_SCHEMA },
+);
+</code></pre>
+<blockquote>
+<p>判断方法：如果写成了 <code>parallel → transform → parallel</code>，中间那个 transform 又没有跨条目的依赖 → 该用<strong>流水线</strong>，完全不需要屏障。</p>
+</blockquote>
+<p><strong>07 | 菱形：拆分 → 工作 → 合并</strong></p>
+<p>把「派出去」和「拢回来」拼在一起，就是几乎每张正经 agent 图的主力拓扑——<strong>菱形</strong>。一个节点拆任务，多个节点并行干活，一个节点合并。</p>
+<p><img alt="菱形：拆分 → 工作 → 合并" src="https://gitee.com/cheng-jiaqing/images/raw/master/img8.png"></p>
+<blockquote>
+<p>市场扫描、依赖审计、代码评审、研究报告，背后都是这个形状。标准写法有个值得记住的名字：<strong>派发 → 归约 → 合成</strong>（先派出去收集广度，用普通代码归约压缩，再用最后一个 agent 合成写出答案）。</p>
+<p>看懂菱形之后，你就不再问「怎么让 agent 多做几步」，而是问<strong>「拆分点在哪，合并点在哪」</strong>——这才是真正能扩展的问题。</p>
+</blockquote>
+<h4 id="第四步路由验证与隔离">第四步：路由、验证与隔离</h4>
+<p><strong>08 | 用条件语句在运行时给边选路</strong></p>
+<p>不是每张图都是固定的。路由节点检查结果，决定走哪条下游路径——工单分类后分流、看 diff 大小决定快速评审还是完整审计。在 workflow 里就是一个普通的 <code>if</code> / <code>switch</code>。</p>
+<p><img alt="用条件语句在运行时给边选路" src="https://gitee.com/cheng-jiaqing/images/raw/master/img9.png"></p>
+<blockquote>
+<p><strong>节点上拿到 Claude 的判断力，边上拿到脚本的可靠性。</strong> 路由判断可以由 Claude 完成，但路由本身是 Claude 写的代码，同样的分类结果每次都走同一条路。不会出现「Claude 自己决定跳过审计」——因为跳过这件事必须写进图里才会发生，而它没被写进去。</p>
+</blockquote>
+<pre><code class="language-js">// 路由节点：agent 负责分类，代码负责选边
+const { severity } = await agent(
+  `Classify this diff's risk:\n${diff}`,
+  {
+    schema: {
+      type: 'object',
+      properties: { severity: { enum: ['low', 'high'] } },
+      required: ['severity'],
+    },
+  },
+);
+
+let review;
+if (severity === 'high') {
+  // 高风险路径：完整并行审计
+  review = await parallel(FILES.map((f) =&gt; () =&gt; agent(`Audit ${f}`)));
+} else {
+  // 低风险路径：一次快速评审
+  review = await agent(`Quick review of ${diff}`);
+}
+</code></pre>
+<p><strong>09 | 在边上放一个验证器</strong></p>
+<p>一张图真正的杠杆不是塞了更多 agent，而是<strong>能围绕结果搭起多少确定性</strong>。验证器节点蹲在结果被放行到下游之前，唯一的工作就是<strong>试图推翻这个发现</strong>——扛住了就放行，扛不住就到不了最终答案。</p>
+<p><img alt="在边上放一个验证器" src="https://gitee.com/cheng-jiaqing/images/raw/master/img10.png"></p>
+<p>三种模式值得掌握：</p>
+<ul>
+<li><strong>对抗式验证</strong>：给每个发现派 N 个独立怀疑者专门反驳它，多数没被驳倒才算站得住</li>
+<li><strong>多视角验证</strong>：每个验证者盯不同方面（正确性 / 安全性 / 能不能复现），角度越分散越能揪出问题</li>
+<li><strong>评委制</strong>：从不同角度生成 N 个方案，并行评委打分，取最好的一版作主线，再揉进其他版本的亮点</li>
+</ul>
+<blockquote>
+<p>真实案例：某团队移植 Bun 运行时，就是靠对抗式代码评审焊进循环才做成的。</p>
+</blockquote>
+<p><strong>10 | 把节点隔离开，别让一个失败污染整张图</strong></p>
+<ul>
+<li>链式结构里失败会<strong>级联</strong>：C 死了 D 就跑不起来，整条链停摆</li>
+<li>图里失败该被限制在节点内部：<code>parallel()</code> 抛错的函数解析为 <code>null</code>，<code>.filter(Boolean)</code> 就是那道防线</li>
+<li><strong>把每一次汇入设计成能容忍缺失的输入</strong>，而不是假设总能凑齐全集</li>
+</ul>
+<p><img alt="把节点隔离开，别让一个失败污染整张图" src="https://gitee.com/cheng-jiaqing/images/raw/master/img11.png"></p>
+<p>更隐蔽的失败：节点之间互相踩到对方（多个 agent 并行写文件会撞车）。解法是<strong>隔离</strong>——用 git worktree 让每个 agent 在自己的一份工作区里干活，在沙盒里完成再干净地合并回去。只在节点真的会并行写入时才用（它是拓扑真正需要的安全带，不是每次运行都要交的税）。</p>
+<h4 id="第五步循环模型分层与拓扑">第五步：循环、模型分层与拓扑</h4>
+<p><strong>11 | 可以加一个循环，但一定要让它收敛</strong></p>
+<p>规模未知的探索（一次漏洞排查发现一个 bug 又带出三个新的）需要一条指回更早节点的受控边。危险：<strong>不收敛的循环 = 不停派 agent 出去、直到预算耗尽才停的死循环机。</strong></p>
+<p>能收敛的写法叫<strong>「跑到干为止」</strong>：持续派出发现者，直到连续 K 轮都没发现新东西才停下。</p>
+<p><img alt="可以加一个循环，但一定要让它收敛" src="https://gitee.com/cheng-jiaqing/images/raw/master/img12.png"></p>
+<blockquote>
+<p>⚠️ 几乎每个人第一次都会踩的坑：<strong>拿什么去重比对。</strong> 要对着<strong>「见过的一切」</strong>去重，而不是只对着「已确认的结果」去重——不然被否掉的发现每轮都会重新冒出来，循环永远跑不干，最后搭出一台专门花钱反复发现同一批死胡同的机器。</p>
+</blockquote>
+<pre><code class="language-js">const seen = new Set();
+const confirmed = [];
+let dry = 0;
+
+while (dry &lt; 2) {                       // 连续两轮空手而归就停下
+  const found = (await parallel(
+    FINDERS.map((f) =&gt; () =&gt; agent(f.prompt, { schema: BUGS }))
+  )).filter(Boolean).flatMap((r) =&gt; r.bugs);
+
+  const fresh = found.filter((b) =&gt; !seen.has(key(b)));
+  if (!fresh.length) { dry++; continue; }
+  dry = 0;
+  fresh.forEach((b) =&gt; seen.add(key(b)));  // 对&quot;见过的一切&quot;去重，不是只对已确认的
+
+  // 每个新发现都要过一轮多视角验证才算数
+  const judged = await parallel(fresh.map((b) =&gt; () =&gt;
+    parallel(['correctness', 'security', 'repro'].map((lens) =&gt; () =&gt;
+      agent(`Judge &quot;${b.desc}&quot; via ${lens} — real?`, { schema: VERDICT })))
+      .then((v) =&gt; ({ b, real: v.filter(Boolean).filter((x) =&gt; x.real).length &gt;= 2 }))
+  ));
+
+  confirmed.push(...judged.filter((v) =&gt; v.real).map((v) =&gt; v.b));
+}
+</code></pre>
+<p><strong>12 | 给不同节点分配不同档位的模型</strong></p>
+<p>不是每个节点都需要最好的模型。图的形状会把这件事摆明白：<strong>有边界、会重复的活</strong>（抽字段、工单分类）放便宜模型；<strong>承载真正判断力的活</strong>（合成报告、裁定发现是否成立）留在高档位。token 花在真正需要判断力的地方。</p>
+<p><img alt="给不同节点分配不同档位的模型" src="https://gitee.com/cheng-jiaqing/images/raw/master/img13.jpg"></p>
+<blockquote>
+<p>注意：workflow 里 Claude 派出的每个 subagent <strong>默认继承本次会话的模型</strong>，除非脚本里显式覆盖——所以大规模运行前先看一眼 <code>/model</code>，把重复性节点降到便宜模型、合并节点留在高档位。<strong>能把一张烧 token 的图从贵变便宜，还完全不用动它的形状。</strong></p>
+</blockquote>
+<p><strong>13 | 拓扑结构，就是你的成本和延迟</strong></p>
+<p>图的形状不是装饰，它是决定运行时间的最大杠杆。最容易踩坑的选择是 <code>parallel()</code> 还是 <code>pipeline()</code>：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>parallel()</th>
+<th>pipeline()</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>行为</td>
+<td>屏障：等最慢的节点才进下一阶段</td>
+<td>无屏障：每条数据独立依次过所有阶段</td>
+</tr>
+<tr>
+<td>场景</td>
+<td>真需要全部结果到齐：跨集合去重、按总数提前退出、需要对照「其他发现」的 prompt</td>
+<td>默认选择</td>
+</tr>
+<tr>
+<td>特征</td>
+<td>慢的拖累快的</td>
+<td>条目 A 可能在第三阶段，B 还在第一阶段</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="拓扑结构，就是你的成本和延迟" src="https://gitee.com/cheng-jiaqing/images/raw/master/img14.png"></p>
+<blockquote>
+<p><strong>默认用 pipeline()。</strong> 「代码更干净」「这些阶段感觉是分开的」都不是用屏障的理由——屏障带来的延迟是真实的、可测量的、被浪费掉的时间。<strong>分开不代表必须同步。</strong></p>
+</blockquote>
+<h4 id="最后一步让-claude-自己画图">最后一步：让 Claude 自己画图</h4>
+<p><strong>14 | 让 Claude 自己画图，自我路由</strong></p>
+<p>对没法提前规划的活儿，不再自己动手画图——用 <strong>dynamic workflows</strong>：只要描述目标，Claude 会自己写编排脚本：拆解任务、决定怎么派活、派出一队 subagent、再合成结果。拿到的是<strong>为这次运行量身定做的图</strong>，而不是一张你希望它恰好合适的固定图。</p>
+<p>三种用法：</p>
+<ol>
+<li><strong>在 prompt 里说出「workflow」</strong> → Claude 为这个任务写一份编排脚本</li>
+<li><strong>跑存好/内置的 workflow</strong>（如 <code>/deep-research</code>）→ 一张已在生产里跑着的真实图：定范围 → 并行搜索 → 抓取 → 对抗式验证 → 合成（正是整篇文章讲的那副骨架）</li>
+<li><strong>打开 ultracode</strong> → Claude 给会话里每个像样的任务都规划一次 workflow</li>
+</ol>
+<p>跑得好的时候按 <code>s</code> 把脚本存进 <code>.claude/workflows/</code>，从此可以版本控制、按名字重新运行，谁 clone 了这个仓库都能直接跑起来。</p>
+<p><img alt="让 Claude 自己画图，自我路由" src="https://gitee.com/cheng-jiaqing/images/raw/master/img15.jpg"></p>
+<pre><code>› Run a workflow to audit every route under src/routes/ for missing auth.
+  Spawn one agent per route file, then verify each finding before reporting.
+● Claude wrote an orchestration script · launching in background…
+/workflows — auth-audit · running
+✓  Scope      1/1     2.1k tok
+   Fan-out    18/18   one agent per route file
+   Verify     11/18   3-vote skeptics per finding…
+   Synthesize 0/1    waiting on verify
+// 会话保持响应，队伍在后台继续跑
+</code></pre>
+<hr>
+<h3 id="5-结尾点睛">5. 结尾点睛</h3>
+<blockquote>
+<p>两年来，多 agent 协作的杠杆一直在单个 loop 上：更好的 verifier，更稳的退出条件，更干净的状态文件。</p>
+<p>而现在，<strong>把这些 loop 怎么连起来，成了新的护城河。</strong></p>
+</blockquote>
+<hr>
+<h2 id="三与-ai-agent-学习路线对照学习">三、与 AI Agent 学习路线对照学习</h2>
+<p><a class="wl" href="../../../notes/domains/aiagent2026.html">领域/AI Agent 智能体学习路线 2026</a> 是“从基础到生产”的纵向路线；本笔记把其中的 <strong>Loop、Harness、Multi-Agent、Eval、部署</strong> 横向串成了一条 Graph Engineering 主线。</p>
+<table>
+<thead>
+<tr>
+<th>学习路线阶段</th>
+<th>Graph Engineering 对应知识</th>
+<th>学习重点 / 验收标准</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Stage 0：LLM 基础</strong></td>
+<td>JSON Schema、Pydantic、API、Git</td>
+<td>能定义节点输入输出契约，不依赖自由文本解析</td>
+</tr>
+<tr>
+<td><strong>Stage 1：认识 Agent</strong></td>
+<td>Loop 是 Graph 的前置条件</td>
+<td>能解释 LLM、Agent、Workflow、Graph 的边界</td>
+</tr>
+<tr>
+<td><strong>Stage 2：Agent 循环</strong></td>
+<td>max steps、timeout、retry、error handling</td>
+<td>先做出一个有停止条件、可重试、可观测的单体 loop</td>
+</tr>
+<tr>
+<td><strong>Stage 3：Tool / RAG / Memory</strong></td>
+<td>工具节点、上下文隔离、共享状态</td>
+<td>能把检索结果、工具结果和记忆字段显式放入 state</td>
+</tr>
+<tr>
+<td><strong>Stage 4：Harness 工程化</strong></td>
+<td>节点抽象、条件边、checkpoint、HITL、状态管理</td>
+<td>理解 Graph 本质上是更高一层的 Harness，而不是新模型</td>
+</tr>
+<tr>
+<td><strong>Stage 5：Multi-Agent</strong></td>
+<td>菱形、Supervisor、Pipeline、Evaluator-Optimizer</td>
+<td>能根据依赖关系选择并行、流水线或动态路由</td>
+</tr>
+<tr>
+<td><strong>Stage 6：MCP / A2A / Skills</strong></td>
+<td>MCP/Skills 作为节点能力，A2A 作为跨 Agent 边</td>
+<td>先区分“能力接入协议”和“任务编排拓扑”，不要混为一谈</td>
+</tr>
+<tr>
+<td><strong>Stage 7：Browser / Computer Use</strong></td>
+<td>浏览器操作、DOM 解析、人工审批节点</td>
+<td>高风险副作用必须有 policy、验证器和人工确认</td>
+</tr>
+<tr>
+<td><strong>Stage 8：Eval / Observability / Safety</strong></td>
+<td>独立 verifier、trace、replay、权限、失败路由</td>
+<td>每个关键结论都有验证路径，失败能重试、降级或转人工</td>
+</tr>
+<tr>
+<td><strong>Stage 9：生产部署</strong></td>
+<td>durable execution、预算、日志、告警、灰度</td>
+<td>能从 checkpoint 恢复，控制 token 成本并定位具体节点故障</td>
+</tr>
+</tbody>
+</table>
+<h3 id="对比结论">对比结论</h3>
+<ol>
+<li><strong>学习路线回答“先学什么”</strong>：从 LLM、Tool Calling 和单体 Loop 开始，逐步进入 Harness、Multi-Agent 和生产部署。</li>
+<li><strong>Graph 文章回答“什么时候升级”</strong>：只有任务存在明确角色、可并行子任务、上下文压力或独立验证需求时，才值得承担 Graph 的复杂度。</li>
+<li><strong>14 步手册回答“怎么落地”</strong>：节点契约、数据边、扇出/扇入、验证器、隔离、收敛循环、模型分层和拓扑优化。</li>
+<li><strong>三者的共同原则</strong>：代码负责确定性，模型负责判断；先用最简单的结构；所有关键路径都要有停止条件、失败路由和现实锚点。</li>
+</ol>
+<h3 id="建议的-graph-专项练习阶梯">建议的 Graph 专项练习阶梯</h3>
+<ul>
+<li class="task"><span class="cb" aria-hidden="true"></span><strong>练习 1：稳定 Loop</strong> — Calculator / Web Research Agent；记录成功率、步数、失败类型和 token 成本。</li>
+<li class="task"><span class="cb" aria-hidden="true"></span><strong>练习 2：RAG Loop</strong> — PDF QA；把检索、引用和答案校验设计成显式状态。</li>
+<li class="task"><span class="cb" aria-hidden="true"></span><strong>练习 3：最小 Graph</strong> — <code>Research（并行） → Write → Verify → Revise</code>，至少加入一次失败回路。</li>
+<li class="task"><span class="cb" aria-hidden="true"></span><strong>练习 4：LangGraph 生产能力</strong> — 加入 State、Checkpoint、Streaming 和 Human-in-the-loop，验证中断后可以恢复。</li>
+<li class="task"><span class="cb" aria-hidden="true"></span><strong>练习 5：安全与评估</strong> — 给高风险路径加 Router、独立 Verifier、权限策略、trace/replay 和预算上限。</li>
+</ul>
+<blockquote>
+<p><strong>最终学习顺序：先 Loop，后 Graph；先固定拓扑，后动态工作流；先验证质量，再扩展 Agent 数量。</strong></p>
+</blockquote>
+<h2 id="关联笔记">🔗 关联笔记</h2>
+<ul>
+<li><a class="wl" href="../../../notes/domains/aiagent2026.html">领域/AI Agent 智能体学习路线 2026</a> — 学习路线总纲（Stage 4-5：LangGraph 框架 / 多 Agent 系统）</li>
+<li><a class="wl" href="../../../notes/clippings/bilibili/2026-07-31-agent-harness-loop-graph.html">2026-07-31-Agent系统架构设计-Harness-Loop-Graph怎么选</a> — Loop vs Graph 选型</li>
+<li><a class="wl" href="../../../notes/clippings/bilibili/2026-07-31-10ai-agent-8.html">2026-07-31-10分钟讲透AI-Agent-8种主流架构</a> — 8 种主流 Agent 架构</li>
+<li><a class="wl" href="../../../notes/clippings/p44a38b/2026-08-06-ai-agent-langchain-langgraph-llamaindex.html">2026-08-06-AI-Agent开发框架选型-LangChain-LangGraph-LlamaIndex-小林面试笔记</a> — 框架选型</li>
+</ul>
+<h2 id="来源覆盖与局限">来源、覆盖与局限</h2>
+<ul>
+<li><strong>主要文章</strong>：<a href="https://mp.weixin.qq.com/s/LzpfUsJRMcpPHzDovo5IrA">https://mp.weixin.qq.com/s/LzpfUsJRMcpPHzDovo5IrA</a>（腾讯技术工程，作者：lukiexing，2026-07-28）</li>
+<li><strong>补充文章</strong>：<a href="https://mp.weixin.qq.com/s/GZrKCHJaG5g7Ua-ZiEP-fQ">https://mp.weixin.qq.com/s/GZrKCHJaG5g7Ua-ZiEP-fQ</a>（Datawhale 整理，2026-08-09）</li>
+<li><strong>获取方式</strong>：主要文章通过浏览器会话读取；Jina Reader 访问微信公众号时被验证码拦截。</li>
+<li><strong>图片处理</strong>：主要文章封面与 14 张正文图片已上传至 Gitee 图床（<code>gitee.com/cheng-jiaqing/images</code>），并以 Markdown 图片形式嵌入；补充文章原有 15 张示意图继续使用原 Gitee 图床链接。</li>
+<li>⚠️ 文章中的 Graph、workflow、<code>parallel()</code>、<code>pipeline()</code>、schema 等概念有重叠，但 Graph Engineering 不是一个全新的框架或协议；它更像是对多 Agent 编排工程重心的命名和总结。</li>
+</ul>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">内容剪藏</span><span class="chip">AI</span><span class="chip">Agent</span><span class="chip">Graph Engineering</span><span class="chip">Multi-Agent</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/Clippings/%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7/2026-08-09-Graph-Engineering%E5%AE%9E%E6%93%8D%E6%89%8B%E5%86%8C%E5%85%AC%E5%BC%80-Datawhale.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../notes/clippings/p44a38b/2026-08-07-codex-agents-md-skills-subagents-mcp-hooks-coding.html"><span class="dir">← 上一篇</span><span class="t">Codex 工程化五件套详解：AGENTS.md / Skills / Subagents / MCP / Hooks</span></a><a class="next" href="../../../notes/clippings/p44a38b/2026-08-09-7ai-coding.html"><span class="dir">下一篇 →</span><span class="t">这 7 个 AI 编程提示词，建议直接收藏！</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../index.html">首页</a>
+      <a href="../../../learn.html">课件</a>
+      <a href="../../../notes/index.html">笔记库</a>
+      <a href="../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../about.html">关于</a>
+      <a href="../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../js/main.js" defer></script>
+</body>
+</html>

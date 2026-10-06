@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MySQL vs PostgreSQL vs SQLite：对比、AI 时代选型与学习曲线 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="面向想学关系型数据库的开发者。结论可直接看文首摘要。">
+<link rel="canonical" href="https://northadb.github.io/notes/domains/mysql-vs-postgresql-ai.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="MySQL vs PostgreSQL vs SQLite：对比、AI 时代选型与学习曲线 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="面向想学关系型数据库的开发者。结论可直接看文首摘要。">
+<meta property="og:url" content="https://northadb.github.io/notes/domains/mysql-vs-postgresql-ai.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MySQL vs PostgreSQL vs SQLite：对比、AI 时代选型与学习曲线 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="面向想学关系型数据库的开发者。结论可直接看文首摘要。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../feed.xml">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "MySQL vs PostgreSQL vs SQLite：对比、AI 时代选型与学习曲线", "description": "面向想学关系型数据库的开发者。结论可直接看文首摘要。", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/domains/mysql-vs-postgresql-ai.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../index.html">首页</a><span>/</span><a href="../../notes/index.html">我的笔记库</a><span>/</span><a href="../../notes/domains/index.html">知识领域</a></div>
+          <h1>MySQL vs PostgreSQL vs SQLite：对比、AI 时代选型与学习曲线</h1>
+          <p class="post-sub">面向想学关系型数据库的开发者。结论可直接看文首摘要。</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../notes/domains/index.html">知识领域</a></span><span class="sep"></span>
+            <span>阅读约 9 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p>面向想学关系型数据库的开发者。结论可直接看文首摘要。</p>
+</blockquote>
+<h2 id="摘要">摘要</h2>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>简答</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>核心区别</td>
+<td>MySQL 偏「简单够用、生态广」；PostgreSQL 偏「标准严、类型与扩展强」；SQLite 偏「嵌入式、零运维、单文件」</td>
+</tr>
+<tr>
+<td>AI 时代更该学哪个</td>
+<td>服务端 AI/RAG <strong>优先 PostgreSQL</strong>；本地 Agent、桌面端、移动端和测试场景补 SQLite；MySQL 仍值得会基础</td>
+</tr>
+<tr>
+<td>是否只学一个</td>
+<td>先深 PostgreSQL 或 MySQL，再快速补 SQLite；三者共同底层仍是关系模型、SQL、索引和事务</td>
+</tr>
+<tr>
+<td>学习曲线</td>
+<td>SQLite 入门最平；MySQL 入门平且生态广；PostgreSQL 入门略陡，中后期上限更高</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="1-它们分别是什么">1. 它们分别是什么</h2>
+<ul>
+<li><strong>MySQL</strong>：开源关系型数据库，长期以 Web/业务库为主。常见发行版：官方 MySQL、<strong>MariaDB</strong>（兼容分叉）、云厂商托管版（RDS 等）。</li>
+<li><strong>PostgreSQL</strong>（常称 Postgres）：开源对象-关系型数据库，强调 SQL 标准符合度与可扩展性。云上常见 Aurora PostgreSQL、Cloud SQL、阿里云 RDS PostgreSQL、Neon、Supabase 等。</li>
+<li><strong>SQLite</strong>：嵌入式关系型数据库，以一个本地文件提供 SQL、事务和索引能力，不需要独立数据库服务。常见于桌面端、移动端、边缘设备、测试环境和本地优先应用。</li>
+</ul>
+<p>三者都能完成表、索引、CRUD 和事务，但部署模型完全不同：MySQL/PostgreSQL 是客户端—服务器数据库，SQLite 是进程内嵌入式数据库。</p>
+<hr>
+<h2 id="2-主要区别实用向">2. 主要区别（实用向）</h2>
+<h3 id="21-定位与哲学">2.1 定位与哲学</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>MySQL</th>
+<th>PostgreSQL</th>
+<th>SQLite</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>设计倾向</td>
+<td>简单、快、够用，InnoDB 为主</td>
+<td>功能完整、标准优先、扩展丰富</td>
+<td>零配置、嵌入式、单文件</td>
+</tr>
+<tr>
+<td>SQL 标准</td>
+<td>相对宽松，有不少方言</td>
+<td>更贴近标准，复杂查询能力强</td>
+<td>SQL 能力完整但有自己的限制和方言</td>
+</tr>
+<tr>
+<td>典型印象</td>
+<td>PHP/LAMP、电商、CMS、存量业务</td>
+<td>分析型查询、GIS、复杂约束、AI/数据平台</td>
+<td>手机 App、桌面软件、CLI、测试、边缘设备</td>
+</tr>
+<tr>
+<td>部署方式</td>
+<td>独立服务</td>
+<td>独立服务</td>
+<td>进程内库，无需单独服务</td>
+</tr>
+</tbody>
+</table>
+<h3 id="22-数据类型与建模">2.2 数据类型与建模</h3>
+<table>
+<thead>
+<tr>
+<th>能力</th>
+<th>MySQL</th>
+<th>PostgreSQL</th>
+<th>SQLite</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>JSON</td>
+<td>有 JSON 类型与函数，实用</td>
+<td>JSON/JSONB 成熟，JSONB 可索引</td>
+<td>JSON1 扩展可用，但类型和生态更轻量</td>
+</tr>
+<tr>
+<td>数组 / 复合类型</td>
+<td>弱</td>
+<td>原生数组、复合类型、范围类型丰富</td>
+<td>没有原生数组/复合类型，通常用表或 JSON 表达</td>
+</tr>
+<tr>
+<td>类型系统</td>
+<td>常见类型够用，部分行为较宽松</td>
+<td>类型系统最丰富，约束表达力强</td>
+<td>动态类型 + type affinity，需更重视约束和校验</td>
+</tr>
+<tr>
+<td>全文检索</td>
+<td>有，能力中等</td>
+<td>内置较好；还可接扩展</td>
+<td>FTS5 适合本地全文搜索</td>
+</tr>
+<tr>
+<td>GIS</td>
+<td>有空间类型</td>
+<td><strong>PostGIS</strong> 是业界标杆</td>
+<td>依赖 SpatiaLite 等扩展</td>
+</tr>
+</tbody>
+</table>
+<h3 id="23-事务并发与可靠性">2.3 事务、并发与可靠性</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>MySQL (InnoDB)</th>
+<th>PostgreSQL</th>
+<th>SQLite</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>事务</td>
+<td>成熟 ACID</td>
+<td>成熟 ACID，MVCC 模型清晰</td>
+<td>成熟 ACID，事务边界简单</td>
+</tr>
+<tr>
+<td>并发</td>
+<td>适合服务端高并发</td>
+<td>适合服务端复杂并发</td>
+<td>多读可并行，但同一数据库写入通常是单写者</td>
+</tr>
+<tr>
+<td>DDL</td>
+<td>历史上不少操作会锁表；新版本改善中</td>
+<td>许多 DDL 可较友好；仍需注意长事务</td>
+<td>迁移能力更简单，复杂变更通常需重建表</td>
+</tr>
+<tr>
+<td>复制 / 高可用</td>
+<td>异步/半同步等，生态成熟</td>
+<td>逻辑复制、物理复制都很强</td>
+<td>无内置服务端复制和集群能力，需应用或外部工具解决</td>
+</tr>
+<tr>
+<td>用户与权限</td>
+<td>服务端权限体系</td>
+<td>角色、权限和 RLS 丰富</td>
+<td>没有服务端用户体系，权限主要由文件系统控制</td>
+</tr>
+</tbody>
+</table>
+<p>细节差异多，<strong>业务正确性都依赖正确用事务与约束</strong>，不要只靠默认隔离级别「感觉」。</p>
+<h3 id="24-扩展与生态">2.4 扩展与生态</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>MySQL</th>
+<th>PostgreSQL</th>
+<th>SQLite</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>插件/扩展</td>
+<td>相对封闭，能力多在内核与周边工具</td>
+<td><strong>扩展极其丰富</strong>（PostGIS、pgvector、Timescale、Citus 等）</td>
+<td>可加载扩展；JSON1、FTS5 常见，向量扩展生态仍较分散</td>
+</tr>
+<tr>
+<td>ORM / 框架</td>
+<td>几乎所有框架一流支持</td>
+<td>同样一流支持</td>
+<td>几乎所有语言都有驱动，适合嵌入式应用</td>
+</tr>
+<tr>
+<td>运维资料 / 招聘</td>
+<td>国内岗位与历史资料非常多</td>
+<td>云原生与数据岗里很常见</td>
+<td>更常作为应用内置数据库，较少单独招聘 DBA</td>
+</tr>
+<tr>
+<td>云托管</td>
+<td>到处都有</td>
+<td>到处都有，现代后端常见</td>
+<td>通常不需要托管，直接随应用部署</td>
+</tr>
+</tbody>
+</table>
+<h3 id="25-性能直觉避免神话">2.5 性能直觉（避免神话）</h3>
+<ul>
+<li><strong>没有绝对谁更快</strong>：取决于 schema、索引、查询、硬件、缓存与工作负载。</li>
+<li>简单主键点查、高并发短事务：两者都能做得很好。</li>
+<li>复杂 JOIN、窗口函数、分析型 SQL、半结构化 + 向量混合查：Postgres 往往更省心。</li>
+<li>MySQL 在大量互联网存量系统里被调得很透，运维经验可以转化为性能。</li>
+<li>SQLite 在单机、小数据量和本地读写场景中延迟很低，但不能把“单文件简单”误解为适合高并发写入、跨机器集群或大型服务端主库。</li>
+</ul>
+<h3 id="26-许可与发行版注意点">2.6 许可与发行版注意点</h3>
+<ul>
+<li>MySQL：Oracle 公司主导；生产常见 <strong>InnoDB</strong>。注意与 <strong>MariaDB</strong> 的兼容边界（不是 100% 相同）。</li>
+<li>PostgreSQL：许可宽松（PostgreSQL License），分叉与云厂商改动多，但 SQL 与扩展生态仍以社区 Postgres 为共同语言。</li>
+<li>SQLite：核心代码属于公有领域，适合嵌入商业软件；具体发行包、扩展和周边工具仍需单独查看许可证。</li>
+</ul>
+<hr>
+<h2 id="3-ai-时代应该学哪个">3. AI 时代应该学哪个？</h2>
+<h3 id="31-推荐顺序20252026-实用建议">3.1 推荐顺序（2025–2026 实用建议）</h3>
+<ol>
+<li><strong>服务端 AI 主学：PostgreSQL</strong><br>
+   原因与 AI/现代应用叠合度高：
+   - <strong>pgvector</strong>（及同类扩展）把向量检索放进同一库，RAG/语义搜索原型极常见；
+   - <strong>JSONB</strong> 适合存 LLM 结构化输出、元数据、工具调用结果；
+   - 丰富 SQL（窗口、CTE、UPSERT）利于特征表、分析与管道；
+   - 现代 BaaS / 开源栈默认 Postgres：<strong>Supabase、Neon、许多 Agent 记忆/会话存储示例</strong>。</li>
+<li><strong>求职与存量业务补学：MySQL 基础</strong><br>
+    存量系统、面试、外包与传统业务库仍大量是 MySQL/MariaDB；会「读写模型 + 索引 + 事务」即可快速上手。</li>
+<li><strong>本地应用与实验补学：SQLite</strong><br>
+   - 适合本地优先 Agent、桌面应用、移动端、CLI 工具和自动化测试；
+   - 无需安装服务，复制一个数据库文件即可运行和迁移；
+   - 可以存本地会话、工具调用日志、轻量 Memory、配置和缓存；
+   - 但不适合作为多实例高并发服务、复杂权限系统或大规模集群的唯一主库。</li>
+</ol>
+<h3 id="32-什么时候反而应主攻-mysql">3.2 什么时候反而应主攻 MySQL？</h3>
+<ul>
+<li>团队/公司技术栈明确是 MySQL，且你短期要交付业务；</li>
+<li>岗位 JD 明确要求 MySQL 深度（复制、InnoDB、大厂中间件）；</li>
+<li>维护已有 MySQL 为主的遗产系统。</li>
+</ul>
+<p>此时仍建议<strong>抽时间了解 Postgres + pgvector</strong>，避免 AI 相关项目完全陌生。</p>
+<h3 id="33-ai-只用向量库还要不要-sql">3.3 「AI 只用向量库，还要不要 SQL？」</h3>
+<p>要。向量库（Milvus、Qdrant、云向量服务等）解决相似度检索；真实系统仍需要：</p>
+<ul>
+<li>用户/权限/订单等<strong>事务数据</strong>；</li>
+<li>文档元数据、会话、审计、计费；</li>
+<li>与业务 JOIN、过滤、一致性。</li>
+</ul>
+<p>模式经常是：<strong>Postgres（业务 + 元数据 ± 向量）</strong> 或 <strong>Postgres + 专用向量库</strong>。学好关系库不会过时。</p>
+<p>本地优先 Agent 也可以采用 <strong>SQLite（会话/Memory/日志）+ 专用向量库</strong>，或 SQLite 配合本地向量扩展；但向量生态和并发能力不如 PostgreSQL + pgvector 统一。</p>
+<h3 id="34-一句话选型">3.4 一句话选型</h3>
+<blockquote>
+<p>为 AI 应用、副业与长期通用能力 → <strong>PostgreSQL 优先</strong>。<br>
+为入职传统业务组、改存量 → <strong>MySQL 也必须会</strong>。<br>
+为本地 Agent、桌面端、移动端和测试 → <strong>SQLite 优先</strong>。<br>
+理想状态：<strong>Postgres 深 + MySQL 熟 + SQLite 会用会取舍</strong>。</p>
+</blockquote>
+<hr>
+<h2 id="4-学习曲线">4. 学习曲线</h2>
+<h3 id="41-总体对比">4.1 总体对比</h3>
+<pre><code>难度（主观）
+入门:     SQLite ●○○○○  &lt;  MySQL ●●○○○  &lt;  PostgreSQL ●●●○○
+进阶 SQL: MySQL ●●●○○  ≈  PostgreSQL ●●●●○（PG 天花板更高）
+运维复制: MySQL ●●●●○  ≈  PostgreSQL ●●●●○（路径不同）
+本地应用: SQLite ●●○○○  &gt;  MySQL ●○○○○ / PostgreSQL ●○○○○
+AI/扩展:  MySQL ●●○○○  &lt;  SQLite ●●●○○  &lt;  PostgreSQL ●●●●○
+</code></pre>
+<ul>
+<li><strong>MySQL</strong>：教程多、中文资料多、XAMPP/宝塔/云 RDS 一键多，<strong>第一周就能做 CRUD + 索引</strong>。</li>
+<li><strong>PostgreSQL</strong>：概念（schema、角色、扩展、JSONB、MVCC 可见性）稍多，<strong>第一周也能做 CRUD</strong>，到 JSONB/窗口函数/扩展时斜率变陡，但换来的能力更值钱。</li>
+<li><strong>SQLite</strong>：几乎零安装成本，一个文件即可开始，最适合快速学习 SQL、做 Demo、写测试和构建本地应用；进阶难点主要转向并发写入、迁移、文件锁和数据备份，而不是服务端集群运维。</li>
+</ul>
+<h3 id="42-分阶段路径通用可套在任一库">4.2 分阶段路径（通用，可套在任一库）</h3>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>目标</th>
+<th>大致时间（业余）</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>L0 入门</td>
+<td>会装会连会查</td>
+<td>3–7 天</td>
+<td>安装/Docker、客户端、库表、CRUD、主键</td>
+</tr>
+<tr>
+<td>L1 建模</td>
+<td>不写出灾难 schema</td>
+<td>1–2 周</td>
+<td>范式直觉、外键、索引（BTree）、EXPLAIN 入门</td>
+</tr>
+<tr>
+<td>L2 事务</td>
+<td>写对业务一致性</td>
+<td>1–2 周</td>
+<td>事务、隔离级别直觉、锁与死锁、连接池</td>
+</tr>
+<tr>
+<td>L3 查询</td>
+<td>复杂报表与性能</td>
+<td>2–4 周</td>
+<td>JOIN、子查询、CTE、窗口函数、慢查询</td>
+</tr>
+<tr>
+<td>L4 生产</td>
+<td>敢上线</td>
+<td>持续</td>
+<td>备份恢复、复制、迁移、监控、权限</td>
+</tr>
+<tr>
+<td>L5 AI 向</td>
+<td>能做 RAG 存储</td>
+<td>1–2 周叠加</td>
+<td>JSONB、全文、<strong>pgvector</strong>、混合检索取舍</td>
+</tr>
+</tbody>
+</table>
+<h3 id="43-postgresql-建议练习项目ai-向">4.3 PostgreSQL 建议练习项目（AI 向）</h3>
+<ol>
+<li>用户表 + 文章表 + 标签（多对多）+ 基础索引；  </li>
+<li>用 JSONB 存「LLM 抽取的结构化字段」，并建表达式索引；  </li>
+<li>接入 <strong>pgvector</strong>：文档块 embedding 入库，做 top-k 相似检索 + 元数据过滤；  </li>
+<li>简单会话/记忆表：多轮对话消息、token 用量审计。</li>
+</ol>
+<h3 id="44-mysql-建议练习项目补齐向">4.4 MySQL 建议练习项目（补齐向）</h3>
+<ol>
+<li>同样的用户/文章模型用 MySQL 实现一遍；  </li>
+<li>看懂 <code>EXPLAIN</code>，人为制造并消灭全表扫描；  </li>
+<li>了解 binlog 与「备份 + 时间点恢复」概念即可（不必一上来深挖源码级）。</li>
+</ol>
+<h3 id="45-sqlite-建议练习项目本地-agent-向">4.5 SQLite 建议练习项目（本地 Agent 向）</h3>
+<ol>
+<li>做一个 CLI 记账或待办应用：练习单文件数据库、CRUD、事务和迁移；</li>
+<li>做一个本地 Agent 会话库：保存 <code>sessions</code>、<code>messages</code>、<code>tool_calls</code>、<code>artifacts</code> 和 <code>token_usage</code>；</li>
+<li>用 WAL 模式观察多读单写、锁等待和事务边界；</li>
+<li>用 FTS5 做本地文档全文搜索，再与向量检索组合；</li>
+<li>把 SQLite 作为测试数据库，验证 Repository、事务回滚和数据迁移。</li>
+</ol>
+<blockquote>
+<p>SQLite 练习的重点不是把它改造成“微型 PostgreSQL”，而是理解嵌入式数据库、文件持久化和本地优先应用的取舍。</p>
+</blockquote>
+<h3 id="46-从-a-迁到-b-难不难">4.6 从 A 迁到 B 难不难？</h3>
+<p>不难。难的是<strong>索引设计、事务边界、SQL 方言与运维习惯</strong>，不是「另一个产品要从零学语言」。<br>
+学会：</p>
+<ul>
+<li>关系模型与索引；</li>
+<li>事务与隔离；</li>
+<li>EXPLAIN / 慢查询；</li>
+</ul>
+<p>之后换引擎主要是查文档对齐语法（分页、UPSERT、JSON 函数名等）。</p>
+<hr>
+<h2 id="5-速查功能对照常见点">5. 速查：功能对照（常见点）</h2>
+<table>
+<thead>
+<tr>
+<th>需求</th>
+<th>更常选</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>个人项目 / AI demo / Supabase</td>
+<td>PostgreSQL</td>
+</tr>
+<tr>
+<td>WordPress、老电商、大量 PHP 遗产</td>
+<td>MySQL/MariaDB</td>
+</tr>
+<tr>
+<td>本地 CLI、桌面端、移动端、自动化测试</td>
+<td>SQLite</td>
+</tr>
+<tr>
+<td>地理信息</td>
+<td>PostgreSQL + PostGIS</td>
+</tr>
+<tr>
+<td>向量检索与库内 RAG</td>
+<td>PostgreSQL + pgvector（或专用向量库）</td>
+</tr>
+<tr>
+<td>本地轻量检索 / 离线 Agent Memory</td>
+<td>SQLite + FTS5（向量需求再加扩展或专用库）</td>
+</tr>
+<tr>
+<td>纯高并发简单 KV 式业务表</td>
+<td>两者都行，看团队</td>
+</tr>
+<tr>
+<td>严格约束、复杂分析 SQL</td>
+<td>PostgreSQL</td>
+</tr>
+<tr>
+<td>国内初级岗面试高频</td>
+<td>两者都问，MySQL 题海更大</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="6-学习资源精简">6. 学习资源（精简）</h2>
+<p><strong>PostgreSQL</strong></p>
+<ul>
+<li>官方文档：<a href="https://www.postgresql.org/docs/">https://www.postgresql.org/docs/</a></li>
+<li>互动练习：<a href="https://pgexercises.com/">https://pgexercises.com/</a></li>
+<li>向量扩展：<a href="https://github.com/pgvector/pgvector">https://github.com/pgvector/pgvector</a></li>
+</ul>
+<p><strong>MySQL</strong></p>
+<ul>
+<li>官方文档：<a href="https://dev.mysql.com/doc/">https://dev.mysql.com/doc/</a></li>
+<li>重点抓：InnoDB、索引、事务、EXPLAIN</li>
+</ul>
+<p><strong>SQLite</strong></p>
+<ul>
+<li>官方文档：<a href="https://www.sqlite.org/docs.html">https://www.sqlite.org/docs.html</a></li>
+<li>重点抓：单文件模型、事务、WAL、锁、类型亲和性、FTS5、备份与迁移</li>
+</ul>
+<p><strong>共通</strong></p>
+<ul>
+<li>任意一本「SQL 基础 + 索引」教程；</li>
+<li>用 Docker 起库，避免一上来纠结安装细节；</li>
+<li>在真实小项目里练，比只刷题有效。</li>
+</ul>
+<hr>
+<h2 id="7-结论清单">7. 结论清单</h2>
+<ul>
+<li class="task"><span class="cb" aria-hidden="true"></span>默认主线选 <strong>PostgreSQL</strong>，尤其计划做 AI/RAG/现代后端。  </li>
+<li class="task"><span class="cb" aria-hidden="true"></span>用 Docker 起一个 Postgres，完成 L0–L2，再加 <strong>JSONB + pgvector</strong> 小项目。  </li>
+<li class="task"><span class="cb" aria-hidden="true"></span>抽时间用 MySQL 把同一模型重做一遍，熟悉方言与生态。  </li>
+<li class="task"><span class="cb" aria-hidden="true"></span>用 SQLite 做一个本地 Agent 会话/Memory 或 CLI 小项目，理解嵌入式数据库和 WAL。  </li>
+<li class="task"><span class="cb" aria-hidden="true"></span>不要陷入「谁性能第一」争论；先保证建模、索引、事务正确。  </li>
+<li class="task"><span class="cb" aria-hidden="true"></span>向量能力是加分项，<strong>关系建模与 SQL 基本功</strong>仍是底座；SQLite 适合本地，PostgreSQL 适合服务端 AI。</li>
+</ul>
+<hr>
+<h2 id="修订说明">修订说明</h2>
+<ul>
+<li>文档侧重选型与学习路径，不替代官方手册与特定版本的行为细节。  </li>
+<li>云厂商托管版可能有行为差异，上线前以目标环境文档为准。</li>
+</ul>
+<hr>
+<h2 id="关联笔记">🔗 关联笔记</h2>
+<ul>
+<li><a class="wl" href="../../notes/domains/javaagent2026.html">领域/Java后端+Agent开发学习路线 2026</a> — 后端学习路线（数据库选型参考）</li>
+<li><a class="wl" href="../../notes/domains/2026.html">领域/2026暑假手账</a> — 假期总结</li>
+</ul>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">知识领域</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A2%86%E5%9F%9F/mysql-vs-postgresql-ai%E6%97%B6%E4%BB%A3%E9%80%89%E5%9E%8B.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../notes/domains/mem0-v2-v3-architecture.html"><span class="dir">← 上一篇</span><span class="t">Mem0 v2 → v3：记忆架构与 Hybrid Retrieval</span></a><a class="next" href="../../notes/domains/nginx/nginx-adaptation.html"><span class="dir">下一篇 →</span><span class="t">基于 openHiTLS 的 nginx 1.29.6 适配与单端口国密/国际自适应研究文档</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../../notes/index.html">笔记库</a>
+      <a href="../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../about.html">关于</a>
+      <a href="../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../js/main.js" defer></script>
+</body>
+</html>

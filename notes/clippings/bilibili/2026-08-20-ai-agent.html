@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Agent 面试复盘：从会用框架到构建可靠系统 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="视频：我的 AI Agent 面试复盘https://www.bilibili.com/video/BV1hubZ6WEfU/ UP 主：假如今天可以躺平｜发布：2026-08-20｜时长：36:12 事实主干：B站 AI 字幕（agent…">
+<link rel="canonical" href="https://northadb.github.io/notes/clippings/bilibili/2026-08-20-ai-agent.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="AI Agent 面试复盘：从会用框架到构建可靠系统 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="视频：我的 AI Agent 面试复盘https://www.bilibili.com/video/BV1hubZ6WEfU/ UP 主：假如今天可以躺平｜发布：2026-08-20｜时长：36:12 事实主干：B站 AI 字幕（agent…">
+<meta property="og:url" content="https://northadb.github.io/notes/clippings/bilibili/2026-08-20-ai-agent.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="AI Agent 面试复盘：从会用框架到构建可靠系统 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="视频：我的 AI Agent 面试复盘https://www.bilibili.com/video/BV1hubZ6WEfU/ UP 主：假如今天可以躺平｜发布：2026-08-20｜时长：36:12 事实主干：B站 AI 字幕（agent…">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../feed.xml">
+<link rel="stylesheet" href="../../../css/style.css">
+<link rel="stylesheet" href="../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "AI Agent 面试复盘：从会用框架到构建可靠系统", "description": "视频：我的 AI Agent 面试复盘https://www.bilibili.com/video/BV1hubZ6WEfU/ UP 主：假如今天可以躺平｜发布：2026-08-20｜时长：36:12 事实主干：B站 AI 字幕（agent…", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/clippings/bilibili/2026-08-20-ai-agent.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../index.html">首页</a><span>/</span><a href="../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../notes/clippings/index.html">内容剪藏</a></div>
+          <h1>AI Agent 面试复盘：从会用框架到构建可靠系统</h1>
+          <p class="post-sub">视频：我的 AI Agent 面试复盘https://www.bilibili.com/video/BV1hubZ6WEfU/ UP 主：假如今天可以躺平｜发布：2026-08-20｜时长：36:12 事实主干：B站 AI 字幕（agent…</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../notes/clippings/index.html">内容剪藏</a></span><span class="sep"></span>
+            <span>阅读约 14 分钟</span><span class="sep"></span><span>更新于 2026-08-20</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p><strong>视频</strong>：<a href="https://www.bilibili.com/video/BV1hubZ6WEfU/">我的 AI Agent 面试复盘</a><br>
+<strong>UP 主</strong>：假如今天可以躺平｜<strong>发布</strong>：2026-08-20｜<strong>时长</strong>：36:12<br>
+<strong>事实主干</strong>：B站 AI 字幕（agent-reach / OpenCLI，836 条时间轴字幕）<br>
+<strong>证据等级</strong>：<code>bilibili-ai-subtitles</code>；术语已结合上下文校正<br>
+<strong>性质</strong>：UP 主个人秋招面试经历与复盘，不代表相关公司的统一题库或官方招聘标准</p>
+</blockquote>
+<hr>
+<h2 id="一句话总论">一句话总论</h2>
+<blockquote>
+<p><strong>AI Agent 岗位正在从“会不会 LangChain、LangGraph、RAG、MCP”转向“能不能把 LLM 的不确定性包进一个可靠的软件系统，并用可观测、可评估的因果闭环证明它有价值”。</strong></p>
+</blockquote>
+<p>面试官不再满足于听技术名词，而会持续追问：</p>
+<ul>
+<li>为什么要用这项技术，而不是更简单的 Pipeline、SQL 或脚本？</li>
+<li>数据规模、业务约束或失败模式变化后，选型是否仍成立？</li>
+<li>Agent 出错、越权、循环、成本失控时怎么办？</li>
+<li>指标变好真的是 Agent 或 Skill 带来的吗？</li>
+<li>当所有候选人都能用 AI 写代码时，谁能设计出更可靠的系统？</li>
+</ul>
+<h2 id="视频脉络">视频脉络</h2>
+<table>
+<thead>
+<tr>
+<th>时间</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>00:00–03:36</td>
+<td>面试趋势：问题从框架概念转向技术选型、扩展性和生产工程</td>
+</tr>
+<tr>
+<td>03:36–09:45</td>
+<td>小红书案例：把客户端性能分析 Workflow 改造成 Agent；确定性与 LLM 的边界</td>
+</tr>
+<tr>
+<td>09:45–21:20</td>
+<td>阿里案例：RAG 切片、向量库选型、LangGraph State、Multi-Agent、Kafka、Text-to-SQL</td>
+</tr>
+<tr>
+<td>21:20–24:03</td>
+<td>AI Coding：在可用 AI 的沙盒里完成订单状态机系统设计</td>
+</tr>
+<tr>
+<td>24:03–28:00</td>
+<td>字节案例：权限、参数校验、沙盒、可追溯性，以及生产化复杂度</td>
+</tr>
+<tr>
+<td>28:00–30:44</td>
+<td>币安案例：Skill 路由、版本管理、评估与因果归因</td>
+</tr>
+<tr>
+<td>30:44–36:12</td>
+<td>六层能力模型、准备建议与 AI Native Software Engineer 总结</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="一面试正在考什么从是什么到为什么">一、面试正在考什么：从“是什么”到“为什么”</h2>
+<p>UP 主早期以为 Agent 面试主要考 RAG、LangChain、LangGraph、Prompt、MCP 等概念，但秋招阶段遇到的问题明显深入：</p>
+<ul>
+<li>RAG 文档怎么切，为什么这样切？</li>
+<li>向量数据库为什么这样选，数据扩大后怎么办？</li>
+<li>为什么需要 Multi-Agent，普通 Pipeline 为什么不行？</li>
+<li>LangGraph 的 State 具体是什么，如何持久化和恢复？</li>
+<li>Kafka 为什么发生消息堆积，怎样区分生产过快与消费能力不足？</li>
+<li>能否在允许使用 AI 的环境里，现场完成系统设计与编码？</li>
+</ul>
+<h3 id="简历里的每个名词都要经得住追问">简历里的每个名词都要经得住追问</h3>
+<p>如果简历写了“LangGraph + RAG + Multi-Agent”，面试官真正关心的不是组合听起来是否先进，而是：</p>
+<ol>
+<li>业务复杂度是否真的需要它；</li>
+<li>它解决了哪个不可替代的问题；</li>
+<li>增加的成本、延迟和故障面是否值得；</li>
+<li>如何证明效果来自该设计，而不是其他因素。</li>
+</ol>
+<blockquote>
+<p><strong>回答不出“为什么”，技术栈越华丽，越容易被判断为炫技或过度设计。</strong></p>
+</blockquote>
+<hr>
+<h2 id="二小红书案例让-agent-自动完成性能归因">二、小红书案例：让 Agent 自动完成性能归因</h2>
+<h3 id="场景题约-0434">场景题（约 04:34）</h3>
+<p>客户端启动到首屏展示之间存在多个埋点阶段。工程师通常会比较不同版本：如果网络阶段退化，就进一步查看网络细粒度指标；如果图片加载变差，就查看图片指标，最终完成 Root Cause Analysis。</p>
+<p>问题是：<strong>怎样把工程师每天重复执行的分析 Workflow 改造成 Agent？</strong></p>
+<h3 id="可拆成感知决策执行归因">可拆成“感知—决策—执行—归因”</h3>
+<ol>
+<li><strong>感知</strong>：通过固定 SQL 或 API 拉取性能数据，执行异常检测；</li>
+<li><strong>决策</strong>：判断发生退化的阶段，并选择下一步分析路径；</li>
+<li><strong>执行</strong>：调用对应的查询、聚合和诊断工具；</li>
+<li><strong>归因</strong>：结合业务知识解释根因，生成报告并发送给工程师。</li>
+</ol>
+<p>这个 Agent 不一定需要聊天界面。它可以每天凌晨运行，读取前一天的数据，在发现版本退化后逐层定位，早上将报告发给工程师。企业真正愿意付费的 Agent，往往不是因为“像人聊天”，而是因为它能自动化原本由工程师重复完成的高价值 Workflow。</p>
+<h3 id="确定性计算不要交给-llm约-0648">确定性计算不要交给 LLM（约 06:48）</h3>
+<p>面试官追加限制：报表数据必须准确，不能因幻觉而失去可信度。</p>
+<p>UP 主复盘后提出两层设计：</p>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>适合承担的工作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Deterministic Layer</strong></td>
+<td>固定 SQL/API 查询、Python 聚合、指标计算、参数校验、阈值判断</td>
+</tr>
+<tr>
+<td><strong>LLM Reasoning Layer</strong></td>
+<td>理解上下文、选择分析路径、结合业务知识归因、生成解释和报告</td>
+</tr>
+</tbody>
+</table>
+<p>能由确定性程序完成的步骤，就不应让 LLM 自由发挥。LLM 是系统里更贵、更慢、更不稳定的组件，应只用于其擅长的不确定性推理。</p>
+<h3 id="workflow-与-agent-不是二选一约-0816">Workflow 与 Agent 不是二选一（约 08:16）</h3>
+<p>多 Agent 编排存在两个极端：</p>
+<ul>
+<li><strong>完全预编排</strong>：节点和路径全部写死，稳定可控，但灵活性和自主性弱；</li>
+<li><strong>完全动态编排</strong>：只给模型目标，规划和执行全部开放，灵活但可能无限循环、成本爆炸或偏离目标。</li>
+</ul>
+<p>更现实的生产方案是 <strong>Controlled Autonomy（受控自主）</strong>：</p>
+<blockquote>
+<p><strong>Workflow 控制核心业务节点和安全边界；Agent 只在局部范围内动态选择工具、检索内容和分析路径。</strong></p>
+</blockquote>
+<hr>
+<h2 id="三阿里案例从-rag-一路追问到-kafka">三、阿里案例：从 RAG 一路追问到 Kafka</h2>
+<h3 id="1-rag-文档为什么这样切约-1003">1. RAG 文档为什么这样切（约 10:03）</h3>
+<p>面对车型、故障码和故障类型等章节结构明显的技术手册，固定每 500 Token 切一刀会破坏语义：上一块可能只有故障现象，下一块才是解决办法。</p>
+<p>更完整的回答应包含因果链：</p>
+<ol>
+<li>根据标题和章节做 <strong>structure-aware chunking</strong>；</li>
+<li>对过长 Section 再使用滑动窗口；</li>
+<li>Chunk 保留车型、故障码、章节路径等 Metadata；</li>
+<li>这样既保留语义完整性，也支持后续过滤、引用和溯源。</li>
+</ol>
+<p>面试不是问“会不会切片”，而是在验证你是否理解<strong>文档结构如何影响 Embedding 与召回质量</strong>。</p>
+<h3 id="2-向量数据库不存在脱离场景的最好约-1123">2. 向量数据库不存在脱离场景的“最好”（约 11:23）</h3>
+<p>对于几十份技术手册、数千到数万个 Chunk、内部原型和低频查询，轻量方案可能比重型分布式向量数据库更合理。</p>
+<p>只有当系统进入多租户、动态更新、高并发或高可用阶段，才需要重新评估存储。回答选型题时应覆盖：</p>
+<ul>
+<li>当前数据量与增长速度；</li>
+<li>查询并发和延迟目标；</li>
+<li>更新、删除与过滤需求；</li>
+<li>多租户、可用性与运维成本；</li>
+<li>何种条件出现时会迁移到另一方案。</li>
+</ul>
+<blockquote>
+<p><strong>面试官考的不是你能否背出数据库对比表，而是你是否有阶段性 Trade-off 判断。</strong></p>
+</blockquote>
+<h3 id="3-langgraph-的核心是具体-state约-1341">3. LangGraph 的核心是具体 State（约 13:41）</h3>
+<p>如果声称使用 LangGraph，就应能说明：</p>
+<ul>
+<li>Graph 中有哪些 Node；</li>
+<li>State 包含哪些真实字段；</li>
+<li>每个 Node 读取和更新哪些字段；</li>
+<li>State 如何持久化、失败后怎样 Resume；</li>
+<li>状态结构为什么匹配所选的存储模型。</li>
+</ul>
+<p>车辆故障诊断 State 可以包含车辆信息、故障码、检索结果、诊断结论和执行状态。LangGraph 的价值不是“多节点框架”这个标签，而是让状态在节点间以明确规则流转和更新。</p>
+<h3 id="4-什么时候才需要-multi-agent约-1543">4. 什么时候才需要 Multi-Agent（约 15:43）</h3>
+<p>如果流程永远是 <code>Input → 调用 LLM → Output</code>，本质上只是 Pipeline，硬拆成三个 Agent 反而是过度设计。</p>
+<p>Multi-Agent 更合理的条件包括：</p>
+<ul>
+<li>不同阶段确实需要完全不同的工具；</li>
+<li>各阶段需要不同的 Prompt 和上下文；</li>
+<li>路径需要动态分支、失败回退或重新规划；</li>
+<li>角色之间存在清晰的责任边界；</li>
+<li>拆分后的隔离、并行或专业化收益大于通信成本。</li>
+</ul>
+<p>核心回答是：<strong>复杂度由业务要求产生，而不是候选人为美化简历主动创造。</strong></p>
+<h3 id="5-为什么-agent-岗会问-kafka约-1710">5. 为什么 Agent 岗会问 Kafka（约 17:10）</h3>
+<p>生产 Agent 不会孤立存在：它可能消费 Event、调用多个 Tool、产生任务，再通过消息队列驱动后续 Workflow。流量增长后自然会遇到：</p>
+<ul>
+<li>消息堆积与端到端延迟；</li>
+<li>消费者 CPU、网络或下游依赖瓶颈；</li>
+<li>重复消息、乱序与失败重试；</li>
+<li>无法真正做到 Exactly Once 时的幂等设计；</li>
+<li>消费组、Partition、Rebalance 与 Offset 管理。</li>
+</ul>
+<p>因此数据库、缓存、消息队列、并发、网络和分布式系统并非与 Agent 无关，而是 Agent 生产化的基础。</p>
+<h3 id="6-text-to-sql-的关键是控制犯错空间约-1854">6. Text-to-SQL 的关键是控制犯错空间（约 18:54）</h3>
+<p>用户问“帮我查卖得最好的商品”，其中“最好”可能指销量、销售额或利润。数据库场景中猜错就是错误，不能只靠“把 Prompt 写好一点”。</p>
+<p>合理策略是：</p>
+<ol>
+<li>高置信且语义明确时执行；</li>
+<li>存在关键歧义时先 Clarification，例如询问“销量最高还是销售额最高”；</li>
+<li>检索 Schema、Metadata、字段描述、表关系和业务口径；</li>
+<li>对重要指标执行结果校验；</li>
+<li>允许系统拒绝高风险或无法确认的请求。</li>
+</ol>
+<blockquote>
+<p><strong>好的 Agent 不是什么问题都回答，而是知道什么时候执行、什么时候澄清、什么时候拒绝。</strong></p>
+</blockquote>
+<hr>
+<h2 id="四ai-coding-面试候选人是-tech-leadai-是-junior-developer">四、AI Coding 面试：候选人是 Tech Lead，AI 是 Junior Developer</h2>
+<h3 id="题目形式约-2120">题目形式（约 21:20）</h3>
+<p>在类似 Cursor 的沙盒中，用约 40 分钟设计并实现一个<strong>可扩展、线程安全、逻辑清晰的订单状态机引擎</strong>，允许使用 AI。</p>
+<p>面试官观察的不是谁最快把整段题目复制给 AI，而是人与 AI 的协作过程：</p>
+<ol>
+<li><strong>自己是否先理解问题</strong>：至少建立初步设计框架，而不是放弃思考；</li>
+<li><strong>能否拆分任务</strong>：将状态、事件、转移规则、并发控制和测试等模块分步交给 AI；</li>
+<li><strong>能否验证输出</strong>：阅读代码、运行测试、检查边界，而不是看见绿色 Diff 就 Accept；</li>
+<li><strong>能否解释 Trade-off</strong>：例如 Enum、Metadata 或配置驱动状态定义分别适合什么场景；</li>
+<li><strong>设计决策是否属于候选人</strong>：最终代码能否运行不是唯一标准，关键是你能否说明为什么这样设计。</li>
+</ol>
+<blockquote>
+<p><strong>AI Coding 的核心不是“AI 会不会写代码”，而是你能否定义任务、建立约束、审查实现并对结果负责。</strong></p>
+</blockquote>
+<hr>
+<h2 id="五字节案例agent-loop-外围才是生产化复杂度">五、字节案例：Agent Loop 外围才是生产化复杂度</h2>
+<p>商业化场景会高度关注正确性、一致性、安全性与可追溯性。即使简历上写了 Agent，也会被大量追问传统后端问题。</p>
+<h3 id="你的-agent-platform-听起来并不复杂约-2455">“你的 Agent Platform 听起来并不复杂”（约 24:55）</h3>
+<p>从摘要上看，系统可能只是 <code>Input → Agent 判断 → MCP → Output</code>。真正的生产复杂度隐藏在箭头里：</p>
+<ul>
+<li>谁可以调用哪些 Tool？</li>
+<li>读权限和写权限是否相同？</li>
+<li>参数合法性由谁校验？</li>
+<li>高风险操作是否需要二次确认？</li>
+<li>AI 生成的代码在哪里执行？</li>
+<li>超时、资源限制和未授权访问如何处理？</li>
+<li>State、日志和操作结果怎样追踪与审计？</li>
+</ul>
+<h3 id="为什么需要沙盒">为什么需要沙盒</h3>
+<p>AI 生成的 Python 代码不能直接在生产机器运行。应放入隔离沙盒，并设置：</p>
+<ul>
+<li>CPU、内存、时间和网络限制；</li>
+<li>文件系统与凭据隔离；</li>
+<li>未授权资源访问直接拒绝；</li>
+<li>超时强制终止；</li>
+<li>完整执行日志和审计记录。</li>
+</ul>
+<p>ReAct Loop 可能几十行代码就能完成，但权限、状态、沙盒、监控、失败恢复和部署容灾，才决定它是 Demo 还是生产系统。</p>
+<hr>
+<h2 id="六币安案例稀缺的不是搭-agent而是证明-agent-在变好">六、币安案例：稀缺的不是搭 Agent，而是证明 Agent 在变好</h2>
+<p>该部分涉及 Skill 检索、Tool 与 Skill 的区别、版本管理和路由，但更有价值的是<strong>评估与因果归因</strong>。</p>
+<h3 id="方案有效不等于-skill-有效约-2840">方案有效，不等于 Skill 有效（约 28:40）</h3>
+<p>上线一版方案后指标变好，需要回答：</p>
+<ul>
+<li>多久才能获得有统计显著性的 A/B Test 结果？</li>
+<li>整体方案改善中，Skill 的贡献有多大？</li>
+<li>是 Skill 内容、路由、模型、流量变化，还是其他系统改动带来的？</li>
+</ul>
+<h3 id="成功会摧毁自己的证据悖论约-2908">“成功会摧毁自己的证据”悖论（约 29:08）</h3>
+<p>新 Skill 上线后，原有 Bad Case 消失，Analyzer 因此再也抓不到它。但 Bad Case 消失可能来自：</p>
+<ul>
+<li>Skill 真正发挥作用；</li>
+<li>用户流量或请求分布变化；</li>
+<li>上游产品或代码已自行修复；</li>
+<li>监控或采样方式改变。</li>
+</ul>
+<p>而错误一旦消失，系统也失去了继续观察该错误的天然证据。可采用：</p>
+<ol>
+<li>保留不使用新 Skill 的 <strong>Holdout 流量</strong>；</li>
+<li>构造回归测试集，定期重放历史 Bad Case；</li>
+<li>记录 Skill 命中日志、版本与输出轨迹；</li>
+<li>分析 Skill 上线、命中与 Bad Case 消失的时间及实验相关性；</li>
+<li>区分是在优化单条 Trajectory、路由规则，还是 Skill 本身。</li>
+</ol>
+<blockquote>
+<p><strong>搭建 Agent 的能力并不稀缺；稀缺的是证明闭环真的闭上，并且每一环的因果都站得住。</strong></p>
+</blockquote>
+<hr>
+<h2 id="七ai-agent-岗位的六层能力模型">七、AI Agent 岗位的六层能力模型</h2>
+<p>UP 主将多场面试归纳为六层能力：</p>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>核心问题</th>
+<th>典型知识</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1. 会不会用 LLM</strong></td>
+<td>能否稳定获得符合格式的输出？</td>
+<td>Prompt、Structured Output、Tool Calling、模型基本能力与边界</td>
+</tr>
+<tr>
+<td><strong>2. 能否给 LLM 正确信息</strong></td>
+<td>上下文是否准确、充分、低噪声？</td>
+<td>RAG、Chunking、Embedding、Retrieval、Rerank、Context Management</td>
+</tr>
+<tr>
+<td><strong>3. 能否控制 LLM 行为</strong></td>
+<td>如何限制规划和执行的不确定性？</td>
+<td>Workflow、State Machine、LangGraph、Multi-Agent、Routing、Planning</td>
+</tr>
+<tr>
+<td><strong>4. 能否接入真实世界</strong></td>
+<td>Agent 如何读写系统并调用能力？</td>
+<td>MCP、API、Database、Kafka、Python、权限与沙盒</td>
+</tr>
+<tr>
+<td><strong>5. Agent 犯错怎么办</strong></td>
+<td>如何检测、隔离、恢复和防止复发？</td>
+<td>Eval、Guardrail、Retry、Fallback、Human-in-the-loop、监控与审计</td>
+</tr>
+<tr>
+<td><strong>6. 如何证明 Agent 有价值</strong></td>
+<td>效果是否真实、可归因、可持续？</td>
+<td>A/B Test、Holdout、回归集、业务指标、成本、因果归因</td>
+</tr>
+</tbody>
+</table>
+<p>前四层决定“能不能搭出来”，后两层决定“能不能进入生产并持续存在”。</p>
+<hr>
+<h2 id="八高频追问的回答框架">八、高频追问的回答框架</h2>
+<p>面对任何技术选型，不要只回答“我用了什么”，而应按下面的链条展开：</p>
+<h3 id="场景-约束-选项-trade-off-失败模式-切换条件-验证"><code>场景 → 约束 → 选项 → Trade-off → 失败模式 → 切换条件 → 验证</code></h3>
+<table>
+<thead>
+<tr>
+<th>部分</th>
+<th>要回答什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>场景</strong></td>
+<td>谁在什么流程中解决什么问题？</td>
+</tr>
+<tr>
+<td><strong>约束</strong></td>
+<td>数据量、延迟、准确率、成本、权限、更新频率是什么？</td>
+</tr>
+<tr>
+<td><strong>选项</strong></td>
+<td>Pipeline、Workflow、Agent、数据库或框架有哪些候选？</td>
+</tr>
+<tr>
+<td><strong>Trade-off</strong></td>
+<td>为什么当前方案最匹配，而不是绝对最好？</td>
+</tr>
+<tr>
+<td><strong>失败模式</strong></td>
+<td>幻觉、循环、堆积、重复、越权、状态丢失时怎么办？</td>
+</tr>
+<tr>
+<td><strong>切换条件</strong></td>
+<td>规模或需求出现什么变化时会换方案？</td>
+</tr>
+<tr>
+<td><strong>验证</strong></td>
+<td>用哪些离线集、在线实验和业务指标证明有效？</td>
+</tr>
+</tbody>
+</table>
+<p>例如回答“为什么用 Multi-Agent”时，不应说“因为角色协作更强”，而应明确：单 Pipeline 无法处理哪些动态分支；角色之间有哪些不同工具、上下文和权限；拆分后的收益是否覆盖通信、延迟和调试成本。</p>
+<hr>
+<h2 id="九准备-agent-面试的实用清单">九、准备 Agent 面试的实用清单</h2>
+<h3 id="1-不要为了-agent-而-agent">1. 不要为了 Agent 而 Agent</h3>
+<p>能用 SQL 解决就用 SQL，能用 Script 解决就用 Script，固定流程能用 Pipeline 就不要强拆 Multi-Agent。LLM 是系统中最贵、最慢、最不稳定的组件之一，不是越多越好。</p>
+<h3 id="2-为每项技术准备替代方案">2. 为每项技术准备替代方案</h3>
+<p>对简历上的每个选型，都应能回答：</p>
+<ul>
+<li>为什么是它，而不是其他方案？</li>
+<li>当前规模下为什么合理？</li>
+<li>它的主要成本和失败模式是什么？</li>
+<li>数据量、流量或一致性要求变化后，什么时候会切换？</li>
+</ul>
+<h3 id="3-传统后端基础不能丢">3. 传统后端基础不能丢</h3>
+<p>重点包括：</p>
+<ul>
+<li>数据库模型、索引、事务与一致性；</li>
+<li>Kafka、消费组、Partition、Rebalance、Offset、幂等；</li>
+<li>缓存、并发、线程池、网络与分布式系统；</li>
+<li>服务化、高可用、存储、监控、部署与容灾；</li>
+<li>权限、沙盒、日志、审计和失败恢复。</li>
+</ul>
+<p>Agent 不是飘在空中的智能，它最终仍运行在一个分布式软件系统中。</p>
+<h3 id="4-学会坦诚表达不确定性">4. 学会坦诚表达不确定性</h3>
+<p>没在生产中做过的内容不要硬编进项目。更好的表达是：</p>
+<blockquote>
+<p>“这个方案我没有在生产环境实践过；如果让我设计，我会从以下约束和 Trade-off 出发……”</p>
+</blockquote>
+<p>这能展示判断力和发散能力，也避免追问后暴露虚构细节。</p>
+<h3 id="5-练习-ai-协作而不是-ai-代做">5. 练习 AI 协作，而不是 AI 代做</h3>
+<p>未来 AI Coding 面试可能从“能否独立手写全部代码”，转向“当所有人都有 AI 时，能否比别人做出更可靠的系统”。候选人需要负责：</p>
+<ul>
+<li>定义任务与拆解问题；</li>
+<li>做架构、定接口和安全边界；</li>
+<li>检查 AI 的推理和实现；</li>
+<li>编写或要求测试，验收结果；</li>
+<li>为最终决策和后果负责。</li>
+</ul>
+<hr>
+<h2 id="十我的提炼agent-engineer-是-ai-native-software-engineer">十、我的提炼：Agent Engineer 是 AI Native Software Engineer</h2>
+<p>视频最后的判断可以进一步压缩为一个公式：</p>
+<blockquote>
+<p><strong>Agent Engineer = LLM 能力理解 + 上下文工程 + 行为控制 + 软件工程 + 安全治理 + 评估归因。</strong></p>
+</blockquote>
+<p>只懂模型，会忽略系统可靠性；只懂后端，会不知道怎样利用 LLM 的推理和生成能力。真正的能力是：</p>
+<ol>
+<li>知道 LLM 能做什么；</li>
+<li>知道 LLM 有多不可靠；</li>
+<li>用确定性软件、边界、工具和评测包住这种不确定性；</li>
+<li>最终证明它比原来的业务流程更有效，而不只是“用了 AI”。</li>
+</ol>
+<h3 id="面试官真正寻找的四种判断力">面试官真正寻找的四种判断力</h3>
+<ul>
+<li><strong>必要性判断</strong>：这里真的需要 Agent 吗？</li>
+<li><strong>边界判断</strong>：哪些交给 LLM，哪些必须确定性执行？</li>
+<li><strong>工程判断</strong>：怎样应对规模、权限、状态、失败和成本？</li>
+<li><strong>价值判断</strong>：效果是否可度量、可归因、可持续？</li>
+</ul>
+<hr>
+<h2 id="相关笔记">🔗 相关笔记</h2>
+<ul>
+<li><a class="wl" href="../../../notes/clippings/p44a38b/2026-07-30-agent.html">Clippings/微信公众号/2026-07-30-Agent高频面试题全解析-小林面试笔记</a>：Agent 概念与常见模式的系统化面试题，可作为基础题库。</li>
+<li><a class="wl" href="../../../notes/clippings/bilibili/2026-07-31-agent-harness-loop-graph.html">Clippings/Bilibili/2026-07-31-Agent系统架构设计-Harness-Loop-Graph怎么选</a>：Loop、Graph、Workflow 和 Harness 的架构选型，与视频中的 Controlled Autonomy 相呼应。</li>
+<li><a class="wl" href="../../../notes/clippings/bilibili/2026-07-31-10ai-agent-8.html">Clippings/Bilibili/2026-07-31-10分钟讲透AI-Agent-8种主流架构</a>：从 Tools、RAG、Memory、Reflection 到 Multi-Agent 的架构总览。</li>
+<li><a class="wl" href="../../../notes/clippings/p44a38b/2026-08-09-graph-engineering-datawhale.html">Clippings/微信公众号/2026-08-09-Graph-Engineering实操手册公开-Datawhale</a>：进一步展开 Workflow、Loop、Multi-Agent、Eval 和生产部署。</li>
+<li><a class="wl" href="../../../notes/clippings/p44a38b/2026-08-18-tencentdb-agent-memory.html">Clippings/微信公众号/2026-08-18-TencentDB-Agent-Memory-团队记忆实践-腾讯技术工程</a>：团队记忆的治理、评估和资产继承，可对照 Skill 与 Bad Case 的因果归因问题。</li>
+<li><a class="wl" href="../../../notes/domains/javaagent2026.html">领域/Java后端+Agent开发学习路线 2026</a>：传统后端与 Agent 能力的组合学习路线。</li>
+<li><a class="wl" href="../../../notes/domains/aiagent2026.html">领域/AI Agent 智能体学习路线 2026</a>：从 LLM 基础到 RAG、Workflow、Multi-Agent 和生产工程的完整路线。</li>
+</ul>
+<hr>
+<h2 id="字幕术语校正说明">字幕术语校正说明</h2>
+<p>AI 字幕存在较多中英文混合误识别，笔记结合上下文统一校正了以下主要术语：<code>RAG</code>、<code>LangChain</code>、<code>LangGraph</code>、<code>Prompt</code>、<code>Multi-Agent</code>、<code>Pipeline</code>、<code>SQL</code>、<code>Text-to-SQL</code>、<code>Root Cause Analysis</code>、<code>Deterministic</code>、<code>State</code>、<code>Document Store</code>、<code>FAISS</code>、<code>Kafka</code>、<code>MCP</code>、<code>Tool</code>、<code>Skill</code>、<code>Holdout</code> 与 <code>Bad Case</code>。无法从语境可靠确认的公司内部名词和项目细节未作扩写。</p>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">内容剪藏</span><span class="chip">AI</span><span class="chip">Agent</span><span class="chip">AI面试</span><span class="chip">AI Engineer</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/Clippings/Bilibili/2026-08-20-AI-Agent%E9%9D%A2%E8%AF%95%E5%A4%8D%E7%9B%98-%E4%BB%8E%E6%A1%86%E6%9E%B6%E5%88%B0%E5%8F%AF%E9%9D%A0%E7%B3%BB%E7%BB%9F.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../notes/clippings/bilibili/2026-08-04-llm-wiki.html"><span class="dir">← 上一篇</span><span class="t">【保姆教程】卡帕西 LLM Wiki 强在哪？手把手教你改造 AI 个人知识库</span></a><a class="next" href="../../../notes/clippings/bilibili/2026-08-21-ai.html"><span class="dir">下一篇 →</span><span class="t">[中配] 我如何使用 AI 进行高效学习</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../index.html">首页</a>
+      <a href="../../../learn.html">课件</a>
+      <a href="../../../notes/index.html">笔记库</a>
+      <a href="../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../about.html">关于</a>
+      <a href="../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../js/main.js" defer></script>
+</body>
+</html>

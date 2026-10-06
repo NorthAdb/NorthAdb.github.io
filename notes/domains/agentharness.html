@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>云端 Agent 架构：Harness 放沙箱还是放服务 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="两篇小红书帖子问的其实是同一个问题的两面：把 Agent 从「本地 CLI」搬进「云端 B/S 系统」时，真正难的不是 agent loop，而是有状态的那部分（会话状态、文件系统、沙箱生命周期）；而「harness 放沙箱里还是放服务里」…">
+<link rel="canonical" href="https://northadb.github.io/notes/domains/agentharness.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="云端 Agent 架构：Harness 放沙箱还是放服务 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="两篇小红书帖子问的其实是同一个问题的两面：把 Agent 从「本地 CLI」搬进「云端 B/S 系统」时，真正难的不是 agent loop，而是有状态的那部分（会话状态、文件系统、沙箱生命周期）；而「harness 放沙箱里还是放服务里」…">
+<meta property="og:url" content="https://northadb.github.io/notes/domains/agentharness.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="云端 Agent 架构：Harness 放沙箱还是放服务 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="两篇小红书帖子问的其实是同一个问题的两面：把 Agent 从「本地 CLI」搬进「云端 B/S 系统」时，真正难的不是 agent loop，而是有状态的那部分（会话状态、文件系统、沙箱生命周期）；而「harness 放沙箱里还是放服务里」…">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../feed.xml">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "云端 Agent 架构：Harness 放沙箱还是放服务", "description": "两篇小红书帖子问的其实是同一个问题的两面：把 Agent 从「本地 CLI」搬进「云端 B/S 系统」时，真正难的不是 agent loop，而是有状态的那部分（会话状态、文件系统、沙箱生命周期）；而「harness 放沙箱里还是放服务里」…", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/domains/agentharness.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../index.html">首页</a><span>/</span><a href="../../notes/index.html">我的笔记库</a><span>/</span><a href="../../notes/domains/index.html">知识领域</a></div>
+          <h1>云端 Agent 架构：Harness 放沙箱还是放服务</h1>
+          <p class="post-sub">两篇小红书帖子问的其实是同一个问题的两面：把 Agent 从「本地 CLI」搬进「云端 B/S 系统」时，真正难的不是 agent loop，而是有状态的那部分（会话状态、文件系统、沙箱生命周期）；而「harness 放沙箱里还是放服务里」…</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../notes/domains/index.html">知识领域</a></span><span class="sep"></span>
+            <span>阅读约 31 分钟</span><span class="sep"></span><span>更新于 2026-09-14</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+
+<div class="callout" data-callout="abstract"><p class="callout-title">一句话</p>
+<p>两篇小红书帖子问的其实是同一个问题的两面：把 Agent 从「本地 CLI」搬进「云端 B/S 系统」时，<strong>真正难的不是 agent loop，而是有状态的那部分</strong>（会话状态、文件系统、沙箱生命周期）；而「harness 放沙箱里还是放服务里」，本质就是<strong>把这份状态托管给谁</strong>。</p>
+</div><div class="callout" data-callout="info"><p class="callout-title">两帖是怎么凑到一起的</p>
+<ul>
+<li><strong>帖一</strong>（Bug🔗Life，09-01）：从<strong>应用侧</strong>提问——pi sdk 做大型 B/S 系统「怎么老是横向扩展很难呢，还是大部分是 agent sdk 都要自己做横向扩展呢？」</li>
+<li><strong>帖二</strong>（0xD800，09-04）：从<strong>架构侧</strong>提问——「云端 Agent：方案一 harness in sandbox，方案二 harness in service，你怎么选？」</li>
+<li>关键人物是重叠的：<strong>0xD800</strong> 在帖一里给出了全场最实操的「S3 + 无状态沙箱」方案，三天后自己开了帖二继续追问；<strong>BoAI</strong> 也在两帖都出现。</li>
+<li>所以这篇把两帖合成一条线：<strong>帖一 = 问题（横扩难）→ 帖二 = 解法之争（harness 放哪）</strong>。</li>
+</ul>
+</div>
+<hr>
+<h2 id="两帖速览">📇 两帖速览</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>帖一</th>
+<th>帖二</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>标题</td>
+<td>pi sdk</td>
+<td>云端Agent架构讨论</td>
+</tr>
+<tr>
+<td>作者</td>
+<td>Bug🔗Life</td>
+<td>0xD800</td>
+</tr>
+<tr>
+<td>发布</td>
+<td>2026-09-01</td>
+<td>2026-09-04</td>
+</tr>
+<tr>
+<td>数据</td>
+<td>64 赞 · 114 收藏 · 80 评论</td>
+<td>118 赞 · 187 收藏 · 73 评论</td>
+</tr>
+<tr>
+<td>标签</td>
+<td><code>#pi coding agent</code> <code>#pi-ai</code> <code>#sdk</code> <code>#agent开发</code></td>
+<td><code>#Agent开发</code> <code>#Agent</code> <code>#agent架构</code></td>
+</tr>
+<tr>
+<td>核心提问</td>
+<td>agent SDK 塞进大型 B/S 系统，为什么横向扩展难？是 pi 的问题还是所有 agent SDK 的共性？</td>
+<td>harness 该装进沙箱（方案一），还是把 react loop 跑在服务里（方案二）？</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h1 id="一帖一pi-sdk-做-bs-系统为什么横向扩展这么难">一、帖一：pi sdk 做 B/S 系统，为什么横向扩展这么难</h1>
+<p><img alt="pi sdk 封面：pi sdk 好像确实不太适合做大型的 B/S web 系统啊，怎么老是〔根据〕横向扩展很难呢，还是大部分是 agent sdk 都要自己做横向扩展呢" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis/2026-09-01-pi-sdk-封面.webp"></p>
+<blockquote>
+<p>正文栏只有标签，问题写在封面图上。封面原文：「pi sdk 好像确实不太适合做大型的 B/S web 系统啊，怎么老是〔根据〕横向扩展很难呢，还是大部分是 agent sdk 都要自己做横向扩展呢」（"根据"疑为"感觉"的笔误）。</p>
+</blockquote>
+<h2 id="11-作者的真实约束散落在评论区里比正文更重要">1.1 作者的真实约束（散落在评论区里，比正文更重要）</h2>
+<p>作者在跟评里陆续补全了场景，这几条决定了后面所有方案的取舍：</p>
+<ol>
+<li><strong>要内嵌到应用里</strong>，讨论的是 <strong>sdk 不是 pi coding agent 产品</strong>（有人拿 cline 来比，被作者直接纠正）；</li>
+<li><strong>要求内网部署</strong>，可能没有 serverless 基础设施（"需要自己上一套 openFaaS？"）；</li>
+<li><strong>session 记录存在 jsonl 里</strong>，SDK 也从 jsonl 恢复会话记录；</li>
+<li><strong>单会话要处理 200MB 上传资料</strong>；</li>
+<li><strong>领导要 B/S 架构</strong>，作者自己其实倾向 <strong>local first</strong>（"唉"）；</li>
+<li>具体痛点：<strong>pi 的资源加载和用户 session 都挂在某个节点的文件系统上，这个节点挂了怎么办？</strong>——高可用、高并发难搞。</li>
+</ol>
+<h2 id="12-评论区六条主线">1.2 评论区六条主线</h2>
+<h3 id="主线-a状态外置-无状态沙箱0xd80046-收藏全场最实操">主线 A：状态外置 + 无状态沙箱（0xD800，46 收藏，全场最实操）</h3>
+<blockquote>
+<p><strong>0xD800</strong>：我的 agent 文件直接进 s3，每次执行命令后全部 sync-back，沙箱有存活时间，长时间不操作就释放，以后复活再把文件写进去。</p>
+</blockquote>
+<p>作者追问"是不是一个 session 对应一个沙箱"，0xD800 给出了完整流程：</p>
+<blockquote>
+<p><strong>0xD800</strong>：我的文件元信息是存在<strong>关系型数据库</strong>的，初始化沙箱的时候，先把这个 session 的文件列表查出来，然后<strong>从 s3 复制到沙箱目录</strong>，然后启动沙箱。是的一个沙箱一个 session 会话，这种设计是针对<strong>无状态沙箱</strong>设计的。</p>
+</blockquote>
+<p>关于会话记录的存储分层，他说得更细：</p>
+<blockquote>
+<p><strong>0xD800</strong>：我是把会话历史归档为 <strong>jsonl</strong> 存到 s3；<strong>元数据</strong>还是存关系型数据库；归档的 <strong>jsonl.gz 是保存 llm 请求记录用于排查问题</strong>。</p>
+</blockquote>
+<p>并且明确提醒作者<strong>不要照抄本地 SDK 的假设</strong>：</p>
+<blockquote>
+<p><strong>0xD800</strong>：这种 sdk 针对本地客户端的吧，我觉得对于<strong>服务端 agent 来说不能完全照抄</strong>。</p>
+</blockquote>
+<p>作者最后的收口（也是这帖的结论）：</p>
+
+<p><strong>Bug🔗Life</strong>：发这个帖子就是初衷想问这个，总感觉这类 sdk 用到服务端好怪异啊，不过就算它怪，不用 nfsv4，用你的方案用 s3 和沙箱感觉<strong>也可以完美解决</strong>。</p>
+<div class="callout" data-callout="note"><p class="callout-title">关于性能质疑</p>
+<p><strong>bobo</strong>：「冷启动 + 文件复制。这性能不敢想。」
+<strong>astonycat</strong>：「sandbox 启动挺快，主要是文件复制吧。」
+<strong>0xD800</strong>：「80% 都不是冷启动的，那些无状态沙箱不也是这么干吗？……agent 这点性能跟 llm thinking 相比就是一下子的事情。」</p>
+</div>
+<h3 id="主线-bharness-in-sandbox-scaling-sandboxboai11-赞全场最高">主线 B：harness in sandbox + scaling sandbox（BoAI，11 赞，全场最高）</h3>
+<blockquote>
+<p><strong>BoAI</strong>：一般的方案就是 <strong>harness in sandbox，然后 scaling sandbox</strong>。也有 harness 做成 <strong>serverless</strong> 的方案，比如说 <strong>claude managed agents</strong>。如果想用 pi 做 serverless harness，可以看看我的项目 <strong>openma-ai/open-managed-agents</strong>，最近在做 pi 的方案。</p>
+</blockquote>
+<p>作者顾虑内网部署，BoAI 的答复是：</p>
+<blockquote>
+<p><strong>BoAI</strong>：一般的<strong>无状态微服务也可以的，支持 node 部署</strong>。</p>
+</blockquote>
+<p>后续两人把话题延伸到"agent as a service"：</p>
+<ul>
+<li><strong>小红薯68F2D6A4</strong>：团队在选"完整功能（如 AgentScope）"还是"轻量底座二开（如 pi）"上有分歧。</li>
+<li><strong>BoAI</strong>：AgentScope 和 pi sdk 的封装粒度感觉差不多了。</li>
+<li><strong>Bug🔗Life</strong>：AgentScope service 就像 Claude managed agents，也有点像你的 openma。</li>
+<li><strong>Bug🔗Life</strong>：<strong>OpenAI 也发布了 agent as service，就是下一波产品形态</strong>；BoAI：昨天适配了哈哈。</li>
+</ul>
+
+<div class="callout" data-callout="tip"><p class="callout-title">交叉验证</p>
+<p><code>openma-ai/open-managed-agents</code> 实际存在：<strong>276 stars · Apache 2.0</strong>，描述为 <em>"Self-host AI agents with Claude Managed Agents and OpenAI Agents API support. Sessions, tools, subagents and recovery on your infrastructure."</em>，最近更新 2026-09-13——和评论时间线对得上。</p>
+</div>
+<h3 id="主线-c沙箱粒度之争-一个-session-一个沙箱-vs-一个项目一个沙箱帖一最长的一串">主线 C：沙箱粒度之争 —— 一个 session 一个沙箱 vs 一个项目一个沙箱（帖一最长的一串）</h3>
+<p>这是全帖信息密度最高的一段，两方都讲了实话：</p>
+<table>
+<thead>
+<tr>
+<th>立场</th>
+<th>谁</th>
+<th>论据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>一个 session 一个沙箱</td>
+<td><strong>0xD800</strong></td>
+<td>无状态设计：启动时把文件复制进去，变更同步出来；默认<strong>保活 15 分钟</strong>，无操作就释放，下次冷启动重新导入；<strong>每个用户最多 3 个同时启用</strong></td>
+</tr>
+<tr>
+<td>一个项目一个沙箱</td>
+<td><strong>momo</strong></td>
+<td>"用户 + 项目 + session，<strong>一个项目一个沙箱容器</strong>，容器资源做限制，用户可申请扩大，资源消耗小很多"</td>
+</tr>
+</tbody>
+</table>
+<p>momo 的反驳点很具体，值得记住：</p>
+<blockquote>
+<p><strong>momo</strong>：<strong>一个 session 一个容器上限太低了，宿主机很容易撑爆</strong>，除非你对活跃的 session 做数量限制。
+<strong>momo</strong>：一个用户启动 10 个 session，一百个用户同时在线，就得<strong>一千个容器</strong>，资源太浪费了。
+<strong>momo</strong>：正常用户使用场景 <strong>session 切换比项目会多很多</strong>，一个用户创建一千个项目、同时在跑的概率很低。
+<strong>momo</strong>：沙箱也得是无状态的——沙箱启动后把项目信息拷进去，session 全关就销毁，<strong>主要是减少沙箱容器的创建</strong>。</p>
+</blockquote>
+<p>0xD800 的回应则是"先看规模"：</p>
+
+<p><strong>0xD800</strong>：没在用的 Session 会自动销毁的……如果真有那么多用户用这个产品，那么显而易见<strong>必须加配置</strong>了。
+<strong>0xD800</strong>：目前单实例开发的，分布式就是多部署几何个服务就好了。〔原文如此〕
+<strong>0xD800</strong>：状态是 redis/MySQL 管理的。</p>
+<div class="callout" data-callout="warning"><p class="callout-title">这段争论的实质</p>
+<p>不是"谁对"，而是<strong>沙箱复用粒度 = 成本模型</strong>：session 级 = 隔离最干净、容器数最多；项目级 = 复用率高、但要处理并发与资源配额。选哪个取决于"用户活跃 session 数 / 项目数"的真实分布。</p>
+</div>
+<h3 id="主线-d概念之争-横向到底指什么-sdk-是不是太简陋">主线 D：概念之争 —— "横向"到底指什么 &amp; SDK 是不是"太简陋"</h3>
+<blockquote>
+<p><strong>老豆子 脾气大</strong>（4 赞）：现在 AI SDK 都是<strong>最小功能原则</strong>，保证单 agent 独立运行、上下文优化吧，你说的横向应该是<strong>功能性扩展 / 多 agent 扩展</strong>？
+<strong>Bug🔗Life</strong>：功能性属于纵向吧，<strong>多 agent 算是横向</strong>。</p>
+</blockquote>
+<p>老豆子后面把结论说透了：</p>
+<blockquote>
+<p><strong>老豆子 脾气大</strong>：这些 SDK 都是<strong>基于本地策略进行恢复</strong>的，如果执行过程中挂了，可选的是重启这个容器、找其他节点重新执行；<strong>高可用场景要把过程内容魔改写到其他地方用来恢复，这改动不小</strong>。
+<strong>老豆子 脾气大</strong>：现在考虑最多的就是<strong>本机异常可恢复</strong>……持久化不是大问题，可魔改的。
+<strong>老豆子 脾气大</strong>：这大文件（200MB）就更不适合云端处理了。</p>
+</blockquote>
+<p>另一条支线是"pi 太简陋"：</p>
+<ul>
+<li><strong>顾青山</strong>：我觉得它太简陋了，我选择 cline。</li>
+<li><strong>Bug🔗Life</strong>：我要内嵌应用，讨论的是 sdk 不是 pi coding agent。</li>
+<li><strong>顾青山</strong>：巧了，我说的就是 sdk。</li>
+<li><strong>Bug🔗Life</strong>：那是我孤陋寡闻了，不知道 cline 还有 sdk。</li>
+<li><strong>momo</strong>：pi 的 sdk 就是 coding agent，他的上层是 tui；<strong>今天吃点什么哪</strong>：pi core。</li>
+</ul>
+<h3 id="主线-e托管-serverless-路线与替代品">主线 E：托管 / serverless 路线与替代品</h3>
+<ul>
+<li><strong>momo</strong>：确实不适合多用户云场景，可以考虑 <strong>vercel / cloudflare 的一站式 agent 方案</strong>（跑在 serverless 上天然具备扩展性）。</li>
+<li><strong>momo</strong>（另一位，落地自述）：<strong>底座用 pi 做多租户 SaaS</strong>，用户元信息用关系型数据库，<strong>会话用 SSO</strong>，<strong>工作空间挂到一个沙箱容器</strong>中——和 0xD800 的思路同构。</li>
+<li><strong>momo</strong>：openai agents sdk 呢，只用 loop，不用 sandbox。</li>
+<li><strong>六个彩虹运动员灰烬</strong>：mastra。</li>
+</ul>
+<h3 id="主线-f本贴共识与未解">主线 F：本贴共识与未解</h3>
+<p><strong>已形成共识</strong></p>
+<ol>
+<li>难点在<strong>会话状态 + 文件系统 + 沙箱生命周期</strong>，不在 agent 逻辑本身；</li>
+<li>通行做法是<strong>状态外置</strong>（S3 / 对象存储 + 关系库 / SSO 会话）+ <strong>无状态沙箱</strong>；</li>
+<li><strong>agent SDK 普遍只提供最小内核</strong>（loop + 工具调用），横向扩展是上层应用自己要搭的；</li>
+<li>云端场景<strong>不能照抄本地 CLI 的恢复策略</strong>，要么改造成"过程状态可迁移"，要么换架构。</li>
+</ol>
+<p><strong>没解决</strong></p>
+<ul>
+<li>200MB/会话的大文件 + 单会话长任务是硬约束，评论区直接建议"<strong>local first</strong>"；</li>
+<li>"过程状态写到外部"具体怎么改、改动量多大，没人给出成体系的做法。</li>
+</ul>
+<hr>
+<h1 id="二帖二云端-agent-架构-harness-in-sandbox-vs-harness-in-service">二、帖二：云端 Agent 架构 —— harness in sandbox vs harness in service</h1>
+<p><img alt="云端Agent的架构讨论 封面卡片：方案一 harness in sandbox；方案二 harness in service" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis/2026-09-04-云端Agent架构讨论-封面.webp"></p>
+<p><strong>封面卡片原文</strong></p>
+<blockquote>
+<p>云端Agent的架构讨论。
+<strong>方案一：harness in sandbox</strong>
+<strong>方案二：harness in service</strong>
+方案一是在<strong>沙箱里面安装成熟 harness</strong>。
+方案二是在<strong>服务里面跑 react loop 循环</strong>。
+方案二<strong>更好掌控 agent 运行过程的状态</strong>。方案一<strong>做云端 coding agent 更好</strong>。</p>
+</blockquote>
+<p><strong>正文（作者自述背景）</strong></p>
+<blockquote>
+<p>说下背景，我第一次接触云端 Agent 是在 Claude.ai 网页版，那时候国产 ai 的 chat 产品还停留在 rag 第一阶段（如首次消息搜索网络，纯聊天，没有工具调用能力）。此时的 Claude/manus 都已把云端 Agent 做得非常好了，agentic rag 用起来那是真爽，非常智能的感觉。
+Harness in Sandbox 这个方案我没有考虑过，我不太清楚什么场景会这么设计。欢迎交流。
+我有一个云端 agent 开源项目：<strong>L1yp/agentic-rag-platform</strong>。</p>
+</blockquote>
+<p><strong>作者自己补的方案二实现（评论）</strong></p>
+<blockquote>
+<p><strong>0xD800</strong>：我把 agent 的 <strong>react loop 放到服务里，状态放 redis/mysql</strong>。agent 服务可横向扩展。体验地址：<code>https://agent.l1yp.com/</code>，可以多端实时同步最新运行进度。</p>
+</blockquote>
+<h2 id="21-支持方案一harness-in-sandbox的论据">2.1 支持方案一（harness in sandbox）的论据</h2>
+<blockquote>
+<p><strong>BoAI</strong>（3 赞）：<strong>claude code 的云端版本就是 harness in sandbox</strong>。我觉得就是因为随着 coding 任务越来越长，<strong>sandbox 的存续期也越来越长</strong>（可以理解为 sandbox 的存续期变得和 agent 的存续期一样长。而之前 claude.ai 网页端的 sandbox 生命周期只是很短的函数执行，或者像 ipynb 那样的简单状态维护），那还不如把 harness 放到 sandbox 里，<strong>省得维护两个状态</strong>。</p>
+<p><strong>笨笨的 clumsy</strong>：in sandbox 可以<strong>利用现成的 harness 工具，不用自己开发</strong>。（作者补充：不过现成 harness 的状态数据要适配下。）</p>
+<p><strong>hh0104</strong>：有的大厂用<strong>第三方，Codex 这些，直接在沙箱装 cli，后端变成网关</strong>，路由、转发请求这些。
+<strong>hh0104</strong>（更完整的一段）：沙箱跑 agent 的话，<strong>后端就是个网关</strong>——转发消息、统一协议、消息队列，要处理<strong>时序、沙箱预热、实时性、会话管理</strong>等一大堆问题；好处是 <strong>harness 不用自己搭</strong>，直接以镜像形式在沙箱里装 agent cli 就好，而且<strong>扩展性好，只需要统一协议</strong>，而且<strong>用户身份问题好解决</strong>。</p>
+<p><strong>Octavarium</strong>（2 赞）：harness in sandbox <strong>比较好落地，而且也好切 harness</strong>，如果做 multiagent 甚至可以做不同 agent 的编排；但是对<strong>状态管理、基建、时序、稳定性</strong>等好多维度都是很大的挑战。harness in service 就是绑定一套 harness，<strong>扩展性差点，但方案简单点，没有很复杂的分布式问题</strong>。</p>
+<p><strong>冥想思者</strong>：推荐是 <strong>harness ➕ 沙箱</strong>，注意 ➕ 这个词。——一条容易被忽略的折中：不是 in，是 和。</p>
+<p><strong>记录生活的卡尔</strong>：可以看看<strong>腾讯云开源的 CubeSandbox</strong> 这个项目，<strong>起一个沙箱 60+ms</strong>，其实就可以做到每次调用 agent 的时候就将 agent 注入到沙箱当中，设置一个沙箱存活时间，一段时间不调用后就自动销毁，也比较省资源。</p>
+</blockquote>
+<h2 id="22-支持方案二harness-in-service的论据">2.2 支持方案二（harness in service）的论据</h2>
+<blockquote>
+<p><strong>0xD800</strong>（作者）：我觉得 <strong>harness in sandbox 的设计是不科学的</strong>。</p>
+<p><strong>执剑</strong>（2 赞）：<strong>方案 1 不 scale</strong>，没有分离环境和 agentic loop，对状态存储也不友好。<strong>目前主流都是方案 2</strong>，反驳请带例子。</p>
+<p><strong>AttachNowhere</strong>：都不用，<strong>沙箱里放个 daemon 执行操作，agent loop 跑在服务器进程里</strong>。
+→ 作者："那不方案 2 吗？" → AttachNowhere："看错了，是方案 2。"（这段乌龙恰好说明：很多"第三种方案"其实是方案二的变体）</p>
+<p><strong>富士摄momo</strong>：harness in service <strong>更加要处理断点重跑、记录每一轮状态</strong>。——这是方案二被低估的成本。</p>
+</blockquote>
+<h2 id="23-第三条路-折中路线">2.3 第三条路 / 折中路线</h2>
+<blockquote>
+<p><strong>沉睡的酱肘子</strong>（6 赞，帖二最高赞）：sandbox 原先是适合<strong>短生命周期</strong>的，作为 agent <strong>旁路工具</strong>；但如果要跑 sandbox 内置 agent，<strong>sandbox 和 agent daemon 的生命周期就需要捆绑在一起</strong>，你就需要在<strong>一个 linux 里闭环搭建所有 harness</strong>。
+↳ 他还补了一句价值观判断：<strong>大部分能爆火的开源软件产品都是 local first</strong>，你想想为啥，<strong>简单即是健壮</strong>。</p>
+<p><strong>dearmr6</strong>：可以参考很多 IDE，就是<strong>写脚本类的高危动作放沙箱，普通的技能工具调用还是本地</strong>。我自己是这么做的，我们也是 SaaS 化的服务；还有一种就是 harness in sandbox，我们隔壁组是这么用的。</p>
+<p><strong>美少年</strong>（2 赞）：沙箱现在主流的就两种场景——<strong>第一种是 agent inside</strong>，主要是云主机场景，做<strong>常驻型任务</strong>；<strong>第二种是 agent outside</strong>，比如 <strong>RL 这种 job 场景</strong>，做<strong>即拉即消</strong>的任务。<strong>不同的场景需要不同的 agent infra</strong>。</p>
+<p><strong>影子个人成长</strong>：现在用的<strong>沙箱当调用工具</strong>。agent 服务是同一个，每个人有自己的沙箱，个人沙箱一段时间没有就销毁。</p>
+<p><strong>全网第一个讲 AI Infra</strong>：一种是把 harness 放在沙箱里，一种是<strong>把沙箱当一个调用工具</strong>。</p>
+<p><strong>笨笨的 clumsy</strong>（帖二里最有洞察的一条）：这会带来第二个取舍——<strong>信源在下还是信源在上</strong>。
+- <strong>信源在下</strong>：上层只是展示，比较简单，但是<strong>做不了多副本高可用</strong>；
+- <strong>信源在上</strong>：有些 harness 不原生支持需要 hack，而且自己管理上下文<strong>基本等同于重新写一个</strong>了。</p>
+</blockquote>
+<h2 id="24-infra-与成本的现实">2.4 infra 与成本的现实</h2>
+<table>
+<thead>
+<tr>
+<th>评论</th>
+<th>要点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>中本喵</strong></td>
+<td><strong>full E2B 成本太高</strong>；<strong>k8s + Kata 需要自己搭和维护</strong></td>
+</tr>
+<tr>
+<td><strong>momo</strong></td>
+<td>腾讯开源了支持，就是<strong>硬件适配麻烦</strong></td>
+</tr>
+<tr>
+<td><strong>傅o_O</strong></td>
+<td>harness in sandbox <strong>成本比较高</strong>，对 sandbox 要求高：<strong>生命周期、快照恢复</strong>这些</td>
+</tr>
+<tr>
+<td><strong>Dagugugugu</strong></td>
+<td>就自己做一套 E2B 呗，<strong>难点不在 agent 侧而在于 infra</strong></td>
+</tr>
+<tr>
+<td><strong>momo</strong></td>
+<td><strong>agent in sandbox 就是为了省事，除了省事就没有优点了，给 infra 压力挺大</strong>（作者回："我也是这么觉得的"）</td>
+</tr>
+</tbody>
+</table>
+<h2 id="25-安全与身份">2.5 安全与身份</h2>
+<ul>
+<li><strong>记录生活的卡尔</strong>：第一种会更安全，如果 agent 有什么高危操作也只会影响沙箱吧。</li>
+<li><strong>0xD800</strong>：安全性来说这两种方案是一样的吧，因为<strong>工具都是在沙箱执行的</strong>。</li>
+<li><strong>hh0104</strong>：但是<strong>沙箱的身份问题，是个问题</strong>。</li>
+<li><strong>0xD800</strong>（问 hh0104）：有大厂用前者（harness in sandbox）么？→ <strong>hh0104</strong>：有的。</li>
+</ul>
+<h2 id="26-为什么需要云端-coding-agent治理视角">2.6 为什么需要"云端" coding agent：治理视角</h2>
+<blockquote>
+<p><strong>小鸡骑士饲养员</strong>：我没懂，为什么需要云端 codeagent。我是自建的只读场景，我认为<strong>每个人本地改代码更符合常识</strong>。
+<strong>0xD800</strong>：<strong>企业喜欢监控</strong>。
+<strong>0xD800</strong>：我做的也不是云端 coding agent 哈哈，比如华为这种管理严格的都是云端 coding 吧，本地就远程上去开发。
+<strong>小鸡骑士饲养员</strong>：可是缺少本地调试、本地各种拖拽快捷键，不会很别扭吗？除非是纯 agent 写。</p>
+</blockquote>
+<h2 id="27-开源参考与抄设计">2.7 开源参考与"抄设计"</h2>
+<ul>
+<li><strong>hh0104</strong>：<strong>openhands、sandbox in agent</strong> 可以看一下这两个开源项目，思路比较类似，但<strong>离生产上还比较远</strong>，目前还没有适配的框架、infra。</li>
+<li><strong>AI布道师Warren</strong>（7 天前，4 赞）：评论区的从业者层次不齐，说的很多都是错的。<strong>挂个 tunnel 进 claude managed agent，抄它的设计就好。</strong></li>
+<li><strong>BoAI</strong> 的澄清（纠了一处常见混淆）：<strong>claude code 的云端版 = harness in sandbox</strong>；<strong>managed agents 是 harness 和 sandbox 分离的</strong>。</li>
+<li><strong>AI布道师Warren</strong>：你说的是 claude managed agent 么？→ <strong>BoAI</strong>：不是呀，就是 claude code 的云端版……managed agents 是 harness 和 sandbox 分离的。→ <strong>AI布道师Warren</strong>：了解了，那我理解错了，你说的是对的。</li>
+<li><strong>0xD800</strong>：我是刚问 AI 才了解 Claude managed agent 的，<strong>看起来像是从方案一演变到方案二</strong>的，如有不对请指教。</li>
+</ul>
+<hr>
+<h1 id="三把两帖合起来看一张自检表">三、把两帖合起来看：一张自检表</h1>
+<p>两帖的提问角度不同，但落到决策上收敛到同一组变量：</p>
+<table>
+<thead>
+<tr>
+<th>决策点</th>
+<th>选 A：harness in service</th>
+<th>选 B：harness in sandbox</th>
+<th>依据（来自两帖）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>agent loop 在哪</strong></td>
+<td>服务进程里跑 react loop</td>
+<td>沙箱镜像里装成熟 harness</td>
+<td>帖二封面定义</td>
+</tr>
+<tr>
+<td><strong>状态放哪</strong></td>
+<td>Redis/MySQL + S3（jsonl 归档）；信源在服务侧</td>
+<td>沙箱本地文件 + 定期 sync-back 到 S3；信源在沙箱侧</td>
+<td>0xD800 / 笨笨的clumsy"信源在上/在下"</td>
+</tr>
+<tr>
+<td><strong>横向扩展靠什么</strong></td>
+<td>无状态服务多副本（天然可扩）</td>
+<td><strong>scaling sandbox</strong>（扩沙箱实例）</td>
+<td>BoAI：harness in sandbox + scaling sandbox</td>
+</tr>
+<tr>
+<td><strong>沙箱粒度</strong></td>
+<td>沙箱当工具，<strong>session 级</strong>、用完即销</td>
+<td>沙箱即运行体，<strong>生命周期与 agent daemon 绑定</strong></td>
+<td>momo vs 0xD800 的沙箱粒度之争</td>
+</tr>
+<tr>
+<td><strong>主要代价</strong></td>
+<td>断点重跑、每轮状态记录、自己搭 harness</td>
+<td>状态管理 / 基建 / 时序 / 稳定性 + infra 成本 + 身份方案</td>
+<td>富士摄momo、Octavarium、hh0104</td>
+</tr>
+<tr>
+<td><strong>适合谁</strong></td>
+<td>要<strong>掌控运行过程状态</strong>、多租户、需要自己做定制的场景</td>
+<td><strong>云端 coding agent</strong>、任务越来越长、想复用现成 harness</td>
+<td>帖二作者结论；BoAI</td>
+</tr>
+<tr>
+<td><strong>省事程度</strong></td>
+<td>要自己搭</td>
+<td>装现成 CLI 就行，"除了省事没优点"</td>
+<td>笨笨的clumsy / momo</td>
+</tr>
+</tbody>
+</table>
+
+<div class="callout" data-callout="important"><p class="callout-title">三条可以带走的结论</p>
+<ol>
+<li><strong>"云端 Agent 难"= 有状态的部分难</strong>。两帖里所有跑通的人（0xD800、momo、hh0104）都在做同一件事：<strong>把状态从"节点本地"搬到对象存储 / 关系库</strong>，让计算（沙箱或服务实例）变成可回收的。</li>
+<li><strong>粒度就是成本</strong>。session 级沙箱隔离干净但容器数爆炸（momo：100 用户 × 10 session = 1000 容器）；项目级沙箱省资源但要管并发与配额。没有免费选项。</li>
+<li><strong>折中路线正在变成默认答案</strong>：<strong>harness ➕ 沙箱</strong>（旁路高危动作进沙箱，harness 留在服务里），或者按 <strong>agent inside / agent outside</strong> 分场景选 infra。</li>
+</ol>
+</div>
+<h2 id="31-现成可抄的参考清单">3.1 现成可抄的参考清单</h2>
+<table>
+<thead>
+<tr>
+<th>项目 / 产品</th>
+<th>类型</th>
+<th>在两帖里的角色</th>
+<th>核实情况</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>openma-ai/open-managed-agents</strong></td>
+<td>自托管 agent 平台</td>
+<td>BoAI 的项目；帖一作者已表示要认真学</td>
+<td>276★ · Apache 2.0 · 更新于 2026-09-13</td>
+</tr>
+<tr>
+<td><strong>Claude Managed Agents</strong></td>
+<td>托管服务</td>
+<td>"harness 与 sandbox 分离"的样板；Warren 建议"挂 tunnel 进去抄设计"</td>
+<td>评论区多次引用</td>
+</tr>
+<tr>
+<td><strong>Claude Code 云端版</strong></td>
+<td>产品</td>
+<td>BoAI：就是 <strong>harness in sandbox</strong> 的实例</td>
+<td>评论区观点</td>
+</tr>
+<tr>
+<td><strong>腾讯云 CubeSandbox</strong></td>
+<td>沙箱 infra</td>
+<td>起沙箱 60+ms，可"每次调用即注沙箱"</td>
+<td>TencentCloud/CubeSandbox 仓库存在</td>
+</tr>
+<tr>
+<td><strong>E2B</strong></td>
+<td>沙箱平台</td>
+<td>"full E2B 成本太高"，也有人主张自建一套</td>
+<td>评论区观点</td>
+</tr>
+<tr>
+<td><strong>k8s + Kata</strong></td>
+<td>自建沙箱</td>
+<td>需要自己搭和维护；硬件适配麻烦</td>
+<td>评论区观点</td>
+</tr>
+<tr>
+<td><strong>OpenHands</strong></td>
+<td>开源 agent 平台</td>
+<td>hh0104 推荐，但"离生产还比较远"</td>
+<td>87.8k★</td>
+</tr>
+<tr>
+<td><strong>AgentScope / AgentScope Service</strong></td>
+<td>框架 + 服务</td>
+<td>"agent as a service"，与 openma 类似</td>
+<td>评论区观点</td>
+</tr>
+<tr>
+<td><strong>pi sdk / pi core</strong></td>
+<td>轻量 agent SDK</td>
+<td>帖一主角：最小内核，横扩要自己做</td>
+<td>评论区观点</td>
+</tr>
+<tr>
+<td><strong>mastra / OpenAI Agents SDK / vercel / cloudflare agents</strong></td>
+<td>替代方案</td>
+<td>只用 loop 不用 sandbox / serverless 天然可扩</td>
+<td>评论区观点</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h1 id="四对我的启发-待验证">四、对我的启发 / 待验证</h1>
+<p><strong>启发</strong></p>
+<ol>
+<li>帖一那位作者的处境很典型：<strong>领导要 B/S，架构却想 local first</strong>。如果目标是"把本地 SDK 塞进云端"，真正的工作量不在 agent 逻辑，而在"会话 / 文件系统 / 沙箱生命周期"这一层——这句话可以当作评估任何"上云"方案的第一检查项。</li>
+<li><strong>"信源在上还是在下"</strong>这个提法很好用，比"有状态/无状态"更具体：它直接对应"能不能多副本高可用"这个硬指标。</li>
+<li>帖二作者的方案二实现（<strong>react loop 在服务、状态在 redis/mysql、服务可横扩</strong>）配上帖一的<strong>沙箱无状态 + S3 sync-back</strong>，其实就是一条完整可落地的路线：<strong>loop 在服务、状态在外部、沙箱只是执行工具</strong>。</li>
+</ol>
+<p><strong>待验证（评论区说法，尚未核实）</strong></p>
+<ul>
+<li class="task"><span class="cb" aria-hidden="true"></span>AgentScope Service 与 Claude Managed Agents 的能力边界是否真的可比；</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>CubeSandbox 的 60ms 起沙箱在真实多租户负载下的表现；</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>"harness in sandbox" 在高并发下，"状态管理 / 时序 / 稳定性"的具体坑位（Octavarium 只给了方向）。</li>
+</ul>
+
+<div class="callout" data-callout="caution"><p class="callout-title">信息边界</p>
+<ul>
+<li>本文是两篇小红书<strong>帖子 + 评论区观点</strong>的整理，<strong>不是任何厂商的官方架构文档</strong>，也不代表项目实际实现。</li>
+<li>评论区观点之间<strong>存在直接冲突</strong>（例如"主流是方案二" vs "claude code 云端版就是方案一"），本文保留了冲突本身，未替读者裁决。</li>
+<li>涉及产品/项目的具体数字（star 数、启动耗时、成本）<strong>以官方仓库与文档为准</strong>，本文只标注了可以核实的部分。</li>
+<li>抓取方式：agent-reach <code>opencli xiaohongshu</code>（OpenCLI 后端，复用浏览器登录态）+ 浏览器 DOM 展开"更多回复"。<strong>帖一封面文字写在图片里</strong>，正文栏只有标签。</li>
+</ul>
+</div>
+<p><strong>抓取完整性说明</strong></p>
+<ul>
+<li>帖一（显示 80 评论）：展开全部"展开 N 条回复"后累计抓到 <strong>80 条</strong>。</li>
+<li>帖二（显示 73 评论）：小红书对深翻评论有限制，累计整理出 <strong>66 条</strong>（其中 48 条来自一次完整展开抓取，其余为首批抓取补充），<strong>仍有部分深楼层未展开</strong>。</li>
+</ul>
+<hr>
+<h1 id="附录-a帖一评论区完整记录80-条">附录 A：帖一评论区完整记录（80 条）</h1>
+<blockquote>
+<p>按抓取顺序列出，<code>↳</code> 表示楼中楼层级（原帖中显示为「回复 X」）。括号内为「时间 · 地点 · 赞 · 收藏」。</p>
+</blockquote>
+<ul>
+<li><strong>BoAI</strong>（09-02 北京 · 11 赞 · 13 收藏）：一般的方案就是 harness in sandbox，然后 scaling sandbox。也有 harness 做成 severless 的方案，比如说 claude managed agents。如果想用 pi 做 severless harness，可以看看我的项目 openma-ai/open-managed-agents，最近在做 pi 的方案</li>
+<li>↳ <strong>Bug🔗Life（作者）</strong>（09-02 陕西）：我学习一下，要求内网部署 可能没有 serverless 的基础设施，需要自己上一套 openfass？可能 harness in sandbox 更合适？</li>
+<li>↳ <strong>BoAI</strong>（09-02 北京）：一般的无状态微服务也可以的，支持 node 部署</li>
+<li>↳ <strong>小红薯68F2D6A4</strong>（09-03 浙江）：佬，适合做 agent 二开的框架有推荐的吗. 团队在选择完整功能比如 agentscope 和轻量底座二开比如 pi 有分歧</li>
+<li>↳↳ <strong>BoAI</strong>（09-03 北京）：agentscope 和 pi sdk 的封装粒度感觉差不多了吧</li>
+<li>↳↳ <strong>Bug🔗Life（作者）</strong>（09-03 陕西）：单从 agent 能力应该差不了多少吧，agentscope 是不是接入 agentscope service 更方便一点，个人理解 agentscope service 就像 Claude managed agents，也有点像你的 openma，不知道理解的对不对</li>
+<li>↳↳↳ <strong>BoAI</strong>：刚刚看了一下，感觉是差不多的，都是 agent as a service</li>
+<li>↳↳ <strong>Bug🔗Life（作者）</strong>：越看越多了 cursor 云 cloud 发了好几篇技术博客</li>
+<li>↳↳↳ <strong>BoAI</strong>：一起来沉淀到 openma 里面</li>
+<li>↳↳↳ <strong>Bug🔗Life（作者）</strong>：干</li>
+<li>↳↳ <strong>Bug🔗Life（作者）</strong>（1 天前 陕西）：OpenAI 也发布了 agent as service 就是下一波产品形态</li>
+<li>↳↳↳ <strong>BoAI</strong>（1 天前 北京）：昨天适配了哈哈哈</li>
+<li>↳↳↳ <strong>Bug🔗Life（作者）</strong>：应该就是这个形态了 踩的很对</li>
+<li>↳↳↳ <strong>Bug🔗Life（作者）</strong>（1 赞）：我将认真学习 openma</li>
+<li><strong>0xD800</strong>（09-01 广西 · 1 赞 · 46 收藏）：我的 agent 文件直接进 s3，每次执行命令后全部 sync-back，沙箱有存活时间，长时间不操作就释放，以后复活再把文件写进去</li>
+<li>↳ <strong>Bug🔗Life（作者）</strong>（09-01 陕西）：agent 运行产生的一些中间文件、session.json 等都放在 s3，然后一直在同步。agent 在沙箱运行，启动的时候把这个 session 需要文件从 s3 挂进沙箱，是这样么，是一个 session 对应一个沙箱，大佬我理解的对么</li>
+<li>↳↳ <strong>0xD800</strong>（09-01 广西）：我的文件元信息是存在关系型数据库的，初始化沙箱的时候，先把这个 session 的文件列表查出来，然后从 s3 复制到沙箱目录。然后启动沙箱。是的一个沙箱一个 session 会话，这种设计是针对无状态沙箱设计的。</li>
+<li>↳↳ <strong>0xD800</strong>：你可以注册个号，不需要邮箱和手机号，随便填写进去测试下就懂啦</li>
+<li>↳↳ <strong>Bug🔗Life（作者）</strong>：还有个问题我的 session 记录是存在 jsonl 中的，sdk 也是从 jsonl 恢复会话记录，我这种情况上 nfsv4 也可，有没啥坑，没太接触过这方面，请佬赐教一下</li>
+<li>↳↳↳ <strong>0xD800</strong>：我是把会话历史归档为 jsonl 存到 s3</li>
+<li>↳↳↳ <strong>0xD800</strong>：元数据还是存关系型数据库了</li>
+<li>↳↳↳ <strong>0xD800</strong>：这种 sdk 针对本地客户端的吧 我觉得对于服务端 agent 来说 不能完全照抄</li>
+<li>↳↳↳ <strong>bobo</strong>（09-01 湖北）：冷启动+文件复制。这性能不敢想</li>
+<li>↳↳↳↳ <strong>astonycat</strong>（09-03 北京）：sandbox 启动挺快 主要是文件复制吧</li>
+<li>↳↳↳↳ <strong>0xD800</strong>（09-02 广西）：80% 都不是冷启动的，那些无状态沙箱不也是这么干吗？没有仔细看过，agent 这点性能跟 llm thinking 相比就是一下子的事情</li>
+<li>↳↳↳ <strong>0xD800</strong>（09-02 广西）：关系型数据库也存的 从数据库查</li>
+<li>↳↳↳ <strong>0xD800</strong>：Jsonl 主要查阅每个 turn 的请求历史 具体我也不记得了 得翻代码了</li>
+<li>↳↳↳ <strong>0xD800</strong>：关注你了 明天细聊一下 我也是在学习 没有经过生产检验</li>
+<li>↳↳↳ <strong>0xD800</strong>：我是从关系型数据库加载的，归档的 jsonl.gz 是保存 llm 请求记录用于排查问题</li>
+<li>↳↳ <strong>Bug🔗Life（作者）</strong>（09-01 陕西）：发这个帖子就是初衷想问这个，总感觉这类 sdk 用到服务端好怪异啊，不过就算他怪，不用 nfsv4，用你的方案 用 s3 和沙箱感觉也可以完美解决，那你恢复历史会话内容也要从 jsonl 中加载吗</li>
+<li><strong>顾青山</strong>（09-01 江苏 · 2 赞 · 5 收藏）：我觉得它太简陋了，我选择 cline</li>
+<li>↳ <strong>Bug🔗Life（作者）</strong>：我要内嵌应用 讨论的是 sdk 不是 pi coding agent</li>
+<li>↳↳ <strong>顾青山</strong>（1 赞）：巧了，我说的就是 sdk</li>
+<li>↳↳↳ <strong>Bug🔗Life（作者）</strong>：那是我孤陋寡闻了 不知道 cline 还有 sdk</li>
+<li>↳↳↳↳ <strong>今天吃点什么哪</strong>（09-03 上海）：pi core</li>
+<li>↳↳↳↳ <strong>momo</strong>（09-03 广东）：pi 的 sdk 就是 coding agent 他的上层是 tui</li>
+<li><strong>老豆子 脾气大</strong>（09-01 上海 · 4 赞 · 8 收藏）：现在 ai sdk 都是最小功能原则保证单 agent 独立运行上下午优化吧，你说的横向应该是功能性扩展/多 agent 扩展？</li>
+<li>↳ <strong>Bug🔗Life（作者）</strong>：功能性属于纵向吧 多 agent 算是横向</li>
+<li>↳↳ <strong>老豆子 脾气大</strong>：所以你的需求是什么</li>
+<li>↳↳↳ <strong>Bug🔗Life（作者）</strong>：举个例子 pi 最开始加载资源都是从某个节点文件夹系统加载，用户 session 也存在文件系统，这个节点挂了咋办，感觉做高可用，高并发难搞啊</li>
+<li>↳↳↳↳ <strong>老豆子 脾气大</strong>：这些 sdk 都是基于本地策略进行恢复的，如果执行过程中挂了可选的是重启这个容器、找其他节点重新执行，高可用场景要把过程内容魔改写到其他地方用来恢复了，这改动不小啊</li>
+<li>↳↳↳↳↳ <strong>Bug🔗Life（作者）</strong>：对 就想要这个答案，大哥，是不是现在 agent sdk 都没考虑这些呢？节点挂了，seesion、文件系统上持久化的东西怎么到别的节点上，感觉就应该 local first，领导要搞 b/s，怎么搞啊</li>
+<li>↳↳↳↳↳↳ <strong>老豆子 脾气大</strong>：当然，现在考虑最多的就是本机异常可恢复，你现在除了持久化上云这步，更多的瓶颈问题在哪，文件 io 吗还是请求数量？持久化不是大问题可魔改的</li>
+<li>↳↳↳↳↳↳↳ <strong>Bug🔗Life（作者）</strong>：请求数量也有问题，还要求单会话运行处理 200mb 上传资料，怕给自己挖坑，给领导推荐的是 local first 架构 唉</li>
+<li>↳↳↳↳↳↳↳↳ <strong>老豆子 脾气大</strong>：这大文件就更不适合云端处理了，优点很多缺点也很明显，你有这实践机会已经很不错了</li>
+<li><strong>momo</strong>（09-02 广东 · 1 赞）：确实不适合多用户云场景呀，可以考虑 vercel 或者 cloudflare 的一站式 agent 解决方案（跑在 serverless 上天然具备拓展性）</li>
+<li><strong>momo</strong>（09-03 广东）：我最近也在做这个方向，底座采用的是 pi 做多租户 saas，用户的元信息用关系性数据库存储，会话采用 sso 方案，工作空间挂到一个沙箱容器中</li>
+<li><strong>momo</strong>（09-01 广西 · 1 赞）：openai agents sdk 呢，只用 loop，不用 sabdbox</li>
+<li><strong>六个彩虹运动员灰烬</strong>（4 天前 上海）：mastra</li>
+<li><strong>momo</strong>（09-03 广东）：你的 agent 是自研还是根据类似 pi 做的二开？</li>
+<li>↳ <strong>0xD800</strong>：AI 手撕，没用 sdk</li>
+<li>↳↳ <strong>momo</strong>：那你们插件生态要都要从搞了</li>
+<li>↳↳ <strong>momo</strong>：嗯，类似 trace、hook 的能力，基本上都需要造轮子吧</li>
+<li>↳↳↳ <strong>0xD800</strong>：AI 时代无需在意这点细枝末节的工作量</li>
+<li>↳↳↳ <strong>0xD800</strong>：有智能体概念，没有项目，这个只针对用户，还有个后台。</li>
+<li>↳↳↳ <strong>0xD800</strong>：项目概念是没有的，主要是问答类的 agent。不是 coding agent 类型的。项目概念主要是共享文件和上下文吧，这个做起来应该也问题不大</li>
+<li>↳↳↳ <strong>0xD800</strong>：后者</li>
+<li>↳↳↳ <strong>0xD800</strong>：Agent 是 kotlin 写的，在服务里。</li>
+<li>↳↳ <strong>momo</strong>：你们这个只有会话，没有项目概念吗</li>
+<li><strong>momo</strong>（09-03 广东）：你们是吧整个 agent 挂载到容器，还只是把 tools 能力挂载到工具内？</li>
+<li><strong>momo</strong>（09-03 广东）：你们一个沙箱环境的容器资源给的挺大，用户多成本也很大吧</li>
+<li>↳ <strong>0xD800</strong>：保活 15 分钟，目前没有什么好办法，你有更好的方案吗？</li>
+<li>↳ <strong>0xD800</strong>：这个网页是我的本地环境部署的。。。</li>
+<li>↳↳ <strong>momo</strong>：这是你个人产品？</li>
+<li>↳↳↳ <strong>0xD800</strong>：嗯</li>
+<li><strong>momo</strong>（09-03 广东）：我们目前做的是 用户 + 项目 + session，一个项目一个沙箱容器，容器的资源进行一些限制，用户也可申请进行扩大，资源消耗的小很多。一个 session 一个容器上限太低了，宿主机很容易撑爆，除非你对活跃的 session 做数量限制</li>
+<li>↳ <strong>0xD800</strong>：场景不一样吧，你这个一个项目一个沙箱要管并发吧。主流的 saas 产品都是沙箱无状态的设计吧</li>
+<li>↳ <strong>0xD800</strong>：一个 session 一个沙箱为什么上限低？能否深入交流交流</li>
+<li>↳↳ <strong>momo</strong>：沙箱也得无状态的，沙箱启动后会把项目信息往沙箱内拷贝，启动一个 session 就进行 +1，session 全部关闭后就进行销毁，主要是减少沙箱容器的创建</li>
+<li>↳↳↳ <strong>0xD800</strong>：我的是无状态设计呀，启动的时候复制文件进去，变更会同步出来。默认保活 15 分钟，15 分钟没动静就释放，下次冷启动再把原来沙箱的文件导入到新沙箱</li>
+<li>↳↳↳ <strong>momo</strong>：一个用户启动 10 个 session，一百个用户同时在线，就得一千个容器，资源太浪费了</li>
+<li>↳↳↳ <strong>momo</strong>：正常用户使用场景 session 切换比项目会多很多，一个用户创建一千个项目同时在跑的概率低很低</li>
+<li>↳↳↳ <strong>momo</strong>：不确定你们的子 agent 是不是也会单独创建沙箱容器</li>
+<li>↳↳↳↳ <strong>0xD800</strong>：没在用的 Session 会自动销毁的</li>
+<li>↳↳↳↳ <strong>0xD800</strong>：如果真有那么多用户用这个产品，那么显而易见必须加配置了。</li>
+<li>↳ <strong>momo</strong>：你的 agent 支持分布式吗 还是单实例呢？</li>
+<li>↳↳ <strong>0xD800</strong>：目前单实例开发的，分布式就是多部署几何个服务就好了。〔原文如此〕</li>
+<li>↳↳ <strong>0xD800</strong>：状态是 redis/MySQL 管理的</li>
+<li><strong>0xD800</strong>（09-03 广西）：有限制的啊 每个用户最多 3 个同时启用。你这要是用户创建 10000 个项目，你们创建多少个沙箱？</li>
+<li><strong>0xD800</strong>（09-03 广西）：skill/mcp 都是规范，你说的插件是哪个纬度？比如 trace？Langsmith 这种嘛？</li>
+</ul>
+<hr>
+<h1 id="附录-b帖二评论区记录66-条含楼中楼">附录 B：帖二评论区记录（66 条，含楼中楼）</h1>
+<blockquote>
+<p>同上格式。帖二评论区显示 73 条，小红书深翻限制下一次性完整展开可抓 48 条，另补录首批抓取到的独立评论，合计 66 条。</p>
+</blockquote>
+<ul>
+<li><strong>0xD800（作者）</strong>（09-04 广西）：收藏比点赞多，评论区大佬多全是干货，感谢大家指点 ——【置顶评论】</li>
+<li><strong>沉睡的酱肘子</strong>（09-04 北京 · 6 赞 · 7 收藏）：sandbox 原先是适合短生命周期的，作为 agent 旁路工具；但如果要跑 sandbox 内置 agent，sandbox 和 agent daemon 的生命周期就需要捆绑在一起，你就需要在一个 linux 里闭环搭建所有 harness。</li>
+<li>↳ <strong>0xD800（作者）</strong>：我觉得 harness in sandbox 的设计是不科学的。。</li>
+<li>↳↳ <strong>沉睡的酱肘子</strong>：各有利弊，很多本地跑的很成熟的 harness 如果都通过服务化调用重写一遍也很恐怖</li>
+<li>↳↳↳ <strong>0xD800（作者）</strong>：提示词和模型神力</li>
+<li>↳↳↳↳ <strong>沉睡的酱肘子</strong>：大部分能爆火的开源软件产品都是 local first，你想想为啥，简单即是健壮</li>
+<li>↳↳↳↳↳ <strong>0xD800（作者）</strong>：我觉得因为服务端 Agent 麻烦而且对提供商要求高。local 写起来简单太多</li>
+<li>↳↳↳↳↳↳ <strong>沉睡的酱肘子</strong>（2 赞）：对呀 简单写起来爽才是王道 软件工程的发展方向</li>
+<li>↳↳↳↳↳↳↳ <strong>0xD800（作者）</strong>：是这个理</li>
+<li><strong>BoAI</strong>（09-04 北京 · 3 赞 · 7 收藏）：claude code 的云端版本就是 harness in sandbox。我觉得就是因为随着 coding 任务越来越长，sandbox 的存续期也越来越长（可以理解为 sandbox 的存续期变得和 agent 的存续期一样长。而之前的 claude.ai 网页端的 sandbox 生命周期只是很短的函数执行，或者是像 ipynb 那样的简单状态维护），那还不如把 harness 放到 sandbox 里，省得维护两个状态。</li>
+<li>↳ <strong>0xD800（作者）</strong>：有相关文章介绍么？grok bot 这种思路？</li>
+<li>↳ <strong>0xD800（作者）</strong>：不过话说回来 claude 有自己的 sdk，相当于自己开发 harness 放 sandbox 扩展起来还是简单的多</li>
+<li>↳↳ <strong>BoAI</strong>：可以看看各种 sandbox 厂商给 claude agent sdk 做的部署方案？搜索 claude agent sdk sandbox 能出来一大堆</li>
+<li>↳↳↳ <strong>0xD800（作者）</strong>（1 赞）：谢谢，我去看看</li>
+<li>↳ <strong>AI布道师Warren</strong>（7 天前 广东）：你说的是 cluade managed agent 么？</li>
+<li>↳↳ <strong>BoAI</strong>（7 天前 北京）：不是呀，就是 claude code 的云端版，在桌面端可以用。managed agents 是 harness 和 sandbox 分离的</li>
+<li>↳↳↳ <strong>AI布道师Warren</strong>：了解了，那我理解错了。你说的是对的</li>
+<li><strong>hh0104</strong>（09-04 广东 · 2 赞 · 1 收藏）：各有利弊，分业务场景。沙箱跑 agent 的话，后端就是个网关，转发消息，统一协议，消息队列，要处理时序、沙箱预热、实时性、会话管理等一大堆问题，好处是 harness 不用自己搭，直接以镜像的形式在沙箱里装 agent cli 就好，而且扩展性好，只需要统一协议就可以，而且用户身份问题好解决。agent in service 就是需要自己用框架或者各种 sdk 搭 Agent，可以根据业务进行定制化设计。</li>
+<li>↳ <strong>hh0104</strong>：但是沙箱的身份问题，是个问题</li>
+<li><strong>全网第一个讲 AI Infra</strong>（09-04 广东 · 1 赞 · 9 收藏）：对就是一种是放在沙箱里一种是把沙箱当一个调用工具</li>
+<li>↳ <strong>0xD800（作者）</strong>：有大厂用前者么</li>
+<li>↳↳ <strong>全网第一个讲 AI Infra</strong>：您是大厂的吗 我们是做沙箱的 是小厂</li>
+<li>↳↳↳ <strong>0xD800（作者）</strong>：不是</li>
+<li>↳↳↳↳ <strong>全网第一个讲 AI Infra</strong>：我私你了</li>
+<li>↳↳ <strong>hh0104</strong>（09-05 广东）：有的</li>
+<li>↳↳↳ <strong>0xD800（作者）</strong>：是用第三方 harness 还是自研</li>
+<li>↳↳↳↳ <strong>hh0104</strong>：第三方，Codex 这些，直接在沙箱装 cli，后端变成网关，路由、转发请求这些</li>
+<li>↳↳↳↳↳ <strong>0xD800（作者）</strong>：工作量也不小，有相关文章学习么？踩坑记录之类的</li>
+<li>↳↳↳↳↳↳ <strong>hh0104</strong>：openhands、sandbox in agent、可以看一下这两个开源项目，思路比较类似，但离生产上还比较远，目前还没有适配的框架、infra 啥的。</li>
+<li><strong>dearmr6</strong>（09-04 浙江 · 1 收藏）：可以参考很多 ide，就是写脚本类的高危动作放沙箱，普通的技能工具调用还是本地。我自己是这么做的，我们也是 saas 化的服务，还有一种就是 harness in sandbox，我们隔壁组是这么用的</li>
+<li>↳ <strong>0xD800（作者）</strong>：可以举个例子吗，什么是技能工具？</li>
+<li><strong>中本喵</strong>（09-04 上海 · 2 赞 · 2 收藏）：full E2B 成本太高。k8s+Kata 需要自己搭和维护</li>
+<li>↳ <strong>0xD800（作者）</strong>：第一次听到 E2B 这种专业术语，学到了。谢谢</li>
+<li>↳ <strong>momo</strong>（09-05）：腾讯开源了支持，就是硬件适配麻烦</li>
+<li><strong>记录生活的卡尔</strong>（09-05 北京 · 3 收藏）：第一种会更安全，如果 agent 有什么高危操作也只会影响沙箱吧。</li>
+<li>↳ <strong>0xD800（作者）</strong>（1 赞）：安全性来说这两种方案是一样的吧，因为工具都是在沙箱执行的。</li>
+<li>↳↳ <strong>记录生活的卡尔</strong>：可以看看腾讯云开源的 cubesandbox 这个项目，起一个沙箱 60+ms，其实就可以做到每次调用 agent 的时候就将 agent 注入到沙箱当中，设置一个沙箱存活时间？一段时间不调用后就自动销毁，也比较省资源。</li>
+<li>↳↳↳ <strong>0xD800（作者）</strong>：嗯 我也是这种思路</li>
+<li><strong>笨笨的 clumsy</strong>（09-05 广东 · 3 收藏）：in sandbox 可以利用现成的 harness 工具，不用自己开发</li>
+<li>↳ <strong>0xD800（作者）</strong>：是这样，不过现成 harness 的状态数据要适配下</li>
+<li>↳↳ <strong>笨笨的 clumsy</strong>：是的，这会带来第二个取舍，信源在下还是信源在上。信源在下，上层只是展示的话，比较简单，但是做不了多副本高可用；信源在上的话，有些 harness 不原生支持需要 hack，而且信源在上自己管理上下文基本等同于重新写一个了</li>
+<li>↳↳↳ <strong>0xD800（作者）</strong>：重写一个也没多难度，看 pi 就知道啦</li>
+<li><strong>AttachNowhere</strong>（09-05 广东 · 1 赞 · 2 收藏）：都不用，沙箱里放个 daemon 执行操作，agent loop 跑在服务器进程里</li>
+<li>↳ <strong>0xD800（作者）</strong>：那不方案 2 吗</li>
+<li>↳↳ <strong>AttachNowhere</strong>：看错了，是方案 2</li>
+<li><strong>小鸡骑士饲养员</strong>（09-04 重庆 · 4 收藏）：我没懂，为什么需要云端 codeagent。我是自建的只读场景，我认为每个人本地改代码更符合常识，读是为了自动化任务</li>
+<li>↳ <strong>0xD800（作者）</strong>：企业喜欢监控</li>
+<li>↳ <strong>0xD800（作者）</strong>：我做的也不是云端 coding agent 哈哈，比如华为这种管理严格都是云端 coding 吧，本地就远程上去开发</li>
+<li>↳ <strong>0xD800（作者）</strong>：不清楚 我没做过这种场景额</li>
+<li>↳↳ <strong>小鸡骑士饲养员</strong>：可是缺少本地调试，本地各种拖拽快捷键什么的，不会很别扭吗？除非是纯 agent 写，信息都能用 mcp 或 skill 直连其他云端数据</li>
+<li><strong>momo</strong>（09-04 上海 · 3 赞 · 1 收藏）：agent in sandbox 就是为了省事，除了省事就没有优点了，给 infra 压力挺大</li>
+<li>↳ <strong>0xD800（作者）</strong>：我也是这么觉得的</li>
+<li><strong>执剑</strong>（6 天前 广东 · 2 赞）：方案 1 不 scale，没有分离环境和 agentic loop，对状态存储也不友好。目前主流都是方案 2，反驳请带例子</li>
+<li><strong>Octavarium</strong>（09-04 北京 · 2 赞 · 1 收藏）：harness in sandbox 比较好落地，而且也好切 harness，如果做 multiagent 甚至可以做不同 agent 的编排，但是对状态管理、基建、时序、稳定性等好多维度都是很大的挑战，harness in service 就是绑定一套 harness，扩展性差点，但是方案简单点，没有很复杂的分布式问题</li>
+<li>↳ <strong>富士摄momo</strong>（09-05 广东）：har in service 更加要处理断点重跑 记录每一轮状态</li>
+<li><strong>美少年</strong>（09-05 浙江 · 2 赞）：没一个专业的人！！沙箱现在主流的就两种场景。第一种是 agent inside，主要是云主机场景，做常驻型任务。第二种是 agent outside，比如 RL 这种 job 场景，做即拉即消的任务。不同的场景需要不同的 agent infra。</li>
+<li><strong>影子个人成长</strong>（09-05 北京）：现在用的沙箱当调用工具。agent 服务是同一个，每个人有自己的沙箱，个人沙箱一段时间没有就销毁</li>
+<li><strong>冥想思者</strong>（09-05 浙江）：推荐是 harness+沙箱，注意 ➕ 这个词</li>
+<li><strong>傅o_O</strong>（09-05 北京）：harness in sandbox 成本比较高。对 sandbox 要求比较高，生命周期、快照恢复这些</li>
+<li><strong>AI布道师Warren</strong>（7 天前 广东 · 4 赞）：评论区的从业者层次不齐，说的很多都是错的。挂个 tunnel 进 claude managed agent，抄它的设计就好。</li>
+<li>↳ <strong>0xD800（作者）</strong>：我是刚问 ai 才了解 Claude managed agent 的，看起来像是从方案一演变到方案二的，如有不对请指教。</li>
+<li><strong>0xD800（作者）</strong>（09-04 广西）：我把 agent 的 react loop 放到服务里，状态放 redis/mysql。agent 服务可横向扩展。体验地址：https://agent.l1yp.com/ 可以多端实时同步最新运行进度。</li>
+<li><strong>0xD800（作者）</strong>（09-04 广西 · 1 收藏）：看到小红书很多卖笔记的，有买过的吗？有没有这部分的架构设计讨论，欢迎交流</li>
+<li><strong>鼠鼠在coding</strong>（09-04 广西 · 1 收藏）：github 代码好像没更新，有最新版的项目代码吗</li>
+<li>↳ <strong>0xD800（作者）</strong>（1 赞）：你是真在用吗 加我微</li>
+<li><strong>AI陪跑</strong>（2 天前 浙江）：sandbox 咋实现的</li>
+</ul>
+<hr>
+<h2 id="关联笔记">🔗 关联笔记</h2>
+<p><strong>Harness 主题组</strong></p>
+<ul>
+<li><a class="wl" href="../../notes/clippings/p44a38b/2026-09-13-codex-harness-coding.html">2026-09-13-Codex-Harness架构拆解-小林coding</a> — Harness 到底是什么：模型决定下一步，Harness 负责安全执行</li>
+<li><a class="wl" href="../../notes/clippings/p44a38b/2026-09-07-llmharness-agent.html">2026-09-07-从一次LLM调用到完整Harness-Agent到底经历了什么-腾讯技术工程</a> — 一次调用到完整 Harness 的演化</li>
+<li><a class="wl" href="../../notes/clippings/p44a38b/2026-08-14-deepseek-harness-agent.html">2026-08-14-DeepSeek-Harness拆解-一套能拼装的Agent架构</a> — 可拼装的 Harness 架构</li>
+<li><a class="wl" href="../../notes/clippings/p44a38b/2026-09-04-cordis-deepseek-harness.html">2026-09-04-Cordis-DeepSeek-Harness的心脏-腾讯技术工程</a> — Harness 内核</li>
+<li><a class="wl" href="../../notes/clippings/p44a38b/2026-08-11-claude-codeharness-coding.html">2026-08-11-Claude-Code大代码库harness-小林coding</a> — 大代码库下的 harness 设计</li>
+</ul>
+<p><strong>架构分层</strong></p>
+<ul>
+<li><a class="wl" href="../../notes/clippings/pae26bb/2026-08-04-contextgraph-agent-qoder.html">2026-08-04-从Context到Graph-Agent工程的四个层次-Qoder</a> — Context / Harness / Loop / Graph 四层，本笔记的"Harness 放哪"正是第三层的问题</li>
+<li><a class="wl" href="../../notes/clippings/bilibili/2026-07-31-agent-harness-loop-graph.html">2026-07-31-Agent系统架构设计-Harness-Loop-Graph怎么选</a> — 三件套怎么选</li>
+<li><a class="wl" href="../../notes/clippings/pae26bb/2026-07-30-ai-agent-graph-loop-harness.html">2026-07-30-AI-Agent落地铁三角-Graph-Loop-Harness</a> — 企业落地铁三角</li>
+<li><a class="wl" href="../../notes/clippings/bilibili/2026-07-31-10ai-agent-8.html">2026-07-31-10分钟讲透AI-Agent-8种主流架构</a> — 8 种主流架构总览</li>
+</ul>
+<p><strong>后端与基础设施</strong></p>
+<ul>
+<li><a class="wl" href="../../notes/clippings/bilibili/2026-08-25-agent15.html">2026-08-25-Agent后端基础设施15个知识点</a> — 沙箱、状态、网关这些基建概念</li>
+<li><a class="wl" href="../../notes/clippings/bilibili/2026-08-25-agent.html">2026-08-25-Agent开发对应的系统设计知识</a> — 系统设计视角</li>
+<li><a class="wl" href="../../notes/clippings/p44a38b/2026-08-06-ai-agent-langchain-langgraph-llamaindex.html">2026-08-06-AI-Agent开发框架选型-LangChain-LangGraph-LlamaIndex-小林面试笔记</a> — 框架选型（对应帖一里"完整框架 vs 轻量底座"的分歧）</li>
+</ul>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">知识领域</span><span class="chip">- 小红书</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A2%86%E5%9F%9F/%E4%BA%91%E7%AB%AF%20Agent%20%E6%9E%B6%E6%9E%84%EF%BC%9AHarness%20%E6%94%BE%E6%B2%99%E7%AE%B1%E8%BF%98%E6%98%AF%E6%94%BE%E6%9C%8D%E5%8A%A1.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../notes/domains/rag.html"><span class="dir">← 上一篇</span><span class="t">RAG（Retrieval-Augmented Generation）学习笔记：从基础检索到知识工程</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../../notes/index.html">笔记库</a>
+      <a href="../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../about.html">关于</a>
+      <a href="../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../js/main.js" defer></script>
+</body>
+</html>

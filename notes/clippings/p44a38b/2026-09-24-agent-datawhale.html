@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>给项目建 Agent 知识库，一套完整方法来了 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="来源：公众号「Datawhale」，作者王大鹏，2026-09-24。 一句话总结：给项目建 Agent 知识库，难点不在&quot;资料从哪里找&quot;，而在&quot;查到资料以后凭什么判断&quot;。所以要反过来做——先确定知识库要支持什么判断，再决定整理什么、整理到…">
+<link rel="canonical" href="https://northadb.github.io/notes/clippings/p44a38b/2026-09-24-agent-datawhale.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="给项目建 Agent 知识库，一套完整方法来了 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="来源：公众号「Datawhale」，作者王大鹏，2026-09-24。 一句话总结：给项目建 Agent 知识库，难点不在&quot;资料从哪里找&quot;，而在&quot;查到资料以后凭什么判断&quot;。所以要反过来做——先确定知识库要支持什么判断，再决定整理什么、整理到…">
+<meta property="og:url" content="https://northadb.github.io/notes/clippings/p44a38b/2026-09-24-agent-datawhale.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="给项目建 Agent 知识库，一套完整方法来了 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="来源：公众号「Datawhale」，作者王大鹏，2026-09-24。 一句话总结：给项目建 Agent 知识库，难点不在&quot;资料从哪里找&quot;，而在&quot;查到资料以后凭什么判断&quot;。所以要反过来做——先确定知识库要支持什么判断，再决定整理什么、整理到…">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../feed.xml">
+<link rel="stylesheet" href="../../../css/style.css">
+<link rel="stylesheet" href="../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "给项目建 Agent 知识库，一套完整方法来了", "description": "来源：公众号「Datawhale」，作者王大鹏，2026-09-24。 一句话总结：给项目建 Agent 知识库，难点不在\"资料从哪里找\"，而在\"查到资料以后凭什么判断\"。所以要反过来做——先确定知识库要支持什么判断，再决定整理什么、整理到…", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/clippings/p44a38b/2026-09-24-agent-datawhale.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../index.html">首页</a><span>/</span><a href="../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../notes/clippings/index.html">内容剪藏</a></div>
+          <h1>给项目建 Agent 知识库，一套完整方法来了</h1>
+          <p class="post-sub">来源：公众号「Datawhale」，作者王大鹏，2026-09-24。 一句话总结：给项目建 Agent 知识库，难点不在&quot;资料从哪里找&quot;，而在&quot;查到资料以后凭什么判断&quot;。所以要反过来做——先确定知识库要支持什么判断，再决定整理什么、整理到…</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../notes/clippings/index.html">内容剪藏</a></span><span class="sep"></span>
+            <span>阅读约 17 分钟</span><span class="sep"></span><span>更新于 2026-09-27</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p><strong>来源</strong>：公众号「Datawhale」，作者王大鹏，2026-09-24。</p>
+<p><strong>一句话总结</strong>：给项目建 Agent 知识库，难点<strong>不在"资料从哪里找"，而在"查到资料以后凭什么判断"</strong>。所以要反过来做——<strong>先确定知识库要支持什么判断，再决定整理什么、整理到什么程度</strong>，最后用"下一次问题里的表现"来验收，而不是用文档数量来验收。</p>
+</blockquote>
+<h2 id="0-立论知识库的失败模式不是查不到而是查到了也不会判断">0. 立论：知识库的失败模式不是"查不到"，而是"查到了也不会判断"</h2>
+<p>常规做法：一个项目通常能拿到<strong>架构文档、接口说明、历史复盘</strong>，代码也在仓库里。于是很容易想到——把资料整理好、做索引，让 Agent 遇到问题去查。</p>
+<p>这解决了 <strong>"资料从哪里找"</strong>。但如果目标是<strong>让 Agent 定位生产故障</strong>，还要多问一句：</p>
+<blockquote>
+<p>查到资料以后，它<strong>凭什么判断</strong>这次问题发生在哪里？</p>
+</blockquote>
+<h3 id="反例http-500-不等于删除失败">反例：HTTP 500 不等于"删除失败"</h3>
+<table>
+<thead>
+<tr>
+<th>环节</th>
+<th>现象</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>接口返回</td>
+<td><code>DELETE</code> 返回 <strong>HTTP 500</strong></td>
+<td>Agent 据此判断"删除失败"</td>
+</tr>
+<tr>
+<td>查数据</td>
+<td>数据<strong>已经删除</strong></td>
+<td>服务端处理请求时出错，<strong>不代表之前执行的动作没有生效</strong></td>
+</tr>
+<tr>
+<td>后果</td>
+<td>只凭状态码决定<strong>重试</strong>或<strong>把结果改回去</strong></td>
+<td>两种处理<strong>都可能是错的</strong></td>
+</tr>
+</tbody>
+</table>
+<p>接口说明没缺、错误码解释也没缺——<strong>要判断这次故障，还得知道</strong>：</p>
+<ol>
+<li>删除过程<strong>经过哪些环节</strong>；</li>
+<li>错误发生前<strong>哪些步骤已经完成</strong>；</li>
+<li><strong>从哪里能查到实际结果</strong>。</li>
+</ol>
+<p>这就是本文的核心：<strong>缺的不是资料，是"判断所需的结构"。</strong></p>
+<h2 id="1-先确定需要支持什么判断">1. 先确定需要支持什么判断</h2>
+<p>建设知识库之前，先确定它要帮 Agent 做什么。<strong>这里的目标是"定位生产问题，并为是否修改、修改哪里提供依据"——这个目标决定了资料要整理到什么程度。</strong></p>
+<table>
+<thead>
+<tr>
+<th>要素</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>预期</strong></td>
+<td>判断一个行为有没有问题，需要一个<strong>预期</strong>作参照：接口原本要完成什么、允许哪些中间状态、出现错误后<strong>保证到哪一步</strong>。否则"当前状态是什么"只是一条记录，<strong>不足以判断它是否异常</strong></td>
+</tr>
+<tr>
+<td><strong>实现机制</strong></td>
+<td>有了预期，还要知道<strong>系统靠什么实现它</strong>。同一个结果可能经过多个服务和后台任务，用户看到的错误可能出现在后面的环节，<strong>原因却在前面</strong>。只列组件名称无法解释这种关系，需要把过程连起来：每一步的<strong>输入、结果、失败后会发生什么</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="判断所需的信息-一个固定的槽位结构">判断所需的信息 = 一个固定的"槽位"结构</h3>
+<blockquote>
+<p><strong>哪个机制原本应该完成什么；实际行为在哪个环节偏离了预期；有什么证据，造成了什么影响。</strong></p>
+</blockquote>
+<p>这里的<strong>"机制"</strong>，就是系统完成一件事所依靠的过程——它可能在一个服务内完成，也可能跨越多个组件。</p>
+<p>这句话<strong>还没涉及当前项目的具体实现</strong>，却已经给出了整理资料的方向：</p>
+<table>
+<thead>
+<tr>
+<th>资料类型</th>
+<th>应该能回答</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>架构文档</td>
+<td>这段过程<strong>涉及谁</strong></td>
+</tr>
+<tr>
+<td>设计文档</td>
+<td><strong>正常行为</strong>是什么</td>
+</tr>
+<tr>
+<td>代码与观测资料</td>
+<td>帮助确认<strong>实际执行到了哪里</strong></td>
+</tr>
+</tbody>
+</table>
+<p><img alt="解决未知问题，先把问题放进结构里：机制与承诺 → 流程环节 → 事实核对 → 影响与处理" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis/agent-kb-fig1-problem-structure.png"></p>
+<p>图中的槽位（<strong>不是固定排查步骤，而是做出判断时需要补齐的信息</strong>）：</p>
+<table>
+<thead>
+<tr>
+<th>槽位</th>
+<th>要回答的问题</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>机制</strong></td>
+<td>谁负责这件事</td>
+</tr>
+<tr>
+<td><strong>承诺</strong></td>
+<td>本来应该怎样</td>
+</tr>
+<tr>
+<td><strong>环节</strong></td>
+<td>偏离发生在哪一步</td>
+</tr>
+<tr>
+<td><strong>证据</strong></td>
+<td>事实能证明什么</td>
+</tr>
+<tr>
+<td><strong>影响</strong></td>
+<td>功能、资源、其他调用</td>
+</tr>
+<tr>
+<td><strong>处理</strong></td>
+<td>修改、避开还是观察</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>关键用法</strong>：刚拿到故障时，<strong>可以只知道现象，其余位置暂时留空</strong>；后续调查的任务就是<strong>逐步缩小这些未知</strong>。</p>
+</blockquote>
+<h2 id="2-不熟悉项目先整理它正常时怎么工作">2. 不熟悉项目，先整理"它正常时怎么工作"</h2>
+<p>有了上面的结构，仍然<strong>不能凭空知道</strong>某个模块有哪些状态，也不能推导出线上用了什么配置。</p>
+<blockquote>
+<p><strong>第一性原理能帮助确定"需要了解什么"，项目事实还得去查。</strong></p>
+</blockquote>
+<p>做法上有一条明确的取径：<strong>从一条完整的业务流程开始，而不是试图一次读懂整个仓库。</strong></p>
+<ol>
+<li>先用<strong>文档</strong>确定这条流程的<strong>目的和边界</strong>；</li>
+<li>再沿<strong>代码</strong>核对它<strong>实际经过的环节</strong>；</li>
+<li><strong>调用顺序、状态变化和失败处理放在一起看</strong>，才能得到一份"正常工作过程"的说明；</li>
+<li><strong>函数所在的文件可以作为查证入口，但文档的主体应当是过程本身。</strong></li>
+</ol>
+<h3 id="整理纪律宁可留空不要猜">整理纪律：宁可留空，不要猜</h3>
+<ul>
+<li>不熟悉的地方要<strong>留下问题</strong>，而不是猜一个解释让文章读起来完整；</li>
+<li>文档和实现对不上，就<strong>记录冲突</strong>；</li>
+<li>代码看不出设计原因，就找<strong>设计记录</strong>或请<strong>维护者确认</strong>；</li>
+<li><strong>暂时没有答案，并不妨碍先整理已经核实的部分。</strong></li>
+</ul>
+<p>逐条补充关键流程以后，系统的整体结构也会清楚起来：<strong>哪些过程共享同一项状态、哪些失败会传到其他环节、哪些结果可以重试、哪些动作一旦完成就不能简单撤销</strong>——这些关系是定位新问题时会反复用到的知识。</p>
+<h3 id="自检整理是否足够">自检：整理是否足够？</h3>
+<blockquote>
+<p>假设某个环节没有按预期工作，<strong>Agent 能否从文档中找到"正常行为"和"查证位置"</strong>？</p>
+<p>如果只能找到一段<strong>职责介绍</strong>，还要重新读完整个模块才能理解流程——<strong>这部分知识就没有整理到位</strong>。</p>
+<p><strong>专家认知 = 问题结构 × 对应的领域知识</strong></p>
+<p>这个公式是一种<strong>设计上的简写，不是数学计算</strong>。问题结构帮助确定"要回答什么"，领域知识提供"具体内容"。<strong>只写一组问题、没有对应内容，Agent 依然需要从头了解项目。</strong></p>
+</blockquote>
+<h2 id="3-把文档这样写变成有依据的判断">3. 把"文档这样写"变成"有依据的判断"</h2>
+<p>沿流程整理之后，通常会遇到一个问题：<strong>同一件事，不同资料说法不同。</strong></p>
+<table>
+<thead>
+<tr>
+<th>资料</th>
+<th>反映的是</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>设计文档</td>
+<td><strong>当初希望</strong>怎样实现</td>
+</tr>
+<tr>
+<td>代码</td>
+<td><strong>某个版本</strong>实际怎样实现</td>
+</tr>
+<tr>
+<td>线上运行</td>
+<td><strong>未必是仓库最新版本</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>不能简单规定"永远以代码为准"</strong>，然后把所有冲突都解决掉。需要<strong>先明确正在确认什么</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>要核对的东西</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>当前<strong>生产行为</strong>是什么</td>
+<td>部署版本、实际配置、运行记录</td>
+</tr>
+<tr>
+<td>系统<strong>应该遵守的接口约定</strong>是什么</td>
+<td>对应版本的<strong>契约</strong>（实现违反了契约，也可能正是待修的问题）</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>每条重要结论都要保留依据、适用条件和待确认事项。</strong> 整理者相信它，<strong>不足以</strong>让另一个 Agent 直接拿去使用。</p>
+<p><strong>专家知识 = 专家认知 × 事实验证</strong></p>
+</blockquote>
+<p>专家知识可以<strong>保留稳定的判断依据，把容易变化的值留在事实来源里</strong>：</p>
+<ul>
+<li>代码入口、接口字段、日志字段<strong>并非一律不能写</strong>——它们如果有助于查证，<strong>就应保留在参考资料中，并注明适用范围</strong>；</li>
+<li>需要避免的是<strong>把某次查到的值写成长期不变的规律</strong>。</li>
+</ul>
+<p>这些内容整理到一起，才不只是对资料的概括：<strong>后来接手的人能沿着依据核验结论，也能知道哪些地方不能直接套用。</strong></p>
+<h2 id="4-让-agent-找得到也知道怎样使用">4. 让 Agent 找得到，也知道怎样使用</h2>
+<p>经过核验的知识仍然可能<strong>分散在很多文件里</strong>。Agent 每次都从全库搜索开始，<strong>容易先命中旧复盘或零散细节，而没有读到当前机制的完整说明</strong>。</p>
+<p>解法：在这些资料前面放一份<strong>较短的入口文档</strong>——它说明系统的关键过程，列出正常行为和重要约束，再<strong>指向详细资料与查证位置</strong>。这份优先读取的文档，就是<strong>专家底座</strong>。</p>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>指什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>专家知识</strong></td>
+<td><strong>内容</strong>本身</td>
+</tr>
+<tr>
+<td><strong>专家底座</strong></td>
+<td><strong>组织和提供这些内容的方式</strong></td>
+</tr>
+</tbody>
+</table>
+<p>底座的要求：</p>
+<ul>
+<li><strong>不需要装下全部资料，但也不能只剩一张目录</strong>；</li>
+<li><strong>Agent 读完以后，至少应当理解"当前问题所在模块正常时怎样工作"。</strong></li>
+</ul>
+<h3 id="使用姿势知识库提供参照系不提供答案">使用姿势：知识库提供"参照系"，不提供"答案"</h3>
+<ul>
+<li>Agent 先把<strong>现象</strong>放到对应<strong>流程</strong>中；</li>
+<li>知识库提供的是<strong>正常过程和已知约束</strong>，<strong>现场调查</strong>确认的是<strong>这一次发生了什么</strong>；</li>
+<li>两者不一致时，<strong>需要继续取证</strong>，<strong>不能为了让事实符合文档而忽略差异</strong>。</li>
+</ul>
+<h3 id="求证方法要单独准备">「求证方法」要单独准备</h3>
+<p>哪些信息只是<strong>线索</strong>、怎样检查一个解释是否有<strong>反例</strong>、什么情况下<strong>仍不能动手修改</strong>——这些<strong>不属于某个模块的工作原理</strong>。</p>
+<blockquote>
+<p><strong>懂得正常流程，并不保证每次推断都正确。</strong></p>
+<p><strong>未知问题的解题能力 = 专家知识 × 求证方法 × 当前事实</strong></p>
+</blockquote>
+<h3 id="用开头的删除案例验收">用开头的删除案例验收</h3>
+<blockquote>
+<p>Agent 能否<strong>把"返回错误"和"动作结果"分开</strong>、<strong>找到检查实际结果的位置</strong>，而不是<strong>看到错误码就直接处理</strong>？</p>
+<p>如果<strong>必须由使用者反复提醒</strong>，说明<strong>知识或使用说明还需要补充</strong>。</p>
+<p><strong>注意</strong>：专家底座提供<strong>认知参照</strong>，<strong>不规定每次都执行同一组命令</strong>。成熟的操作手册仍然有用，但<strong>只能在它的适用条件已经得到确认时使用</strong>。</p>
+</blockquote>
+<h2 id="5-知识要分开保存才能按不同速度更新">5. 知识要分开保存，才能按不同速度更新</h2>
+<p>整理专家知识，并不意味着其余项目资料都没用了。<strong>完整的实现说明、接口定义和操作记录仍然需要保存，只是不能把它们当作同一种知识使用。</strong></p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>分类</th>
+<th>内容</th>
+<th>变化速度 / 来源</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>领域知识</strong></td>
+<td><strong>在不同项目中也能使用</strong>的概念和机制</td>
+<td>适用条件通常比较稳定，但<strong>应用到当前项目时仍需核对</strong></td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>项目设计与实现记录</strong></td>
+<td>这个系统<strong>自己的</strong>组成、流程和约束</td>
+<td>不一定能迁移，但<strong>定位当前项目问题必不可少</strong></td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>接口文档</strong></td>
+<td><strong>精确契约</strong></td>
+<td>字段和错误语义需要<strong>跟版本一起维护</strong></td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>使用与运维资料</strong></td>
+<td>操作方法、适用条件、<strong>回滚步骤</strong>；排期与责任分工也归这类</td>
+<td><strong>不能当成长期规则</strong></td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>日期目录和草稿区</strong></td>
+<td>分析过程、<strong>尚未确认的猜测</strong></td>
+<td>可以保留猜测，但<strong>不应和已核实的结论混在一起</strong></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>分类的判据</strong>：看一条内容的<strong>用途、变化速度，以及由什么来源来确认</strong>。</p>
+<p><strong>不同分类是维护方式的区别，并不是价值高低的排序。</strong> 专家知识也可能来自对项目实现的深入理解，<strong>不只来自通用原理</strong>。</p>
+</blockquote>
+<h3 id="防重复结论只存一份">防重复：结论只存一份</h3>
+<p>一份故障复盘<strong>不必整篇搬到某个目录</strong>。正确做法是：</p>
+<ul>
+<li><strong>过程记录留在原处</strong>；</li>
+<li><strong>已经确认的结论分别更新到对应资料</strong>（领域知识 / 项目知识 / 契约 / 运维）；</li>
+<li><strong>再由索引建立联系</strong>。</li>
+</ul>
+<blockquote>
+<p>否则同一个结论在几份文档里各存一遍，<strong>后面很难保证同时更新</strong>。</p>
+</blockquote>
+<h2 id="6-用新问题检查旧知识">6. 用新问题检查旧知识</h2>
+<p>知识库是否有用，<strong>要看它在下一次问题中起了什么作用</strong>。</p>
+<h3 id="排查结束后的归因表不要一律归为知识不够">排查结束后的归因表（不要一律归为"知识不够"）</h3>
+<table>
+<thead>
+<tr>
+<th>走偏的方式</th>
+<th>该检查什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>找错了模块</strong></td>
+<td>入口是否清楚</td>
+</tr>
+<tr>
+<td><strong>正常流程理解错了</strong></td>
+<td>核对相关文档</td>
+</tr>
+<tr>
+<td><strong>知道流程却得出了没有证据的结论</strong></td>
+<td>检查<strong>求证要求</strong></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>把这些问题<strong>一律归为"知识不够"</strong>，很容易又回到<strong>增加文档数量</strong>的做法。</p>
+</blockquote>
+<h3 id="更新粒度与回归">更新粒度与回归</h3>
+<ul>
+<li>更新<strong>不必每次重写整份底座</strong>：局部理解有误就修正相关内容；<strong>出现原有结构容纳不了的问题，再调整结构</strong>；</li>
+<li>改完后<strong>重跑之前的案例</strong>，确认旧问题仍能被正确分析；</li>
+<li><strong>检查数量可以少，但最好有未参与编写的人或 Agent 独立完成</strong>，避免<strong>照着已知答案验收</strong>。</li>
+</ul>
+<h3 id="定期复核">定期复核</h3>
+<table>
+<thead>
+<tr>
+<th>触发</th>
+<th>动作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>依赖版本、关键配置、接口变更</td>
+<td>检查<strong>关联结论</strong></td>
+</tr>
+<tr>
+<td>日常整理</td>
+<td>处理<strong>未确认项</strong>和<strong>日期目录中的新发现</strong></td>
+</tr>
+<tr>
+<td>每条正式结论</td>
+<td>留下<strong>来源</strong>与<strong>最近核验时间</strong>，后续维护者才知道该从哪里查起</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>没有新证据的猜测，不因重复出现就升级为事实。</strong></p>
+</blockquote>
+<h3 id="收尾心态">收尾心态</h3>
+<p>刚接手一个陌生项目时，<strong>不可能一次写出完整的专家知识</strong>。能够做到的是：</p>
+<ul>
+<li>让<strong>每个判断有出处</strong>；</li>
+<li>让<strong>不知道的地方清楚可见</strong>；</li>
+<li>新问题来了，<strong>沿着已有过程继续核对</strong>；</li>
+<li>处理完以后，<strong>下一位使用者少走一段相同的弯路</strong>。</li>
+</ul>
+<h2 id="7-四个公式速查">7. 四个公式速查</h2>
+<table>
+<thead>
+<tr>
+<th>公式</th>
+<th>含义</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>专家认知 = 问题结构 × 对应的领域知识</strong></td>
+<td>问题结构定"回答什么"，领域知识给"具体内容"</td>
+<td>决定整理方向</td>
+</tr>
+<tr>
+<td><strong>专家知识 = 专家认知 × 事实验证</strong></td>
+<td>稳定判据留着，易变值回到事实来源</td>
+<td>决定写什么、不写什么</td>
+</tr>
+<tr>
+<td><strong>未知问题的解题能力 = 专家知识 × 求证方法 × 当前事实</strong></td>
+<td>知识、方法、现场事实缺一不可</td>
+<td>决定验收标准</td>
+</tr>
+<tr>
+<td><strong>专家底座 = 组织与提供这些内容的方式</strong></td>
+<td>短入口文档 + 指向详细资料与查证位置</td>
+<td>决定 Agent 第一眼读什么</td>
+</tr>
+</tbody>
+</table>
+<h2 id="8-复习版结论">8. 复习版结论</h2>
+<ol>
+<li><strong>先问"要支持什么判断"，再问"整理什么资料"</strong>——目标决定整理程度。</li>
+<li><strong>判断需要一个预期作参照</strong>：机制原本应该完成什么、错误后保证到哪一步。</li>
+<li><strong>从一个已知现象出发，但不要从现象直接跳到结论</strong>（HTTP 500 只是响应结果，不是执行结果）。</li>
+<li><strong>不熟悉项目，就先整理"它正常时怎么工作"</strong>——从一条完整业务流程开始，而不是读懂整个仓库。</li>
+<li><strong>留白优于猜测</strong>：冲突、疑问、待确认项都要显式记录在案。</li>
+<li><strong>没有"永远以代码为准"</strong>：先明确在确认"生产行为"还是"接口契约"。</li>
+<li><strong>重要结论必须带来源、适用条件、待确认项和核验时间。</strong></li>
+<li><strong>入口文档（专家底座）不能只剩目录</strong>：读完至少要懂"当前模块正常时怎么工作"。</li>
+<li><strong>求证方法独立成篇</strong>：懂流程 ≠ 推断正确。</li>
+<li><strong>知识按更新速度分层保存</strong>，同一结论只存一份，由索引建立联系。</li>
+<li><strong>验收看"下一次问题里的表现"</strong>，并按"走偏在哪里"分类归因，而不是无脑加文档。</li>
+</ol>
+<hr>
+<h2 id="9-对我们的启示-生产落地">9. 对我们的启示 &amp; 生产落地</h2>
+<blockquote>
+<p>这一节是自己的延伸，不是原文内容。</p>
+</blockquote>
+<h3 id="91-六条最值得抄走的认知">9.1 六条最值得抄走的认知</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>启示</th>
+<th>为什么反直觉</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>知识库的价值不在"覆盖"，在"能判断"</strong></td>
+<td>我们默认"文档越多越好"；本文说<strong>资料整理的程度由判断目标决定</strong>，多余资料反而制造搜索噪声</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>"响应结果 ≠ 执行结果"</strong> 是故障定位的第一课</td>
+<td>大多数 Agent（和很多人）看到 5xx 就重试/回滚；分布式系统里"请求失败"和"动作未生效"是两件事</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>需要的是"槽位"，不是"清单"</strong></td>
+<td>排查清单是固定步骤，槽位是<strong>判断缺什么就补什么</strong>；前者僵化，后者可迁移</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>第一性原理只解决"该了解什么"，不解决"事实是什么"</strong></td>
+<td>很多人以为想清楚就够，本文强调<strong>项目事实必须去查</strong>，且<strong>查不到就留空</strong></td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>没有"永远以代码为准"</strong></td>
+<td>设计文档=当初希望、代码=某版本实现、线上=未必同版本；<strong>先问"我在确认什么"</strong></td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>失败归因要分类，而不是归为"知识不够"</strong></td>
+<td>"知识不够"是退化成"堆文档"的入口；应按<strong>入口问题 / 流程理解问题 / 求证问题</strong>分别修</td>
+</tr>
+</tbody>
+</table>
+<h3 id="92-直接映射它其实在讲agent-的-harness-知识侧">9.2 直接映射：它其实在讲"Agent 的 Harness 知识侧"</h3>
+<p>这篇和已有笔记能拼成一条链：</p>
+<table>
+<thead>
+<tr>
+<th>已有认知</th>
+<th>本文补上的那一块</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a class="wl" href="../../../notes/clippings/p44a38b/2026-08-19-agent.html">Clippings/微信公众号/2026-08-19-Agent上限不在模型而在团队知识-腾讯程序员</a></td>
+<td>论证了<strong>知识是上限</strong>；本文给出<strong>知识怎么组织才有用</strong></td>
+</tr>
+<tr>
+<td><a class="wl" href="../../../notes/clippings/p44a38b/2026-09-22-agentrag-datawhale.html">Clippings/微信公众号/2026-09-22-Agent时代RAG怎么选-五类场景选型指南-Datawhale</a></td>
+<td>讲了"信息缺口驱动选型"；本文的<strong>专家底座</strong>就是典型的<strong>知识预编译 / LLM Wiki</strong> 思路</td>
+</tr>
+<tr>
+<td><a class="wl" href="../../../notes/clippings/p44a38b/2026-08-13-ai-ai.html">Clippings/微信公众号/2026-08-13-让AI读懂老项目-AI上下文工程-腾讯技术工程</a></td>
+<td>讲怎么让 AI <strong>读懂</strong>老项目；本文讲读懂之后<strong>怎么让它能判断</strong></td>
+</tr>
+<tr>
+<td><a class="wl" href="../../../notes/domains/codewikigoogleai.html">领域/CodeWiki Google的AI驱动代码文档平台</a></td>
+<td>CodeWiki 做的是<strong>代码→文档的自动化</strong>；本文提醒：自动生成的文档如果<strong>没有判断结构</strong>，仍然不能定位故障</td>
+</tr>
+<tr>
+<td><a class="wl" href="../../../notes/domains/claudecodeagent.html">领域/Claude Code记忆系统与Agent记忆架构</a></td>
+<td>Memory 记"发生过什么"；专家底座记"<strong>正常应该是什么样</strong>"——<strong>参照系</strong>和<strong>记忆</strong>是两种东西</td>
+</tr>
+<tr>
+<td><a class="wl" href="../../../notes/clippings/p44a38b/2026-08-26-agent.html">Clippings/微信公众号/2026-08-26-Agent自进化飞轮-评测记忆落地控制</a></td>
+<td>飞轮是"评测→记忆→控制"；本文的"<strong>用新问题检查旧知识</strong>"就是知识侧的回归测试</td>
+</tr>
+<tr>
+<td><a class="wl" href="../../../notes/domains/ragllmwiki.html">领域/RAG与LLM Wiki：原理、架构与开源实现</a></td>
+<td>Wiki 的<strong>三层结构</strong>与本文的<strong>按更新速度分层</strong>是同一个思想</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>一句话串起来：<strong>RAG 决定"怎么找到" → 专家底座决定"第一眼读什么" → 求证方法决定"敢不敢下判断" → 回归用例决定"下次还会不会走偏"。</strong></p>
+</blockquote>
+<h3 id="93-生产落地一份可直接照做的施工单">9.3 生产落地：一份可直接照做的施工单</h3>
+<h4 id="第-0-步写要支持什么判断不写要整理什么">第 0 步：写"要支持什么判断"，不写"要整理什么"</h4>
+<p>在动手前，先用一页纸写下这个问题模板（<strong>这就是槽位</strong>）：</p>
+<pre><code class="language-text">机制：&lt;谁负责这件事&gt;    承诺：&lt;本来应该怎样&gt;
+环节：&lt;偏离发生在哪一步&gt;  证据：&lt;事实能证明什么 / 去哪里查&gt;
+影响：&lt;功能 / 资源 / 其他调用&gt;   处理：&lt;修改 / 避开 / 观察&gt;
+</code></pre>
+<p><strong>判据</strong>：如果这张单子写不出具体的"证据去哪查"，说明还没到能建库的程度。</p>
+<h4 id="第-1-步选一条真实业务流程而不是整个仓库">第 1 步：选一条真实业务流程，而不是整个仓库</h4>
+<p>对 Java 后端服务，取一条<strong>写路径</strong>最合适（删除、下单、支付回调），因为它<strong>跨越的环节最多、最容易被 5xx 骗到</strong>：</p>
+<pre><code class="language-text">Controller → 参数校验 → Service → 本地事务 → 缓存失效 → 发消息/事件
+   → 下游 RPC → 异步任务 → 对账/补偿
+</code></pre>
+<p>每个环节都写四件事：<strong>输入、输出、是否已产生副作用、失败后会发生什么</strong>。
+重点标出<strong>不可撤销的动作</strong>（已提交的事务、已发出的 MQ、已扣减的库存）——这是重试决策的关键。</p>
+<blockquote>
+<p><strong>自检</strong>：随便挑一个环节，问 Agent「这一步正常时应该是什么样、去哪查它到底做没做」。答不上来就是没整理到位。</p>
+</blockquote>
+<h4 id="第-2-步写一份专家底座入口文档最小版-1-页">第 2 步：写一份"专家底座"入口文档（最小版 1 页）</h4>
+<p>放哪都行，关键是<strong>被优先读取</strong>：仓库根目录的 <code>AGENTS.md</code> / <code>CLAUDE.md</code> 的一段、或 <code>docs/agent-index.md</code>，再在 CLAUDE.md 里指过去。</p>
+<pre><code class="language-markdown">## 系统关键过程（优先读）
+- 写路径：&lt;一条链路图&gt;
+- 幂等与重试：&lt;哪些动作可重试、哪些绝对不行&gt;
+- 事务边界：&lt;在哪提交、提交后出错怎么办&gt;
+
+## 重要约束
+- &lt;不变量 1：例如&quot;状态机只能单向流转&quot;&gt;
+
+## 详细资料与查证位置
+- 领域知识 → 领域/
+- 项目实现 → 项目/xxx
+- 接口契约 → &lt;OpenAPI + 版本&gt;
+- 日志/追踪字段 → &lt;表名 / traceId / 关键字段&gt;
+- 运维操作与回滚 → &lt;runbook 链接&gt;
+</code></pre>
+<p><strong>底线</strong>：底座<strong>不能只剩目录</strong>——读完至少要懂"当前模块正常时怎么工作"。</p>
+<h4 id="第-3-步把求证方法单独写成一篇">第 3 步：把"求证方法"单独写成一篇</h4>
+<p>这篇文章不属于任何模块，但决定 Agent <strong>敢不敢动手</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>内容</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>什么只是线索</td>
+<td>5xx、告警、用户描述</td>
+</tr>
+<tr>
+<td>怎么验证一条解释</td>
+<td>查 DB 实际行、查 binlog/审计表、查 MQ 投递记录、查 traceId 全链路</td>
+</tr>
+<tr>
+<td>什么时候<strong>仍然不能</strong>动手</td>
+<td>副作用已发生、无法幂等、证据链断裂、影响面未知</td>
+</tr>
+<tr>
+<td>怎么证伪</td>
+<td>主动找<strong>反例</strong>：如果真是 A 导致的，那 B 现象应该也出现，但它没有</td>
+</tr>
+</tbody>
+</table>
+<h4 id="第-4-步按更新速度分层并且只存一份">第 4 步：按更新速度分层，并且只存一份</h4>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>放什么</th>
+<th>更新触发</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>领域知识</td>
+<td>幂等、事务、最终一致性、状态机等<strong>跨项目</strong>概念</td>
+<td>很少变，但<strong>用到当前项目时仍要核对</strong></td>
+</tr>
+<tr>
+<td>项目知识</td>
+<td>本系统的组成、流程、约束</td>
+<td>流程改动时</td>
+</tr>
+<tr>
+<td>契约</td>
+<td>OpenAPI / 错误码语义 / 事件 schema</td>
+<td><strong>跟版本一起维护</strong></td>
+</tr>
+<tr>
+<td>运维与排期</td>
+<td>操作步骤、适用条件、回滚、责任人</td>
+<td>每次都变，<strong>不能当长期规则</strong></td>
+</tr>
+<tr>
+<td>过程草稿</td>
+<td>每日分析、未确认猜测</td>
+<td>随时，<strong>与已核实结论隔离</strong></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>正好和我们这个 vault 的结构同构</strong>：<code>领域/</code> = 领域知识，<code>项目/</code> = 项目知识，<code>Clippings/</code> = 外部契约与参考，<code>日记/</code> = 过程草稿。
+所以本文的方法不仅适用于代码仓库，<strong>也可以用来解释/治理我们自己的笔记库</strong>。</p>
+</blockquote>
+<h4 id="第-5-步建一个故障判断回归用例集">第 5 步：建一个"故障判断回归用例集"</h4>
+<p>像写测试一样写 case（放在 <code>项目/xxx/evals/</code> 或运维文档里）：</p>
+<pre><code class="language-markdown">### CASE-001 删除接口 500，但数据已删除
+- 期望 Agent 的行为：先分开&quot;响应结果/执行结果&quot;，去查实际行 + 审计记录
+- 判定：❌ 看到 500 直接重试 / ✅ 取证后再决定
+- 最近核验：2026-09-27
+</code></pre>
+<p><strong>规则</strong>：
+1. 每次排查结束，记录 <strong>Agent 是从哪里开始走偏的</strong>（入口？流程理解？求证？）；
+2. 改完后<strong>重跑旧 case</strong>；
+3. 验收<strong>最好由没参与编写的人/Agent 独立完成</strong>——否则就是照着答案验收；
+4. 依赖版本、配置、接口变更后，<strong>检查关联结论</strong>并更新时间戳。</p>
+<h4 id="第-6-步给每条结论加上可维护的前缀">第 6 步：给每条结论加上"可维护的前缀"</h4>
+<p>在笔记/文档的 frontmatter 或句尾带上：</p>
+<pre><code class="language-yaml">结论: 删除接口在事务提交后会同步失效缓存，失败需补偿
+来源: &lt;代码入口 / 设计记录 / 维护者确认&gt;
+适用版本: xxx@v1.4.x
+最近核验: 2026-09-27
+待确认: 异步任务失败时是否自动重投
+</code></pre>
+<blockquote>
+<p>这条纪律的收益很直接：<strong>换人接着维护时，他知道从哪查起；换 Agent 接手时，它知道哪些能直接套用、哪些必须先取证。</strong></p>
+</blockquote>
+<h3 id="94-30-天最小可行路径不追求一次写完">9.4 30 天最小可行路径（不追求一次写完）</h3>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>做什么</th>
+<th>完成标志</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第 1 周</td>
+<td>写问题模板 + 选一条写路径，沿代码核对流程</td>
+<td>产出"正常工作说明"，含不可撤销动作清单</td>
+</tr>
+<tr>
+<td>第 2 周</td>
+<td>写 1 页专家底座入口文档，挂到 <code>AGENTS.md</code>/<code>CLAUDE.md</code> 的优先读位置</td>
+<td>Agent 新会话第一眼就读到它，并能说出"这模块正常怎么走"</td>
+</tr>
+<tr>
+<td>第 3 周</td>
+<td>写求证方法一篇 + 6 个真实故障 case（含 1 个"5xx 但动作已生效"）</td>
+<td>case 能被独立运行、独立判定</td>
+</tr>
+<tr>
+<td>第 4 周</td>
+<td>按更新速度分层归位，打来源/版本/核验时间戳，处理未确认项</td>
+<td>没有同一结论的两份副本；每份正式结论都能溯源</td>
+</tr>
+</tbody>
+</table>
+<h3 id="95-反面清单要避免的四个坑">9.5 反面清单（要避免的四个坑）</h3>
+<table>
+<thead>
+<tr>
+<th>坑</th>
+<th>表现</th>
+<th>后果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>把整理当覆盖</strong></td>
+<td>只问"资料齐了吗"</td>
+<td>文档很多，Agent 仍不会判断</td>
+</tr>
+<tr>
+<td><strong>把猜测写进正文</strong></td>
+<td>为了让文档读起来完整而补一个解释</td>
+<td>猜测被后续读者当事实，污染判断</td>
+</tr>
+<tr>
+<td><strong>同一结论多处存副本</strong></td>
+<td>复盘、设计文档、底座各写一份</td>
+<td>无法保证同时更新</td>
+</tr>
+<tr>
+<td><strong>用"知识不够"解释所有失败</strong></td>
+<td>每次走偏就加文档</td>
+<td>回到堆量的老路，边际收益递减</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>最终</strong>：建 Agent 知识库不是"把项目资料喂给模型"，而是<strong>把专家判断问题的方式显式化成结构</strong>——<strong>问题结构 × 领域知识 × 事实验证 × 求证方法</strong>，再用<strong>下一次问题</strong>来验收。
+它和 RAG 的分工也很清楚：<strong>RAG 负责"找得到"，专家底座负责"第一眼看对"，求证方法负责"敢不敢下判断"</strong>。</p>
+</blockquote>
+<h2 id="关联笔记">关联笔记</h2>
+<ul>
+<li><a class="wl" href="../../../notes/clippings/p44a38b/2026-09-22-agentrag-datawhale.html">Clippings/微信公众号/2026-09-22-Agent时代RAG怎么选-五类场景选型指南-Datawhale</a> — 信息缺口驱动的技术选型；本文的"专家底座"对应其中的<strong>知识预编译 / LLM Wiki</strong> 路线</li>
+<li><a class="wl" href="../../../notes/clippings/p44a38b/2026-08-19-agent.html">Clippings/微信公众号/2026-08-19-Agent上限不在模型而在团队知识-腾讯程序员</a> — 知识是 Agent 的上限；本文回答"知识该怎么组织才有用"</li>
+<li><a class="wl" href="../../../notes/clippings/p44a38b/2026-08-13-ai-ai.html">Clippings/微信公众号/2026-08-13-让AI读懂老项目-AI上下文工程-腾讯技术工程</a> — 让 AI 读懂老项目（上下文侧）</li>
+<li><a class="wl" href="../../../notes/clippings/p44a38b/2026-08-26-agent.html">Clippings/微信公众号/2026-08-26-Agent自进化飞轮-评测记忆落地控制</a> — 评测→记忆→控制飞轮；本文的"新问题检查旧知识"是知识侧回归</li>
+<li><a class="wl" href="../../../notes/domains/codewikigoogleai.html">领域/CodeWiki Google的AI驱动代码文档平台</a> — 代码→文档自动化；本文补上"没有判断结构的文档无法定位故障"</li>
+<li><a class="wl" href="../../../notes/domains/ragllmwiki.html">领域/RAG与LLM Wiki：原理、架构与开源实现</a> — LLM Wiki 三层结构 ↔ 本文"按更新速度分层"</li>
+<li><a class="wl" href="../../../notes/domains/claudecodeagent.html">领域/Claude Code记忆系统与Agent记忆架构</a> — Memory 记"发生过什么"，专家底座记"正常应该是什么样"</li>
+<li><a class="wl" href="../../../notes/domains/agentagent.html">领域/Agent 上下文压缩机制：六类核心机制与主流 Agent 实现</a> — 入口文档先行 = 上下文上的"先给参照系"</li>
+<li><a class="wl" href="../../../notes/domains/agent-skill-progressive-disclosurezero-resident.html">领域/Agent_Skill_注入机制_Progressive_Disclosure与Zero_Resident</a> — 底座常驻 + 详情按需加载</li>
+<li><a class="wl" href="../../../notes/domains/claudecode-commandskill.html">领域/Claude Code - Command与Skill区别</a> — 知识该放常驻还是按需加载</li>
+<li><a class="wl" href="../../../notes/domains/aiagent2026.html">领域/AI Agent 智能体学习路线 2026</a> — 路线图中的"上下文工程 / 记忆 / 评测"三条线的交汇点</li>
+<li><a class="wl" href="../../../notes/domains/2026.html">领域/2026暑假手账</a> — 全库导航</li>
+</ul>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">内容剪藏</span><span class="chip">Agent知识库</span><span class="chip">专家知识</span><span class="chip">专家底座</span><span class="chip">生产故障定位</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/Clippings/%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7/2026-09-24-%E7%BB%99%E9%A1%B9%E7%9B%AE%E5%BB%BAAgent%E7%9F%A5%E8%AF%86%E5%BA%93-%E4%B8%80%E5%A5%97%E5%AE%8C%E6%95%B4%E6%96%B9%E6%B3%95%E6%9D%A5%E4%BA%86-Datawhale.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../notes/clippings/p44a38b/2026-09-22-agentrag-datawhale.html"><span class="dir">← 上一篇</span><span class="t">Agent 时代，RAG 怎么选？这份指南一次讲清</span></a><a class="next" href="../../../notes/clippings/p277a98/2026-07-29.html"><span class="dir">下一篇 →</span><span class="t">大模型幻觉的系统性解析（11分钟）</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../index.html">首页</a>
+      <a href="../../../learn.html">课件</a>
+      <a href="../../../notes/index.html">笔记库</a>
+      <a href="../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../about.html">关于</a>
+      <a href="../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../js/main.js" defer></script>
+</body>
+</html>

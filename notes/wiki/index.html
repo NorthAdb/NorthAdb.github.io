@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LLM Wiki · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="Karpathy LLM Wiki 的中文知识库：concepts / entities / sources 三层结构的主题 wiki。 我的笔记库分区，共 44 篇笔记。">
+<link rel="canonical" href="https://northadb.github.io/notes/wiki/index.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="LLM Wiki · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="Karpathy LLM Wiki 的中文知识库：concepts / entities / sources 三层结构的主题 wiki。 我的笔记库分区，共 44 篇笔记。">
+<meta property="og:url" content="https://northadb.github.io/notes/wiki/index.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="LLM Wiki · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="Karpathy LLM Wiki 的中文知识库：concepts / entities / sources 三层结构的主题 wiki。 我的笔记库分区，共 44 篇笔记。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../feed.xml">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../notes/assets/notes.css">
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../" data-page="">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <section class="hero wrap" style="padding-bottom: 40px;">
+    <div class="hero-glow"></div>
+    <div class="hero-kicker"><span class="dot"></span> Vault · wiki/</div>
+    <h1 class="t-h1">LLM Wiki</h1>
+    <p class="sub">Karpathy LLM Wiki 的中文知识库：concepts / entities / sources 三层结构的主题 wiki。<span class="dim">共 44 篇笔记，来自 <a href="https://github.com/NorthAdb/north-my-note/tree/main/wiki" target="_blank" rel="noopener">wiki/</a>。</span></p>
+    <div class="hero-actions">
+      <a href="https://github.com/NorthAdb/north-my-note/tree/main/wiki" class="btn btn-ghost">源目录 ↗</a>
+      <a href="../../notes/index.html" class="btn btn-ghost">返回笔记库 →</a>
+    </div>
+  </section>
+
+  <section class="block wrap" style="padding-top:0;">
+    <div class="sec-head"><span class="label">分区导读</span></div>
+    <div class="prose prose-narrow">
+<blockquote>
+<p>自动生成的知识库目录</p>
+<p>Note: Text in backticks after page names shows aliases — alternative names, abbreviations, or translations.</p>
+</blockquote>
+<h2 id="实体">实体</h2>
+<ul>
+<li><a class="wl" href="../../notes/wiki/entities/anythingllm.html">anythingllm</a> <code>aliases: Mintplex-Labs/anything-llm, AnythingLLM 平台</code> - AnythingLLM 是 Mintplex-Labs 维护的开源 AI 聊天与 RAG 平台，其 GitHub 仓库为 Mintplex-Labs/anything-llm，许可证为 MIT，截至 </li>
+<li><a class="wl" href="../../notes/wiki/entities/deepwiki-open.html">deepwiki-open</a> <code>aliases: AsyncFuncAI/deepwiki-open, deepwiki-open</code> - DeepWiki-Open 是一个 MIT 许可的开源 <a class="wl" href="../../notes/wiki/concepts/code-wiki.html">Code Wiki</a> 项目，截至 2026-08-11 在 GitHub 上获得约 17.6k 星，</li>
+<li><a class="wl" href="../../notes/wiki/entities/cognee.html">cognee</a> <code>aliases: topoteretes/cognee, Cognee 知识记忆引擎</code> - Cognee 是一个图与向量混合的知识记忆引擎，采用 Apache-2.0 许可，截至 2026-08-11 在 GitHub 上拥有约 29.9k 星。它通过 cognify 流程将数据加工为实体、</li>
+<li><a class="wl" href="../../notes/wiki/entities/onyx.html">onyx</a> <code>aliases: onyx-dot-app/onyx, Onyx 企业搜索</code> - Onyx 是一个面向企业和团队知识系统的开源搜索与 RAG 项目（onyx-dot-app/onyx），截至 2026-08-11 在 GitHub 上拥有约 31.5k 星标，采用 MIT + En</li>
+<li><a class="wl" href="../../notes/wiki/entities/open-webui.html">open-webui</a> <code>aliases: open-webui/open-webui, Open WebUI 平台</code> - Open WebUI 是一个自托管的 AI 与 <a class="wl" href="../../notes/wiki/concepts/rag.html">RAG</a> 平台，截至 2026-08-11 GitHub 星标约 148.4k，是笔记项目总览中星标最高的项目。它不只做</li>
+<li><a class="wl" href="../../notes/wiki/entities/haystack.html">haystack</a> <code>aliases: deepset-ai/haystack, Haystack 框架, deepset Haystack</code> - Haystack 是 deepset 团队维护的 Apache-2.0 开源 <a class="wl" href="../../notes/wiki/concepts/rag.html">RAG</a> 管线框架，截至 2026-08-11 在 GitHub 上约有 26.2k 星。</li>
+<li><a class="wl" href="../../notes/wiki/entities/claude-obsidian.html">claude-obsidian</a> <code>aliases: AgriciDaniel/claude-obsidian, Claude Obsidian</code> - claude-obsidian 是 AgriciDaniel 维护的开源项目（MIT 许可，截至 2026-08-11 星标约 10.7k），将 [[entities/andrej-karpathy|</li>
+<li><a class="wl" href="../../notes/wiki/entities/tencentdb-agent-memory.html">tencentdb-agent-memory</a> <code>aliases: TencentDB Agent Memory, TencentCloud/TencentDB-Agent-Memory, 腾讯云 Agent Memory</code> - TencentDB-Agent-Memory 是腾讯云开源的团队级 Agent Memory Hub（TencentCloud/TencentDB-Agent-Memory），2026-08-11 时</li>
+<li><a class="wl" href="../../notes/wiki/entities/langchain.html">langchain</a> <code>aliases: LangChain 框架, langchain-ai/langchain</code> - LangChain 是一个以 MIT 许可证开源的 LLM/Agent 基础框架，GitHub 仓库为 langchain-ai/langchain，截至 2026-08-11 星标约 143.9k。</li>
+<li><a class="wl" href="../../notes/wiki/entities/ragas.html">ragas</a> <code>aliases: vibrantlabsai/ragas, RAG Assessment</code> - Ragas 是面向 <a class="wl" href="../../notes/wiki/concepts/rag.html">RAG</a> 系统的开源评测工具，托管于 vibrantlabsai/ragas 仓库，采用 Apache-2.0 许可，截至 2026-08-11 星</li>
+<li><a class="wl" href="../../notes/wiki/entities/llamaindex.html">llamaindex</a> <code>aliases: run-llama/llama_index, LlamaIndex 框架</code> - LlamaIndex（run-llama/llama_index）是一个以数据为中心的 RAG 与 Agent 开源框架，GitHub 星标约 51.5k（2026-08-11 快照），采用 MIT </li>
+<li><a class="wl" href="../../notes/wiki/entities/mem0.html">mem0</a> <code>aliases: mem0ai/mem0, mem0</code> - Mem0（mem0ai/mem0）是一个面向 AI Agent 的开源长期记忆项目，GitHub 星标约 63.0k（2026-08-11 快照），采用 Apache-2.0 许可证。与 [[enti</li>
+<li><a class="wl" href="../../notes/wiki/entities/lightrag.html">lightrag</a> <code>aliases: HKUDS/LightRAG</code> - LightRAG 是香港大学数据科学实验室（HKUDS）开源的轻量级图增强检索增强生成（RAG）项目，代码托管于 GitHub 仓库 HKUDS/LightRAG，采用 MIT 许可证，目前约 38.</li>
+<li><a class="wl" href="../../notes/wiki/entities/qdrant.html">qdrant</a> <code>aliases: qdrant/qdrant</code> - Qdrant 是一个用 Rust 编写的开源向量数据库，采用 Apache-2.0 许可证，其 GitHub 仓库 qdrant/qdrant 在 2026-08-11 快照中约有 33.9k 星标。</li>
+<li><a class="wl" href="../../notes/wiki/entities/ragflow.html">ragflow</a> <code>aliases: infiniflow/ragflow</code> - RAGFlow 是 InfiniFlow 开源的完整 RAG 引擎，GitHub 仓库为 infiniflow/ragflow，采用 Apache-2.0 许可证，截至资料记录时拥有约 87.2k 星</li>
+<li><a class="wl" href="../../notes/wiki/entities/andrej-karpathy.html">andrej-karpathy</a> - Andrej Karpathy 是 LLM Wiki 概念的最初提出者，其 gist《LLM Wiki idea file》被视为这一理念的源头。他在原文中明确指出该 gist 只是一个 idea f</li>
+<li><a class="wl" href="../../notes/wiki/entities/graphrag.html">graphrag</a> <code>aliases: Microsoft GraphRAG, microsoft/graphrag, Graph RAG</code> - GraphRAG 是微软开源的图增强检索生成框架，仓库为 <code>microsoft/graphrag</code>，采用 MIT 许可证，目前约 35.4k 星。其索引流程先将文档拆分为 Text Units，再抽取</li>
+<li><a class="wl" href="../../notes/wiki/entities/nashsullm-wiki.html">nashsullm_wiki</a> <code>aliases: llm_wiki</code> - nashsu/llm_wiki 是与 <a class="wl" href="../../notes/wiki/entities/andrej-karpathy.html">Andrej Karpathy</a> 的 <a class="wl" href="../../notes/wiki/concepts/llm-wiki.html">LLM Wiki</a> gis</li>
+</ul>
+<h2 id="概念">概念</h2>
+<ul>
+<li><a class="wl" href="../../notes/wiki/concepts/ragllm-wiki.html">rag与llm-wiki原理架构与开源实现</a> <code>aliases: RAG 与 LLM Wiki, RAG &amp; LLM Wiki</code> - RAG与LLM Wiki：原理、架构与开源实现是一套系统梳理大语言模型知识增强两大范式的理论框架与工程指南。它以 2020 年 Lewis 等人的 RAG 论文为起点，将外部文档索引视为非参数记忆、参</li>
+<li><a class="wl" href="../../notes/wiki/concepts/rag-sequence.html">rag-sequence</a> <code>aliases: RAG-Sequence Model</code> - RAG-Sequence 是 Lewis et al.（2020）在论文 *Retrieval-Augmented Generation for Knowledge-Intensive NLP Tas</li>
+<li><a class="wl" href="../../notes/wiki/concepts/knowledge-compilation.html">knowledge-compilation</a> <code>aliases: 知识编译, 知识编译模式</code> - Knowledge Compilation（知识编译）是一种描述 <a class="wl" href="../../notes/wiki/concepts/llm-wiki.html">llm-wiki</a> 运作方式的理论框架：把 LLM Wiki 视为一个持续运行的编译器。其中</li>
+<li><a class="wl" href="../../notes/wiki/concepts/rag-token.html">rag-token</a> <code>aliases: Token-level RAG, Token 级 RAG</code> - RAG-Token 是原始 RAG 论文（Lewis et al., 2020）定义的两种标准生成模式之一。在该模式下，模型生成回答中的每一个 token 时，都会独立地从检索文档分布 p(z|x) </li>
+<li><a class="wl" href="../../notes/wiki/concepts/semantic-search.html">semantic-search</a> - - "| <strong>Semantic Search</strong> | 向量和相似度 | 找语义相近文本 | 不是 |" — [[领域/RAG与LLM Wiki：原理、架构与开源实现|RAG与LLM Wiki：原理、架</li>
+<li><a class="wl" href="../../notes/wiki/concepts/rrf.html">rrf</a> - RRF（Reciprocal Rank Fusion，倒数排名融合）是一种只依赖排名、不依赖分数尺度的多路检索结果融合方法。其计算公式为 RRF(d) = Σᵢ 1/(k + rankᵢ(d))，其中</li>
+<li><a class="wl" href="../../notes/wiki/concepts/hyde.html">hyde</a> <code>aliases: Hypothetical Document Embeddings, 假设文档嵌入</code> - HyDE（Hypothetical Document Embeddings，假设文档嵌入）是一种查询扩展技术。其核心做法是：在检索前先让 LLM 根据用户问题生成一个假设性回答文档，再利用该文档的向量</li>
+<li><a class="wl" href="../../notes/wiki/concepts/vector-database.html">vector-database</a> <code>aliases: 向量数据库, 向量库, Vector DB</code> - Vector Database（向量数据库）是面向大规模向量近邻检索优化设计的数据基础设施。它以高维向量（embedding）为核心数据对象，通过近似最近邻（ANN）索引实现高效检索。来源指出，向量数</li>
+<li><a class="wl" href="../../notes/wiki/concepts/naive-rag.html">naive-rag</a> <code>aliases: 朴素 RAG, Basic RAG</code> - Naive RAG（朴素 RAG）是检索增强生成（RAG）最基础的实现形态。其处理流程为：用户问题 → 问题 Embedding → 向量库 Top-K 检索 → 将检索到的文本块拼接进 Prompt</li>
+<li><a class="wl" href="../../notes/wiki/concepts/provenance.html">provenance</a> <code>aliases: 来源溯源, 溯源记录</code> - Provenance（来源溯源）是 RAG 系统中记录证据来源元数据的机制：它保存每条主张（claim）来自哪个 source_id、chunk_id、URL、page、section、相关性评分以及</li>
+<li><a class="wl" href="../../notes/wiki/concepts/hybrid-search.html">hybrid-search</a> <code>aliases: 混合检索, Hybrid RAG</code> - Hybrid Search（混合检索）是一种将多种异构检索方式融合的召回策略，通常并行执行 dense 向量检索（<a class="wl" href="../../notes/wiki/concepts/embedding.html">embedding</a>）、BM25/spar</li>
+<li><a class="wl" href="../../notes/wiki/concepts/context-engineering.html">context-engineering</a> <code>aliases: 上下文工程, 上下文编排</code> - Context Engineering（上下文工程）指在候选资料被召回（Retrieval）之后、进入 Prompt 之前的编排层，负责决定哪些资料真正进入上下文、是否需要引入父块/摘要/邻居/历史记</li>
+<li><a class="wl" href="../../notes/wiki/concepts/code-wiki.html">code-wiki</a> <code>aliases: 代码 Wiki, CodeWiki</code> - Code Wiki 是把代码库编译成可追溯的架构与模块文档的一种特殊 Wiki 形态，属于 LLM Wiki 在代码领域的特化。其核心动作可概括为：代码库 → 结构理解 → 可追溯的架构与模块文档。它</li>
+<li><a class="wl" href="../../notes/wiki/concepts/chunking.html">chunking</a> <code>aliases: 切块, 分块, Chunk 切分</code> - Chunking（切块/分块）是 RAG（检索增强生成）系统中将解析后的文档切分为可独立检索的最小知识单元的过程。该过程位于文档解析与索引之间，直接决定检索的粒度与上下文完整性。切分过小会丢失上下文；</li>
+<li><a class="wl" href="../../notes/wiki/concepts/agentic-rag.html">agentic-rag</a> <code>aliases: Agent 式 RAG, 智能体 RAG</code> - Agentic RAG（Agent 式 RAG）是检索增强生成（RAG）的一种进阶变体。它将一次性的"检索 → 生成"函数调用扩展为一个决策循环：Agent 先识别目标与约束，选择检索工具并执行搜索，</li>
+<li><a class="wl" href="../../notes/wiki/concepts/reranker.html">reranker</a> <code>aliases: 重排器, 重排模型, Reranking</code> - Reranker（重排器/重排模型）是 RAG 检索后处理阶段的关键组件，负责在粗召回结果上进一步判断候选文档与查询的真实相关性，将候选文档从 Top-N 精排到 Top-K。典型实现使用 Cross</li>
+<li><a class="wl" href="../../notes/wiki/concepts/bm25.html">bm25</a> <code>aliases: Okapi BM25, BM25 检索</code> - BM25（Best Matching 25，亦称 Okapi BM25）是一种基于词项倒排索引的稀疏/关键词检索算法，属于概率检索模型，用于对查询与文档之间的词项匹配程度进行相关性打分。它在 TF-I</li>
+<li><a class="wl" href="../../notes/wiki/concepts/embedding.html">embedding</a> <code>aliases: 向量嵌入, 文本嵌入</code> - Embedding（向量嵌入）是将文本映射为稠密向量的核心技术，形式化表示为：文本 x → f(x) ∈ Rᵈ，即把任意文本编码为 d 维实数向量。语义相近的文本在向量空间中彼此靠近，因此它构成 RA</li>
+<li><a class="wl" href="../../notes/wiki/concepts/knowledge-graph.html">knowledge-graph</a> <code>aliases: 知识图谱, KG</code> - Knowledge Graph（知识图谱，KG）是一种以图结构组织和存储知识的方式，将实体表示为节点、关系表示为边，并以属性与类型标记节点和边的语义。它的持久化对象是节点、边、属性与类型，主要动作是关</li>
+<li><a class="wl" href="../../notes/wiki/concepts/rag.html">rag</a> - - "RAG 是一种运行时的信息访问机制：提问时检索证据，把证据放进上下文，再让模型生成答案。" — [[领域/RAG与LLM Wiki：原理、架构与开源实现|RAG与LLM Wiki：原理、架构与开</li>
+<li><a class="wl" href="../../notes/wiki/concepts/llm-wiki.html">llm-wiki</a> - - "LLM Wiki 是一种持续维护的知识编译模式：新资料进入后，LLM 不只建立索引，还会更新实体页、概念页、综述页、链接和维护日志。" — [[领域/RAG与LLM Wiki：原理、架构与开源实</li>
+<li><a class="wl" href="../../notes/wiki/concepts/agent-memory.html">agent-memory</a> <code>aliases: Agent 记忆, 智能体记忆</code> - Agent Memory（智能体记忆）是与 RAG、LLM Wiki 并列的第三类知识架构，以事实、偏好、事件、技能和状态为持久化对象，核心动作是跨轮次召回与写回。它与 LLM Wiki 的关键区别在</li>
+</ul>
+<h2 id="来源">来源</h2>
+<ul>
+<li><a class="wl" href="../../notes/wiki/sources/ragllm-wiki-a74e83.html">rag与llm-wiki原理架构与开源实现_a74e83</a> <code>aliases: RAG与LLM Wiki：原理、架构与开源实现, RAG 与 LLM Wiki：从检索增强到知识编译</code></li>
+</ul>
+    </div>
+  </section>
+
+  <section class="block wrap" style="padding-top: 0;">
+    <div class="ls-group">./</div>
+    <ul class="post-list">
+      <li>
+        <a class="post-row" href="../../notes/wiki/log.html">
+          <span class="num">01</span>
+          <div>
+            <h3>Wiki 操作日志</h3>
+            <div class="row-meta"><span class="cat">LLM Wiki</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">每次摄入、Lint 运行和维护操作都会自动记录在这里。推荐使用操作历史面板获得更好的可视化呈现： - Cmd+P → &quot;查看操作历史&quot; - 或从 设置 → 自动维护 → 操作历史 进入</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/wiki/welcometokarpathyllmwiki.html">
+          <span class="num">02</span>
+          <div>
+            <h3>Welcome to your LLM-Wiki</h3>
+            <div class="row-meta"><span class="cat">LLM Wiki</span><span class="sep"></span><span>阅读约 4 分钟</span></div>
+            <p class="row-desc">This note is auto-generated by the Karpathy LLM Wiki plugin on first run. You don&#x27;t need to edit it — read once, then st…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+    </ul>
+    <div class="ls-group">concepts/</div>
+    <ul class="post-list">
+      <li>
+        <a class="post-row" href="../../notes/wiki/concepts/agent-memory.html">
+          <span class="num">01</span>
+          <div>
+            <h3>Agent Memory</h3>
+            <div class="row-meta"><span class="cat">LLM Wiki</span><span class="sep"></span><span>阅读约 2 分钟</span></div>
+            <p class="row-desc">Agent Memory（智能体记忆）是与 RAG、LLM Wiki 并列的第三类知识架构，以事实、偏好、事件、技能和状态为持久化对象，核心动作是跨轮次召回与写回。它与 LLM Wiki 的关键区别在于：尽管两者都涉及写回，Memory 关…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/wiki/concepts/agentic-rag.html">
+          <span class="num">02</span>
+          <div>
+            <h3>Agentic RAG</h3>
+            <div class="row-meta"><span class="cat">LLM Wiki</span><span class="sep"></span><span>阅读约 2 分钟</span></div>
+            <p class="row-desc">Agentic RAG（Agent 式 RAG）是检索增强生成（RAG）的一种进阶变体。它将一次性的&quot;检索 → 生成&quot;函数调用扩展为一个决策循环：Agent 先识别目标与约束，选择检索工具并执行搜索，随后判断证据是否充分；若不足，则改写问题…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/wiki/concepts/bm25.html">
+          <span class="num">03</span>
+          <div>
+            <h3>BM25</h3>
+            <div class="row-meta"><span class="cat">LLM Wiki</span><span class="sep"></span><span>阅读约 2 分钟</span></div>
+            <p class="row-desc">BM25（Best Matching 25，亦称 Okapi BM25）是一种基于词项倒排索引的稀疏/关键词检索算法，属于概率检索模型，用于对查询与文档之间的词项匹配程度进行相关性打分。它在 TF-IDF 基础上引入了词频饱和度、文档长度归…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/wiki/concepts/chunking.html">
+          <span class="num">04</span>
+          <div>
+            <h3>Chunking</h3>
+            <div class="row-meta"><span class="cat">LLM Wiki</span><span class="sep"></span><span>阅读约 2 分钟</span></div>
+            <p class="row-desc">Chunking（切块/分块）是 RAG（检索增强生成）系统中将解析后的文档切分为可独立检索的最小知识单元的过程。该过程位于文档解析与索引之间，直接决定检索的粒度与上下文完整性。切分过小会丢失上下文；切分过大则会引入噪声、降低检索精度并增加…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/wiki/concepts/code-wiki.html">
+          <span class="num">05</span>
+          <div>
+            <h3>Code Wiki</h3>
+            <div class="row-meta"><span class="cat">LLM Wiki</span><span class="sep"></span><span>阅读约 2 分钟</span></div>
+            <p class="row-desc">Code Wiki 是把代码库编译成可追溯的架构与模块文档的一种特殊 Wiki 形态，属于 LLM Wiki 在代码领域的特化。其核心动作可概括为：代码库 → 结构理解 → 可追溯的架构与模块文档。它明确&quot;是一种特殊 Wiki&quot;，区别于个人…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/wiki/concepts/context-engineering.html">
+          <span class="num">06</span>
+          <div>
+            <h3>Context Engineering</h3>
+            <div class="row-meta"><span class="cat">LLM Wiki</span><span class="sep"></span><span>阅读约 2 分钟</span></div>
+            <p class="row-desc">Context Engineering（上下文工程）指在候选资料被召回（Retrieval）之后、进入 Prompt 之前的编排层，负责决定哪些资料真正进入上下文、是否需要引入父块/摘要/邻居/历史记忆、资料按什么顺序放置、如何标注来源与版…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/wiki/concepts/embedding.html">
+          <span class="num">07</span>
+          <div>
+            <h3>Embedding</h3>
+            <div class="row-meta"><span class="cat">LLM Wiki</span><span class="sep"></span><span>阅读约 2 分钟</span></div>
+            <p class="row-desc">Embedding（向量嵌入）是将文本映射为稠密向量的核心技术，形式化表示为：文本 x → fx ∈ Rᵈ，即把任意文本编码为 d 维实数向量。语义相近的文本在向量空间中彼此靠近，因此它构成 RAG 体系中 dense 检索（语义检索）的基…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/wiki/concepts/hybrid-search.html">
+          <span class="num">08</span>
+          <div>
+            <h3>Hybrid Search</h3>
+            <div class="row-meta"><span class="cat">LLM Wiki</span><span class="sep"></span><span>阅读约 2 分钟</span></div>
+            <p class="row-desc">Hybrid Search（混合检索）是一种将多种异构检索方式融合的召回策略，通常并行执行 dense 向量检索（concepts/embedding|embedding）、BM25/sparse 词法检索（concepts/bm25|bm…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/wiki/concepts/hyde.html">
+          <span class="num">09</span>
+          <div>
+            <h3>HyDE</h3>
+            <div class="row-meta"><span class="cat">LLM Wiki</span><span class="sep"></span><span>阅读约 2 分钟</span></div>
+            <p class="row-desc">HyDE（Hypothetical Document Embeddings，假设文档嵌入）是一种查询扩展技术。其核心做法是：在检索前先让 LLM 根据用户问题生成一个假设性回答文档，再利用该文档的向量表示去检索知识库，从而使查询向量更接近文…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/wiki/concepts/knowledge-compilation.html">
+          <span class="num">10</span>
+          <div>
+            <h3>Knowledge Compilation</h3>
+            <div class="row-meta"><span class="cat">LLM Wiki</span><span class="sep"></span><span>阅读约 2 分钟</span></div>
+            <p class="row-desc">Knowledge Compilation（知识编译）是一种描述 concepts/llm-wiki|llm-wiki 运作方式的理论框架：把 LLM Wiki 视为一个持续运行的编译器。其中，Raw Sources（原始资料）是源代码，S…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/wiki/concepts/knowledge-graph.html">
+          <span class="num">11</span>
+          <div>
+            <h3>Knowledge Graph</h3>
+            <div class="row-meta"><span class="cat">LLM Wiki</span><span class="sep"></span><span>阅读约 2 分钟</span></div>
+            <p class="row-desc">Knowledge Graph（知识图谱，KG）是一种以图结构组织和存储知识的方式，将实体表示为节点、关系表示为边，并以属性与类型标记节点和边的语义。它的持久化对象是节点、边、属性与类型，主要动作是关系查询与图遍历，解决的核心问题是&quot;哪些实…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/wiki/concepts/llm-wiki.html">
+          <span class="num">12</span>
+          <div>
+            <h3>llm-wiki</h3>
+            <div class="row-meta"><span class="cat">LLM Wiki</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">- &quot;LLM Wiki 是一种持续维护的知识编译模式：新资料进入后，LLM 不只建立索引，还会更新实体页、概念页、综述页、链接和维护日志。&quot; — 领域/RAG与LLM Wiki：原理、架构与开源实现|RAG与LLM Wiki：原理、架构与开…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/wiki/concepts/naive-rag.html">
+          <span class="num">13</span>
+          <div>
+            <h3>Naive RAG</h3>
+            <div class="row-meta"><span class="cat">LLM Wiki</span><span class="sep"></span><span>阅读约 2 分钟</span></div>
+            <p class="row-desc">Naive RAG（朴素 RAG）是检索增强生成（RAG）最基础的实现形态。其处理流程为：用户问题 → 问题 Embedding → 向量库 Top-K 检索 → 将检索到的文本块拼接进 Prompt → LLM 生成回答。整个流程不包含重…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/wiki/concepts/provenance.html">
+          <span class="num">14</span>
+          <div>
+            <h3>Provenance</h3>
+            <div class="row-meta"><span class="cat">LLM Wiki</span><span class="sep"></span><span>阅读约 2 分钟</span></div>
+            <p class="row-desc">Provenance（来源溯源）是 RAG 系统中记录证据来源元数据的机制：它保存每条主张（claim）来自哪个 sourceid、chunkid、URL、page、section、相关性评分以及索引版本，使回答中的每个结论都能逐级追溯回原…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/wiki/concepts/rag-sequence.html">
+          <span class="num">15</span>
+          <div>
+            <h3>RAG-Sequence</h3>
+            <div class="row-meta"><span class="cat">LLM Wiki</span><span class="sep"></span><span>阅读约 2 分钟</span></div>
+            <p class="row-desc">RAG-Sequence 是 Lewis et al.（2020）在论文 Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks 中定义的 RAG 两种生成变体之一。…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/wiki/concepts/rag-token.html">
+          <span class="num">16</span>
+          <div>
+            <h3>RAG-Token</h3>
+            <div class="row-meta"><span class="cat">LLM Wiki</span><span class="sep"></span><span>阅读约 2 分钟</span></div>
+            <p class="row-desc">RAG-Token 是原始 RAG 论文（Lewis et al., 2020）定义的两种标准生成模式之一。在该模式下，模型生成回答中的每一个 token 时，都会独立地从检索文档分布 pz|x 中采样一个潜在文档 z，并以该文档为条件生成…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/wiki/concepts/rag.html">
+          <span class="num">17</span>
+          <div>
+            <h3>rag</h3>
+            <div class="row-meta"><span class="cat">LLM Wiki</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">- &quot;RAG 是一种运行时的信息访问机制：提问时检索证据，把证据放进上下文，再让模型生成答案。&quot; — 领域/RAG与LLM Wiki：原理、架构与开源实现|RAG与LLM Wiki：原理、架构与开源实现 - &quot;Lewis 等人在 2020 …</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/wiki/concepts/ragllm-wiki.html">
+          <span class="num">18</span>
+          <div>
+            <h3>RAG与LLM Wiki：原理、架构与开源实现</h3>
+            <div class="row-meta"><span class="cat">LLM Wiki</span><span class="sep"></span><span>阅读约 2 分钟</span></div>
+            <p class="row-desc">RAG与LLM Wiki：原理、架构与开源实现是一套系统梳理大语言模型知识增强两大范式的理论框架与工程指南。它以 2020 年 Lewis 等人的 RAG 论文为起点，将外部文档索引视为非参数记忆、参数化模型作为生成核心，形成&quot;检索-生成&quot;…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/wiki/concepts/reranker.html">
+          <span class="num">19</span>
+          <div>
+            <h3>Reranker</h3>
+            <div class="row-meta"><span class="cat">LLM Wiki</span><span class="sep"></span><span>阅读约 2 分钟</span></div>
+            <p class="row-desc">Reranker（重排器/重排模型）是 RAG 检索后处理阶段的关键组件，负责在粗召回结果上进一步判断候选文档与查询的真实相关性，将候选文档从 Top-N 精排到 Top-K。典型实现使用 Cross-Encoder 或 LLM Reran…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/wiki/concepts/rrf.html">
+          <span class="num">20</span>
+          <div>
+            <h3>RRF</h3>
+            <div class="row-meta"><span class="cat">LLM Wiki</span><span class="sep"></span><span>阅读约 2 分钟</span></div>
+            <p class="row-desc">RRF（Reciprocal Rank Fusion，倒数排名融合）是一种只依赖排名、不依赖分数尺度的多路检索结果融合方法。其计算公式为 RRFd = Σᵢ 1/k + rankᵢd，其中 rankᵢd 是文档 d 在第 i 条检索路由中的…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/wiki/concepts/semantic-search.html">
+          <span class="num">21</span>
+          <div>
+            <h3>semantic-search</h3>
+            <div class="row-meta"><span class="cat">LLM Wiki</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">- &quot;| Semantic Search | 向量和相似度 | 找语义相近文本 | 不是 |&quot; — 领域/RAG与LLM Wiki：原理、架构与开源实现|RAG与LLM Wiki：原理、架构与开源实现 - &quot;Semantic Search：…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/wiki/concepts/vector-database.html">
+          <span class="num">22</span>
+          <div>
+            <h3>Vector Database</h3>
+            <div class="row-meta"><span class="cat">LLM Wiki</span><span class="sep"></span><span>阅读约 3 分钟</span></div>
+            <p class="row-desc">Vector Database（向量数据库）是面向大规模向量近邻检索优化设计的数据基础设施。它以高维向量（embedding）为核心数据对象，通过近似最近邻（ANN）索引实现高效检索。来源指出，向量数据库除保存向量本身外，还必须同时保存原始…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+    </ul>
+    <div class="ls-group">entities/</div>
+    <ul class="post-list">
+      <li>
+        <a class="post-row" href="../../notes/wiki/entities/andrej-karpathy.html">
+          <span class="num">01</span>
+          <div>
+            <h3>Andrej Karpathy</h3>
+            <div class="row-meta"><span class="cat">LLM Wiki</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">Andrej Karpathy 是 LLM Wiki 概念的最初提出者，其 gist《LLM Wiki idea file》被视为这一理念的源头。他在原文中明确指出该 gist 只是一个 idea file，不是完整应用，也不等同于官方的 …</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/wiki/entities/anythingllm.html">
+          <span class="num">02</span>
+          <div>
+            <h3>AnythingLLM</h3>
+            <div class="row-meta"><span class="cat">LLM Wiki</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">AnythingLLM 是 Mintplex-Labs 维护的开源 AI 聊天与 RAG 平台，其 GitHub 仓库为 Mintplex-Labs/anything-llm，许可证为 MIT，截至 2026-08-11 星标约 64.6k…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/wiki/entities/claude-obsidian.html">
+          <span class="num">03</span>
+          <div>
+            <h3>claude-obsidian</h3>
+            <div class="row-meta"><span class="cat">LLM Wiki</span><span class="sep"></span><span>阅读约 2 分钟</span></div>
+            <p class="row-desc">claude-obsidian 是 AgriciDaniel 维护的开源项目（MIT 许可，截至 2026-08-11 星标约 10.7k），将 entities/andrej-karpathy|andrej-karpathy 提出的 co…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/wiki/entities/cognee.html">
+          <span class="num">04</span>
+          <div>
+            <h3>Cognee</h3>
+            <div class="row-meta"><span class="cat">LLM Wiki</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">Cognee 是一个图与向量混合的知识记忆引擎，采用 Apache-2.0 许可，截至 2026-08-11 在 GitHub 上拥有约 29.9k 星。它通过 cognify 流程将数据加工为实体、关系、摘要与 Embedding，并提供…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/wiki/entities/deepwiki-open.html">
+          <span class="num">05</span>
+          <div>
+            <h3>DeepWiki-Open</h3>
+            <div class="row-meta"><span class="cat">LLM Wiki</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">DeepWiki-Open 是一个 MIT 许可的开源 concepts/code-wiki|Code Wiki 项目，截至 2026-08-11 在 GitHub 上获得约 17.6k 星，目标是把代码库编译成可浏览的结构化 Wiki 文…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/wiki/entities/graphrag.html">
+          <span class="num">06</span>
+          <div>
+            <h3>GraphRAG</h3>
+            <div class="row-meta"><span class="cat">LLM Wiki</span><span class="sep"></span><span>阅读约 2 分钟</span></div>
+            <p class="row-desc">GraphRAG 是微软开源的图增强检索生成框架，仓库为 microsoft/graphrag，采用 MIT 许可证，目前约 35.4k 星。其索引流程先将文档拆分为 Text Units，再抽取实体、关系与声明，经过实体合并、社区检测后生…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/wiki/entities/haystack.html">
+          <span class="num">07</span>
+          <div>
+            <h3>Haystack</h3>
+            <div class="row-meta"><span class="cat">LLM Wiki</span><span class="sep"></span><span>阅读约 2 分钟</span></div>
+            <p class="row-desc">Haystack 是 deepset 团队维护的 Apache-2.0 开源 concepts/rag|RAG 管线框架，截至 2026-08-11 在 GitHub 上约有 26.2k 星。与 entities/langchain|lan…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/wiki/entities/langchain.html">
+          <span class="num">08</span>
+          <div>
+            <h3>LangChain</h3>
+            <div class="row-meta"><span class="cat">LLM Wiki</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">LangChain 是一个以 MIT 许可证开源的 LLM/Agent 基础框架，GitHub 仓库为 langchain-ai/langchain，截至 2026-08-11 星标约 143.9k。它并非一个单一的 RAG 产品，而是把模…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/wiki/entities/lightrag.html">
+          <span class="num">09</span>
+          <div>
+            <h3>LightRAG</h3>
+            <div class="row-meta"><span class="cat">LLM Wiki</span><span class="sep"></span><span>阅读约 2 分钟</span></div>
+            <p class="row-desc">LightRAG 是香港大学数据科学实验室（HKUDS）开源的轻量级图增强检索增强生成（RAG）项目，代码托管于 GitHub 仓库 HKUDS/LightRAG，采用 MIT 许可证，目前约 38.7k 星。它在索引阶段保留实体、关系和向…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/wiki/entities/llamaindex.html">
+          <span class="num">10</span>
+          <div>
+            <h3>LlamaIndex</h3>
+            <div class="row-meta"><span class="cat">LLM Wiki</span><span class="sep"></span><span>阅读约 2 分钟</span></div>
+            <p class="row-desc">LlamaIndex（run-llama/llamaindex）是一个以数据为中心的 RAG 与 Agent 开源框架，GitHub 星标约 51.5k（2026-08-11 快照），采用 MIT 许可证。它将 Documents、Node…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/wiki/entities/mem0.html">
+          <span class="num">11</span>
+          <div>
+            <h3>Mem0</h3>
+            <div class="row-meta"><span class="cat">LLM Wiki</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">Mem0（mem0ai/mem0）是一个面向 AI Agent 的开源长期记忆项目，GitHub 星标约 63.0k（2026-08-11 快照），采用 Apache-2.0 许可证。与 entities/nashsullmwiki|nas…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/wiki/entities/nashsullm-wiki.html">
+          <span class="num">12</span>
+          <div>
+            <h3>nashsu/llm_wiki</h3>
+            <div class="row-meta"><span class="cat">LLM Wiki</span><span class="sep"></span><span>阅读约 2 分钟</span></div>
+            <p class="row-desc">nashsu/llmwiki 是与 entities/andrej-karpathy|Andrej Karpathy 的 concepts/llm-wiki|LLM Wiki gist 理念最贴近的产品化开源实现，仓库以 GPLv3 许可证…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/wiki/entities/onyx.html">
+          <span class="num">13</span>
+          <div>
+            <h3>Onyx</h3>
+            <div class="row-meta"><span class="cat">LLM Wiki</span><span class="sep"></span><span>阅读约 2 分钟</span></div>
+            <p class="row-desc">Onyx 是一个面向企业和团队知识系统的开源搜索与 RAG 项目（onyx-dot-app/onyx），截至 2026-08-11 在 GitHub 上拥有约 31.5k 星标，采用 MIT + Enterprise 混合许可证。其核心能力…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/wiki/entities/open-webui.html">
+          <span class="num">14</span>
+          <div>
+            <h3>Open WebUI</h3>
+            <div class="row-meta"><span class="cat">LLM Wiki</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">Open WebUI 是一个自托管的 AI 与 concepts/rag|RAG 平台，截至 2026-08-11 GitHub 星标约 148.4k，是笔记项目总览中星标最高的项目。它不只做向量检索，还同时覆盖文件、网页、YouTube …</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/wiki/entities/qdrant.html">
+          <span class="num">15</span>
+          <div>
+            <h3>Qdrant</h3>
+            <div class="row-meta"><span class="cat">LLM Wiki</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">Qdrant 是一个用 Rust 编写的开源向量数据库，采用 Apache-2.0 许可证，其 GitHub 仓库 qdrant/qdrant 在 2026-08-11 快照中约有 33.9k 星标。它支持 dense、sparse 与 m…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/wiki/entities/ragas.html">
+          <span class="num">16</span>
+          <div>
+            <h3>Ragas</h3>
+            <div class="row-meta"><span class="cat">LLM Wiki</span><span class="sep"></span><span>阅读约 2 分钟</span></div>
+            <p class="row-desc">Ragas 是面向 concepts/rag|RAG 系统的开源评测工具，托管于 vibrantlabsai/ragas 仓库，采用 Apache-2.0 许可，截至 2026-08-11 星标约 15.3k。其设计目标是把&quot;感觉好用&quot;这类…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/wiki/entities/ragflow.html">
+          <span class="num">17</span>
+          <div>
+            <h3>RAGFlow</h3>
+            <div class="row-meta"><span class="cat">LLM Wiki</span><span class="sep"></span><span>阅读约 2 分钟</span></div>
+            <p class="row-desc">RAGFlow 是 InfiniFlow 开源的完整 RAG 引擎，GitHub 仓库为 infiniflow/ragflow，采用 Apache-2.0 许可证，截至资料记录时拥有约 87.2k 星。它的重点不只在于向量搜索，还覆盖文档理…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/wiki/entities/tencentdb-agent-memory.html">
+          <span class="num">18</span>
+          <div>
+            <h3>TencentDB-Agent-Memory</h3>
+            <div class="row-meta"><span class="cat">LLM Wiki</span><span class="sep"></span><span>阅读约 2 分钟</span></div>
+            <p class="row-desc">TencentDB-Agent-Memory 是腾讯云开源的团队级 Agent Memory Hub（TencentCloud/TencentDB-Agent-Memory），2026-08-11 时 GitHub 星标约 19.5k，采用…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+    </ul>
+    <div class="ls-group">schema/</div>
+    <ul class="post-list">
+      <li>
+        <a class="post-row" href="../../notes/wiki/schema/config.html">
+          <span class="num">01</span>
+          <div>
+            <h3>Wiki Schema Configuration</h3>
+            <div class="row-meta"><span class="cat">LLM Wiki</span><span class="sep"></span><span>阅读约 4 分钟</span></div>
+            <p class="row-desc">This file governs how the LLM builds and maintains your Wiki. Edit it freely.</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+    </ul>
+    <div class="ls-group">sources/</div>
+    <ul class="post-list">
+      <li>
+        <a class="post-row" href="../../notes/wiki/sources/ragllm-wiki-a74e83.html">
+          <span class="num">01</span>
+          <div>
+            <h3>RAG 与 LLM Wiki：从检索增强到知识编译 - Summary</h3>
+            <div class="row-meta"><span class="cat">LLM Wiki</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">- 原始文件：领域/RAG与LLM Wiki：原理、架构与开源实现.md|RAG 与 LLM Wiki：原理、架构与开源实现 - 摄取日期：2026-08-11</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+    </ul>
+  </section>
+
+  <section class="block wrap">
+    <div class="chapter-nav"><a class="btn btn-ghost" href="../../notes/jd/index.html">← JD 情报</a><a class="btn btn-ghost" href="../../notes/pqsectunnel/index.html">PQ-SecTunnel →</a></div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../../notes/index.html">笔记库</a>
+      <a href="../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../about.html">关于</a>
+      <a href="../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../js/main.js" defer></script>
+</body>
+</html>

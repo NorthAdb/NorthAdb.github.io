@@ -1,0 +1,1697 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code 完全学习指南 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="🔗 本指南围绕 claude-code-best-practice 仓库编写，章节顺序与 doc/practice/ 文档编号一致。 学习方式：按章节顺序，边读边打开项目中对应的文件，理论和实际对照着看。">
+<link rel="canonical" href="https://northadb.github.io/notes/projects/claude-code-best-practice/doc/learning-guide.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Claude Code 完全学习指南 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="🔗 本指南围绕 claude-code-best-practice 仓库编写，章节顺序与 doc/practice/ 文档编号一致。 学习方式：按章节顺序，边读边打开项目中对应的文件，理论和实际对照着看。">
+<meta property="og:url" content="https://northadb.github.io/notes/projects/claude-code-best-practice/doc/learning-guide.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Claude Code 完全学习指南 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="🔗 本指南围绕 claude-code-best-practice 仓库编写，章节顺序与 doc/practice/ 文档编号一致。 学习方式：按章节顺序，边读边打开项目中对应的文件，理论和实际对照着看。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../../feed.xml">
+<link rel="stylesheet" href="../../../../css/style.css">
+<link rel="stylesheet" href="../../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Claude Code 完全学习指南", "description": "🔗 本指南围绕 claude-code-best-practice 仓库编写，章节顺序与 doc/practice/ 文档编号一致。 学习方式：按章节顺序，边读边打开项目中对应的文件，理论和实际对照着看。", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/projects/claude-code-best-practice/doc/learning-guide.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../../index.html">首页</a><span>/</span><a href="../../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../../notes/projects/index.html">项目笔记</a></div>
+          <h1>Claude Code 完全学习指南</h1>
+          <p class="post-sub">🔗 本指南围绕 claude-code-best-practice 仓库编写，章节顺序与 doc/practice/ 文档编号一致。 学习方式：按章节顺序，边读边打开项目中对应的文件，理论和实际对照着看。</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../../notes/projects/index.html">项目笔记</a></span><span class="sep"></span>
+            <span>阅读约 20 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p>🔗 <strong>本指南围绕 <code>claude-code-best-practice</code> 仓库编写</strong>，章节顺序与 <code>doc/practice/</code> 文档编号一致。</p>
+<p>学习方式：<strong>按章节顺序，边读边打开项目中对应的文件</strong>，理论和实际对照着看。</p>
+</blockquote>
+<hr>
+<h2 id="目录">📋 目录</h2>
+<ul>
+<li><a href="#第零章项目全景">第零章：项目全景</a></li>
+<li><a href="#第一章概念总览">第一章：概念总览</a></li>
+<li><a href="#第二章子代理-subagents">第二章：子代理 Subagents</a></li>
+<li><a href="#第三章命令-commands">第三章：命令 Commands</a></li>
+<li><a href="#第四章技能-skills">第四章：技能 Skills</a></li>
+<li><a href="#第五章配置体系-settings">第五章：配置体系 Settings</a></li>
+<li><a href="#第六章mcp-服务器">第六章：MCP 服务器</a></li>
+<li><a href="#第七章记忆系统-memory">第七章：记忆系统 Memory</a></li>
+<li><a href="#第八章工作流编排">第八章：工作流编排</a></li>
+<li><a href="#第九章钩子系统-hooks">第九章：钩子系统 Hooks</a></li>
+<li><a href="#第十章cli-启动参数">第十章：CLI 启动参数</a></li>
+<li><a href="#第十一章能力强化-power-ups">第十一章：能力强化 Power Ups</a></li>
+<li><a href="#第十二章实用技巧合集">第十二章：实用技巧合集</a></li>
+<li><a href="#第十三章学习路径">第十三章：学习路径</a></li>
+</ul>
+<hr>
+<h2 id="第零章项目全景">第零章：项目全景</h2>
+<h3 id="01-这个仓库是什么">0.1 这个仓库是什么</h3>
+<p><code>claude-code-best-practice</code> 是一个 <strong>Claude Code 配置示范仓</strong>——它不是一个应用项目，而是一个<strong>最佳实践参考实现</strong>。</p>
+<pre><code>┌─────────────────────────────────────────────────┐
+│ 你可以把它当作：                                   │
+│  • 一个 Claude Code 配置的百科全书                  │
+│  • 一个可以直接复用的技能/命令/代理模板库               │
+│  • 一个学习 Claude Code 的实操环境                    │
+└─────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="02-项目目录结构">0.2 项目目录结构</h3>
+<pre><code>📁 claude-code-best-practice/
+│
+├── 📄 CLAUDE.md              ← 项目级指令（给 Claude 读的 README）
+├── 📄 README.md              ← 导航中心
+│
+├── 📁 .claude/               ← Claude Code 配置目录
+│   ├── 📁 skills/    ~40个   ← 每个子目录是一个 skill
+│   ├── 📁 commands/  10个    ← 每个 .md 文件是一个 command
+│   ├── 📁 agents/    11个    ← 每个 .md 文件是一个 subagent
+│   ├── 📁 hooks/             ← 钩子脚本和配置
+│   ├── 📁 rules/             ← 懒加载规则
+│   ├── 📄 settings.json      ← 共享配置
+│   └── 📄 mcp.json           ← MCP 配置
+│
+├── 📁 .agents/skills/        ← 跨工具通用 skill 格式（npx skills）
+│
+├── 📁 doc/                   ← 中文文档（本指南的核心参考目录）
+│   ├── 📁 practice/    10篇  ← 各功能的中文最佳实践，编号 01-10  ← 📍 主学习路径
+│   ├── 📁 implementation/ 6篇 ← 中文实现说明
+│   ├── 📁 reports/     12篇  ← 中文研究报告
+│   ├── 📁 tips/          9篇  ← 中文技巧合集
+│   └── 📁 rules/         2篇  ← 中文规则
+│
+├── 📁 best-practice/         ← 英文原版（`doc/practice/` 为中文翻译）
+├── 📁 implementation/        ← 英文原版
+├── 📁 reports/               ← 英文原版
+├── 📁 tips/                  ← 英文原版
+│
+├── 📁 orchestration-workflow/  ← 天气编排系统演示
+└── 📁 presentation/            ← 演讲幻灯片
+</code></pre>
+<blockquote>
+<p>💡 <strong>中文文档索引</strong>：英文原版在 <code>best-practice/</code>、<code>implementation/</code> 等目录，中文翻译版统一在 <code>doc/</code> 下。
+本指南优先使用中文版，并标注对应的英文原版位置。</p>
+</blockquote>
+<h3 id="03-文档编号体系">0.3 文档编号体系</h3>
+<p><code>doc/practice/</code> 下的文档按编号 01-10 顺序排列，这也是<strong>推荐的学习顺序</strong>：</p>
+<pre><code>01 → 概念总览      06 → MCP 服务器
+02 → 子代理         07 → 记忆系统
+03 → 命令           08 → CLI 启动参数
+04 → 技能           09 → 能力强化
+05 → 设置           10 → 学习路径
+</code></pre>
+<p>本指南的章节顺序完全对应这个编号。</p>
+<h3 id="04-先了解-harness">0.4 先了解 "Harness"</h3>
+<p><strong>"Harness"</strong> 是 Claude Code 的<strong>上下文构建与编排架构</strong>。Skills、Commands、Subagents、Hooks 都是它的组成部分。它不是简单的"提示词模板"，而是：</p>
+<pre><code>用户输入的 prompt
+  + CLAUDE.md（项目指令）
+  + 被激活的 Skill 指令集
+  + 项目 settings 配置
+  + Hooks 的前后处理
+  + 被调用的 Subagent 上下文
+  ────────────────────────────────
+  = Claude 实际收到的完整上下文
+</code></pre>
+<p>📄 <strong><code>doc/reports/为什么Harness如此重要.md</code></strong> — 深入理解 Harness 的价值</p>
+<h3 id="05-学习起点文件">0.5 学习起点文件</h3>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>📄 <strong><code>doc/CLAUDE中文注释.md</code></strong></td>
+<td>CLAUDE.md 的中文注释版，方便理解</td>
+</tr>
+<tr>
+<td>📄 <strong><code>doc/skills-inventory.md</code></strong></td>
+<td>所有已安装的 skills、agents、commands 完整清单</td>
+</tr>
+<tr>
+<td>📄 <strong><code>doc/practice/01-CONCEPTS-概念总览.md</code></strong></td>
+<td>核心概念快速总览</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="第一章概念总览">第一章：概念总览</h2>
+<blockquote>
+<p>对应文档：<strong><code>doc/practice/01-CONCEPTS-概念总览.md</code></strong></p>
+<p>英文原版：README.md（CONCEPTS 表格部分）</p>
+</blockquote>
+<p>这个文件是<strong>整个仓库的索引</strong>。读完它你应该理解：</p>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>一句话理解</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Subagent（子代理）</strong></td>
+<td>独立的 Claude 会话，隔离上下文，适合并行任务</td>
+</tr>
+<tr>
+<td><strong>Command（命令）</strong></td>
+<td>用 <code>/name</code> 一键触发的快捷入口</td>
+</tr>
+<tr>
+<td><strong>Skill（技能）</strong></td>
+<td>教 Claude 怎么做某件事的指令集</td>
+</tr>
+<tr>
+<td><strong>Settings（设置）</strong></td>
+<td>5 层配置体系，控制权限/行为/扩展</td>
+</tr>
+<tr>
+<td><strong>MCP</strong></td>
+<td>让 Claude 能调用外部服务的协议</td>
+</tr>
+<tr>
+<td><strong>Memory（记忆）</strong></td>
+<td>跨会话持久化信息</td>
+</tr>
+<tr>
+<td><strong>Hooks（钩子）</strong></td>
+<td>事件驱动的前后处理脚本</td>
+</tr>
+<tr>
+<td><strong>Workflow（工作流）</strong></td>
+<td>多 Agent 并行编排的工具</td>
+</tr>
+</tbody>
+</table>
+<p><strong>三种扩展机制的简要对比：</strong></p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Subagent</th>
+<th>Command</th>
+<th>Skill</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>上下文隔离</strong></td>
+<td>✅ 独立</td>
+<td>❌ 共享</td>
+<td>❌ 共享（除非 <code>fork</code>）</td>
+</tr>
+<tr>
+<td><strong>被 Claude 主动调用</strong></td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>被用户 <code>/</code> 调用</strong></td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>参数支持</strong></td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>适合</strong></td>
+<td>并行独立任务</td>
+<td>一键流程入口</td>
+<td>行为指令</td>
+</tr>
+</tbody>
+</table>
+<p>📄 <strong><code>doc/reports/Agent-vs-Command-vs-Skill.md</code></strong> — 三种机制的深度对比</p>
+<hr>
+<h2 id="第二章子代理-subagents">第二章：子代理 Subagents</h2>
+<blockquote>
+<p>对应文档：<strong><code>doc/practice/02-子代理-subagents.md</code></strong></p>
+<p>英文原版：<code>best-practice/claude-subagents.md</code></p>
+<p>项目实例：<code>.claude/agents/*.md</code></p>
+</blockquote>
+<h3 id="21-先看理论">2.1 先看理论</h3>
+<p>Subagent 是一个<strong>独立的 Claude 会话</strong>，有自己的上下文。可以把它理解成"给你派了个分身去干活"。</p>
+<blockquote>
+<p>💡 <strong>为什么要用 Subagent？</strong>
+主会话有 1M token 上限，复杂任务会让上下文膨胀。
+Subagent 把任务隔离出去，主会话只做协调，大幅降低上下文压力。</p>
+</blockquote>
+<h3 id="22-核心字段">2.2 核心字段</h3>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>作用</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>Agent 名字</td>
+<td><code>weather-agent</code></td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>何时使用</td>
+<td>含 <code>PROACTIVELY</code> 则自动触发</td>
+</tr>
+<tr>
+<td><code>tools</code></td>
+<td>允许的工具</td>
+<td><code>Read, Grep, Edit, Bash</code></td>
+</tr>
+<tr>
+<td><code>disallowedTools</code></td>
+<td>禁止的工具</td>
+<td><code>Write</code></td>
+</tr>
+<tr>
+<td><code>model</code></td>
+<td>模型选择</td>
+<td><code>haiku</code>, <code>sonnet</code>, <code>opus</code>, <code>inherit</code></td>
+</tr>
+<tr>
+<td><code>skills</code></td>
+<td>预载的 skill</td>
+<td><code>[weather-fetcher]</code></td>
+</tr>
+<tr>
+<td><code>permissionMode</code></td>
+<td>权限模式</td>
+<td><code>acceptEdits</code>, <code>plan</code>, <code>bypassPermissions</code></td>
+</tr>
+<tr>
+<td><code>maxTurns</code></td>
+<td>最大交互轮数</td>
+<td><code>20</code>（防跑飞）</td>
+</tr>
+<tr>
+<td><code>memory</code></td>
+<td>记忆范围</td>
+<td><code>user</code>, <code>project</code>, <code>local</code></td>
+</tr>
+<tr>
+<td><code>effort</code></td>
+<td>推理努力度</td>
+<td><code>low</code>, <code>medium</code>, <code>high</code>, <code>max</code></td>
+</tr>
+<tr>
+<td><code>isolation</code></td>
+<td>是否隔离 worktree</td>
+<td><code>worktree</code>（并行修改文件安全）</td>
+</tr>
+<tr>
+<td><code>color</code></td>
+<td>CLI 输出颜色</td>
+<td><code>green</code>, <code>blue</code>, <code>yellow</code>...</td>
+</tr>
+<tr>
+<td><code>background</code></td>
+<td>是否后台运行</td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>hooks</code></td>
+<td>作用域钩子</td>
+<td>只在该 agent 生命周期生效</td>
+</tr>
+</tbody>
+</table>
+<h3 id="23-看项目实例">2.3 看项目实例</h3>
+<p>📄 <strong><code>doc/implementation/01-subagent-实现.md</code></strong>（中文）← 实现说明</p>
+<p>英文原版 <code>implementation/claude-subagents-implementation.md</code></p>
+<p><strong>核心示例：<code>weather-agent</code></strong></p>
+<p>📄 <strong><code>.claude/agents/weather-agent.md</code></strong></p>
+<pre><code class="language-yaml">---
+name: weather-agent
+description: Use this agent PROACTIVELY when you need to fetch weather data for Dubai, UAE
+allowedTools:
+  - Skill(weather-fetcher)
+  - Bash
+model: inherit
+skills:
+  - weather-fetcher
+---
+</code></pre>
+<p>注意 <code>skills: [weather-fetcher]</code> — agent 启动时自动把 weather-fetcher skill 的指令加载到上下文。</p>
+<p><strong>更多 Agent 示例</strong>：</p>
+<p>📄 <strong><code>.claude/agents/time-agent.md</code></strong> — 简单 agent 示例</p>
+<p>📄 <strong><code>.claude/agents/workflows/best-practice/</code></strong> — 5 个研究用 agent，都使用 <code>model: opus</code></p>
+<pre><code class="language-yaml"># workflow-claude-commands-agent.md
+---
+name: workflow-claude-commands-agent
+description: Research agent that fetches Claude Code docs...
+model: opus
+---
+</code></pre>
+<blockquote>
+<p>✅ <strong>对照看</strong>：打开 <code>weather-agent.md</code> 和 <code>time-agent.md</code>，比较 <code>allowedTools</code> 和 <code>skills</code> 字段。</p>
+</blockquote>
+<h3 id="24-如何在对话中调用-subagent">2.4 如何在对话中调用 Subagent</h3>
+<pre><code class="language-javascript">Agent(subagent_type=&quot;weather-agent&quot;,
+      description=&quot;Get Dubai weather&quot;,
+      prompt=&quot;Fetch the current temperature in Dubai&quot;)
+
+// 带高级参数
+Agent(subagent_type=&quot;agent-name&quot;,
+      model=&quot;haiku&quot;,
+      permissionMode=&quot;bypassPermissions&quot;,
+      maxTurns=10)
+</code></pre>
+<h3 id="25-内置-agent-类型">2.5 内置 Agent 类型</h3>
+<table>
+<thead>
+<tr>
+<th>Agent 类型</th>
+<th>用途</th>
+<th>可用工具</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>general-purpose</code></td>
+<td>通用（默认）</td>
+<td>全部</td>
+</tr>
+<tr>
+<td><code>Explore</code></td>
+<td>只读搜索</td>
+<td>Read, Grep, Glob 等</td>
+</tr>
+<tr>
+<td><code>Plan</code></td>
+<td>架构设计</td>
+<td>全部（只读模式）</td>
+</tr>
+<tr>
+<td><code>claude-code-guide</code></td>
+<td>Claude Code 用法问答</td>
+<td>搜索 + 网页</td>
+</tr>
+<tr>
+<td><code>statusline-setup</code></td>
+<td>状态栏配置</td>
+<td>Read, Edit</td>
+</tr>
+</tbody>
+</table>
+<h3 id="实操练习">实操练习</h3>
+<ol>
+<li>打开 <code>weather-agent.md</code> 看完整 frontmatter</li>
+<li>打开 <code>time-agent.md</code> 对比</li>
+<li>试着在对话里用 <code>Agent()</code> 调用一个子代理</li>
+</ol>
+<hr>
+<h2 id="第三章命令-commands">第三章：命令 Commands</h2>
+<blockquote>
+<p>对应文档：<strong><code>doc/practice/03-命令-commands.md</code></strong></p>
+<p>英文原版：<code>best-practice/claude-commands.md</code></p>
+<p>项目实例：<code>.claude/commands/*.md</code></p>
+</blockquote>
+<h3 id="31-先看理论">3.1 先看理论</h3>
+<p>Command 是<strong>快捷入口</strong>，用 <code>/command-name</code> 触发。和 Skill 最大的区别是：</p>
+<blockquote>
+<p><strong>Command 不能被 Claude 主动调用</strong>，必须用户输入 <code>/</code> 触发。它适合做流程入口。</p>
+</blockquote>
+<h3 id="32-核心结构">3.2 核心结构</h3>
+<pre><code class="language-markdown">---
+name: command-name      # / 后面用的名字
+description: 一句话说明  # 在 / 列表里显示
+model: haiku            # 可选，指定模型
+---
+</code></pre>
+<h3 id="33-看项目实例">3.3 看项目实例</h3>
+<p>📄 <strong><code>doc/implementation/02-command-实现.md</code></strong>（中文）← 实现说明</p>
+<p>英文原版 <code>implementation/claude-commands-implementation.md</code></p>
+<p><strong>核心示例：<code>/weather-orchestrator</code></strong></p>
+<p>📄 <strong><code>.claude/commands/weather-orchestrator.md</code></strong></p>
+<p>这个 Command 演示了完整的 <strong>Command → Agent → Skill</strong> 三阶段流程：</p>
+<pre><code>1. 问用户要摄氏还是华氏
+2. 调用 weather-agent 获取温度
+     └── 预载 weather-fetcher skill 获取实时数据
+3. 调用 weather-svg-creator 生成 SVG
+</code></pre>
+<p>📄 <strong><code>.claude/commands/time-command.md</code></strong> — 最简 command 示例</p>
+<p>📄 <strong><code>.claude/commands/workflows/</code></strong> — 自动化工作流命令（使用 <code>Workflow</code> 工具）</p>
+<h3 id="34-内置-slash-commands86-个">3.4 内置 Slash Commands（86+ 个）</h3>
+<p>常用内置命令：</p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/help</code></td>
+<td>查看帮助</td>
+</tr>
+<tr>
+<td><code>/doctor</code></td>
+<td>诊断问题</td>
+</tr>
+<tr>
+<td><code>/compact</code></td>
+<td>手动压缩上下文</td>
+</tr>
+<tr>
+<td><code>/clear</code></td>
+<td>清屏</td>
+</tr>
+<tr>
+<td><code>/usage</code></td>
+<td>查看用量</td>
+</tr>
+<tr>
+<td><code>/model</code></td>
+<td>切换模型</td>
+</tr>
+<tr>
+<td><code>/fast</code></td>
+<td>切换到快速模式</td>
+</tr>
+<tr>
+<td><code>/init</code></td>
+<td>初始化 CLAUDE.md</td>
+</tr>
+<tr>
+<td><code>/cost</code></td>
+<td>查看本轮花费</td>
+</tr>
+</tbody>
+</table>
+<h3 id="实操练习_1">实操练习</h3>
+<ol>
+<li>打开 <code>time-command.md</code> — 最简单的 command，看结构</li>
+<li>打开 <code>weather-orchestrator.md</code> — 看编排类 command</li>
+<li>看看 <code>workflows/</code> 目录下的 command 有什么不同</li>
+</ol>
+<hr>
+<h2 id="第四章技能-skills">第四章：技能 Skills</h2>
+<blockquote>
+<p>对应文档：<strong><code>doc/practice/04-技能-skills.md</code></strong></p>
+<p>英文原版：<code>best-practice/claude-skills.md</code></p>
+<p>项目实例：<code>.claude/skills/*/SKILL.md</code></p>
+</blockquote>
+<h3 id="41-先看理论">4.1 先看理论</h3>
+<p>Skill 本质上是一个 <strong>Markdown 指令文件</strong>，教 Claude 如何完成特定类型的工作。它放在 <code>.claude/skills/&lt;name&gt;/SKILL.md</code> 里。</p>
+<h3 id="42-核心字段">4.2 核心字段</h3>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>Skill 名称，也是 <code>/</code> 命令名</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>告诉 Claude 什么时候该用</td>
+</tr>
+<tr>
+<td><code>disable-model-invocation: true</code></td>
+<td>设为 true 后只能手动 <code>/</code> 调用</td>
+</tr>
+<tr>
+<td><code>allowed-tools</code></td>
+<td>激活时允许的工具白名单</td>
+</tr>
+<tr>
+<td><code>model</code></td>
+<td>指定模型（sonnet/opus/haiku）</td>
+</tr>
+<tr>
+<td><code>context: fork</code></td>
+<td>在独立子会话中运行</td>
+</tr>
+<tr>
+<td><code>user-invocable: false</code></td>
+<td>隐藏，不让用户看到</td>
+</tr>
+</tbody>
+</table>
+<h3 id="43-看项目实例">4.3 看项目实例</h3>
+<p>📄 <strong><code>doc/implementation/03-skill-实现.md</code></strong>（中文）← 实现说明</p>
+<p>英文原版 <code>implementation/claude-skills-implementation.md</code></p>
+<p>项目里演示了两种 Skill 模式：</p>
+<p><strong>模式 A：Agent Skill（预载模式）</strong></p>
+<p>Skill 作为 Agent 的预载知识，Agent 启动时自动加载。</p>
+<p>📄 <strong><code>.claude/skills/weather-fetcher/SKILL.md</code></strong></p>
+<pre><code class="language-markdown">---
+name: weather-fetcher
+description: Instructions for fetching current weather temperature data for Dubai, UAE
+user-invocable: false   # ← 关键：用户不可见，只给 agent 用
+---
+</code></pre>
+<pre><code class="language-yaml"># .claude/agents/weather-agent.md 中通过 skills 字段引用
+skills:
+  - weather-fetcher
+</code></pre>
+<p><strong>模式 B：独立 Skill（调用模式）</strong></p>
+<p>Skill 被用户或主会话通过 <code>Skill</code> 工具显式调用。</p>
+<p>📄 <strong><code>.claude/skills/weather-svg-creator/SKILL.md</code></strong></p>
+<pre><code class="language-markdown">---
+name: weather-svg-creator
+description: Creates an SVG weather card showing the current temperature for Dubai
+---
+</code></pre>
+<h3 id="44-内置-skills12-个">4.4 内置 Skills（12+ 个）</h3>
+<table>
+<thead>
+<tr>
+<th>Skill</th>
+<th>用途</th>
+<th>调用方式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/code-review</code></td>
+<td>审查当前 diff</td>
+<td><code>/code-review</code></td>
+</tr>
+<tr>
+<td><code>/verify</code></td>
+<td>运行并验证</td>
+<td><code>/verify</code></td>
+</tr>
+<tr>
+<td><code>/run</code></td>
+<td>启动项目</td>
+<td><code>/run</code></td>
+</tr>
+<tr>
+<td><code>/init</code></td>
+<td>创建 CLAUDE.md</td>
+<td><code>/init</code></td>
+</tr>
+<tr>
+<td><code>/loop</code></td>
+<td>定时重复</td>
+<td><code>/loop 5m /command</code></td>
+</tr>
+<tr>
+<td><code>/simplify</code></td>
+<td>简化代码</td>
+<td><code>/simplify</code></td>
+</tr>
+<tr>
+<td><code>/claude-api</code></td>
+<td>API 参考查询</td>
+<td><code>/claude-api</code></td>
+</tr>
+<tr>
+<td><code>/review</code></td>
+<td>审查 GitHub PR</td>
+<td><code>/review</code></td>
+</tr>
+<tr>
+<td><code>/security-review</code></td>
+<td>安全审查</td>
+<td><code>/security-review</code></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>⚠️ <strong>注意</strong>：mattpocock 的 <code>code-review</code> 和 Claude Code 内置的 <code>code-review</code> 功能重叠。
+内置版是单维审查，mattpocock 版是双轴（Standards + Spec）并行审查。</p>
+</blockquote>
+<h3 id="45-本项目所有已安装-skills31-个">4.5 本项目所有已安装 Skills（31 个）</h3>
+<p>📄 <strong><code>doc/skills-inventory.md</code></strong> — 详细清单，每个 skill 有功能说明和调用方式</p>
+<h3 id="实操练习_2">实操练习</h3>
+<ol>
+<li>选一个 skill，打开它的 <code>SKILL.md</code></li>
+<li>看 frontmatter（<code>---</code> 之间的 YAML）</li>
+<li>看正文怎么组织指令</li>
+<li>对比 <code>weather-fetcher</code>（预载模式）和 <code>weather-svg-creator</code>（独立模式）的区别</li>
+</ol>
+<hr>
+<h2 id="第五章配置体系-settings">第五章：配置体系 Settings</h2>
+<blockquote>
+<p>对应文档：<strong><code>doc/practice/05-设置-settings.md</code></strong></p>
+<p>英文原版：<code>best-practice/claude-settings.md</code></p>
+<p>项目实例：<code>.claude/settings.json</code></p>
+</blockquote>
+<h3 id="51-先看理论">5.1 先看理论</h3>
+<p>📄 <strong><code>doc/practice/05-设置-settings.md</code></strong>（中文）— 80+ 个设置项、200+ 环境变量</p>
+<p>英文原版 <code>best-practice/claude-settings.md</code></p>
+<h3 id="52-配置层级5-层">5.2 配置层级（5 层）</h3>
+<p>每一层覆盖上一层，数字越小的优先级越高：</p>
+<pre><code>1️⃣  Managed Settings（组织强制）→ 不能被覆盖
+2️⃣  CLI Arguments（启动参数）→ 单次会话有效
+3️⃣  .claude/settings.local.json（个人项目）→ git-ignored
+4️⃣  .claude/settings.json（团队共享）→ 版本控制
+5️⃣  ~/.claude/settings.json（全局默认）
+</code></pre>
+<h3 id="53-看项目配置">5.3 看项目配置</h3>
+<p>📄 <strong><code>.claude/settings.json</code></strong> — 项目共享配置</p>
+<pre><code class="language-json">{
+  &quot;permissions&quot;: {
+    &quot;allow&quot;: [&quot;git&quot;, &quot;npm&quot;, &quot;npx&quot;],
+    &quot;deny&quot;: [&quot;rm -rf&quot;]
+  },
+  &quot;hooks&quot;: {
+    &quot;PreToolUse&quot;: &quot;scripts/hooks.py&quot;,
+    &quot;PermissionRequest&quot;: &quot;scripts/hooks.py&quot;
+  }
+}
+</code></pre>
+<h3 id="54-全局-vs-项目配置">5.4 全局 vs 项目配置</h3>
+<p>📄 <strong><code>doc/reports/全局vs项目设置对比.md</code></strong>（中文）← 推荐</p>
+<p>英文原版 <code>reports/claude-global-vs-project-settings.md</code></p>
+<ul>
+<li><strong>全局配置</strong>（<code>~/.claude/settings.json</code>）：通用偏好（主题、默认模型、个人 MCP）</li>
+<li><strong>项目配置</strong>（<code>.claude/settings.json</code>）：团队约束（权限白名单、钩子、项目 MCP）</li>
+</ul>
+<h3 id="实操练习_3">实操练习</h3>
+<ol>
+<li>打开 <code>.claude/settings.json</code>，看项目配置了什么</li>
+<li>打开 <code>~/.claude/settings.json</code>，看全局默认配置</li>
+<li>比较两者的差异</li>
+</ol>
+<hr>
+<h2 id="第六章mcp-服务器">第六章：MCP 服务器</h2>
+<blockquote>
+<p>对应文档：<strong><code>doc/practice/06-MCP服务器-mcp.md</code></strong></p>
+<p>英文原版：<code>best-practice/claude-mcp.md</code></p>
+<p>项目实例：<code>.claude/mcp.json</code></p>
+</blockquote>
+<h3 id="61-先看理论">6.1 先看理论</h3>
+<p>MCP（Model Context Protocol）让 Claude Code 可以<strong>访问外部服务</strong>。每个 MCP 服务器提供一组工具，Claude 可以在对话中按需使用。</p>
+<h3 id="62-服务器类型">6.2 服务器类型</h3>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>说明</th>
+<th>配置方式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>stdio</code></td>
+<td>本地启动进程</td>
+<td><code>"command": "npx", "args": [...]</code></td>
+</tr>
+<tr>
+<td><code>http</code></td>
+<td>远程 HTTP 服务</td>
+<td><code>"url": "https://...", "headers": {...}</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="63-推荐-mcp-服务器">6.3 推荐 MCP 服务器</h3>
+<table>
+<thead>
+<tr>
+<th>MCP</th>
+<th>用途</th>
+<th>推荐度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Context7</strong></td>
+<td>查框架/库的实时文档</td>
+<td>⭐⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td><strong>Playwright</strong></td>
+<td>浏览器自动化</td>
+<td>⭐⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td><strong>Chrome DevTools</strong></td>
+<td>前端调试</td>
+<td>⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td><strong>DeepWiki</strong></td>
+<td>开源项目知识检索</td>
+<td>⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td><strong>Excalidraw</strong></td>
+<td>画架构图</td>
+<td>⭐⭐⭐</td>
+</tr>
+</tbody>
+</table>
+<p>📄 <strong><code>doc/reports/浏览器自动化MCP对比.md</code></strong>（中文）— Chrome DevTools vs Playwright 对比</p>
+<h3 id="64-配置示例">6.4 配置示例</h3>
+<pre><code class="language-json">{
+  &quot;mcpServers&quot;: {
+    &quot;context7&quot;: {
+      &quot;type&quot;: &quot;http&quot;,
+      &quot;url&quot;: &quot;https://api.context7.com/v1&quot;,
+      &quot;headers&quot;: { &quot;Authorization&quot;: &quot;Bearer $CONTEXT7_API_KEY&quot; }
+    }
+  }
+}
+</code></pre>
+<h3 id="实操练习_4">实操练习</h3>
+<ol>
+<li>打开 <code>.claude/mcp.json</code> 看 MCP 配置</li>
+<li>试在当前对话里用 Context7 查一个库的文档</li>
+</ol>
+<hr>
+<h2 id="第七章记忆系统-memory">第七章：记忆系统 Memory</h2>
+<blockquote>
+<p>对应文档：<strong><code>doc/practice/07-记忆系统-memory.md</code></strong></p>
+<p>英文原版：<code>best-practice/claude-memory.md</code></p>
+</blockquote>
+<h3 id="71-先看理论">7.1 先看理论</h3>
+<p>记忆系统让 Claude <strong>跨会话记住信息</strong>。它不是写在 CLAUDE.md 里的固定指令，而是动态积累的知识。</p>
+<p>📄 <strong><code>doc/reports/子代理记忆系统.md</code></strong>（中文）— Agent 记忆深度报告</p>
+<h3 id="72-记忆类型">7.2 记忆类型</h3>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>用途</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>user</code></td>
+<td>你的角色和偏好</td>
+<td>"我是全栈 TypeScript 开发者"</td>
+</tr>
+<tr>
+<td><code>feedback</code></td>
+<td>你给 Claude 的反馈</td>
+<td>"先写测试再写实现"</td>
+</tr>
+<tr>
+<td><code>project</code></td>
+<td>项目决策和约束</td>
+<td>"用 pnpm 而非 npm"</td>
+</tr>
+<tr>
+<td><code>reference</code></td>
+<td>外部资源链接</td>
+<td>"API 地址、工单链接"</td>
+</tr>
+</tbody>
+</table>
+<h3 id="73-记忆文件格式">7.3 记忆文件格式</h3>
+<p>记忆文件存放在 <code>~/.claude/projects/&lt;project-hash&gt;/memory/</code>：</p>
+<pre><code class="language-markdown">---
+name: project-tech-stack
+description: 项目技术栈决策记录
+metadata:
+  type: project
+---
+
+使用 Next.js 15 + pnpm + Vitest
+**Why:** 团队 React 背景，性能优先
+**How to apply:** 新功能优先 Server Component
+</code></pre>
+<h3 id="74-claudemd-的两种加载机制">7.4 CLAUDE.md 的两种加载机制</h3>
+<ol>
+<li><strong>Ancestor 加载</strong>：启动时从当前目录向上找 CLAUDE.md，所有祖先目录的都加载</li>
+<li><strong>Descendant 懒加载</strong>：<code>.claude/rules/*.md</code> 只在触及匹配文件时才加载</li>
+</ol>
+<p>这对 monorepo 特别有用——根目录写全局规则，子项目文件触发子规则。</p>
+<p>📄 <strong><code>doc/rules/Markdown文档规范.md</code></strong>（中文）— 文档编写规范
+📄 <strong><code>doc/rules/演示文稿规范.md</code></strong>（中文）— 演示文稿维护规范</p>
+<hr>
+<h2 id="第八章工作流编排">第八章：工作流编排</h2>
+<blockquote>
+<p>对应文档：<strong><code>doc/orchestration-workflow/编排工作流.md</code></strong></p>
+<p>英文原版：<code>orchestration-workflow/orchestration-workflow.md</code></p>
+</blockquote>
+<h3 id="81-command-agent-skill-模式">8.1 Command → Agent → Skill 模式</h3>
+<p>这是本仓库展示的<strong>核心架构模式</strong>，也是可以在你项目里复用的设计。</p>
+<pre><code>用户输入 /weather-orchestrator
+        │
+        ▼
+┌─────────────────────────────────┐
+│  Command                         │
+│  weather-orchestrator.md        │
+│  ───────────────────────────    │
+│  1. 问用户要摄氏还是华氏          │
+│  2. 调用 weather-agent 获取温度   │
+│  3. 调用 weather-svg-creator     │
+└─────────────────────────────────┘
+        │
+        ├──→ Agent + Skill（预载模式）
+        │    weather-agent
+        │    └── weather-fetcher skill
+        │         └── Open-Meteo API
+        │
+        └──→ Skill（独立调用模式）
+             weather-svg-creator
+             └── 写 weather.svg + output.md
+</code></pre>
+<h3 id="82-三个实现文档对照看">8.2 三个实现文档对照看</h3>
+<p>这三个中文实现文档描述的是<strong>同一个流程的三个视角</strong>：</p>
+<p>📄 <strong><code>doc/implementation/02-command-实现.md</code></strong> — Command 视角：我是入口，我调用了谁</p>
+<p>📄 <strong><code>doc/implementation/01-subagent-实现.md</code></strong> — Agent 视角：我被调用了，我用 skill 干了活</p>
+<p>📄 <strong><code>doc/implementation/03-skill-实现.md</code></strong> — Skill 视角：我被预载到 agent 里，或者被直接调用</p>
+<blockquote>
+<p>💡 <strong>建议</strong>：三个文档一口气读完，你会发现它们在描述同一个流程。</p>
+</blockquote>
+<h3 id="83-weather-系统设计演进">8.3 Weather 系统设计演进</h3>
+<p>📄 <strong><code>doc/reports/Weather工作流重构历程.md</code></strong>（中文）— 从头到尾的设计演进</p>
+<h3 id="84-workflow-高级编排">8.4 Workflow 高级编排</h3>
+<p>对于更复杂的多 Agent 并行任务，项目使用 <strong>Workflow</strong> 工具：</p>
+<p>📄 <strong><code>.claude/commands/workflows/</code></strong> — 6 个自动维护 workflow</p>
+<pre><code>/agent-collections         → 并行研究所有 agent 集合仓库
+/skill-collections         → 并行研究所有 skill 集合仓库
+/development-workflows     → 并行研究所有 workflow 仓库
+/workflow-concepts         → 更新 CONCEPTS 表
+/workflow-claude-commands  → 分析 commands drift
+/workflow-claude-settings  → 分析 settings drift
+</code></pre>
+<h3 id="实操练习_5">实操练习</h3>
+<ol>
+<li>执行 <code>/weather-orchestrator</code> 看完整流程</li>
+<li>打开 <code>编排工作流.md</code> 看架构图</li>
+<li>一口气读完三个 implementation 文档</li>
+</ol>
+<hr>
+<h2 id="第九章钩子系统-hooks">第九章：钩子系统 Hooks</h2>
+<blockquote>
+<p>英文原版参考：<code>best-practice/claude-subagents.md</code>（搜索 hooks 部分）</p>
+<p>项目实例：<code>.claude/hooks/</code></p>
+</blockquote>
+<h3 id="91-先看理论">9.1 先看理论</h3>
+<p>Hooks 是 Claude Code 的<strong>事件系统</strong>——在特定时刻自动执行脚本。比如每次 Claude 使用工具前播放一个声音、每次会话结束时记录日志。</p>
+<h3 id="92-支持的事件">9.2 支持的事件</h3>
+<table>
+<thead>
+<tr>
+<th>事件</th>
+<th>触发时机</th>
+<th>典型用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>UserPromptSubmit</code></td>
+<td>用户提交 prompt 后</td>
+<td>记录输入</td>
+</tr>
+<tr>
+<td><code>PreToolUse</code></td>
+<td>工具调用前</td>
+<td>安全检查</td>
+</tr>
+<tr>
+<td><code>PostToolUse</code></td>
+<td>工具调用后</td>
+<td>记录输出</td>
+</tr>
+<tr>
+<td><code>SessionStart</code></td>
+<td>会话启动时</td>
+<td>播放入场音效</td>
+</tr>
+<tr>
+<td><code>SessionEnd</code></td>
+<td>会话结束时</td>
+<td>记录总结</td>
+</tr>
+<tr>
+<td><code>SubagentStart</code></td>
+<td>子代理启动时</td>
+<td>通知用户</td>
+</tr>
+<tr>
+<td><code>SubagentStop</code></td>
+<td>子代理停止时</td>
+<td>通知结果</td>
+</tr>
+<tr>
+<td><code>PermissionRequest</code></td>
+<td>请求权限时</td>
+<td>自动审批</td>
+</tr>
+<tr>
+<td><code>PreCompact</code></td>
+<td>上下文压缩前</td>
+<td>保存状态</td>
+</tr>
+</tbody>
+</table>
+<h3 id="93-看项目实现">9.3 看项目实现</h3>
+<p>📄 <strong><code>.claude/hooks/</code></strong> — 完整的钩子系统</p>
+<pre><code>.claude/hooks/
+├── config/
+│   ├── hooks-config.json          ← 团队共享的钩子配置
+│   └── hooks-config.local.json    ← 个人覆盖（git-ignored）
+├── scripts/
+│   └── hooks.py                   ← 主处理脚本
+└── sounds/                        ← 各种音效文件
+</code></pre>
+<p>📄 <strong><code>.claude/hooks/config/hooks-config.json</code></strong></p>
+<pre><code class="language-json">{
+  &quot;events&quot;: {
+    &quot;SessionStart&quot;: { &quot;sound&quot;: &quot;session-start.mp3&quot; },
+    &quot;SessionEnd&quot;: { &quot;sound&quot;: &quot;session-end.mp3&quot; },
+    &quot;PreToolUse&quot;: { &quot;sound&quot;: &quot;tool-use.mp3&quot; }
+  }
+}
+</code></pre>
+<p>特殊处理：git 提交时触发 <code>pretooluse-git-committing</code> 音效。</p>
+<h3 id="94-如何禁用">9.4 如何禁用</h3>
+<pre><code class="language-json">// .claude/settings.local.json
+{
+  &quot;disableAllHooks&quot;: true
+}
+</code></pre>
+<h3 id="实操练习_6">实操练习</h3>
+<ol>
+<li>打开 <code>hooks-config.json</code>，看事件配置</li>
+<li>打开 <code>hooks.py</code>，了解结构</li>
+<li>打开 <code>sounds/</code> 目录，看看有哪些音效</li>
+</ol>
+<hr>
+<h2 id="第十章cli-启动参数">第十章：CLI 启动参数</h2>
+<blockquote>
+<p>对应文档：<strong><code>doc/practice/08-CLI启动参数-cli-startup-flags.md</code></strong></p>
+<p>英文原版：<code>best-practice/claude-cli-startup-flags.md</code></p>
+</blockquote>
+<h3 id="101-先看理论">10.1 先看理论</h3>
+<p>Claude Code 提供了丰富的 CLI 启动参数，按功能分类：</p>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>会话管理</strong></td>
+<td><code>claude</code>（新会话）、<code>claude --resume</code>（恢复）</td>
+</tr>
+<tr>
+<td><strong>模型/配置</strong></td>
+<td><code>--model opus-4-8</code>、<code>--temperature 0.5</code></td>
+</tr>
+<tr>
+<td><strong>权限/安全</strong></td>
+<td><code>--permissionMode auto</code>、<code>--allowedTools git,npm</code></td>
+</tr>
+<tr>
+<td><strong>单次模式</strong></td>
+<td><code>claude -p "Describe this code"</code></td>
+</tr>
+<tr>
+<td><strong>Agent 控制</strong></td>
+<td><code>--agent agent-name</code>、<code>--maxTurns 20</code></td>
+</tr>
+<tr>
+<td><strong>MCP/插件</strong></td>
+<td><code>--mcp-servers</code>、<code>--mcp-config</code></td>
+</tr>
+<tr>
+<td><strong>文件作用域</strong></td>
+<td><code>--allowedPaths src/</code>、<code>--disallowedPaths node_modules/</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="102-常用示例">10.2 常用示例</h3>
+<pre><code class="language-bash">claude                          # 启动新会话
+claude -p &quot;问一句就走&quot;           # 单次模式
+claude --model opus-4-8        # 指定模型
+claude --resume                 # 恢复上次会话
+claude --permissionMode auto   # 自动权限
+claude --debug                  # 调试模式
+claude --version                # 查看版本
+</code></pre>
+<hr>
+<h2 id="第十一章能力强化-power-ups">第十一章：能力强化 Power Ups</h2>
+<blockquote>
+<p>对应文档：<strong><code>doc/practice/09-能力强化-power-ups.md</code></strong></p>
+<p>英文原版：<code>best-practice/claude-power-ups.md</code></p>
+</blockquote>
+<h3 id="111-先看理论">11.1 先看理论</h3>
+<p>Power Ups 是 Claude Code v2.1.90 引入的 <strong>10 个交互式教程</strong>，通过 <code>/powerup</code> 命令启动。</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>名称</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>Talk to your codebase</strong></td>
+<td>学会与代码库对话</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Steer with modes</strong></td>
+<td>用计划/自动模式引导</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Undo anything</strong></td>
+<td>撤销任何操作</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>Run in background</strong></td>
+<td>后台运行任务</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>Teach rules</strong></td>
+<td>教 Claude 你的规则</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>Extend with tools</strong></td>
+<td>用 MCP 扩展工具</td>
+</tr>
+<tr>
+<td>7</td>
+<td><strong>Automate workflow</strong></td>
+<td>自动化工作流</td>
+</tr>
+<tr>
+<td>8</td>
+<td><strong>Multiply yourself</strong></td>
+<td>用子代理复制自己</td>
+</tr>
+<tr>
+<td>9</td>
+<td><strong>Code from anywhere</strong></td>
+<td>在任何地方编码</td>
+</tr>
+<tr>
+<td>10</td>
+<td><strong>Dial the model</strong></td>
+<td>调整模型</td>
+</tr>
+</tbody>
+</table>
+<h3 id="112-高级工具使用模式">11.2 高级工具使用模式</h3>
+<p>📄 <strong><code>doc/reports/高级工具使用模式.md</code></strong>（中文）</p>
+<p>三个 API 级特性，可节省 24-85% token：
+- <strong>程序化工具调用</strong>：工具返回结构化数据而非 markdown
+- <strong>动态工具过滤</strong>：根据上下文允许/禁止特定工具
+- <strong>工具搜索</strong>：按需发现工具</p>
+<p>📄 <strong><code>doc/reports/使用量与速率限制.md</code></strong>（中文）— Pro / Max 5x / Max 20x 三档订阅</p>
+<hr>
+<h2 id="第十二章实用技巧合集">第十二章：实用技巧合集</h2>
+<h3 id="121-boris-cherny-的核心技巧">12.1 Boris Cherny 的核心技巧</h3>
+<p>📄 <strong><code>doc/tips/Boris的10个ClaudeCode技巧.md</code></strong>（中文）— 基础 10 条</p>
+<p><strong>最重要的几条：</strong></p>
+<ol>
+<li>🔥 <strong>并行 git worktree</strong> — 开 3-5 个 worktree，每个跑一个 Claude 会话
+   <code>bash
+   git worktree add ../project-feature-b feature-branch</code></li>
+<li><strong>50% 时 <code>/compact</code></strong> — 不要等到上下文快满了才压缩</li>
+<li><strong>先 Plan 再执行</strong> — 复杂任务先让 Claude 出计划</li>
+<li><strong>给 Subagent 设置 <code>maxTurns</code></strong> — 防止子代理跑飞</li>
+<li><strong>不要把 Opus 用在小事上</strong> — 简单任务切 Haiku</li>
+</ol>
+<p>📄 <strong><code>doc/tips/Boris的12个ClaudeCode技巧.md</code></strong>（中文）— 进阶 12 条
+（hooks 音效、plugins、LSP、MCP、skills、自定义 agent、effort 级别等）</p>
+<p>📄 <strong><code>doc/tips/Boris的13个ClaudeCode技巧.md</code></strong>（中文）
+📄 <strong><code>doc/tips/Boris的15个ClaudeCode技巧.md</code></strong>（中文）
+📄 <strong><code>doc/tips/Boris的2个ClaudeCode技巧-0310.md</code></strong>（中文）
+📄 <strong><code>doc/tips/Boris的2个ClaudeCode技巧-0325.md</code></strong>（中文）
+📄 <strong><code>doc/tips/Boris的6个ClaudeCode技巧.md</code></strong>（中文）</p>
+<h3 id="122-thariq-的上下文管理">12.2 Thariq 的上下文管理</h3>
+<p>📄 <strong><code>doc/tips/Thariq的ClaudeCode技巧-0416.md</code></strong>（中文）</p>
+<ul>
+<li>1M token 上下文在 <strong>300-400k 时开始腐烂</strong>（遗忘早期内容）</li>
+<li><strong>主动 <code>/compact</code></strong> 比 Claude 自动压缩效果好得多</li>
+<li>复杂任务<strong>拆给 subagent</strong>，主会话只做协调</li>
+</ul>
+<p>📄 <strong><code>doc/tips/Thariq的ClaudeCode技巧-0317.md</code></strong>（中文）</p>
+<h3 id="123-更多深度报告">12.3 更多深度报告</h3>
+<p>📄 <strong><code>doc/reports/Agent-SDK-vs-CLI-系统提示对比.md</code></strong>（中文）— SDK 和 CLI 的 prompt 差异
+📄 <strong><code>doc/reports/LLM日常退化问题.md</code></strong>（中文）— LLM 日常退化
+📄 <strong><code>doc/reports/Spinner动词与提示.md</code></strong>（中文）— 加载动画中的滚动动词彩蛋
+📄 <strong><code>doc/reports/大型Monorepo的Skill策略.md</code></strong>（中文）— 大型仓库的 Skill 策略</p>
+<p>📄 <strong><code>doc/翻译进度与文档缺口分析.md</code></strong> — 中英文文档的翻译进度与缺口</p>
+<hr>
+<h2 id="第十三章学习路径">第十三章：学习路径</h2>
+<blockquote>
+<p>对应文档：<strong><code>doc/practice/10-学习路径.md</code></strong>（中文）</p>
+<p>英文原版：README.md（尾部）</p>
+</blockquote>
+<h3 id="第一阶段熟悉项目第-1-天">🟢 第一阶段：熟悉项目（第 1 天）</h3>
+<pre><code>目的：了解仓库结构，知道什么文件在哪里
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>做什么</th>
+<th>打开什么文件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>看项目整体结构</td>
+<td>浏览根目录和 <code>.claude/</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td>看 README 总览</td>
+<td><code>README.md</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td>看概念总览（中文）</td>
+<td><code>doc/practice/01-CONCEPTS-概念总览.md</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td>看 Skills 目录</td>
+<td><code>ls .claude/skills/</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td>看 Commands 目录</td>
+<td><code>ls .claude/commands/</code></td>
+</tr>
+<tr>
+<td>6</td>
+<td>看 Agents 目录</td>
+<td><code>ls .claude/agents/</code></td>
+</tr>
+<tr>
+<td>7</td>
+<td>看设置文件</td>
+<td><code>.claude/settings.json</code></td>
+</tr>
+<tr>
+<td>8</td>
+<td>看钩子配置</td>
+<td><code>.claude/hooks/config/hooks-config.json</code></td>
+</tr>
+<tr>
+<td>9</td>
+<td>看 skills 全览（中文）</td>
+<td><code>doc/skills-inventory.md</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="第二阶段按文档顺序逐个深入第-2-5-天">🟡 第二阶段：按文档顺序逐个深入（第 2-5 天）</h3>
+<pre><code>目的：按 doc/practice/ 的编号顺序，逐个理解每个概念
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>主题</th>
+<th>读最佳实践（中文）</th>
+<th>看实现说明（中文）</th>
+<th>看项目文件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>子代理</td>
+<td><code>doc/practice/02-子代理-subagents.md</code></td>
+<td><code>doc/implementation/01-subagent-实现.md</code></td>
+<td><code>.claude/agents/weather-agent.md</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td>命令</td>
+<td><code>doc/practice/03-命令-commands.md</code></td>
+<td><code>doc/implementation/02-command-实现.md</code></td>
+<td><code>.claude/commands/weather-orchestrator.md</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td>技能</td>
+<td><code>doc/practice/04-技能-skills.md</code></td>
+<td><code>doc/implementation/03-skill-实现.md</code></td>
+<td><code>.claude/skills/weather-fetcher/SKILL.md</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td>设置</td>
+<td><code>doc/practice/05-设置-settings.md</code></td>
+<td>—</td>
+<td><code>.claude/settings.json</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td>MCP</td>
+<td><code>doc/practice/06-MCP服务器-mcp.md</code></td>
+<td>—</td>
+<td><code>.claude/mcp.json</code></td>
+</tr>
+<tr>
+<td>6</td>
+<td>记忆</td>
+<td><code>doc/practice/07-记忆系统-memory.md</code></td>
+<td>—</td>
+<td><code>~/.claude/projects/*/memory/</code></td>
+</tr>
+<tr>
+<td>7</td>
+<td>CLI 参数</td>
+<td><code>doc/practice/08-CLI启动参数-cli-startup-flags.md</code></td>
+<td>—</td>
+<td>命令行运行 <code>claude --help</code></td>
+</tr>
+<tr>
+<td>8</td>
+<td>能力强化</td>
+<td><code>doc/practice/09-能力强化-power-ups.md</code></td>
+<td>—</td>
+<td>运行 <code>/powerup</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="第三阶段实操体验第-6-7-天">🔴 第三阶段：实操体验（第 6-7 天）</h3>
+<pre><code>目的：亲手操作，跑通完整流程
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>做什么</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>跑 <code>/time-skill</code> 或 <code>/time-command</code> 看效果</td>
+<td></td>
+</tr>
+<tr>
+<td>2</td>
+<td>跑 <code>/weather-orchestrator</code> 看完整编排流程</td>
+<td></td>
+</tr>
+<tr>
+<td>3</td>
+<td>读编排工作流说明（中文）</td>
+<td><code>doc/orchestration-workflow/编排工作流.md</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td>跑 <code>/grill-me</code> 体验追问模式</td>
+<td></td>
+</tr>
+<tr>
+<td>5</td>
+<td>一口气读完三个 implementation 文档</td>
+<td><code>doc/implementation/01</code>、<code>02</code>、<code>03</code></td>
+</tr>
+<tr>
+<td>6</td>
+<td>读 Workflow 重构历程（中文）</td>
+<td><code>doc/reports/Weather工作流重构历程.md</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="第四阶段深入进阶第-2-周">🟣 第四阶段：深入进阶（第 2 周+）</h3>
+<pre><code>目的：理解高级模式，开始自己创造
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>做什么</th>
+<th>参考文件（中文优先）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>理解全局 vs 项目设置</td>
+<td><code>doc/reports/全局vs项目设置对比.md</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td>理解子代理记忆</td>
+<td><code>doc/reports/子代理记忆系统.md</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td>研究 Hook 系统</td>
+<td><code>.claude/hooks/config/hooks-config.json</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td>读高级工具模式</td>
+<td><code>doc/reports/高级工具使用模式.md</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td>读 Harness 重要性</td>
+<td><code>doc/reports/为什么Harness如此重要.md</code></td>
+</tr>
+<tr>
+<td>6</td>
+<td>读深度对比报告</td>
+<td><code>doc/reports/Agent-vs-Command-vs-Skill.md</code></td>
+</tr>
+<tr>
+<td>7</td>
+<td>读浏览器 MCP 对比</td>
+<td><code>doc/reports/浏览器自动化MCP对比.md</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="第五阶段融会贯通第-3-周">⭐ 第五阶段：融会贯通（第 3 周+）</h3>
+<pre><code>目的：按照自己的需求定制 Claude Code
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>参考什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>编写自己的 Skill</td>
+<td>参考 <code>doc/practice/04-技能-skills.md</code> + <code>tdd</code>/<code>code-review</code> 的 SKILL.md</td>
+</tr>
+<tr>
+<td>编写自己的 Command</td>
+<td>参考 <code>doc/practice/03-命令-commands.md</code> + <code>weather-orchestrator.md</code></td>
+</tr>
+<tr>
+<td>编写自己的 Agent</td>
+<td>参考 <code>doc/practice/02-子代理-subagents.md</code> + <code>weather-agent.md</code></td>
+</tr>
+<tr>
+<td>搭建 MCP 服务器</td>
+<td>参考 <code>doc/practice/06-MCP服务器-mcp.md</code> + <code>.claude/mcp.json</code></td>
+</tr>
+<tr>
+<td>创建 Workflow 自动化</td>
+<td>参考 <code>doc/orchestration-workflow/编排工作流.md</code></td>
+</tr>
+<tr>
+<td>管理社区 Skills</td>
+<td>用 <code>npx skills add &lt;repo&gt;</code> 安装社区技能</td>
+</tr>
+<tr>
+<td>文档规范</td>
+<td>参考 <code>doc/rules/Markdown文档规范.md</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="附录">附录</h2>
+<h3 id="文件位置速查">文件位置速查</h3>
+<table>
+<thead>
+<tr>
+<th>主题</th>
+<th>中文最佳实践</th>
+<th>中文实现说明</th>
+<th>对应英文原版</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>概念总览</td>
+<td><code>doc/practice/01-CONCEPTS-概念总览.md</code></td>
+<td>—</td>
+<td>README.md</td>
+</tr>
+<tr>
+<td>子代理</td>
+<td><code>doc/practice/02-子代理-subagents.md</code></td>
+<td><code>doc/implementation/01-subagent-实现.md</code></td>
+<td><code>best-practice/claude-subagents.md</code></td>
+</tr>
+<tr>
+<td>命令</td>
+<td><code>doc/practice/03-命令-commands.md</code></td>
+<td><code>doc/implementation/02-command-实现.md</code></td>
+<td><code>best-practice/claude-commands.md</code></td>
+</tr>
+<tr>
+<td>技能</td>
+<td><code>doc/practice/04-技能-skills.md</code></td>
+<td><code>doc/implementation/03-skill-实现.md</code></td>
+<td><code>best-practice/claude-skills.md</code></td>
+</tr>
+<tr>
+<td>设置</td>
+<td><code>doc/practice/05-设置-settings.md</code></td>
+<td>—</td>
+<td><code>best-practice/claude-settings.md</code></td>
+</tr>
+<tr>
+<td>MCP</td>
+<td><code>doc/practice/06-MCP服务器-mcp.md</code></td>
+<td>—</td>
+<td><code>best-practice/claude-mcp.md</code></td>
+</tr>
+<tr>
+<td>记忆</td>
+<td><code>doc/practice/07-记忆系统-memory.md</code></td>
+<td>—</td>
+<td><code>best-practice/claude-memory.md</code></td>
+</tr>
+<tr>
+<td>CLI 参数</td>
+<td><code>doc/practice/08-CLI启动参数-cli-startup-flags.md</code></td>
+<td>—</td>
+<td><code>best-practice/claude-cli-startup-flags.md</code></td>
+</tr>
+<tr>
+<td>能力强化</td>
+<td><code>doc/practice/09-能力强化-power-ups.md</code></td>
+<td>—</td>
+<td><code>best-practice/claude-power-ups.md</code></td>
+</tr>
+<tr>
+<td>学习路径</td>
+<td><code>doc/practice/10-学习路径.md</code></td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>编排工作流</td>
+<td>—</td>
+<td><code>doc/orchestration-workflow/编排工作流.md</code></td>
+<td><code>orchestration-workflow/orchestration-workflow.md</code></td>
+</tr>
+<tr>
+<td>Skills 全览</td>
+<td>—</td>
+<td><code>doc/skills-inventory.md</code></td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<h3 id="常用命令速查">常用命令速查</h3>
+<table>
+<thead>
+<tr>
+<th>你想</th>
+<th>输入</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>审查代码</td>
+<td><code>/code-review</code></td>
+</tr>
+<tr>
+<td>诊断 bug</td>
+<td><code>/diagnosing-bugs</code></td>
+</tr>
+<tr>
+<td>追问计划</td>
+<td><code>/grill-me</code></td>
+</tr>
+<tr>
+<td>写测试</td>
+<td><code>/tdd</code></td>
+</tr>
+<tr>
+<td>简化代码</td>
+<td><code>/simplify</code></td>
+</tr>
+<tr>
+<td>检查健康</td>
+<td><code>/doctor</code></td>
+</tr>
+<tr>
+<td>查看用量</td>
+<td><code>/usage</code></td>
+</tr>
+<tr>
+<td>切换模型</td>
+<td><code>/model</code></td>
+</tr>
+<tr>
+<td>压缩上下文</td>
+<td><code>/compact</code></td>
+</tr>
+<tr>
+<td>初始化项目</td>
+<td><code>/init</code></td>
+</tr>
+<tr>
+<td>获取天气（演示）</td>
+<td><code>/weather-orchestrator</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<blockquote>
+<p>📍 <strong>项目根目录</strong>: <code>D:\AI-Tech\claude-code-best-practice</code></p>
+<p>📍 <strong>中文文档根目录</strong>: <code>doc/</code></p>
+<p>📍 <strong>文档编号规则</strong>: <code>doc/practice/</code> 和 <code>doc/implementation/</code> 按 01-10 编号，章节顺序与之对齐</p>
+<p>本指南最后更新: 2026-07-06</p>
+</blockquote>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">项目笔记</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/learning-guide.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../../notes/projects/claude-code-best-practice/doc/learn/claudecodelspllm.html"><span class="dir">← 上一篇</span><span class="t">Claude Code LSP 支持：LLM 理解代码的质变</span></a><a class="next" href="../../../../notes/projects/claude-code-best-practice/doc/orchestration-workflow/pa9db9a.html"><span class="dir">下一篇 →</span><span class="t">编排工作流（中文翻译）</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../../index.html">首页</a>
+      <a href="../../../../learn.html">课件</a>
+      <a href="../../../../notes/index.html">笔记库</a>
+      <a href="../../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../../about.html">关于</a>
+      <a href="../../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../../js/main.js" defer></script>
+</body>
+</html>

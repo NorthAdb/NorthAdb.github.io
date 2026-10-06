@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MCP 服务器最佳实践 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="中文翻译整理自 best-practice/claude-mcp.md 学习顺序：第 6 篇 官方文档：MCP Servershttps://code.claude.com/docs/en/mcp">
+<link rel="canonical" href="https://northadb.github.io/notes/projects/claude-code-best-practice/doc/practice/06-mcp-mcp.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="MCP 服务器最佳实践 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="中文翻译整理自 best-practice/claude-mcp.md 学习顺序：第 6 篇 官方文档：MCP Servershttps://code.claude.com/docs/en/mcp">
+<meta property="og:url" content="https://northadb.github.io/notes/projects/claude-code-best-practice/doc/practice/06-mcp-mcp.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MCP 服务器最佳实践 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="中文翻译整理自 best-practice/claude-mcp.md 学习顺序：第 6 篇 官方文档：MCP Servershttps://code.claude.com/docs/en/mcp">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../../../feed.xml">
+<link rel="stylesheet" href="../../../../../css/style.css">
+<link rel="stylesheet" href="../../../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "MCP 服务器最佳实践", "description": "中文翻译整理自 best-practice/claude-mcp.md 学习顺序：第 6 篇 官方文档：MCP Servershttps://code.claude.com/docs/en/mcp", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/projects/claude-code-best-practice/doc/practice/06-mcp-mcp.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../../../index.html">首页</a><span>/</span><a href="../../../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../../../notes/projects/index.html">项目笔记</a></div>
+          <h1>MCP 服务器最佳实践</h1>
+          <p class="post-sub">中文翻译整理自 best-practice/claude-mcp.md 学习顺序：第 6 篇 官方文档：MCP Servershttps://code.claude.com/docs/en/mcp</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../../../notes/projects/index.html">项目笔记</a></span><span class="sep"></span>
+            <span>阅读约 5 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p>中文翻译整理自 <code>best-practice/claude-mcp.md</code>
+学习顺序：第 6 篇
+官方文档：<a href="https://code.claude.com/docs/en/mcp">MCP Servers</a></p>
+</blockquote>
+<hr>
+<h2 id="什么是-mcp">什么是 MCP？</h2>
+<p>MCP（Model Context Protocol）是 Claude Code 的<strong>扩展协议</strong>，让 Claude 可以连接外部工具、数据库和 API。</p>
+<p><strong>通俗理解：</strong> MCP 就像 Claude Code 的"USB 接口"——需要什么功能就插什么外设。</p>
+<hr>
+<h2 id="日常推荐的-mcp-服务器">日常推荐的 MCP 服务器</h2>
+<blockquote>
+<p>社区共识：不要贪多，15 个不如 4 个用得精。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>MCP 服务器</th>
+<th>功能</th>
+<th>推荐理由</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Context7</strong></td>
+<td>获取最新库文档</td>
+<td>防止 Claude 用过时的训练数据生成虚假 API</td>
+</tr>
+<tr>
+<td><strong>Playwright</strong></td>
+<td>浏览器自动化</td>
+<td>截图、导航、表单测试，前端开发必备</td>
+</tr>
+<tr>
+<td><strong>Claude in Chrome</strong></td>
+<td>连接真实 Chrome</td>
+<td>查看控制台日志、网络请求、DOM</td>
+</tr>
+<tr>
+<td><strong>DeepWiki</strong></td>
+<td>GitHub 仓库文档</td>
+<td>获取任何仓库的架构文档</td>
+</tr>
+<tr>
+<td><strong>Excalidraw</strong></td>
+<td>架构图生成</td>
+<td>画流程图、系统设计图</td>
+</tr>
+</tbody>
+</table>
+<p><strong>工作流：</strong> Research（Context7/DeepWiki）→ Debug（Playwright/Chrome）→ Document（Excalidraw）</p>
+<hr>
+<h2 id="配置方式">配置方式</h2>
+<p>MCP 的配置分散在两个文件中，各有不同职责：</p>
+<h3 id="配置文件分工">配置文件分工</h3>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>职责</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>.mcp.json</code></strong></td>
+<td>定义 MCP 服务器<strong>怎么安装/启动</strong></td>
+<td><code>command: "npx", args: ["@playwright/mcp"]</code></td>
+</tr>
+<tr>
+<td><strong><code>settings.json</code></strong></td>
+<td>控制 MCP 服务器<strong>能不能用 + 谁可以用</strong></td>
+<td>服务器启停、工具权限白名单</td>
+</tr>
+</tbody>
+</table>
+<h3 id="服务器类型">服务器类型</h3>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>传输方式</th>
+<th>示例</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>stdio</strong></td>
+<td>启动本地进程</td>
+<td><code>npx</code>、<code>python</code>、二进制文件</td>
+<td>🔸 <strong>默认值，可省略 <code>type</code></strong>。用 <code>command</code> + <code>args</code> 指定启动命令</td>
+</tr>
+<tr>
+<td><strong>http</strong></td>
+<td>连接远程 URL</td>
+<td>HTTP/SSE 端点</td>
+<td>必须写明 <code>"type": "http"</code>，用 <code>url</code> 指定端点</td>
+</tr>
+</tbody>
+</table>
+<h3 id="一定义安装-mcpjson">一、定义安装 → <code>.mcp.json</code></h3>
+<p>这里只关心"这个 MCP 怎么启动"，不关心权限。</p>
+<pre><code class="language-json">{
+  &quot;mcpServers&quot;: {
+    &quot;playwright&quot;: {
+      // type 省略 = stdio（默认）
+      &quot;command&quot;: &quot;npx&quot;,
+      &quot;args&quot;: [&quot;-y&quot;, &quot;@playwright/mcp@latest&quot;]
+    },
+    &quot;remote-api&quot;: {
+      &quot;type&quot;: &quot;http&quot;,                  // 远程连接，必须写 type
+      &quot;url&quot;: &quot;https://api.example.com/mcp?token=${MY_TOKEN}&quot;
+    }
+  }
+}
+</code></pre>
+<h3 id="二服务器启停控制-settingsjson">二、服务器启停控制 → <code>settings.json</code></h3>
+<p>决定哪些 MCP 服务器能运行（服务器级别，不是工具级别）：</p>
+<pre><code class="language-json">{
+  &quot;enableAllProjectMcpServers&quot;: true,      // 全部放行
+  &quot;enabledMcpjsonServers&quot;: [&quot;memory&quot;],     // 只放行白名单
+  &quot;disabledMcpjsonServers&quot;: [&quot;old-server&quot;] // 黑名单屏蔽
+}
+</code></pre>
+<h3 id="三工具调用权限-settingsjson">三、工具调用权限 → <code>settings.json</code></h3>
+<p>决定 MCP 的每个具体工具能不能被 Claude 调用。这里可以<strong>细粒度到单个工具级别</strong>：</p>
+<ul>
+<li><code>mcp__服务器名__*</code> — 通配符，放行该服务器的<strong>所有工具</strong></li>
+<li><code>mcp__服务器名__具体工具</code> — 精确到<strong>某个具体工具</strong></li>
+</ul>
+<pre><code class="language-json">{
+  &quot;permissions&quot;: {
+    &quot;allow&quot;: [
+      &quot;mcp__context7__*&quot;,                  // 放行 context7 所有工具
+      &quot;mcp__playwright__browser_snapshot&quot;  // 只放行 playwright 的截图，其他不放行
+    ],
+    &quot;deny&quot;: [
+      &quot;mcp__dangerous-server__*&quot;           // 禁止某个服务器的所有工具
+    ]
+  }
+}
+</code></pre>
+<h3 id="三层关系总结">三层关系总结</h3>
+<pre><code>.mcp.json（安装）          settings.json（管控）
+                ┌─────────────────────────────────┐
+┌──────────┐   │  enableAllProjectMcpServers       │
+│ Playwright├───→  这个服务器能启动吗？            │
+│ 定义启动   │   │  enabledMcpjsonServers           │
+└──────────┘   ├─────────────────────────────────┤
+               │  permissions.allow:              │
+┌──────────┐   │  mcp__playwright__*              │
+│ Context7 ├───→  这个工具能被 Claude 用吗？       │
+│ 定义启动   │   │  permissions.deny:              │
+└──────────┘   │  mcp__context7__dangerous-tool    │
+               └─────────────────────────────────┘
+</code></pre>
+<hr>
+<h2 id="mcp-上下文加载机制">MCP 上下文加载机制</h2>
+<p>MCP 和 Skill 的上下文加载方式有本质区别：</p>
+<h3 id="skill渐进式披露">Skill：渐进式披露</h3>
+<pre><code>每次会话加载到系统提示：
+  skill 列表 + 描述（受 skillListingBudgetFraction 限制，默认 1%）
+       ↓
+Claude 决定调用某个 skill
+       ↓
+完整 SKILL.md 内容注入上下文
+       ↓
+（可选）context: fork → 子代理隔离执行
+</code></pre>
+<p>先看"菜单"（描述），点菜后才上"菜"（完整内容），不常用的 skill 自动折叠为仅名称，节省 token。</p>
+<h3 id="mcp全部注册到工具列表">MCP：全部注册到工具列表</h3>
+<pre><code>每次会话：
+  所有 MCP 服务器的所有工具定义
+  （工具名 + 描述 + 参数 Schema）→ 全部加载到系统提示
+       ↓
+Claude 在工具列表中看到全部工具，需要时直接调用
+</code></pre>
+<p><strong>不是渐进式</strong>——每个工具的定义（名称、描述、参数 Schema）从一开始就在系统提示里占 token。MCP 越多，token 消耗越大。</p>
+<h3 id="优化mcpsearch-自动模式v217">优化：MCPSearch 自动模式（v2.1.7+）</h3>
+<p>当 MCP 工具定义超过上下文 10% 时，自动启用按需查找：</p>
+<pre><code>工具少（&lt; 10% 上下文）：全部工具定义直接加载
+工具多（&gt; 10% 上下文）：工具定义延迟加载，通过 MCPSearch 按需查找
+</code></pre>
+<p>可通过环境变量调整阈值：<code>ENABLE_TOOL_SEARCH=auto:N</code>（N=0-100，百分比）。</p>
+<h3 id="对比总结">对比总结</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><strong>Skill</strong></th>
+<th><strong>MCP</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>加载时机</strong></td>
+<td>列表描述在系统提示，完整内容按需加载</td>
+<td>工具定义<strong>默认全部加载</strong>到系统提示</td>
+</tr>
+<tr>
+<td><strong>控制预算</strong></td>
+<td><code>skillListingBudgetFraction</code>（默认 1%）</td>
+<td>MCPSearch 自动阈值（10%，超出后按需查找）</td>
+</tr>
+<tr>
+<td><strong>渐进式披露</strong></td>
+<td>✅ 是（描述→内容→fork 隔离）</td>
+<td>⚠️ 部分（超过阈值才按需加载）</td>
+</tr>
+<tr>
+<td><strong>执行隔离</strong></td>
+<td><code>context: fork</code></td>
+<td>无内置隔离机制</td>
+</tr>
+<tr>
+<td><strong>token 消耗</strong></td>
+<td>只加载描述，不常用的自动折叠</td>
+<td>每个工具定义（名称+描述+参数 Schema）都占 token</td>
+</tr>
+</tbody>
+</table>
+<p><strong>简单说：</strong> Skill 天然就是渐进式的——"菜单"占很少 token，"菜"用的时候才上。MCP 更像工具箱——所有工具摆在台面上随取随用，但摆得越多占地方越大。MCPSearch 是补救措施，工具太多时把不常用的收起来，需要时再找。</p>
+<hr>
+<h2 id="mcp-作用域">MCP 作用域</h2>
+<p>MCP 服务器可以在三个层级定义：</p>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>位置</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>项目级</strong></td>
+<td><code>.mcp.json</code>（项目根目录）</td>
+<td>团队共享，提交到 git</td>
+</tr>
+<tr>
+<td><strong>用户级</strong></td>
+<td><code>~/.claude.json</code>（<code>mcpServers</code> 键）</td>
+<td>个人跨项目配置</td>
+</tr>
+<tr>
+<td><strong>Subagent 级</strong></td>
+<td>Agent frontmatter（<code>mcpServers</code> 字段）</td>
+<td>特定 agent 专用</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>优先级：</strong> Subagent &gt; Project &gt; User</p>
+<hr>
+<h2 id="最佳实践">最佳实践</h2>
+<ol>
+<li><strong>精选少量</strong> — 5 个以内最佳，太多会降低性能和准确性</li>
+<li><strong>用环境变量保护密钥</strong> — 使用 <code>${VAR}</code> 语法，不要硬编码 API key</li>
+<li><strong>上下文感知</strong> — Context7 + DeepWiki 一起用覆盖一切文档需求</li>
+<li><strong>浏览器自动化二选一</strong> — Playwright 或 Claude in Chrome，不要同时用</li>
+<li><strong>定期清理</strong> — 不再需要的 MCP 服务器及时移除</li>
+</ol>
+<hr>
+<h2 id="更多阅读">更多阅读</h2>
+<ul>
+<li><a href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/reports/claude-in-chrome-v-chrome-devtools-mcp.md">Browser Automation MCP 对比报告</a></li>
+<li><a href="https://modelcontextprotocol.io/">MCP 规范</a></li>
+<li><a href="https://reddit.com/r/mcp/comments/1qarjqm/">Reddit 讨论：5 个真正让我快 10 倍的 MCP</a></li>
+</ul>
+<h3 id="关联文档">关联文档</h3>
+<table>
+<thead>
+<tr>
+<th>相关概念</th>
+<th>文档</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Settings 配置</td>
+<td><a href="../../../../../notes/projects/claude-code-best-practice/doc/practice/05-settings.html#三mcp-服务器设置"><code>05-设置-settings.md</code></a></td>
+<td>MCP 相关设置项详解（<code>enableAllProjectMcpServers</code> 等）</td>
+</tr>
+<tr>
+<td>Subagent</td>
+<td><a href="../../../../../notes/projects/claude-code-best-practice/doc/practice/02-subagents.html"><code>02-子代理-subagents.md</code></a></td>
+<td>为 Subagent 配置专用 MCP 服务器</td>
+</tr>
+<tr>
+<td>项目 <code>.mcp.json</code></td>
+<td>仓库根目录 <code>.mcp.json</code></td>
+<td>本仓库实际使用的 MCP 配置</td>
+</tr>
+<tr>
+<td>实现参考</td>
+<td><a href="../../../../../notes/projects/claude-code-best-practice/doc/implementation/01-subagent.html"><code>../implementation/01-subagent-实现.md</code></a></td>
+<td>应用中 MCP 与 Subagent 组合的实例</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<blockquote>
+<p>下一篇：<a href="../../../../../notes/projects/claude-code-best-practice/doc/practice/07-memory.html">07-记忆系统-memory.md</a></p>
+</blockquote>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">项目笔记</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/practice/06-MCP%E6%9C%8D%E5%8A%A1%E5%99%A8-mcp.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../../../notes/projects/claude-code-best-practice/doc/practice/05-settings.html"><span class="dir">← 上一篇</span><span class="t">设置（Settings）最佳实践</span></a><a class="next" href="../../../../../notes/projects/claude-code-best-practice/doc/practice/07-memory.html"><span class="dir">下一篇 →</span><span class="t">记忆系统（Memory）最佳实践</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../../../index.html">首页</a>
+      <a href="../../../../../learn.html">课件</a>
+      <a href="../../../../../notes/index.html">笔记库</a>
+      <a href="../../../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../../../about.html">关于</a>
+      <a href="../../../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../../../js/main.js" defer></script>
+</body>
+</html>

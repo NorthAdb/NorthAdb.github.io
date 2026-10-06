@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code 大代码库实战：模型是地板，harness 才是天花板 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="来源：小林coding《面试官皱眉：&quot;公司项目几百万行代码，Claude Code 怎么扛得住？&quot;我：&quot;换 Opus 4.7&quot;，他叹气：模型是地板，harness 才是天花板》（2026-05-22） 原文：https://mp.weixi…">
+<link rel="canonical" href="https://northadb.github.io/notes/clippings/p44a38b/2026-08-11-claude-codeharness-coding.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Claude Code 大代码库实战：模型是地板，harness 才是天花板 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="来源：小林coding《面试官皱眉：&quot;公司项目几百万行代码，Claude Code 怎么扛得住？&quot;我：&quot;换 Opus 4.7&quot;，他叹气：模型是地板，harness 才是天花板》（2026-05-22） 原文：https://mp.weixi…">
+<meta property="og:url" content="https://northadb.github.io/notes/clippings/p44a38b/2026-08-11-claude-codeharness-coding.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Claude Code 大代码库实战：模型是地板，harness 才是天花板 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="来源：小林coding《面试官皱眉：&quot;公司项目几百万行代码，Claude Code 怎么扛得住？&quot;我：&quot;换 Opus 4.7&quot;，他叹气：模型是地板，harness 才是天花板》（2026-05-22） 原文：https://mp.weixi…">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../feed.xml">
+<link rel="stylesheet" href="../../../css/style.css">
+<link rel="stylesheet" href="../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Claude Code 大代码库实战：模型是地板，harness 才是天花板", "description": "来源：小林coding《面试官皱眉：\"公司项目几百万行代码，Claude Code 怎么扛得住？\"我：\"换 Opus 4.7\"，他叹气：模型是地板，harness 才是天花板》（2026-05-22） 原文：https://mp.weixi…", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/clippings/p44a38b/2026-08-11-claude-codeharness-coding.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../index.html">首页</a><span>/</span><a href="../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../notes/clippings/index.html">内容剪藏</a></div>
+          <h1>Claude Code 大代码库实战：模型是地板，harness 才是天花板</h1>
+          <p class="post-sub">来源：小林coding《面试官皱眉：&quot;公司项目几百万行代码，Claude Code 怎么扛得住？&quot;我：&quot;换 Opus 4.7&quot;，他叹气：模型是地板，harness 才是天花板》（2026-05-22） 原文：https://mp.weixi…</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../notes/clippings/index.html">内容剪藏</a></span><span class="sep"></span>
+            <span>阅读约 15 分钟</span><span class="sep"></span><span>更新于 2026-08-11</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p><strong>来源</strong>：小林coding《面试官皱眉："公司项目几百万行代码，Claude Code 怎么扛得住？"我："换 Opus 4.7"，他叹气：模型是地板，harness 才是天花板》（2026-05-22）
+<strong>原文</strong>：https://mp.weixin.qq.com/s/YhiQGIMn7ewBTyrsBN56sw
+<strong>一手信源</strong>：Anthropic 官方博客《How Claude Code works in large codebases: Best practices and where to start》 + Claude Code 创始人 Boris Cherny 分享</p>
+<p><strong>一句话结论：大代码库下 context 爆不是模型小，是 harness（外围基建）没搭好。</strong> 换更大模型没用，正确做法是把 harness 七层一层一层搭起来：CLAUDE.md → Hooks → Skills → Plugins → MCP + LSP + 子 agent。</p>
+</blockquote>
+<h2 id="为什么在百万行大代码库上会崩">🎯 为什么在百万行大代码库上会崩</h2>
+<p>平时在自己的小项目上跑 Claude Code 很舒坦，一旦放到公司百万行级别的大代码库，所有问题立刻浮出来。小林把 Anthropic 官方博客 + 创始人 Boris 的经验串起来，总结出大代码库里最容易踩的 <strong>7 个坑</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>一句话答案</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Q1 context 老爆，是模型太小吗？</td>
+<td>换模型没用，是<strong>没给 Claude 一个好的起点 context</strong>（agentic search）</td>
+</tr>
+<tr>
+<td>Q2 CLAUDE.md 写多长合适？</td>
+<td>单文件 <strong>200 行以内</strong>，分层加载、持续狠删、每 3-6 个月审查</td>
+</tr>
+<tr>
+<td>Q3 找函数总找错文件？</td>
+<td>装 <strong>LSP</strong>（按符号搜）+ <strong>在子目录启动</strong></td>
+</tr>
+<tr>
+<td>Q4 跨几十个文件改一半就崩？</td>
+<td>拆成<strong>多个会话 + subagent</strong>，不要写更长的 prompt</td>
+</tr>
+<tr>
+<td>Q5 只有我一个人会用，怎么推广？</td>
+<td><strong>skill → plugin → MCP</strong> 打包分发 + 专人维护</td>
+</tr>
+<tr>
+<td>Q6 创始人平时怎么用？</td>
+<td>并行跑多个 Claude，Plan Mode 起步，PostToolUse hook 兜底</td>
+</tr>
+<tr>
+<td>Q7 什么项目不适合用？</td>
+<td>非「Git + 工程师 + 标准目录」场景会吃力</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="核心概念harness-跟模型一样重要">核心概念：harness 跟模型一样重要</h2>
+<p>很多人评估 Claude Code 时盯着模型选型（Sonnet 还是 Opus？benchmark 谁高？），但 Anthropic 抛了个反直觉论点：<strong>「The harness matters as much as the model」</strong>——在实际生产中，围绕模型搭的那套外壳对最终效果的影响，比模型本身还大。</p>
+<blockquote>
+<p>打个比方：你请了个米其林三星大厨到家里做饭，他厉不厉害是<strong>模型能力</strong>；但家里有没有趁手的灶台、菜刀、调料架、抽油烟机，这才是 <strong>harness</strong>。灶台不行，再牛的厨师也炒不出锅气。</p>
+</blockquote>
+<p><img alt="harness 比喻：大厨 vs 灶台" src="https://gitee.com/cheng-jiaqing/images/raw/master/claude-code-large-codebase-20260522-04.png"></p>
+<p><strong>Anthropic 的 harness 一共七层</strong>，每层都建立在前一层基础上：</p>
+<pre><code>CLAUDE.md → Hooks → Skills → Plugins → MCP
+         + 两个增强：LSP、子 agent
+</code></pre>
+<p><img alt="harness 七层架构" src="https://gitee.com/cheng-jiaqing/images/raw/master/claude-code-large-codebase-20260522-05.png"></p>
+<p>后面的 Q 按官方顺序逐层拆解：Q2 拆 CLAUDE.md（含 Hooks）、Q3 拆 LSP 和子目录、Q4 拆子 agent、Q5 拆 Skill/Plugin/MCP、Q6 看 Boris 怎么组合。</p>
+<hr>
+<h2 id="q1大代码库下-context-老爆是不是模型太小">Q1：大代码库下 context 老爆，是不是模型太小？</h2>
+<p><strong>Anthropic 官方答案：换模型没用，问题不在模型，在 Claude Code 怎么找代码。</strong></p>
+<p>Opus 4.7 已支持 1M token（约两百多万字），但像样点的项目动辄几百万行代码，再大的窗口也塞不下整个代码库——<strong>这是物理上的事</strong>。</p>
+<p><img alt="大代码库与 context 的物理矛盾" src="https://gitee.com/cheng-jiaqing/images/raw/master/claude-code-large-codebase-20260522-01.png"></p>
+<h3 id="agentic-searchclaude-code-的反主流答案">agentic search：Claude Code 的反主流答案</h3>
+<p>业内的主流答案是 <strong>RAG</strong>：代码切片 → embedding → 向量数据库 → 相似度召回（Cursor、Copilot、Windsurf 都走这条路）。但 Claude Code <strong>偏偏不走</strong>——连 embedding 和向量数据库的影子都没有，就靠 grep、读文件、看目录这种最朴素的方式，Anthropic 叫它 <strong>agentic search</strong>。</p>
+<p><img alt="RAG vs agentic search" src="https://gitee.com/cheng-jiaqing/images/raw/master/claude-code-large-codebase-20260522-02.png"></p>
+<p>Claude 像一个真人工程师：先 <code>ls</code> 看根目录 → 进 <code>auth/</code> 看里面 → <code>grep "login"</code> 找函数 → 读 <code>middleware.ts</code> 和 <code>session.ts</code>，读一个文件决定下一步读什么，循环往复。</p>
+<p><img alt="agentic search 工作示意" src="https://gitee.com/cheng-jiaqing/images/raw/master/claude-code-large-codebase-20260522-03.png"></p>
+<h3 id="为什么选-agentic-search三个理由">为什么选 agentic search（三个理由）</h3>
+<table>
+<thead>
+<tr>
+<th>理由</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>索引会过期</strong></td>
+<td>千人团队每天几百个 commit，embedding pipeline 跟不上；等查的时候索引里可能是两周前已被重命名的函数。agentic search 每次基于当下代码，没有这个问题</td>
+</tr>
+<tr>
+<td><strong>冷启动几乎为零</strong></td>
+<td>RAG 在百万行代码库建一次索引要十几分钟，Claude Code 打开就能用</td>
+</tr>
+<tr>
+<td><strong>精确匹配向量干不了</strong></td>
+<td>查 <code>getUserById</code>，向量召回会返回 <code>getUserByName</code>、<code>getUserByEmail</code> 一堆"相关"函数。代码很多时候要的是精确，不是相似</td>
+</tr>
+</tbody>
+</table>
+<h3 id="agentic-search-的代价">agentic search 的代价</h3>
+<blockquote>
+<p>官方原话：<strong>它严重依赖一个好的起点 context。</strong> 不给清晰起点，Claude 就会乱翻，等摸清结构 context 已被烧得差不多。</p>
+</blockquote>
+<p>所以 context 爆不是模型小，是<strong>没给 Claude 一个好的起点</strong>。Q2-Q7 都在解决这件事。</p>
+<hr>
+<h2 id="q2claudemd-到底写多长合适">Q2：CLAUDE.md 到底写多长合适？</h2>
+<p><strong>官方答案：单文件控制在 200 行以内。</strong> 超过 200 行后，Claude 开始忽略指令的概率会肉眼可见上升（CLAUDE.md 每次启动都被整个塞进 context，写太长等于跟自己抢空间）。</p>
+<h3 id="分层加载">分层加载</h3>
+<blockquote>
+<p>官方原话：「根目录的 CLAUDE.md 应该只放<strong>指针和关键的坑</strong>，其他细节都会变成噪音。」</p>
+</blockquote>
+<ul>
+<li><strong>root 文件</strong>：只放跨包通用约定（"生产数据库千万别动""提 PR 前要跑 lint"）；</li>
+<li><strong>每个子目录</strong>：放自己的 CLAUDE.md 写模块细节。Claude 会自动从当前目录往上走树，沿途把每个 CLAUDE.md 都加载进来。</li>
+</ul>
+<p><img alt="CLAUDE.md 分层加载" src="https://gitee.com/cheng-jiaqing/images/raw/master/claude-code-large-codebase-20260522-06.png"></p>
+<h3 id="持续狠删boris-的-slogan">持续狠删（Boris 的 slogan）</h3>
+<p><strong>「Ruthlessly edit your CLAUDE.md over time」</strong>——对你的 CLAUDE.md 下狠手，毫不留情地删。检查法：对每一行问自己「如果删掉这行，Claude 还会按这条规则做事吗？」答案是「会」（常识或代码已体现）就该删，答案是「不会」才值得留。</p>
+<p><img alt="删行检查法" src="https://gitee.com/cheng-jiaqing/images/raw/master/claude-code-large-codebase-20260522-07.png"></p>
+<p>发现 Claude 反复犯某个错，先别急着加新规则，先看 CLAUDE.md 是不是已经太长把规则淹没了。</p>
+<p><img alt="CLAUDE.md 过长淹没规则" src="https://gitee.com/cheng-jiaqing/images/raw/master/claude-code-large-codebase-20260522-08.png"></p>
+<h3 id="每-3-6-个月完整审查一次">每 3-6 个月完整审查一次</h3>
+<p><strong>因为模型在进化。</strong> 三个月前为了约束 Claude 写的"每次重构只改一个文件"，可能在新模型上反而变成枷锁——新模型已能做跨文件协调编辑。为弥补旧模型弱点写的 Hook、Skill，模型升级后可能变成多余负担。感觉 Claude Code 用得上不去一个台阶，先回去看 CLAUDE.md 是不是过期了。</p>
+<h3 id="hooks让-claudemd-自我进化本文的-hook-重点">🔗 Hooks：让 CLAUDE.md 自我进化（本文的 Hook 重点）</h3>
+<p>Hooks 是 Claude Code 的<strong>事件钩子机制</strong>，在「编辑完文件之后」「会话开始之前」「工具调用之前」这些时间点上挂脚本做事。</p>
+<p>大多数人对 hook 的认知停留在「防止 Claude 做错事」（自动 lint、自动 format）。但官方点出一个反直觉的洞察：</p>
+<blockquote>
+<p><strong>hook 真正的价值不是阻止 Claude 做错事，而是让你的整套设置自我进化。</strong></p>
+</blockquote>
+<ul>
+<li>挂 <strong>Stop hook</strong>：每次会话结束时自动反思「这次 Claude 有没有常犯的错误？要不要写进 CLAUDE.md？」然后 hook 自己改 CLAUDE.md；</li>
+<li>挂 <strong>Start hook</strong>：根据当前所在子目录动态加载模块特有 context——今天在 <code>payments/</code> 下就自动拉支付 skill，换到 <code>auth/</code> 下就换认证相关；</li>
+<li><strong>Boris 自己挂了一个 PostToolUse hook</strong>：给 Claude 写完的代码自动跑格式化，把偶尔遗漏的 10% 格式问题直接抹平。</li>
+</ul>
+<p><img alt="Hooks 让 CLAUDE.md 自我进化" src="https://gitee.com/cheng-jiaqing/images/raw/master/claude-code-large-codebase-20260522-09.png"></p>
+<blockquote>
+<p><strong>CLAUDE.md 不是写一次的文档，是一份持续打磨的活文件。</strong> Anthropic 内部：整个 Claude Code 团队共享一份 CLAUDE.md 提交到 git，发现 Claude 做错了就立刻加进去。</p>
+</blockquote>
+<p><strong>Q2 总结</strong>：单文件 200 行以内、分层加载、持续狠删、每 3-6 个月审查一次 + 用 Hooks 让维护自动化。</p>
+<hr>
+<h2 id="q3大代码库里让-claude-找一个函数总找错文件">Q3：大代码库里让 Claude 找一个函数，总找错文件？</h2>
+<p>多语言大代码库（C/C++/Java/PHP 这种符号歧义高的语言）特别突出。官方答案：<strong>装 LSP + 在子目录里启动 Claude</strong>。</p>
+<h3 id="lsp从按字符串-grep-到按符号搜">LSP：从按字符串 grep 到按符号搜</h3>
+<p>LSP（Language Server Protocol）就是 VS Code 里「go to definition」「find references」背后跑的东西。Claude Code 接上 LSP 后，搜代码不再按字符串 grep，而是<strong>按符号搜</strong>：</p>
+<ul>
+<li>没有 LSP：grep 一个 <code>getUser</code> 返回三千个匹配（前端、后端、测试都有），Claude 一个个读文件判断，context 直接被烧光；</li>
+<li>有 LSP：Claude 直接问「找 <code>auth/login.ts</code> 那个 getUser 同源的所有引用」，LSP 一口气返回精确的三个——<strong>过滤工作在 Claude 读文件之前就完成了</strong>。</li>
+</ul>
+<p><img alt="LSP 符号检索" src="https://gitee.com/cheng-jiaqing/images/raw/master/claude-code-large-codebase-20260522-10.png"></p>
+<p>官方把 LSP 称作多语言大代码库下 <strong>「one of the highest-value investments」</strong>。安装方式：<code>/plugin</code> 里搜「lsp」装对应语言的 code intelligence plugin（typescript-lsp / pyright-lsp / rust-analyzer-lsp 等），再装对应的语言服务器二进制（pip 装 pyright、npm 装 typescript-language-server），全程不超过两分钟。</p>
+<p><img alt="LSP 安装" src="https://gitee.com/cheng-jiaqing/images/raw/master/claude-code-large-codebase-20260522-11.png"></p>
+<h3 id="子目录启动反直觉但官方反复强调">子目录启动：反直觉但官方反复强调</h3>
+<p>大多数人习惯 <code>cd</code> 到根目录再 <code>claude</code>。小项目没毛病，但大代码库里这会让 Claude 一上来就把根目录那个超大的 CLAUDE.md 全部加载，前端后端 infra 所有微服务的规则全来一遍。</p>
+<p>官方原话：<strong>「Initializing in subdirectories, not at the repo root」</strong>。正确做法是直接在要改的子目录启动（如 <code>cd services/payments &amp;&amp; claude</code>）——Claude 会自动往上走树加载根目录 CLAUDE.md（通用规则不丢），但优先加载 <code>payments/</code> 子目录的，context 立刻聚焦到一个领域。</p>
+<p><img alt="子目录启动" src="https://gitee.com/cheng-jiaqing/images/raw/master/claude-code-large-codebase-20260522-12.png"></p>
+<h3 id="三个配套小细节">三个配套小细节</h3>
+<ol>
+<li><strong>测试/lint 命令按子目录写进 CLAUDE.md</strong>：Claude 改支付服务一个文件，却跑整个项目的测试套件，几十分钟出结果 + context 烧光。每个子目录应写明"这块用什么命令测、怎么 lint"；</li>
+<li><strong>用 <code>.ignore</code> 排除生成文件/构建产物/第三方代码</strong>：把 <code>permissions.deny</code> 规则提交到 <code>.claude/settings.json</code>，全团队自动共享；</li>
+<li><strong>目录结构不直观时放一张「代码库地图」</strong>：一个 markdown 文件，列出每个顶层文件夹的一句话说明，Claude 动手前先扫一眼。</li>
+</ol>
+<hr>
+<h2 id="q4跨几十个文件的改动改一半就崩">Q4：跨几十个文件的改动，改一半就崩？</h2>
+<p><strong>官方答案：跨大量文件的改动，正确解法是把任务拆成多个会话 + 用 subagent，不是写更长的 prompt。</strong></p>
+<p>Boris 的原话：「Pour your effort into the plan so Claude can one-shot the implementation」——与其用超长 prompt 让 Claude 一次搞定所有事，不如先单独花一轮把方案敲定，再分多个会话实现。</p>
+<h3 id="第一步派-subagent-出去探索主-agent-留着干净的-context">第一步：派 subagent 出去探索，主 agent 留着干净的 context</h3>
+<p>大代码库下「读懂系统怎么工作」本身就要烧掉好几万 token。让 Claude 一边读代码一边改代码 = 让人一边查资料一边写论文。</p>
+<p><strong>Subagent 思路</strong>：派一个小弟去探索，写一份 findings 报告回来，主 agent 看完报告再动手。小弟在独立 context 窗口里跑，读几十个文件烧的是自己的 context，最后只把几百字摘要给主 agent。</p>
+<p><img alt="subagent 探索 1" src="https://gitee.com/cheng-jiaqing/images/raw/master/claude-code-large-codebase-20260522-13.png"></p>
+<p><img alt="subagent 探索 2" src="https://gitee.com/cheng-jiaqing/images/raw/master/claude-code-large-codebase-20260522-14.png"></p>
+<p>最简单的操作：直接跟 Claude 说「先用 subagent 调查一下 X 是怎么实现的，写成 findings 文件，再回来动手改」。</p>
+<h3 id="第二步会话拆分">第二步：会话拆分</h3>
+<ul>
+<li>会话 1：只做探索、写 plan，不动代码；</li>
+<li>会话 2：加载 plan，实现一个模块，跑通测试；</li>
+<li>会话 3：实现下一个模块。</li>
+</ul>
+<p>每个会话从干净 context 开始，<strong>plan 文件做桥梁串联</strong>。</p>
+<p><img alt="会话拆分" src="https://gitee.com/cheng-jiaqing/images/raw/master/claude-code-large-codebase-20260522-15.png"></p>
+<h3 id="第三步跑大型迁移用-batch">第三步：跑大型迁移用 /batch</h3>
+<p>「整个项目从框架 A 迁到 B」「几十个文件的某种调用全部替换」这种大规模迁移，Claude Code 内置了 <code>/batch</code>：先用对话敲定迁移方案，它一次性派出<strong>几十个并行 subagent</strong>，每个在独立 git worktree 里跑、自测、开 PR。不用守屏幕，跑完直接给你一堆 PR 等 review。</p>
+<p><img alt="/batch 并行 subagent" src="https://gitee.com/cheng-jiaqing/images/raw/master/claude-code-large-codebase-20260522-16.png"></p>
+<blockquote>
+<p>这就是 Boris 本人正在用的工作流——以前要自己手撸的多 agent 编排，现在一行命令搞定。</p>
+</blockquote>
+<p><strong>跨大文件改动救不回来的不是 prompt，是会话边界。</strong></p>
+<hr>
+<h2 id="q5团队里只有我一个人会用-claude-code怎么推广">Q5：团队里只有我一个人会用 Claude Code，怎么推广？</h2>
+<p>官方答案四步：<strong>先把好实践做成 skill → 用 plugin 打包分发 → 用 MCP 接内部系统 → 最后得有人维护。</strong></p>
+<h3 id="第一步把高频操作做成-skill">第一步：把高频操作做成 skill</h3>
+<p>Skill 可以理解成「针对某个具体任务的 SOP」（如"数据库迁移怎么做""微服务上线标准流程"）。它跟 CLAUDE.md 最大的区别在<strong>按需加载</strong>：CLAUDE.md 每次会话都全文加载，skill 只在 Claude 判断"当前任务需要"时才加载——官方术语叫 <strong>progressive disclosure（渐进式披露）</strong>。</p>
+<blockquote>
+<p>Boris 名言：「如果一件事你一天做超过一次，就把它做成 skill。」</p>
+</blockquote>
+<p>Skill 还可以绑定到特定路径（如"支付服务部署 skill"绑定到 <code>services/payments/</code>），避免改前端代码时支付 skill 也来凑热闹。</p>
+<p><img alt="skill 按需加载" src="https://gitee.com/cheng-jiaqing/images/raw/master/claude-code-large-codebase-20260522-17.png"></p>
+<h3 id="第二步用-plugin-打包分发">第二步：用 plugin 打包分发</h3>
+<p>大公司经典问题：好的工具配置只在小圈子流传——某个高级工程师本机配了三十个 skill、十几个 hook、五个 MCP server，实习生啥都没配，体验像 demo 版。</p>
+<p><strong>Plugin 本质是一个安装包</strong>，把 skill、hook、MCP、LSP 配置打包在一起。新人入职第一天 install 一下，立刻和团队所有人能力一致。公司还可以建自己的 <strong>plugin marketplace</strong>，谁有好实践就更新进去。</p>
+<p><img alt="plugin 打包分发" src="https://gitee.com/cheng-jiaqing/images/raw/master/claude-code-large-codebase-20260522-18.png"></p>
+<h3 id="第三步用-mcp-把团队内部系统接进来">第三步：用 MCP 把团队内部系统接进来</h3>
+<p>装 Slack MCP 就能搜公司 Slack 消息，装 BigQuery MCP 就能跑数据查询，装 Sentry MCP 就能拉线上错误日志。</p>
+<p>⚠️ <strong>但官方特别提醒：别太早上 MCP。</strong> 很多团队 CLAUDE.md 还没写好、hook 也没挂，就着急接各种 MCP，反而把 context 搞得更乱。<strong>正确顺序：先把 CLAUDE.md 和 skill 打磨好 → 再用 plugin 打包分发 → 最后才上 MCP。</strong></p>
+<p><img alt="MCP 接入顺序" src="https://gitee.com/cheng-jiaqing/images/raw/master/claude-code-large-codebase-20260522-19.png"></p>
+<h3 id="第四步得有人负责维护">第四步：得有人负责维护</h3>
+<p>推广最顺的组织有个共同点：大面积铺开前，先安排一小队人把整套基础设施搭好，然后才放开访问。开发者第一次用就能跑通——<strong>第一印象如果是"这东西不好使"，后面要翻盘就太难了</strong>。</p>
+<p>官方点出一个正在浮现的新角色 <strong>Agent Manager</strong>（半 PM 半工程师，负责 plugin 分发、CLAUDE.md 规范、skill 审批）。小团队没条件设岗位，也至少要有一个 <strong>DRI（直接责任人）</strong> 维护配置、有拍板权。没有人盯着，再好的 plugin 也会变成「张三两年前搭的，没人会改」的部落知识。</p>
+<hr>
+<h2 id="q6boris-自己平时怎么用-claude-code">Q6：Boris 自己平时怎么用 Claude Code？</h2>
+<p>创始人分享过一段让人破防的话：<strong>「我同时在终端里跑 5 个 Claude，再加 5 到 10 个跑在 claude.ai/code 上，并行处理不同任务。」</strong></p>
+<p><img alt="Boris 的 setup" src="https://gitee.com/cheng-jiaqing/images/raw/master/claude-code-large-codebase-20260522-20.png"></p>
+<p>他的 setup 拆解（藏着创始人对 Claude Code 用法的全部理解）：</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>做法</th>
+<th>要点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>不用 <code>--dangerously-skip-permissions</code></strong></td>
+<td>用 <code>/permissions</code> 把常用安全命令预先加白名单，避免反复点确认，但不放弃权限审计</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>几乎所有复杂任务都从 Plan Mode 开始</strong></td>
+<td>先敲定方案，再切 auto-accept 模式让代码一发命中</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>挂 PostToolUse hook</strong></td>
+<td>自动格式化，抹平 Claude 偶尔遗漏的 10% 格式问题，避免 CI 挂掉</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>每天做超过一次的事都做成 slash command / skill</strong></td>
+<td>他自己有个 <code>/commit-push-pr</code> 命令，一天用几十次</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>给整个团队共享一份 CLAUDE.md 提交到 git</strong></td>
+<td>发现 Claude 做错就立刻加进去，持续打磨的活文件</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>创始人对 Claude Code 的态度不是「装上就用」，而是<strong>把它当成一个会进化的工作伙伴</strong>，每天都在喂它新规则、新工具、新工作流。这才是大代码库下用好 Claude Code 的底层心态。</p>
+</blockquote>
+<hr>
+<h2 id="q7什么样的项目其实不适合用-claude-code">Q7：什么样的项目其实不适合用 Claude Code？</h2>
+<p>官方原话：「Claude Code 是围绕<strong>传统软件工程环境</strong>设计的，假设工程师是代码库的主要贡献者，仓库用 Git，代码遵循标准目录结构。」</p>
+<p>以下几类场景会比较吃力：</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>游戏引擎等大量<strong>二进制资源</strong>的项目</td>
+<td>Claude 没法读 3D 模型、贴图、音频</td>
+</tr>
+<tr>
+<td><strong>非常规版本控制系统</strong>（Perforce / Subversion / 自研 VCS）</td>
+<td>需要额外配置才能跑顺</td>
+</tr>
+<tr>
+<td><strong>非工程师为主贡献</strong>的代码库（产品文档、Figma 配置文件）</td>
+<td>harness 不太对得上</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="不适合的场景" src="https://gitee.com/cheng-jiaqing/images/raw/master/claude-code-large-codebase-20260522-21.png"></p>
+<blockquote>
+<p><strong>Claude Code 不是万能药，最擅长的是「Git + 工程师 + 标准目录」这个最大公约数。</strong></p>
+</blockquote>
+<hr>
+<h2 id="最后浓缩成-3-句话">最后：浓缩成 3 句话</h2>
+<ol>
+<li><strong>Claude Code 在大代码库不是"装上就能用"</strong>，是要在 harness（外围基建）上花一次性功夫的；</li>
+<li><strong>最高 ROI 的三个动作</strong>：CLAUDE.md 砍到 200 行以内 + 在子目录启动 Claude + 装 LSP——做完体验立刻不一样；</li>
+<li><strong>跨大文件改动、团队推广、CLAUDE.md 维护这些硬骨头</strong>，官方都给了具体答案，Boris 自己也在用，照抄就行。</li>
+</ol>
+<hr>
+<h2 id="hook-主题联动跨笔记整理">🔗 Hook 主题联动（跨笔记整理）</h2>
+<p>这篇和 <a class="wl" href="../../../notes/clippings/p44a38b/2026-08-11-agent-hookllm.html">Clippings/微信公众号/2026-08-11-Agent治理-用Hook堵住LLM的偷懒越权与失忆</a> 都深度讲了 Hook，但角度不同，正好互补：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>本文（Claude Code 官方视角）</th>
+<th>Agent 治理（腾讯 DECO 生产实践）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hook 用途</td>
+<td><strong>让 CLAUDE.md 自我进化</strong> + 自动格式化/加载 context</td>
+<td><strong>三类确定性兜底</strong>：长文本 offload、危险操作 HITL、上下文联动</td>
+</tr>
+<tr>
+<td>典型切面</td>
+<td>Stop / Start / PostToolUse（Claude Code 的事件钩子）</td>
+<td>beforeTool / afterTool / beforeModel / afterModel / before&amp;afterAgent（Agent 框架通用）</td>
+</tr>
+<tr>
+<td>心智模型</td>
+<td>harness 七层之一：CLAUDE.md → <strong>Hooks</strong> → Skills → Plugins → MCP</td>
+<td>横切关注点：不改业务循环，把护栏逻辑挂在切面上</td>
+</tr>
+<tr>
+<td>共同结论</td>
+<td><strong>「The harness matters as much as the model」</strong></td>
+<td><strong>「prompt 定意图，Skill 定规矩，框架 Hook 定边界」</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>两者的本质是同一个思想</strong>：把不能交给模型的确定性逻辑，下沉到框架/工具层用代码强制实现。本文教你<strong>怎么用 Hook 让配置自我进化</strong>（维护侧），Agent 治理教你<strong>怎么用 Hook 兜住生产事故</strong>（安全侧），合起来就是生产级 Agent 工程化的完整闭环。</p>
+<hr>
+<h2 id="延伸思考">📌 延伸思考</h2>
+<ul>
+<li><strong>官方原文值得精读</strong>：https://claude.com/blog/how-claude-code-works-in-large-codebases-best-practices-and-where-to-start</li>
+<li><strong>Agent Memory 笔记呼应</strong>：<a class="wl" href="../../../notes/clippings/p44a38b/2026-08-11-tencentdb-agent-memory.html">Clippings/微信公众号/2026-08-11-TencentDB-Agent-Memory-实测笔记</a> 讲的记忆金字塔，与本文的 CLAUDE.md 分层加载、skill 渐进式披露是同一类"按需加载、稳定前缀优先"的 context 管理思想。</li>
+<li><strong>你的库里有大量相关素材</strong>：<code>项目/claude-code-best-practice/</code> 目录下已有 Boris 技巧、Skill 教程、Harness 文档等，可与本文交叉验证。</li>
+<li><strong>可立即落地</strong>：按 Q2-Q3 的 ROI 三件套检查你手上的项目——CLAUDE.md 是否超过 200 行、是否在子目录启动、是否装了 LSP。</li>
+</ul>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">内容剪藏</span><span class="chip">AI</span><span class="chip">Claude Code</span><span class="chip">Harness</span><span class="chip">大代码库</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/Clippings/%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7/2026-08-11-Claude-Code%E5%A4%A7%E4%BB%A3%E7%A0%81%E5%BA%93harness-%E5%B0%8F%E6%9E%97coding.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../notes/clippings/p44a38b/2026-08-11-agent-hookllm.html"><span class="dir">← 上一篇</span><span class="t">Agent 治理：用 Hook 堵住 LLM 的偷懒、越权与失忆</span></a><a class="next" href="../../../notes/clippings/p44a38b/2026-08-11-tencentdb-agent-memory.html"><span class="dir">下一篇 →</span><span class="t">腾讯把 Agent 记忆系统开源了，TencentDB Agent Memory 实测！</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../index.html">首页</a>
+      <a href="../../../learn.html">课件</a>
+      <a href="../../../notes/index.html">笔记库</a>
+      <a href="../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../about.html">关于</a>
+      <a href="../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../js/main.js" defer></script>
+</body>
+</html>

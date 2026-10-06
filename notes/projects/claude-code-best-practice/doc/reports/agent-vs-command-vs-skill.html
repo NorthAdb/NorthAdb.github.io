@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent vs Command vs Skill — 何时用什么 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="Claude Code 三种扩展机制（子代理、命令、技能）的深度对比。">
+<link rel="canonical" href="https://northadb.github.io/notes/projects/claude-code-best-practice/doc/reports/agent-vs-command-vs-skill.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Agent vs Command vs Skill — 何时用什么 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="Claude Code 三种扩展机制（子代理、命令、技能）的深度对比。">
+<meta property="og:url" content="https://northadb.github.io/notes/projects/claude-code-best-practice/doc/reports/agent-vs-command-vs-skill.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Agent vs Command vs Skill — 何时用什么 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="Claude Code 三种扩展机制（子代理、命令、技能）的深度对比。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../../../feed.xml">
+<link rel="stylesheet" href="../../../../../css/style.css">
+<link rel="stylesheet" href="../../../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Agent vs Command vs Skill — 何时用什么", "description": "Claude Code 三种扩展机制（子代理、命令、技能）的深度对比。", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/projects/claude-code-best-practice/doc/reports/agent-vs-command-vs-skill.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../../../index.html">首页</a><span>/</span><a href="../../../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../../../notes/projects/index.html">项目笔记</a></div>
+          <h1>Agent vs Command vs Skill — 何时用什么</h1>
+          <p class="post-sub">Claude Code 三种扩展机制（子代理、命令、技能）的深度对比。</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../../../notes/projects/index.html">项目笔记</a></span><span class="sep"></span>
+            <span>阅读约 5 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p>Claude Code 三种扩展机制（子代理、命令、技能）的深度对比。</p>
+</blockquote>
+<p><img alt="显示 time-skill、time-command 和 time-agent 的斜杠菜单" src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/reports/assets/agent-command-skill-1.jpg"></p>
+<hr>
+<h2 id="一图概览">一图概览</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Agent</th>
+<th>Command</th>
+<th>Skill</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>位置</strong></td>
+<td><code>.claude/agents/&lt;名称&gt;.md</code></td>
+<td><code>.claude/commands/&lt;名称&gt;.md</code></td>
+<td><code>.claude/skills/&lt;名称&gt;/SKILL.md</code></td>
+</tr>
+<tr>
+<td><strong>上下文</strong></td>
+<td>独立的子代理进程</td>
+<td>内联（主会话）</td>
+<td>内联（主会话）</td>
+</tr>
+<tr>
+<td><strong>用户可调用</strong></td>
+<td>无 <code>/</code> 菜单——由 Claude 或 Agent 工具调用</td>
+<td>是——<code>/命令名</code></td>
+<td>是——<code>/技能名</code>（除非 <code>user-invocable: false</code>）</td>
+</tr>
+<tr>
+<td><strong>Claude 自动调用</strong></td>
+<td>是——通过 <code>description</code> 字段</td>
+<td>否</td>
+<td>是——通过 <code>description</code> 字段（除非 <code>disable-model-invocation: true</code>）</td>
+</tr>
+<tr>
+<td><strong>接受参数</strong></td>
+<td>通过 <code>prompt</code> 参数</td>
+<td><code>$ARGUMENTS</code>、<code>$0</code>、<code>$1</code></td>
+<td><code>$ARGUMENTS</code>、<code>$0</code>、<code>$1</code></td>
+</tr>
+<tr>
+<td><strong>动态上下文注入</strong></td>
+<td>否</td>
+<td>是——<code>!`command`</code></td>
+<td>是——<code>!`command`</code></td>
+</tr>
+<tr>
+<td><strong>独立上下文窗口</strong></td>
+<td>是——隔离</td>
+<td>否——共享主会话</td>
+<td>否——共享主会话（除非 <code>context: fork</code>）</td>
+</tr>
+<tr>
+<td><strong>模型覆盖</strong></td>
+<td><code>model:</code> frontmatter</td>
+<td><code>model:</code> frontmatter</td>
+<td><code>model:</code> frontmatter</td>
+</tr>
+<tr>
+<td><strong>工具限制</strong></td>
+<td><code>tools:</code> / <code>disallowedTools:</code></td>
+<td><code>allowed-tools:</code></td>
+<td><code>allowed-tools:</code></td>
+</tr>
+<tr>
+<td><strong>钩子</strong></td>
+<td><code>hooks:</code> frontmatter</td>
+<td>—</td>
+<td><code>hooks:</code> frontmatter</td>
+</tr>
+<tr>
+<td><strong>记忆</strong></td>
+<td><code>memory:</code> frontmatter (user/project/local)</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>可预加载技能</strong></td>
+<td>是——<code>skills:</code> frontmatter</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>MCP 服务器</strong></td>
+<td><code>mcpServers:</code> frontmatter</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="何时使用哪种">何时使用哪种</h2>
+<h3 id="使用-agent子代理当">使用 Agent（子代理），当：</h3>
+<ul>
+<li>任务是<strong>自主且多步骤的</strong>——agent 需要探索、决策和行动，无需持续指导</li>
+<li>你需要<strong>上下文隔离</strong>——工作不应污染主会话窗口</li>
+<li>Agent 需要跨会话的<strong>持久记忆</strong>（例如，一个学习代码模式的审查 agent）</li>
+<li>你想通过技能<strong>预加载领域知识</strong>，而不弄乱主上下文</li>
+<li>任务受益于<strong>后台运行</strong>或在 <strong>git worktree</strong> 中运行</li>
+<li>你需要<strong>工具限制</strong>或<strong>不同的权限模式</strong>（如 <code>acceptEdits</code>、<code>plan</code>）</li>
+</ul>
+<p><strong>示例</strong>：<code>weather-agent</code>——使用预加载的 <code>weather-fetcher</code> skill 自主获取天气数据，在独立上下文中运行，工具受限。</p>
+<h3 id="使用-command命令当">使用 Command（命令），当：</h3>
+<ul>
+<li>你需要一个<strong>用户发起的入口点</strong>——用户显式触发的 workflow</li>
+<li>工作流涉及<strong>编排</strong>其他 agent 或 skill</li>
+<li>你想<strong>保持上下文精简</strong>——命令内容直到用户触发时才注入会话上下文</li>
+</ul>
+<p><strong>示例</strong>：<code>weather-orchestrator</code>——用户触发，询问 C/F 偏好，调用 agent，再调用 SVG skill。</p>
+<h3 id="使用-skill技能当">使用 Skill（技能），当：</h3>
+<ul>
+<li>你想让 <strong>Claude 根据用户意图自动调用</strong>——skill 的描述被注入会话上下文用于语义匹配</li>
+<li>任务是<strong>可复用的流程</strong>，可从多个地方调用（命令、agent 或 Claude 本身）</li>
+<li>你需要 <strong>agent 预加载</strong>——在启动时将领域知识嵌入特定 agent</li>
+</ul>
+<p><strong>示例</strong>：<code>weather-svg-creator</code>——用户要求天气卡片时 Claude 自动调用；也可以从命令调用。</p>
+<hr>
+<h2 id="command-agent-skill-三层架构">Command → Agent → Skill 三层架构</h2>
+<p>本仓库演示了一个分层编排模式：</p>
+<pre><code>用户触发 /command
+    ↓
+Command 编排工作流
+    ↓
+Command 调用 Agent（独立上下文、自主运行）
+    ↓
+Agent 使用预加载的 Skill（领域知识）
+    ↓
+Command 调用 Skill（内联，用于输出生成）
+</code></pre>
+<p><strong>具体示例</strong>——天气系统：</p>
+<pre><code>/weather-orchestrator (command — 入口点，询问 C/F)
+    ↓
+weather-agent (agent — 自主获取温度)
+    ├── weather-fetcher (agent skill — 预加载的 API 指令)
+    ↓
+weather-svg-creator (skill — 内联创建 SVG)
+</code></pre>
+<hr>
+<h2 id="frontmatter-对比">Frontmatter 对比</h2>
+<h3 id="agent-frontmatter">Agent Frontmatter</h3>
+<pre><code class="language-yaml">---
+name: my-agent
+description: Use this agent PROACTIVELY when...
+tools: Read, Write, Edit, Bash
+model: sonnet
+maxTurns: 10
+permissionMode: acceptEdits
+memory: user
+skills:
+  - my-skill
+---
+</code></pre>
+<h3 id="command-frontmatter">Command Frontmatter</h3>
+<pre><code class="language-yaml">---
+description: Do something useful
+argument-hint: [issue-number]
+allowed-tools: Read, Edit, Bash(gh *)
+model: sonnet
+---
+</code></pre>
+<h3 id="skill-frontmatter">Skill Frontmatter</h3>
+<pre><code class="language-yaml">---
+name: my-skill
+description: Do something when the user asks for...
+argument-hint: [file-path]
+disable-model-invocation: false
+user-invocable: true
+allowed-tools: Read, Grep, Glob
+model: sonnet
+context: fork
+agent: general-purpose
+---
+</code></pre>
+<hr>
+<h2 id="关键区别">关键区别</h2>
+<h3 id="自动调用">自动调用</h3>
+<table>
+<thead>
+<tr>
+<th>机制</th>
+<th>Claude 能否自动调用？</th>
+<th>如何阻止</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Agent</td>
+<td>是——通过 <code>description</code>（用 "PROACTIVELY" 鼓励自动调用）</td>
+<td>移除或弱化 description</td>
+</tr>
+<tr>
+<td>Command</td>
+<td>否——始终通过 <code>/</code> 由用户发起</td>
+<td>不适用</td>
+</tr>
+<tr>
+<td>Skill</td>
+<td>是——通过 <code>description</code></td>
+<td>设置 <code>disable-model-invocation: true</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="菜单可见性"><code>/</code> 菜单可见性</h3>
+<table>
+<thead>
+<tr>
+<th>机制</th>
+<th>出现在 <code>/</code> 菜单？</th>
+<th>如何隐藏</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Agent</td>
+<td>否</td>
+<td>不适用</td>
+</tr>
+<tr>
+<td>Command</td>
+<td>是——始终</td>
+<td>无法隐藏</td>
+</tr>
+<tr>
+<td>Skill</td>
+<td>是——默认</td>
+<td>设置 <code>user-invocable: false</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="上下文隔离">上下文隔离</h3>
+<table>
+<thead>
+<tr>
+<th>机制</th>
+<th>在自己的上下文中运行？</th>
+<th>如何配置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Agent</td>
+<td>始终</td>
+<td>内置行为</td>
+</tr>
+<tr>
+<td>Command</td>
+<td>从不</td>
+<td>不适用</td>
+</tr>
+<tr>
+<td>Skill</td>
+<td>可选</td>
+<td>设置 <code>context: fork</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="实战示例现在几点">实战示例："现在几点？"</h2>
+<p>本仓库为同一个任务（显示 PKT 当前时间）定义了全部三种机制。当用户输入 <strong>"现在几点？"</strong> 但没有显式调用任何 <code>/</code> 命令时，会发生什么：</p>
+<table>
+<thead>
+<tr>
+<th>机制</th>
+<th>会触发吗？</th>
+<th>为什么 / 为什么不</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>time-command</code></td>
+<td>否</td>
+<td>Command <strong>从不自动调用</strong>。用户需要显式输入 <code>/time-command</code> 才能运行。Command 没有自动发现路径——它们严格由用户发起</td>
+</tr>
+<tr>
+<td><code>time-agent</code></td>
+<td><strong>可能</strong>会</td>
+<td>Agent 的 <code>description</code> 说 <em>"Use this agent to display the current time in Pakistan Standard Time"</em>。Claude 将这与用户意图匹配，可能通过 Agent 工具启动它。但 agent 运行在<strong>独立的上下文窗口</strong>中，对于这个简单的任务来说太重了</td>
+</tr>
+<tr>
+<td><code>time-skill</code></td>
+<td><strong>最可能</strong>会</td>
+<td>Skill 的 <code>description</code> 说 <em>"Display the current time in Pakistan Standard Time (PKT, UTC+5). Use when the user asks for the current time, Pakistan time, or PKT."</em> Claude 匹配并调用它。由于它<strong>内联</strong>运行，没有上下文开销，是最有效的匹配</td>
+</tr>
+</tbody>
+</table>
+<h3 id="解析顺序">解析顺序</h3>
+<p>当多个机制匹配同一意图时，Claude 优先选择<strong>最轻量级</strong>的选项：</p>
+<pre><code>1. Skill（内联，无上下文开销）    ← 首选
+2. Agent（独立上下文，自主运行）   ← 如果 skill 不可用或任务复杂
+3. Command（从不——需要显式 /）   ← 仅当用户输入 /time-command
+</code></pre>
+<h3 id="如果-skill-上设置了-disable-model-invocation-true-会怎样">如果 skill 上设置了 <code>disable-model-invocation: true</code> 会怎样？</h3>
+<p>那么 Claude <strong>不能</strong>自动调用该 skill。Agent 成为唯一可自动调用的选项，所以 Claude 会改为启动 <code>time-agent</code>——代价是为一个单行 bash 命令启动一个独立的上下文窗口。</p>
+<h3 id="如果-skill-和-agent-都禁用了自动调用会怎样">如果 skill 和 agent 都禁用了自动调用会怎样？</h3>
+<p>那么<strong>什么都不会自动触发</strong>。Claude 会退回到自己的通用知识，很可能直接运行 <code>TZ='Asia/Karachi' date</code>——不涉及任何扩展机制。用户需要显式输入 <code>/time-command</code> 或 <code>/time-skill</code> 来使用它们。</p>
+<p><img alt="Claude 在用户问&quot;现在几点？&quot;时自动调用 time-skill" src="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/reports/assets/agent-command-skill-2.png"></p>
+<hr>
+<h2 id="相关阅读">相关阅读</h2>
+<ul>
+<li><a href="https://code.claude.com/docs/en/skills">Claude Code Skills — 官方文档</a></li>
+<li><a href="https://code.claude.com/docs/en/sub-agents">Claude Code Sub-agents — 官方文档</a></li>
+<li><a href="https://code.claude.com/docs/en/slash-commands">Claude Code Slash Commands — 官方文档</a></li>
+<li><a href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/best-practice/claude-skills.md">Skills 最佳实践</a></li>
+<li><a href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/best-practice/claude-commands.md">Commands 最佳实践</a></li>
+<li><a href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/best-practice/claude-subagents.md">Sub-agents 最佳实践</a></li>
+</ul>
+<h3 id="关联文档">关联文档</h3>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>文档</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Harness 架构</td>
+<td><a href="../../../../../notes/projects/claude-code-best-practice/doc/reports/harness.html"><code>doc/reports/为什么Harness如此重要.md</code></a></td>
+<td>理解为什么这些功能不只是"提示词"</td>
+</tr>
+<tr>
+<td>Subagent 实践</td>
+<td><a href="../../../../../notes/projects/claude-code-best-practice/doc/practice/02-subagents.html"><code>doc/practice/02-子代理-subagents.md</code></a></td>
+<td>Subagent 定义和 frontmatter 字段详解</td>
+</tr>
+<tr>
+<td>Command 实践</td>
+<td><a href="../../../../../notes/projects/claude-code-best-practice/doc/practice/03-commands.html"><code>doc/practice/03-命令-commands.md</code></a></td>
+<td>86 个内置命令参考和自定义命令示例</td>
+</tr>
+<tr>
+<td>Skill 实践</td>
+<td><a href="../../../../../notes/projects/claude-code-best-practice/doc/practice/04-skills.html"><code>doc/practice/04-技能-skills.md</code></a></td>
+<td>Skill 设计原则和两种模式详解</td>
+</tr>
+<tr>
+<td>编排工作流</td>
+<td><a href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/orchestration-workflow/orchestration-workflow.md"><code>../orchestration-workflow/orchestration-workflow.md</code></a></td>
+<td>三层架构流程图和具体实现</td>
+</tr>
+</tbody>
+</table>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">项目笔记</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/reports/Agent-vs-Command-vs-Skill.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../../../notes/projects/claude-code-best-practice/doc/reports/agent-sdk-vs-cli.html"><span class="dir">← 上一篇</span><span class="t">Agent SDK vs CLI 系统提示对比（中文翻译）</span></a><a class="next" href="../../../../../notes/projects/claude-code-best-practice/doc/reports/llm.html"><span class="dir">下一篇 →</span><span class="t">LLM日常退化问题（中文翻译）</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../../../index.html">首页</a>
+      <a href="../../../../../learn.html">课件</a>
+      <a href="../../../../../notes/index.html">笔记库</a>
+      <a href="../../../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../../../about.html">关于</a>
+      <a href="../../../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../../../js/main.js" defer></script>
+</body>
+</html>

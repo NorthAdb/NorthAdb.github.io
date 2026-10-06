@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>s14: MCP Tools — 发现并调用外部工具 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="EnglishREADME.md · 中文README.zh.md · 日本語README.ja.md">
+<link rel="canonical" href="https://northadb.github.io/notes/projects/learn-claude-code-north/s14-mcp-plugin/readme-zh.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="s14: MCP Tools — 发现并调用外部工具 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="EnglishREADME.md · 中文README.zh.md · 日本語README.ja.md">
+<meta property="og:url" content="https://northadb.github.io/notes/projects/learn-claude-code-north/s14-mcp-plugin/readme-zh.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="s14: MCP Tools — 发现并调用外部工具 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="EnglishREADME.md · 中文README.zh.md · 日本語README.ja.md">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../../feed.xml">
+<link rel="stylesheet" href="../../../../css/style.css">
+<link rel="stylesheet" href="../../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "s14: MCP Tools — 发现并调用外部工具", "description": "EnglishREADME.md · 中文README.zh.md · 日本語README.ja.md", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/projects/learn-claude-code-north/s14-mcp-plugin/readme-zh.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../../index.html">首页</a><span>/</span><a href="../../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../../notes/projects/index.html">项目笔记</a></div>
+          <h1>s14: MCP Tools — 发现并调用外部工具</h1>
+          <p class="post-sub">EnglishREADME.md · 中文README.zh.md · 日本語README.ja.md</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../../notes/projects/index.html">项目笔记</a></span><span class="sep"></span>
+            <span>阅读约 4 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<p><a href="../../../../notes/index.html">English</a> · <a href="../../../../notes/projects/learn-claude-code-north/s14-mcp-plugin/readme-zh.html">中文</a> · <a href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/learn-claude-code-north/s14_mcp_plugin/README.ja.md">日本語</a></p>
+<p><a href="https://github.com/NorthAdb/north-my-note/tree/main/%E9%A1%B9%E7%9B%AE/learn-claude-code-north/s04_hooks">s04</a> → <code>s14</code> → <a href="https://github.com/NorthAdb/north-my-note/tree/main/%E9%A1%B9%E7%9B%AE/learn-claude-code-north/s15_integrated_harness">s15</a> → s16 → s17</p>
+<blockquote>
+<p><strong>Harness 层</strong>：MCP Tools — 连接服务、发现工具，并把它们加入 Agent 的工具循环。</p>
+</blockquote>
+<hr>
+<h2 id="问题">问题</h2>
+<p>前面的基础工具都直接写在 <code>code.py</code> 里。接入文档系统和部署平台时，我们还可以继续手写 <code>search_docs</code>、<code>deploy_status</code> 和 <code>trigger_deploy</code>，但每增加一个服务，都要重新维护工具定义、参数格式和调用代码。</p>
+<p>MCP 把这部分拆成两个角色：server 提供工具列表和调用入口，Harness 负责连接、命名、权限检查，并把发现的工具交给模型。</p>
+<hr>
+<h2 id="解决方案">解决方案</h2>
+<p><img alt="MCP Architecture" src="https://gitee.com/cheng-jiaqing/images/raw/master/mcp-architecture.svg"></p>
+<p>本章从 s04 的五个基础工具和 Hooks 出发，增加三个部分：</p>
+<ul>
+<li><code>MCPClient</code> 保存 server 返回的工具定义和调用入口。</li>
+<li><code>connect_mcp</code> 连接一个 server，并取得它的工具列表。</li>
+<li><code>assemble_tool_pool</code> 把基础工具与已经连接的 MCP 工具组装到同一个工具池。</li>
+</ul>
+<p>课程里的 <code>docs</code> 和 <code>deploy</code> 是进程内模拟 server，用来展示 <code>tools/list</code>、<code>tools/call</code> 和动态工具池。真实 MCP transport 不在本章实现。</p>
+<hr>
+<h2 id="工作原理">工作原理</h2>
+<h3 id="1-基础-agent-loop-不需要改变">1. 基础 Agent Loop 不需要改变</h3>
+<p>每轮调用模型前，Harness 组装当前工具池：</p>
+<pre><code class="language-python">def agent_loop(messages: list):
+    while True:
+        tools, handlers = assemble_tool_pool()
+        response = client.messages.create(
+            model=MODEL,
+            system=assemble_system_prompt(),
+            messages=messages,
+            tools=tools,
+            max_tokens=8000,
+        )
+        ...
+</code></pre>
+<p>连接新 server 后，下一轮 <code>assemble_tool_pool()</code> 会把新工具加入模型输入。工具执行后，结果仍作为 <code>tool_result</code> 追加到 messages。</p>
+<h3 id="2-mcpclient-保存发现结果和调用入口">2. MCPClient 保存发现结果和调用入口</h3>
+<pre><code class="language-python">class MCPClient:
+    def register(self, tool_defs, handlers):
+        self.tools = list(tool_defs)
+        self._handlers = dict(handlers)
+
+    def call_tool(self, tool_name, args):
+        handler = self._handlers.get(tool_name)
+        if not handler:
+            return f&quot;MCP error: unknown tool '{tool_name}'&quot;
+        try:
+            return str(handler(**args))
+        except Exception as error:
+            return f&quot;MCP error: {type(error).__name__}: {error}&quot;
+</code></pre>
+<p><code>register()</code> 对应课程里的工具发现结果，<code>call_tool()</code> 对应调用入口。错误会返回给模型，不会直接结束 Agent Loop。</p>
+<h3 id="3-connectmcp-只负责连接和发现">3. connect_mcp 只负责连接和发现</h3>
+<pre><code class="language-python">def connect_mcp(name: str) -&gt; str:
+    if name in mcp_clients:
+        return f&quot;MCP server '{name}' already connected&quot;
+    factory = MOCK_SERVERS.get(name)
+    if not factory:
+        return f&quot;Unknown server '{name}'&quot;
+    server = factory()
+    mcp_clients[name] = server
+    ...
+</code></pre>
+<p>开始时，模型只看到五个基础工具和 <code>connect_mcp</code>。调用 <code>connect_mcp(name="docs")</code> 后，Harness 保存 docs client。下一轮模型调用会看到：</p>
+<pre><code class="language-text">mcp__docs__search
+mcp__docs__get_version
+</code></pre>
+<h3 id="4-前缀区分不同-server-的同名工具">4. 前缀区分不同 server 的同名工具</h3>
+<p>多个 server 都可能提供 <code>search</code> 或 <code>status</code>。Harness 使用：</p>
+<pre><code class="language-text">mcp__{server}__{tool}
+</code></pre>
+<p><code>normalize_mcp_name()</code> 把不适合模型工具名的字符替换为下划线。组装工具池时还会检查规范化后的名称冲突和 64 字符长度限制：</p>
+<pre><code class="language-python">prefixed = f&quot;mcp__{safe_server}__{safe_tool}&quot;
+if prefixed in origins:
+    raise ValueError(&quot;MCP tool name collision after normalization&quot;)
+</code></pre>
+<p>因此 <code>docs.one/get.version</code> 和 <code>docs_one/get_version</code> 不会悄悄映射到同一个名字。</p>
+<h3 id="5-工具定义和-handler-一起加入工具池">5. 工具定义和 handler 一起加入工具池</h3>
+<pre><code class="language-python">tools.append({
+    &quot;name&quot;: prefixed,
+    &quot;description&quot;: tool_def.get(&quot;description&quot;, &quot;&quot;),
+    &quot;input_schema&quot;: schema,
+})
+handlers[prefixed] = (
+    lambda *, client=server, tool=raw_name, **kwargs:
+    client.call_tool(tool, kwargs)
+)
+</code></pre>
+<p>模型看到带前缀的名字；handler 仍使用 server 原始工具名调用 <code>MCPClient</code>。默认参数保存当前 client 和 tool，避免循环里的 lambda 全部指向最后一个工具。</p>
+<h3 id="6-权限由宿主配置决定">6. 权限由宿主配置决定</h3>
+<p>MCP server 可以提供 <code>readOnlyHint</code> 或 <code>destructiveHint</code>，但这些信息来自 server，不能直接作为授权依据。本章使用宿主侧策略：</p>
+<pre><code class="language-python">MCP_HOST_POLICY = {
+    (&quot;docs&quot;, &quot;search&quot;): &quot;allow&quot;,
+    (&quot;docs&quot;, &quot;get_version&quot;): &quot;allow&quot;,
+    (&quot;deploy&quot;, &quot;status&quot;): &quot;allow&quot;,
+    (&quot;deploy&quot;, &quot;trigger&quot;): &quot;confirm&quot;,
+}
+</code></pre>
+<p><code>permission_hook()</code> 根据规范化后的工具名查询这份策略。未配置的外部工具默认需要用户确认；即使 description 写着 <code>readOnly</code>，也不会自动放行。</p>
+<h3 id="7-工具输入错误留在工具边界内">7. 工具输入错误留在工具边界内</h3>
+<p>模型可能漏传参数，也可能传入 server 不接受的字段。<code>execute_tool()</code> 和 <code>MCPClient.call_tool()</code> 都会捕获异常，并返回错误 <code>tool_result</code>：</p>
+<pre><code class="language-text">MCP error: TypeError: &lt;lambda&gt;() missing 1 required argument: 'query'
+</code></pre>
+<p>模型可以在下一轮修正参数，而不是让课程脚本直接退出。</p>
+<hr>
+<h2 id="相对-s04-的变化">相对 s04 的变化</h2>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>s04</th>
+<th>s14</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>基础工具</td>
+<td>五个固定工具</td>
+<td>保持不变</td>
+</tr>
+<tr>
+<td>工具来源</td>
+<td><code>code.py</code> 中的定义</td>
+<td>基础工具加动态发现的 MCP 工具</td>
+</tr>
+<tr>
+<td>工具池</td>
+<td>固定 <code>TOOLS</code></td>
+<td>每轮由 <code>assemble_tool_pool()</code> 组装</td>
+</tr>
+<tr>
+<td>外部工具名</td>
+<td>无</td>
+<td><code>mcp__{server}__{tool}</code></td>
+</tr>
+<tr>
+<td>权限</td>
+<td>Shell 和路径检查</td>
+<td>增加宿主侧 MCP 策略</td>
+</tr>
+<tr>
+<td>MCP transport</td>
+<td>无</td>
+<td>使用进程内模拟 server 展示协议边界</td>
+</tr>
+</tbody>
+</table>
+<p>本章不带入 Task、Background、Cron、Team 或 Worktree。它们会在 s15 的 Integrated Harness 中与 MCP 合并。</p>
+<hr>
+<h2 id="试一下">试一下</h2>
+<pre><code class="language-sh">cd learn-claude-code
+python s14_mcp_plugin/code.py
+</code></pre>
+<p>输入：</p>
+<pre><code class="language-text">连接 docs server，搜索 agent hooks，并告诉我当前文档 API 版本。
+</code></pre>
+<p>一次典型工具轨迹是：</p>
+<pre><code class="language-text">connect_mcp(name=&quot;docs&quot;)
+mcp__docs__search(query=&quot;agent hooks&quot;)
+mcp__docs__get_version()
+</code></pre>
+<p>再输入：</p>
+<pre><code class="language-text">连接 deploy server，查看 web 服务状态，不要触发部署。
+</code></pre>
+<p><code>status</code> 会按宿主策略直接执行；<code>trigger</code> 需要用户确认。</p>
+<hr>
+<h2 id="接下来">接下来</h2>
+<p>目前，MCP 还是一条独立的课程分支。s15 Integrated Harness 会把基础工具、Hooks、Skills、Context、Memory、Task、Background、Cron、Teams 和 MCP 放进同一个运行时。</p>
+<!-- translation-sync: zh@v9, en@v9, ja@v9 -->
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">项目笔记</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/learn-claude-code-north/s14_mcp_plugin/README.zh.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../../notes/projects/learn-claude-code-north/s13-agent-teams/readme-zh.html"><span class="dir">← 上一篇</span><span class="t">s13: Agent Teams — 团队运行时与协作协议</span></a><a class="next" href="../../../../notes/projects/learn-claude-code-north/s15-integrated-harness/readme-zh.html"><span class="dir">下一篇 →</span><span class="t">s15: Agent Harness 集成 — 多种机制，一个循环</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../../index.html">首页</a>
+      <a href="../../../../learn.html">课件</a>
+      <a href="../../../../notes/index.html">笔记库</a>
+      <a href="../../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../../about.html">关于</a>
+      <a href="../../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../../js/main.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent 时代，RAG 怎么选？这份指南一次讲清 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="来源：公众号「Datawhale」，作者卞一岚，2026-09-22。 一句话总结：RAG 的核心不是 retrieval，而是 context construction——它只是在推理时补上下文的手段之一。选型应该由「信息缺口长什么样」反…">
+<link rel="canonical" href="https://northadb.github.io/notes/clippings/p44a38b/2026-09-22-agentrag-datawhale.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Agent 时代，RAG 怎么选？这份指南一次讲清 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="来源：公众号「Datawhale」，作者卞一岚，2026-09-22。 一句话总结：RAG 的核心不是 retrieval，而是 context construction——它只是在推理时补上下文的手段之一。选型应该由「信息缺口长什么样」反…">
+<meta property="og:url" content="https://northadb.github.io/notes/clippings/p44a38b/2026-09-22-agentrag-datawhale.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Agent 时代，RAG 怎么选？这份指南一次讲清 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="来源：公众号「Datawhale」，作者卞一岚，2026-09-22。 一句话总结：RAG 的核心不是 retrieval，而是 context construction——它只是在推理时补上下文的手段之一。选型应该由「信息缺口长什么样」反…">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../feed.xml">
+<link rel="stylesheet" href="../../../css/style.css">
+<link rel="stylesheet" href="../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Agent 时代，RAG 怎么选？这份指南一次讲清", "description": "来源：公众号「Datawhale」，作者卞一岚，2026-09-22。 一句话总结：RAG 的核心不是 retrieval，而是 context construction——它只是在推理时补上下文的手段之一。选型应该由「信息缺口长什么样」反…", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/clippings/p44a38b/2026-09-22-agentrag-datawhale.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../index.html">首页</a><span>/</span><a href="../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../notes/clippings/index.html">内容剪藏</a></div>
+          <h1>Agent 时代，RAG 怎么选？这份指南一次讲清</h1>
+          <p class="post-sub">来源：公众号「Datawhale」，作者卞一岚，2026-09-22。 一句话总结：RAG 的核心不是 retrieval，而是 context construction——它只是在推理时补上下文的手段之一。选型应该由「信息缺口长什么样」反…</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../notes/clippings/index.html">内容剪藏</a></span><span class="sep"></span>
+            <span>阅读约 26 分钟</span><span class="sep"></span><span>更新于 2026-09-27</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p><strong>来源</strong>：公众号「Datawhale」，作者卞一岚，2026-09-22。</p>
+<p><strong>一句话总结</strong>：RAG 的核心不是 retrieval，而是 <strong>context construction</strong>——它只是在推理时补上下文的手段之一。选型应该由「<strong>信息缺口长什么样</strong>」反推技术，而不是先决定「要不要上 RAG」。</p>
+</blockquote>
+<p><img alt="信息缺口驱动的 RAG 技术选型全景：五类 RAG 场景 + 五类 RAG 替代方案" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis/rag-fig8-when-to-use-rag.png"></p>
+<h2 id="0-立论rag-不是固定架构而是一组补信息缺口的技术">0. 立论：RAG 不是固定架构，而是一组补信息缺口的技术</h2>
+<p>给 Agent 的输入往往只有一句话（"这是我领导的要求 xxx""帮我修一下这个报错"），但完成任务真正需要的上下文远不止这一句：<strong>具体目标、验收标准、以及停留在人脑/会议记录/聊天记录/历史决策里的背景知识</strong>。</p>
+<p>现在 Agent 越来越不像"大模型 + 一句 prompt"，而像一个围绕模型搭起来的<strong>上下文系统</strong>。以 Claude Code 为例，Anthropic 官方把可控入口拆成 CLAUDE.md、rules、skills、subagents、hooks、output styles、append system prompt 等[1]——共同点不是"把提示词写长"，而是<strong>把不同类型的信息放到合适的位置</strong>：有些常驻、有些按需加载、有些用 hook 保证执行、有些交给隔离的 subagent。</p>
+<p>RAG 要解决的就是这条链路上最常见的一类问题：<strong>用户的话太短，模型参数里的知识又不够新、不够私有、不够贴合当前任务</strong>。</p>
+<p>所以定义要抠两个关键词：</p>
+<table>
+<thead>
+<tr>
+<th>关键词</th>
+<th>含义</th>
+<th>反例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>"此刻需要"</strong></td>
+<td>不是把所有资料都塞给模型</td>
+<td>用户问"上线后白屏怎么办"，真正需要的不是"白屏"附近的几段文档，而是环境差异、构建配置、资源加载、容器渲染、监控日志这条排查链路</td>
+</tr>
+<tr>
+<td><strong>"整理成上下文"</strong></td>
+<td>不是一搜到相似 chunk 就万事大吉</td>
+<td>淘宝答疑系统用 CoT 做意图拆解、再并行生成多组查询，本质是<strong>先规划信息需求，再填充上下文</strong></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>结论</strong>：RAG 的核心不是 retrieval，而是 <strong>context construction</strong>。检索只是手段，目标是让模型看到<strong>足够相关、足够完整、足够有结构</strong>的信息。</p>
+</blockquote>
+<p>VimRAG / MMG 这类多轮检索记忆方案进一步佐证：多轮对话里如果检索系统没有"自己查过什么"的记忆，就会反复召回同一批内容。用图结构记录检索路径，或在工程上用 session 级 <code>consumed_ids</code> 去重，都是在让上下文构建<strong>变得有状态</strong>[2]。</p>
+<p>因此本文不复述一套固定架构，而是给出一组技术选型：经典向量检索 / GraphRAG·LightRAG / Agentic RAG / 知识预编译 / 上下文压缩——<strong>以及什么时候根本不该用 RAG</strong>。</p>
+<p><img alt="Agent 为什么需要 Context System：一句话输入 → Agent 发现信息缺口 → Context System 补齐" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis/rag-fig1-agent-context-system.png"></p>
+<h2 id="1-五类场景选型总览">1. 五类场景选型总览</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>技术</th>
+<th>解决的问题</th>
+<th>适合</th>
+<th>不适合</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>经典 RAG</strong><br>Naive → Advanced → Modular</td>
+<td>有文档，别让模型瞎编</td>
+<td>文档问答、客服、内部知识库</td>
+<td>需全局统计 / 跨文档结构推理</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>GraphRAG / LightRAG</strong></td>
+<td>答案散落在文档之间的<strong>关系</strong>里</td>
+<td>离线分析、全局综述、研究型知识库</td>
+<td>高频更新、强实时、成本敏感</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Agentic RAG</strong></td>
+<td>一跳查不到，需要"查到 A 才知道去哪查 B"</td>
+<td>多跳、跨源、信息分散</td>
+<td>固定知识库 FAQ</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>LLM Wiki / 知识预编译</strong></td>
+<td>稳定知识被反复从头检索，太浪费</td>
+<td>个人知识库、onboarding、竞品分析</td>
+<td>强实时 / 强审计 / 强权限隔离</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>上下文压缩</strong></td>
+<td>内容很多，信息密度很低</td>
+<td>长文档、长对话、长轨迹复用</td>
+<td>每次都是临时网页、错误代价极高</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>共同判据</strong>：不要先问"要不要上 RAG"，先问"<strong>当前信息缺口到底适合被检索成 chunk 吗</strong>"。</p>
+</blockquote>
+<h2 id="2-经典-ragnaive-advanced-modular">2. 经典 RAG：Naive → Advanced → Modular</h2>
+<h3 id="21-naive-rag两条链路">2.1 Naive RAG：两条链路</h3>
+<p>适合从"我有一堆文档，想让大模型别瞎编"这个朴素需求起步。好处是<strong>便宜、快、工程闭环短</strong>；RAG 最早的核心思想也是把参数化记忆与外部非参数化记忆结合[3]。</p>
+<p><img alt="经典 RAG 全链路：离线索引（Load → Split → Embed → Store）+ 在线查询（Query → Retrieve → Rerank → Generate）" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis/rag-fig2-classic-rag-pipeline.png"></p>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>链路</th>
+<th>关键要点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>离线索引</strong></td>
+<td>Load → Split → Embed → Store</td>
+<td>解析 PDF/Word/Markdown/HTML/JSON/Excel/语雀/钉钉文档，<strong>顺手保留 metadata</strong>（文件名、页码、章节、标题、作者、创建时间）</td>
+</tr>
+<tr>
+<td><strong>在线查询</strong></td>
+<td>Query → Retrieve → Rerank → Generate</td>
+<td>处理问题 → 召回 Top-K → 必要时精排 → 把问题与证据一起交给 LLM</td>
+</tr>
+</tbody>
+</table>
+<p><strong>每一步都有坑，且坑大多在检索侧而不在模型侧：</strong></p>
+<ul>
+<li><strong>文档加载</strong>：PDF 文字层、扫描件 OCR、HTML 正文抽取、表格结构保留，都会影响后面能不能搜到正确内容。<strong>很多"RAG 答错"的根因是文档入口就把正文、页码、标题层级或表格语义弄丢了。</strong></li>
+<li><strong>metadata 不是装饰品</strong>：它决定了后面能不能做权限过滤、章节过滤、时间过滤、引用溯源。</li>
+<li><strong>切分是最容易被低估的环节</strong>：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>切分策略</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>固定长度</td>
+<td>最便宜，适合快速 baseline</td>
+</tr>
+<tr>
+<td><strong>递归切分</strong></td>
+<td>按标题/段落/句子逐层切，通用文档的<strong>稳健起点</strong></td>
+</tr>
+<tr>
+<td>语义切分</td>
+<td>按相邻句 embedding 相似度找边界；研究显示计算成本不一定换来同比例收益[19]</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>实践起步方案</strong>：递归切分 + <strong>10%~20% overlap</strong> + 保留章节 metadata，然后用 Context Precision / Recall 看 bad case。</p>
+</blockquote>
+<ul>
+<li><strong>进阶切分</strong>解决"chunk 太小答案被切碎、太大噪声太多"：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>思路</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Late Chunking</strong></td>
+<td>先编码整篇文档再切 chunk，让每个 chunk 向量带上全局上下文[20]</td>
+</tr>
+<tr>
+<td>Intent-Driven Dynamic Chunking</td>
+<td>切分边界不只看文档结构，而是预测用户可能的信息需求[21]</td>
+</tr>
+<tr>
+<td><strong>Small-to-Big</strong></td>
+<td>检索用<strong>小 chunk 精确命中</strong>，生成时扩展到相邻段落/章节/父节点——工程上很实用的折中</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Embedding 与索引</strong>：稠密检索适合语义改写/同义表达/开放问题；稀疏检索（BM25）适合专有名词、编号、错误码、型号、法规条款；<strong>混合检索通常比任何单一路线更稳</strong>（融合可用 RRF，也可在验证集上调加权系数）。</li>
+<li>⚠️ 不要迷信"最强 embedding 模型"，要看语种、领域、文档长度、成本、延迟，以及<strong>它是否真的提高了端到端答案质量</strong>。</li>
+<li><strong>别把用户原话直接扔进向量库</strong>：用户问题往往短、口语化、缺上下文，还带错别字和指代词。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>查询增强</th>
+<th>做法</th>
+<th>代价</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Query rewriting</td>
+<td>指代消解、纠错、术语对齐、结构简化</td>
+<td>低</td>
+</tr>
+<tr>
+<td>Multi-Query</td>
+<td>从多个角度生成 3~5 个变体问题，提升召回</td>
+<td>放大 rerank 成本</td>
+</tr>
+<tr>
+<td><strong>HyDE</strong></td>
+<td>先让 LLM 写"假设性答案"，再用答案向量搜真实文档——把"问题-文档匹配"变成"文档-文档匹配"[22]</td>
+<td>假设答案偏了检索方向就偏</td>
+</tr>
+<tr>
+<td>反向 HyDE / Doc2Query</td>
+<td>离线给每个 chunk 生成它可能回答的问题，用问题倒排到 chunk</td>
+<td>降低在线延迟，但需离线成本</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>查询增强不是越多越好</strong>：EAR 提醒查询扩展本身也需要被重排[23]。稳的做法是<strong>按问题类型路由</strong>——事实型走 BM25 + Dense，模糊开放问题走 HyDE / Multi-Query，强业务约束问题先做 metadata filter。</p>
+</blockquote>
+<ul>
+<li><strong>Rerank 是经典 RAG 里性价比很高的一步</strong>：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Bi-Encoder（向量检索）</th>
+<th>Cross-Encoder（Reranker）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>编码方式</td>
+<td>query 和 document <strong>分别</strong>编码</td>
+<td>query 和候选文档<strong>拼在一起</strong>，逐 token 判断匹配</td>
+</tr>
+<tr>
+<td>速度</td>
+<td>快</td>
+<td>慢</td>
+</tr>
+<tr>
+<td>精度</td>
+<td>只能说明"看起来相关"</td>
+<td>能缓解"资料看着像，但答非所问"</td>
+</tr>
+<tr>
+<td>典型用法</td>
+<td>召回 Top-50 / Top-100</td>
+<td>精排到 Top-3 / Top-5 交给 LLM</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>生成阶段是"基于证据组织答案"，不是自由发挥</strong>：prompt 要清楚区分用户问题、检索材料、回答规则和引用格式；事实型问题降 temperature；资料不足时<strong>要求拒答</strong>；知识冲突时<strong>要求指出冲突来源</strong>；关键结论要带引用。若提示词优化到极限仍不稳，才考虑 SFT。</li>
+</ul>
+<h3 id="22-advanced-rag不是换一套而是每个环节补强">2.2 Advanced RAG：不是换一套，而是每个环节补强</h3>
+<p>切分更聪明、检索更混合、query 更贴近知识库、rerank 更精确、生成更受约束。</p>
+<ul>
+<li>淘宝答疑案例：用 CoT 做意图识别，再按排查步骤生成多组查询并行召回——用户问"小程序上线后白屏"，不是只搜"白屏原因"，而是拆成<strong>环境差异 / 资源加载 / 渲染链路 / 监控日志</strong>几条线同时找证据。</li>
+</ul>
+<p><img alt="从 Naive RAG 到 Advanced RAG：Query Rewrite → Hybrid Retrieval → Rerank → Context Optimization → LLM" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis/rag-fig3-naive-to-advanced-rag.png"></p>
+<p><strong>适合</strong>：知识库规模已起来、用户问法很飘、领域术语多、召回质量不稳定（企业内部文档、工单系统、研发答疑、售后知识库）。</p>
+<blockquote>
+<p><strong>最值得落地的不是"上最贵的 embedding"，而是先做最小评测集</strong>：十几条 golden queries 覆盖<strong>精确词 / 多跳 / 长尾 / 不可回答问题</strong>；每次改 chunk、embedding、rerank、rewrite，都看 Recall@k、Context Precision、Faithfulness、Relevance 有没有变好。</p>
+</blockquote>
+<h3 id="23-modular-rag把-rag-拆成可替换可路由可组合的模块">2.3 Modular RAG：把 RAG 拆成可替换、可路由、可组合的模块</h3>
+<p>Advanced RAG 仍有边界：它主要是在"<strong>更好地找片段</strong>"，不是"真正理解整个知识系统"。需要全局统计、复杂实体关系、跨文档结构推理时，单纯的 query rewriting + rerank 只是把更多碎片塞给模型。</p>
+<p>另一个误区是把所有优化堆进一条 pipeline：每次查询都 rewrite、multi-query、hybrid、rerank、compress、judge，最后准确率没涨多少，延迟和 token 成本先爆了。</p>
+<p>Modular RAG 的关键<strong>不是某个单点算法</strong>，而是模块化：loader、splitter、embedder、retriever、reranker、query rewriter、fusion、compressor、generator、evaluator。它不再默认所有问题都走同一条 <code>retrieve-then-generate</code> 直线，而是允许 <strong>conditional / branching / looping</strong>[5]：</p>
+<pre><code>简单事实题 → dense retrieval
+含精确术语 → BM25
+多跳问题   → hybrid RRF
+召回不足   → 触发 query rewrite
+证据冲突   → 再检索一次
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>代表实践</th>
+<th>做法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>AutoRAG</strong></td>
+<td>自动搜索 chunk 策略 / embedding / retriever / reranker 的组合[24]</td>
+</tr>
+<tr>
+<td><strong>QuIM-RAG</strong></td>
+<td>把"Query-Document 匹配"改成"Query-Query 匹配"，用问题倒排索引提升 QA 召回[25]</td>
+</tr>
+<tr>
+<td><strong>OpenViking</strong></td>
+<td>把上下文数据库做成<strong>文件系统范式</strong>，让记忆/资源/技能/检索链路更可解释可调试[26]</td>
+</tr>
+<tr>
+<td><strong>Experience-RAG Skill</strong></td>
+<td>把"选择检索策略"从业务代码里抽出来，按任务场景在 BM25 / Rewrite-BM25 / Dense / Hybrid RRF 间选择</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>经典 RAG 选型</strong>：刚起步文档少问题简单 → Naive RAG（先跑通"有据可查"）；召回不稳、问法复杂 → Advanced RAG；出现多知识库、多检索器、多任务类型、多轮调用 → Modular RAG。<strong>不要一上来就建宇宙飞船，RAG 第一原则：先证明文档能被找对，再讨论模型能不能答好。</strong></p>
+</blockquote>
+<h2 id="3-graphrag-lightrag当知识不再是一堆孤立-chunk">3. GraphRAG / LightRAG：当知识不再是一堆孤立 chunk</h2>
+<p>经典 RAG 最怕：答案不在某一个 chunk 里，而<strong>散落在一堆文档的关系里</strong>——"这个系统的核心设计模式是什么""A 组件和 B 组件为什么耦合""上线白屏可能涉及哪些链路"。向量检索能把相似片段捞出来，但它不知道这些片段之间<strong>谁依赖谁、谁解释谁、谁只是同名路人</strong>。最后模型拿到一盘散沙，只能硬拼：拼得好叫推理，拼不好就是一本正经地猜。</p>
+<p><img alt="RAG 演进：从文本检索（Naive）到知识关系网络（GraphRAG）再到轻量图 + 向量（LightRAG）" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis/rag-fig4-graphrag-lightrag-evolution.png"></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><strong>GraphRAG</strong></th>
+<th><strong>LightRAG</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>核心</td>
+<td>先抽实体/关系构建知识图谱，再对关联实体做社区发现并生成社区摘要[6]</td>
+<td>保留"实体-关系"主线，砍掉最贵的部分；图结构 + 向量共同索引[7]</td>
+</tr>
+<tr>
+<td>检索</td>
+<td>Local Search（围绕实体）+ 社区摘要答全局问题</td>
+<td><strong>双层检索</strong>：低层事实 + 高层关系</td>
+</tr>
+<tr>
+<td>真正解决的</td>
+<td>不是"召回更多文本"，而是"<strong>让知识之间的结构先显形</strong>"</td>
+<td>把"知识有关联"做得更便宜、更快、更能上线</td>
+</tr>
+<tr>
+<td>代价</td>
+<td>⚠️ 构建成本高（大量 LLM 调用）、社区发现/摘要继续吃 token、<strong>增量更新不友好</strong></td>
+<td>用<strong>增量更新</strong>替代全量重建：新数据先形成局部图再合并</td>
+</tr>
+<tr>
+<td>适合</td>
+<td>离线分析、全局综述、研究型知识库、低频更新但要求综合理解</td>
+<td>企业答疑、技术支持、产品文档助手（80% 是具体事实或局部排障）</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>淘宝 AI 答疑的典型判断：GraphRAG 在复杂问答和全局理解上更强，但在线答疑更在意<strong>秒级响应、频繁更新和可控成本</strong>，于是 LightRAG 成了更接近生产的折中方案。</p>
+</blockquote>
+<p><strong>别混淆的方向——Graphify</strong>[8]：更像给 Agent 准备的"<strong>项目导航图</strong>"，把代码、SQL、文档、论文、图片映射成可查询知识图谱，输出 <code>graph.html</code> / <code>GRAPH_REPORT.md</code> / <code>graph.json</code> 这类人和 Agent 都能消费的产物。它不一定是直接回答用户问题的 RAG 后端，而是让 Agent 不必每次从原始文件开始瞎逛——<strong>"先有结构化地图，再决定读哪里"</strong>，比单纯 embedding 检索更接近真实工程师的工作方式。</p>
+<blockquote>
+<p><strong>一句话</strong>：别一上来就建图，先看问题是不是需要<strong>跨文档关联、全局摘要、实体关系推理</strong>；如果只是查一个接口参数、找一条制度原文，Naive/Advanced RAG 加重排可能更便宜、更稳。</p>
+</blockquote>
+<h2 id="4-agentic-rag让-agent-决定要不要再查一次">4. Agentic RAG：让 Agent 决定要不要再查一次</h2>
+<p>传统 RAG 像一个"<strong>只准搜一次的实习生</strong>"：拿到问题，查一把，拼上下文，开始回答。但很多真实问题不是一跳能解决的——问"项目 X 用的服务器规格是什么"，第一次检索可能只找到项目文档里的<strong>服务器 ID</strong>，真正的规格藏在另一套资产库里。</p>
+<p><strong>Agentic RAG 的核心价值</strong>：让 Agent 在发现信息不够时，自己决定——<strong>拆问题、换 query、换数据源、再查一次</strong>，直到上下文足够或明确不可答。</p>
+<p><img alt="Agentic RAG：让 AI 主动寻找缺失信息（Planner → Retrieve → Context Check → Enough Context? → 再检索 / 生成）" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis/rag-fig5-agentic-rag-loop.png"></p>
+<p>Google 的 Agentic RAG 方案把检索拆进 Agent workflow：Orchestrator 判断是否一跳可做 → Planner 规划信息路径 → Query Rewriter 改写多个可检索问题 → Search Fanout Agent 分发到不同语料/系统 → 综合回答。</p>
+<blockquote>
+<p><strong>真正有意思的不是"多 Agent"，而是引入了 sufficient context agent</strong>[9]：先看召回片段、草稿答案和原始问题，判断"现在的信息够不够回答"。如果缺关键信息，<strong>就别急着生成答案</strong>，而是带着明确缺口回去搜更具体的线索。</p>
+</blockquote>
+<p><strong>选型逻辑</strong>：如果答案路径需要"<strong>查到 A 后才能知道去哪里查 B</strong>"，就该考虑它；如果只是固定知识库 FAQ，一次混合检索加 rerank 就够了——<strong>别把小问题装修成指挥中心</strong>。</p>
+<h3 id="41-副作用一重复查">4.1 副作用一：重复查</h3>
+<p>多轮对话里用户经常追问、改问、绕同一主题问，检索系统没有记忆就会一遍遍召回同一批 chunk。</p>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>解法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>轻量（工程现实）</strong></td>
+<td>按 session 维护 <code>consumed_ids</code>，每轮记录已用过的 doc/chunk 并在下轮过滤；单次检索内按 doc 去重（避免同一篇文档的三个相似 chunk 挤满 Top-K）</td>
+</tr>
+<tr>
+<td><strong>重（VimRAG 类）</strong></td>
+<td>多模态记忆图：把推理过程建成 DAG，记录每步 action、query、证据节点和路径[2]</td>
+</tr>
+</tbody>
+</table>
+<p>但 VimRAG 不是拿来就能用的插件——Multimodal Memory Graph、图调制视觉记忆编码、Graph-Guided Policy Optimization 都是围绕<strong>训练后的多模态 agentic RAG 体系</strong>设计的，适合多图片/多视频/长链路推理。</p>
+<blockquote>
+<p><strong>普通团队更现实的起步方式</strong>：把 retrieval 做成 <strong>tool</strong>，而不是普通 function。function 适合"输入确定、输出可预期"的逻辑；retrieval 的结果不确定，更适合交给 Agent loop 做"<strong>决策 → 检索 → 反思 → 再检索</strong>"。这就是 Agentic RAG 的工程最小闭环。</p>
+</blockquote>
+<h3 id="42-副作用二查得更多-引用更可信">4.2 副作用二：查得更多 ≠ 引用更可信</h3>
+<p>Deep research 类系统最容易出现"<strong>引用标签看起来很正规，点进去完全不支持原句</strong>"。<strong>引用存在和引用正确是两回事。</strong></p>
+<p>靠谱做法是生成后加 Citation Resolver，三层递进：</p>
+<ol>
+<li><strong>规则校验</strong>：citation ID 是否存在；</li>
+<li><strong>chunk hash 校验</strong>：确认引用内容没有因索引重建或文档更新而漂移；</li>
+<li><strong>语义蕴含校验</strong>：对高风险 claim 做 NLI 或 LLM-as-Judge。</li>
+</ol>
+<blockquote>
+<p>普通场景可抽样做第三层，高风险场景别省这点钱。</p>
+</blockquote>
+<h3 id="43-边界擅长找证据不擅长验证全局量词">4.3 边界：擅长找证据，不擅长验证全局量词</h3>
+<p>"所有门店都没有差评吗""超过 50% 的评论是否提到服务慢""哪个 group 排名第一"——这些不是多搜几次就能稳的，而是<strong>语义聚合与全局验证</strong>问题。Evergreen 的思路是把自然语言 claim 编译成可执行的 semantic verification query，再用 query plan 和执行优化降低成本，并返回支撑 verdict 的 citations[10]。</p>
+<blockquote>
+<p><strong>记住</strong>：Agentic RAG 解决"<strong>路径没走完</strong>"，不解决"<strong>全局统计不可靠</strong>"。前者让 Agent 再查一次，后者需要查询计划、采样、聚合和验证。</p>
+</blockquote>
+<h2 id="5-llm-wiki-知识预编译稳定知识不要每次从头检索">5. LLM Wiki / 知识预编译：稳定知识不要每次从头检索</h2>
+<p>经典 RAG 像"<strong>开卷考试</strong>"：问题来了先去翻书，翻到几个相似片段再临场组织答案。适合事实查询，但遇到稳定、长期、反复使用的知识就显得浪费——每次问跨文档问题都让模型重新检索、拼接、综合，<strong>等于每次都把同一锅汤从生水开始煮</strong>。真正缺的不是再多一个向量库，而是把已经读过的材料<strong>沉淀成可复用的中间层</strong>。</p>
+<p><img alt="LLM Wiki 三层架构：Raw Sources / Schema → Wiki 层（concepts、entities、synthesis、journal、index.md、log.md…）" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis/rag-fig6-llm-wiki-three-layers.png"></p>
+<p>Karpathy 的 LLM Wiki 设计有三层[11]：</p>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Raw sources</strong></td>
+<td>只读原始材料</td>
+</tr>
+<tr>
+<td><strong>Wiki</strong></td>
+<td>LLM 维护的摘要页、实体页、主题页、综合页</td>
+</tr>
+<tr>
+<td><strong>Schema</strong></td>
+<td>规定目录结构、引用规则、更新流程和校验方式</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>这和编译型语言有点像：<strong>RAG 是运行时解释，LLM Wiki 是先把常用知识编译成更适合模型读取的形态。</strong></p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>适合</th>
+<th>不适合</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>知识稳定、问题会反复来、跨文档综合很多：个人知识库、团队 onboarding、研究选题、产品资料库、竞品分析、项目复盘</td>
+<td>强实时、强审计、强权限隔离但工程底座没准备好的生产问答</td>
+</tr>
+</tbody>
+</table>
+<p>⚠️ <strong>Wiki 页是二级知识</strong>——哪怕保留来源，也不是严格的原文 chunk 级引用。企业合同、金融合规、医疗法规这类"答案必须逐字追溯到原文"的场景，LLM Wiki 不能替代引用链、权限系统和评测闭环。</p>
+<blockquote>
+<p><strong>更现实的落地方式</strong>：把它当作 RAG 的<strong>预处理层</strong>——先用 Wiki 做主题组织、实体归档、矛盾发现和问题路由，最后回答仍然回到原文证据。</p>
+</blockquote>
+<p>新的研究把它描述成一种 <strong>agent-native retrieval</strong>[12]：外部知识不是扁平 chunk，而是<strong>可搜索、可阅读、可沿链接遍历、可自我修正</strong>的结构。代表实践上，Obsidian-Wiki、GBrain 在 Karpathy 的通用模式上进一步加入 delta 追踪、来源可信度、热缓存、可见性标签等工程机制。</p>
+<blockquote>
+<p><strong>最重要的判断标准不是"有没有向量库"，而是"上次查询产生的洞察有没有留下来"</strong>。每次问完只剩聊天记录 = 一次性消费；好答案能回写成页面、被后续问题复用 = 知识库开始复利。</p>
+</blockquote>
+<h2 id="6-上下文压缩不是所有上下文都值得原样塞进去">6. 上下文压缩：不是所有上下文都值得原样塞进去</h2>
+<p>长文档、长对话、RAG 召回结果、Agent 执行轨迹，常见毛病都是"<strong>内容很多，信息密度很低</strong>"。模型窗口变长后问题没有消失，只是<strong>变贵了</strong>：输入越长，延迟越高，注意力计算越重，模型越容易被无关细节带偏。</p>
+<p>压缩的目标不是"把文本变短"，而是在 <strong>token 预算 / 答案质量 / 延迟 / 可复用性</strong>之间做交易。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><strong>硬压缩</strong>（人类可读符号空间）</th>
+<th><strong>软压缩</strong>（连续向量 / 特殊 token / KV 状态 / 前缀表示）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>代表</td>
+<td>SelectiveContext、LLMLingua、LLMLingua-2</td>
+<td>Prompt Compression Survey 分 hard/soft prompt 两大路线[13]</td>
+</tr>
+<tr>
+<td>好处</td>
+<td>工程友好：压缩后仍是自然语言，可直接喂闭源 API，跨模型迁移容易</td>
+<td>想象空间大：像图片模型把百万像素压成少量视觉 token 一样，把长文本压成 LLM 能读懂的高密度前缀</td>
+</tr>
+<tr>
+<td>坏处</td>
+<td>删错一个约束答案就偏；压太碎语法/语义分布变怪；每个 query 重压一遍则压缩器本身变成新延迟源</td>
+<td><strong>绑定模型</strong>：某个开源模型空间训练出的向量换到另一模型可能是随机噪声；依赖 GPT/Claude 这类闭源 API 时甚至不能注入自定义 soft prompt</td>
+</tr>
+</tbody>
+</table>
+<p>软压缩的 encoder-decoder 路线可粗略分四派：COCOM / LLOCO（前后模型都微调）、ICAE / 500xCompressor / QGC（冻结解码大模型，只训练编码器）、xRAG（借用 embedding encoder）、UniICL（冻结两端只训练 projector）。</p>
+<blockquote>
+<p><strong>软压缩适合</strong>模型内核可控、调用量足够大、愿意长期维护压缩器的系统；<strong>不适合</strong>今天换模型、明天换供应商、后天还要接多个 API 的轻量应用。对大多数工程团队，<strong>自然语言硬压缩虽然不酷，但更稳、更通用</strong>。</p>
+</blockquote>
+<p><strong>LLMLingua-2 是很实用的方向</strong>[14]：把提示词压缩建模成 <strong>token 二分类任务</strong>，用 GPT-4 蒸馏出抽取式压缩数据，再用 XLM-RoBERTa-large / mBERT 这类双向编码器学"保留还是丢弃"。关键不是单次压得多狠，而是 <strong>task-agnostic</strong>——一份长文档先压成高信息密度版本，再被多个 RAG 查询或多轮对话<strong>复用</strong>。相比 LongLLMLingua 这类更 query-aware 的方案，它牺牲部分针对性，换来更好的复用性和系统吞吐。</p>
+<p><strong>选型时问三个问题：</strong></p>
+<ol>
+<li><strong>压缩对象会不会复用？</strong> 同一份说明书被反复问 → 先离线压缩很划算；每次都是临时网页 → 压缩成本可能抵不过收益。</li>
+<li><strong>错误代价高不高？</strong> 合同、财报、代码补丁这类任务，压缩必须保留<strong>引用、数字、否定词、条件边界</strong>，宁可少压一点。</li>
+<li><strong>瓶颈到底是 token 费、延迟，还是注意力被噪音污染？</strong> 只是贵 → 硬压缩和摘要就够；是长任务状态管理 → 可能要像 Agent Memory 那样<strong>逐级折叠</strong>：完整材料留在外部，当前上下文只保留任务状态、关键证据和可回溯索引。</li>
+</ol>
+<h2 id="7-rag-的评估没有指标就没有优化方向">7. RAG 的评估：没有指标，就没有优化方向</h2>
+<p>落地时最容易掉进的坑：<strong>系统答错了，第一反应是"再调一下 prompt"</strong>。这很危险，因为 RAG 的错误不一定发生在生成端——很多时候模型不是不会答，而是<strong>检索阶段根本没召回正确材料</strong>；也有时候材料召回对了但模型没有忠实使用；还有时候答案看起来相关，但夹杂了冗余和幻觉。</p>
+<h3 id="71-第一原则把检索层和生成层拆开看">7.1 第一原则：把检索层和生成层拆开看</h3>
+<p><img alt="RAGAS Score：Generation（Faithfulness / Answer Relevancy）+ Retrieval（Context Precision / Context Recall）" src="https://gitee.com/cheng-jiaqing/images/raw/master/cordis/rag-fig7-ragas-score.png"></p>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>问题</th>
+<th>指标</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>检索层</strong></td>
+<td>有没有把正确上下文找回来，且排在前面</td>
+<td><strong>Context Precision</strong>：排在前面的上下文是不是相关（"捞上来的东西干不干净"）<br><strong>Context Recall</strong>：参考答案需要的事实有没有被召回（"关键证据有没有漏"）</td>
+</tr>
+<tr>
+<td><strong>生成层</strong></td>
+<td>有没有基于上下文回答，是否贴合用户问题</td>
+<td><strong>Faithfulness</strong>：回答中的 claim 能否被检索上下文支撑（"有没有根据材料说话"）<br><strong>Answer Relevancy</strong>：是否跑题、是否缺失用户真正关心的信息</td>
+</tr>
+<tr>
+<td>附加</td>
+<td>会不会被噪声带偏</td>
+<td><strong>Noise Sensitivity</strong>：面对相关但冗余、或完全不相关的上下文时的稳定性</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>只有拆开以后，优化才有方向：<strong>Context Recall 低，先别调 prompt</strong>，应看切分、索引、query 改写、召回策略；<strong>Faithfulness 低</strong>，说明拿到了材料但没忠实使用，才该看提示词、引用约束、生成参数或模型能力。</p>
+</blockquote>
+<p>Ragas 是常用的 RAG 自动化评估框架，核心思路是 <strong>LLM-as-a-Judge 近似人工评测</strong>，把 RAG 输出拆成可量化指标[17]。它不是取代人工验收，而是让团队在每次改 chunk / 换 embedding / 加 rerank / 改 prompt 后都能跑同一套测试集。<strong>没有这个闭环，RAG 优化就很容易变成"我感觉这版更好了"。</strong></p>
+<h3 id="72-测试集至少覆盖四类问题">7.2 测试集：至少覆盖四类问题</h3>
+<p>Ragas 的测试集生成思路：把文档切分成节点 → 通过信息提取器和关系构建器形成知识图谱 → 按场景生成问题。<strong>场景</strong>可包含节点、查询长度、查询风格和用户 persona。</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>检验什么</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>单跳具体</td>
+<td>基础事实召回</td>
+<td>"某条规则是什么"</td>
+</tr>
+<tr>
+<td>单跳抽象</td>
+<td>总结解释能力</td>
+<td>"这个规则背后的原则是什么"</td>
+</tr>
+<tr>
+<td>多跳具体</td>
+<td>跨文档串联</td>
+<td>"A 的导师的导师是谁"</td>
+</tr>
+<tr>
+<td>多跳抽象</td>
+<td>跨来源综合</td>
+<td>"某个理论从提出到现在如何演变"</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>⚠️ <strong>如果测试集只包含简单事实题，系统很可能在评测里很好看，一上线遇到复杂问法就崩。</strong></p>
+</blockquote>
+<h3 id="73-指标-动作对照表">7.3 指标 → 动作对照表</h3>
+<table>
+<thead>
+<tr>
+<th>指标低</th>
+<th>尝试的优化动作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Context Recall</td>
+<td>query rewriting、多查询生成、HyDE、Doc2Query、chunk 策略调整</td>
+</tr>
+<tr>
+<td>Context Precision</td>
+<td>metadata filter、标签过滤、rerank、缩小 Top-K</td>
+</tr>
+<tr>
+<td>Faithfulness</td>
+<td>强化引用约束、降低 temperature、要求 evidence-only、增加 Citation Resolver</td>
+</tr>
+<tr>
+<td>Answer Relevancy</td>
+<td>按问题类型切 prompt 模板</td>
+</tr>
+<tr>
+<td>Noise Sensitivity 高</td>
+<td>减少无关上下文，或训练模型学会拒绝使用噪声</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>RAG 工程化的关键不是"技术栈堆得多"，而是"可测、可调、可信赖"</strong>：可测 = 每次改动都有指标；可调 = 指标能指向具体模块；可信赖 = 系统不仅会回答，还能说明答案来自哪里、哪些证据支撑了它、哪些场景下应该拒绝回答。<strong>没有评估闭环的 RAG，只是一个看起来会检索的聊天机器人。</strong></p>
+</blockquote>
+<h2 id="8-什么时候不该用-rag">8. 什么时候不该用 RAG</h2>
+<p>RAG 不是"让模型知道更多"的唯一方式，它只是"在推理时找一小段上下文"的方式。<strong>只要问题的关键不在"找几段相关证据"，RAG 就可能变成错误抽象</strong>——多一套向量库、多一套索引更新、多一层召回误差，最后还要靠 prompt 去修补检索没拿到的东西。</p>
+<h3 id="边界-1mb-级本地代码库-用-grepglobread">边界 1：MB 级本地代码库 → 用 grep/glob/read</h3>
+<p>代码库不是一堆语义相似的段落，而是有<strong>文件名、符号名、调用关系、提交历史和测试反馈</strong>的工程对象。Claude Code、Codex 这类 CLI Agent 的思路更接近"让模型驱动 grep/glob/read/git 逐步探索"：先文件名定位 → <code>rg</code> 找匹配行 → 按需读取局部代码 → 必要时开子 Agent 隔离搜索上下文。</p>
+<blockquote>
+<p>优势不是"更原始"，而是保留了代码世界里最强的信号：<strong>精确字符串、路径结构、局部上下文和可执行验证</strong>。对几 MB / 几十 MB 的项目，预先 embedding 往往是在给一个本来可以动态搜索的问题制造同步、切块和召回问题。</p>
+</blockquote>
+<p><strong>但索引会重新有价值</strong>：代码库到 GB 级、跨仓库、用户查询经常是"哪里实现了某个概念"时（Cursor 会做 tree-sitter 切块、Merkle Tree 增量同步、embedding + 倒排索引结合）。</p>
+<blockquote>
+<p><strong>判断标准不是"代码能不能 RAG"，而是：关键词搜索和结构化工具是否已经足够覆盖主要工作流。</strong> 已经够 → RAG 是复杂化；跨语言、跨仓库、概念召回成为瓶颈 → 索引才是合理成本。</p>
+</blockquote>
+<h3 id="边界-2聚合查询和全局量词验证-用-query-engine">边界 2：聚合查询和全局量词验证 → 用 query engine</h3>
+<p>RAG 擅长"有没有证据支持这句话"，不擅长"所有 tuple 是否都满足条件""满足比例是否超过 50%""哪个 group 排第一"。核心不是 evidence retrieval，而是 <strong>global verification</strong>。Evergreen[10] 把语义聚合后的自然语言 claim 拆成可执行的 semantic verification query；UQE[15] 把非结构化数据分析转成 query engine 问题，用 UQL、采样和优化处理条件聚合、语义检索、抽象聚合。</p>
+<blockquote>
+<p>⚠️ 硬用 RAG 最危险的是：模型召回几个看似相关的样本，然后把<strong>局部证据误读成全局结论</strong>。</p>
+</blockquote>
+<h3 id="边界-3个人助手-用-memory而不是-rag">边界 3：个人助手 → 用 Memory，而不是 RAG</h3>
+<p>个人助手需要的是长期可用、可审计、可更新的<strong>个人状态</strong>。<strong>Memory 和 RAG 的差别</strong>：RAG 的输出通常是上下文片段，Memory 则是<strong>可被决策利用的 external state</strong>。</p>
+<p>一个严肃的 Memory 系统至少要有 <strong>Raw Ledger / Derived Views / Policy</strong>：原始事件可追溯、派生视图面向使用、读写策略可记录可回放。否则所谓"长期记忆"很容易退化成<strong>越存越乱的向量库</strong>——模型每次从里面捞几段相似旧话，再把偶然相似误认为用户偏好。</p>
+<blockquote>
+<p>这解释了一个现象：<strong>"grep beats RAG"</strong>。像 nanobot 这类小型个人助手，核心代码和知识规模都不大，直接用文件系统管理 prompt、技能和上下文，懒加载详细内容，比上来搭一套向量检索更稳。个人资料天然有<strong>目录、日期、项目、联系人、任务</strong>这些结构信号——Markdown、Wiki、配置文件、事件日志和显式工具调用，比"切块 embedding 后召回"更贴近真实需求。<strong>RAG 可以作为读取 Derived Views 的一种方式，但不该冒充整个 Memory 系统。</strong></p>
+</blockquote>
+<h3 id="边界-4持续监控-用-continuous-rag">边界 4：持续监控 → 用 Continuous RAG</h3>
+<p>传统 RAG 是 <strong>episodic</strong> 的：问一次、检索一次、回答一次。但告警、舆情、股票新闻、客服风险、数据质量监控不是一次性问答，而是<strong>长时间运行的语义管道</strong>。Continuous Prompts / Continuous RAG 把 LLM 放进流处理系统：Semantic Filter、Map、Aggregate、Top-k、Join、Window、Group-By 持续运行，并用 batching、operator fusion、shadow runs、优化器在吞吐和准确率之间选 plan[16]。</p>
+<blockquote>
+<p>在这类场景里，把每次新事件都包装成一次 RAG 问答，会<strong>丢掉系统状态、窗口语义和增量优化空间</strong>。</p>
+</blockquote>
+<h3 id="边界-5复杂业务流程-用-plan-and-execute-经验沉淀">边界 5：复杂业务流程 → 用 Plan-and-Execute + 经验沉淀</h3>
+<p>小红书服务端端到端测试的案例里，团队面对跨域、长链路、组合爆炸的问题，并没有把 RAG 当主解法，而是用 <strong>Plan-and-Execute + ReAct</strong>：让 Agent 逆向推导依赖链、渐进式加载知识库、Debug-first 调通接口，再把成功链路沉淀为脚本。</p>
+<blockquote>
+<p>这里 <strong>RAG 召回不准的代价太高</strong>——一次错误召回可能直接让 Agent 调错接口、造错数据、污染后续步骤。复杂流程里知识库可以存在，但更关键的是<strong>计划、工具、验证和经验沉淀</strong>，而不是一次检索命中率。</p>
+</blockquote>
+<h3 id="不该用-rag-的简化判断">不该用 RAG 的简化判断</h3>
+<table>
+<thead>
+<tr>
+<th>问题需要</th>
+<th>用什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>精确定位</td>
+<td>grep / glob / read</td>
+</tr>
+<tr>
+<td>全局统计</td>
+<td>Query Engine / Semantic Operator</td>
+</tr>
+<tr>
+<td>长期个性化</td>
+<td>Memory / LLM Wiki</td>
+</tr>
+<tr>
+<td>持续运行</td>
+<td>Continuous RAG</td>
+</tr>
+<tr>
+<td>可控执行</td>
+<td>Workflow / Agent loop / Harness</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>RAG 仍然重要，但它<strong>不应该是默认答案</strong>。它适合<strong>补一段证据</strong>，不适合替代搜索工具、数据库、记忆系统、流处理系统和工程闭环。</p>
+</blockquote>
+<h2 id="9-复习版结论">9. 复习版结论</h2>
+<blockquote>
+<p><strong>按信息缺口选技术，而不是按技术潮流选技术。</strong></p>
+</blockquote>
+<ul>
+<li>问题简单、文档规模小、关键词明确 → Naive RAG 或 grep/glob 可能已经够用；</li>
+<li>问题表达模糊、召回不稳定 → query rewriting + 混合检索 + 重排 + 评测闭环（Advanced RAG）；</li>
+<li>出现多知识库/多检索器/多任务类型/多轮调用 → Modular RAG，把策略路由和证据打包做成独立层；</li>
+<li>知识跨文档关联很强 → GraphRAG（离线/全局）或 LightRAG（在线/高频更新）；</li>
+<li>需要多跳搜索、反复确认、跨数据源联动 → Agentic RAG；</li>
+<li>知识稳定且被反复使用 → LLM Wiki / GBrain 这类预编译方案；</li>
+<li>上下文太长、成本太高 → 压缩与路由（先问复用性、错误代价、真实瓶颈）；</li>
+<li>系统答错 → 先用 Context Precision / Recall / Faithfulness / Answer Relevancy 定位问题在检索层还是生成层。</li>
+</ul>
+<p><strong>选型时不要先问"我要不要上 RAG"，而要先问三个更具体的问题：</strong></p>
+<ol>
+<li><strong>模型缺的是什么信息？</strong></li>
+<li><strong>这些信息是稳定的、实时的、结构化的，还是分散在文档和工具里？</strong></li>
+<li><strong>补上这些信息的最低成本方式是什么？</strong></li>
+</ol>
+<p>答案可能是向量检索，也可能是知识图谱、Agent 工具调用、文件系统搜索、Memory、Wiki、SQL-like 语义查询，或者只是<strong>一个更清楚的业务流程</strong>。</p>
+<blockquote>
+<p><strong>最终</strong>：RAG 的价值不在于"让模型多看点资料"，而在于<strong>把用户的一句话，扩展成模型完成任务真正需要的上下文</strong>。工程上真正要优化的，也不是某个单点算法，而是从<strong>问题理解 → 信息获取 → 上下文组织 → 回答生成 → 评测反馈</strong>的整条链路。</p>
+</blockquote>
+<h2 id="参考资料原文-26-条按序号">参考资料（原文 26 条，按序号）</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>文献</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Anthropic: Steering Claude Code: CLAUDE.md files, skills, hooks, rules, subagents and more</td>
+</tr>
+<tr>
+<td>2</td>
+<td>VimRAG: Navigating Massive Visual Context in RAG via Multimodal Memory Graph (arXiv:2602.12735)</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks (arXiv:2005.11401)</td>
+</tr>
+<tr>
+<td>4</td>
+<td>RAG for Large Language Models: A Survey (arXiv:2312.10997)</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Modular RAG: Transforming RAG Systems into LEGO-like Reconfigurable Frameworks (arXiv:2407.21059)</td>
+</tr>
+<tr>
+<td>6</td>
+<td>From Local to Global: A Graph RAG Approach to Query-Focused Summarization (arXiv:2404.16130)</td>
+</tr>
+<tr>
+<td>7</td>
+<td>LightRAG: Simple and Fast Retrieval-Augmented Generation (arXiv:2410.05779)</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Graphify — https://github.com/safishamsi/graphify</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Google Research: Unlocking dependable responses with Gemini Enterprise Agent Platform's Agentic RAG</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Evergreen: Efficient Claim Verification for Semantic Aggregates (arXiv:2604.26180)</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Andrej Karpathy: LLM Wiki (gist)</td>
+</tr>
+<tr>
+<td>12</td>
+<td>Retrieval as Reasoning: Self-Evolving Agent-Native Retrieval via LLM-Wiki (arXiv:2605.25480)</td>
+</tr>
+<tr>
+<td>13</td>
+<td>Prompt Compression for Large Language Models: A Survey (arXiv:2410.12388)</td>
+</tr>
+<tr>
+<td>14</td>
+<td>LLMLingua-2: Data Distillation for Efficient and Faithful Task-Agnostic Prompt Compression (arXiv:2403.12968)</td>
+</tr>
+<tr>
+<td>15</td>
+<td>UQE: A Query Engine for Unstructured Databases (arXiv:2407.09522)</td>
+</tr>
+<tr>
+<td>16</td>
+<td>Continuous Prompts: LLM-Augmented Pipeline Processing over Unstructured Streams (arXiv:2512.03389)</td>
+</tr>
+<tr>
+<td>17</td>
+<td>Ragas Documentation — https://docs.ragas.io/en/latest/getstarted/</td>
+</tr>
+<tr>
+<td>18</td>
+<td>Traversal-as-Policy: Log-Distilled Gated Behavior Trees (arXiv:2603.05517)</td>
+</tr>
+<tr>
+<td>19</td>
+<td>Is Semantic Chunking Worth the Computational Cost? (arXiv:2410.13070)</td>
+</tr>
+<tr>
+<td>20</td>
+<td>Late Chunking: Contextual Chunk Embeddings Using Long-Context Embedding Models (arXiv:2409.04701)</td>
+</tr>
+<tr>
+<td>21</td>
+<td>Intent-Driven Dynamic Chunking (arXiv:2602.14784)</td>
+</tr>
+<tr>
+<td>22</td>
+<td>Precise Zero-Shot Dense Retrieval without Relevance Labels（HyDE，arXiv:2212.10496）</td>
+</tr>
+<tr>
+<td>23</td>
+<td>Expand, Rerank, and Retrieve: Query Reranking for Open-Domain QA（EAR，arXiv:2305.17080）</td>
+</tr>
+<tr>
+<td>24</td>
+<td>AutoRAG (arXiv:2410.20878)</td>
+</tr>
+<tr>
+<td>25</td>
+<td>QuIM-RAG: Inverted Question Matching for Enhanced QA (arXiv:2501.02702)</td>
+</tr>
+<tr>
+<td>26</td>
+<td>OpenViking — https://github.com/volcengine/OpenViking</td>
+</tr>
+</tbody>
+</table>
+<h2 id="关联笔记">关联笔记</h2>
+<ul>
+<li><a class="wl" href="../../../notes/clippings/p44a38b/2026-09-24-agent-datawhale.html">Clippings/微信公众号/2026-09-24-给项目建Agent知识库-一套完整方法来了-Datawhale</a> — 知识库的另一半：RAG 负责「找得到」，专家底座负责「第一眼看对」</li>
+<li><a class="wl" href="../../../notes/clippings/p44a38b/2026-09-01-rag.html">Clippings/微信公众号/2026-09-01-RAG核心知识全解析（范式演进）</a> — RAG 面试向基础 + 范式演进（Vector RAG / BM25 / GraphRAG / SAG / PageIndex）</li>
+<li><a class="wl" href="../../../notes/clippings/p44a38b/2026-08-04-graphraglightrag.html">Clippings/微信公众号/2026-08-04-GraphRAG与LightRAG-小林面试笔记</a> — GraphRAG / LightRAG 对比</li>
+<li><a class="wl" href="../../../notes/domains/ragllmwiki.html">领域/RAG与LLM Wiki：原理、架构与开源实现</a> — LLM Wiki 三层结构的本地沉淀</li>
+<li><a class="wl" href="../../../notes/domains/rag.html">领域/rag_学习资料_从基础检索到知识工程</a> — RAG 学习资料索引</li>
+<li><a class="wl" href="../../../notes/domains/agentagent.html">领域/Agent 上下文压缩机制：六类核心机制与主流 Agent 实现</a> — 上下文压缩机制（对应本文第 6 节）</li>
+<li><a class="wl" href="../../../notes/domains/claudecodeagent.html">领域/Claude Code记忆系统与Agent记忆架构</a> — Memory vs RAG 的区别（对应本文边界 3）</li>
+<li><a class="wl" href="../../../notes/domains/agent-skill-progressive-disclosurezero-resident.html">领域/Agent_Skill_注入机制_Progressive_Disclosure与Zero_Resident</a> — 上下文按需加载</li>
+<li><span class="wl dead" title="未创建的笔记">wiki/index</span> — Karpathy LLM Wiki（对应本文第 5 节的实践载体）</li>
+</ul>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">内容剪藏</span><span class="chip">RAG</span><span class="chip">Agent</span><span class="chip">上下文工程</span><span class="chip">GraphRAG</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/Clippings/%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7/2026-09-22-Agent%E6%97%B6%E4%BB%A3RAG%E6%80%8E%E4%B9%88%E9%80%89-%E4%BA%94%E7%B1%BB%E5%9C%BA%E6%99%AF%E9%80%89%E5%9E%8B%E6%8C%87%E5%8D%97-Datawhale.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../notes/clippings/p44a38b/2026-09-21-agentagent-datawhale.html"><span class="dir">← 上一篇</span><span class="t">重磅！从 Agent 开发到 Agent 算法，进阶指南来了</span></a><a class="next" href="../../../notes/clippings/p44a38b/2026-09-24-agent-datawhale.html"><span class="dir">下一篇 →</span><span class="t">给项目建 Agent 知识库，一套完整方法来了</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../index.html">首页</a>
+      <a href="../../../learn.html">课件</a>
+      <a href="../../../notes/index.html">笔记库</a>
+      <a href="../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../about.html">关于</a>
+      <a href="../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../js/main.js" defer></script>
+</body>
+</html>

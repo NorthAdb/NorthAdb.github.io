@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matt Pocock 方法论精华：从想法到交付的完整 Agent 工作流 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="本页是五篇 Matt Pocock 系列笔记的汇总精华，整合了他「如何用 AI 从零构建项目」的完整方法论——从探索需求、到设计架构、到交付实现、再到教学传承。">
+<link rel="canonical" href="https://northadb.github.io/notes/clippings/bilibili/matt-pocock/matt-pocock.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Matt Pocock 方法论精华：从想法到交付的完整 Agent 工作流 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="本页是五篇 Matt Pocock 系列笔记的汇总精华，整合了他「如何用 AI 从零构建项目」的完整方法论——从探索需求、到设计架构、到交付实现、再到教学传承。">
+<meta property="og:url" content="https://northadb.github.io/notes/clippings/bilibili/matt-pocock/matt-pocock.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Matt Pocock 方法论精华：从想法到交付的完整 Agent 工作流 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="本页是五篇 Matt Pocock 系列笔记的汇总精华，整合了他「如何用 AI 从零构建项目」的完整方法论——从探索需求、到设计架构、到交付实现、再到教学传承。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../../feed.xml">
+<link rel="stylesheet" href="../../../../css/style.css">
+<link rel="stylesheet" href="../../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Matt Pocock 方法论精华：从想法到交付的完整 Agent 工作流", "description": "本页是五篇 Matt Pocock 系列笔记的汇总精华，整合了他「如何用 AI 从零构建项目」的完整方法论——从探索需求、到设计架构、到交付实现、再到教学传承。", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/clippings/bilibili/matt-pocock/matt-pocock.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../../index.html">首页</a><span>/</span><a href="../../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../../notes/clippings/index.html">内容剪藏</a></div>
+          <h1>Matt Pocock 方法论精华：从想法到交付的完整 Agent 工作流</h1>
+          <p class="post-sub">本页是五篇 Matt Pocock 系列笔记的汇总精华，整合了他「如何用 AI 从零构建项目」的完整方法论——从探索需求、到设计架构、到交付实现、再到教学传承。</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../../notes/clippings/index.html">内容剪藏</a></span><span class="sep"></span>
+            <span>阅读约 11 分钟</span><span class="sep"></span><span>更新于 2026-08-02</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p><strong>本页是五篇 Matt Pocock 系列笔记的汇总精华</strong>，整合了他「如何用 AI 从零构建项目」的完整方法论——从探索需求、到设计架构、到交付实现、再到教学传承。</p>
+</blockquote>
+<hr>
+<h2 id="五篇笔记索引">📚 五篇笔记索引</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">#</th>
+<th style="text-align: left;">笔记</th>
+<th style="text-align: left;">主题</th>
+<th style="text-align: left;">核心内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">1</td>
+<td style="text-align: left;"><a class="wl" href="../../../../notes/clippings/bilibili/matt-pocock/2026-07-31-matt-pocock-slopwatch.html">Matt-Pocock/2026-07-31-Matt-Pocock直播-SlopWatch从零搭建完整实录</a></td>
+<td style="text-align: left;">GrillMe + DDD 完整实战</td>
+<td style="text-align: left;">1:47 直播实录：点子收集 → GrillMe 诘问 → 研究 5 个 Agent → 统一语言 → 架构定型（SlopWatch）</td>
+</tr>
+<tr>
+<td style="text-align: center;">2</td>
+<td style="text-align: left;"><a class="wl" href="../../../../notes/clippings/bilibili/matt-pocock/2026-07-31-matt-pocock-wayfinderspec.html">Matt-Pocock/2026-07-31-Matt-Pocock直播-Wayfinder从想法到spec全流程</a></td>
+<td style="text-align: left;">Wayfinder</td>
+<td style="text-align: left;">grilling 会话编排器，解决 spec 之前探索阶段</td>
+</tr>
+<tr>
+<td style="text-align: center;">3</td>
+<td style="text-align: left;"><a class="wl" href="../../../../notes/clippings/bilibili/matt-pocock/2026-07-31-matt-pocock-spec-driven.html">Matt-Pocock/2026-07-31-Matt-Pocock实战-从原型到spec-driven开发</a></td>
+<td style="text-align: left;">Prototype + 保真度</td>
+<td style="text-align: left;">别急着写 spec，用原型提保真度</td>
+</tr>
+<tr>
+<td style="text-align: center;">4</td>
+<td style="text-align: left;"><a class="wl" href="../../../../notes/clippings/bilibili/matt-pocock/2026-07-31-matt-pocock-skills.html">Matt-Pocock/2026-07-31-Matt-Pocock-Skills原作者手把手教程</a></td>
+<td style="text-align: left;">Skills 主流流程</td>
+<td style="text-align: left;">安装配置 + grill-with-docs → to-spec → to-tickets → implement → code-review</td>
+</tr>
+<tr>
+<td style="text-align: center;">5</td>
+<td style="text-align: left;"><a class="wl" href="../../../../notes/clippings/bilibili/matt-pocock/2026-07-31-matt-pocock-teach-skillai.html">Matt-Pocock/2026-07-31-Matt-Pocock实战-teach-skill让AI像真老师</a></td>
+<td style="text-align: left;">teach skill</td>
+<td style="text-align: left;">有状态教学 skill、最近发展区、HTML 课程</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="完整方法论地图">🧭 完整方法论地图</h2>
+<pre><code>【探索】─────────────【设计】─────────────【交付】─────────────【传承】
+ 口述需求             保真度决策            to-spec               teach skill
+   ↓                   ↕                    ↓                    ↓
+ GrillMe /            prototype            to-tickets          教学区
+ grill-with-docs ──→ (提保真度) ──→         ↓                  最近发展区
+   ↓                   ↕                  implement            HTML 课程
+ Wayfinder            DDD                 code-review
+ (编排器+map)          统一语言              (子agent)
+</code></pre>
+<hr>
+<h2 id="五大核心心法">⚡ 五大核心心法</h2>
+<h3 id="1-agent-model-harness-环境">1️⃣ Agent = Model + Harness + 环境</h3>
+<pre><code>        [ 环境 ]    ← 文件系统、代码库
+    [   Harness  ]  ← Claude Code、Codex、Claude AI、ChatGPT
+      [  Model ]    ← Opus、GPT 5.6
+</code></pre>
+<blockquote>
+<p><strong>「换 model 就好了」的说法收益有限——在环境和 harness 上下功夫，能拿到的收益多得多。</strong> Model 只是图中一小块，Harness（工具、状态、权限、审计）和环境（代码库、文件系统）才是工程化落地的关键。</p>
+</blockquote>
+<h3 id="2-聪明区smart-zone-140k">2️⃣ 聪明区（Smart Zone）≈ 140K</h3>
+<blockquote>
+<p>Matt 把 <strong>140K 上下文</strong>当作「聪明区」上限。超过 140K，注意力退化，模型开始变笨、产生幻觉。</p>
+</blockquote>
+<p><strong>推论</strong>：
+- 每个 ticket 控制在「一个上下文窗口/聪明区」的粒度
+- ticket 之间清空上下文
+- 日常任务保持在 150K 以内</p>
+<h3 id="3-保真度fidelity决定一切">3️⃣ 保真度（Fidelity）决定一切</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">保真度</th>
+<th style="text-align: left;">适用问题</th>
+<th style="text-align: left;">方式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">低保真</td>
+<td style="text-align: left;">基础问题（弹窗有取消/确认按钮）</td>
+<td style="text-align: left;">讨论里直接定</td>
+</tr>
+<tr>
+<td style="text-align: left;">中保真</td>
+<td style="text-align: left;">数据怎么展示</td>
+<td style="text-align: left;">稍微提高</td>
+</tr>
+<tr>
+<td style="text-align: left;">高保真</td>
+<td style="text-align: left;">「真看看它跑起来什么样」</td>
+<td style="text-align: left;"><strong>必须做原型</strong></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>「我写了这么漂亮的 spec，结果做出来的东西完全跑偏」——大概率是讨论的保真度不够高，当时就该做原型。</strong></p>
+</blockquote>
+<h3 id="4-有状态-vs-无状态-skill">4️⃣ 有状态 vs 无状态 Skill</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;"></th>
+<th style="text-align: left;">无状态</th>
+<th style="text-align: left;">有状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">记忆</td>
+<td style="text-align: left;">不保留</td>
+<td style="text-align: left;">存文件系统/MCP，记住进度</td>
+</tr>
+<tr>
+<td style="text-align: left;">例子</td>
+<td style="text-align: left;">grill-me</td>
+<td style="text-align: left;">grill-with-docs、teach</td>
+</tr>
+<tr>
+<td style="text-align: left;">适用</td>
+<td style="text-align: left;">一次性任务</td>
+<td style="text-align: left;">跨会话推进的学习/项目</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>设计 skill 时要想清楚该选哪种——没有谁更好，只是场景不同。</p>
+</blockquote>
+<h3 id="5-从讨论到-production-是大跨步从原型到-production-是小平步">5️⃣ 从讨论到 production 是大跨步，从原型到 production 是小平步</h3>
+<blockquote>
+<p>从「讨论+spec」跨到 production-ready 代码，这一步非常大。但如果你有一个<strong>能跑的原型</strong>，把它变成 production 就挺简单。</p>
+</blockquote>
+<hr>
+<h2 id="完整技能体系matt-pocock-skills-仓库">🛠️ 完整技能体系（Matt Pocock / skills 仓库）</h2>
+<blockquote>
+<p>📋 <strong>全量清单见</strong> <a class="wl" href="../../../../notes/clippings/bilibili/matt-pocock/matt-pocock-skills.html">Matt-Pocock-Skills仓库全量分类汇总未命名</a>（工程 17 + 生产力 5 + 杂项 4 + 个人 2 + 实验 9 + 废弃 4 = 41 个）</p>
+</blockquote>
+<p>仓库规模：<strong>16 万 star、750 万下载、38+ 个 skills</strong>（官方 + 实验）。全部 skills 只占 <strong>660 token</strong> 上下文（手动调用 + 描述精简）。</p>
+<h3 id="探索类">探索类</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Skill</th>
+<th style="text-align: left;">用途</th>
+<th style="text-align: center;">有状态?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>grill-me</strong></td>
+<td style="text-align: left;">无状态盘问，不断考你直到能上手</td>
+<td style="text-align: center;">❌</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>grill-with-docs</strong></td>
+<td style="text-align: left;">有状态盘问，保存 ADR + 术语表到 repo</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>domain model</strong></td>
+<td style="text-align: left;">GrillMe 进化版，用 DDD 敲定统一语言（SlopWatch 实战首次亮相）</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Wayfinder</strong></td>
+<td style="text-align: left;">GrillMe 进化版，grilling 会话<strong>编排器</strong>，拆成多个聚焦 ticket</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>zoom-out</strong></td>
+<td style="text-align: left;">遇到不懂的概念时 explain-like-I'm-5</td>
+<td style="text-align: center;">❌</td>
+</tr>
+</tbody>
+</table>
+<h3 id="设计类">设计类</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Skill</th>
+<th style="text-align: left;">用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>prototype</strong></td>
+<td style="text-align: left;">做便宜粗糙但具体的产物，把讨论保真度提上来</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>domain-modeling</strong></td>
+<td style="text-align: left;">用 DDD 敲定统一语言，让架构从语言中浮现</td>
+</tr>
+</tbody>
+</table>
+<h3 id="交付类">交付类</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Skill</th>
+<th style="text-align: left;">用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>to-spec</strong></td>
+<td style="text-align: left;">把全部讨论压缩成 spec 文档（2PRD 的新名字）</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>to-tickets</strong></td>
+<td style="text-align: left;">把 spec 拆成实现 ticket（1 ticket = 1 上下文窗口）</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>implement</strong></td>
+<td style="text-align: left;">逐个 ticket 实现，两个 ticket 间清空上下文</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>code-review</strong></td>
+<td style="text-align: left;">对照 spec + 仓库标准检查，<strong>用子 agent</strong>（主 agent 不擅长审自己的代码）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="教学支持类">教学/支持类</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Skill</th>
+<th style="text-align: left;">用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>teach</strong></td>
+<td style="text-align: left;">有状态私人老师，建教学工作区（mission/lessons/glossary）</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>ask-matt</strong></td>
+<td style="text-align: left;">把 Matt 本人做成 skill，回答「该怎么开始」</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>setup-mattpocock-skills</strong></td>
+<td style="text-align: left;">配置 issue 跟踪器/领域文档/标签</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>triage</strong></td>
+<td style="text-align: left;">用标签传达生成的 ticket 信息</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>writing-great-skills</strong></td>
+<td style="text-align: left;">教怎么写好的 skills</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="主流流程一次完整交付">🔄 主流流程（一次完整交付）</h2>
+<pre><code>1. grill-with-docs ── 盘问打磨想法，有状态记录到 context.md + ADR
+        ↓
+2.（可选）prototype ── 问题需要可运行答案时，提保真度
+        ↓
+3. 小工作量 → 直接 /implement
+   大工作量/跨多会话 → to-spec（46.1K 讨论 → 文档）
+        ↓
+4. to-tickets ── 每个 ticket = 一个上下文窗口大小
+        ↓
+5. implement ── 一次一个 ticket，之间清空上下文
+        ↓
+6. code-review ── 子 agent 对照 spec + 仓库标准
+</code></pre>
+<hr>
+<h2 id="spec-对比matt-一次性-spec-vs-openspec-长期-spec">🔀 spec 对比：Matt 一次性 spec vs OpenSpec 长期 spec</h2>
+<blockquote>
+<p><strong>一句话</strong>：方向对——OpenSpec 的 spec 是<strong>持续演进的活规范</strong>，Matt 的 spec 是<strong>用完即弃的交接文档</strong>。但精确的差异比"长期 vs 不看"更本质：<strong>一个把 spec 当"真相来源"维护，一个把 spec 当"临时导航"销毁</strong>。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">维度</th>
+<th style="text-align: left;">OpenSpec</th>
+<th style="text-align: left;">Matt (to-spec)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>spec 定位</strong></td>
+<td style="text-align: left;">长期真相来源（source of truth），系统的"规范"</td>
+<td style="text-align: left;">跨会话工作的临时终点文档</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>存放</strong></td>
+<td style="text-align: left;"><code>openspec/specs/</code>（长期）+ <code>openspec/changes/</code>（进行中）</td>
+<td style="text-align: left;">issue tracker 里的一个 issue / 交接文档</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>生命周期</strong></td>
+<td style="text-align: left;">持续演进——每个 change 完成后<strong>新需求 merge 进主 specs</strong></td>
+<td style="text-align: left;">实现完就删——关掉 issue，spec 消失，极少回看</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>真相在哪</strong></td>
+<td style="text-align: left;">spec 文件本身（可 review / diff / 版本控制）</td>
+<td style="text-align: left;"><strong>代码 + 原始决策 ticket</strong>（Wayfinder 链回第一手决策）</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>维护成本</strong></td>
+<td style="text-align: left;">主动投入，spec 是资产</td>
+<td style="text-align: left;">拒绝维护，spec 是沉没成本</td>
+</tr>
+</tbody>
+</table>
+<p><strong>OpenSpec 的机制</strong>：<code>/opsx:explore → propose → apply → archive</code>。change 是临时的 in-flight 文件夹（proposal/specs/design/tasks），实现完归档到 <code>openspec/changes/archive/</code>，同时<strong>新需求写回长期 specs 目录</strong>——spec 随功能发布持续生长。</p>
+<p><strong>Matt 的机制</strong>：<code>grill-with-docs → to-spec（46.1K 讨论→文档）→ to-tickets → implement → code-review</code>。spec 是把讨论压缩成的"最终长什么样"的描述，作用是跨多次会话时让到达终点的人（或 AFK agent）知道原本要去哪；落地后就删。</p>
+<p><strong>哲学分歧（本质）</strong>：
+- OpenSpec：需求在聊天记录里会丢失、AI 会跑偏 → 把规范<strong>版本化、前置到 repo、长期持有</strong>，人和 AI 写代码前对齐
+- Matt：spec 只是「会议的总结」，不是「真理」；真相在代码和决策记录里 → 反复评审/维护 spec 是<strong>经典错误</strong>（"他们真正该做的是赶紧写代码"），且 spec 会随实现过时</p>
+<p><strong>何时用哪个</strong>：
+- 需要<strong>跨团队/跨仓库/长期演进</strong>的系统规范（平台团队、多人协作、规范复用）→ <strong>OpenSpec</strong>（配套 Spec-Kit、gstack 等 SDD 全家桶）
+- <strong>个人/单次交付</strong>的临时计划（项目实现完 spec 就没价值）→ <strong>Matt 式一次性 spec</strong>
+- 中间态：项目有长期维护需求 → 把 spec 的关键决策沉淀成 <strong>ADR + 领域词汇表</strong>（Matt 推荐），而非维护整份 spec</p>
+<blockquote>
+<p>📌 相关收藏：B站《<a href="https://www.bilibili.com/video/BV1eU5A6MERk">精讲OpenSpec，从操作到原理</a>》《<a href="https://www.bilibili.com/video/BV1uDQacCE2a">OpenSpec、Superpowers、gstack三器合一</a>》</p>
+</blockquote>
+<hr>
+<h2 id="adr架构决策记录matt-的长期记忆答案">🗂️ ADR：架构决策记录（Matt 的"长期记忆"答案）</h2>
+<blockquote>
+<p><strong>ADR = Architecture Decision Record（架构决策记录）</strong>——一页纸的"决策备忘录"：记录做过的某个重要决策、当时为什么这么选、代价是什么，让"为什么"不随对话消失。这是经典软件工程概念，但 Matt 把它用作 Agent 工作流里的<strong>长期记忆方案</strong>。</p>
+</blockquote>
+<h3 id="经典格式michael-nygard-三段式">经典格式（Michael Nygard 三段式）</h3>
+<pre><code class="language-markdown"># 决策：订单状态用 enum 而非 boolean
+## 背景（Context）
+  之前讨论时纠结：用 isPaid / isShipped 多个 boolean 还是 enum？
+## 决策（Decision）
+  用 enum：standard / short / future
+## 后果（Consequences）
+  扩展第三种状态只需加一个枚举值，不会像 boolean 组合那样爆炸
+</code></pre>
+<h3 id="在-matt-方法论中的角色关键">在 Matt 方法论中的角色（关键）</h3>
+<p>Matt 对 ADR 的推荐，和他反对"长期 Agent 记忆（RAG）"是<strong>同一件事的两面</strong>：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;"></th>
+<th style="text-align: left;">长期 Agent 记忆（RAG）</th>
+<th style="text-align: left;">ADR + 最小化 DDD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Matt 的态度</td>
+<td style="text-align: left;">❌ 坏主意</td>
+<td style="text-align: left;">✅ 推荐</td>
+</tr>
+<tr>
+<td style="text-align: left;">存储</td>
+<td style="text-align: left;">向量数据库，模糊、不可见</td>
+<td style="text-align: left;"><strong>纯文本文件，存 repo 里</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">特性</td>
+<td style="text-align: left;">不可观测、不可编辑、塞不进 context</td>
+<td style="text-align: left;"><strong>可观测、可编辑、能塞进 context window</strong></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>原话（SlopWatch 直播）：<em>"想要「超级可观测、超级具体、能立即编辑、能塞进 context window」的东西。方案：ADR + 最小化 DDD，不用 RAG 式长期记忆。"</em></p>
+</blockquote>
+<p><strong>为什么关键</strong>：Agent 每次会话都要读 context。ADR 是纯 markdown 文本，直接读进 context 窗口（token 占用少）；RAG 记忆是模糊检索，Agent 拿到的是片段、不可控。<strong>ADR = 用"文件"当记忆，而不是用"数据库"当记忆。</strong></p>
+<h3 id="在-matt-流程中出现的位置">在 Matt 流程中出现的位置</h3>
+<ol>
+<li><strong>grill-with-docs</strong>（有状态盘问）：边追问边<strong>自动生成 ADR + 术语表</strong>，存到 repo——盘问的副产品就是一套决策档案</li>
+<li><strong>domain-modeling</strong>：敲定领域语言时，<strong>难以逆转的决策</strong>落成 ADR</li>
+<li><strong>to-spec 之后</strong>：实现完 spec 删掉，但<strong>关键决策沉淀成 ADR</strong> 长期保留（spec 对比章节的"中间态"方案）</li>
+</ol>
+<h3 id="与-spec-的关系第三条路">与 spec 的关系（第三条路）</h3>
+<pre><code>OpenSpec spec   → 长期维护整份规范（重）
+Matt spec       → 一次性交接文档（轻，用完即删）
+ADR             → 只保留&quot;决策+理由&quot;，不保留整份规范（Matt 的&quot;长期记忆&quot;答案）
+</code></pre>
+<p><strong>规律</strong>：Matt 不维护整份 spec，但他<strong>维护决策记录（ADR）</strong>。一个持续更新整份文档，一个只存档每个决策点——ADR 是他在"spec 长期持有"和"spec 用完即删"之间的第三条路：<strong>要长期的是"为什么"，不是"长什么样"。</strong></p>
+<hr>
+<h2 id="实战案例汇总">🎯 实战案例汇总</h2>
+<h3 id="案例-1slopwatch监控平台-完整实战实录">案例 1：SlopWatch（监控平台）⭐ 完整实战实录</h3>
+<ul>
+<li><strong>做什么</strong>：自托管编程 Agent 监控平台，追踪 Claude Code/Codex/Pi/Open Code/Copilot CLI 的 token 消耗、会话质量、context window 占用</li>
+<li><strong>方法（1:47 直播全流程）</strong>：
+  1. 直播间收集项目点子 → 锁定「编程 Agent 监控平台」（78% 投票）
+  2. <strong>GrillMe</strong> 诘问需求：主要用户？可见性模型？怎么接入？
+  3. <strong>sub-agent 并行研究 5 个编程 Agent</strong> → 发现「每个 agent 有 hook + append-only JSONL，但 schema 全不同且演变，per-agent adapter 不可避免」
+  4. <strong>domain model skill（DDD）</strong> 敲定统一语言：session / turn / model request / listener / server
+  5. 架构定型：单二进制 + Postgres，自托管 on-prem</li>
+<li><strong>关键决策</strong>：</li>
+<li><strong>V1 认证</strong>：admin 签发一次性 token（绑定 user record，可撤销），<strong>OIDC 推 V2</strong>——先验证想法不做重架构</li>
+<li><strong>capture 无 daemon</strong>：session start hook 拉起 listener 子进程（每会话一个），hook 配置 = 安装</li>
+<li><strong>session 内部用 DAG 建模</strong>：turns 是 DAG 节点（agent 会话可能分支）</li>
+<li>live spectate 用 <strong>5 秒轮询</strong>，不做实时推送</li>
+<li><strong>亮点</strong>：整场直播<strong>没有写代码</strong>，全靠诘问和领域建模把模糊想法推进到明确架构；名字 SlopWatch 来自观众 Eddie</li>
+</ul>
+<h3 id="案例-2cvm-加-tiktok-创建器wayfinder-演示">案例 2：CVM 加 TikTok 创建器（Wayfinder 演示）</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">决策点</th>
+<th style="text-align: left;">结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">TikTok 视频是什么</td>
+<td style="text-align: left;">复用 videos 表，加 format 属性</td>
+</tr>
+<tr>
+<td style="text-align: left;">boolean vs enum</td>
+<td style="text-align: left;"><strong>enum</strong>（standard/short）——3 boolean = 6 状态，enum 只有 3 状态</td>
+</tr>
+<tr>
+<td style="text-align: left;">和 pitch 关系</td>
+<td style="text-align: left;">独立，低摩擦不强制关联</td>
+</tr>
+<tr>
+<td style="text-align: left;">渲染管线</td>
+<td style="text-align: left;">抽独立仓库 + 本地 shell out</td>
+</tr>
+<tr>
+<td style="text-align: left;">发布方式</td>
+<td style="text-align: left;">Buffer 排队（绕过 TikTok 审核）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="案例-3ai-hero-cli-精简主流流程演示">案例 3：AI Hero CLI 精简（主流流程演示）</h3>
+<ul>
+<li><strong>目标</strong>：删掉大部分内部工具，只保留公开部分</li>
+<li><strong>流程</strong>：grilling（6 问题）→ to-spec（46.1K→文档）→ to-tickets（3 个）→ implement → code-review</li>
+<li><strong>结果</strong>：删 10 命令文件 + 3 测试，子 agent review 通过</li>
+</ul>
+<h3 id="案例-4还原魔方teach-skill">案例 4：还原魔方（teach skill）</h3>
+<ul>
+<li><strong>mission</strong>：独立还原一次三阶魔方（目标=成就，不是速度）</li>
+<li><strong>教学</strong>：第一课（结构/记号/白色十字）→ 进度追踪 → 角循环定制课（四步口诀 + 可点击交互）</li>
+<li><strong>关键</strong>：最近发展区——每节课精准落在「正好被挑战、不被吓退」的区间</li>
+</ul>
+<hr>
+<h2 id="深度洞察">💡 深度洞察</h2>
+<ol>
+<li><strong>雾（fog）的比喻</strong>：探索阶段到处都是不知道路怎么走的「雾」，Wayfinder 帮你找路，ticket 是在雾里跟踪进度的方式</li>
+<li><strong>渐进式披露</strong>：map → research ticket → thick docs，顺着链往下找，需要时才加载完整内容</li>
+<li><strong>AI 的错位</strong>：AI 很多错位在于「不问这些问题、不理解你的价值观、不理解你优先什么」——Wayfinder 解决的就是这个</li>
+<li><strong>你（人类）是 lead，agent 是 junior</strong>：规划阶段让模型保持专注，你得盯着、主导</li>
+<li><strong>决策 ticket vs 实现 ticket</strong>：决策 ticket 只能通过做出决策解决；实现 ticket 是决策在代码里落地</li>
+<li><strong>Greenfield 项目在写代码前 = 研究任务</strong>：直到想法被 reify 成代码，你本质上是在做研究（SlopWatch 直播）</li>
+<li><strong>语言是你把程序带入生命的方式</strong>：DDD 统一语言锁定心智模型；用具体场景 road test 语言（SlopWatch 直播）</li>
+<li><strong>长期 Agent 记忆是坏主意</strong>：想要可观测、可编辑、能塞进 context 的东西——ADR + 最小化 DDD 优于 RAG 记忆（SlopWatch 直播）</li>
+<li><strong>别对 token 太抠门</strong>：输入 token 极其便宜；人类 + AI 永远优于纯 AI</li>
+<li><strong>Brownfield vs Greenfield 是胡扯</strong>：Matt 认为没大家想的那么大差别</li>
+<li><strong>开发者的时代机遇</strong>：我们是第一批在 AI 极擅长的事情（写代码）上亲身体验 AI 的人——这个新空间的先行者</li>
+</ol>
+<hr>
+<h2 id="推荐阅读">📖 推荐阅读</h2>
+<ul>
+<li><strong>Ryan Singer《Shape Up》</strong>（网上免费）——彻底改变了 Matt 做应用的方式，2019 年读后影响至今</li>
+<li><strong>Matt Pocock skills 仓库</strong>：<code>npx skills@latest add mattpocock/skills</code></li>
+<li><strong>SlopWatch 仓库</strong>：https://github.com/mattpocock/slopwatch</li>
+<li><strong>Newsletter</strong>：aihero.com（每次发布新 skill 第一时间知道）</li>
+</ul>
+<hr>
+<h2 id="你能直接带走的东西">🧩 你能直接带走的东西</h2>
+<h3 id="如果你是独立开发者">如果你是独立开发者</h3>
+<ol>
+<li>全局安装 Matt skills + symlink</li>
+<li>从 grill-with-docs 开始打磨想法</li>
+<li>遇到「它该长什么样」就用 prototype</li>
+<li>小活直接 implement，大活走 to-spec → to-tickets</li>
+</ol>
+<h3 id="如果你是团队">如果你是团队</h3>
+<ol>
+<li><strong>项目级</strong>安装 skills（大家共用一套）</li>
+<li>issue 跟踪配 Jira/Linear（本就支持）</li>
+<li>每个 ticket 控制在聪明区内</li>
+<li>code-review 用子 agent 独立上下文</li>
+</ol>
+<h3 id="无论你是谁">无论你是谁</h3>
+<ul>
+<li><strong>保真度思维</strong>：别用文字硬聊「长什么样」的问题，上原型</li>
+<li><strong>聪明区纪律</strong>：不贪多，保持 140K 内的清醒</li>
+<li><strong>有状态优先</strong>：跨会话的事，让它记住</li>
+<li><strong>先跑起来再固化</strong>：先用简单 harness 跑起来攒 trace，再把反复出现的流程固定成 Graph/Wayfinder map</li>
+</ul>
+<hr>
+<h2 id="关联笔记">关联笔记</h2>
+<ul>
+<li><a class="wl" href="../../../../notes/clippings/bilibili/matt-pocock/2026-08-02-matt-pocock-grill-skill9.html">2026-08-02-Matt-Pocock-grill-skill的9个误区</a> — grill 误区与参数化知识</li>
+<li><a class="wl" href="../../../../notes/clippings/bilibili/matt-pocock/2026-08-01-matt-pocock-wayfinderfaq.html">2026-08-01-Matt-Pocock-Wayfinder概念详解与FAQ</a> — Wayfinder 概念与 FAQ</li>
+<li><a class="wl" href="../../../../notes/clippings/bilibili/matt-pocock/2026-08-05-matt-pocock-claude-code.html">2026-08-05-Matt-Pocock实战-用Claude-Code从零开发真实项目</a> — 完整项目实战实录（ghost course）</li>
+<li>
+<p><a class="wl" href="../../../../notes/clippings/bilibili/matt-pocock/2026-08-06-matt-pocock-agent-vs-workflow.html">2026-08-06-Matt-Pocock-Agent-vs-Workflow科普</a> — Agent vs Workflow 判定</p>
+</li>
+<li>
+<p><a class="wl" href="../../../../notes/clippings/bilibili/2026-07-31-10ai-agent-8.html">2026-07-31-10分钟讲透AI-Agent-8种主流架构</a> — Agent 架构知识地图（AI架构师Leo）</p>
+</li>
+<li><a class="wl" href="../../../../notes/clippings/bilibili/2026-07-31-agent-harness-loop-graph.html">2026-07-31-Agent系统架构设计-Harness-Loop-Graph怎么选</a> — Harness 工程化深入版</li>
+<li><a class="wl" href="../../../../notes/clippings/pae26bb/2026-07-30-ai-agent-graph-loop-harness.html">2026-07-30-AI-Agent落地铁三角-Graph-Loop-Harness</a> — 小红书版铁三角</li>
+</ul>
+<blockquote>
+<p>💡 <strong>一句总括</strong>：Matt Pocock 的方法论本质是「<strong>把 Agent 当成可编排的 junior 团队</strong>」——用 GrillMe 诘问需求、Wayfinder 编排探索、prototype 提保真度、to-spec/to-tickets 拆解交付、teach 传承知识，而你自己始终是那个 lead，牢牢掌控着方向和边界。</p>
+</blockquote>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">内容剪藏</span><span class="chip">Matt Pocock</span><span class="chip">方法论</span><span class="chip">精华</span><span class="chip">汇总</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/Clippings/Bilibili/Matt-Pocock/Matt-Pocock%E6%96%B9%E6%B3%95%E8%AE%BA%E7%B2%BE%E5%8D%8E-%E5%AE%8C%E6%95%B4%E5%B7%A5%E4%BD%9C%E6%B5%81%E4%B8%8E%E6%8A%80%E8%83%BD%E4%BD%93%E7%B3%BB.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../../notes/clippings/bilibili/matt-pocock/matt-pocock-skills.html"><span class="dir">← 上一篇</span><span class="t">Matt Pocock Skills 仓库全量分类汇总</span></a><a class="next" href="../../../../notes/clippings/claude/2026-07-30-claude.html"><span class="dir">下一篇 →</span><span class="t">Claude.ai 近期聊天记录汇总</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../../index.html">首页</a>
+      <a href="../../../../learn.html">课件</a>
+      <a href="../../../../notes/index.html">笔记库</a>
+      <a href="../../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../../about.html">关于</a>
+      <a href="../../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../../js/main.js" defer></script>
+</body>
+</html>

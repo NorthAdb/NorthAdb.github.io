@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>07 — 工程架构与实验验证（完整流程） · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="状态：正文 | 主套件：mlkem512-mlkem768-sm4gcm-sm3 预计篇幅：答辩 5–8 min（可拆成「架构 2 min + 实验演示 5 min」）">
+<link rel="canonical" href="https://northadb.github.io/notes/pqsectunnel/defense/07.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="07 — 工程架构与实验验证（完整流程） · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="状态：正文 | 主套件：mlkem512-mlkem768-sm4gcm-sm3 预计篇幅：答辩 5–8 min（可拆成「架构 2 min + 实验演示 5 min」）">
+<meta property="og:url" content="https://northadb.github.io/notes/pqsectunnel/defense/07.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="07 — 工程架构与实验验证（完整流程） · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="状态：正文 | 主套件：mlkem512-mlkem768-sm4gcm-sm3 预计篇幅：答辩 5–8 min（可拆成「架构 2 min + 实验演示 5 min」）">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../feed.xml">
+<link rel="stylesheet" href="../../../css/style.css">
+<link rel="stylesheet" href="../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "07 — 工程架构与实验验证（完整流程）", "description": "状态：正文 | 主套件：mlkem512-mlkem768-sm4gcm-sm3 预计篇幅：答辩 5–8 min（可拆成「架构 2 min + 实验演示 5 min」）", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/pqsectunnel/defense/07.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../index.html">首页</a><span>/</span><a href="../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../notes/pqsectunnel/index.html">PQ-SecTunnel</a></div>
+          <h1>07 — 工程架构与实验验证（完整流程）</h1>
+          <p class="post-sub">状态：正文 | 主套件：mlkem512-mlkem768-sm4gcm-sm3 预计篇幅：答辩 5–8 min（可拆成「架构 2 min + 实验演示 5 min」）</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../notes/pqsectunnel/index.html">PQ-SecTunnel</a></span><span class="sep"></span>
+            <span>阅读约 11 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p>状态：正文 | 主套件：<code>mlkem512-mlkem768-sm4gcm-sm3</code><br>
+预计篇幅：答辩 5–8 min（可拆成「架构 2 min + 实验演示 5 min」）</p>
+</blockquote>
+<hr>
+<h2 id="0-先建立直觉这个项目分两层世界">0. 先建立直觉：这个项目分两层世界</h2>
+<p>想象 PQ-SecTunnel 是一台「加密路由器」：</p>
+<table>
+<thead>
+<tr>
+<th>世界</th>
+<th>类比</th>
+<th>在本项目里是什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>用户态</strong></td>
+<td>管理员用遥控器配网</td>
+<td><code>pqst</code>、<code>pqst-quick</code>：写配置、生成密钥、告诉内核「跟谁连」</td>
+</tr>
+<tr>
+<td><strong>内核态</strong></td>
+<td>路由器芯片真正转发加密包</td>
+<td><code>pqsectunnel.ko</code>：握手、KEM/AEAD、分片、UDP 收发</td>
+</tr>
+</tbody>
+</table>
+<p><strong>关键一点</strong>：密钥和 peer 信息通过 <strong>Netlink</strong> 从用户态下发；但握手和密码运算<strong>全部在内核里跑</strong>，用户态不参与运行时 KEM（CONTEXT <strong>pqst</strong> / <strong>pqsectunnel.ko</strong>）。</p>
+<p>本套件是 <strong>编译时</strong> 定死的算法组合（512 静态 + 768 临时 + SM4-GCM + SM3），<strong>不能</strong>在运行时切换。</p>
+<hr>
+<h2 id="1-实验相关的目录与文件先认地图">1. 实验相关的目录与文件（先认地图）</h2>
+<h3 id="11-项目根目录源码-构建入口">1.1 项目根目录（源码 + 构建入口）</h3>
+<pre><code>PQ-SecTunnel/
+├── build.sh                          ← 【阶段 A】一键编译，生成实验目录
+├── test.sh                           ← 【可选】全项目功能/性能/网络测试
+├── wgtest/wgtest-mlkem512-mlkem768-sm4gcm-sm3/
+│   └── vars                          ← 本套件的「配方单」（KEM/AEAD/HASH）
+├── wireguard-linux-compat/src/       ← 内核模块源码 → 编译成 pqsectunnel.ko
+├── wireguard-tools/src/              ← 用户态工具源码 → 编译成 pqst
+├── kems/mlkem-512/  kems/mlkem-768/  ← KEM 算法实现
+└── resources/                          ← 实验脚本模板（build 时复制到实验目录）
+    ├── run.sh
+    ├── setup_ns.sh
+    ├── setup_configs.py
+    ├── reset.sh
+    └── test_transfer.sh
+</code></pre>
+<h3 id="12-实验目录构建产物-运行现场">1.2 实验目录（构建产物 + 运行现场）</h3>
+<pre><code>experiments/mlkem512-mlkem768-sm4gcm-sm3/
+├── pqsectunnel.ko          ← 内核模块（已烧录国密 + 双 KEM + 分片）
+├── pqst                    ← 配置工具（类似 wg）
+├── pqst-quick              ← 一键 up/down 隧道（类似 wg-quick）
+├── nist-mlkem512-genkey    ← 生成 ML-KEM-512 静态密钥的辅助程序
+├── suite_meta.env          ← 构建时密码配置的「身份证」
+├── run.sh                  ← 【阶段 B】实验总入口
+├── setup_configs.py        ← 生成密钥 + .conf
+├── setup_ns.sh             ← 创建隔离网络 + 启动隧道
+├── reset.sh                ← 清理 netns
+├── test_transfer.sh        ← 握手后的 iperf3/nc/ping
+├── pqst0.conf              ← 客户端（Initiator）配置 — run 时生成
+├── server0.pqst0.conf      ← 服务端（Responder）配置 — run 时生成
+└── dmesg.log               ← 内核日志 — run 结束时生成
+</code></pre>
+<p><strong>答辩记忆口诀</strong>：<code>build.sh</code> 造「工具箱」；进实验目录跑 <code>run.sh</code> 做「真连线」。</p>
+<hr>
+<h2 id="2-阶段-a构建buildsh-把源码变成可运行套件">2. 阶段 A：构建（<code>build.sh</code>）— 把源码变成可运行套件</h2>
+<h3 id="21-你要执行的命令">2.1 你要执行的命令</h3>
+<pre><code class="language-bash">cd /path/to/PQ-SecTunnel
+sudo ./build.sh -e mlkem512-mlkem768-sm4gcm-sm3 --keep-experiments
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-e &lt;名&gt;</code></td>
+<td>只构建这一个实验，不编译其它套件</td>
+</tr>
+<tr>
+<td><code>--keep-experiments</code></td>
+<td>不删掉 <code>experiments/</code> 里其它已构建套件（推荐）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>需要 root</strong>：内核模块编译/加载环节脚本会检查权限。</p>
+<h3 id="22-构建内部做了什么按顺序">2.2 构建内部做了什么（按顺序）</h3>
+<h4 id="步骤-a1读配方单">步骤 A1：读「配方单」</h4>
+<p>读取 <code>wgtest/wgtest-mlkem512-mlkem768-sm4gcm-sm3/vars</code>：</p>
+<pre><code class="language-bash">STATIC_KEM=mlkem512
+EPHEMERAL_KEM=mlkem768
+AEAD=SM4GCM
+HASH=SM3
+NOISE_HANDSHAKE_NAME=Noise_IKpsk1kem_SM4GCM_SM3_EphemMLKEM768
+</code></pre>
+<p><strong>作用</strong>：决定编译进 <code>.ko</code> 的算法；相当于选定「这盒 VPN 芯片的硬件规格」。</p>
+<h4 id="步骤-a2编译内核模块-pqsectunnelko">步骤 A2：编译内核模块 <code>pqsectunnel.ko</code></h4>
+<table>
+<thead>
+<tr>
+<th>动作</th>
+<th>产出</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>kem</code> → symlink 到 <code>kems/mlkem-512</code></td>
+<td>—</td>
+<td>Static KEM 用 512 实现</td>
+</tr>
+<tr>
+<td>注入宏 <code>-DEPHEMERAL_KEM_MLKEM768</code> 等</td>
+<td>—</td>
+<td>Ephemeral 用 768；Hash=SM3；AEAD=SM4-GCM</td>
+</tr>
+<tr>
+<td>检测 Initiation struct &gt;1400B</td>
+<td><code>-DPQST_APP_LAYER_FRAGMENTATION</code></td>
+<td>本套件<strong>启用</strong>应用层分片</td>
+</tr>
+<tr>
+<td><code>make</code> in <code>wireguard-linux-compat/src</code></td>
+<td><code>pqsectunnel.ko</code></td>
+<td>拷贝到 <code>experiments/.../</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>小白理解</strong>：<code>.ko</code> 是 Linux <strong>内核驱动</strong>，加载后内核才具备 PQ 握手能力。里面的 KEM/AEAD 在编译时已焊死，不能换。</p>
+<h4 id="步骤-a3编译用户态工具">步骤 A3：编译用户态工具</h4>
+<table>
+<thead>
+<tr>
+<th>动作</th>
+<th>产出</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>make nist-mlkem512-genkey</code></td>
+<td><code>nist-mlkem512-genkey</code></td>
+<td>按 NIST 标准生成 800B/1632B 的 ML-KEM-512 密钥对</td>
+</tr>
+<tr>
+<td><code>make pqst</code></td>
+<td><code>pqst</code></td>
+<td>配置接口：<code>genkey</code>、<code>set</code>、<code>show</code> 等</td>
+</tr>
+<tr>
+<td>复制 <code>wg-quick/linux.bash</code></td>
+<td><code>pqst-quick</code></td>
+<td>读 <code>.conf</code> 拉起虚拟网卡</td>
+</tr>
+</tbody>
+</table>
+<p><strong>小白理解</strong>：<code>pqst</code> 是「管理员 CLI」；<code>pqst-quick</code> 是「读配置文件一键启动」。</p>
+<h4 id="步骤-a4复制实验脚本-写-suitemetaenv">步骤 A4：复制实验脚本 + 写 <code>suite_meta.env</code></h4>
+<p>从 <code>resources/</code> 复制 <code>run.sh</code>、<code>setup_ns.sh</code>、<code>setup_configs.py</code> 等到实验目录。</p>
+<p>生成 <code>suite_meta.env</code>（构建身份证），本套件示例：</p>
+<pre><code>STATIC_KEM=mlkem512
+EPHEMERAL_KEM=mlkem768
+APP_LAYER_FRAGMENTATION=auto
+APP_LAYER_FRAGMENTATION_EFFECTIVE=1
+NOISE_HANDSHAKE_NAME=Noise_IKpsk1kem_SM4GCM_SM3_EphemMLKEM768
+</code></pre>
+<p><strong>作用</strong>：后续 <code>setup_configs.py</code> 读它校验密钥长度；答辩时可证明「跑的就是这套算法」。</p>
+<h3 id="23-阶段-a-完成后你拥有什么">2.3 阶段 A 完成后你拥有什么</h3>
+<ul>
+<li>一个<strong>自包含</strong>目录，可拷到测试机独立运行</li>
+<li><strong>尚未</strong>生成 <code>.conf</code>、<strong>尚未</strong>加载模块、<strong>尚未</strong>握手</li>
+<li>相当于「工具箱准备好了，还没装机组网」</li>
+</ul>
+<hr>
+<h2 id="3-阶段-b运行实验runsh-真连线-采日志">3. 阶段 B：运行实验（<code>run.sh</code>）— 真连线 + 采日志</h2>
+<h3 id="31-你要执行的命令">3.1 你要执行的命令</h3>
+<pre><code class="language-bash">cd experiments/mlkem512-mlkem768-sm4gcm-sm3
+sudo ./run.sh                    # 基础：握手 + 采 dmesg
+sudo ./run.sh --with-transfer      # 握手 + iperf3 吞吐测试
+</code></pre>
+<p><strong>必须在实验目录内执行</strong>——脚本依赖同目录的 <code>.ko</code>、<code>pqst</code>、<code>setup_configs.py</code>。</p>
+<h3 id="32-实验网络长什么样两个平行宇宙">3.2 实验网络长什么样（两个「平行宇宙」）</h3>
+<p><code>setup_ns.sh</code> 用 <strong>network namespace（netns）</strong> 模拟两台机器：</p>
+<pre><code>┌──────────────────────── cli0_ns（客户端 / Initiator）────────────────────────┐
+│  虚拟网卡 cli0_ve  IP: 10.20.0.2/24                                          │
+│  VPN 接口 pqst0    IP: 10.0.8.1/24   ← 隧道「内网」地址                        │
+│  pqst-quick up pqst0.conf                                                    │
+└───────────────────────────────┬──────────────────────────────────────────────┘
+                                │ veth 对 + tc netem（默认 30ms 延迟）
+┌───────────────────────────────┴──────────────────────────────────────────────┐
+│  虚拟网卡 srv0_ve  IP: 10.20.0.1/24                                          │
+│  VPN 接口 pqst0    IP: 10.0.8.2/24                                           │
+│  pqst-quick up server0.pqst0.conf                                            │
+└──────────────────────── srv0_ns（服务端 / Responder）────────────────────────┘
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>IP 段</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>10.20.0.x</code></td>
+<td><strong>Underlay</strong>：模拟公网/链路层，UDP 握手走这里（51820 端口）</td>
+</tr>
+<tr>
+<td><code>10.0.8.x</code></td>
+<td><strong>Overlay</strong>：VPN 隧道内网，ping/iperf3 走这里（握手成功后通）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>小白理解</strong>：netns 像两台独立 Linux 虚拟机在同一台物理机上；veth 是它们之间的网线；netem 在网线上加延迟，模拟真实 WAN。</p>
+<h3 id="33-runsh-逐步详解8-步">3.3 <code>run.sh</code> 逐步详解（8 步）</h3>
+<p>下面每一步对应 <code>run.sh</code> 源码顺序。</p>
+<hr>
+<h4 id="步骤-b1resetsh-清理旧环境">步骤 B1：<code>reset.sh</code> — 清理旧环境</h4>
+<pre><code class="language-bash">sudo ./reset.sh
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>产出</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>删除所有 <code>ip netns</code></td>
+<td>上次实验残留的 <code>cli0_ns</code>、<code>srv0_ns</code> 清掉，避免 IP/接口冲突</td>
+</tr>
+</tbody>
+</table>
+<p><strong>小白理解</strong>：实验前先「恢复出厂设置」。</p>
+<hr>
+<h4 id="步骤-b2rmmod-pqsectunnel-卸载旧内核模块">步骤 B2：<code>rmmod pqsectunnel</code> — 卸载旧内核模块</h4>
+<pre><code class="language-bash">sudo rmmod pqsectunnel || true
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>产出</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>内核卸载旧 <code>.ko</code></td>
+<td>确保接下来加载的是<strong>本目录新编译</strong>的模块，不是系统里别的版本</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h4 id="步骤-b3setupconfigspy-生成密钥和配置文件">步骤 B3：<code>setup_configs.py</code> — 生成密钥和配置文件</h4>
+<pre><code class="language-bash">python3 ./setup_configs.py
+</code></pre>
+<p><strong>内部流程</strong>：</p>
+<ol>
+<li>读 <code>suite_meta.env</code>，确认 Static KEM = mlkem512</li>
+<li>调用 <code>./pqst genkey</code>（默认 <code>PQST_KEY_SOURCE=random</code>）生成两对 ML-KEM 静态密钥：
+   - Initiator：<code>InitiatorPublicKey</code> / <code>InitiatorPrivateKey</code>
+   - Responder：<code>ResponderPublicKey</code> / <code>ResponderPrivateKey</code></li>
+<li>校验 Base64 解码后公钥 800B、私钥 1632B（512 标准）</li>
+<li>写入两个配置文件</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>产出文件</th>
+<th>角色</th>
+<th>主要内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>pqst0.conf</code></strong></td>
+<td>客户端 Initiator</td>
+<td>本机 Initiator 私钥/公钥；Peer 填 Responder 公钥；<code>Endpoint = 10.20.0.1:51820</code></td>
+</tr>
+<tr>
+<td><strong><code>server0.pqst0.conf</code></strong></td>
+<td>服务端 Responder</td>
+<td>本机 Responder 私钥/公钥；Peer 填 Initiator 公钥；<code>ListenPort = 51820</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>作用</strong>：把「谁是谁、密钥是什么、连哪里」写成 WireGuard 风格配置；<strong>Ephemeral 密钥不在 conf 里</strong>——每次握手由内核临时生成 E_i（ML-KEM-768）。</p>
+<p><strong>小白理解</strong>：<code>.conf</code> 是两张「身份证 + 通讯录」，还没有真正建隧道。</p>
+<p>可选：<code>PQST_KEY_SOURCE=pki</code> 时从证书库读 Static 公钥（见 <a href="../../../notes/pqsectunnel/defense/08-pki.html">08</a>）。</p>
+<hr>
+<h4 id="步骤-b4dmesg-c-清空内核日志缓冲区">步骤 B4：<code>dmesg -c</code> — 清空内核日志缓冲区</h4>
+<pre><code class="language-bash">sudo dmesg -c &gt;/dev/null
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>产出</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>空 dmesg  ring buffer</td>
+<td>后面采集的 <code>dmesg.log</code> <strong>只含本次实验</strong>，便于答辩展示握手/分片日志</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h4 id="步骤-b5insmod-pqsectunnelko-加载内核模块">步骤 B5：<code>insmod pqsectunnel.ko</code> — 加载内核模块</h4>
+<pre><code class="language-bash">sudo modprobe udp_tunnel
+sudo modprobe ip6_udp_tunnel
+sudo insmod pqsectunnel.ko
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>产出</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>内核注册 <code>pqsectunnel</code> 模块</td>
+<td>出现 <code>/dev</code> 网卡能力；<code>wg_noise_init()</code> 用 <strong>SM3</strong> 预计算 Noise 协议标签</td>
+</tr>
+<tr>
+<td>dmesg 出现 <code>PQWireGuard 2.0.0 loaded</code></td>
+<td>证明模块加载成功</td>
+</tr>
+</tbody>
+</table>
+<p><strong>小白理解</strong>：把「加密 VPN 引擎」插进内核；没这步，pqst-quick 配置了也加不了密。</p>
+<hr>
+<h4 id="步骤-b6setupnssh-建-netns-启动隧道握手发生在这里">步骤 B6：<code>setup_ns.sh</code> — 建 netns + 启动隧道（<strong>握手发生在这里</strong>）</h4>
+<pre><code class="language-bash">sudo ./setup_ns.sh 0 1 &amp;
+# 若有多个 pqst*.conf，run.sh 会对每个 index 并行调用
+</code></pre>
+<p><strong>子步骤 6a — 创建隔离网络</strong></p>
+<table>
+<thead>
+<tr>
+<th>动作</th>
+<th>产出</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ip netns add cli0_ns</code> / <code>srv0_ns</code></td>
+<td>两个独立网络栈</td>
+</tr>
+<tr>
+<td><code>ip link add ... type veth</code></td>
+<td>一对虚拟网线连接两 netns</td>
+</tr>
+<tr>
+<td>分配 <code>10.20.0.2</code> / <code>10.20.0.1</code></td>
+<td>Underlay IP</td>
+</tr>
+<tr>
+<td><code>tc netem delay 30ms rate 1000mbps</code></td>
+<td>链路仿真（可调 <code>NETEM_DELAY_MS</code>）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>子步骤 6b — 启动 VPN 接口</strong></p>
+<pre><code class="language-bash">ip netns exec srv0_ns ./pqst-quick up ./server0.pqst0.conf
+ip netns exec cli0_ns ./pqst-quick up ./pqst0.conf
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>动作</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pqst-quick</code> 解析 <code>.conf</code></td>
+<td>通过 Netlink 把密钥、peer、AllowedIPs 下发内核</td>
+</tr>
+<tr>
+<td>创建 <code>pqst0</code> 虚拟 TUN 设备</td>
+<td>客户端得 <code>10.0.8.1</code>，服务端得 <code>10.0.8.2</code></td>
+</tr>
+<tr>
+<td>客户端主动发 <strong>Handshake Initiation</strong></td>
+<td>内核 <code>send.c</code> → 2068B → <strong>应用层分 2 片</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>子步骤 6c — 内核里自动完成的握手（你看不见，但在 dmesg 里）</strong></p>
+<ol>
+<li>Responder 收 Initiation → 重组 2068B → 验 MAC → <code>noise.c</code> 解包 → 发 Response（1916B，2 片）</li>
+<li>Initiator 收 Response → 重组 → 发 Key Confirmation（60B，单片）</li>
+<li>双方 <code>begin_session</code> → 派生 <strong>TK_i / TK_r</strong>（SM4-GCM 会话密钥）</li>
+</ol>
+<p>详见 <a href="../../../notes/pqsectunnel/defense/03.html">03</a>、<a href="../../../notes/pqsectunnel/defense/05.html">05</a>、<a href="../../../notes/pqsectunnel/defense/06-mtu.html">06</a>。</p>
+<p><strong>子步骤 6d — 等待握手成功</strong></p>
+<pre><code class="language-bash"># setup_ns.sh 内：最多 30 秒，每 2 秒 ping 一次 VPN 内网
+ping 10.0.8.2   # 从 cli0_ns 发起
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>现象</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ping 通</td>
+<td>握手 + 数据面 OK</td>
+</tr>
+<tr>
+<td>输出 <code>Handshake confirmed after Ns</code></td>
+<td>实验脚本判定成功</td>
+</tr>
+</tbody>
+</table>
+<p><strong>本套件 dmesg 关键行</strong>（<code>dmesg.log</code>）：</p>
+<pre><code>pqc_fragment: fragmented into 2 parts, total_len=2068      # Initiation 发送
+pqc_fragment: reassembled skb-&gt;len=2068                    # Responder 重组
+server to [...] completed handshake in 980087 ns           # Response 完成
+pqc_fragment: fragmented into 2 parts, total_len=1916      # Response 发送
+client [...] completed handshake in 80600576 ns            # Initiator 收 Response
+Receiving handshake key confirmation                       # 会话建立
+</code></pre>
+<hr>
+<h4 id="步骤-b7sleep-10-等待所有并行实例握手稳定">步骤 B7：<code>sleep 10</code> — 等待所有并行实例握手稳定</h4>
+<p>多实例时 <code>run.sh</code> 会对每个 <code>pqstN.conf</code> 后台跑 <code>setup_ns.sh</code>，主流程 <code>wait</code> 后 sleep，避免过早采日志。</p>
+<hr>
+<h4 id="步骤-b8可选testtransfersh-数据面验证">步骤 B8（可选）：<code>test_transfer.sh</code> — 数据面验证</h4>
+<p>仅当 <code>sudo ./run.sh --with-transfer</code>：</p>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>做什么</th>
+<th>验证什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>iperf3</strong>（默认）</td>
+<td>srv 起 <code>iperf3 -s</code>；cli 跑 <code>iperf3 -c 10.0.8.2</code></td>
+<td>TCP 经 VPN 的吞吐量</td>
+</tr>
+<tr>
+<td><strong>netcat</strong></td>
+<td>cli 发字符串；srv 比对收到内容</td>
+<td>明文是否正确穿过 SM4-GCM 隧道</td>
+</tr>
+<tr>
+<td><strong>ping</strong></td>
+<td>cli 对 <code>10.0.8.2</code> 发 N 个 ICMP</td>
+<td>延迟/丢包</td>
+</tr>
+</tbody>
+</table>
+<p><strong>小白理解</strong>：握手只证明「密钥对齐」；transfer 证明「真的能传业务数据」。</p>
+<hr>
+<h4 id="步骤-b9采集-dmesglog">步骤 B9：采集 <code>dmesg.log</code></h4>
+<pre><code class="language-bash">sudo dmesg &gt; dmesg.log
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>产出</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>dmesg.log</code></strong></td>
+<td>答辩证据：模块加载、分片、握手耗时、peer 创建</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="4-全流程一张图构建-运行">4. 全流程一张图（构建 → 运行）</h2>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────┐
+│  阶段 A: sudo ./build.sh -e mlkem512-mlkem768-sm4gcm-sm3               │
+├─────────────────────────────────────────────────────────────────────────┤
+│  vars → 编译 pqsectunnel.ko + pqst + pqst-quick + nist-mlkem512-genkey  │
+│       → 复制 run.sh / setup_*.py / setup_ns.sh                          │
+│       → 写 suite_meta.env                                               │
+│  产出: experiments/mlkem512-mlkem768-sm4gcm-sm3/  （工具箱就绪）         │
+└─────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│  阶段 B: cd experiments/... &amp;&amp; sudo ./run.sh [--with-transfer]          │
+├─────────────────────────────────────────────────────────────────────────┤
+│  1 reset.sh          清 netns                                           │
+│  2 rmmod             卸旧模块                                            │
+│  3 setup_configs.py  → pqst0.conf + server0.pqst0.conf（密钥+拓扑）       │
+│  4 dmesg -c          清空日志                                            │
+│  5 insmod .ko        加载 PQ 引擎                                        │
+│  6 setup_ns.sh       → netns + veth + pqst-quick up → 三次握手 + 分片    │
+│  7 sleep             等待稳定                                              │
+│  8 test_transfer.sh  [可选] iperf3/nc/ping 数据面                       │
+│  9 dmesg &gt; dmesg.log 保存证据                                            │
+└─────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<hr>
+<h2 id="5-与根目录-testsh-的关系">5. 与根目录 <code>test.sh</code> 的关系</h2>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>范围</th>
+<th>做什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sudo ./test.sh</code></td>
+<td>整个项目</td>
+<td>测模块 load/unload、pqst genkey 性能、配置生成等</td>
+</tr>
+<tr>
+<td><code>sudo ./test.sh --network</code></td>
+<td>默认第一个实验目录</td>
+<td>额外跑网络测试（内部会调实验目录的 <code>run.sh</code> 逻辑）</td>
+</tr>
+<tr>
+<td><code>sudo ./test.sh --network-dir experiments/mlkem512-mlkem768-sm4gcm-sm3</code></td>
+<td>指定套件</td>
+<td><strong>答辩推荐</strong>：直接对本套件做端到端网络测试</td>
+</tr>
+</tbody>
+</table>
+<p><strong>答辩怎么说</strong>：日常开发用 <code>build.sh</code> + 进目录 <code>run.sh</code>；CI/回归用根目录 <code>test.sh --network-dir ...</code> 批量验。</p>
+<hr>
+<h2 id="6-各产物一句话作用速查表">6. 各产物「一句话作用」速查表</h2>
+<table>
+<thead>
+<tr>
+<th>文件/产物</th>
+<th>谁生成</th>
+<th>干什么用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>wgtest/.../vars</code></td>
+<td>人工维护</td>
+<td>定义套件配方</td>
+</tr>
+<tr>
+<td><code>pqsectunnel.ko</code></td>
+<td>build.sh</td>
+<td>内核 PQ VPN 引擎</td>
+</tr>
+<tr>
+<td><code>pqst</code></td>
+<td>build.sh</td>
+<td>命令行配密钥/接口</td>
+</tr>
+<tr>
+<td><code>pqst-quick</code></td>
+<td>build.sh</td>
+<td>读 conf 一键 up/down</td>
+</tr>
+<tr>
+<td><code>suite_meta.env</code></td>
+<td>build.sh</td>
+<td>记录编译参数，给 setup_configs 校验</td>
+</tr>
+<tr>
+<td><code>nist-mlkem512-genkey</code></td>
+<td>build.sh</td>
+<td>标准 512 静态密钥生成</td>
+</tr>
+<tr>
+<td><code>pqst0.conf</code></td>
+<td>run → setup_configs</td>
+<td>Initiator 身份 + 连谁</td>
+</tr>
+<tr>
+<td><code>server0.pqst0.conf</code></td>
+<td>run → setup_configs</td>
+<td>Responder 身份 + 听谁</td>
+</tr>
+<tr>
+<td><code>cli0_ns</code> / <code>srv0_ns</code></td>
+<td>setup_ns.sh</td>
+<td>隔离的两台「虚拟机」</td>
+</tr>
+<tr>
+<td><code>dmesg.log</code></td>
+<td>run.sh 末尾</td>
+<td>握手/分片内核日志</td>
+</tr>
+<tr>
+<td><code>dmesg</code> 中 <code>completed handshake</code></td>
+<td>内核 noise.c</td>
+<td>握手成功计时</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="7-答辩演示建议5-分钟-live-demo-脚本">7. 答辩演示建议（5 分钟 live demo 脚本）</h2>
+<ol>
+<li><strong>展示 vars + suite_meta.env</strong>（30s）— 「这套实验固定 512+768+国密」</li>
+<li><strong>ls 实验目录</strong>（30s）— 指 <code>.ko</code>、<code>pqst</code>、<code>run.sh</code></li>
+<li><strong>sudo ./run.sh</strong>（2min）— 看终端 <code>Handshake confirmed</code>、并行 setup 输出</li>
+<li><strong>grep pqc_fragment dmesg.log</strong>（1min）— 指 2068/1916 两片重组</li>
+<li><strong>可选 sudo ./run.sh --with-transfer</strong>（1min）— iperf3 证明数据面</li>
+</ol>
+<p>若不能 live demo：打开 <code>dmesg.log</code> L87–123 讲解即可。</p>
+<hr>
+<h2 id="8-常见问题小白版">8. 常见问题（小白版）</h2>
+<p><strong>Q：为什么 build 和 run 分开？</strong><br>
+A：build 一次可复用；run 每次重新 genkey、重新 conf、重新握手，保证实验可重复。</p>
+<p><strong>Q：<code>.conf</code> 里的密钥和握手里的 E_i 什么关系？</strong><br>
+A：<code>.conf</code> 只有 <strong>Static KEM</strong> 长期钥；<strong>Ephemeral E_i</strong> 每次握手内核临时生成（768），不在配置文件里。</p>
+<p><strong>Q：为什么 Initiation 要分片？</strong><br>
+A：2068 字节 &gt; 典型 MTU；见 <a href="../../../notes/pqsectunnel/defense/06-mtu.html">06</a>。</p>
+<p><strong>Q：ping 10.0.8.2 通说明什么？</strong><br>
+A：三次握手完成 + SM4-GCM 数据面能加密 ICMP，不是只完成了前两包。</p>
+<p><strong>Q：必须用 netns 吗？</strong><br>
+A：实验脚本用 netns 在一台机器模拟两端；生产环境是两台真机各跑 pqst-quick。</p>
+<hr>
+<h2 id="9-交叉引用">9. 交叉引用</h2>
+<table>
+<thead>
+<tr>
+<th>主题</th>
+<th>文档</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>握手协议</td>
+<td><a href="../../../notes/pqsectunnel/defense/02.html">02</a>、<a href="../../../notes/pqsectunnel/defense/03.html">03</a></td>
+</tr>
+<tr>
+<td>内核路径</td>
+<td><a href="../../../notes/pqsectunnel/defense/05.html">05</a></td>
+</tr>
+<tr>
+<td>分片</td>
+<td><a href="../../../notes/pqsectunnel/defense/06-mtu.html">06</a></td>
+</tr>
+<tr>
+<td>算法参数</td>
+<td><a href="../../../notes/pqsectunnel/defense/04.html">04</a></td>
+</tr>
+<tr>
+<td>PKI 密钥</td>
+<td><a href="../../../notes/pqsectunnel/defense/08-pki.html">08</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="10-来源索引">10. 来源索引</h2>
+<table>
+<thead>
+<tr>
+<th>内容</th>
+<th>路径</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>构建</td>
+<td><code>build.sh</code> L675–776</td>
+</tr>
+<tr>
+<td>运行编排</td>
+<td><code>experiments/.../run.sh</code></td>
+</tr>
+<tr>
+<td>网络环境</td>
+<td><code>experiments/.../setup_ns.sh</code></td>
+</tr>
+<tr>
+<td>配置生成</td>
+<td><code>experiments/.../setup_configs.py</code></td>
+</tr>
+<tr>
+<td>传输测试</td>
+<td><code>experiments/.../test_transfer.sh</code></td>
+</tr>
+<tr>
+<td>套件 vars</td>
+<td><code>wgtest/wgtest-mlkem512-mlkem768-sm4gcm-sm3/vars</code></td>
+</tr>
+<tr>
+<td>实测日志</td>
+<td><code>experiments/mlkem512-mlkem768-sm4gcm-sm3/dmesg.log</code></td>
+</tr>
+</tbody>
+</table>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">PQ-SecTunnel</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/doc-pqsectunnel/defense/07-%E5%B7%A5%E7%A8%8B%E6%9E%B6%E6%9E%84%E4%B8%8E%E5%AE%9E%E9%AA%8C%E9%AA%8C%E8%AF%81.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../notes/pqsectunnel/defense/06-mtu.html"><span class="dir">← 上一篇</span><span class="t">06 — 分片与 MTU</span></a><a class="next" href="../../../notes/pqsectunnel/defense/08-pki.html"><span class="dir">下一篇 →</span><span class="t">08 — PKI 与密钥管理</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../index.html">首页</a>
+      <a href="../../../learn.html">课件</a>
+      <a href="../../../notes/index.html">笔记库</a>
+      <a href="../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../about.html">关于</a>
+      <a href="../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../js/main.js" defer></script>
+</body>
+</html>

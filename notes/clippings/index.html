@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>内容剪藏 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="外部内容剪藏与整理：Bilibili、微信公众号、小红书、GitHub、抖音、飞书文档等来源的摘要笔记。 我的笔记库分区，共 82 篇笔记。">
+<link rel="canonical" href="https://northadb.github.io/notes/clippings/index.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="内容剪藏 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="外部内容剪藏与整理：Bilibili、微信公众号、小红书、GitHub、抖音、飞书文档等来源的摘要笔记。 我的笔记库分区，共 82 篇笔记。">
+<meta property="og:url" content="https://northadb.github.io/notes/clippings/index.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="内容剪藏 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="外部内容剪藏与整理：Bilibili、微信公众号、小红书、GitHub、抖音、飞书文档等来源的摘要笔记。 我的笔记库分区，共 82 篇笔记。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../feed.xml">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../notes/assets/notes.css">
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../" data-page="">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <section class="hero wrap" style="padding-bottom: 40px;">
+    <div class="hero-glow"></div>
+    <div class="hero-kicker"><span class="dot"></span> Vault · Clippings/</div>
+    <h1 class="t-h1">内容剪藏</h1>
+    <p class="sub">外部内容剪藏与整理：Bilibili、微信公众号、小红书、GitHub、抖音、飞书文档等来源的摘要笔记。<span class="dim">共 82 篇笔记，来自 <a href="https://github.com/NorthAdb/north-my-note/tree/main/Clippings" target="_blank" rel="noopener">Clippings/</a>。</span></p>
+    <div class="hero-actions">
+      <a href="https://github.com/NorthAdb/north-my-note/tree/main/Clippings" class="btn btn-ghost">源目录 ↗</a>
+      <a href="../../notes/index.html" class="btn btn-ghost">返回笔记库 →</a>
+    </div>
+  </section>
+
+
+
+  <section class="block wrap" style="padding-top: 0;">
+    <div class="ls-group">Bilibili/</div>
+    <ul class="post-list">
+      <li>
+        <a class="post-row" href="../../notes/clippings/bilibili/2026-07-28-bai.html">
+          <span class="num">01</span>
+          <div>
+            <h3>我的 B站 AI/编程 收藏清单（2026.03–2026.07）</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 23 分钟</span></div>
+            <p class="row-desc">采集自默认收藏夹（共 2546 个视频），2026-07-28 更新 🆕 本期新增约 60 个视频，以下按合集归类整理</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/bilibili/2026-07-30-agent.html">
+          <span class="num">02</span>
+          <div>
+            <h3>别再问 Agent 学习路线了，你的学习顺序从头就是反的</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 3 分钟</span></div>
+            <p class="row-desc">UP 主：海云日记 | 时长 4:37 发布时间：2026-06-14 | 播放 1.1万 | 收藏 1084 | 点赞 442 互动质量：⭐⭐⭐⭐⭐（高，收藏率 9.5%）</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/bilibili/2026-07-30-agentskilltool.html">
+          <span class="num">03</span>
+          <div>
+            <h3>Agent 架构中 Skill 和 Tool 到底有啥本质区别？</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 3 分钟</span></div>
+            <p class="row-desc">UP 主：Agent开发入门 | 时长 4:05 发布时间：2026-07-30 | 弹幕 87 | 收藏 13 互动质量：⭐⭐⭐⭐⭐（高）</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/bilibili/2026-07-31-10ai-agent-8.html">
+          <span class="num">04</span>
+          <div>
+            <h3>10 分钟讲透 AI Agent 8 种主流架构</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 7 分钟</span></div>
+            <p class="row-desc">UP 主：AI架构师Leo | 时长 10:13 | 发布 2026-07-18 互动：❤️ 65 · ⭐ 123 · 💬 7 · 🪙 23 事实主干：B站 AI 字幕（agent-reach / OpenCLI 提取，242 段逐句时间轴…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/bilibili/2026-07-31-agent-harness-loop-graph.html">
+          <span class="num">05</span>
+          <div>
+            <h3>Agent 系统架构设计：Harness、Loop、Graph 到底怎么选</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 6 分钟</span></div>
+            <p class="row-desc">UP 主：AI架构师Leo | 时长 16:14 | 发布 2026-07 互动：❤️ 48 · ⭐ 178 · 💬 1 · 🪙 9 事实主干：B站 AI 字幕（agent-reach / OpenCLI 提取，343 段逐句时间轴） 证据…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/bilibili/2026-07-31-ovo.html">
+          <span class="num">06</span>
+          <div>
+            <h3>从&quot;第一性原理&quot;速通大厂技术岗实习（花绿青ovo）</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 7 分钟</span></div>
+            <p class="row-desc">UP 主：花绿青ovo（九本，Java 主语言，TikTok/字节实习中） 时长 39:45 | 事实主干：B站 AI 字幕（agent-reach / OpenCLI，917 段逐句） 证据等级：bilibili-ai-subtitles</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/bilibili/2026-08-03-claude-code.html">
+          <span class="num">07</span>
+          <div>
+            <h3>Claude Code 为什么不会撑爆上下文？</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 9 分钟</span></div>
+            <p class="row-desc">UP 主：唐国梁Tommy | 时长：14:35 互动：播放约 3,222 · 点赞 73 · 收藏 185 · 投币 30 证据说明：已通过 OpenCLI 提取 B站 AI 字幕，共 401 段、约 14:35；同时参考视频简介和 B站…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/bilibili/2026-08-04-llm-wiki.html">
+          <span class="num">08</span>
+          <div>
+            <h3>【保姆教程】卡帕西 LLM Wiki 强在哪？手把手教你改造 AI 个人知识库</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 6 分钟</span></div>
+            <p class="row-desc">UP 主：啊喵什么都会一点点 | 时长：09:18 互动：播放约 2,542 · 点赞 74 · 收藏 254 · 投币 28 证据说明：本笔记依据 B站 AI 字幕（OpenCLI 提取，228 段）整理。字幕存在语音识别错误，已将 LL…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/bilibili/2026-08-20-ai-agent.html">
+          <span class="num">09</span>
+          <div>
+            <h3>AI Agent 面试复盘：从会用框架到构建可靠系统</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 14 分钟</span></div>
+            <p class="row-desc">视频：我的 AI Agent 面试复盘https://www.bilibili.com/video/BV1hubZ6WEfU/ UP 主：假如今天可以躺平｜发布：2026-08-20｜时长：36:12 事实主干：B站 AI 字幕（agent…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/bilibili/2026-08-21-ai.html">
+          <span class="num">10</span>
+          <div>
+            <h3>[中配] 我如何使用 AI 进行高效学习</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 12 分钟</span></div>
+            <p class="row-desc">视频：我如何使用AI进行高效学习https://www.bilibili.com/video/BV1Y7bR6nEBv/ 原标题：How I Use AI to Learn Things UP 主：豚工智能｜发布：2026-08-17｜时长…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/bilibili/2026-08-23-710rag.html">
+          <span class="num">11</span>
+          <div>
+            <h3>7 分钟了解 10 种 RAG 策略</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 9 分钟</span></div>
+            <p class="row-desc">视频：7 分钟了解 10 种 RAG 策略https://www.bilibili.com/video/BV17J3B6PEGK/ UP 主：Hucci写代码｜发布：2026-07-30｜时长：07:31 事实主干：视频音频离线转写（fas…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/bilibili/2026-08-25-agent15.html">
+          <span class="num">12</span>
+          <div>
+            <h3>Agent 后端基础设施：15 个知识点整理</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 15 分钟</span></div>
+            <p class="row-desc">视频：agent 15个小知识点（比较基础）https://www.bilibili.com/video/BV11yhN6iE37/ UP 主：假如今天可以躺平｜时长：25:20｜整理日期：2026-08-25 证据说明：视频部分来自 B …</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/bilibili/2026-08-25-agent.html">
+          <span class="num">13</span>
+          <div>
+            <h3>Agent 开发对应的系统设计知识</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 18 分钟</span></div>
+            <p class="row-desc">视频：agent开发对应的系统设计知识https://www.bilibili.com/video/BV1SgMz67ESb/ UP 主：假如今天可以躺平｜时长：40:58｜整理日期：2026-08-25 配套仓库：donnemartin/…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/bilibili/2026-08-25-b.html">
+          <span class="num">14</span>
+          <div>
+            <h3>我的 B 站收藏夹分类索引（2026-08-25）</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 28 分钟</span></div>
+            <p class="row-desc">这次整理对应你选中的 Probe → Plan → Teach：先 Probe 盘点当前收藏，再 Plan 按学习主题分类，后续可按分类逐步观看、整理成笔记并回写状态。 本索引只整理 vault 中的收藏快照，没有移动、删除或改动 B 站远…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/bilibili/2026-09-01-llm-api.html">
+          <span class="num">15</span>
+          <div>
+            <h3>三套现行 LLM API 对照详解：Chat Completions · Responses · Anthropic Messages</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 39 分钟</span></div>
+            <p class="row-desc">视频：从 Completions 到 Responses：三代 LLM API 演化实录https://www.bilibili.com/video/BV1ZWgs6FEZ9/ UP 主：是的iamrio｜发布：2026-08-13｜时长：…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+    </ul>
+    <div class="ls-group">Bilibili/Matt-Pocock/</div>
+    <ul class="post-list">
+      <li>
+        <a class="post-row" href="../../notes/clippings/bilibili/matt-pocock/2026-07-31-matt-pocock-skills.html">
+          <span class="num">01</span>
+          <div>
+            <h3>Matt Pocock Skills 原作者手把手教程（官方主流流程）</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 5 分钟</span></div>
+            <p class="row-desc">UP 主：ChHsich（搬运翻译） | 原作者：Matt Pocock 时长 17:17 | 事实主干：B站 AI 字幕（agent-reach / OpenCLI，302 段逐句） 证据等级：bilibili-ai-subtitles</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/bilibili/matt-pocock/2026-07-31-matt-pocock-teach-skillai.html">
+          <span class="num">02</span>
+          <div>
+            <h3>Matt Pocock 实战教程：teach skill——让 AI 像真老师一样教你任何东西</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 5 分钟</span></div>
+            <p class="row-desc">UP 主：ChHsich（搬运翻译） | 原作者：Matt Pocock 时长 26:24（分 P，字幕重复） | 事实主干：B站 AI 字幕（agent-reach / OpenCLI） 证据等级：bilibili-ai-subtitle…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/bilibili/matt-pocock/2026-07-31-matt-pocock-spec-driven.html">
+          <span class="num">03</span>
+          <div>
+            <h3>Matt Pocock 实战教程：从原型到 spec-driven 开发</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 5 分钟</span></div>
+            <p class="row-desc">UP 主：ChHsich（搬运翻译） | 原作者：Matt Pocock 时长 ~8 分钟 | 事实主干：B站 AI 字幕（agent-reach / OpenCLI，164 段逐句） 证据等级：bilibili-ai-subtitles</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/bilibili/matt-pocock/2026-07-31-matt-pocock-slopwatch.html">
+          <span class="num">04</span>
+          <div>
+            <h3>Matt Pocock 直播实战：从零搭建一个全新项目（SlopWatch 完整实录）</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 8 分钟</span></div>
+            <p class="row-desc">原作者：Matt Pocock（@mattpocockuk）| 直播 2026-04-18 | 时长 ~1:47 事实主干：YouTube 直播完整字幕（用户提供） 证据等级：youtube-transcript</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/bilibili/matt-pocock/2026-07-31-matt-pocock-wayfinderspec.html">
+          <span class="num">05</span>
+          <div>
+            <h3>Matt Pocock 直播实战：Wayfinder 从想法到 spec 全流程</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 6 分钟</span></div>
+            <p class="row-desc">UP 主：ChHsich（搬运翻译） | 原作者：Matt Pocock 时长 ~1 小时 | 事实主干：B站 AI 字幕（agent-reach / OpenCLI，777 段逐句） 证据等级：bilibili-ai-subtitles</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/bilibili/matt-pocock/2026-08-01-matt-pocock-wayfinderfaq.html">
+          <span class="num">06</span>
+          <div>
+            <h3>Matt Pocock 实战教程：Wayfinder 概念详解与 FAQ</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 6 分钟</span></div>
+            <p class="row-desc">原作者：Matt Pocock | 时长 ~13 分钟 | 事实主干：B站 AI 字幕（agent-reach / OpenCLI，234 段逐句） 证据等级：bilibili-ai-subtitles 🔗 互补视频：2026-07-31-…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/bilibili/matt-pocock/2026-08-02-matt-pocock-grill-skill9.html">
+          <span class="num">07</span>
+          <div>
+            <h3>Matt Pocock：别让你的 Agent 问你 200 个问题 —— grill skill 的 9 个误区</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 5 分钟</span></div>
+            <p class="row-desc">原作者：Matt Pocock | 时长 24:58 | 事实主干：YouTube 英文字幕（yt-dlp 提取，1228 段） 证据等级：youtube-transcript 主题：Grill Me / Grill with Docs 两…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/bilibili/matt-pocock/2026-08-05-matt-pocock-claude-code.html">
+          <span class="num">08</span>
+          <div>
+            <h3>Matt Pocock 实战：用 Claude Code 从零开发一个真实项目（ghost course 全流程）</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 12 分钟</span></div>
+            <p class="row-desc">UP 主：ChHsich（搬运翻译） | 原作者：Matt Pocock（Total TypeScript 创始人） 时长 1:31:26 | 事实主干：B站 AI 字幕（agent-reach / OpenCLI，734 段逐句） 证据等…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/bilibili/matt-pocock/2026-08-06-matt-pocock-agent-vs-workflow.html">
+          <span class="num">09</span>
+          <div>
+            <h3>Matt Pocock 科普：大多数人根本没搞懂 Agent 到底是什么</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 4 分钟</span></div>
+            <p class="row-desc">原作者：Matt Pocock（Total TypeScript / AI Hero） | 时长 16:19 | 事实主干：B站 AI 字幕（agent-reach / OpenCLI，206 段逐句） 证据等级：bilibili-ai-s…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/bilibili/matt-pocock/2026-08-17-matt-pocock-5promptmcp-server.html">
+          <span class="num">10</span>
+          <div>
+            <h3>Matt Pocock 实战教程：5 条 Prompt 从零搭一个 MCP Server</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 7 分钟</span></div>
+            <p class="row-desc">UP 主：ChHsich（搬运翻译） | 原作者：Matt Pocock 时长：25:40（分 P，英文字幕） | 事实主干：B站 AI 字幕（agent-reach / OpenCLI） 证据等级：bilibili-ai-subtitle…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/bilibili/matt-pocock/matt-pocock-skills.html">
+          <span class="num">11</span>
+          <div>
+            <h3>Matt Pocock Skills 仓库全量分类汇总</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 6 分钟</span></div>
+            <p class="row-desc">仓库：mattpocock/skillshttps://github.com/mattpocock/skills | 理念：Skills For Real Engineers（真实工程，不是 vibe coding） 规模：21.6 万 s…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/bilibili/matt-pocock/matt-pocock.html">
+          <span class="num">12</span>
+          <div>
+            <h3>Matt Pocock 方法论精华：从想法到交付的完整 Agent 工作流</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 11 分钟</span></div>
+            <p class="row-desc">本页是五篇 Matt Pocock 系列笔记的汇总精华，整合了他「如何用 AI 从零构建项目」的完整方法论——从探索需求、到设计架构、到交付实现、再到教学传承。</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+    </ul>
+    <div class="ls-group">Claude/</div>
+    <ul class="post-list">
+      <li>
+        <a class="post-row" href="../../notes/clippings/claude/2026-07-30-claude.html">
+          <span class="num">01</span>
+          <div>
+            <h3>Claude.ai 近期聊天记录汇总</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 21 分钟</span></div>
+            <p class="row-desc">采集自 Claude.ai Recent 页面，2026-07-31 更新</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+    </ul>
+    <div class="ls-group">GitHub/展开/</div>
+    <ul class="post-list">
+      <li>
+        <a class="post-row" href="../../notes/clippings/github/pe2edde/2026-07-03-github.html">
+          <span class="num">01</span>
+          <div>
+            <h3>大学四年比课本有用的 GitHub 仓库</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 4 分钟</span></div>
+            <p class="row-desc">来源：小黑盒&quot;亓孑&quot;文章推荐 · 2026-07-04 采集 这 5 个仓库解决的是课堂不教、但工作中天天遇到的问题。</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/github/pe2edde/2026-07-06-last30days-skillskillai.html">
+          <span class="num">02</span>
+          <div>
+            <h3>last30days-skill：用 5 万 Star 的 Skill 学习 AI 新知识</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 2 分钟</span></div>
+            <p class="row-desc">来源：微信公众号&quot;逛逛GitHub&quot; · 2026-07-06 发布 让 AI agent 帮你扒一遍近 30 天国外各大社交媒体的真实讨论，综合成带引用报告</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/github/pe2edde/2026-07-21-python-100-days-python.html">
+          <span class="num">03</span>
+          <div>
+            <h3>Python-100-Days：从新手到大师</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 5 分钟</span></div>
+            <p class="row-desc">Python - 100天从新手到大师 — 作者：骆昊 jackfrued</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/github/pe2edde/2026-07-21-system-design-primer.html">
+          <span class="num">04</span>
+          <div>
+            <h3>System Design Primer：系统设计面试指南</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 3 分钟</span></div>
+            <p class="row-desc">Learn how to design large-scale systems. Prep for the system design interview.</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/github/pe2edde/2026-08-03-deepseek-harness.html">
+          <span class="num">05</span>
+          <div>
+            <h3>DeepSeek Harness 生态：高星项目与应用场景</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 9 分钟</span></div>
+            <p class="row-desc">deepseek-harness-applicantshttps://github.com/Octo-o-o-o/deepseek-harness-applicants 不是一个 Agent 框架，而是 DeepSeek Harness 内…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+    </ul>
+    <div class="ls-group">GitHub/总结/</div>
+    <ul class="post-list">
+      <li>
+        <a class="post-row" href="../../notes/clippings/github/p25f9c7/2026-07-28-github.html">
+          <span class="num">01</span>
+          <div>
+            <h3>GitHub 高星项目速览 · 2026 年中</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 11 分钟</span></div>
+            <p class="row-desc">数据来源：GitHub Trending + GitHub Search（stars10k, created in 2026），2026-07-28 采集。</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/github/p25f9c7/2026-07-28-github-2.html">
+          <span class="num">02</span>
+          <div>
+            <h3>我的 GitHub 加星项目 · 分类汇总</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 7 分钟</span></div>
+            <p class="row-desc">共 64 个项目，2026-07-31 采集自 github.com/NorthAdbhttps://github.com/NorthAdb?tab=stars 研究方向：网络安全，西电研一 🆕 相比上次（07-28）新增 12 个项目，以…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+    </ul>
+    <div class="ls-group">YouTube/Karpathy/</div>
+    <ul class="post-list">
+      <li>
+        <a class="post-row" href="../../notes/clippings/youtube/karpathy/2026-08-07-karpathy-llm-chatgpt.html">
+          <span class="num">01</span>
+          <div>
+            <h3>Karpathy 深度解析：ChatGPT 这类 LLM 到底是怎么来的</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 10 分钟</span></div>
+            <p class="row-desc">作者：Andrej Karpathy（OpenAI 创始成员、前特斯拉 AI 总监、Eureka Labs 创始人） | 发布：2025-02-05 | 时长 3:31:23 | 事实主干：YouTube 自动字幕（46875 段，全程覆盖…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+    </ul>
+    <div class="ls-group">书籍/</div>
+    <ul class="post-list">
+      <li>
+        <a class="post-row" href="../../notes/clippings/p72191b/ai-agents-in-depth-zh-cn.html">
+          <span class="num">01</span>
+          <div>
+            <h3>Agent</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 868 分钟</span></div>
+            <p class="row-desc">设计原理与工程实践 李博杰 著</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+    </ul>
+    <div class="ls-group">小红书/</div>
+    <ul class="post-list">
+      <li>
+        <a class="post-row" href="../../notes/clippings/pae26bb/2026-07-07-aiagent.html">
+          <span class="num">01</span>
+          <div>
+            <h3>小红书热议：AI Agent 开发用什么框架？</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 4 分钟</span></div>
+            <p class="row-desc">来源：小红书用户&quot;点点&quot;发起的讨论帖 · 编辑于 07-01 北京 原帖：ai agent 开发目前用什么框架？基于opencode类似的agent开发skills还是传统langchain体系构建 共 93 条评论 · 采集于 2026-…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/pae26bb/2026-07-30-ai-agent-graph-loop-harness.html">
+          <span class="num">02</span>
+          <div>
+            <h3>AI Agent 落地铁三角：Graph、Loop、Harness</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 4 分钟</span></div>
+            <p class="row-desc">作者：咔嗒库栗 | 平台：小红书 互动：❤️ 302 · ⭐ 443 · 💬 16</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/pae26bb/2026-07-31-28javaagent.html">
+          <span class="num">03</span>
+          <div>
+            <h3>28届个人 Java + Agent 学习路线</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 7 分钟</span></div>
+            <p class="row-desc">来源：小红书用户「天才美少女卡莎」 这是一份以 Java 后端求职和 Agent 项目落地为目标的个人经验路线。核心策略是：基础快速过一遍 → 尽早确定项目并写简历 → 围绕项目补知识和八股 → 算法与投递并行推进。</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/pae26bb/2026-07-31-moe.html">
+          <span class="num">04</span>
+          <div>
+            <h3>为什么现在的顶级大模型都在卷 MoE？</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 9 分钟</span></div>
+            <p class="row-desc">作者：新物种日记 | 平台：小红书 互动：❤️ 379 · ⭐ 545 · 💬 8</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/pae26bb/2026-08-03.html">
+          <span class="num">05</span>
+          <div>
+            <h3>果然能找到好工作的计算机生都是狠角色</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 6 分钟</span></div>
+            <p class="row-desc">作者：小鱼 这是一篇面向普通本科计算机学生的求职经验分享。作者自述最终拿到腾讯 Offer；以下内容是个人经验，不代表所有公司和岗位的普遍规律。</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/pae26bb/2026-08-04-contextgraph-agent-qoder.html">
+          <span class="num">06</span>
+          <div>
+            <h3>从 Context 到 Graph：Agent 工程的四个层次</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 8 分钟</span></div>
+            <p class="row-desc">这篇图文以 Qoder CLI 和 Qoder Cloud Agents 为例，解释 Agent 工程从一次模型调用走向持续运行、多 Agent 协作时需要解决的四个层次。</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/pae26bb/2026-08-07-coding-agent-violin.html">
+          <span class="num">07</span>
+          <div>
+            <h3>实战：从零开始构建一个 Coding Agent——Violin</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 10 分钟</span></div>
+            <p class="row-desc">来源：得物技术 · 小红书 主题：从底层循环出发，用 Zig、Python 和 Lua 构建一个可运行的 Coding Agent。</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+    </ul>
+    <div class="ls-group">小黑盒/</div>
+    <ul class="post-list">
+      <li>
+        <a class="post-row" href="../../notes/clippings/p0ba988/ai.html">
+          <span class="num">01</span>
+          <div>
+            <h3>小黑盒推荐：适合新手学习/练手的 AI 项目</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 4 分钟</span></div>
+            <p class="row-desc">来源：小黑盒用户&quot;你蒸芝士&quot;（Lv.16）· 昨天发布 lz 是大二学生，主学 Java 后端，用 Codex 做了两个 AI 方向的项目</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+    </ul>
+    <div class="ls-group">微信公众号/</div>
+    <ul class="post-list">
+      <li>
+        <a class="post-row" href="../../notes/clippings/p44a38b/2026-07-21-claude-code-skill.html">
+          <span class="num">01</span>
+          <div>
+            <h3>Claude Code Skill 机制源码剖析</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 6 分钟</span></div>
+            <p class="row-desc">来源：公众号「小林coding」2026-07-21 核心主题：Skill 不是普通的提示词，而是一套精密的「上下文懒加载系统」</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/p44a38b/2026-07-28-claude-code-coding.html">
+          <span class="num">02</span>
+          <div>
+            <h3>Claude Code 工程化六件套详解</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 7 分钟</span></div>
+            <p class="row-desc">作者：小林coding 来源：微信公众号 日期：2026-07-28</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/p44a38b/2026-07-30-agent.html">
+          <span class="num">03</span>
+          <div>
+            <h3>Agent 高频面试题全解析：从 LLM 到 A2A 协议</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 7 分钟</span></div>
+            <p class="row-desc">作者：小林面试笔记 | 来源：微信公众号</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/p44a38b/2026-07-31-topp-topk.html">
+          <span class="num">04</span>
+          <div>
+            <h3>面试官：“大模型参数，温度值、Top-P、Top-K 分别是什么？”—— 采样参数全解析</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 6 分钟</span></div>
+            <p class="row-desc">作者：小林面试笔记 | 来源：微信公众号 日期：2026-07-31</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/p44a38b/2026-08-04-graphraglightrag.html">
+          <span class="num">05</span>
+          <div>
+            <h3>GraphRAG 与 LightRAG：从传统 RAG 到图增强检索</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 6 分钟</span></div>
+            <p class="row-desc">原文标题：字节二面，我霸气反问：“别光吹RAG，说说GraphRAG的多跳推理，你们线上跑通了吗” 本笔记以原文为基础重新整理。文中的成本、性能和论文数据属于作者转述，使用前应回到论文或官方文档核验。</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/p44a38b/2026-08-06-ai-agent-langchain-langgraph-llamaindex.html">
+          <span class="num">06</span>
+          <div>
+            <h3>AI Agent 开发框架全解析：LangChain / LangGraph / LlamaIndex 怎么选</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 7 分钟</span></div>
+            <p class="row-desc">作者：小林面试笔记（小林哥） | 来源：微信公众号 | 发布：2026-08-06</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/p44a38b/2026-08-07-codex-agents-md-skills-subagents-mcp-hooks-coding.html">
+          <span class="num">07</span>
+          <div>
+            <h3>Codex 工程化五件套详解：AGENTS.md / Skills / Subagents / MCP / Hooks</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 18 分钟</span></div>
+            <p class="row-desc">作者：小林coding 来源：微信公众号 日期：2026-08-07</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/p44a38b/2026-08-09-graph-engineering-datawhale.html">
+          <span class="num">08</span>
+          <div>
+            <h3>Graph Engineering：从 Loop 到 Graph 的工程化学习笔记</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 22 分钟</span></div>
+            <p class="row-desc">主要文章：腾讯技术工程《Loop Engineering 已死？一文带你了解 Graph Engineering》（作者：lukiexing，2026-07-28） 补充材料：Datawhale 整理的 Codez《Graph Engine…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/p44a38b/2026-08-09-7ai-coding.html">
+          <span class="num">09</span>
+          <div>
+            <h3>这 7 个 AI 编程提示词，建议直接收藏！</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 3 分钟</span></div>
+            <p class="row-desc">作者：小林coding | 来源：微信公众号 | 发布：2026-08-09</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/p44a38b/2026-08-11-agent-hookllm.html">
+          <span class="num">10</span>
+          <div>
+            <h3>Agent 治理：用 Hook 堵住 LLM 的偷懒、越权与失忆</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 18 分钟</span></div>
+            <p class="row-desc">来源：腾讯技术工程《Agent 治理：用 Hook 堵住 LLM 的偷懒、越权与失忆》（作者：xiangnzhang，2026-08-06） 原文：https://mp.weixin.qq.com/s/ISwjIw5lj7JlcQJV7BO…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/p44a38b/2026-08-11-claude-codeharness-coding.html">
+          <span class="num">11</span>
+          <div>
+            <h3>Claude Code 大代码库实战：模型是地板，harness 才是天花板</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 15 分钟</span></div>
+            <p class="row-desc">来源：小林coding《面试官皱眉：&quot;公司项目几百万行代码，Claude Code 怎么扛得住？&quot;我：&quot;换 Opus 4.7&quot;，他叹气：模型是地板，harness 才是天花板》（2026-05-22） 原文：https://mp.weixi…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/p44a38b/2026-08-11-tencentdb-agent-memory.html">
+          <span class="num">12</span>
+          <div>
+            <h3>腾讯把 Agent 记忆系统开源了，TencentDB Agent Memory 实测！</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 10 分钟</span></div>
+            <p class="row-desc">来源：Datawhale《腾讯把 Agent 记忆系统开源了，TencentDB Agent Memory 实测！》（作者：李秀奇，2026-08-03） 原文：https://mp.weixin.qq.com/s/Rwf1z890uUt1…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/p44a38b/2026-08-13-agent.html">
+          <span class="num">13</span>
+          <div>
+            <h3>多 Agent 通信实践全景：从编排到终端直连</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 7 分钟</span></div>
+            <p class="row-desc">来源：Datawhale《刚刚，Claude Code 的重大更新来了！》（2026-08-08）+ 网络调研综合 原文：https://mp.weixin.qq.com/s/R4EyCcdcBr50LIV1ZuuHA</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/p44a38b/2026-08-13-ai-ai.html">
+          <span class="num">14</span>
+          <div>
+            <h3>从胡言乱语到精准改代码：我是如何让 AI 读懂老项目的</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 9 分钟</span></div>
+            <p class="row-desc">来源：腾讯技术工程《从胡言乱语到精准改代码：我是如何让 AI 读懂老项目的》（作者：被删，2026-08-07） 原文：https://mp.weixin.qq.com/s/acuC164Eh5bfQJfS8hOXg 副题：将真实债务项目重…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/p44a38b/2026-08-14-deepseek-harness-agent.html">
+          <span class="num">15</span>
+          <div>
+            <h3>DeepSeek Harness 拆解：一套能拼装的 Agent 架构</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 23 分钟</span></div>
+            <p class="row-desc">来源：腾讯技术工程《DeepSeek Harness 拆解：一套能拼装的 Agent 架构》（作者：chino，腾讯 WXG 微信小店前端开发工程师，2026-08-14） 原文：https://mp.weixin.qq.com/s/DeI…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/p44a38b/2026-08-18-tencentdb-agent-memory.html">
+          <span class="num">16</span>
+          <div>
+            <h3>任何错误只犯一次：TencentDB Agent Memory 的团队记忆实践</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 19 分钟</span></div>
+            <p class="row-desc">来源：腾讯技术工程《任何错误只犯一次：TencentDB Agent Memory 的团队记忆实践》（2026-08-18） 原文：https://mp.weixin.qq.com/s/-ghlUNmB8HvzX9cFYXlDKg 副题：任…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/p44a38b/2026-08-18-deepseek-harness-datawhale.html">
+          <span class="num">17</span>
+          <div>
+            <h3>重磅！一文读懂 DeepSeek Harness 插件！</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 8 分钟</span></div>
+            <p class="row-desc">来源：Datawhale《重磅！一文读懂 DeepSeek Harness 插件！》（2026-08-17） 原文：https://mp.weixin.qq.com/s/r4C-RR1CthFooA7iZl6hzg 系列：DeepSeek …</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/p44a38b/2026-08-19-agent.html">
+          <span class="num">18</span>
+          <div>
+            <h3>Agent的上限，可能不在模型，而在团队知识</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 10 分钟</span></div>
+            <p class="row-desc">来源：腾讯程序员《Agent的上限，可能不在模型，而在团队知识》（作者：danteyang，2026-08-17） 原文：https://mp.weixin.qq.com/s/VmH96QDoqrcV0tSUF2YCMQ 副题：团队 AI …</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/p44a38b/2026-08-26-agent.html">
+          <span class="num">19</span>
+          <div>
+            <h3>Agent 自进化飞轮：评测 → 记忆 → 落地 → 控制</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 6 分钟</span></div>
+            <p class="row-desc">自进化不是让 Agent 自己“变聪明”，而是建立一条让执行结果被评测、经验被治理、改进被验证、风险被控制的工程闭环。</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/p44a38b/2026-08-26-anthropic-ai-native-sdlc-playbook.html">
+          <span class="num">20</span>
+          <div>
+            <h3>Anthropic AI Native SDLC：当 AI 承担大部分编码后，如何重构开发流程</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 10 分钟</span></div>
+            <p class="row-desc">重磅！Anthropic 内部 AI Native 经验公开了！https://mp.weixin.qq.com/s/cUiGeUUGyhuhBSn3n2n2w 公众号：Datawhale｜发布时间：2026-08-26 22:22 延伸阅…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/p44a38b/2026-08-27-langchain4j-java-llm.html">
+          <span class="num">21</span>
+          <div>
+            <h3>LangChain4j：Java LLM 应用框架的能力与边界</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 7 分钟</span></div>
+            <p class="row-desc">面试官笑问：“LangChain4j 是什么？它主要解决了什么问题？”https://mp.weixin.qq.com/s/pCBR1RAwgKMcSp87KqIjWQ 公众号：小林面试笔记｜发布时间：2026-08-27</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/p44a38b/2026-08-27-multi-agent-10.html">
+          <span class="num">22</span>
+          <div>
+            <h3>靠这 10 个优化点，把 Multi-Agent 工作流成本降了 50%+</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 7 分钟</span></div>
+            <p class="row-desc">作者：lemonye | 来源：微信公众号「腾讯技术工程」 | 发布日期：2026-08-21 本文是对原文的结构化整理与实践提炼；图片已通过 PicGo 上传至 Gitee 图床。</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/p44a38b/2026-09-01-rag.html">
+          <span class="num">23</span>
+          <div>
+            <h3>字节面试官：“RAG 不就是给大模型挂个知识库？”—— RAG 核心知识全解析（附范式演进专题）</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 15 分钟</span></div>
+            <p class="row-desc">作者：小林面试笔记（正文）· 小码AI笔记（🧬 范式演进专题） 来源：微信公众号 发布：2026-07-29｜更新：2026-09-01（补充范式演进专题：Vector RAG / BM25 / GraphRAG / SAG / PageI…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/p44a38b/2026-09-04-cordis-deepseek-harness.html">
+          <span class="num">24</span>
+          <div>
+            <h3>DeepSeek Harness 背后的「心脏」：Cordis 到底是什么</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 21 分钟</span></div>
+            <p class="row-desc">作者：lss233 | 来源：微信公众号「腾讯技术工程」 | 发布：2026-09-04 副题：从 Koishi 到 DeepSeek Harness——Cordis 的前世今生 本笔记基于原文重新整理；框架与论文表述均以原文、官方文档和预…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/p44a38b/2026-09-04-langchainllamaindex.html">
+          <span class="num">25</span>
+          <div>
+            <h3>LangChain 和 LlamaIndex 有什么区别？</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 5 分钟</span></div>
+            <p class="row-desc">作者：小林面试笔记 | 来源：微信公众号 | 发布时间：2026-09-04 本笔记基于原文重新整理；框架能力会随版本变化，具体 API 和特性应以官方文档为准。</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/p44a38b/2026-09-07-llmharness-agent.html">
+          <span class="num">26</span>
+          <div>
+            <h3>从一次 LLM 调用到完整 Harness，Agent 到底经历了什么？</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 21 分钟</span></div>
+            <p class="row-desc">作者：ivanxxie、davoszhang | 来源：微信公众号「腾讯技术工程」 | 发布：2026-09-07 副题：新一代 LLM 应用层的 Agent Harness——从一次模型调用，到上下文、循环、工具、记忆，再到 Pi / O…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/p44a38b/2026-09-11-google-towards-a-science-of-scaling-agent-systems-datawhale.html">
+          <span class="num">27</span>
+          <div>
+            <h3>Google 多智能体最佳实践：该不该上多智能体，是可以算出来的</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 6 分钟</span></div>
+            <p class="row-desc">来源：公众号「Datawhale」，《重磅！Google发布多智能体最佳实践！》（2026-09-11），解读 Google Research / DeepMind / MIT 联合论文 Towards a Science of Scali…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/p44a38b/2026-09-13-codex-harness-coding.html">
+          <span class="num">28</span>
+          <div>
+            <h3>Codex Harness 架构拆解</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 32 分钟</span></div>
+            <p class="row-desc">来源：公众号「小林coding」，《面试官得瑟：“你懂 Codex 的 Harness 架构吗？”，我笑了：“何止懂？我还看过源码”，他愣了....》（发布 2026-09-11，属于《图解 Codex 源码》系列开篇） 一句话总结：模型负…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/p44a38b/2026-09-21-agentagent-datawhale.html">
+          <span class="num">29</span>
+          <div>
+            <h3>重磅！从 Agent 开发到 Agent 算法，进阶指南来了</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 14 分钟</span></div>
+            <p class="row-desc">来源：公众号「Datawhale」，作者郭子扬（东南大学研究生），2026-09-21。原文为个人观点分享，文中明确说明&quot;后面慢慢展开&quot;的部分尚未展开。 一句话总结：开发是把一个 Agent 从 0 快速做到 60，算法是做到 80 并不断…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/p44a38b/2026-09-22-agentrag-datawhale.html">
+          <span class="num">30</span>
+          <div>
+            <h3>Agent 时代，RAG 怎么选？这份指南一次讲清</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 26 分钟</span></div>
+            <p class="row-desc">来源：公众号「Datawhale」，作者卞一岚，2026-09-22。 一句话总结：RAG 的核心不是 retrieval，而是 context construction——它只是在推理时补上下文的手段之一。选型应该由「信息缺口长什么样」反…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/p44a38b/2026-09-24-agent-datawhale.html">
+          <span class="num">31</span>
+          <div>
+            <h3>给项目建 Agent 知识库，一套完整方法来了</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 17 分钟</span></div>
+            <p class="row-desc">来源：公众号「Datawhale」，作者王大鹏，2026-09-24。 一句话总结：给项目建 Agent 知识库，难点不在&quot;资料从哪里找&quot;，而在&quot;查到资料以后凭什么判断&quot;。所以要反过来做——先确定知识库要支持什么判断，再决定整理什么、整理到…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+    </ul>
+    <div class="ls-group">抖音/</div>
+    <ul class="post-list">
+      <li>
+        <a class="post-row" href="../../notes/clippings/p277a98/2026-07-29.html">
+          <span class="num">01</span>
+          <div>
+            <h3>大模型幻觉的系统性解析（11分钟）</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 4 分钟</span></div>
+            <p class="row-desc">创作者：AI大模型学习（16.8万粉丝） 合集：《每天讲透一个知识点》第 147 集 发布时间：2026-06-08 | 播放 2.5万 | 点赞 448 | 评论 3901</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/p277a98/2026-07-31-claude-code-automemory.html">
+          <span class="num">02</span>
+          <div>
+            <h3>Claude Code 结构化记忆工作流：AutoMemory 实战详解</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 6 分钟</span></div>
+            <p class="row-desc">UP 主：李云放而已（@李云放而已） | 时长 14:51 发布时间：2026-07-23 | ❤️ 8812 · ⭐ 209 · 💬 1717 事实主干：Whisper base ASR 转写（14:51 音频，CPU 转写耗时 ~9mi…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/p277a98/aiobsidian.html">
+          <span class="num">03</span>
+          <div>
+            <h3>AI + Obsidian 知识库搭建指南</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 7 分钟</span></div>
+            <p class="row-desc">两个视频的核心共识：AI 可以参与思考，但不能替你理解；AI 负责整理执行，人负责判断决策。</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/p277a98/deepseek-v4-1-flashkvcache.html">
+          <span class="num">04</span>
+          <div>
+            <h3>AI精读：DeepSeek把KV Cache压到极限</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 8 分钟</span></div>
+            <p class="row-desc">DeepSeek-V4.1-Flash 技术报告（51 页）的核心主张只有一个数字：全局 KV Cache 每 token 只占 890 字节——上一代 V4-Flash 是它的 4 倍，初代 V1 是它的 437 倍。 实现路径 = 架构…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+    </ul>
+    <div class="ls-group">飞书文档/</div>
+    <ul class="post-list">
+      <li>
+        <a class="post-row" href="../../notes/clippings/pa5cfe6/2026-07-28-2026.html">
+          <span class="num">01</span>
+          <div>
+            <h3>2026 开发学习路线及资源汇总</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 1 分钟</span></div>
+            <p class="row-desc">来源：飞书云文档 修改时间：2026-07-28 创建时间：2026-07-26</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>      <li>
+        <a class="post-row" href="../../notes/clippings/pa5cfe6/2026-08-05-tiktok.html">
+          <span class="num">02</span>
+          <div>
+            <h3>后端学习路线（大二 TikTok 实习生分享）</h3>
+            <div class="row-meta"><span class="cat">内容剪藏</span><span class="sep"></span><span>阅读约 9 分钟</span></div>
+            <p class="row-desc">来源：飞书云文档《后端学习路线》，最新修改 07-27，写于 2026.7.10 北京 作者背景：9 本（九校联盟?）Java 主语言，第一段实习同期拿到初创 AI 开发、央企 AI 开发、中厂后端、字节后端等 offer，目前在 TikT…</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+    </ul>
+  </section>
+
+  <section class="block wrap">
+    <div class="chapter-nav"><a class="btn btn-ghost" href="../../notes/projects/index.html">← 项目笔记</a><a class="btn btn-ghost" href="../../notes/jd/index.html">JD 情报 →</a></div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../index.html">首页</a>
+      <a href="../../learn.html">课件</a>
+      <a href="../../notes/index.html">笔记库</a>
+      <a href="../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../about.html">关于</a>
+      <a href="../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../js/main.js" defer></script>
+</body>
+</html>

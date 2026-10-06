@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>实现命令（中文翻译） · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="中文翻译自 development-workflows/rpi/.claude/commands/rpi/implement.mdhttps://github.com/NorthAdb/claude-code-best-practice/b…">
+<link rel="canonical" href="https://northadb.github.io/notes/projects/claude-code-best-practice/doc/development-workflows/rpi/commands/p84b6cb.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="实现命令（中文翻译） · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="中文翻译自 development-workflows/rpi/.claude/commands/rpi/implement.mdhttps://github.com/NorthAdb/claude-code-best-practice/b…">
+<meta property="og:url" content="https://northadb.github.io/notes/projects/claude-code-best-practice/doc/development-workflows/rpi/commands/p84b6cb.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="实现命令（中文翻译） · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="中文翻译自 development-workflows/rpi/.claude/commands/rpi/implement.mdhttps://github.com/NorthAdb/claude-code-best-practice/b…">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../../../../../feed.xml">
+<link rel="stylesheet" href="../../../../../../../css/style.css">
+<link rel="stylesheet" href="../../../../../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "实现命令（中文翻译）", "description": "中文翻译自 development-workflows/rpi/.claude/commands/rpi/implement.mdhttps://github.com/NorthAdb/claude-code-best-practice/b…", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/projects/claude-code-best-practice/doc/development-workflows/rpi/commands/p84b6cb.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../../../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../../../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../../../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../../../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../../../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../../../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../../../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../../../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../../../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../../../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../../../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../../../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../../../../../index.html">首页</a><span>/</span><a href="../../../../../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../../../../../notes/projects/index.html">项目笔记</a></div>
+          <h1>实现命令（中文翻译）</h1>
+          <p class="post-sub">中文翻译自 development-workflows/rpi/.claude/commands/rpi/implement.mdhttps://github.com/NorthAdb/claude-code-best-practice/b…</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../../../../../notes/projects/index.html">项目笔记</a></span><span class="sep"></span>
+            <span>阅读约 9 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p>中文翻译自 <a href="https://github.com/NorthAdb/claude-code-best-practice/blob/main/development-workflows/rpi/.claude/commands/rpi/implement.md">development-workflows/rpi/.claude/commands/rpi/implement.md</a></p>
+</blockquote>
+<hr>
+<p>description: Execute phased implementation with validation gates
+argument-hint: "<feature-slug> [--phase N] [--validate-only]"</p>
+<hr>
+<h2 id="用户输入">用户输入</h2>
+<pre><code class="language-text">$ARGUMENTS
+</code></pre>
+<p>你<strong>必须</strong>解析用户输入以提取功能slug（<code>rpi/</code>中的文件夹名称）。</p>
+<h2 id="目的">目的</h2>
+<p>此命令执行基于规划文档的分阶段功能实现。它协调专门的Agent，强制执行验证关卡，并确保在整个实施过程中符合宪法。</p>
+<p><strong>前置条件</strong>：
+- 功能文件夹存在于 <code>rpi/{feature-slug}/</code>
+- 规划已完成（<code>rpi/{feature-slug}/plan/PLAN.md</code> 存在）</p>
+<p><strong>输出位置</strong>：<code>rpi/{feature-slug}/implement/</code></p>
+<p><strong>这是RPI工作流的第4步</strong>（最后一步——实际实现）。</p>
+<h2 id="标志">标志</h2>
+<ul>
+<li><code>--phase N</code>：执行特定的阶段编号（1-8），如果省略则从阶段1开始</li>
+<li><code>--validate-only</code>：仅验证当前阶段，不实施</li>
+<li><code>--skip-validation</code>：跳过验证关卡直接进行（谨慎使用）</li>
+</ul>
+<h2 id="可用agent">可用Agent</h2>
+<p>所有Agent使用<strong>Opus模型</strong>以获得最高质量。</p>
+<h3 id="实施agent">实施Agent</h3>
+<table>
+<thead>
+<tr>
+<th>Agent</th>
+<th>类型</th>
+<th>使用时机</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>senior-software-engineer</code></td>
+<td>自定义</td>
+<td>所有实施任务</td>
+</tr>
+</tbody>
+</table>
+<h3 id="支持agent">支持Agent</h3>
+<table>
+<thead>
+<tr>
+<th>Agent</th>
+<th>类型</th>
+<th>目的</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Explore</code></td>
+<td>内置</td>
+<td>实施前的代码探索</td>
+</tr>
+<tr>
+<td><code>code-reviewer</code></td>
+<td>自定义</td>
+<td>代码审查和质量验证</td>
+</tr>
+<tr>
+<td><code>constitutional-validator</code></td>
+<td>自定义</td>
+<td>验证是否符合项目宪法</td>
+</tr>
+<tr>
+<td><code>documentation-analyst-writer</code></td>
+<td>内置</td>
+<td>文档生成</td>
+</tr>
+</tbody>
+</table>
+<h3 id="agent路由">Agent路由</h3>
+<p>所有实施任务由 <code>senior-software-engineer</code> Agent处理。</p>
+<hr>
+<h2 id="阶段0加载上下文和规则">阶段0：加载上下文和规则</h2>
+<p><strong>前置条件</strong>：从用户输入解析出功能slug</p>
+<p><strong>流程</strong>：</p>
+<h3 id="01-加载项目宪法">0.1 加载项目宪法</h3>
+<ol>
+<li>在仓库中查找宪法或原则文档</li>
+<li>如果存在，提取：
+   - 技术约束（类型安全、测试、组件隔离）
+   - 业务原则（质量标准、工作流）
+   - 架构边界</li>
+<li>存储约束以便在实施过程中强制执行</li>
+</ol>
+<h3 id="02-加载领域特定指南">0.2 加载领域特定指南</h3>
+<p>根据要修改的文件，加载相关的项目指南：
+- 检查组件特定的README文件
+- 检查编码风格指南
+- 检查测试需求文档</p>
+<h3 id="03-分析实施范围">0.3 分析实施范围</h3>
+<ol>
+<li>读取 <code>rpi/{feature-slug}/plan/PLAN.md</code></li>
+<li>识别所有要修改的文件</li>
+<li>将文件映射到实施Agent</li>
+</ol>
+<p><strong>输出</strong>：
+- 宪法上下文摘要
+- 已加载的领域规则
+- 文件到Agent的映射
+- 阶段执行计划</p>
+<p><strong>验证</strong>：
+- [ ] 宪法已加载（如存在）
+- [ ] 受影响文件的领域规则已加载
+- [ ] 所有文件已映射到Agent
+- [ ] 执行计划已理解</p>
+<hr>
+<h2 id="分阶段实施工作流">分阶段实施工作流</h2>
+<h3 id="阶段实施循环">阶段实施循环</h3>
+<p>对于PLAN.md中的每个阶段：</p>
+<pre><code>┌─────────────────────────────────────────────────────────────────┐
+│ 阶段 N：[阶段名称]                                                │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  1. 代码发现 (Explore Agent)                                     │
+│     └─→ 在修改前理解现有代码                                       │
+│                                                                  │
+│  2. 实施 (senior-software-engineer)                              │
+│     └─→ 实施阶段交付物                                            │
+│                                                                  │
+│  3. 自我验证                                                     │
+│     └─→ 工程师根据阶段清单进行验证                                  │
+│                                                                  │
+│  4. 代码审查 (code-reviewer Agent)                               │
+│     └─→ 安全性、正确性、可维护性                                    │
+│                                                                  │
+│  5. 用户验证关卡                                                  │
+│     └─→ 停止并请求用户批准                                        │
+│         ├─→ 通过：继续下一个阶段                                   │
+│         ├─→ 有条件通过：记录问题，继续                              │
+│         └─→ 失败：修复问题，重新验证                                │
+│                                                                  │
+│  6. 文档更新                                                     │
+│     └─→ 更新PLAN.md中的阶段状态                                   │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+</code></pre>
+<hr>
+<h2 id="步骤1代码发现每个阶段">步骤1：代码发现（每个阶段）</h2>
+<p><strong>Agent</strong>：Explore（内置，通过Task工具）</p>
+<p><strong>目的</strong>：在进行更改之前，让实施扎根于代码现实。</p>
+<p><strong>流程</strong>：
+1. 通过Task工具使用 <code>subagent_type="Explore"</code> 启动Explore Agent
+2. 请求分析受当前阶段影响的文件
+3. 理解现有模式、集成点、约束</p>
+<p><strong>Explore Agent提示</strong>：</p>
+<pre><code>分析代码库，为实施[功能名称]的阶段N做准备。
+
+此阶段要修改的文件：
+[从PLAN.md列出文件]
+
+调查并记录：
+
+1. **当前实现**
+   - 这些文件目前如何工作？
+   - 使用了哪些模式？
+   - 哪些函数/类将受到影响？
+
+2. **集成点**
+   - 哪些其他文件导入或使用这些模块？
+   - 哪些API或接口将发生变化？
+   - 哪些测试覆盖了此代码？
+
+3. **依赖项**
+   - 使用了哪些库？
+   - 有哪些内部工具可用？
+   - 当前代码存在哪些约束？
+
+4. **要遵循的模式**
+   - 这些文件使用了哪种编码风格？
+   - 遵循了哪些命名约定？
+   - 存在哪些错误处理模式？
+
+5. **风险和注意事项**
+   - 更改此内容可能导致什么问题？
+   - 存在哪些边界情况？
+   - 有哪些向后兼容性问题？
+
+提供发现摘要以指导实施。
+</code></pre>
+<p><strong>输出</strong>：供实施Agent使用的发现摘要</p>
+<hr>
+<h2 id="步骤2实施每个阶段">步骤2：实施（每个阶段）</h2>
+<p><strong>Agent</strong>：senior-software-engineer</p>
+<p><strong>流程</strong>：
+1. 使用senior-software-engineer Agent
+2. 提供来自步骤1的发现上下文
+3. 实施该阶段的所有交付物
+4. 遵循宪法约束和项目规则</p>
+<p><strong>实施Agent提示模板</strong>：</p>
+<pre><code>以[agent名称]Agent的身份，为[功能名称]实施阶段N的交付物。
+
+## 上下文
+- 宪法约束：[来自阶段0]
+- 领域规则：[来自阶段0]
+- 发现摘要：[来自步骤1]
+
+## 阶段N交付物
+[从PLAN.md列出]
+
+## 要修改的文件
+[从PLAN.md列出文件及具体变更]
+
+## 实施要求
+1. 遵循发现过程中识别的现有代码模式
+2. 遵守宪法约束（类型安全、测试等）
+3. 遵循项目特定规则（如适用）
+4. 为新功能编写测试
+5. 包含适当的日志记录
+6. 优雅地处理错误
+
+## 质量检查清单
+- [ ] 代码遵循现有模式
+- [ ] 类型注解在适用处存在
+- [ ] 测试已编写并通过
+- [ ] 现有功能无破坏性变更
+- [ ] 已添加日志记录以支持可观测性
+- [ ] 错误处理全面
+
+实施所有交付物并报告已完成的工作。
+</code></pre>
+<hr>
+<h2 id="步骤3自我验证">步骤3：自我验证</h2>
+<p><strong>Agent</strong>：senior-software-engineer（与步骤2相同）</p>
+<p><strong>流程</strong>：
+1. Agent根据阶段检查清单验证实施
+2. 运行代码检查（使用项目配置的检查工具）
+3. 运行与更改相关的测试
+4. 验证构建成功</p>
+<p><strong>验证命令</strong>（根据你的项目进行调整）：</p>
+<pre><code class="language-bash"># 运行检查工具
+[your-linter-command]
+
+# 运行测试
+[your-test-command]
+
+# 构建/编译
+[your-build-command]
+</code></pre>
+<p><strong>自我验证检查清单</strong>：
+- [ ] 所有交付物已实施
+- [ ] 代码检查通过
+- [ ] 测试通过
+- [ ] 构建成功
+- [ ] 现有测试中无回归
+- [ ] 宪法约束得到遵守
+- [ ] 领域规则得到遵循</p>
+<hr>
+<h2 id="步骤4代码审查">步骤4：代码审查</h2>
+<p><strong>Agent</strong>：code-reviewer（自定义，自动调用）</p>
+<p><strong>流程</strong>：
+1. 调用code-reviewer Agent审查更改
+2. 重点关注正确性、安全性、可维护性
+3. 在继续之前解决阻塞性问题</p>
+<p><strong>代码审查Agent提示</strong>：</p>
+<pre><code>以code-reviewer Agent的身份，审查[功能名称]的阶段N实施。
+
+## 更改的文件
+[列出修改的文件]
+
+## 所做的更改
+[实施摘要]
+
+## 审查重点
+- 正确性和测试
+- 安全性和依赖卫生
+- 架构边界
+- 清晰性优于花哨
+
+## 宪法约束
+[来自阶段0]
+
+使用标准输出格式提供审查。
+</code></pre>
+<p><strong>审查裁决</strong>：
+- <strong>批准</strong>：进行用户验证
+- <strong>附带建议批准</strong>：记录建议，继续进行
+- <strong>需要修改</strong>：修复问题，重新审查</p>
+<hr>
+<h2 id="步骤5用户验证关卡">步骤5：用户验证关卡</h2>
+<p><strong>关键</strong>：此步骤<strong>需要</strong>用户交互。<strong>不要</strong>自动进行。</p>
+<p><strong>流程</strong>：
+1. 展示阶段交付物检查清单
+2. 显示已实施的内容（更改的文件、添加的功能）
+3. 展示PLAN.md中的验证标准
+4. 展示代码审查结果
+5. <strong>停止并等待用户决策</strong></p>
+<p><strong>验证请求格式</strong>：</p>
+<pre><code>## 阶段N验证请求
+
+### 已完成的交付物
+- [x] [交付物1] - [实施摘要]
+- [x] [交付物2] - [实施摘要]
+- ...
+
+### 更改的文件
+| 文件 | 更改类型 | 行数 |
+|------|----------|------|
+| [file] | [add/modify] | [±N] |
+
+### 测试
+- [x] 单元测试：通过
+- [x] 集成测试：通过
+- [x] 构建：成功
+
+### 代码审查
+- 裁决：[批准 / 附带建议批准]
+- 问题：[无 / 列表]
+
+### 验证标准（来自PLAN.md）
+- [ ] [标准1]
+- [ ] [标准2]
+- ...
+
+---
+
+**请验证阶段N：**
+- **通过**：阶段完成，继续阶段N+1
+- **有条件通过**：在下方注明问题，谨慎继续
+- **失败**：在继续前指定要修复的问题
+</code></pre>
+<p><strong>用户决策</strong>：
+- <strong>通过</strong>：继续下一个阶段
+- <strong>有条件通过</strong>：记录问题，继续下一个阶段
+- <strong>失败</strong>：修复问题，重新运行步骤2-5</p>
+<hr>
+<h2 id="步骤6文档更新">步骤6：文档更新</h2>
+<p><strong>流程</strong>：
+1. 用阶段状态更新 <code>rpi/{feature-slug}/plan/PLAN.md</code>
+2. 用验证结果更新 <code>rpi/{feature-slug}/implement/IMPLEMENT.md</code>
+3. 将每个阶段的验证附加到IMPLEMENT.md</p>
+<h3 id="阶段状态跟踪">阶段状态跟踪</h3>
+<p>更新PLAN.md中的复选框：</p>
+<pre><code class="language-markdown">- [ ] 阶段N：未开始
+- [~] 阶段N：进行中
+- [x] 阶段N：已验证（通过）
+- [!] 阶段N：有条件通过（附备注）
+- [-] 阶段N：验证失败（需要返工）
+</code></pre>
+<h3 id="implementmd模板">IMPLEMENT.md模板</h3>
+<pre><code class="language-markdown"># 实施记录
+
+**功能**：[feature-slug]
+**开始时间**：[日期]
+**状态**：[进行中 / 已完成]
+
+---
+
+## 阶段1：[阶段名称]
+
+**日期**：[日期]
+**裁决**：[通过 / 有条件通过 / 失败]
+
+### 交付物
+- [x] [交付物1]
+- [x] [交付物2]
+
+### 更改的文件
+[列出并附行数]
+
+### 测试结果
+[测试输出摘要]
+
+### 代码审查
+[审查裁决和备注]
+
+### 备注
+[任何其他备注]
+
+---
+
+## 阶段2：[阶段名称]
+[与阶段1相同的结构...]
+
+---
+
+## 摘要
+
+**已完成阶段**：[N] / [N]
+**最终状态**：[已完成 / 进行中]
+</code></pre>
+<hr>
+<h2 id="错误处理">错误处理</h2>
+<h3 id="实施失败">实施失败</h3>
+<p><strong>如果实施失败</strong>：
+1. 记录具体的失败
+2. 分析根本原因
+3. 尝试替代方法（最多2次尝试）
+4. 如果仍然失败，<strong>停止</strong>并向用户寻求指导
+5. 不要在实施损坏的情况下继续下一个阶段</p>
+<p><strong>消息</strong>："实施失败：[错误]。尝试了[N]种方法。需要用户指导。"</p>
+<h3 id="测试失败">测试失败</h3>
+<p><strong>如果测试失败</strong>：
+1. 分析失败原因（代码错误 vs 测试错误）
+2. 修复问题
+3. 重新运行测试
+4. 如果持续失败，记录并向用户求助
+5. 不要在测试失败的情况下标记阶段完成</p>
+<p><strong>消息</strong>："测试失败：[失败详情]。已尝试修复但未成功。需要用户审查。"</p>
+<h3 id="构建失败">构建失败</h3>
+<p><strong>如果构建失败</strong>：
+1. 检查类型错误
+2. 检查缺失的导入
+3. 检查语法错误
+4. 修复并重新构建
+5. 如果持续失败，升级给用户处理</p>
+<p><strong>消息</strong>："构建失败：[错误]。无法自动解决。"</p>
+<h3 id="agent失败">Agent失败</h3>
+<p><strong>如果Agent失败或超时</strong>：
+1. 使用相同的输入重试一次
+2. 如果仍然失败，在不使用该Agent贡献的情况下继续
+3. 在验证请求中记录差距</p>
+<p><strong>消息</strong>："Agent [名称] 失败。在不使用其贡献的情况下继续。"</p>
+<hr>
+<h2 id="完成报告">完成报告</h2>
+<p>在所有阶段成功完成后：</p>
+<pre><code class="language-markdown">## 实施完成
+
+### 功能摘要
+- **功能**：[功能名称]
+- **已完成阶段**：[N] / [N]
+
+### 已执行的阶段
+| 阶段 | 状态 | 备注 |
+|------|------|------|
+| 阶段1 | 通过 | [摘要] |
+| 阶段2 | 通过 | [摘要] |
+| ... | ... | ... |
+
+### 修改的文件
+| 文件 | 更改类型 | 行数 |
+|------|----------|------|
+| [file] | [type] | [±N] |
+
+### 添加的测试
+- [测试文件]
+
+### 代码审查摘要
+- 阻塞问题已修复：[N]
+- 建议已处理：[N]
+
+### 宪法合规性
+- [ ] 类型安全性得以保持
+- [ ] 测试已编写
+- [ ] 组件隔离得到尊重
+- [ ] 无破坏性变更
+
+### 创建的工件
+- `rpi/{feature-slug}/plan/PLAN.md`（已更新阶段状态）
+- `rpi/{feature-slug}/implement/IMPLEMENT.md`（所有阶段验证）
+
+### 后续步骤
+1. 用更改创建PR
+2. 请求最终人工审查
+3. 部署到预发布环境
+4. 在预发布环境中验证
+5. 部署到生产环境
+
+### PR备注
+
+**标题**：[{feature-slug}] [简要描述]
+
+**摘要**：
+[实施内容]
+
+**更改**：
+- [列出关键更改]
+
+**测试**：
+-[如何测试]
+
+**发布**：
+- [部署步骤]
+
+**回滚**：
+- [出现问题的回滚流程]
+</code></pre>
+<hr>
+<h2 id="质量关卡">质量关卡</h2>
+<h3 id="每个阶段的质量关卡">每个阶段的质量关卡</h3>
+<p>在将任何阶段标记为完成之前：</p>
+<ul>
+<li class="task"><span class="cb" aria-hidden="true"></span>所有交付物已实施</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>代码检查通过</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>测试通过</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>构建成功</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>代码审查通过</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>用户验证已收到</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>文档已更新</li>
+</ul>
+<h3 id="最终质量关卡">最终质量关卡</h3>
+<p>在将实施标记为完成之前：</p>
+<ul>
+<li class="task"><span class="cb" aria-hidden="true"></span>所有阶段已验证</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>无失败的测试</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>完整构建成功</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>宪法合规性已验证</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>领域规则已遵循</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>PR备注已生成</li>
+</ul>
+<hr>
+<h2 id="备注">备注</h2>
+<h3 id="何时使用此命令">何时使用此命令</h3>
+<ul>
+<li>在 <code>/rpi:plan</code> 生成PLAN.md之后</li>
+<li>当需要带有验证关卡的分阶段实施时</li>
+<li>对于需要结构化实施的功能</li>
+</ul>
+<h3 id="何时不使用此命令">何时<strong>不</strong>使用此命令</h3>
+<ul>
+<li>错误修复（太重了，直接修复即可）</li>
+<li>非常简单的更改（少于30分钟的工作）</li>
+<li>探索性原型开发</li>
+<li>仅文档更改</li>
+</ul>
+<h3 id="最佳实践">最佳实践</h3>
+<ol>
+<li><strong>先审查PLAN.md</strong>：了解你要实施的内容</li>
+<li><strong>信任代码发现</strong>：让Explore Agent指导实施</li>
+<li><strong>遵循现有模式</strong>：让代码发现指导实施</li>
+<li><strong>不要跳过验证</strong>：关卡存在是为了及早发现问题</li>
+<li><strong>边做边记录</strong>：每个阶段后更新状态</li>
+<li><strong>卡住时提问</strong>：宁可提问也不要错误地继续</li>
+</ol>
+<h3 id="rpi工作流的一部分">RPI工作流的一部分</h3>
+<p>步骤4 / 4（描述 → 研究 → 规划 → <strong>实施</strong>）</p>
+<hr>
+<h2 id="命令示例">命令示例</h2>
+<h3 id="执行所有阶段">执行所有阶段</h3>
+<pre><code class="language-bash">/rpi:implement &quot;my-feature&quot;
+</code></pre>
+<h3 id="执行特定阶段">执行特定阶段</h3>
+<pre><code class="language-bash">/rpi:implement &quot;my-feature&quot; --phase 3
+</code></pre>
+<h3 id="仅验证不实施">仅验证（不实施）</h3>
+<pre><code class="language-bash">/rpi:implement &quot;my-feature&quot; --phase 2 --validate-only
+</code></pre>
+<hr>
+<h2 id="完成后的操作">完成后的操作</h2>
+<p><strong>重要</strong>：完成实施后（所有阶段或取得重大进展后），始终提示用户压缩对话：</p>
+<blockquote>
+<p><strong>上下文管理</strong>：此实施工作流消耗了大量上下文。为了保留进度并释放空间，请运行：</p>
+<p><code>/compact</code></p>
+<p>这将总结对话并保留实施状态，同时减少未来工作的令牌消耗。</p>
+</blockquote>
+<p><strong>何时提示压缩</strong>：
+- 所有阶段完成后
+- 完成每个主要阶段后（如果是多会话实施）
+- 如果在实施过程中上下文不足</p>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">项目笔记</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/development-workflows/rpi/commands/%E5%AE%9E%E7%8E%B0%E5%91%BD%E4%BB%A4.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../../../../../notes/projects/claude-code-best-practice/doc/development-workflows/rpi/agents/agent-6.html"><span class="dir">← 上一篇</span><span class="t">高级软件工程师 Agent（中文翻译）</span></a><a class="next" href="../../../../../../../notes/projects/claude-code-best-practice/doc/development-workflows/rpi/commands/pad97ce.html"><span class="dir">下一篇 →</span><span class="t">研究命令（中文翻译）</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../../../../../index.html">首页</a>
+      <a href="../../../../../../../learn.html">课件</a>
+      <a href="../../../../../../../notes/index.html">笔记库</a>
+      <a href="../../../../../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../../../../../about.html">关于</a>
+      <a href="../../../../../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../../../../../js/main.js" defer></script>
+</body>
+</html>

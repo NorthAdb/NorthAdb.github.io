@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Karpathy 深度解析：ChatGPT 这类 LLM 到底是怎么来的 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="作者：Andrej Karpathy（OpenAI 创始成员、前特斯拉 AI 总监、Eureka Labs 创始人） | 发布：2025-02-05 | 时长 3:31:23 | 事实主干：YouTube 自动字幕（46875 段，全程覆盖…">
+<link rel="canonical" href="https://northadb.github.io/notes/clippings/youtube/karpathy/2026-08-07-karpathy-llm-chatgpt.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Karpathy 深度解析：ChatGPT 这类 LLM 到底是怎么来的 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="作者：Andrej Karpathy（OpenAI 创始成员、前特斯拉 AI 总监、Eureka Labs 创始人） | 发布：2025-02-05 | 时长 3:31:23 | 事实主干：YouTube 自动字幕（46875 段，全程覆盖…">
+<meta property="og:url" content="https://northadb.github.io/notes/clippings/youtube/karpathy/2026-08-07-karpathy-llm-chatgpt.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Karpathy 深度解析：ChatGPT 这类 LLM 到底是怎么来的 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="作者：Andrej Karpathy（OpenAI 创始成员、前特斯拉 AI 总监、Eureka Labs 创始人） | 发布：2025-02-05 | 时长 3:31:23 | 事实主干：YouTube 自动字幕（46875 段，全程覆盖…">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../../feed.xml">
+<link rel="stylesheet" href="../../../../css/style.css">
+<link rel="stylesheet" href="../../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Karpathy 深度解析：ChatGPT 这类 LLM 到底是怎么来的", "description": "作者：Andrej Karpathy（OpenAI 创始成员、前特斯拉 AI 总监、Eureka Labs 创始人） | 发布：2025-02-05 | 时长 3:31:23 | 事实主干：YouTube 自动字幕（46875 段，全程覆盖…", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/clippings/youtube/karpathy/2026-08-07-karpathy-llm-chatgpt.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../../index.html">首页</a><span>/</span><a href="../../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../../notes/clippings/index.html">内容剪藏</a></div>
+          <h1>Karpathy 深度解析：ChatGPT 这类 LLM 到底是怎么来的</h1>
+          <p class="post-sub">作者：Andrej Karpathy（OpenAI 创始成员、前特斯拉 AI 总监、Eureka Labs 创始人） | 发布：2025-02-05 | 时长 3:31:23 | 事实主干：YouTube 自动字幕（46875 段，全程覆盖…</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../../notes/clippings/index.html">内容剪藏</a></span><span class="sep"></span>
+            <span>阅读约 10 分钟</span><span class="sep"></span><span>更新于 2026-08-07</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p><strong>作者</strong>：Andrej Karpathy（OpenAI 创始成员、前特斯拉 AI 总监、Eureka Labs 创始人） | <strong>发布</strong>：2025-02-05 | <strong>时长</strong> 3:31:23 | <strong>事实主干</strong>：YouTube 自动字幕（46875 段，全程覆盖）
+<strong>证据等级</strong>：<code>youtube-auto-subtitles</code>
+<strong>主题</strong>：LLM 训练全栈科普——从互联网数据到 ChatGPT 助手的完整流水线 + 模型的"心理学"。</p>
+</blockquote>
+<hr>
+<h2 id="一句话总论">一句话总论</h2>
+<blockquote>
+<p><strong>LLM = 用神经网络做"下一个 token 预测"。训练分三大阶段——预训练、监督微调（SFT）、强化学习（RL）——恰好对应教育的三件事：读课本、看例题、刷练习题。</strong> 当你跟 ChatGPT 对话时，你其实是在跟一个"OpenAI 标注者的神经网络模拟"说话。</p>
+</blockquote>
+<hr>
+<h2 id="0-核心框架完整流水线">0. 核心框架：完整流水线</h2>
+<pre><code>预训练（互联网文本）──► 后训练 ──► 推理（部署）
+                     ├─ 监督微调 SFT（对话数据，~3 小时）
+                     └─ 强化学习 RL（练习题，最新前沿）
+</code></pre>
+<ul>
+<li>预训练：数月、数万 GPU、数百万美元 —— 计算大头</li>
+<li>后训练：约 3 小时量级、便宜但极其关键 —— 决定"人格"</li>
+</ul>
+<hr>
+<h2 id="1-预训练数据下载并清洗互联网">1. 预训练数据：下载并清洗互联网</h2>
+<ul>
+<li><strong>FineWeb</strong>（HuggingFace 开源数据集，代表生产级做法）：最终仅 <strong>44TB 文本 ≈ 15 万亿 tokens</strong>——一个硬盘就能装下</li>
+<li>起点：<strong>Common Crawl</strong>（2007 年起爬取互联网，2024 年已索引 27 亿网页）</li>
+<li>清洗流水线：
+  | 阶段 | 内容 |
+  |---|---|
+  | URL 过滤 | 黑名单：恶意/垃圾/营销/成人等 |
+  | 文本提取 | 原始 HTML → 纯文本（去导航/CSS/标记） |
+  | 语言过滤 | FineWeb 只保留 &gt;65% 英文（各公司可自行权衡多语能力） |
+  | 去重 / PII 移除 | 地址、社保号等个人身份信息剔除 |</li>
+</ul>
+<blockquote>
+<p>💡 设计取舍：过滤掉西班牙语 → 模型就不擅长西语。FineWeb 偏英文，其模型英文强、其他语言弱。</p>
+</blockquote>
+<hr>
+<h2 id="2-tokenization文本如何变成符号">2. Tokenization：文本如何变成符号</h2>
+<ul>
+<li>神经网络需要<strong>一维符号序列 + 有限符号集</strong>；序列长度是"珍贵资源" → 用更多符号换更短序列</li>
+<li>字节（256 符号，序列长 8 倍）→ <strong>BPE 字节对编码</strong>：反复合并高频相邻对、铸造新符号</li>
+<li>现代模型词表约 10 万：<strong>GPT-4 = 100,277 个符号</strong>（tokens）</li>
+<li>直观理解：tokens 就是文本的"原子块"（emoji 比喻），例如 <code>hello world</code> = 2 tokens；大小写、空格都会改变切分</li>
+<li>工具：https://tiktokenizer.vercel.app/</li>
+<li>⚠️ <strong>模型看不到字符，只看 token</strong> —— 这是后面所有拼写问题的根源</li>
+</ul>
+<hr>
+<h2 id="3-神经网络-io-与-transformer">3. 神经网络 I/O 与 Transformer</h2>
+<ul>
+<li><strong>输入</strong>：token 序列（窗口 0~8000，即上下文长度）</li>
+<li><strong>输出</strong>：下一 token 的概率分布（10 万个数字）</li>
+<li><strong>训练</strong>：随机采样窗口 → 让正确 token 的概率上升（loss 下降）→ 反复更新权重，直到输出与训练集统计一致</li>
+<li><strong>Transformer 内部</strong>：token 嵌入 → 注意力块 → MLP 块 → 输出；参数数十亿~近万亿，随机初始化</li>
+<li>本质：<strong>无状态的固定数学表达式</strong>（乘法/加法/指数等）；"神经元"远比生物神经元简单，只是类比</li>
+</ul>
+<hr>
+<h2 id="4-推理生成-掷加权硬币">4. 推理：生成 = 掷加权硬币</h2>
+<ul>
+<li>从概率分布<strong>采样</strong>下一个 token → 拼接 → 继续 → <strong>自回归生成</strong></li>
+<li>系统是<strong>随机</strong>的：同前缀每次输出不同</li>
+<li>生成结果是训练数据的<strong>"混音"</strong>而非复读（偶尔会原样背出小片段）</li>
+<li>用 ChatGPT 时：权重固定，只有推理，不再训练</li>
+</ul>
+<hr>
+<h2 id="5-实例复现-gpt-2llmc-项目">5. 实例：复现 GPT-2（llm.c 项目）</h2>
+<ul>
+<li><strong>GPT-2</strong>（2019）：1.6B 参数、1024 上下文、~100B tokens —— "第一代现代技术栈"</li>
+<li><strong>成本变化</strong>：2019 年估算 $40,000 → 2025 年 $100~$600（约 1 天）；原因：数据质量 + 硬件 + 软件优化</li>
+<li>训练观感：每步 1M tokens / ~7 秒，32000 步 ≈ 33B tokens；loss 单调下降；早期输出乱码 → 后期连贯英文</li>
+<li>硬件：8× H100 节点（约 $3/GPU/小时 租用）；英伟达 $3.4T 市值的"淘金热"——<strong>所有 GPU 都在干同一件事：预测下一个 token</strong></li>
+</ul>
+<hr>
+<h2 id="6-实例llama-31-405b-base-model">6. 实例：Llama 3.1 405B base model</h2>
+<ul>
+<li><strong>Base model = 互联网文本 token 模拟器</strong>（"给模型上课之前的学渣"）：</li>
+<li>不做助手："2+2=？"不会答，只会续写</li>
+<li>会<strong>背诵</strong>维基百科（高质量来源被过采样 ~10 次 → regurgitation），这是预训练副产品</li>
+<li>知识 = <strong>有损压缩</strong>（zip 比喻）：高频信息记得准，低频信息模糊</li>
+<li>2024 大选 → 幻觉出"平行宇宙"（Mike Pence 而不是 JD Vance）</li>
+<li><strong>上下文学习（in-context learning）</strong>：few-shot prompt 让它学会"翻译官"模式</li>
+<li><strong>提示工程实例</strong>：把 prompt 构造成"AI assistant 对话网页"，base model 会顺着扮演助手</li>
+<li>发布模型需要两样东西：<strong>代码</strong>（几百行，描述 forward pass）+ <strong>权重</strong>（几十亿个数字）</li>
+</ul>
+<hr>
+<h2 id="7-后训练sft从模拟器到助手">7. 后训练（SFT）：从模拟器到助手</h2>
+<ul>
+<li>换数据集：互联网文本 → <strong>人工对话</strong>（human-assistant 多轮），训练算法不变</li>
+<li><strong>对话编码</strong>：特殊 token 标记角色轮次（如 <code>&lt;|im_start|&gt;</code> user/assistant）——类似 TCP/IP 协议，各家略不同</li>
+<li><strong>InstructGPT</strong>（OpenAI 2022）开创：人类标注者（Upwork/Scale AI）写 prompt + 理想回答；公司写几百页 labeling instructions（helpful / truthful / harmless）</li>
+<li>现代已转向 <strong>LLM 辅助合成数据</strong>（UltraChat 等数百万对话），但根基仍是人类策展</li>
+<li><strong>核心洞察</strong>：ChatGPT 背后不是"魔法 AI"——它是 OpenAI 标注者的<strong>统计模拟</strong>（标注者通常是各领域专家）</li>
+<li>例：巴黎 top 5 地标——若该问题在后训练数据集里，你看到的就是标注者的答案；否则是预训练知识+后训练风格的融合</li>
+</ul>
+<hr>
+<h2 id="8-llm-心理学一幻觉与工具使用">8. LLM 心理学（一）：幻觉与工具使用</h2>
+<ul>
+<li><strong>幻觉根源</strong>：训练集里"who is X"类问题总是被自信回答 → 模型模仿<strong>回答的风格</strong>而非知识；内部可能有"不确定神经元"，但没接到"说不知道"的输出口</li>
+<li><strong>缓解 1</strong>（Meta 做法）：LLM 生成问题 → 质询模型 3~5 次 → <strong>LLM judge</strong> 对比正确答案 → 把答错的题补上"我不知道"作为新训练样本 → 模型学会把"不确定"接到输出</li>
+<li><strong>缓解 2</strong>（工具使用）：</li>
+<li>引入特殊 token（如 <code>&lt;search_start&gt;...&lt;search_end&gt;</code>）</li>
+<li>采样器遇到特殊 token → 暂停生成 → 执行工具（Bing 搜索）→ 结果<strong>塞回上下文窗口</strong></li>
+<li><strong>上下文窗口 = 工作记忆</strong>；<strong>参数 = 长期模糊记忆</strong></li>
+<li>实用建议：让模型总结《傲慢与偏见》→ 记忆模糊；把文本粘贴进上下文再总结 → 精确。<strong>和人一样，先重读再总结</strong></li>
+</ul>
+<hr>
+<h2 id="9-llm-心理学二自我认知">9. LLM 心理学（二）：自我认知</h2>
+<ul>
+<li><strong>没有持久自我</strong>：每次对话从零启动，处理完即销毁；"你是什么模型"没有真实答案</li>
+<li>默认行为 = <strong>幻觉一个身份</strong>（Falcon 自称"OpenAI 的 GPT-3"——因为互联网上这类问答数据太多）</li>
+<li>修正身份两种方式：
+  1. <strong>硬编码数据</strong>：OLMo 在 SFT 混合里塞 240 条硬编码问答（"我是 OLMo，由 AI2 开发"）
+  2. <strong>system message</strong>：隐藏在上下文里的"隐形 token"，提醒模型身份/知识截止日期</li>
+</ul>
+<hr>
+<h2 id="10-llm-心理学三模型需要-tokens-去思考">10. LLM 心理学（三）：模型需要 tokens 去思考</h2>
+<ul>
+<li><strong>每个 token 只有固定、有限的算力</strong>（几十~百层 Transformer），无法在单个 token 内完成复杂推理</li>
+<li>推论：推理必须<strong>摊开</strong>到多个 token（逐步中间结果）</li>
+<li>这解释了为什么 ChatGPT 答数学题总是"设变量、列方程"一步步来——<strong>标注者写答案时就必须给中间步骤</strong></li>
+<li>演示：要求"一个 token 内作答"→ 简单题可以、大数字题失败（模型心算 23×177 出错）；正常作答 → 正确</li>
+<li>实践铁律：</li>
+<li>复杂计算 → <strong>use code</strong>（Python 解释器 &gt; 模型心算，可审计）</li>
+<li>数点 → 模型数不了（点被 token 化成一团），"use code" 拷进字符串调 <code>.count()</code> 即可</li>
+<li>拼写 → 模型看不见字符（"strawberry 有几个 r"曾难倒所有 SOTA）；"use code" 完美解决</li>
+<li><strong>锯齿智能 / 瑞士奶酪模型</strong>：能解奥赛题却栽在"9.11 vs 9.9"（激活里混入圣经经节特征干扰，研究未完全解释）；<strong>能力分布有洞，不可全信</strong></li>
+</ul>
+<hr>
+<h2 id="11-第三阶段强化学习rl">11. 第三阶段：强化学习（RL）</h2>
+<ul>
+<li>学校类比：
+  | 阶段 | 教育对应 | 数据 |
+  |---|---|---|
+  | 预训练 | 读课本内容（知识） | 互联网文本 |
+  | SFT | 看例题（模仿专家） | 人工对话 |
+  | <strong>RL</strong> | <strong>刷练习题（自己发现解法）</strong> | prompt + 标准答案 |</li>
+<li><strong>SFT 的局限</strong>：人类不知道什么 token 序列对 LLM 最优——人类认知 ≠ LLM 认知，我们只能"初始化"模型，它必须自己发现</li>
+<li>RL 流程（<strong>试错/猜测-检查</strong>）：</li>
+<li>对每个 prompt 采样大量解法（数千~百万条）</li>
+<li>在<strong>可验证域</strong>（数学/代码，答案可自动判分）奖励正确解法</li>
+<li>模型在"游乐场"里自己发现对它有效的 token 序列，逐步强化</li>
+<li>预训练+SFT 已成熟多年；<strong>RL 是 2025 年初最新、最不标准、细节最多</strong>的前沿</li>
+</ul>
+<hr>
+<h2 id="12-deepseek-r1推理的涌现">12. DeepSeek-R1：推理的涌现</h2>
+<ul>
+<li>里程碑：<strong>DeepSeek-R1</strong>（2025-01，DeepSeek/深度求索）公开详述 RL 微调，开源权重</li>
+<li>定量：数学准确率随 RL 步数持续爬升；<strong>response 长度暴涨</strong></li>
+<li>定性：出现<strong>自我反思</strong>（"wait wait... let me reevaluate"）、多角度验证、回溯重试——<strong>链式思考是 RL 的涌现产物，无人硬编码</strong></li>
+<li>演示：DeepThink 模式输出"思考过程"+"工整答案"（对人类的展示部分 vs 正确性部分分开）</li>
+<li><strong>OpenAI o1/o3</strong>：同为 RL 训练的 thinking model；隐藏完整思维链（防<strong>蒸馏风险</strong>），只显示摘要</li>
+<li>选型建议（2025 初）：thinking 模型对数学/代码强，但知识问答是杀鸡用牛刀——<strong>Karpathy 自述 80~90% 场景用 GPT-4o</strong>（SFT 为主），难题才上 thinking 模型</li>
+<li>其他：Gemini 2.0 Flash Thinking（实验版）；Anthropic 当时还没有</li>
+</ul>
+<hr>
+<h2 id="13-alphagorl-威力的历史先例">13. AlphaGo：RL 威力的历史先例</h2>
+<ul>
+<li>同一张图：<strong>监督学习（模仿人类棋手）永远超不过顶尖人类</strong>（李世石）；<strong>RL（自我对弈）能超越</strong></li>
+<li><strong>Move 37</strong>：AlphaGo 下了人类专家仅 ~1/10000 概率会下的棋，事后证明是妙手——RL 能发现人类不知道的策略</li>
+<li>类比 LLM：RL 原则上有能力发现"人类从未想到的思考方式、类比、甚至新语言"，但<strong>现在还极早期，且只在可验证域</strong></li>
+<li>前景：需要为所有知识域编写大规模多样化"练习题"（prompt 分布）——当前前沿研究热点</li>
+</ul>
+<hr>
+<h2 id="14-rlhf不可验证域的-rl">14. RLHF：不可验证域的 RL</h2>
+<ul>
+<li>问题：写诗/幽默/摘要无标准答案 → 无法自动打分；人类逐个打分需 10 亿次，不可扩展</li>
+<li>核心技巧（<strong>间接化</strong>）：训练一个 <strong>reward model</strong>（独立神经网络：prompt + 回答 → 0~1 分）</li>
+<li>人类只需对 5 条输出<strong>排序</strong>（比写理想回答容易得多 → discriminator-generator gap）</li>
+<li>reward model 学习人类排序 → 变成"人类偏好模拟器" → 之后对模拟器做 RL，成本极低</li>
+<li>优点：任意领域可用、模型确实变好、标注任务变简单</li>
+<li><strong>致命缺点：reward model 可被游戏化</strong>（对抗样本）</li>
+<li>RL 跑久会钻漏洞："the the the" 被 reward model 打满分</li>
+<li>补一条反例还有无穷多对抗样本 → 只能跑几百步就"裁剪"发货</li>
+<li>结论：<strong>"RLHF 不是真正的 RL"</strong>——可验证域（正确答案/胜负）无法被欺骗，可以无限跑、发现超人类策略；RLHF 只是个小微调（GPT-4o 也只经历了 RLHF）</li>
+</ul>
+<hr>
+<h2 id="15-未来展望karpathy-版水晶球">15. 未来展望（Karpathy 版"水晶球"）</h2>
+<ul>
+<li><strong>多模态</strong>：音频（频谱切块）、图像（patch）token 化 → 统一 token 流，方法不变</li>
+<li><strong>Agents</strong>：长时运行任务 + 监督；数字世界将出现"<strong>human-to-agent 比</strong>"（类似工厂的 human-to-robot 比），人变成监督者</li>
+<li><strong>Computer use</strong>：把键盘鼠标控制权交给模型（ChatGPT Operator 早期例子）</li>
+<li><strong>测试时训练</strong>：目前推理时参数固定，只有上下文里的 in-context learning；上下文窗口是有限珍贵资源，长多模态任务需要新想法</li>
+</ul>
+<hr>
+<h2 id="16-如何跟踪前沿-在哪里用模型">16. 如何跟踪前沿 &amp; 在哪里用模型</h2>
+<ul>
+<li>跟踪：<strong>LM Arena</strong>（人类盲评排行榜，但近期被刷榜、不完全可信）| <strong>AI News 周报</strong>（Swyx，两天一期，全面）| X/Twitter（关注信任的人）</li>
+<li>用模型：
+  | 类型 | 去处 |
+  |---|---|
+  | 闭源旗舰 | ChatGPT / Gemini（gemini.google.com, AI Studio） |
+  | 开源权重 | Together AI playground（DeepSeek-R1 全量） |
+  | Base model | Hyperbolic（Llama 3.1 405B base） |
+  | 本地运行 | LM Studio：蒸馏小版 + 低精度量化，MacBook 可跑 |</li>
+</ul>
+<hr>
+<h2 id="总结你在跟谁说话">总结：你在跟谁说话</h2>
+<ol>
+<li>你的 query → token 化 → 插入对话协议 → 一维 token 序列</li>
+<li>输出 = 自回归续写 token</li>
+<li><strong>你在跟谁说话</strong>：一个"OpenAI 数据标注者的神经网络模拟"（按标注规范回答）；thinking model 更进一步——是 RL 中涌现出的新东西</li>
+<li><strong>使用心态</strong>：把它当工具盒里的工具——会随机幻觉、随机犯傻（瑞士奶酪），<strong>检查它的工作、验证结果、对最终产品负责</strong></li>
+</ol>
+<hr>
+<h2 id="关联笔记">关联笔记</h2>
+<ul>
+<li><a class="wl" href="../../../../notes/domains/aiagent2026.html">领域/AI Agent 智能体学习路线 2026</a> — Agent/LM 学习路线</li>
+<li><span class="wl dead" title="未创建的笔记">领域/2026-08-07-AI应用与Agent开发实战课-学习大纲</span> — 大模型学习大纲（含微调/RAG/Agent 章节）</li>
+<li><a class="wl" href="../../../../notes/clippings/p72191b/ai-agents-in-depth-zh-cn.html">Clippings/书籍/AI-Agents-in-Depth-zh-CN</a> — 李博杰书第 7 章"模型后训练"（SFT/RL 深度对应）</li>
+<li><a class="wl" href="../../../../notes/clippings/p44a38b/2026-08-06-ai-agent-langchain-langgraph-llamaindex.html">2026-08-06-AI-Agent开发框架选型-LangChain-LangGraph-LlamaIndex-小林面试笔记</a> — Agent 框架选型</li>
+<li><a class="wl" href="../../../../notes/clippings/bilibili/matt-pocock/2026-08-06-matt-pocock-agent-vs-workflow.html">2026-08-06-Matt-Pocock-Agent-vs-Workflow科普</a> — Agent 定义（谁决定停止）</li>
+<li><a class="wl" href="../../../../notes/clippings/pae26bb/2026-07-31-moe.html">2026-07-31-为什么顶级大模型都在卷MoE-新物种日记</a> — 大模型架构</li>
+</ul>
+<h2 id="来源覆盖与局限">来源、覆盖与局限</h2>
+<ul>
+<li><strong>URL</strong>：https://www.youtube.com/watch?v=7xTGNNLPyMI</li>
+<li><strong>获取方式</strong>：yt-dlp 下载 YouTube 自动字幕（en, json3, 46875 段）→ 按章节切块精读</li>
+<li><strong>官方链接</strong>：Karpathy 频道 / karpathy.ai / x.com/karpathy；llm.c 项目 https://github.com/karpathy/llm.c/discussions/677</li>
+<li>⚠️ 字幕为 YouTube 自动生成（ASR），个别专名可能有音译误差（如 "Chachi PT" = ChatGPT），已结合语境校正</li>
+<li>⚠️ 视频发布于 2025-02，文中"现状"均指当时（如 DeepSeek-R1 上线、Anthropic 无 thinking 模型、LM Arena 排名），2026 年现状可能有变</li>
+</ul>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">内容剪藏</span><span class="chip">Andrej Karpathy</span><span class="chip">LLM</span><span class="chip">ChatGPT</span><span class="chip">大模型</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/Clippings/YouTube/Karpathy/2026-08-07-Karpathy-LLM%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90-ChatGPT%E8%AE%AD%E7%BB%83%E5%85%A8%E6%A0%88.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../../notes/clippings/github/p25f9c7/2026-07-28-github-2.html"><span class="dir">← 上一篇</span><span class="t">我的 GitHub 加星项目 · 分类汇总</span></a><a class="next" href="../../../../notes/clippings/p72191b/ai-agents-in-depth-zh-cn.html"><span class="dir">下一篇 →</span><span class="t">Agent</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../../index.html">首页</a>
+      <a href="../../../../learn.html">课件</a>
+      <a href="../../../../notes/index.html">笔记库</a>
+      <a href="../../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../../about.html">关于</a>
+      <a href="../../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../../js/main.js" defer></script>
+</body>
+</html>

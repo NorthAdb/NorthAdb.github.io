@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GraphRAG 与 LightRAG：从传统 RAG 到图增强检索 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="原文标题：字节二面，我霸气反问：“别光吹RAG，说说GraphRAG的多跳推理，你们线上跑通了吗” 本笔记以原文为基础重新整理。文中的成本、性能和论文数据属于作者转述，使用前应回到论文或官方文档核验。">
+<link rel="canonical" href="https://northadb.github.io/notes/clippings/p44a38b/2026-08-04-graphraglightrag.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="GraphRAG 与 LightRAG：从传统 RAG 到图增强检索 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="原文标题：字节二面，我霸气反问：“别光吹RAG，说说GraphRAG的多跳推理，你们线上跑通了吗” 本笔记以原文为基础重新整理。文中的成本、性能和论文数据属于作者转述，使用前应回到论文或官方文档核验。">
+<meta property="og:url" content="https://northadb.github.io/notes/clippings/p44a38b/2026-08-04-graphraglightrag.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="GraphRAG 与 LightRAG：从传统 RAG 到图增强检索 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="原文标题：字节二面，我霸气反问：“别光吹RAG，说说GraphRAG的多跳推理，你们线上跑通了吗” 本笔记以原文为基础重新整理。文中的成本、性能和论文数据属于作者转述，使用前应回到论文或官方文档核验。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../feed.xml">
+<link rel="stylesheet" href="../../../css/style.css">
+<link rel="stylesheet" href="../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "GraphRAG 与 LightRAG：从传统 RAG 到图增强检索", "description": "原文标题：字节二面，我霸气反问：“别光吹RAG，说说GraphRAG的多跳推理，你们线上跑通了吗” 本笔记以原文为基础重新整理。文中的成本、性能和论文数据属于作者转述，使用前应回到论文或官方文档核验。", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/clippings/p44a38b/2026-08-04-graphraglightrag.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../index.html">首页</a><span>/</span><a href="../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../notes/clippings/index.html">内容剪藏</a></div>
+          <h1>GraphRAG 与 LightRAG：从传统 RAG 到图增强检索</h1>
+          <p class="post-sub">原文标题：字节二面，我霸气反问：“别光吹RAG，说说GraphRAG的多跳推理，你们线上跑通了吗” 本笔记以原文为基础重新整理。文中的成本、性能和论文数据属于作者转述，使用前应回到论文或官方文档核验。</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../notes/clippings/index.html">内容剪藏</a></span><span class="sep"></span>
+            <span>阅读约 6 分钟</span><span class="sep"></span><span>更新于 2026-08-04</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p>原文标题：字节二面，我霸气反问：“别光吹RAG，说说GraphRAG的多跳推理，你们线上跑通了吗”</p>
+<p>本笔记以原文为基础重新整理。文中的成本、性能和论文数据属于作者转述，使用前应回到论文或官方文档核验。</p>
+</blockquote>
+<h2 id="一句话总结">一句话总结</h2>
+<p>传统 RAG 擅长“找相似文本”；GraphRAG 通过实体、关系、社区和摘要增强多跳推理与全局归纳；LightRAG 则去掉昂贵的社区预计算，使用轻量图结构和双层检索，换取更低成本、更快查询和更好的增量能力。</p>
+<h2 id="一传统-rag-的边界">一、传统 RAG 的边界</h2>
+<pre><code class="language-text">文档 → 切块 → Embedding → 向量库 → Top-K 检索 → LLM 生成
+</code></pre>
+<p><img alt="传统 RAG 流程" src="https://gitee.com/cheng-jiaqing/images/raw/master/graphrag-01-traditional.png"></p>
+<h3 id="主要痛点">主要痛点</h3>
+<ol>
+<li><strong>多跳推理弱</strong>：只能召回相似文本，没有显式的 A→B→C 关系路径。</li>
+<li><strong>全局问题弱</strong>：主题、趋势和整体战略变化通常不在单个 Chunk 中。</li>
+<li><strong>切块造成语义断裂</strong>：实体、因果关系和上下文可能被拆散。</li>
+<li><strong>检索噪声</strong>：语义相似不代表真正相关。</li>
+</ol>
+<p>根本原因：传统 RAG 主要在“找相似文本”，而复杂企业问答需要“理解实体关系”。</p>
+<h2 id="二什么是-graphrag">二、什么是 GraphRAG</h2>
+<p>GraphRAG 将文档中的实体和关系抽取为知识图谱，再结合图检索、向量检索和社区摘要回答问题。</p>
+<pre><code class="language-text">文档
+ → Text Unit
+ → 实体/关系抽取
+ → 实体与关系归并
+ → 知识图谱
+ → 社区检测
+ → 社区报告
+ → Local / Global Search
+ → LLM 回答
+</code></pre>
+<p><img alt="GraphRAG 索引与查询流程" src="https://gitee.com/cheng-jiaqing/images/raw/master/graphrag-02-pipeline.png"></p>
+<table>
+<thead>
+<tr>
+<th>传统 RAG</th>
+<th>GraphRAG</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>知识以独立文本块存在</td>
+<td>知识以实体、关系和社区存在</td>
+</tr>
+<tr>
+<td>主要依赖向量相似度</td>
+<td>结合向量检索和图遍历</td>
+</tr>
+<tr>
+<td>偏局部检索</td>
+<td>同时支持局部和全局分析</td>
+</tr>
+<tr>
+<td>关系隐含在文本中</td>
+<td>关系被显式建模</td>
+</tr>
+<tr>
+<td>增量简单</td>
+<td>增量可能触发级联更新</td>
+</tr>
+</tbody>
+</table>
+<h2 id="三graphrag-的索引与查询">三、GraphRAG 的索引与查询</h2>
+<h3 id="1-索引阶段">1. 索引阶段</h3>
+<ol>
+<li><strong>文档切块</strong>：生成 Text Unit。</li>
+<li><strong>实体与关系抽取</strong>：识别人、组织、地点、事件及其关系。</li>
+<li><strong>实体/关系摘要</strong>：合并同一实体或关系在不同文本块中的描述。</li>
+<li><strong>社区检测</strong>：使用 Leiden 等算法，把关系紧密的节点划分成层次化社区。</li>
+<li><strong>社区报告</strong>：为每个社区生成主题、关键实体、关系和发现的摘要。</li>
+</ol>
+<p>社区报告是 GraphRAG 处理全局问题的核心资产。</p>
+<h3 id="2-local-search">2. Local Search</h3>
+<p>适合具体实体和局部关系问题。</p>
+<pre><code class="language-text">问题 → 定位入口实体 → 扩展邻居和关系 → 关联原文/社区报告 → LLM 回答
+</code></pre>
+<p><img alt="GraphRAG Local Search" src="https://gitee.com/cheng-jiaqing/images/raw/master/graphrag-03-local.png"></p>
+<h3 id="3-global-search">3. Global Search</h3>
+<p>适合整体趋势、主题归纳和跨文档总结。</p>
+<pre><code class="language-text">选择社区层级
+ → Map：分别处理社区报告
+ → Reduce：汇总并排序中间答案
+ → 生成最终回答
+</code></pre>
+<p><img alt="GraphRAG Global Search" src="https://gitee.com/cheng-jiaqing/images/raw/master/graphrag-04-global.png"></p>
+<p>Global Search 的代价是需要处理大量社区报告，调用量和延迟都可能较高。</p>
+<blockquote>
+<p>原文还提到 DRIFT Search，作为 Local 与 Global 的混合方式；具体实现应参考 GraphRAG 官方版本。</p>
+</blockquote>
+<h2 id="四graphrag-的主要难点">四、GraphRAG 的主要难点</h2>
+<h3 id="1-索引成本高">1. 索引成本高</h3>
+<p>实体抽取、关系抽取、摘要和社区报告都可能调用 LLM，成本显著高于“切块 + Embedding”的传统 RAG。</p>
+<h3 id="2-实体消歧困难">2. 实体消歧困难</h3>
+<p><code>IBM</code>、<code>国际商业机器</code>、<code>IBM Corp.</code> 可能是同一实体；“张三”也可能指不同的人。</p>
+<p>错误消歧会导致：</p>
+<ul>
+<li>节点重复；</li>
+<li>关系碎片化；</li>
+<li>查询召回不完整；</li>
+<li>错误沿图结构传播。</li>
+</ul>
+<h3 id="3-global-search-延迟高">3. Global Search 延迟高</h3>
+<p>Global Search 本质上是社区级 Map-Reduce，社区数量和 LLM 调用数会直接影响延迟。</p>
+<h3 id="4-增量更新复杂">4. 增量更新复杂</h3>
+<p>新增文档可能依次影响：</p>
+<pre><code class="language-text">实体合并 → 图结构 → 社区划分 → 社区报告 → 向量索引
+</code></pre>
+<p>因此 GraphRAG 常采用局部增量、周期性全量重建或时间分区等策略。</p>
+<h2 id="五什么是-lightrag">五、什么是 LightRAG</h2>
+<p>LightRAG 保留实体和关系图，但通常去掉 Leiden 社区检测和社区摘要，改为查询时动态组合上下文。</p>
+<pre><code class="language-text">文档
+ → 切块
+ → 实体/关系抽取
+ → 去重与合并
+ → 图存储 + 向量存储
+ → 高层/低层关键词抽取
+ → 双层检索
+ → LLM 生成
+</code></pre>
+<h3 id="三个核心设计">三个核心设计</h3>
+<ol>
+<li><strong>轻量图索引</strong>：保留实体和关系，不预生成社区报告。</li>
+<li><strong>双层检索</strong>：低层关键词找具体实体，高层关键词找抽象关系或主题。</li>
+<li><strong>追加式增量更新</strong>：新文档抽取后直接 upsert 节点、边和向量。</li>
+</ol>
+<h3 id="双层检索">双层检索</h3>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>主要对象</th>
+<th>关注内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>低层</td>
+<td>实体、术语</td>
+<td>具体事实和局部细节</td>
+</tr>
+<tr>
+<td>高层</td>
+<td>关系、主题</td>
+<td>抽象概念和全局方向</td>
+</tr>
+</tbody>
+</table>
+<p>可将其记为：<strong>低层找“点”，高层找“线”</strong>。</p>
+<p><img alt="LightRAG 双层检索" src="https://gitee.com/cheng-jiaqing/images/raw/master/lightrag-01-dual.png"></p>
+<h3 id="查询模式">查询模式</h3>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Naive</td>
+<td>传统向量检索</td>
+</tr>
+<tr>
+<td>Local</td>
+<td>低层实体检索与图扩展</td>
+</tr>
+<tr>
+<td>Global</td>
+<td>高层关系和主题检索</td>
+</tr>
+<tr>
+<td>Hybrid</td>
+<td>低层 + 高层联合检索</td>
+</tr>
+</tbody>
+</table>
+<h3 id="lightrag-的代价">LightRAG 的代价</h3>
+<ul>
+<li>去重和实体消歧可能较朴素；</li>
+<li>同名异人、别名和跨语言实体需要额外治理；</li>
+<li>新旧事实冲突时，需要时间、版本或有效期机制；</li>
+<li>复杂全局归纳可能不如带社区摘要的 GraphRAG。</li>
+</ul>
+<h2 id="六graphrag-与-lightrag-对比">六、GraphRAG 与 LightRAG 对比</h2>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>GraphRAG</th>
+<th>LightRAG</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>全局视角</td>
+<td>社区摘要预计算</td>
+<td>查询时动态组合</td>
+</tr>
+<tr>
+<td>社区检测</td>
+<td>有</td>
+<td>通常没有</td>
+</tr>
+<tr>
+<td>查询方式</td>
+<td>Local / Global / 其他混合模式</td>
+<td>低层实体 + 高层关系</td>
+</tr>
+<tr>
+<td>索引成本</td>
+<td>高</td>
+<td>较低</td>
+</tr>
+<tr>
+<td>查询延迟</td>
+<td>Global Search 较高</td>
+<td>通常更低</td>
+</tr>
+<tr>
+<td>增量更新</td>
+<td>复杂</td>
+<td>更接近追加式更新</td>
+</tr>
+<tr>
+<td>全局洞察</td>
+<td>更强</td>
+<td>可能较浅</td>
+</tr>
+<tr>
+<td>工程复杂度</td>
+<td>高</td>
+<td>较低</td>
+</tr>
+<tr>
+<td>主要风险</td>
+<td>成本、延迟、社区失效</td>
+<td>实体碎片、事实冲突</td>
+</tr>
+</tbody>
+</table>
+<p>本质区别不是“一个有图、一个没图”，而是：</p>
+<blockquote>
+<p>GraphRAG 通过社区检测和社区摘要预计算全局视角；LightRAG 放弃这层预计算，在查询时动态检索和拼装。</p>
+</blockquote>
+<p><img alt="GraphRAG 与 LightRAG 对比" src="https://gitee.com/cheng-jiaqing/images/raw/master/lightrag-02-compare.png"></p>
+<h2 id="七如何选型">七、如何选型</h2>
+<h3 id="选择传统-rag">选择传统 RAG</h3>
+<ul>
+<li>FAQ、制度查询、产品说明书；</li>
+<li>主要是单跳事实问答；</li>
+<li>数据关系简单，成本和速度优先。</li>
+</ul>
+<h3 id="选择-lightrag">选择 LightRAG</h3>
+<ul>
+<li>文档频繁更新；</li>
+<li>成本和延迟敏感；</li>
+<li>需要一定的实体关系理解；</li>
+<li>中小规模知识库或轻量部署。</li>
+</ul>
+<p><img alt="LightRAG 适用场景" src="https://gitee.com/cheng-jiaqing/images/raw/master/lightrag-03-scenarios.png"></p>
+<h3 id="选择-graphrag">选择 GraphRAG</h3>
+<ul>
+<li>数据相对静态；</li>
+<li>跨文档多跳推理价值高；</li>
+<li>需要深度全局分析；</li>
+<li>对证据链、可解释性和分析质量要求高；</li>
+<li>能接受更高的构建与维护成本。</li>
+</ul>
+<h3 id="推荐的生产路线">推荐的生产路线</h3>
+<pre><code class="language-text">传统 RAG MVP
+  → 观察真实失败案例
+  → 对关系类问题引入 LightRAG
+  → 对稳定、高价值语料引入 GraphRAG
+  → 用 Query Router 按问题类型分流
+</code></pre>
+<p><img alt="GraphRAG 与 LightRAG 选型决策" src="https://gitee.com/cheng-jiaqing/images/raw/master/lightrag-04-decision.png"></p>
+<h2 id="八面试版回答">八、面试版回答</h2>
+<h3 id="什么是-graphrag">什么是 GraphRAG？</h3>
+<p>GraphRAG 将文档中的实体和关系抽取成知识图谱，再结合图遍历、向量检索和社区摘要完成 RAG。相比只检索相似文本的传统 RAG，它更适合跨文档多跳推理和全局性问题，但代价是索引成本高、实体消歧难、Global Search 延迟高、增量维护复杂。</p>
+<h3 id="什么是-lightrag">什么是 LightRAG？</h3>
+<p>LightRAG 是轻量化的图增强 RAG。它保留实体和关系图，通常去掉社区检测和社区摘要，改用高层关键词检索关系、低层关键词检索实体的双层检索机制。因此成本、延迟和增量更新都更友好，但复杂全局归纳和实体治理能力可能弱于 GraphRAG。</p>
+<h3 id="如何选择">如何选择？</h3>
+<p>简单事实问答用传统 RAG；动态、成本敏感且需要关系检索时优先 LightRAG；静态、高价值、需要深度全局分析和多跳推理时考虑 GraphRAG。生产环境可以采用三者混合，并通过评测集比较召回、正确性、延迟和成本。</p>
+<h2 id="九需要谨慎核验的内容">九、需要谨慎核验的内容</h2>
+<p>原文中的以下内容不宜脱离上下文直接引用：</p>
+<ul>
+<li>GraphRAG 与 LightRAG 的具体 F1、准确率和成本数据；</li>
+<li>“Token 降低 99%”“成本为原版 0.1%”等定量结论；</li>
+<li>特定数据规模对应的选型阈值；</li>
+<li>具体查询延迟、社区数量和索引价格；</li>
+<li>不同论文、项目版本之间的性能比较。</li>
+</ul>
+<p>核验时应确认：模型、数据集、Prompt、评测指标、实现版本、是否包含 Embedding/存储/并发成本。</p>
+<h2 id="十最终记忆版">十、最终记忆版</h2>
+<pre><code class="language-text">传统 RAG：相似文本检索
+
+GraphRAG：实体关系图 + 社区检测 + 社区摘要 + Local/Global Search
+
+LightRAG：实体关系图 + 高低层关键词 + 双层检索 + 轻量增量更新
+</code></pre>
+<blockquote>
+<p><strong>一句话选型：简单问题用传统 RAG；动态关系检索用 LightRAG；静态深度全局分析用 GraphRAG。</strong></p>
+</blockquote>
+<hr>
+<h2 id="关联笔记">🔗 关联笔记</h2>
+<ul>
+<li><a class="wl" href="../../../notes/clippings/p44a38b/2026-09-01-rag.html">2026-09-01-RAG核心知识全解析（范式演进）</a> — RAG 基础面试题（知识链起点）</li>
+<li><a class="wl" href="../../../notes/clippings/p277a98/2026-07-29.html">2026-07-29-大模型幻觉的系统性解析-抖音笔记</a> — 幻觉成因（检索质量相关）</li>
+</ul>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">内容剪藏</span><span class="chip">Agent</span><span class="chip">RAG</span><span class="chip">GraphRAG</span><span class="chip">LightRAG</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/Clippings/%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7/2026-08-04-GraphRAG%E4%B8%8ELightRAG-%E5%B0%8F%E6%9E%97%E9%9D%A2%E8%AF%95%E7%AC%94%E8%AE%B0.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../notes/clippings/p44a38b/2026-07-31-topp-topk.html"><span class="dir">← 上一篇</span><span class="t">面试官：“大模型参数，温度值、Top-P、Top-K 分别是什么？”—— 采样参数全解析</span></a><a class="next" href="../../../notes/clippings/p44a38b/2026-08-06-ai-agent-langchain-langgraph-llamaindex.html"><span class="dir">下一篇 →</span><span class="t">AI Agent 开发框架全解析：LangChain / LangGraph / LlamaIndex 怎么选</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../index.html">首页</a>
+      <a href="../../../learn.html">课件</a>
+      <a href="../../../notes/index.html">笔记库</a>
+      <a href="../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../about.html">关于</a>
+      <a href="../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../js/main.js" defer></script>
+</body>
+</html>

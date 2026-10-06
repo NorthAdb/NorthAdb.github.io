@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JavaSE 学习清单 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="共 8 篇笔记，按学习顺序排列。勾选即完成，可同时当做目录使用。">
+<link rel="canonical" href="https://northadb.github.io/notes/projects/javase/javase.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="JavaSE 学习清单 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="共 8 篇笔记，按学习顺序排列。勾选即完成，可同时当做目录使用。">
+<meta property="og:url" content="https://northadb.github.io/notes/projects/javase/javase.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JavaSE 学习清单 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="共 8 篇笔记，按学习顺序排列。勾选即完成，可同时当做目录使用。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../feed.xml">
+<link rel="stylesheet" href="../../../css/style.css">
+<link rel="stylesheet" href="../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "JavaSE 学习清单", "description": "共 8 篇笔记，按学习顺序排列。勾选即完成，可同时当做目录使用。", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/projects/javase/javase.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../index.html">首页</a><span>/</span><a href="../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../notes/projects/index.html">项目笔记</a></div>
+          <h1>JavaSE 学习清单</h1>
+          <p class="post-sub">共 8 篇笔记，按学习顺序排列。勾选即完成，可同时当做目录使用。</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../notes/projects/index.html">项目笔记</a></span><span class="sep"></span>
+            <span>阅读约 9 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p>共 8 篇笔记，按学习顺序排列。勾选即完成，可同时当做目录使用。</p>
+</blockquote>
+<hr>
+<h2 id="一走进java语言">一、走进Java语言</h2>
+<ul>
+<li class="task done"><span class="cb" aria-hidden="true"></span><strong><a class="wl" href="../../../notes/projects/javase/javase-javasejava.html">📖 查看笔记全文</a></strong></li>
+</ul>
+<h3 id="11-计算机思维导论">1.1 计算机思维导论</h3>
+<ul>
+<li class="task done"><span class="cb" aria-hidden="true"></span>计算机的世界 —— 冯诺依曼结构、CPU/内存/硬盘分工</li>
+<li class="task done"><span class="cb" aria-hidden="true"></span>操作系统概述 —— 内核/系统调用/用户态与内核态</li>
+<li class="task done"><span class="cb" aria-hidden="true"></span>计算机编程语言 —— 机器语言→汇编→高级语言演进</li>
+<li class="task done"><span class="cb" aria-hidden="true"></span>走进Java语言 —— Java 跨平台原理（JVM/字节码）、JDK/JRE/JVM 区别</li>
+</ul>
+<h3 id="12-环境安装与ide使用">1.2 环境安装与IDE使用</h3>
+<ul>
+<li class="task done"><span class="cb" aria-hidden="true"></span>JDK下载与安装 —— 环境变量（JAVA_HOME、Path）配置</li>
+<li class="task done"><span class="cb" aria-hidden="true"></span>IDEA安装与使用 —— 创建工程、快捷键、运行/调试</li>
+</ul>
+<hr>
+<h2 id="二面向过程编程">二、面向过程编程</h2>
+<ul>
+<li class="task done"><span class="cb" aria-hidden="true"></span><strong><a class="wl" href="../../../notes/projects/javase/javase-javase-3.html">📖 查看笔记全文</a></strong></li>
+</ul>
+<h3 id="21-java程序基础">2.1 Java程序基础</h3>
+<ul>
+<li class="task done"><span class="cb" aria-hidden="true"></span>程序代码基本结构 —— 类→main方法→语句</li>
+<li class="task done"><span class="cb" aria-hidden="true"></span>注释 —— 单行/多行/文档注释（<code>/** */</code>）</li>
+<li class="task done"><span class="cb" aria-hidden="true"></span>变量与常量 —— 标识符规则、<code>final</code> 修饰常量</li>
+</ul>
+<h3 id="22-基本数据类型">2.2 基本数据类型</h3>
+<ul>
+<li class="task done"><span class="cb" aria-hidden="true"></span>计算机中的二进制表示 —— 原码、反码、<strong>补码</strong>（负数的存储方式）</li>
+<li class="task done"><span class="cb" aria-hidden="true"></span>老鼠试药问题 —— 二进制枚举思想</li>
+<li class="task done"><span class="cb" aria-hidden="true"></span>整数类形 —— byte/short/int/long 范围、隐式类型转换、溢出导致的值突变</li>
+<li class="task done"><span class="cb" aria-hidden="true"></span>浮点类型 —— IEEE 754 公式 $V=(-1)^S\times M\times 2^E$、精度丢失（0.1+0.2≠0.3）</li>
+<li class="task done"><span class="cb" aria-hidden="true"></span>字符类型 —— ASCII→GB2312→GBK→Unicode→UTF-8/UTF-16 编码演进</li>
+<li class="task done"><span class="cb" aria-hidden="true"></span>布尔类型 —— <code>true</code>/<code>false</code>，只有两种值</li>
+<li class="task done"><span class="cb" aria-hidden="true"></span>(Java 10) 局部变量类型推断 —— <code>var</code> 关键字，编译器自动推断类型</li>
+</ul>
+<h3 id="23-运算符">2.3 运算符</h3>
+<ul>
+<li class="task done"><span class="cb" aria-hidden="true"></span>赋值运算符 —— <code>=</code> 及复合赋值 <code>+=</code>、<code>-=</code>、<code>*=</code>、<code>/=</code></li>
+<li class="task done"><span class="cb" aria-hidden="true"></span>算术运算符 —— 加减乘除取模、字符串拼接（<code>+</code>）、优先级</li>
+<li class="task done"><span class="cb" aria-hidden="true"></span>括号运算符 —— 提升优先级、<strong>强制类型转换</strong>（<code>(int)</code>、截断与精度损失）</li>
+<li class="task done"><span class="cb" aria-hidden="true"></span>自增自减运算符 —— 前置 <code>++a</code> vs 后置 <code>a++</code> 的区别</li>
+<li class="task done"><span class="cb" aria-hidden="true"></span>位运算符 —— 与<code>&amp;</code>、或<code>|</code>、异或<code>^</code>、取反<code>~</code>、左移<code>&lt;&lt;</code>、右移<code>&gt;&gt;</code>（算数右移）、无符号右移<code>&gt;&gt;&gt;</code></li>
+<li class="task done"><span class="cb" aria-hidden="true"></span>关系运算符 —— <code>&gt;</code>、<code>&lt;</code>、<code>&gt;=</code>、<code>&lt;=</code>、<code>==</code>、<code>!=</code></li>
+<li class="task done"><span class="cb" aria-hidden="true"></span>逻辑运算符 —— 与<code>&amp;&amp;</code>、或<code>||</code>、非<code>!</code>，<strong>短路特性</strong></li>
+</ul>
+<h3 id="24-流程控制">2.4 流程控制</h3>
+<ul>
+<li class="task done"><span class="cb" aria-hidden="true"></span>代码块与作用域 —— <code>{}</code> 划定的变量生命周期</li>
+<li class="task done"><span class="cb" aria-hidden="true"></span>选择结构 —— <code>if</code>/<code>else if</code>/<code>else</code>，嵌套判断</li>
+<li class="task done"><span class="cb" aria-hidden="true"></span>(Java 14) Switch表达式 —— 箭头语法、<code>yield</code>、模式匹配</li>
+<li class="task done"><span class="cb" aria-hidden="true"></span>循环结构 —— <code>while</code>/<code>do...while</code>/<code>for</code>、<code>break</code>/<code>continue</code>、嵌套循环</li>
+<li class="task done"><span class="cb" aria-hidden="true"></span>(Java 9) 交互式编程 —— <code>jshell</code> 工具</li>
+</ul>
+<h3 id="25-实战练习">2.5 实战练习</h3>
+<ul>
+<li class="task done"><span class="cb" aria-hidden="true"></span>寻找水仙花数 —— 100~999 中各位数字立方和等于本身的数</li>
+<li class="task done"><span class="cb" aria-hidden="true"></span>打印九九乘法表 —— 嵌套 <code>for</code> 循环</li>
+<li class="task done"><span class="cb" aria-hidden="true"></span>斐波那契数列 —— 迭代 / 递归两种方式</li>
+</ul>
+<hr>
+<h2 id="三面向对象基础">三、面向对象基础</h2>
+<ul>
+<li class="task"><span class="cb" aria-hidden="true"></span><strong><a class="wl" href="../../../notes/projects/javase/javase-javase-2.html">📖 查看笔记全文</a></strong></li>
+</ul>
+<h3 id="31-类与对象">3.1 类与对象</h3>
+<ul>
+<li class="task"><span class="cb" aria-hidden="true"></span>类的定义与对象创建 —— <code>class</code> 关键字、<code>new</code> 实例化、内存分配</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>对象的使用 —— 属性访问、方法调用</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>方法创建与使用 —— 返回值、参数列表、<code>return</code></li>
+<li class="task"><span class="cb" aria-hidden="true"></span>方法进阶使用 —— <strong>方法重载</strong>（同名不同参）、可变长参数 <code>(int... nums)</code></li>
+<li class="task"><span class="cb" aria-hidden="true"></span>构造方法 —— <code>new</code> 时自动调用、无参/有参、<code>this()</code> 调用链</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>静态变量和静态方法 —— <code>static</code> 修饰，属于类而非对象，<code>static{}</code> 代码块初始化</li>
+</ul>
+<h3 id="32-包和访问控制">3.2 包和访问控制</h3>
+<ul>
+<li class="task"><span class="cb" aria-hidden="true"></span>包声明和导入 —— <code>package</code>、<code>import</code>、命名规范（域名倒写）</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>访问权限控制 —— <code>private</code>/默认/<code>protected</code>/<code>public</code> 四层 | 同类/同包/子类/全局</li>
+</ul>
+<h3 id="33-封装继承和多态">3.3 封装、继承和多态</h3>
+<ul>
+<li class="task"><span class="cb" aria-hidden="true"></span>类的封装 —— <code>getter</code>/<code>setter</code>、属性私有化</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>类的继承 —— <code>extends</code>、<code>Object</code> 为默认父类、<code>super</code> 调用父类、<code>final</code> 禁止继承</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>顶层Object类 —— 所有类的"老祖宗"，<code>toString()</code>/<code>equals()</code>/<code>hashCode()</code></li>
+<li class="task"><span class="cb" aria-hidden="true"></span>(Java 16) 类型判断模式匹配 —— <code>instanceof</code> 自动转换 <code>if (obj instanceof String s)</code></li>
+<li class="task"><span class="cb" aria-hidden="true"></span>方法的重写 —— <code>@Override</code>、子类覆盖父类方法、<code>final</code> 禁止重写</li>
+<li class="task"><span class="cb" aria-hidden="true"></span><strong>抽象类</strong> —— <code>abstract</code> 修饰、不能实例化、子类必须实现抽象方法</li>
+<li class="task"><span class="cb" aria-hidden="true"></span><strong>接口</strong> —— <code>interface</code>、多实现（<code>implements</code>）、<code>default</code> 方法</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>(Java 8) 接口默认和静态方法 —— <code>default</code> 和 <code>static</code> 方法</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>(Java 9) 接口中的private方法 —— 抽取 <code>default</code> 的公共逻辑</li>
+</ul>
+<h3 id="34-其他类型">3.4 其他类型</h3>
+<ul>
+<li class="task"><span class="cb" aria-hidden="true"></span>枚举类 —— <code>enum</code> 关键字、单例、<code>values()</code>/<code>valueOf()</code></li>
+<li class="task"><span class="cb" aria-hidden="true"></span>(Java 16) 记录类型 —— <code>record</code>，不可变数据载体，自动生成 <code>equals</code>/<code>hashCode</code>/<code>toString</code></li>
+<li class="task"><span class="cb" aria-hidden="true"></span>(Java 17) 密封类型 —— <code>sealed</code>，限制哪些类可以继承/实现</li>
+</ul>
+<hr>
+<h2 id="四面向对象高级篇">四、面向对象高级篇</h2>
+<ul>
+<li class="task"><span class="cb" aria-hidden="true"></span><strong><a class="wl" href="../../../notes/projects/javase/javase-javase-5.html">📖 查看笔记全文</a></strong></li>
+</ul>
+<h3 id="41-基本类型包装类">4.1 基本类型包装类</h3>
+<ul>
+<li class="task"><span class="cb" aria-hidden="true"></span>包装类介绍 —— int→Integer、自动装箱/拆箱、缓存池（-128~127）</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>特殊包装类 —— BigInteger/BigDecimal 大数运算</li>
+</ul>
+<h3 id="42-数组">4.2 数组</h3>
+<ul>
+<li class="task"><span class="cb" aria-hidden="true"></span>一维数组 —— 声明 <code>int[] arr</code>、初始化、遍历、<code>length</code></li>
+<li class="task"><span class="cb" aria-hidden="true"></span>多维数组 —— 二维数组 <code>int[][]</code>，本质是"数组的数组"</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>可变长参数 —— <code>(int... nums)</code> 本质是数组</li>
+</ul>
+<h3 id="43-字符串">4.3 字符串</h3>
+<ul>
+<li class="task"><span class="cb" aria-hidden="true"></span>String类 —— <strong>不可变性</strong>、常量池、<code>intern()</code>、常用 API（<code>indexOf</code>/<code>substring</code>/<code>split</code>/<code>replace</code>）</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>StringBuilder类 —— 可变字符串、线程不安全、性能优于 String 拼接</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>(Java 11) 字符串增强 —— <code>strip()</code>/<code>isBlank()</code>/<code>lines()</code>/<code>repeat()</code></li>
+<li class="task"><span class="cb" aria-hidden="true"></span>(Java 15) 文本块 —— <code>"""</code> 三段引号，保留缩进和换行</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>正则表达式 —— <code>Pattern</code>/<code>Matcher</code>、元字符、分组</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>(Java 21/22/25) switch模式匹配 —— <code>switch</code> 中解构类型和值</li>
+</ul>
+<h3 id="44-内部类">4.4 内部类</h3>
+<ul>
+<li class="task"><span class="cb" aria-hidden="true"></span>成员内部类 —— 类中定义类，可访问外部类成员</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>静态内部类 —— <code>static</code> 修饰的内部类</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>局部内部类 —— 方法中定义的类</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>匿名内部类 —— <code>new Interface() { 实现 }</code>，常用于回调</li>
+<li class="task"><span class="cb" aria-hidden="true"></span><strong>Lambda表达式</strong> —— <code>(参数) -&gt; { 代码体 }</code>，函数式接口的简化写法</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>方法引用 —— <code>类名::静态方法</code>、<code>对象::实例方法</code>、<code>类名::实例方法</code></li>
+</ul>
+<h3 id="45-异常机制">4.5 异常机制</h3>
+<ul>
+<li class="task"><span class="cb" aria-hidden="true"></span>异常的类型 —— Error/Exception、<strong>检查异常</strong> vs 非检查异常、继承树</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>自定义异常 —— 继承 <code>Exception</code> 或 <code>RuntimeException</code></li>
+<li class="task"><span class="cb" aria-hidden="true"></span>抛出异常 —— <code>throw</code> 抛异常对象、<code>throws</code> 声明可能抛出</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>异常的处理 —— <strong><code>try-catch-finally</code></strong>、多重 <code>catch</code>、<code>try-with-resources</code></li>
+<li class="task"><span class="cb" aria-hidden="true"></span>断言表达式 —— <code>assert</code> 调试验证</li>
+</ul>
+<h3 id="46-常用工具类介绍">4.6 常用工具类介绍</h3>
+<ul>
+<li class="task"><span class="cb" aria-hidden="true"></span>数学工具类 —— <code>Math</code> 常用方法（<code>abs</code>/<code>pow</code>/<code>sqrt</code>/<code>random</code>）</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>数组工具类 —— <code>Arrays.sort()</code>/<code>binarySearch()</code>/<code>toString()</code>/<code>copyOf()</code></li>
+<li class="task"><span class="cb" aria-hidden="true"></span>日期相关类 —— <code>Date</code>、<code>SimpleDateFormat</code>（格式化）</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>(Java 8) 新的日期类 —— <code>LocalDate</code>/<code>LocalTime</code>/<code>LocalDateTime</code>、<code>DateTimeFormatter</code></li>
+</ul>
+<h3 id="47-实战练习">4.7 实战练习</h3>
+<ul>
+<li class="task"><span class="cb" aria-hidden="true"></span>冒泡排序算法 —— 相邻比较交换，时间复杂度 $O(n^2)$</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>二分搜索算法 —— 有序数组中对半查找，$O(\log n)$</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>青蛙跳台阶问题 —— 递归（斐波那契本质）+ 动态规划优化</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>回文串判断 —— 双指针法</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>汉诺塔求解 —— 递归经典，$2^n - 1$ 步</li>
+</ul>
+<hr>
+<h2 id="五泛型程序设计">五、泛型程序设计</h2>
+<ul>
+<li class="task"><span class="cb" aria-hidden="true"></span><strong><a class="wl" href="../../../notes/projects/javase/javase-javase-4.html">📖 查看笔记全文</a></strong></li>
+</ul>
+<h3 id="51-泛型">5.1 泛型</h3>
+<ul>
+<li class="task"><span class="cb" aria-hidden="true"></span>泛型类 —— <code>&lt;T&gt;</code> 类型参数，编译期类型检查</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>泛型与多态 —— 泛型不支持多态参数传递（<code>List&lt;Object&gt;</code> 不能接收 <code>List&lt;String&gt;</code>）</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>泛型方法 —— <code>&lt;T&gt; T method(T t)</code>，类型由实参推断</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>泛型的界限 —— <code>&lt;? extends T&gt;</code> 上界、<code>&lt;? super T&gt;</code> 下界</li>
+<li class="task"><span class="cb" aria-hidden="true"></span><strong>类型擦除</strong> —— 编译后泛型信息消失，字节码中还原为 Object + 强制转换</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>协变和逆变 —— 生产者 <code>extends</code>（读）、消费者 <code>super</code>（写），PECS 原则</li>
+</ul>
+<h3 id="52-java-8-函数式编程">5.2 (Java 8) 函数式编程</h3>
+<ul>
+<li class="task"><span class="cb" aria-hidden="true"></span>函数式接口 —— <code>@FunctionalInterface</code>，只有一个抽象方法</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>(Java 8) 判空包装 —— <code>Optional&lt;T&gt;</code>，<code>map</code>/<code>flatMap</code>/<code>orElse</code> 链式处理</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>(Java 9/10) 判空包装增强 —— <code>or()</code>、<code>ifPresentOrElse()</code>、<code>orElseThrow()</code></li>
+</ul>
+<h3 id="53-数据结构基础">5.3 数据结构基础</h3>
+<ul>
+<li class="task"><span class="cb" aria-hidden="true"></span>线性表：<strong>顺序表</strong> —— <code>Object[]</code> 实现、增删查改、扩容机制</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>线性表：<strong>链表</strong> —— 节点 <code>Node</code>、头插/尾插/删除、双向链表</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>线性表：<strong>栈</strong> —— FILO、<code>push</code>/<code>pop</code>/<code>peek</code>、括号匹配应用</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>线性表：<strong>队列</strong> —— FIFO、<code>offer</code>/<code>poll</code>/<code>peek</code>、BFS 应用</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>树：<strong>二叉树</strong> —— 节点结构、前/中/后序遍历、层序遍历</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>树：<strong>二叉查找树和平衡二叉树</strong> —— BST 左小右大、AVL 旋转</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>树：<strong>红黑树</strong> —— 5条性质、自平衡、<code>TreeMap</code> 底层</li>
+<li class="task"><span class="cb" aria-hidden="true"></span><strong>哈希表</strong> —— 哈希函数、冲突解决（链地址法）、负载因子</li>
+</ul>
+<h3 id="54-实战练习">5.4 实战练习</h3>
+<ul>
+<li class="task"><span class="cb" aria-hidden="true"></span>反转链表 —— 迭代法（三指针）+ 递归法</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>括号匹配问题 —— 栈的应用</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>实现计算器 —— 中缀表达式转后缀，栈计算</li>
+</ul>
+<hr>
+<h2 id="六集合类与io">六、集合类与IO</h2>
+<ul>
+<li class="task"><span class="cb" aria-hidden="true"></span><strong><a class="wl" href="../../../notes/projects/javase/javase-javaseio.html">📖 查看笔记全文</a></strong></li>
+</ul>
+<h3 id="61-集合类">6.1 集合类</h3>
+<ul>
+<li class="task"><span class="cb" aria-hidden="true"></span>集合根接口 —— <code>Collection</code> 与 <code>Map</code> 两大体系、继承关系图</li>
+<li class="task"><span class="cb" aria-hidden="true"></span><strong>List列表</strong> —— <code>ArrayList</code>（数组实现，查询快）vs <code>LinkedList</code>（链表实现，增删快）</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>迭代器 —— <code>Iterator</code>、<code>for-each</code> 语法糖、<code>fail-fast</code> 机制</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>Queue和Deque —— 队列/双端队列，<code>ArrayDeque</code>、<code>PriorityQueue</code></li>
+<li class="task"><span class="cb" aria-hidden="true"></span><strong>Set集合</strong> —— <code>HashSet</code>（哈希无序）vs <code>TreeSet</code>（红黑树有序）vs <code>LinkedHashSet</code>（保持插入顺序）</li>
+<li class="task"><span class="cb" aria-hidden="true"></span><strong>Map映射</strong> —— <code>HashMap</code>（<strong>数组+链表+红黑树</strong>、扩容机制）vs  <code>TreeMap</code> vs <code>LinkedHashMap</code></li>
+<li class="task"><span class="cb" aria-hidden="true"></span>比较相关接口 —— <code>Comparable</code>（自然排序）vs <code>Comparator</code>（定制排序）</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>Collections工具类 —— <code>sort</code>/<code>reverse</code>/<code>shuffle</code>/<code>synchronized</code> 包装</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>(Java 9) 集合工厂方法 —— <code>List.of()</code>/<code>Set.of()</code>/<code>Map.of()</code> 不可变集合</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>(Java 21) 有序集合功能规范 —— <code>SequencedCollection</code>、<code>getFirst()</code>/<code>getLast()</code></li>
+<li class="task"><span class="cb" aria-hidden="true"></span>(Java 8) <strong>Stream流</strong> —— 中间操作（<code>filter</code>/<code>map</code>/<code>sorted</code>）+ 终端操作（<code>collect</code>/<code>reduce</code>/<code>forEach</code>）</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>(Java 9/11/16) Stream增强方法 —— <code>takeWhile</code>/<code>dropWhile</code>、<code>toList()</code></li>
+<li class="task"><span class="cb" aria-hidden="true"></span>(Java 24) 流聚集器 —— <code>Stream Gatherer</code></li>
+</ul>
+<h3 id="62-java-io">6.2 Java I/O</h3>
+<ul>
+<li class="task"><span class="cb" aria-hidden="true"></span>文件字节流 —— <code>FileInputStream</code>/<code>FileOutputStream</code>，读写原始字节</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>文件字符流 —— <code>FileReader</code>/<code>FileWriter</code>，处理文本文件</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>(Java 7/8/11) 文件工具类 —— <code>Files</code>/<code>Path</code>/<code>Paths</code>，<code>readString</code>/<code>writeString</code></li>
+<li class="task"><span class="cb" aria-hidden="true"></span>缓冲流 —— <code>BufferedInputStream</code>/<code>BufferedReader</code>，减少磁盘IO次数</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>转换流 —— <code>InputStreamReader</code>/<code>OutputStreamWriter</code>，字节↔字符桥接</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>打印流 —— <code>PrintStream</code>（<code>System.out</code>）/<code>PrintWriter</code></li>
+<li class="task"><span class="cb" aria-hidden="true"></span>数据流 —— <code>DataInputStream</code>/<code>DataOutputStream</code>，读写基本类型</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>对象流 —— <code>ObjectInputStream</code>/<code>ObjectOutputStream</code>、<strong>序列化</strong><code>Serializable</code></li>
+<li class="task"><span class="cb" aria-hidden="true"></span>字节数组流 —— <code>ByteArrayInputStream</code>/<code>ByteArrayOutputStream</code>，内存中操作</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>(Java 9/11/12) 输入流快捷操作 —— <code>readAllBytes()</code>、<code>transferTo</code></li>
+</ul>
+<h3 id="63-实战图书管理系统">6.3 实战：图书管理系统</h3>
+<ul>
+<li class="task"><span class="cb" aria-hidden="true"></span>图书管理系统 —— CRUD + 文件持久化，综合运用集合与IO</li>
+</ul>
+<hr>
+<h2 id="七多线程与反射">七、多线程与反射</h2>
+<ul>
+<li class="task"><span class="cb" aria-hidden="true"></span><strong><a class="wl" href="../../../notes/projects/javase/javase-javase.html">📖 查看笔记全文</a></strong></li>
+</ul>
+<h3 id="71-多线程">7.1 多线程</h3>
+<ul>
+<li class="task"><span class="cb" aria-hidden="true"></span>线程的创建和启动 —— <code>extends Thread</code> vs <code>implements Runnable</code>、<code>start()</code> vs <code>run()</code></li>
+<li class="task"><span class="cb" aria-hidden="true"></span>线程的休眠和中断 —— <code>sleep()</code>、<code>interrupt()</code>、<code>isInterrupted()</code></li>
+<li class="task"><span class="cb" aria-hidden="true"></span>线程的优先级 —— <code>setPriority(1~10)</code>，只是"建议"</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>线程的礼让和加入 —— <code>yield()</code> 让出CPU、<code>join()</code> 等待线程结束</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>线程锁和线程同步 —— <strong><code>synchronized</code></strong>、<code>wait()</code>/<code>notify()</code>、<code>Lock</code>/<code>ReentrantLock</code></li>
+<li class="task"><span class="cb" aria-hidden="true"></span><strong>死锁</strong> —— 产生条件（互斥/持有并等待/不可剥夺/循环等待）、排查方法</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>wait和notify方法 —— 生产消费模型的基础，必须在 <code>synchronized</code> 块内</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>ThreadLocal的使用 —— 每个线程独立的变量副本</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>定时器 —— <code>Timer</code>、<code>ScheduledExecutorService</code>、<code>@Scheduled</code></li>
+<li class="task"><span class="cb" aria-hidden="true"></span>守护线程 —— <code>setDaemon(true)</code>，主线程结束则自动销毁</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>再谈集合类 —— <code>ConcurrentHashMap</code>、<code>CopyOnWriteArrayList</code>、<code>BlockingQueue</code></li>
+<li class="task"><span class="cb" aria-hidden="true"></span>(Java 8) 并行流 —— <code>parallelStream()</code>，ForkJoinPool 底层</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>实战：生产者与消费者 —— <code>wait()</code>/<code>notify()</code> 经典实现</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>(Java 21) 线程生成器 —— <code>Thread.Builder</code> 线程工厂</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>(Java 21) <strong>虚拟线程</strong> —— <code>Thread.startVirtualThread()</code>，轻量级协程</li>
+</ul>
+<h3 id="72-反射">7.2 反射</h3>
+<ul>
+<li class="task"><span class="cb" aria-hidden="true"></span>Java类加载机制 —— 双亲委派模型、Bootstrap/Extension/Application</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>Class类获取 —— <code>类名.class</code>/<code>obj.getClass()</code>/<code>Class.forName()</code></li>
+<li class="task"><span class="cb" aria-hidden="true"></span>Class对象与多态 —— 反射中的类型处理</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>创建类对象 —— <code>Constructor.newInstance()</code>，处理私有构造</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>调用类方法 —— <code>Method.invoke()</code>，包括私有方法</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>修改类的属性 —— <code>Field.set()</code>，包括私有属性</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>(Java 9) 模块化机制 —— <code>module-info.java</code>、<code>exports</code>、<code>requires</code></li>
+<li class="task"><span class="cb" aria-hidden="true"></span>类加载器 —— 自定义类加载器、<code>findClass</code>/<code>loadClass</code></li>
+</ul>
+<h3 id="73-注解">7.3 注解</h3>
+<ul>
+<li class="task"><span class="cb" aria-hidden="true"></span>预设注解 —— <code>@Override</code>/<code>@Deprecated</code>/<code>@SuppressWarnings</code></li>
+<li class="task"><span class="cb" aria-hidden="true"></span>元注解 —— <code>@Target</code>/<code>@Retention</code>/<code>@Documented</code>/<code>@Inherited</code>/<code>@Repeatable</code></li>
+<li class="task"><span class="cb" aria-hidden="true"></span>注解的使用 —— 自定义注解、注解属性定义</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>反射获取注解 —— <code>getAnnotation()</code>/<code>isAnnotationPresent()</code></li>
+</ul>
+<hr>
+<h2 id="八gui程序开发">八、GUI程序开发</h2>
+<ul>
+<li class="task"><span class="cb" aria-hidden="true"></span><strong><a class="wl" href="../../../notes/projects/javase/javase-javasegui.html">📖 查看笔记全文</a></strong></li>
+</ul>
+<h3 id="81-awt组件介绍">8.1 AWT组件介绍</h3>
+<ul>
+<li class="task"><span class="cb" aria-hidden="true"></span>基本框架 —— <code>Frame</code>/<code>Panel</code> 窗口容器、<code>paint()</code> 重绘</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>监听器 —— 点击/键盘/鼠标等事件绑定</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>常用组件 —— Button/Label/TextField/TextArea/CheckBox/Choice</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>布局和面板 —— <code>FlowLayout</code>/<code>BorderLayout</code>/<code>GridLayout</code>/<code>CardLayout</code></li>
+<li class="task"><span class="cb" aria-hidden="true"></span>滚动面板和列表 —— <code>ScrollPane</code>/<code>List</code></li>
+<li class="task"><span class="cb" aria-hidden="true"></span>菜单栏 —— <code>MenuBar</code>/<code>Menu</code>/<code>MenuItem</code>/<code>PopupMenu</code></li>
+<li class="task"><span class="cb" aria-hidden="true"></span>对话框 —— <code>Dialog</code>、<code>FileDialog</code>（文件选择）</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>自定义组件 —— 重写 <code>paint()</code> 绘制自定义图形</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>窗口修饰和自定义形状 —— 窗口样式定制</li>
+</ul>
+<h3 id="82-swing组件介绍">8.2 Swing组件介绍</h3>
+<ul>
+<li class="task"><span class="cb" aria-hidden="true"></span>基本使用 —— <code>JFrame</code>/<code>JPanel</code>、Swing 线程模型（EDT）</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>新增组件介绍 —— <code>JTable</code>/<code>JTree</code>/<code>JProgressBar</code>/<code>JFileChooser</code></li>
+<li class="task"><span class="cb" aria-hidden="true"></span>多面板和分割面板 —— <code>JTabbedPane</code>/<code>JSplitPane</code></li>
+<li class="task"><span class="cb" aria-hidden="true"></span>选项窗口 —— <code>JOptionPane</code> 标准对话框、<code>JColorChooser</code> 颜色选择</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>自定义主题 —— <code>LookAndFeel</code>（LF）切换</li>
+</ul>
+<h3 id="83-项目实战">8.3 项目实战</h3>
+<ul>
+<li class="task"><span class="cb" aria-hidden="true"></span>Intellij IDEA Extreme —— 简易 IDEA 模拟项目</li>
+</ul>
+<hr>
+<h2 id="学习进度统计">学习进度统计</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">篇章</th>
+<th style="text-align: center;">小节数</th>
+<th style="text-align: center;">已完成</th>
+<th style="text-align: center;">进度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">一、走进Java语言</td>
+<td style="text-align: center;">6</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0%</td>
+</tr>
+<tr>
+<td style="text-align: left;">二、面向过程编程</td>
+<td style="text-align: center;">28</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0%</td>
+</tr>
+<tr>
+<td style="text-align: left;">三、面向对象基础</td>
+<td style="text-align: center;">21</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0%</td>
+</tr>
+<tr>
+<td style="text-align: left;">四、面向对象高级篇</td>
+<td style="text-align: center;">28</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0%</td>
+</tr>
+<tr>
+<td style="text-align: left;">五、泛型程序设计</td>
+<td style="text-align: center;">18</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0%</td>
+</tr>
+<tr>
+<td style="text-align: left;">六、集合类与IO</td>
+<td style="text-align: center;">27</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0%</td>
+</tr>
+<tr>
+<td style="text-align: left;">七、多线程与反射</td>
+<td style="text-align: center;">30</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0%</td>
+</tr>
+<tr>
+<td style="text-align: left;">八、GUI程序开发</td>
+<td style="text-align: center;">14</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0%</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>总计</strong></td>
+<td style="text-align: center;"><strong>172</strong></td>
+<td style="text-align: center;"><strong>0</strong></td>
+<td style="text-align: center;"><strong>0%</strong></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="关联笔记">🔗 关联笔记</h2>
+<ul>
+<li><a class="wl" href="../../../notes/domains/javaagent2026.html">领域/Java后端+Agent开发学习路线 2026</a> — 后端主线路线</li>
+<li><a class="wl" href="../../../notes/domains/2026.html">领域/2026暑假手账</a> — 假期总结</li>
+</ul>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">项目笔记</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/Javase/JavaSE%20%E5%AD%A6%E4%B9%A0%E6%B8%85%E5%8D%95.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../notes/projects/ai-agents-in-depth-md/10agent/10agent.html"><span class="dir">← 上一篇</span><span class="t">第10章 多 Agent 协作</span></a><a class="next" href="../../../notes/projects/javase/javase-javasejava.html"><span class="dir">下一篇 →</span><span class="t">新手入门篇</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../index.html">首页</a>
+      <a href="../../../learn.html">课件</a>
+      <a href="../../../notes/index.html">笔记库</a>
+      <a href="../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../about.html">关于</a>
+      <a href="../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../js/main.js" defer></script>
+</body>
+</html>

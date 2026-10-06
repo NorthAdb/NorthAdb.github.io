@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skills 全览 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="本仓库所有 Skills、Agents、Commands 的完整梳理。 快捷跳转：项目原生-项目原生-skills · Mattpocock Engineering-工程-engineering · Mattpocock Productiv…">
+<link rel="canonical" href="https://northadb.github.io/notes/projects/claude-code-best-practice/doc/skills-inventory.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Skills 全览 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="本仓库所有 Skills、Agents、Commands 的完整梳理。 快捷跳转：项目原生-项目原生-skills · Mattpocock Engineering-工程-engineering · Mattpocock Productiv…">
+<meta property="og:url" content="https://northadb.github.io/notes/projects/claude-code-best-practice/doc/skills-inventory.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Skills 全览 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="本仓库所有 Skills、Agents、Commands 的完整梳理。 快捷跳转：项目原生-项目原生-skills · Mattpocock Engineering-工程-engineering · Mattpocock Productiv…">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../../feed.xml">
+<link rel="stylesheet" href="../../../../css/style.css">
+<link rel="stylesheet" href="../../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Skills 全览", "description": "本仓库所有 Skills、Agents、Commands 的完整梳理。 快捷跳转：项目原生-项目原生-skills · Mattpocock Engineering-工程-engineering · Mattpocock Productiv…", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/projects/claude-code-best-practice/doc/skills-inventory.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../../index.html">首页</a><span>/</span><a href="../../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../../notes/projects/index.html">项目笔记</a></div>
+          <h1>Skills 全览</h1>
+          <p class="post-sub">本仓库所有 Skills、Agents、Commands 的完整梳理。 快捷跳转：项目原生-项目原生-skills · Mattpocock Engineering-工程-engineering · Mattpocock Productiv…</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../../notes/projects/index.html">项目笔记</a></span><span class="sep"></span>
+            <span>阅读约 7 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p>本仓库所有 Skills、Agents、Commands 的完整梳理。</p>
+<p>快捷跳转：<a href="#-项目原生-skills">项目原生</a> · <a href="#-工程-engineering">Mattpocock Engineering</a> · <a href="#-生产力-productivity">Mattpocock Productivity</a> · <a href="#-工具-misc">Mattpocock Misc</a> · <a href="#-个人-personal">Mattpocock Personal</a> · <a href="#-实验中-in-progress">Mattpocock In-Progress</a> · <a href="#-全局安装-skills">全局安装</a> · <a href="#-claude-code-内置-skills">内置 Skills</a> · <a href="#-agents">Agents</a> · <a href="#-commands">Commands</a></p>
+</blockquote>
+<hr>
+<h2 id="安装来源统计">安装来源统计</h2>
+<table>
+<thead>
+<tr>
+<th>来源</th>
+<th style="text-align: center;">数量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>项目原生（手工编写）</td>
+<td style="text-align: center;">7</td>
+</tr>
+<tr>
+<td><code>mattpocock/skills</code></td>
+<td style="text-align: center;">31</td>
+</tr>
+<tr>
+<td>全局安装（来自其他源）</td>
+<td style="text-align: center;">2</td>
+</tr>
+<tr>
+<td>Claude Code 内置</td>
+<td style="text-align: center;">12+</td>
+</tr>
+<tr>
+<td><strong>Agents</strong></td>
+<td style="text-align: center;">11</td>
+</tr>
+<tr>
+<td><strong>Commands</strong></td>
+<td style="text-align: center;">10</td>
+</tr>
+<tr>
+<td><strong>总计</strong></td>
+<td style="text-align: center;"><strong>73+</strong></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="项目原生-skills">📦 项目原生 Skills</h2>
+<p>项目自己编写、不来自任何包的技能。</p>
+<table>
+<thead>
+<tr>
+<th>Skill</th>
+<th>调用方式</th>
+<th>功能说明</th>
+<th>属性</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>agent-browser</strong></td>
+<td>上下文触发或 <code>/agent-browser</code></td>
+<td>浏览器自动化 CLI，可导航页面、填写表单、截图、提取数据、测试 web 应用</td>
+<td><code>allowed-tools: Bash(agent-browser:*)</code></td>
+</tr>
+<tr>
+<td><strong>time-skill</strong></td>
+<td>上下文触发或 <code>/time-skill</code></td>
+<td>显示巴基斯坦标准时间（PKT, UTC+5）</td>
+<td><code>user-invocable: true</code></td>
+</tr>
+<tr>
+<td><strong>weather-fetcher</strong></td>
+<td>被 weather-agent 调用（非用户直接调用）</td>
+<td>从 Open-Meteo API 获取迪拜实时温度</td>
+<td><code>user-invocable: false</code></td>
+</tr>
+<tr>
+<td><strong>weather-svg-creator</strong></td>
+<td>上下文触发或 <code>/weather-svg-creator</code></td>
+<td>创建 SVG 天气卡片，写入 <code>orchestration-workflow/weather.svg</code> 和 <code>orchestration-workflow/output.md</code></td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>vibe-to-agentic-framework</strong></td>
+<td>自动加载</td>
+<td>Vibe Coding → Agentic Engineering 演讲的概念框架 — 每张幻灯片如何融入叙事弧</td>
+<td>后台知识 skill</td>
+</tr>
+<tr>
+<td><strong>presentation-structure</strong></td>
+<td>自动加载</td>
+<td>演示文稿的幻灯片格式、weight 系统、导航和章节结构知识</td>
+<td>后台知识 skill</td>
+</tr>
+<tr>
+<td><strong>presentation-styling</strong></td>
+<td>自动加载</td>
+<td>演示文稿的 CSS 类、组件模式和语法高亮知识</td>
+<td>后台知识 skill</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="工程-engineering-mattpocockskills">🛠 工程 (Engineering) — mattpocock/skills</h2>
+<p>来自 <code>skills/engineering/</code> 目录。</p>
+<table>
+<thead>
+<tr>
+<th>Skill</th>
+<th>调用方式</th>
+<th>功能说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>/code-review</code></strong></td>
+<td><code>/code-review</code> 或上下文触发</td>
+<td><strong>双轴代码审查</strong>：同时从 Standards（是否遵循编码标准）和 Spec（是否实现需求）两个维度审查变更。并行 sub-agent 执行</td>
+</tr>
+<tr>
+<td><strong><code>/codebase-design</code></strong></td>
+<td><code>/codebase-design</code> 或上下文</td>
+<td><strong>深度模块设计</strong>共享词汇表。用于设计/改进模块接口、寻找深化机会、让代码更可测试或 AI 可导航</td>
+</tr>
+<tr>
+<td><strong><code>/diagnosing-bugs</code></strong></td>
+<td><code>/diagnosing-bugs</code> 或上下文</td>
+<td><strong>硬 BUG 诊断循环</strong>。用于处理崩溃、异常、性能回退等疑难问题</td>
+</tr>
+<tr>
+<td><strong><code>/domain-modeling</code></strong></td>
+<td><code>/domain-modeling</code> 或上下文</td>
+<td><strong>领域建模</strong>。用于固定领域术语、统一语言、记录架构决策</td>
+</tr>
+<tr>
+<td><strong><code>/grill-with-docs</code></strong></td>
+<td><code>/grill-with-docs</code></td>
+<td><strong>带文档的 Grilling</strong> — 追问计划的同时创建 ADR 和术语表</td>
+</tr>
+<tr>
+<td><strong><code>/implement</code></strong></td>
+<td><code>/implement</code></td>
+<td><strong>根据 PRD 或 Issue 实现代码</strong>。PRD/Issue 驱动的实现</td>
+</tr>
+<tr>
+<td><strong><code>/improve-codebase-architecture</code></strong></td>
+<td><code>/improve-codebase-architecture</code></td>
+<td><strong>扫描代码库</strong>寻找深化机会，生成可视化 HTML 报告，然后逐个 grilling</td>
+</tr>
+<tr>
+<td><strong><code>/prototype</code></strong></td>
+<td><code>/prototype</code></td>
+<td><strong>构建一次性原型</strong>来验证设计问题 — 状态模型、逻辑可行性、UI 探索</td>
+</tr>
+<tr>
+<td><strong><code>/research</code></strong></td>
+<td><code>/research</code></td>
+<td><strong>深度研究</strong> — 多源搜索、获取、对抗性验证、合成带引用的报告</td>
+</tr>
+<tr>
+<td><strong><code>/resolving-merge-conflicts</code></strong></td>
+<td><code>/resolving-merge-conflicts</code></td>
+<td><strong>解决进行中的 git 合并/变基冲突</strong></td>
+</tr>
+<tr>
+<td><strong><code>/setup-matt-pocock-skills</code></strong></td>
+<td><code>/setup-matt-pocock-skills</code>（首次运行一次）</td>
+<td>为 engineering skills 配置 repo — Issue Tracker、分类标签词汇表、领域文档布局</td>
+</tr>
+<tr>
+<td><strong><code>/tdd</code></strong></td>
+<td><code>/tdd</code></td>
+<td><strong>测试驱动开发</strong>。红-绿-重构循环</td>
+</tr>
+<tr>
+<td><strong><code>/to-issues</code></strong></td>
+<td><code>/to-issues</code></td>
+<td><strong>将计划/PRD 拆解为可独立领取的 Issue</strong>，用 tracer-bullet 垂直切片</td>
+</tr>
+<tr>
+<td><strong><code>/to-prd</code></strong></td>
+<td><code>/to-prd</code></td>
+<td><strong>把当前对话合成为 PRD</strong>，发布到项目 Issue tracker — 无访谈，直接合成已讨论内容</td>
+</tr>
+<tr>
+<td><strong><code>/triage</code></strong></td>
+<td><code>/triage</code></td>
+<td><strong>Issue/PR 分类</strong> — 通过状态机进行归类、验证、grilling、编写 agent-ready 简报</td>
+</tr>
+<tr>
+<td><strong><code>/ask-matt</code></strong></td>
+<td><code>/ask-matt</code></td>
+<td><strong>技能路由</strong> — 告诉 Matt 你想做什么，他推荐哪个 skill 最合适</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="生产力-productivity-mattpocockskills">🚀 生产力 (Productivity) — mattpocock/skills</h2>
+<p>来自 <code>skills/productivity/</code> 目录。</p>
+<table>
+<thead>
+<tr>
+<th>Skill</th>
+<th>调用方式</th>
+<th>功能说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>/grill-me</code></strong></td>
+<td><code>/grill-me</code></td>
+<td><strong>无情面试官</strong> — 追问计划/设计的所有细节，直到逻辑无懈可击（<code>/grilling</code> 的别名）</td>
+</tr>
+<tr>
+<td><strong><code>/grilling</code></strong></td>
+<td><code>/grilling</code></td>
+<td><strong>追问式访谈</strong> — 逐一遍历设计树的分支，逐个解决决策依赖</td>
+</tr>
+<tr>
+<td><strong><code>/handoff</code></strong></td>
+<td><code>/handoff</code></td>
+<td><strong>生成交接文档</strong> — 把当前对话压缩为另一 agent 能接手的交接文件</td>
+</tr>
+<tr>
+<td><strong><code>/teach</code></strong></td>
+<td><code>/teach</code></td>
+<td><strong>教学</strong> — 在当前工作区内教用户新技能或概念</td>
+</tr>
+<tr>
+<td><strong><code>/writing-great-skills</code></strong></td>
+<td><code>/writing-great-skills</code></td>
+<td><strong>Skill 编写参考</strong> — 编写可预测 skill 的词汇表和原则</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="工具-misc-mattpocockskills">🔧 工具 (Misc) — mattpocock/skills</h2>
+<p>来自 <code>skills/misc/</code> 目录。</p>
+<table>
+<thead>
+<tr>
+<th>Skill</th>
+<th>调用方式</th>
+<th>功能说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>/git-guardrails-claude-code</code></strong></td>
+<td><code>/git-guardrails-claude-code</code></td>
+<td><strong>Git 安全防护</strong> — 设置 Claude Code hooks 拦截危险 git 命令（push, reset --hard, clean, branch -D 等）</td>
+</tr>
+<tr>
+<td><strong><code>/migrate-to-shoehorn</code></strong></td>
+<td><code>/migrate-to-shoehorn</code></td>
+<td><strong>迁移测试断言</strong> — 将 <code>as</code> 类型断言迁移到 <code>@total-typescript/shoehorn</code></td>
+</tr>
+<tr>
+<td><strong><code>/scaffold-exercises</code></strong></td>
+<td><code>/scaffold-exercises</code></td>
+<td><strong>搭建练习题目录</strong> — 创建带 section、problem、solution、explainer 的目录结构</td>
+</tr>
+<tr>
+<td><strong><code>/setup-pre-commit</code></strong></td>
+<td><code>/setup-pre-commit</code></td>
+<td><strong>配置 pre-commit hooks</strong> — 安装 Husky、lint-staged（Prettier）、类型检查和测试</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="个人-personal-mattpocockskills">📝 个人 (Personal) — mattpocock/skills</h2>
+<p>来自 <code>skills/personal/</code> 目录。</p>
+<table>
+<thead>
+<tr>
+<th>Skill</th>
+<th>调用方式</th>
+<th>功能说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>/edit-article</code></strong></td>
+<td><code>/edit-article</code></td>
+<td><strong>编辑/改进文章</strong> — 重构章节、提升清晰度、精简行文</td>
+</tr>
+<tr>
+<td><strong><code>/obsidian-vault</code></strong></td>
+<td><code>/obsidian-vault</code></td>
+<td><strong>管理 Obsidian 笔记库</strong> — 搜索、创建、用 wikilink 组织笔记</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="实验中-in-progress-mattpocockskills">🧪 实验中 (In-Progress) — mattpocock/skills</h2>
+<p>来自 <code>skills/in-progress/</code> 目录，尚未稳定。</p>
+<table>
+<thead>
+<tr>
+<th>Skill</th>
+<th>调用方式</th>
+<th>功能说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>/decision-mapping</code></strong></td>
+<td><code>/decision-mapping</code></td>
+<td>把模糊想法变成有序的调查 ticket 映射，然后逐个驱动解决</td>
+</tr>
+<tr>
+<td><strong><code>/loop-me</code></strong></td>
+<td><code>/loop-me</code></td>
+<td>询问本工作区内想要构建的工作流的规格</td>
+</tr>
+<tr>
+<td><strong><code>/wizard</code></strong></td>
+<td><code>/wizard</code></td>
+<td>生成交互式 bash 向导，引导人完成手动流程（第三方设置、一次性迁移等）</td>
+</tr>
+<tr>
+<td><strong><code>/writing-beats</code></strong></td>
+<td><code>/writing-beats</code></td>
+<td>写作 — 将原始素材编排成节拍旅程，每个术语在使用前先定义</td>
+</tr>
+<tr>
+<td><strong><code>/writing-fragments</code></strong></td>
+<td><code>/writing-fragments</code></td>
+<td>写作 — 挖掘原始片段，尚未组织结构</td>
+</tr>
+<tr>
+<td><strong><code>/writing-shape</code></strong></td>
+<td><code>/writing-shape</code></td>
+<td>写作 — 将原始材料逐段塑形为文章</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="全局安装-skills">🌐 全局安装 Skills</h2>
+<p>来自 <code>~/.claude/skills/</code>（用户级安装）。</p>
+<table>
+<thead>
+<tr>
+<th>Skill</th>
+<th>来源</th>
+<th>功能说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>/web-access</code></strong></td>
+<td><code>eze-is/web-access</code></td>
+<td>所有联网操作：搜索、页面抓取、登录操作、社交媒体内容抓取、动态渲染页面等</td>
+</tr>
+<tr>
+<td><strong><code>/agently-mail</code></strong></td>
+<td><code>agently-mail</code></td>
+<td>通过 agently-cli CLI 操作邮件：发送、回复、转发、搜索、读取、管理收件箱</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="claude-code-内置-skills">⚡ Claude Code 内置 Skills</h2>
+<p>以下为 Claude Code 原生内置，无需安装。</p>
+<table>
+<thead>
+<tr>
+<th>Skill</th>
+<th>调用方式</th>
+<th>功能说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>/verify</code></strong></td>
+<td><code>/verify</code></td>
+<td>通过运行应用来验证代码变更是否符合预期</td>
+</tr>
+<tr>
+<td><strong><code>/simplify</code></strong></td>
+<td><code>/simplify</code></td>
+<td>审查变更的复用性、简化度、效率和抽象层次，并自动应用修复</td>
+</tr>
+<tr>
+<td><strong><code>/code-review</code></strong></td>
+<td><code>/code-review</code></td>
+<td>审查当前 diff 的正确性、复用性、简化度（注意：与 mattpocock 的 code-review 冲突，后者功能更丰富）</td>
+</tr>
+<tr>
+<td><strong><code>/review</code></strong></td>
+<td><code>/review</code></td>
+<td>审查 GitHub Pull Request</td>
+</tr>
+<tr>
+<td><strong><code>/security-review</code></strong></td>
+<td><code>/security-review</code></td>
+<td>对当前分支的变更进行安全审查</td>
+</tr>
+<tr>
+<td><strong><code>/run</code></strong></td>
+<td><code>/run</code></td>
+<td>启动并驱动项目应用</td>
+</tr>
+<tr>
+<td><strong><code>/init</code></strong></td>
+<td><code>/init</code></td>
+<td>初始化新的 CLAUDE.md 文件</td>
+</tr>
+<tr>
+<td><strong><code>/loop</code></strong></td>
+<td><code>/loop &lt;interval&gt; &lt;command&gt;</code></td>
+<td>按固定间隔重复运行 prompt 或 slash command</td>
+</tr>
+<tr>
+<td><strong><code>/fewer-permission-prompts</code></strong></td>
+<td><code>/fewer-permission-prompts</code></td>
+<td>扫描透明并添加允许列表以减少权限提示</td>
+</tr>
+<tr>
+<td><strong><code>/update-config</code></strong></td>
+<td><code>/update-config</code></td>
+<td>通过 settings.json 配置 Claude Code 行为、权限、环境变量</td>
+</tr>
+<tr>
+<td><strong><code>/keybindings-help</code></strong></td>
+<td><code>/keybindings-help</code></td>
+<td>自定义键盘快捷键绑定</td>
+</tr>
+<tr>
+<td><strong><code>/claude-api</code></strong></td>
+<td><code>/claude-api</code></td>
+<td>Claude API / Anthropic SDK 参考 — model id、定价、参数等</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>注意</strong>：mattpocock 的 <code>code-review</code> 和 Claude Code 内置的 <code>code-review</code> skill 重叠。内置版更轻量，mattpocock 版是双轴（Standards + Spec）并行审查，功能更强。</p>
+</blockquote>
+<hr>
+<h2 id="agents">🤖 Agents</h2>
+<p>项目定义的 reusable agents，可通过 <code>Agent(subagent_type="...")</code> 调用。</p>
+<table>
+<thead>
+<tr>
+<th>Agent</th>
+<th>类型</th>
+<th>功能说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>presentation-claude-code</strong></td>
+<td>演讲专用</td>
+<td>更新/修改 Claude Code 最佳实践演示文稿（<code>presentation/claude-code-best-practice/</code>）</td>
+</tr>
+<tr>
+<td><strong>presentation-claude-gemini</strong></td>
+<td>演讲专用</td>
+<td>更新/修改 GDG Kolachi 活动的 Claude-Gemini 演讲（<code>presentation/2026-04-25-gdg-kolachi-cli-claude-code-gemini/</code>）</td>
+</tr>
+<tr>
+<td><strong>presentation-vibe-coding</strong></td>
+<td>演讲专用</td>
+<td>更新/修改 Vibe Coding → Agentic Engineering 演讲（<code>presentation/vibe-coding-to-agentic-engineering/</code>）</td>
+</tr>
+<tr>
+<td><strong>weather-agent</strong></td>
+<td>数据获取</td>
+<td>获取迪拜实时天气。使用模型：inherit</td>
+</tr>
+<tr>
+<td><strong>time-agent-pkt</strong></td>
+<td>时间工具</td>
+<td>显示巴基斯坦标准时间（PKT, UTC+5）</td>
+</tr>
+<tr>
+<td><strong>development-workflows-research-agent</strong></td>
+<td>研究</td>
+<td>获取 GitHub repos，分析 Claude Code workflow 仓库。使用模型：sonnet</td>
+</tr>
+<tr>
+<td><strong>workflow-claude-commands-agent</strong></td>
+<td>研究</td>
+<td>获取 Claude Code 文档，分析 commands report drift。使用模型：opus</td>
+</tr>
+<tr>
+<td><strong>workflow-claude-settings-agent</strong></td>
+<td>研究</td>
+<td>获取 Claude Code 文档，分析 settings report drift。使用模型：opus</td>
+</tr>
+<tr>
+<td><strong>workflow-claude-skills-agent</strong></td>
+<td>研究</td>
+<td>获取 Claude Code 文档，分析 skills report drift。使用模型：opus</td>
+</tr>
+<tr>
+<td><strong>workflow-claude-subagents-agent</strong></td>
+<td>研究</td>
+<td>获取 Claude Code 文档，分析 subagents report drift。使用模型：opus</td>
+</tr>
+<tr>
+<td><strong>workflow-concepts-agent</strong></td>
+<td>研究</td>
+<td>获取 Claude Code 文档和 changelog，分析 CONCEPTS drift。使用模型：opus</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="commands">🔧 Commands</h2>
+<p>Slash commands 定义，可通过 <code>/command-name</code> 调用。</p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>功能说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>/weather-orchestrator</code></strong></td>
+<td>获取迪拜天气并创建 SVG 天气卡片（使用模型：haiku）— 完整的 Command → Agent → Skill 架构示例</td>
+</tr>
+<tr>
+<td><strong><code>/time-command</code></strong></td>
+<td>显示巴基斯坦标准时间（PKT, UTC+5）</td>
+</tr>
+<tr>
+<td><strong><code>/agent-collections</code></strong></td>
+<td>通过并行研究所有 agent-collection 仓库来更新 AGENT COLLECTIONS 表格</td>
+</tr>
+<tr>
+<td><strong><code>/skill-collections</code></strong></td>
+<td>通过并行研究所有 5 个 skill-collection 仓库来更新 SKILL COLLECTIONS 表格</td>
+</tr>
+<tr>
+<td><strong><code>/development-workflows</code></strong></td>
+<td>通过并行研究所有 11 个 workflow 仓库来更新 DEVELOPMENT WORKFLOWS 表格</td>
+</tr>
+<tr>
+<td><strong><code>/workflow-claude-commands</code></strong></td>
+<td>跟踪 Claude Code commands report 变更并找出需要更新的内容</td>
+</tr>
+<tr>
+<td><strong><code>/workflow-claude-settings</code></strong></td>
+<td>跟踪 Claude Code settings report 变更并找出需要更新的内容</td>
+</tr>
+<tr>
+<td><strong><code>/workflow-claude-skills</code></strong></td>
+<td>跟踪 Claude Code skills report 变更并找出需要更新的内容</td>
+</tr>
+<tr>
+<td><strong><code>/workflow-claude-subagents</code></strong></td>
+<td>跟踪 Claude Code subagents report 变更并找出需要更新的内容</td>
+</tr>
+<tr>
+<td><strong><code>/workflow-concepts</code></strong></td>
+<td>根据最新的 Claude Code 特性和概念更新 README CONCEPTS 部分</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="架构总结">架构总结</h2>
+<pre><code>用户交互层
+├── /command (Commands) ──→ Skill ──→ Agent
+├── /skill (Skills)       ──→ 直接执行或 fork sub-agent
+└── Agent(subagent_type)  ──→ 独立 sub-agent 运行
+
+原生技能: .claude/skills/*/SKILL.md
+通用技能: .agents/skills/*/SKILL.md  → symlink → .claude/skills/
+全局技能: ~/.claude/skills/*/SKILL.md
+Agents:   .claude/agents/*.md
+Commands: .claude/commands/*.md
+</code></pre>
+<hr>
+<blockquote>
+<p>最后更新: 2026-07-06</p>
+</blockquote>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">项目笔记</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/claude-code-best-practice/doc/skills-inventory.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../../notes/projects/claude-code-best-practice/doc/rules/p3fd482.html"><span class="dir">← 上一篇</span><span class="t">演示文稿规范（中文翻译）</span></a><a class="next" href="../../../../notes/projects/claude-code-best-practice/doc/tips/boris10claudecode.html"><span class="dir">下一篇 →</span><span class="t">使用 Claude Code 的 10 个技巧 — 来自 Claude Code 团队</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../../index.html">首页</a>
+      <a href="../../../../learn.html">课件</a>
+      <a href="../../../../notes/index.html">笔记库</a>
+      <a href="../../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../../about.html">关于</a>
+      <a href="../../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../../js/main.js" defer></script>
+</body>
+</html>

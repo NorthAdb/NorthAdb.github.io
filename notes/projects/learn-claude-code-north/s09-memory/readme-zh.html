@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>s09: Memory — 让重要信息跨会话保留下来 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="EnglishREADME.md · 中文README.zh.md · 日本語README.ja.md">
+<link rel="canonical" href="https://northadb.github.io/notes/projects/learn-claude-code-north/s09-memory/readme-zh.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="s09: Memory — 让重要信息跨会话保留下来 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="EnglishREADME.md · 中文README.zh.md · 日本語README.ja.md">
+<meta property="og:url" content="https://northadb.github.io/notes/projects/learn-claude-code-north/s09-memory/readme-zh.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="s09: Memory — 让重要信息跨会话保留下来 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="EnglishREADME.md · 中文README.zh.md · 日本語README.ja.md">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../../feed.xml">
+<link rel="stylesheet" href="../../../../css/style.css">
+<link rel="stylesheet" href="../../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "s09: Memory — 让重要信息跨会话保留下来", "description": "EnglishREADME.md · 中文README.zh.md · 日本語README.ja.md", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/projects/learn-claude-code-north/s09-memory/readme-zh.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../../index.html">首页</a><span>/</span><a href="../../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../../notes/projects/index.html">项目笔记</a></div>
+          <h1>s09: Memory — 让重要信息跨会话保留下来</h1>
+          <p class="post-sub">EnglishREADME.md · 中文README.zh.md · 日本語README.ja.md</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../../notes/projects/index.html">项目笔记</a></span><span class="sep"></span>
+            <span>阅读约 5 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<p><a href="../../../../notes/index.html">English</a> · <a href="../../../../notes/projects/learn-claude-code-north/s09-memory/readme-zh.html">中文</a> · <a href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/learn-claude-code-north/s09_memory/README.ja.md">日本語</a></p>
+<p>s01 → ... → s07 → s08 → <code>s09</code> → <a href="https://github.com/NorthAdb/north-my-note/tree/main/%E9%A1%B9%E7%9B%AE/learn-claude-code-north/s10_task_system">s10</a> → s11 → ... → s16 → s17</p>
+<blockquote>
+<p><em>"把以后还会用到的信息留下来。"</em> 文件存储 + 索引 + 相关性选择 + 按需召回。</p>
+<p><strong>Harness 层</strong>：Memory 在会话之外保存可复用知识，并在相关任务中取回。</p>
+</blockquote>
+<hr>
+<h2 id="问题">问题</h2>
+<p>Agent 开始新会话时，<code>messages</code> 里没有上一次的对话。用户之前说过的编码偏好、项目背景和排查线索，下次任务还可能用到。没有持久存储，这些信息只能由用户重新说一遍。</p>
+<p>把完整 transcript 留下来适合归档，却不适合每次都发给模型。对话会越来越长，当前任务需要的信息很难定位，旧事实也可能已经过期。Memory 要解决的是两个问题：哪些信息值得跨会话保存，以及当前任务应该取回哪几条。</p>
+<p><img alt="Memory Overview" src="https://gitee.com/cheng-jiaqing/images/raw/master/memory-overview.svg"></p>
+<hr>
+<h2 id="全部写进-system-prompt为什么不合适">全部写进 system prompt，为什么不合适</h2>
+<p>最直接的做法，是把用户偏好和项目事实写进一个固定文件，启动时全部放进 system prompt。这样确实能够记住信息，但每次调用 LLM 都要重新发送全部内容。记忆越多，与当前任务无关的内容就越多，输入 token 和上下文窗口也会被持续占用。</p>
+<p>s07 已经展示过一种更合适的读取方式：保留简短索引，只在需要时加载正文。Skill 由人编写并保持只读；Memory 则允许 Agent 从对话中提取内容，并在后续任务中再次使用。</p>
+<p>因此，本章需要处理四件事：存储、召回、提取和整理。</p>
+<p><img alt="Memory Subsystems" src="https://gitee.com/cheng-jiaqing/images/raw/master/memory-subsystems.svg"></p>
+<hr>
+<h2 id="存储一个记忆一个文件">存储：一个记忆一个文件</h2>
+<p>每条记忆是 <code>.memory/</code> 下的一个 Markdown 文件，YAML frontmatter 记录 <code>name</code>、<code>description</code> 和 <code>type</code>：</p>
+<pre><code class="language-markdown">---
+name: user-preference-tabs
+description: User prefers tabs for indentation
+type: user
+---
+
+User prefers using tabs, not spaces, for indentation.
+</code></pre>
+<p><code>type</code> 有四类：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>保存什么</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>user</td>
+<td>用户的长期偏好</td>
+<td>“使用 tab 缩进”</td>
+</tr>
+<tr>
+<td>feedback</td>
+<td>以后仍适用的工作反馈</td>
+<td>“不要 mock 数据库”</td>
+</tr>
+<tr>
+<td>project</td>
+<td>稳定的项目事实</td>
+<td>“认证重写由合规要求驱动”</td>
+</tr>
+<tr>
+<td>reference</td>
+<td>外部资料或查找线索</td>
+<td>“流水线问题记录在 Linear INGEST”</td>
+</tr>
+</tbody>
+</table>
+<p><code>MEMORY.md</code> 是索引，每行对应一个记忆文件。写入完成后，<code>rebuild_memory_index()</code> 根据文件重新生成索引：</p>
+<pre><code class="language-python">def write_memory_file(name, mem_type, description, body):
+    path = MEMORY_DIR / f&quot;{memory_slug(name)}.md&quot;
+    path.write_text(
+        memory_document(name, mem_type, description, body), encoding=&quot;utf-8&quot;
+    )
+    rebuild_memory_index()
+    return path
+</code></pre>
+<p>索引用于选择相关记忆，正文仍然保存在各自的文件中。</p>
+<hr>
+<h2 id="召回先选择再加载正文">召回：先选择，再加载正文</h2>
+<p>每次用户发起请求时，<code>select_relevant_memories()</code> 读取最近的用户消息和记忆目录，让一次轻量模型调用选择最多五条相关记录：</p>
+<pre><code class="language-python">prompt = (
+    &quot;Select memory records that are relevant to the current user request. &quot;
+    &quot;Return only a JSON array of catalog indices, such as [0, 2]. &quot;
+    &quot;Return [] when none are relevant.&quot;
+)
+</code></pre>
+<p>如果模型调用或 JSON 解析失败，代码会退回关键词匹配。选择完成后，<code>load_memories()</code> 才读取对应文件，并限制召回正文的总长度。</p>
+<pre><code class="language-python">relevant_memories = load_memories(messages)
+system = build_system(relevant_memories)
+</code></pre>
+<p><code>build_system()</code> 会明确说明：召回内容只是背景知识，不是新的用户命令；如果记忆与当前请求冲突，以当前请求为准。这样既能使用旧信息，也不会让旧记忆替用户发号施令。</p>
+<hr>
+<h2 id="提取回合结束后保存可复用信息">提取：回合结束后保存可复用信息</h2>
+<p>用户不一定会明确说“请记住”。<code>extract_memories()</code> 在 Agent 完成本轮回答后检查当前对话，只提取以后仍可能有用的信息：</p>
+<pre><code class="language-python">tool_calls = [
+    block for block in response.content if block.type == &quot;tool_use&quot;
+]
+if not tool_calls:
+    force = trigger_hooks(&quot;Stop&quot;, messages)
+    if force:
+        messages.append({&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: force})
+        continue
+    if extract_memories(messages):
+        consolidate_memories()
+    return
+</code></pre>
+<p>模型返回的内容只是候选，不会直接写盘。候选必须带有 <code>scope</code>：只有 <code>persistent</code> 才表示它应当跨会话保留；<code>current_task</code> 表示本次任务的命令、临时路径和临时限制。</p>
+<p><code>should_store_memory()</code> 负责最后的检查。字段不完整、带有“本次会话”或“当前任务”等临时含义、或者与已有记忆重复的候选都会被拒绝。比如“这次不要创建文件”只约束当前任务，不应该在下次会话中继续生效。</p>
+<hr>
+<h2 id="整理合并重复和过期内容">整理：合并重复和过期内容</h2>
+<p>记忆文件积累到一定数量后，内容可能重复、矛盾或过期。教学实现达到 10 条时调用 <code>consolidate_memories()</code>，让模型生成一份整理后的记录列表。</p>
+<p>整理过程先解析并校验新列表，再替换旧文件。替换前会保存快照；删除或写入失败时，代码恢复原文件并重建索引：</p>
+<pre><code class="language-python">snapshot = {
+    path.name: path.read_text(encoding=&quot;utf-8&quot;)
+    for path in MEMORY_DIR.glob(&quot;*.md&quot;)
+    if path.name != MEMORY_INDEX.name
+}
+
+try:
+    for path in MEMORY_DIR.glob(&quot;*.md&quot;):
+        if path.name != MEMORY_INDEX.name:
+            path.unlink()
+    for record in consolidated:
+        path = MEMORY_DIR / f&quot;{memory_slug(record['name'])}.md&quot;
+        path.write_text(memory_document(
+            record[&quot;name&quot;], record[&quot;type&quot;],
+            record[&quot;description&quot;], record[&quot;body&quot;],
+        ), encoding=&quot;utf-8&quot;)
+    rebuild_memory_index()
+except Exception:
+    for path in MEMORY_DIR.glob(&quot;*.md&quot;):
+        if path.name != MEMORY_INDEX.name:
+            path.unlink()
+    for filename, content in snapshot.items():
+        (MEMORY_DIR / filename).write_text(content, encoding=&quot;utf-8&quot;)
+    rebuild_memory_index()
+    raise
+</code></pre>
+<p>课程代码把整理触发条件简化为数量阈值。真实应用还需要根据数据规模和并发方式，决定何时整理以及如何避免多个进程同时改写同一份存储。</p>
+<hr>
+<h2 id="本节代码">本节代码</h2>
+<table>
+<thead>
+<tr>
+<th>组成</th>
+<th>本节实现</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Agent Loop</td>
+<td>保留消息、工具调用、工具结果和 hooks 触发点</td>
+</tr>
+<tr>
+<td>基础工具</td>
+<td><code>bash</code>、<code>read_file</code>、<code>write_file</code>、<code>edit_file</code>、<code>glob</code></td>
+</tr>
+<tr>
+<td>存储</td>
+<td><code>.memory/MEMORY.md</code> 索引 + <code>.memory/*.md</code> 文件</td>
+</tr>
+<tr>
+<td>召回</td>
+<td>目录选择 + 关键词降级 + 正文长度上限</td>
+</tr>
+<tr>
+<td>写入</td>
+<td>回合结束后提取 + 持久性检查 + 重复过滤</td>
+</tr>
+<tr>
+<td>整理</td>
+<td>达到阈值后合并，失败时恢复原文件</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>与 s08 的边界：</strong> s08 管理当前会话的上下文预算，s09 管理会话之外的可复用知识。Memory 是选择性存储，不是 transcript 的无损备份，也不会取代上下文压缩。</p>
+</blockquote>
+<hr>
+<h2 id="试一下">试一下</h2>
+<pre><code class="language-sh">cd learn-claude-code
+python s09_memory/code.py
+</code></pre>
+<ol>
+<li>输入 <code>I prefer using tabs for indentation. Remember that.</code>，结束后检查 <code>.memory/</code> 是否新增记忆文件，<code>MEMORY.md</code> 是否出现对应索引；</li>
+<li>输入 <code>q</code> 退出并重新运行程序，再问 <code>What indentation style do I prefer?</code>，确认新会话能够召回这条偏好；</li>
+<li>再保存一条与代码格式无关的偏好，然后询问缩进问题，观察当前请求只加载相关记忆；</li>
+<li>输入 <code>Do not create files in this session.</code>，确认这条临时要求不会成为下一次会话的持久规则。</li>
+</ol>
+<p>模型的具体措辞和提取数量可能变化，判断重点是 <code>.memory/</code> 中保存了什么，以及新会话是否只取回相关内容。</p>
+<hr>
+<h2 id="接下来">接下来</h2>
+<p>Memory 解决了跨会话保留信息的问题，但复杂任务还需要记录每一步的状态和依赖关系。仅靠对话中的 TODO，程序退出后就无法继续追踪进度。</p>
+<p>s10 Task System → 把任务、状态和依赖关系保存到磁盘。</p>
+<!-- translation-sync: zh@v3, en@v3, ja@v3 -->
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">项目笔记</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/learn-claude-code-north/s09_memory/README.zh.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../../notes/projects/learn-claude-code-north/s08-context-compact/readme-zh.html"><span class="dir">← 上一篇</span><span class="t">s08: Context Compact：上下文总会满，先整理，再总结</span></a><a class="next" href="../../../../notes/projects/learn-claude-code-north/s10-task-system/readme-zh.html"><span class="dir">下一篇 →</span><span class="t">s10: Task System — 从执行清单到可协调的任务状态</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../../index.html">首页</a>
+      <a href="../../../../learn.html">课件</a>
+      <a href="../../../../notes/index.html">笔记库</a>
+      <a href="../../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../../about.html">关于</a>
+      <a href="../../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../../js/main.js" defer></script>
+</body>
+</html>
