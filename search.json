@@ -4889,7 +4889,7 @@
   },
   {
     "title": "从 HTTP 到实时 Agent Server",
-    "url": "web-foundation/COURSE.html",
+    "url": "web-foundation/index.html",
     "category": "课件 · 网络通信课",
     "excerpt": "异步与 HTTP 地基、SSE 流式、WebSocket 双向通信，到 Agent 事件流与生产化。",
     "type": "course",
@@ -4898,7 +4898,7 @@
   },
   {
     "title": "Web & Infra",
-    "url": "web-foundation/COURSE.html",
+    "url": "web-foundation/index.html",
     "category": "方向",
     "excerpt": "从 HTTP 到 Redis / Nginx 生产化的网络通信课。",
     "type": "topic",

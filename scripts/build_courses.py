@@ -576,20 +576,6 @@ def build_harness():
 
 # ---------------------------------------------------------------- web-foundation
 
-WF_INDEX_REDIRECT = """<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta http-equiv="refresh" content="0; url=COURSE.html">
-<link rel="canonical" href="./COURSE.html">
-<title>从 HTTP 到实时 Agent Server</title>
-</head>
-<body>
-<p>正在进入课程首页…… <a href="COURSE.html">如果没有自动跳转，点这里</a>。</p>
-</body>
-</html>
-"""
-
 WF_DOC_PREFIXES = ("COURSE.html", "GLOSSARY.html", "MISSION.html", "README.html",
                    "RESOURCES.html", "SSE_", "course/", "lessons/", "reference/")
 
@@ -632,7 +618,81 @@ def build_web_foundation():
         else:
             shutil.copyfile(p, out)
 
-    (zone / "index.html").write_text(WF_INDEX_REDIRECT, encoding="utf-8", newline="\n")
+    # ---- hub：站点 hero + 模块/课件/实验/速查卡片（数据解析自 COURSE.md 与 labs）----
+    course_md = (src / "COURSE.md").read_text(encoding="utf-8")
+    modules = re.findall(
+        r"^\| (M\d) \| ([^|]+) \| ([^|]+) \| ([^|]+) \| \[[^\]]+\]\((course/[^)]+)\) \|",
+        course_md, re.M)
+    secs = []
+
+    def section(label, cards):
+        secs.append(f'''  <section class="block wrap">
+    <div class="sec-head reveal"><span class="label">{label}</span></div>
+    <div class="course-grid reveal">{cards}
+    </div>
+  </section>''')
+
+    section("课程讲义 · 8 模块", "".join(
+        f'''\n        <a class="course-card" href="{url_quote(href, safe='/.#')}">
+          <span class="c-badge">{mid}</span>
+          <h3>{topic.strip()}</h3>
+          <p>{lessons.strip()} · 实验 {labs.strip()}</p>
+          <span class="c-link">进入模块 →</span>
+        </a>''' for mid, topic, lessons, labs, href in modules))
+
+    lesson_cards = []
+    for p in sorted(src.glob("lessons/*.html")):
+        m = re.search(r"<h1>([^<]*)</h1>", p.read_text(encoding="utf-8"))
+        lesson_cards.append(
+            f'''\n        <a class="course-card" href="lessons/{p.name}">
+          <span class="c-badge">{p.stem[:4]}</span>
+          <h3>{m.group(1) if m else p.stem}</h3>
+          <span class="c-link">打开 →</span>
+        </a>''')
+    section("互动课件", "".join(lesson_cards))
+
+    lab_cards = []
+    for p in sorted((src / "labs").glob("*/README.md")):
+        m = re.search(r"^# (.+)$", p.read_text(encoding="utf-8"), re.M)
+        lab_cards.append(
+            f'''\n        <a class="course-card" href="labs/{p.parent.name}/README.html">
+          <span class="c-badge">{p.parent.name.split("_")[0]}</span>
+          <h3>{m.group(1).strip() if m else p.parent.name}</h3>
+          <span class="c-link">进实验 →</span>
+        </a>''')
+    section(f"实验区 · {len(lab_cards)} 个", "".join(lab_cards))
+
+    section("速查与附录", "".join(
+        f'''\n        <a class="course-card" href="{href}">
+          <span class="c-badge">{badge}</span>
+          <h3>{t}</h3>
+          <span class="c-link">查看 →</span>
+        </a>''' for badge, t, href in [
+            ("SSE", "SSE 速查表", "reference/sse-cheatsheet.html"),
+            ("WS", "WebSocket 速查表", "reference/websocket-cheatsheet.html"),
+            ("M7", "排障附录", "course/appendix-troubleshooting.html"),
+            ("辞", "术语表", "GLOSSARY.html"),
+            ("稿", "知识底稿：完整学习路线", "SSE_WebSocket_FastAPI_完整学习路线.html")]))
+
+    hub_body = hero(
+        "Course · Web & Infra — 把 Agent 接到网络上",
+        '从 HTTP 到实时 <em>Agent Server</em>',
+        ('网络通信入门：为什么需要网络通信、异步与 HTTP 地基、SSE 流式、WebSocket 双向、LLM 流式与 Agent 事件，'
+         '最后用 Redis 事件总线和 Nginx 把系统推向生产。'
+         f'<span class="dim">整理自 <a href="https://github.com/NorthAdb/web_fundation" target="_blank" rel="noopener">NorthAdb/web_fundation</a>，8 模块 / 27 课 / 16 个实验在线可读。</span>'),
+        ['<a href="course/module-0-为什么需要网络通信.html" class="btn btn-primary">从模块 0 开始</a>',
+         '<a href="COURSE.html" class="btn btn-ghost">课程总纲</a>',
+         '<a href="labs/README.html" class="btn btn-ghost">实验区</a>',
+         '<a href="https://github.com/NorthAdb/web_fundation" class="btn btn-ghost" target="_blank" rel="noopener">源仓库 ↗</a>'],
+        ['<b data-count="8">8</b>个模块',
+         '<b data-count="27">27</b>讲课程',
+         '<b data-count="16">16</b>个动手实验',
+         '<b data-count="9">9</b>张交互架构图']) + "\n" + "\n".join(secs)
+    (zone / "index.html").write_text(
+        site_shell("../", "从 HTTP 到实时 Agent Server — NorthAdb 的博客",
+                   "网络通信入门：异步与 HTTP 地基、SSE 流式、WebSocket 双向通信，到 Agent 事件流与生产化。",
+                   "web-foundation/index.html", hub_body, overlay=overlay),
+        encoding="utf-8", newline="\n")
 
     urls = ["web-foundation/index.html"]
     urls += sorted(f"web-foundation/{p.relative_to(zone).as_posix()}"
@@ -655,12 +715,12 @@ SEARCH_ENTRIES = [
     {"title": "学习 Pi 导读", "url": "learn-pi/index.html", "category": "课件 · 22 篇",
      "excerpt": "面向 Pi 仓库的中文学习导读：设计哲学、架构、运行模式与二次开发。",
      "type": "course", "featured": False, "keywords": "pi agent 导读 架构 设计哲学"},
-    {"title": "从 HTTP 到实时 Agent Server", "url": "web-foundation/COURSE.html",
+    {"title": "从 HTTP 到实时 Agent Server", "url": "web-foundation/index.html",
      "category": "课件 · 网络通信课",
      "excerpt": "异步与 HTTP 地基、SSE 流式、WebSocket 双向通信，到 Agent 事件流与生产化。",
      "type": "course", "featured": False,
      "keywords": "http sse websocket fastapi redis nginx agent server 网络"},
-    {"title": "Web & Infra", "url": "web-foundation/COURSE.html", "category": "方向",
+    {"title": "Web & Infra", "url": "web-foundation/index.html", "category": "方向",
      "excerpt": "从 HTTP 到 Redis / Nginx 生产化的网络通信课。",
      "type": "topic", "featured": False},
 ]

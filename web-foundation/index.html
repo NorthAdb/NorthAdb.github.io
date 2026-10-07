@@ -2,11 +2,304 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="refresh" content="0; url=COURSE.html">
-<link rel="canonical" href="./COURSE.html">
-<title>从 HTTP 到实时 Agent Server</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>从 HTTP 到实时 Agent Server — NorthAdb 的博客</title>
+<meta name="description" content="网络通信入门：异步与 HTTP 地基、SSE 流式、WebSocket 双向通信，到 Agent 事件流与生产化。">
+<link rel="canonical" href="https://northadb.github.io/web-foundation/index.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="从 HTTP 到实时 Agent Server — NorthAdb 的博客">
+<meta property="og:description" content="网络通信入门：异步与 HTTP 地基、SSE 流式、WebSocket 双向通信，到 Agent 事件流与生产化。">
+<meta property="og:url" content="https://northadb.github.io/web-foundation/index.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="从 HTTP 到实时 Agent Server — NorthAdb 的博客">
+<meta name="twitter:description" content="网络通信入门：异步与 HTTP 地基、SSE 流式、WebSocket 双向通信，到 Agent 事件流与生产化。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../feed.xml">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../web-foundation/assets/courses.css">
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
 </head>
-<body>
-<p>正在进入课程首页…… <a href="COURSE.html">如果没有自动跳转，点这里</a>。</p>
+<body data-root="../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../web-foundation/index.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+<section class="hero wrap">
+    <div class="hero-glow"></div>
+    <div class="hero-kicker"><span class="dot"></span> Course · Web & Infra — 把 Agent 接到网络上</div>
+    <h1>从 HTTP 到实时 <em>Agent Server</em></h1>
+    <p class="sub">网络通信入门：为什么需要网络通信、异步与 HTTP 地基、SSE 流式、WebSocket 双向、LLM 流式与 Agent 事件，最后用 Redis 事件总线和 Nginx 把系统推向生产。<span class="dim">整理自 <a href="https://github.com/NorthAdb/web_fundation" target="_blank" rel="noopener">NorthAdb/web_fundation</a>，8 模块 / 27 课 / 16 个实验在线可读。</span></p>
+    <div class="hero-actions">
+      <a href="course/module-0-为什么需要网络通信.html" class="btn btn-primary">从模块 0 开始</a>
+      <a href="COURSE.html" class="btn btn-ghost">课程总纲</a>
+      <a href="labs/README.html" class="btn btn-ghost">实验区</a>
+      <a href="https://github.com/NorthAdb/web_fundation" class="btn btn-ghost" target="_blank" rel="noopener">源仓库 ↗</a>
+    </div>
+    <div class="hero-stats">
+      <div><b data-count="8">8</b>个模块</div>
+      <div><b data-count="27">27</b>讲课程</div>
+      <div><b data-count="16">16</b>个动手实验</div>
+      <div><b data-count="9">9</b>张交互架构图</div>
+    </div>
+  </section>
+  <section class="block wrap">
+    <div class="sec-head reveal"><span class="label">课程讲义 · 8 模块</span></div>
+    <div class="course-grid reveal">
+        <a class="course-card" href="course/module-0-%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E7%BD%91%E7%BB%9C%E9%80%9A%E4%BF%A1.md">
+          <span class="c-badge">M0</span>
+          <h3>为什么 Agent 开发者需要网络通信</h3>
+          <p>2 课 · 实验 观察实验</p>
+          <span class="c-link">进入模块 →</span>
+        </a>
+        <a class="course-card" href="course/module-1-%E5%BC%82%E6%AD%A5%E4%B8%8EHTTP%E5%9C%B0%E5%9F%BA.md">
+          <span class="c-badge">M1</span>
+          <h3>地基：异步与 HTTP</h3>
+          <p>4 课 · 实验 A1, v0</p>
+          <span class="c-link">进入模块 →</span>
+        </a>
+        <a class="course-card" href="course/module-2-%E6%B5%81%E5%BC%8F%E4%BC%A0%E8%BE%93%E4%B8%8ESSE.md">
+          <span class="c-badge">M2</span>
+          <h3>流式传输与 SSE</h3>
+          <p>5 课 · 实验 v2, v3a/b/c</p>
+          <span class="c-link">进入模块 →</span>
+        </a>
+        <a class="course-card" href="course/module-3-WebSocket%E5%8F%8C%E5%90%91%E9%80%9A%E4%BF%A1.md">
+          <span class="c-badge">M3</span>
+          <h3>WebSocket 双向通信</h3>
+          <p>3 课 · 实验 v4</p>
+          <span class="c-link">进入模块 →</span>
+        </a>
+        <a class="course-card" href="course/module-4-LLM%E6%B5%81%E5%BC%8F%E4%B8%8EAgent%E4%BA%8B%E4%BB%B6.md">
+          <span class="c-badge">M4</span>
+          <h3>LLM 流式与 Agent 事件系统</h3>
+          <p>4 课 · 实验 v5, v6, v7</p>
+          <span class="c-link">进入模块 →</span>
+        </a>
+        <a class="course-card" href="course/module-5-%E7%BB%BC%E5%90%88%E9%A1%B9%E7%9B%AE%E4%B8%8E%E7%94%9F%E4%BA%A7%E5%8C%96.md">
+          <span class="c-badge">M5</span>
+          <h3>综合项目与生产化</h3>
+          <p>2 课 · 实验 v8</p>
+          <span class="c-link">进入模块 →</span>
+        </a>
+        <a class="course-card" href="course/module-6-Redis%E4%BA%8B%E4%BB%B6%E6%80%BB%E7%BA%BF.md">
+          <span class="c-badge">M6</span>
+          <h3>生产基础设施 I · Redis 事件总线</h3>
+          <p>4 课 · 实验 r1/r2/r3</p>
+          <span class="c-link">进入模块 →</span>
+        </a>
+        <a class="course-card" href="course/module-7-Nginx%E4%B8%8E%E9%83%A8%E7%BD%B2.md">
+          <span class="c-badge">M7</span>
+          <h3>生产基础设施 II · Nginx 与部署</h3>
+          <p>3 课 · 实验 n1/n2</p>
+          <span class="c-link">进入模块 →</span>
+        </a>
+    </div>
+  </section>
+  <section class="block wrap">
+    <div class="sec-head reveal"><span class="label">互动课件</span></div>
+    <div class="course-grid reveal">
+        <a class="course-card" href="lessons/0001-course-map.html">
+          <span class="c-badge">0001</span>
+          <h3>全景地图：你的 Agent 在哪里遇见网络</h3>
+          <span class="c-link">打开 →</span>
+        </a>
+        <a class="course-card" href="lessons/0002-sse-format-lab.html">
+          <span class="c-badge">0002</span>
+          <h3>SSE 格式实验室</h3>
+          <span class="c-link">打开 →</span>
+        </a>
+        <a class="course-card" href="lessons/0003-agent-event-explorer.html">
+          <span class="c-badge">0003</span>
+          <h3>Agent 事件时间线浏览器</h3>
+          <span class="c-link">打开 →</span>
+        </a>
+    </div>
+  </section>
+  <section class="block wrap">
+    <div class="sec-head reveal"><span class="label">实验区 · 14 个</span></div>
+    <div class="course-grid reveal">
+        <a class="course-card" href="labs/a1_async/README.html">
+          <span class="c-badge">a1</span>
+          <h3>A1 asyncio 基础演示</h3>
+          <span class="c-link">进实验 →</span>
+        </a>
+        <a class="course-card" href="labs/n1_nginx_proxy/README.html">
+          <span class="c-badge">n1</span>
+          <h3>n1 · Nginx 反代实战：流式服务的生死开关</h3>
+          <span class="c-link">进实验 →</span>
+        </a>
+        <a class="course-card" href="labs/n2_full_stack/README.html">
+          <span class="c-badge">n2</span>
+          <h3>n2 · 终极拓扑：Nginx → Worker×2 → Redis</h3>
+          <span class="c-link">进实验 →</span>
+        </a>
+        <a class="course-card" href="labs/r1_redis_tasks/README.html">
+          <span class="c-badge">r1</span>
+          <h3>r1 · 任务表外移到 Redis Hash</h3>
+          <span class="c-link">进实验 →</span>
+        </a>
+        <a class="course-card" href="labs/r2_redis_stream/README.html">
+          <span class="c-badge">r2</span>
+          <h3>r2 · 事件日志外移到 Redis Stream</h3>
+          <span class="c-link">进实验 →</span>
+        </a>
+        <a class="course-card" href="labs/r3_redis_fanout/README.html">
+          <span class="c-badge">r3</span>
+          <h3>r3 · 多进程 Agent Server（Redis 数据面 + 控制面）——v7 的完全体</h3>
+          <span class="c-link">进实验 →</span>
+        </a>
+        <a class="course-card" href="labs/v0_hello_api/README.html">
+          <span class="c-badge">v0</span>
+          <h3>v0 Hello API</h3>
+          <span class="c-link">进实验 →</span>
+        </a>
+        <a class="course-card" href="labs/v2_streaming/README.html">
+          <span class="c-badge">v2</span>
+          <h3>v2 Streaming</h3>
+          <span class="c-link">进实验 →</span>
+        </a>
+        <a class="course-card" href="labs/v3_sse/README.html">
+          <span class="c-badge">v3</span>
+          <h3>v3 SSE：三个版本的对照实验</h3>
+          <span class="c-link">进实验 →</span>
+        </a>
+        <a class="course-card" href="labs/v4_websocket/README.html">
+          <span class="c-badge">v4</span>
+          <h3>v4 WebSocket：echo → 聊天室 → ConnectionManager</h3>
+          <span class="c-link">进实验 →</span>
+        </a>
+        <a class="course-card" href="labs/v5_llm_stream/README.html">
+          <span class="c-badge">v5</span>
+          <h3>v5 LLM Token Streaming：全链路打通</h3>
+          <span class="c-link">进实验 →</span>
+        </a>
+        <a class="course-card" href="labs/v6_agent_events/README.html">
+          <span class="c-badge">v6</span>
+          <h3>v6 统一 Agent 事件流</h3>
+          <span class="c-link">进实验 →</span>
+        </a>
+        <a class="course-card" href="labs/v7_agent_server/README.html">
+          <span class="c-badge">v7</span>
+          <h3>v7 毕业实验：Mini Agent Server</h3>
+          <span class="c-link">进实验 →</span>
+        </a>
+        <a class="course-card" href="labs/v8_production/README.html">
+          <span class="c-badge">v8</span>
+          <h3>v8 生产化：多 Worker、反向代理与部署配置（文档 + 配置，动手前先读懂 v7）</h3>
+          <span class="c-link">进实验 →</span>
+        </a>
+    </div>
+  </section>
+  <section class="block wrap">
+    <div class="sec-head reveal"><span class="label">速查与附录</span></div>
+    <div class="course-grid reveal">
+        <a class="course-card" href="reference/sse-cheatsheet.html">
+          <span class="c-badge">SSE</span>
+          <h3>SSE 速查表</h3>
+          <span class="c-link">查看 →</span>
+        </a>
+        <a class="course-card" href="reference/websocket-cheatsheet.html">
+          <span class="c-badge">WS</span>
+          <h3>WebSocket 速查表</h3>
+          <span class="c-link">查看 →</span>
+        </a>
+        <a class="course-card" href="course/appendix-troubleshooting.html">
+          <span class="c-badge">M7</span>
+          <h3>排障附录</h3>
+          <span class="c-link">查看 →</span>
+        </a>
+        <a class="course-card" href="GLOSSARY.html">
+          <span class="c-badge">辞</span>
+          <h3>术语表</h3>
+          <span class="c-link">查看 →</span>
+        </a>
+        <a class="course-card" href="SSE_WebSocket_FastAPI_完整学习路线.html">
+          <span class="c-badge">稿</span>
+          <h3>知识底稿：完整学习路线</h3>
+          <span class="c-link">查看 →</span>
+        </a>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../index.html">首页</a>
+      <a href="../learn.html">课件</a>
+      <a href="../notes/index.html">笔记库</a>
+      <a href="../ai-engineer/index.html">面试宝典</a>
+      <a href="../about.html">关于</a>
+      <a href="../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../js/main.js" defer></script>
 </body>
 </html>
