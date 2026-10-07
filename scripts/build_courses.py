@@ -600,6 +600,11 @@ def build_web_foundation():
         if p.is_dir():
             continue
         rel_posix = rel.as_posix()
+        # 互动课件（lessons/0*.html）自带 <style> 与脚本，是独立工具页，保持原样
+        if rel_posix.startswith("lessons/0"):
+            text = p.read_text(encoding="utf-8")
+            out.write_text(text, encoding="utf-8", newline="\n")
+            continue
         if p.suffix == ".html" and rel_posix != "index.html" and (
                 (rel_posix.startswith(WF_DOC_PREFIXES) and not Path(rel_posix).name.startswith("SSE_"))
                 or re.match(r"labs/[^/]+/README\.html$", rel_posix)):
@@ -633,7 +638,7 @@ def build_web_foundation():
   </section>''')
 
     section("课程讲义 · 8 模块", "".join(
-        f'''\n        <a class="course-card" href="{url_quote(href, safe='/.#')}">
+        f'''\n        <a class="course-card" href="{url_quote(posixpath.splitext(href)[0] + '.html', safe='/.#')}">
           <span class="c-badge">{mid}</span>
           <h3>{topic.strip()}</h3>
           <p>{lessons.strip()} · 实验 {labs.strip()}</p>
