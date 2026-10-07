@@ -31,19 +31,20 @@
 </ul>
 <p><strong>优先改配置，而不是全局替换字符串。</strong></p>
 <h2>路径解析注意</h2>
-<p>三种运行方式：npm 全局、独立 binary、tsx 源码。<br>包内资源路径应走 <code>src/config.ts</code> 的 <code>getPackageDir</code> / <code>getThemeDir</code>，不要对 <code>__dirname</code> 写死假设。</p>
+<p>三种运行方式：npm 全局、独立 binary、tsx 源码。<br>
+包内资源路径应走 <code>src/config.ts</code> 的 <code>getPackageDir</code> / <code>getThemeDir</code>，不要对 <code>__dirname</code> 写死假设。</p>
 <h2>Fork 策略建议</h2>
 <h3>轻度 fork（推荐）</h3>
 <ul>
 <li>保留与上游同步能力  </li>
 <li>自有品牌用 <code>piConfig</code>  </li>
 <li>差异放在私有 packages（extensions/skills）仓库  </li>
-<li>内核仅 cherry-pick 或定期 merge</li>
+<li>内核仅 cherry-pick 或定期 merge  </li>
 </ul>
 <h3>重度 fork（谨慎）</h3>
 <ul>
 <li>改 agent 循环、会话格式、扩展 API  </li>
-<li>成本：难以跟上游；要自己维护模型目录生成、发布管道</li>
+<li>成本：难以跟上游；要自己维护模型目录生成、发布管道  </li>
 </ul>
 <p>若目标是产品差异化，<strong>重度 fork 通常输给「薄宿主 + 官方 coding-agent + 私有扩展」</strong>。</p>
 <h2>本仓库（North fork）场景</h2>
@@ -51,13 +52,13 @@
 <ol>
 <li>明确 fork 目的：跟上游学习？做内部分发？改协议？  </li>
 <li>若是学习/内部分发：保持 remote 可拉取 upstream，差异放扩展  </li>
-<li>贡献回上游时遵循 <code>CONTRIBUTING.md</code>（新贡献者 issue/PR 默认自动关闭等策略）</li>
+<li>贡献回上游时遵循 <code>CONTRIBUTING.md</code>（新贡献者 issue/PR 默认自动关闭等策略）  </li>
 </ol>
 <h2>上游地址</h2>
 <ul>
 <li>典型上游：<code>https://github.com/earendil-works/pi</code>  </li>
 <li>文档与 npm 作用域：<code>@earendil-works/*</code>  </li>
-<li>网站：<a href="https://pi.dev">https://pi.dev</a></li>
+<li>网站：https://pi.dev  </li>
 </ul>
 <p>添加 upstream remote 示例：</p>
 <pre><code class="language-powershell">cd E:\pi_north
@@ -70,7 +71,7 @@ git fetch upstream
 <li>处理 npm 包名、二进制名、文档商标  </li>
 <li>遵守 MIT 与依赖许可证  </li>
 <li>认真对待 supply-chain（继承上游的 ignore-scripts / 钉版本文化）  </li>
-<li>模型数据生成与 release source archive 流程见根 README</li>
+<li>模型数据生成与 release source archive 流程见根 README  </li>
 </ul>
 <p>对大多数二次开发：<strong>不需要发布内核</strong>；发布你的 <code>pi package</code> 即可。</p>
 

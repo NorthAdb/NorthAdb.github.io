@@ -37,10 +37,13 @@ jobs:
         run: |
           git clone --depth 1 https://github.com/juliepy/AI-Engineer-from-scrach "$GITHUB_WORKSPACE/../AI-Engineer-from-scrach"
           git clone --depth 1 https://github.com/NorthAdb/north-my-note "$GITHUB_WORKSPACE/../north-my-note"
+          git clone --depth 1 --branch course https://github.com/NorthAdb/pi-agent-north "$GITHUB_WORKSPACE/../pi-agent-north"
+          git clone --depth 1 https://github.com/NorthAdb/web_fundation "$GITHUB_WORKSPACE/../web_fundation"
       - name: Rebuild generated zones
         run: |
           python scripts/build_ai_engineer.py
           python scripts/build_notes.py
+          python scripts/build_courses.py
       # GITHUB_TOKEN 的 push 不会再触发 workflow（防死循环），部署由本 run 的 deploy job 完成
       - name: Commit rebuilt zones
         id: commit
@@ -52,7 +55,7 @@ jobs:
             echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "源仓库无更新，产物无变化"
           else
-            git commit -m "auto: rebuild ai-engineer & notes from source repos"
+            git commit -m "auto: rebuild content zones from source repos"
             git push
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi

@@ -76,17 +76,17 @@
 <p>关键旋钮：</p>
 <ul>
 <li>全局 <code>toolExecution</code>：<code>parallel</code> | <code>sequential</code></li>
-<li>单工具可强制 <code>executionMode: &quot;sequential&quot;</code></li>
+<li>单工具可强制 <code>executionMode: "sequential"</code></li>
 <li>Steering / Follow-up 队列：运行中插入用户消息的不同时机</li>
 <li>工具结果可 <code>terminate</code>。整批结果都带这个标记时，才跳过后续 LLM 调用</li>
 <li><code>prepareRequest</code>：每一次 provider 请求之前，包括第一轮。用来装上已落盘的上下文，本身不读队列</li>
-<li><code>finishTurn</code>：助手消息和工具结果都定稿之后、<code>turn_end</code> 之前。返回 <code>{ action: &quot;end&quot; }</code> 结束这一轮运行；返回 <code>{ action: &quot;continue&quot; }</code> 保证再有一次请求。错误和中止仍然是硬退出。0.87 删掉的 <code>shouldStopAfterTurn</code> 迁到这里</li>
+<li><code>finishTurn</code>：助手消息和工具结果都定稿之后、<code>turn_end</code> 之前。返回 <code>{ action: "end" }</code> 结束这一轮运行；返回 <code>{ action: "continue" }</code> 保证再有一次请求。错误和中止仍然是硬退出。0.87 删掉的 <code>shouldStopAfterTurn</code> 迁到这里</li>
 </ul>
 <h2>为什么这样设计</h2>
 <ol>
 <li><strong>事件足够细</strong>：TUI / RPC / 评测都能挂同一套流  </li>
 <li><strong>工具执行与模型调用解耦</strong>：并行工具时完成顺序 ≠ 持久化顺序（文档说明：完成事件按完成序，持久化 toolResult 仍按助手源序）  </li>
-<li><strong>钩子可挡工具</strong>：安全扩展不必改循环源码</li>
+<li><strong>钩子可挡工具</strong>：安全扩展不必改循环源码  </li>
 </ol>
 <h2>和 Coding Agent 的关系</h2>
 <pre><code>用户在 TUI 输入
@@ -101,7 +101,7 @@
 <ol>
 <li>SDK <code>01-minimal.ts</code>：只看文本流  </li>
 <li>带 <code>bash</code>/<code>read</code> 的会话：对照 README 里「With Tool Calls」图  </li>
-<li>打开 <code>agent-loop.ts</code>，搜索 <code>tool</code> 相关分支</li>
+<li>打开 <code>agent-loop.ts</code>，搜索 <code>tool</code> 相关分支  </li>
 </ol>
 <h2>下一步</h2>
 <ul>
@@ -112,7 +112,7 @@
   </article>
 <nav class="pager"><a href="包地图与依赖.html">← 包地图与依赖</a>
     <span class="spacer"></span>
-    <a href="Coding-Agent-栈.html">Coding-Agent-栈 →</a></nav>
+    <a href="Coding-Agent-栈.html">Coding Agent 栈 →</a></nav>
   <footer>学习 Pi 导读（learn-pi） · 基准 pi 1.0.2（2026-10-04） · <a href="https://github.com/NorthAdb/pi-agent-north" target="_blank" rel="noopener">源码仓库 ↗</a> · 姊妹课程 <a href="../../agent-harness-course/index.html">Agent Harness 架构课</a></footer>
 </div>
 <button id="themeToggle" aria-label="切换主题" style="position:fixed;top:14px;right:14px;z-index:999;width:34px;height:34px;border-radius:8px;border:1px solid rgba(127,127,127,.45);background:rgba(127,127,127,.14);color:inherit;cursor:pointer;display:grid;place-items:center;font-size:15px;line-height:1;">☾</button>

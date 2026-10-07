@@ -32,33 +32,6 @@
     "featured": false
   },
   {
-    "title": "Agent Harness 架构课程",
-    "url": "agent-harness-course/index.html",
-    "category": "课件 · 15 课",
-    "excerpt": "逆向工程 Pi 源码，回答现代 Agent Harness 需要哪些基础机制。",
-    "type": "course",
-    "featured": false,
-    "keywords": "agent harness pi loop tool context session compaction skills mcp"
-  },
-  {
-    "title": "学习 Pi 导读",
-    "url": "learn-pi/index.html",
-    "category": "课件 · 22 篇",
-    "excerpt": "面向 Pi 仓库的中文学习导读：设计哲学、架构、运行模式与二次开发。",
-    "type": "course",
-    "featured": false,
-    "keywords": "pi agent 导读 架构 设计哲学"
-  },
-  {
-    "title": "从 HTTP 到实时 Agent Server",
-    "url": "web-foundation/COURSE.html",
-    "category": "课件 · 网络通信课",
-    "excerpt": "异步与 HTTP 地基、SSE 流式、WebSocket 双向通信，到 Agent 事件流与生产化。",
-    "type": "course",
-    "featured": false,
-    "keywords": "http sse websocket fastapi redis nginx agent server 网络"
-  },
-  {
     "title": "RAG Playground",
     "url": "rag/index.html",
     "category": "课件 · 18 讲",
@@ -105,14 +78,6 @@
     "url": "rag/index.html",
     "category": "方向",
     "excerpt": "从零手写可观测的 RAG 流水线。",
-    "type": "topic",
-    "featured": false
-  },
-  {
-    "title": "Web & Infra",
-    "url": "web-foundation/COURSE.html",
-    "category": "方向",
-    "excerpt": "从 HTTP 到 Redis / Nginx 生产化的网络通信课。",
     "type": "topic",
     "featured": false
   },
@@ -4903,5 +4868,40 @@
     "type": "note",
     "featured": false,
     "keywords": "日记"
+  },
+  {
+    "title": "Agent Harness 架构课程",
+    "url": "agent-harness-course/index.html",
+    "category": "课件 · 15 课",
+    "excerpt": "逆向工程 Pi 源码，回答现代 Agent Harness 需要哪些基础机制。",
+    "type": "course",
+    "featured": false,
+    "keywords": "agent harness pi loop tool context session compaction skills mcp"
+  },
+  {
+    "title": "学习 Pi 导读",
+    "url": "learn-pi/index.html",
+    "category": "课件 · 22 篇",
+    "excerpt": "面向 Pi 仓库的中文学习导读：设计哲学、架构、运行模式与二次开发。",
+    "type": "course",
+    "featured": false,
+    "keywords": "pi agent 导读 架构 设计哲学"
+  },
+  {
+    "title": "从 HTTP 到实时 Agent Server",
+    "url": "web-foundation/COURSE.html",
+    "category": "课件 · 网络通信课",
+    "excerpt": "异步与 HTTP 地基、SSE 流式、WebSocket 双向通信，到 Agent 事件流与生产化。",
+    "type": "course",
+    "featured": false,
+    "keywords": "http sse websocket fastapi redis nginx agent server 网络"
+  },
+  {
+    "title": "Web & Infra",
+    "url": "web-foundation/COURSE.html",
+    "category": "方向",
+    "excerpt": "从 HTTP 到 Redis / Nginx 生产化的网络通信课。",
+    "type": "topic",
+    "featured": false
   }
 ]

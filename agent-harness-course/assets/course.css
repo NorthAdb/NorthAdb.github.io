@@ -156,6 +156,7 @@ footer.note { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--l
   figure.diagram iframe { background: #fff; }
   :root:not([data-theme="light"]) a { color: var(--accent); }
 }
+
 /* 手动暗色（主题切换按钮） */
 [data-theme="dark"] {
   --ink: #e8e4da; --ink-soft: #b3aea2; --paper: #1c1b18;

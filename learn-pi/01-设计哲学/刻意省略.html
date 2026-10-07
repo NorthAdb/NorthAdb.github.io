@@ -23,15 +23,15 @@
 <ul>
 <li><strong>Core 的立场没变</strong>：Core 工具仍是 <code>read</code> / <code>write</code> / <code>edit</code> / <code>bash</code>；MCP 不是第五个内置工具。</li>
 <li><strong>实现位置变了</strong>：0.99.0 起 MCP 随 Pi 以<strong>内置扩展</strong>加载（<code>packages/coding-agent/src/extensions/index.ts:7-14</code>，
-客户端库在 <code>packages/mcp</code>）。它标记为 <code>replaceable: true</code>——第三方扩展可以整个顶掉它。</li>
-<li><strong>默认不占上下文</strong>：服务器默认 <code>exposure: &quot;codemode&quot;</code>（<code>src/extensions/mcp/index.ts</code> 文件头）。
-MCP 工具不声明给模型，也不进 codemode 的工具清单。脚本用 <code>searchTools()</code> / <code>describeNamespace()</code> 按需发现。
-非 <code>direct</code> 的服务器在后台连接，不挡住第一条 prompt。</li>
+  客户端库在 <code>packages/mcp</code>）。它标记为 <code>replaceable: true</code>——第三方扩展可以整个顶掉它。</li>
+<li><strong>默认不占上下文</strong>：服务器默认 <code>exposure: "codemode"</code>（<code>src/extensions/mcp/index.ts</code> 文件头）。
+  MCP 工具不声明给模型，也不进 codemode 的工具清单。脚本用 <code>searchTools()</code> / <code>describeNamespace()</code> 按需发现。
+  非 <code>direct</code> 的服务器在后台连接，不挡住第一条 prompt。</li>
 <li><strong>配置与命令</strong>：用户级 <code>~/.pi/agent/mcp.json</code>，加上受信任项目的 <code>.pi/mcp.json</code>。项目文件可以只写 <code>enabled</code> / <code>exposure</code> / <code>toolExposure</code>，覆盖同名的用户级服务器，不必重写启动命令。命令是 <code>pi mcp add|remove|list|login|logout</code>，会话内是 <code>/mcp</code>。
-见 <code>packages/coding-agent/docs/mcp.md</code>。</li>
+  见 <code>packages/coding-agent/docs/mcp.md</code>。</li>
 <li><strong>二次开发</strong>：先用 <code>pi mcp add</code>（零代码）；要按环境动态注册，用 <code>pi.registerMcpServer()</code> / <code>pi.getMcpServers()</code> /
-<code>mcp_servers_change</code> 事件。</li>
-<li><strong>延伸</strong>：<a href="https://mariozechner.at/posts/2025-11-02-what-if-you-dont-need-mcp/">What if you don&#39;t need MCP?</a>（理解上下文预算的必读）、<code>packages/coding-agent/docs/mcp.md</code></li>
+  <code>mcp_servers_change</code> 事件。</li>
+<li><strong>延伸</strong>：<a href="https://mariozechner.at/posts/2025-11-02-what-if-you-dont-need-mcp/">What if you don't need MCP?</a>（理解上下文预算的必读）、<code>packages/coding-agent/docs/mcp.md</code></li>
 </ul>
 <h2>No sub-agents（无内置子 Agent）</h2>
 <ul>
@@ -76,7 +76,7 @@ MCP 工具不声明给模型，也不进 codemode 的工具清单。脚本用 <c
 <ol>
 <li><strong>先接受默认</strong>：四个工具 + 会话，完成真实改代码任务  </li>
 <li><strong>缺什么再补什么</strong>：需要确认再装/写 permission；需要并行调研再看 subagent 例子  </li>
-<li><strong>不要一上来把所有 No 都用扩展填满</strong>——那会把自己做成另一个巨型产品，丢掉 Pi 的清晰度</li>
+<li><strong>不要一上来把所有 No 都用扩展填满</strong>——那会把自己做成另一个巨型产品，丢掉 Pi 的清晰度  </li>
 </ol>
 <h2>对照：内核「有」的东西</h2>
 <p>省略之外，内核<strong>坚持提供</strong>的，往往是跨工作流都稳定的基础设施：</p>

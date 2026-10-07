@@ -21,13 +21,15 @@
 <li>避免永远塞满系统提示</li>
 </ul>
 <p><strong>典型位置</strong>：用户或项目 skills 目录；也可用 <code>--skill</code>；可打进 package。</p>
-<p><strong>文档</strong>：<code>packages/coding-agent/docs/skills.md</code><br><strong>例子</strong>：<code>examples/sdk/04-skills.ts</code>；fixtures 下大量边界用例。</p>
+<p><strong>文档</strong>：<code>packages/coding-agent/docs/skills.md</code><br>
+<strong>例子</strong>：<code>examples/sdk/04-skills.ts</code>；fixtures 下大量边界用例。</p>
 <p><strong>初学者练习</strong>：写一个「生成 CHANGELOG 片段」的 skill，描述写清楚触发条件。</p>
 <hr>
 <h2>Prompt Templates（提示模板）</h2>
 <p><strong>是什么</strong>：slash 命令展开成一段提示（可带参数）。</p>
 <p><strong>解决什么</strong>：高频话术标准化（评审、发布检查、提交说明）。</p>
-<p><strong>文档</strong>：<code>docs/prompt-templates.md</code><br><strong>例子</strong>：<code>examples/sdk/08-prompt-templates.ts</code>；subagent 例子里的 prompts。</p>
+<p><strong>文档</strong>：<code>docs/prompt-templates.md</code><br>
+<strong>例子</strong>：<code>examples/sdk/08-prompt-templates.ts</code>；subagent 例子里的 prompts。</p>
 <hr>
 <h2>Extensions（扩展）</h2>
 <p><strong>是什么</strong>：TypeScript 模块，拿到 <code>ExtensionAPI</code>，在加载时注册能力。</p>
@@ -68,17 +70,19 @@
 <td>permission-gate、confirm-destructive</td>
 </tr>
 </tbody></table>
-<p><strong>文档</strong>：<code>docs/extensions.md</code>（很长，建议配合例子读）<br><strong>目录</strong>：<code>examples/extensions/</code> + <code>examples/extensions/README.md</code></p>
+<p><strong>文档</strong>：<code>docs/extensions.md</code>（很长，建议配合例子读）<br>
+<strong>目录</strong>：<code>examples/extensions/</code> + <code>examples/extensions/README.md</code></p>
 <p><strong>最小路径</strong>：</p>
 <ol>
 <li>读 <code>hello.ts</code>（若存在）或任意最小 registerCommand 例子  </li>
 <li>复制到自己的 <code>~/.pi/agent/extensions</code> 或项目约定路径  </li>
 <li>重启 <code>pi</code>，调用你的命令  </li>
-<li>再尝试 <code>on(&quot;tool_call&quot;, …)</code> 做只读日志，最后才做 block</li>
+<li>再尝试 <code>on("tool_call", …)</code> 做只读日志，最后才做 block  </li>
 </ol>
 <hr>
 <h2>Themes（主题）</h2>
-<p><strong>是什么</strong>：终端配色/样式 JSON。<br><strong>文档</strong>：<code>docs/themes.md</code>。</p>
+<p><strong>是什么</strong>：终端配色/样式 JSON。<br>
+<strong>文档</strong>：<code>docs/themes.md</code>。</p>
 <hr>
 <h2>Pi Packages（包）</h2>
 <p><strong>是什么</strong>：把 extensions / skills / prompts / themes 捆成可安装单元。</p>
@@ -90,7 +94,8 @@ pi list
 pi config   # 启用/禁用包内资源
 </code></pre>
 <p><code>source</code> 可以是路径、npm、git。</p>
-<p><strong>文档</strong>：<code>docs/packages.md</code><br><strong>约定</strong>：常规目录布局，或 <code>package.json</code> 里的 <code>pi</code> 字段。</p>
+<p><strong>文档</strong>：<code>docs/packages.md</code><br>
+<strong>约定</strong>：常规目录布局，或 <code>package.json</code> 里的 <code>pi</code> 字段。</p>
 <p><strong>二次开发含义</strong>：你的公司内部工作流可以「装包」而不是「人手拷文件」。</p>
 <hr>
 <h2>Custom Provider / Models</h2>
@@ -127,12 +132,13 @@ pi config   # 启用/禁用包内资源
 </tbody></table>
 <hr>
 <h2>Ask Pi 自己写</h2>
-<p>官方文档鼓励直接让 Pi 根据 <code>docs/extensions.md</code> / <code>skills.md</code> 生成脚手架。<br>这是学习闭环的一部分，不是偷懒——生成后你要能对照 API 讲解每一行。</p>
+<p>官方文档鼓励直接让 Pi 根据 <code>docs/extensions.md</code> / <code>skills.md</code> 生成脚手架。<br>
+这是学习闭环的一部分，不是偷懒——生成后你要能对照 API 讲解每一行。</p>
 
   </article>
 <nav class="pager"><a href="扩展面总览.html">← 扩展面总览</a>
     <span class="spacer"></span>
-    <a href="SDK与进程集成.html">SDK与进程集成 →</a></nav>
+    <a href="SDK与进程集成.html">SDK 与进程集成 →</a></nav>
   <footer>学习 Pi 导读（learn-pi） · 基准 pi 1.0.2（2026-10-04） · <a href="https://github.com/NorthAdb/pi-agent-north" target="_blank" rel="noopener">源码仓库 ↗</a> · 姊妹课程 <a href="../../agent-harness-course/index.html">Agent Harness 架构课</a></footer>
 </div>
 <button id="themeToggle" aria-label="切换主题" style="position:fixed;top:14px;right:14px;z-index:999;width:34px;height:34px;border-radius:8px;border:1px solid rgba(127,127,127,.45);background:rgba(127,127,127,.14);color:inherit;cursor:pointer;display:grid;place-items:center;font-size:15px;line-height:1;">☾</button>
