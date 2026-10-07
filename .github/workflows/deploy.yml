@@ -28,9 +28,10 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.x"
+          # 钉住大版本：渲染结果随运行时变化会产生内容噪音 diff
+          python-version: "3.14"
       - name: Install build deps
-        run: pip install markdown
+        run: pip install markdown==3.11
       # 内容源仓库 clone 成主站仓库的兄弟目录，与 scripts 里的路径约定一致
       - name: Clone source repos
         run: |

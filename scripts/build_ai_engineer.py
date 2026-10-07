@@ -25,6 +25,13 @@ from urllib.parse import quote as url_quote
 
 import markdown
 
+# 读入的一切文本归一化：\r\n → LF；剔除 NUL（混入的 \x00 会让 git 把构建产物
+# 当二进制、跳过换行归一化，导致本地与 CI 产物入库不一致）
+_orig_read_text = Path.read_text
+def _read_text_lf(self, *a, **kw):
+    return _orig_read_text(self, *a, **kw).replace("\r\n", "\n").replace("\x00", "")
+Path.read_text = _read_text_lf
+
 # scripts/ 位于主站仓库内：SITE = 仓库根，WORKSPACE = 仓库的上一级（源仓库 clone 成其兄弟目录）
 SITE = Path(__file__).resolve().parent.parent
 WORKSPACE = SITE.parent
@@ -858,7 +865,8 @@ def update_search_json(entries):
     assert data.startswith("[")
     import json
     items = json.loads(data)
-    items = [i for i in items if not str(i.get("url", "")).startswith(ZONE + "/")]
+    items = [i for i in items if not str(i.get("url", "")).startswith(ZONE + "/")
+             and not str(i.get("url", "")).startswith(REPO_URL)]
     items.extend(entries)
     path.write_text(json.dumps(items, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 

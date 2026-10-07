@@ -31,6 +31,13 @@ from urllib.parse import quote as url_quote
 
 import markdown
 
+# 读入的一切文本归一化：\r\n → LF；剔除 NUL（vault 个别文件混入 \x00 会让 git
+# 把构建产物当二进制、跳过换行归一化，导致本地与 CI 产物入库不一致）
+_orig_read_text = Path.read_text
+def _read_text_lf(self, *a, **kw):
+    return _orig_read_text(self, *a, **kw).replace("\r\n", "\n").replace("\x00", "")
+Path.read_text = _read_text_lf
+
 # scripts/ 位于主站仓库内：SITE = 仓库根，WORKSPACE = 仓库的上一级（vault clone 成其兄弟目录）
 SITE = Path(__file__).resolve().parent.parent
 WORKSPACE = SITE.parent
@@ -233,7 +240,7 @@ def discover():
         root = VAULT / sec["dir"]
         if not root.is_dir():
             continue
-        for p in sorted(root.rglob("*.md")):
+        for p in sorted(root.rglob("*.md"), key=lambda p: p.parts):
             rel = p.relative_to(VAULT).as_posix()
             parts = Path(rel).parts
             sub = parts[1:-1]                       # dirs below the section
@@ -1233,7 +1240,7 @@ def main():
         root = VAULT / sec["dir"]
         if not root.is_dir():
             continue
-        for p in sorted(root.rglob("*.pdf")):
+        for p in sorted(root.rglob("*.pdf"), key=lambda p: p.parts):
             rel = p.relative_to(VAULT).as_posix()
             pages.append(dict(rel=rel, section=sec, url=None, title=p.stem,
                               excerpt="", minutes=0, asset=True))
