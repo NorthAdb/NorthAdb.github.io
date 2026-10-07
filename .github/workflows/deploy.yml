@@ -3,10 +3,13 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [master]
+  # 兜底：每小时拉取内容源仓库重建（源仓库 push 无法直接触发本仓库 workflow）
+  schedule:
+    - cron: "17 * * * *"
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -17,10 +20,41 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.commit.outputs.changed }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      # 纯静态站点：无依赖安装、无构建步骤，直接上传整个仓库作为站点产物
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Install build deps
+        run: pip install markdown
+      # 内容源仓库 clone 成主站仓库的兄弟目录，与 scripts 里的路径约定一致
+      - name: Clone source repos
+        run: |
+          git clone --depth 1 https://github.com/juliepy/AI-Engineer-from-scrach "$GITHUB_WORKSPACE/../AI-Engineer-from-scrach"
+          git clone --depth 1 https://github.com/NorthAdb/north-my-note "$GITHUB_WORKSPACE/../north-my-note"
+      - name: Rebuild generated zones
+        run: |
+          python scripts/build_ai_engineer.py
+          python scripts/build_notes.py
+      # GITHUB_TOKEN 的 push 不会再触发 workflow（防死循环），部署由本 run 的 deploy job 完成
+      - name: Commit rebuilt zones
+        id: commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "源仓库无更新，产物无变化"
+          else
+            git commit -m "auto: rebuild ai-engineer & notes from source repos"
+            git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
       - name: Upload static site
         uses: actions/upload-pages-artifact@v3
         with:
@@ -28,6 +62,8 @@ jobs:
 
   deploy:
     needs: build
+    # 定时触发的无变化 run 不重新部署；push / 手动触发始终部署
+    if: needs.build.outputs.changed == 'true' || github.event_name != 'schedule'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
