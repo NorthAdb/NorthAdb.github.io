@@ -4,23 +4,23 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RAG 与 LLM Wiki：从检索增强到知识编译 - Summary · 我的笔记库 — NorthAdb 的博客</title>
-<meta name="description" content="- 原始文件：领域/RAG与LLM Wiki：原理、架构与开源实现.md|RAG 与 LLM Wiki：原理、架构与开源实现 - 摄取日期：2026-08-11">
+<meta name="description" content="- 原始文件：RAG与LLM Wiki：原理、架构与开源实现|RAG 与 LLM Wiki：原理、架构与开源实现 - 摄取日期：2026-08-11">
 <link rel="canonical" href="https://northadb.github.io/notes/wiki/sources/ragllm-wiki-a74e83.html">
 <meta name="theme-color" content="#0a0a0a">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="NorthAdb">
 <meta property="og:title" content="RAG 与 LLM Wiki：从检索增强到知识编译 - Summary · 我的笔记库 — NorthAdb 的博客">
-<meta property="og:description" content="- 原始文件：领域/RAG与LLM Wiki：原理、架构与开源实现.md|RAG 与 LLM Wiki：原理、架构与开源实现 - 摄取日期：2026-08-11">
+<meta property="og:description" content="- 原始文件：RAG与LLM Wiki：原理、架构与开源实现|RAG 与 LLM Wiki：原理、架构与开源实现 - 摄取日期：2026-08-11">
 <meta property="og:url" content="https://northadb.github.io/notes/wiki/sources/ragllm-wiki-a74e83.html">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="RAG 与 LLM Wiki：从检索增强到知识编译 - Summary · 我的笔记库 — NorthAdb 的博客">
-<meta name="twitter:description" content="- 原始文件：领域/RAG与LLM Wiki：原理、架构与开源实现.md|RAG 与 LLM Wiki：原理、架构与开源实现 - 摄取日期：2026-08-11">
+<meta name="twitter:description" content="- 原始文件：RAG与LLM Wiki：原理、架构与开源实现|RAG 与 LLM Wiki：原理、架构与开源实现 - 摄取日期：2026-08-11">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
 <link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../feed.xml">
 <link rel="stylesheet" href="../../../css/style.css">
 <link rel="stylesheet" href="../../../notes/assets/notes.css">
 <script type="application/ld+json">
-{"@context": "https://schema.org", "@type": "TechArticle", "headline": "RAG 与 LLM Wiki：从检索增强到知识编译 - Summary", "description": "- 原始文件：领域/RAG与LLM Wiki：原理、架构与开源实现.md|RAG 与 LLM Wiki：原理、架构与开源实现 - 摄取日期：2026-08-11", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/wiki/sources/ragllm-wiki-a74e83.html"}
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "RAG 与 LLM Wiki：从检索增强到知识编译 - Summary", "description": "- 原始文件：RAG与LLM Wiki：原理、架构与开源实现|RAG 与 LLM Wiki：原理、架构与开源实现 - 摄取日期：2026-08-11", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/wiki/sources/ragllm-wiki-a74e83.html"}
 </script>
 <script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
 </head>
@@ -78,7 +78,7 @@
         <header class="post-hero">
           <div class="crumbs"><a href="../../../index.html">首页</a><span>/</span><a href="../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../notes/wiki/index.html">LLM Wiki</a></div>
           <h1>RAG 与 LLM Wiki：从检索增强到知识编译 - Summary</h1>
-          <p class="post-sub">- 原始文件：领域/RAG与LLM Wiki：原理、架构与开源实现.md|RAG 与 LLM Wiki：原理、架构与开源实现 - 摄取日期：2026-08-11</p>
+          <p class="post-sub">- 原始文件：RAG与LLM Wiki：原理、架构与开源实现|RAG 与 LLM Wiki：原理、架构与开源实现 - 摄取日期：2026-08-11</p>
           <div class="post-meta">
             <span class="avatar">N</span>
             <span>我的笔记库</span><span class="sep"></span>
@@ -97,7 +97,7 @@
         <div class="prose">
 <h2 id="来源">来源</h2>
 <ul>
-<li>原始文件：<a class="wl" href="../../../notes/domains/ragllmwiki.html">RAG 与 LLM Wiki：原理、架构与开源实现</a></li>
+<li>原始文件：<a class="wl" href="../../../notes/domains/rag/ragllmwiki.html">RAG 与 LLM Wiki：原理、架构与开源实现</a></li>
 <li>摄取日期：2026-08-11</li>
 </ul>
 <h2 id="核心内容">核心内容</h2>
@@ -105,7 +105,7 @@
         </div>
 
         <footer class="post-foot">
-          <div class="tags"><span class="chip chip-accent">LLM Wiki</span><span class="chip">note</span></div>
+          <div class="tags"><span class="chip chip-accent">LLM Wiki</span><span class="chip">- note</span></div>
           <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/wiki/sources/rag%E4%B8%8Ellm-wiki%E5%8E%9F%E7%90%86%E6%9E%B6%E6%9E%84%E4%B8%8E%E5%BC%80%E6%BA%90%E5%AE%9E%E7%8E%B0_a74e83.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
         </footer>
       </article>

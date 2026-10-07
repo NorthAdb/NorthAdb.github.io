@@ -1,0 +1,2153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WireGuard 背景调研 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="本文档为 PQ-SecTunnel 答辩材料撰写，内容均来自一手资料。 主要来源：WireGuard 官网、技术白皮书、Noise Protocol Framework 规范。">
+<link rel="canonical" href="https://northadb.github.io/notes/projects/doc-pqsectunnel/research/wireguard-background.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="WireGuard 背景调研 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="本文档为 PQ-SecTunnel 答辩材料撰写，内容均来自一手资料。 主要来源：WireGuard 官网、技术白皮书、Noise Protocol Framework 规范。">
+<meta property="og:url" content="https://northadb.github.io/notes/projects/doc-pqsectunnel/research/wireguard-background.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="WireGuard 背景调研 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="本文档为 PQ-SecTunnel 答辩材料撰写，内容均来自一手资料。 主要来源：WireGuard 官网、技术白皮书、Noise Protocol Framework 规范。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../../feed.xml">
+<link rel="stylesheet" href="../../../../css/style.css">
+<link rel="stylesheet" href="../../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "WireGuard 背景调研", "description": "本文档为 PQ-SecTunnel 答辩材料撰写，内容均来自一手资料。 主要来源：WireGuard 官网、技术白皮书、Noise Protocol Framework 规范。", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/projects/doc-pqsectunnel/research/wireguard-background.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../../web-foundation/index.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../../notes/index.html">笔记库</a></li><li><a href="../../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../../index.html">首页</a><span>/</span><a href="../../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../../notes/projects/index.html">项目笔记</a></div>
+          <h1>WireGuard 背景调研</h1>
+          <p class="post-sub">本文档为 PQ-SecTunnel 答辩材料撰写，内容均来自一手资料。 主要来源：WireGuard 官网、技术白皮书、Noise Protocol Framework 规范。</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../../notes/projects/index.html">项目笔记</a></span><span class="sep"></span>
+            <span>阅读约 53 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p>本文档为 PQ-SecTunnel 答辩材料撰写，内容均来自一手资料。<br>
+主要来源：WireGuard 官网、技术白皮书、Noise Protocol Framework 规范。</p>
+</blockquote>
+<hr>
+<h2 id="来源索引">来源索引</h2>
+<table>
+<thead>
+<tr>
+<th>来源</th>
+<th>URL / 文档</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>WireGuard 官网概览</td>
+<td><a href="https://www.wireguard.com/">https://www.wireguard.com/</a></td>
+</tr>
+<tr>
+<td>WireGuard 协议与密码学页面</td>
+<td><a href="https://www.wireguard.com/protocol/">https://www.wireguard.com/protocol/</a></td>
+</tr>
+<tr>
+<td>WireGuard 快速入门</td>
+<td><a href="https://www.wireguard.com/quickstart/">https://www.wireguard.com/quickstart/</a></td>
+</tr>
+<tr>
+<td>WireGuard 技术白皮书</td>
+<td><a href="https://www.wireguard.com/papers/wireguard.pdf（Donenfeld">https://www.wireguard.com/papers/wireguard.pdf（Donenfeld</a>, 2020；NDSS 2017 版本）</td>
+</tr>
+<tr>
+<td>Noise Protocol Framework</td>
+<td><a href="https://noiseprotocol.org/noise.html（Perrin">https://noiseprotocol.org/noise.html（Perrin</a>, Revision 34, 2018-07-11）</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="overview概览">Overview（概览）</h2>
+<p>WireGuard 是一种面向第 3 层（IP）的安全网络隧道协议，通过 UDP 封装加密 IP 数据包。其设计目标是替代 IPsec 与 OpenVPN 等方案，在保持强安全性的同时实现更简单、更高性能、更易部署的 VPN。（来源：<a href="https://www.wireguard.com/papers/wireguard.pdf">WireGuard 白皮书 §1</a>；<a href="https://www.wireguard.com/">官网</a>）</p>
+<p>核心特征：</p>
+<ul>
+<li><strong>无连接协议（Connection-less）</strong>：握手基于定时器驱动，而非依赖先前数据包内容；接口启动后，密钥交换、重连、漫游等由协议自动处理，管理员视角接近"无状态"。（来源：<a href="https://www.wireguard.com/protocol/">协议页面 — Connection-less Protocol</a>）</li>
+<li><strong>1-RTT 握手</strong>：一次往返（initiator → responder → initiator）即可完成密钥协商。（来源：<a href="https://www.wireguard.com/papers/wireguard.pdf">白皮书 §5</a>）</li>
+<li><strong>Cryptokey Routing</strong>：公钥与允许隧道 IP 地址直接绑定，身份与路由合一。（来源：<a href="https://www.wireguard.com/">官网 — Cryptokey Routing</a>）</li>
+<li><strong>跨平台</strong>：最初为 Linux 内核实现，现已支持 Windows、macOS、BSD、iOS、Android 等。（来源：<a href="https://www.wireguard.com/">官网</a>）</li>
+</ul>
+<p>白皮书摘要指出：WireGuard 以"对等体公钥 ↔ 隧道源 IP 地址"关联为基本安全原则，使用基于 Noise IK 的单次往返密钥交换，配合定时器状态机透明管理会话；完整 Linux 实现代码量不足 4,000 行（不含密码学原语），便于审计。（来源：<a href="https://www.wireguard.com/papers/wireguard.pdf">白皮书 Abstract</a>）</p>
+<hr>
+<h2 id="design-principles设计原则">Design Principles（设计原则）</h2>
+<h3 id="简洁性与可审计性">简洁性与可审计性</h3>
+<p>WireGuard 刻意追求配置与实现上的简洁：公钥交换方式类似 SSH，其余握手、重连、漫游对用户透明。（来源：<a href="https://www.wireguard.com/">官网 — Simple &amp; Easy-to-use</a>）</p>
+<p>白皮书对比 IPsec/OpenVPN 指出：WireGuard 将密钥交换与第 3 层传输加密合并为单一机制，以虚拟接口（如 <code>wg0</code>）替代 xfrm 变换层，打破传统严格分层，换取实用性与可验证安全性；Linux 实现目标为少于 4,000 行代码。（来源：<a href="https://www.wireguard.com/papers/wireguard.pdf">白皮书 §1, §7</a>）</p>
+<h3 id="密码学立场明确cryptographically-opinionated">密码学立场明确（Cryptographically Opinionated）</h3>
+<p>WireGuard <strong>不提供</strong>密码算法或协议敏捷性（cipher/protocol agility）；若底层原语出现漏洞，所有端点须统一升级。白皮书认为 TLS/IPsec 的算法协商带来巨大复杂性与攻击面。（来源：<a href="https://www.wireguard.com/papers/wireguard.pdf">白皮书 §1</a>；<a href="https://www.wireguard.com/">官网 — Cryptographically Sound</a>）</p>
+<h3 id="cryptokey-routing密钥路由">Cryptokey Routing（密钥路由）</h3>
+<p>每个对等体由 32 字节 Curve25519 公钥唯一标识。接口维护 Cryptokey Routing Table：</p>
+<ul>
+<li><strong>出站</strong>：根据目的 IP 查表，选择对应 peer 公钥加密发送。</li>
+<li><strong>入站</strong>：解密后校验源 IP 是否属于该 peer 的 <code>AllowedIPs</code>；不匹配则丢弃。</li>
+</ul>
+<p>由此，防火墙可简化为"该接口、该 IP 是否可信"，无需 IPsec 专用扩展语义。（来源：<a href="https://www.wireguard.com/">官网 — Cryptokey Routing</a>；<a href="https://www.wireguard.com/papers/wireguard.pdf">白皮书 §2</a>）</p>
+<h3 id="内置漫游roaming">内置漫游（Roaming）</h3>
+<p>对等体可选预配置 <code>Endpoint</code>；若未配置，则从最近成功认证数据包的外层 UDP 源地址学习 endpoint。公钥唯一标识 peer，因此 IP/端口变化时双方可自动更新 endpoint，类似 Mosh 的漫游模型。（来源：<a href="https://www.wireguard.com/">官网 — Built-in Roaming</a>；<a href="https://www.wireguard.com/papers/wireguard.pdf">白皮书 §2.1</a>）</p>
+<p><strong>与 NAT 的关系（概要）</strong>：WireGuard <strong>没有</strong> STUN/TURN/UPnP 等独立 NAT 穿透协议；穿越依赖 <strong>UDP + Endpoint + 漫游学习 + 可选 PersistentKeepalive</strong>。详见下文 <a href="#nat防火墙穿越与-endpoint">NAT、防火墙穿越与 Endpoint</a>。</p>
+<h3 id="沉默是美德silence-is-a-virtue">"沉默是美德"（Silence is a Virtue）</h3>
+<p>设计目标：<strong>认证前不存储状态、不对未认证包发送任何响应</strong>。未认证 peer 与网络扫描器无法探测到 WireGuard 服务存在。代价是首包须能认证 initiator，从而引入重放风险，由 TAI64N 时间戳机制缓解。（来源：<a href="https://www.wireguard.com/papers/wireguard.pdf">白皮书 §5.1</a>）</p>
+<h3 id="密钥分发与-ssh-类比">密钥分发与 SSH 类比</h3>
+<p>公钥通过带外方式交换（邮件、LDAP、CA 等），协议层不规定分发机制；32 字节公钥 Base64 编码为 44 字符，便于传输。（来源：<a href="https://www.wireguard.com/papers/wireguard.pdf">白皮书 §1</a>）</p>
+<hr>
+<h2 id="architecture架构用户态-内核态">Architecture（架构：用户态 / 内核态）</h2>
+<h3 id="linux-内核实现">Linux 内核实现</h3>
+<p>WireGuard 作为 Linux 内核虚拟网络接口实现（如 <code>wg0</code>），工作于第 3 层。实现目标包括：（来源：<a href="https://www.wireguard.com/papers/wireguard.pdf">白皮书 §7</a>）</p>
+<ol>
+<li>代码短小、易于审计（&lt; 4,000 行，不含密码原语）</li>
+<li>性能与 IPsec 竞争</li>
+<li>响应入站包时避免动态内存分配</li>
+<li>与现有内核基础设施及 <code>ip(8)</code> 等工具自然集成</li>
+<li>可作为外部内核模块构建，无需修改核心内核</li>
+</ol>
+<p>内核实现采用 per-peer 队列、softirq 并行处理、RTNL 虚拟接口（支持容器 network namespace 迁移）等技术。（来源：<a href="https://www.wireguard.com/papers/wireguard.pdf">白皮书 §7.1–7.3</a>）</p>
+<h3 id="用户态工具">用户态工具</h3>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>职责</th>
+<th>来源</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>wg(8)</code></td>
+<td>配置接口密钥、peer、endpoint；<code>wg show</code> 查看状态</td>
+<td><a href="https://www.wireguard.com/quickstart/">Quick Start</a></td>
+</tr>
+<tr>
+<td><code>wg-quick(8)</code></td>
+<td>自动化 <code>wg</code> + <code>ip(8)</code> 的启停流程</td>
+<td><a href="https://www.wireguard.com/quickstart/">Quick Start</a></td>
+</tr>
+<tr>
+<td><code>wireguard-go</code></td>
+<td>非 Linux 平台的用户态实现</td>
+<td><a href="https://www.wireguard.com/quickstart/">Quick Start</a></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>接口创建与 IP 配置使用标准 Linux 网络工具：</p>
+<pre><code class="language-bash">ip link add dev wg0 type wireguard
+ip address add dev wg0 10.192.122.3/24
+wg setconf wg0 configuration.conf
+ip link set wg0 up
+</code></pre>
+<p>（来源：<a href="https://www.wireguard.com/papers/wireguard.pdf">白皮书 §4</a>；<a href="https://www.wireguard.com/quickstart/">Quick Start</a>）</p>
+<h3 id="数据路径概要">数据路径概要</h3>
+<p><strong>发送</strong>（来源：<a href="https://www.wireguard.com/papers/wireguard.pdf">白皮书 §3</a>）：</p>
+<ol>
+<li>明文 IP 包到达 <code>wg0</code></li>
+<li>按目的 IP 查 Cryptokey Routing Table 确定 peer</li>
+<li>用该 peer 会话的发送密钥 + ChaCha20Poly1305 加密</li>
+<li>添加 WireGuard 头，经 UDP 发往 peer endpoint</li>
+</ol>
+<p><strong>接收</strong>：</p>
+<ol>
+<li>UDP 端口收到 WireGuard 包</li>
+<li>根据头字段定位 peer 会话，验证 counter，AEAD 解密</li>
+<li>用外层 UDP 源地址更新 peer endpoint</li>
+<li>校验解密后源 IP 是否在 <code>AllowedIPs</code> 中</li>
+<li>合法则注入 <code>wg0</code> 接收队列</li>
+</ol>
+<hr>
+<h2 id="usage使用wg-genkeywg-quick">Usage（使用：wg genkey、wg-quick）</h2>
+<h3 id="密钥生成">密钥生成</h3>
+<p>WireGuard 使用 Base64 编码的公私钥对：</p>
+<pre><code class="language-bash">umask 077
+wg genkey | tee privatekey | wg pubkey &gt; publickey
+</code></pre>
+<p><code>wg genkey</code> 生成私钥；<code>wg pubkey</code> 从私钥导出公钥。（来源：<a href="https://www.wireguard.com/quickstart/">Quick Start — Key Generation</a>）</p>
+<h3 id="配置文件示例">配置文件示例</h3>
+<p>服务端（来源：<a href="https://www.wireguard.com/">官网 — Cryptokey Routing</a>）：</p>
+<pre><code class="language-ini">[Interface]
+PrivateKey = yAnz5TF+lXXJte14tji3zlMNq+hd2rYUIgJBgB3fBmk=
+ListenPort = 51820
+
+[Peer]
+PublicKey = xTIBA5rboUvnH4htodjb6e697QjLERt1NAB4mZqp8Dg=
+AllowedIPs = 10.192.122.3/32, 10.192.124.1/24
+</code></pre>
+<p>客户端：</p>
+<pre><code class="language-ini">[Interface]
+PrivateKey = gI6EdUSYvn8ugXOt8QQD6Yc+JyiZxIhp3GInSWRfWGE=
+ListenPort = 21841
+
+[Peer]
+PublicKey = HIgo9xNzJMWLKASShiTqIybxZ0U3wGLiUeJ1PKf8ykw=
+Endpoint = 192.95.5.69:51820
+AllowedIPs = 0.0.0.0/0
+</code></pre>
+<h3 id="wg-quick">wg-quick</h3>
+<p><code>wg-quick(8)</code> 将 <code>wg setconf</code>、<code>ip link</code>、<code>ip address</code>、<code>ip route</code> 等步骤封装为一条命令，用于日常接口启停。（来源：<a href="https://www.wireguard.com/quickstart/">Quick Start — Command-line Interface</a>）</p>
+<h3 id="allowedips-与路由决策">AllowedIPs 与路由决策</h3>
+<p>"包走不走 <code>wg0</code>" 不是看"目的 IP 是不是隧道 IP"，而是看 <strong>Linux 路由表</strong>，路由表又是 <code>wg-quick</code> 从 peer 的 <code>AllowedIPs</code> 自动派生的——<code>AllowedIPs</code> 写哪些网段，对应那些网段的包就路由进 <code>wg0</code>。</p>
+<h4 id="三种典型配置">三种典型配置</h4>
+<p><strong>情况 1：点对点，</strong><code>AllowedIPs = 10.192.122.0/24</code></p>
+<p>只有去 <code>10.192.122.x</code> 的包走 <code>wg0</code>。</p>
+<table>
+<thead>
+<tr>
+<th>你 ping 谁</th>
+<th>走 wg？</th>
+<th>实际走什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>隧道 IP <code>10.192.122.1</code></td>
+<td>✓ 走</td>
+<td>wg0 → 加密 → UDP 发到对端 endpoint</td>
+</tr>
+<tr>
+<td>对端底层公网 IP <code>203.0.113.1</code>（即 Endpoint）</td>
+<td>✗ 不走</td>
+<td>eth0/wlan0，普通路由</td>
+</tr>
+<tr>
+<td>别的公网 IP <code>8.8.8.8</code></td>
+<td>✗ 不走</td>
+<td>eth0/wlan0，普通路由</td>
+</tr>
+<tr>
+<td>本地内网段 <code>192.168.1.x</code></td>
+<td>✗ 不走</td>
+<td>eth0/wlan0，普通路由</td>
+</tr>
+</tbody>
+</table>
+<p><strong>情况 2：全流量代理，</strong><code>AllowedIPs = 0.0.0.0/0</code></p>
+<p><code>wg-quick</code> 会往路由表里加两条规则：</p>
+<ol>
+<li>几乎所有目的地都走 <code>wg0</code>（包括 <code>8.8.8.8</code>、任意公网 IP）。</li>
+<li><strong>例外</strong>：发往 Endpoint 本身 <code>203.0.113.1</code> 的包<strong>仍走 eth0</strong>——否则就成了"为了把加密包送到对端，又要把这个加密包再加密一次送过去"的死循环。这条例外由 <code>wg-quick</code> 自动加的 "<code>ip route add &lt;endpoint&gt; via &lt;原网关&gt;</code>" 实现。</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>你 ping 谁</th>
+<th>走 wg？</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>隧道 IP <code>10.192.122.1</code></td>
+<td>✓ 走</td>
+</tr>
+<tr>
+<td>对端底层 IP <code>203.0.113.1</code>（Endpoint）</td>
+<td>✗ <strong>不走</strong>（例外，避免循环）</td>
+</tr>
+<tr>
+<td>别的公网 IP <code>8.8.8.8</code></td>
+<td>✓ <strong>走</strong>（被代理）</td>
+</tr>
+<tr>
+<td>本地网关 <code>192.168.1.1</code></td>
+<td>✗ 不走（本地路由优先）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>情况 3：split tunnel，</strong><code>AllowedIPs = 10.0.0.0/8, 192.168.50.0/24</code></p>
+<p>只有指定子网走 wg。<code>wg-quick</code> 自动只对这些子网加路由，其他一律走原网卡。</p>
+<h4 id="永远成立的一条规律">永远成立的一条规律</h4>
+<p><strong>ping 对端的真实 IP（Endpoint 地址）永远不走 wg</strong>。这不是配置决定的，而是物理上的硬约束：走 wg 意味着把包用 ChaCha20Poly1305 加密、外层 UDP 目的地址 = 对端 endpoint <code>(203.0.113.1:51820)</code>，而这个外层 UDP 又得有个出方向——出方向的目的 IP 又是 <code>203.0.113.1</code>，又匹配 <code>AllowedIPs</code> 又要走 wg——<strong>死循环</strong>。所以 <code>wg-quick</code> 必须给 Endpoint 加一条特殊路由把它"固定到原网卡"。这是 WG 部署里一个隐藏但极其重要的细节。</p>
+<h4 id="一句话总结">一句话总结</h4>
+<table>
+<thead>
+<tr>
+<th>常见说法</th>
+<th>实际正确条件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"只有 ping 隧道 IP 才走 wg"</td>
+<td>仅当 <code>AllowedIPs</code> 只写隧道子网时成立</td>
+</tr>
+<tr>
+<td>"ping 底层 IP 不走 wg"</td>
+<td><strong>总是成立</strong>（Endpoint IP 必走原网卡，否则死循环）</td>
+</tr>
+<tr>
+<td>"ping 公网都不走 wg"</td>
+<td>错。<code>AllowedIPs = 0.0.0.0/0</code> 时全走，仅 Endpoint IP 例外</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>决定"包走不走 wg0"的是路由表，路由表又是从 <code>AllowedIPs</code> 自动派生的。<code>AllowedIPs</code> 写什么网段，那些网段的包就走 wg；没写的走原网卡。唯一例外是对端 Endpoint IP——<code>wg-quick</code> 给它显式加一条"仍走原网卡"的路由，避免加密包"自己套自己"的死循环。</p>
+</blockquote>
+<hr>
+<h2 id="nat防火墙穿越与-endpoint">NAT、防火墙穿越与 Endpoint</h2>
+<p>WireGuard 官方文档中与 NAT/防火墙相关的内容分散在 <strong>Roaming</strong>、<strong>Quick Start</strong> 与 <strong>Timers</strong> 几节；本节集中整理，便于与 PQ-SecTunnel 对照。</p>
+<h3 id="nat-基础映射表与洞的概念">NAT 基础：映射表与"洞"的概念</h3>
+<p><strong>NAT（Network Address Translation）</strong> 是 IPv4 地址不够分的产物：一个内网共用一个公网 IP 出网，NAT 设备（家用路由器即一台）在出/入站时改写地址并维护一张<strong>状态表/映射表</strong>。一条表项形如：</p>
+<table>
+<thead>
+<tr>
+<th>内网 IP:端口</th>
+<th>↔</th>
+<th>公网 IP:端口</th>
+<th>↔</th>
+<th>允许的对端</th>
+<th>剩余寿命</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>192.168.1.5:51820</td>
+<td>↔</td>
+<td>203.0.113.1:51820</td>
+<td>↔</td>
+<td>198.51.100.7:51820</td>
+<td>120s</td>
+</tr>
+</tbody>
+</table>
+<p>这张表里的一条表项就被形象地叫<strong>"洞"（hole）</strong>：从这边出去的包让 NAT 记下来，从外面回进来的包只要源/目的对得上就能被放进来。"洞"有寿命（一般 30~120s 无出站包即过期），而且是<strong>单向放行</strong>——不是真的"挖穿防火墙"，只是 NAT 状态机里的一条放行表项。</p>
+<p>NAT 分几种类型，对穿透难度影响极大（从易到难）：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>行为</th>
+<th>打洞难度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Full-cone</td>
+<td>一次出站后任何外网地址都能回进这个孔</td>
+<td>易</td>
+</tr>
+<tr>
+<td>Restricted cone</td>
+<td>只有被发过的那个对端 IP 能回</td>
+<td>中</td>
+</tr>
+<tr>
+<td>Port-restricted cone</td>
+<td>只有被发过的那个 <code>(IP, port)</code> 能回</td>
+<td>中</td>
+</tr>
+<tr>
+<td>Symmetric</td>
+<td>每去一个不同对端就开新端口</td>
+<td>极难（几乎打不通）</td>
+</tr>
+</tbody>
+</table>
+<h4 id="关键过程client-主动出站时-nat-自动建表">关键过程：Client 主动出站时 NAT 自动建表</h4>
+<pre><code>时刻 t0 —— 初始状态，NAT 状态表为空
+
+   内网                       NAT 设备                       公网
+┌──────────┐                                              ┌──────────┐
+│ Client A │     ┌──────────────────────┐                  │ Server S │
+│ 192.168  │     │ NAT 状态表(空)       │                  │ 198.51   │
+│ .1.5     ├─────┤  ┌──────────────────┐│                  │ .100.7   │
+│ :51820   │     │  │ (尚未有表项)      ││                  │ :51820   │
+└──────────┘     │  └──────────────────┘│                  └──────────┘
+                 └──────────────────────┘
+   ☒ 此时 Server 即使主动发 UDP 给 203.0.113.1:51820，NAT 查表为空 → 丢弃
+
+
+时刻 t1 —— Client 主动发出第一个 UDP 包
+
+内网 Client A                  NAT 设备                      公网 Server S
+┌──────────┐         ┌──────────────────────┐                   ┌──────────┐
+│ 192.168  │ 出站包 │ 改写源地址 + 建表     │ 改写后           │ 198.51   │
+│ .1.5     ├───────►│ 192.168.1.5:51820     │────────────────► │ .100.7   │
+│ :51820   │  UDP   │  → 203.0.113.1:51820  │  UDP             │ :51820   │
+└──────────┘         │                      │ 收到             └──────────┘
+                     │  ★ 表项新增          │
+                     │  192.168.1.5:51820   │
+                     │   ↔ 203.0.113.1:51820│ ← 公网映射
+                     │   ↔ 198.51.100.7:51820│ ← 允许的对端
+                     │   剩余寿命 120s       │
+                     └──────────────────────┘
+   ✓ 一个&quot;洞&quot;被 Client 出站动作自动建出来，指向 Server 这一个对端
+
+
+时刻 t2 —— Server 顺着洞回包
+
+内网 Client A                  NAT 设备                    公网 Server S
+┌──────────┐         ┌──────────────────────┐                 ┌──────────┐
+│         ◀├─────────┤ 查表 ✓ 反向改写       │◀────────────── │ 198.51   │
+│          │ 改回    │ 目的匹配表项          │  回包           │ .100.7   │
+│          │ 内网    │ 刷新寿命             │                 │ :51820   │
+└──────────┘         └──────────────────────┘                 └──────────┘
+   ✓ Client 收到回包
+</code></pre>
+<p><strong>这个 t1 出站动作本身就在 NAT 上"开了一个洞"，Server t2 蹭洞回包，不需要任何打洞协商。</strong> 这正是 WG NAT 模型的物理基础。</p>
+<h4 id="为什么反向不通nat-是被动状态机">为什么"反向"不通：NAT 是被动状态机</h4>
+<p>把 t0 时序图反过来：如果 Server 在 Client 还没主动出站过任何包时，先主动向 NAT 后的 Client 发 UDP，会发生什么？</p>
+<pre><code>内网 Client A                  NAT 设备                    公网 Server S
+┌──────────┐         ┌──────────────────────┐           ┌──────────┐
+│ 192.168  │         │ NAT 状态表 (空)       │ 入站包   │ 198.51   │
+│ .1.5     │         │                      │◀─────┐  │ .100.7   │
+│ :51820   │         │  查表 ✗ → 丢弃        │      │ │ :51820   │
+│          │         │  (没有匹配的表项)     │──────┘ │ 主动发   │
+└──────────┘         │                      │        │ 包给     │
+   ☒ 收不到          └──────────────────────┘        │ 203.0.   │
+                     ↑                              │ 113.1    │
+                     没有&quot;洞&quot;                        └──────────┘
+</code></pre>
+<p>NAT 收到入站包，要在状态表里找一条匹配的表项才能改写源地址转发到内网。表为空 → 找不到任何映射 → <strong>丢弃</strong>。NAT 不能凭入站包"自己创造映射"——因为它根本不知道该把这个包改写为哪一台内网主机（一个公网 IP 后面可能有几十台内网机器，没有事先约定的对应关系）。</p>
+<p>更根本的安全原因：如果 NAT 不丢而是盲目转给某台内网主机，NAT 就退化成一个穿透后的桥接器，内网设备全部裸露。<strong>默认丢是 NAT 的安全保护行为</strong>。</p>
+<p>一句口诀记牢：</p>
+<blockquote>
+<p><strong>NAT 表的"出方向"决定谁能回进来。Client 先出站，NAT 就学会"我这个端口的回包应该送回这台 Client"——洞被开出来。Server 不等 Client 出站就先发，NAT 没表可查，丢弃。NAT 是被动状态机，只能被出站事件学会映射，不能被入站事件自己创造映射——这是它和"防火墙端口转发/静态映射"的本质区别。</strong></p>
+</blockquote>
+<h4 id="nat漫游打洞三者的关系串讲">NAT、漫游、打洞三者的关系串讲</h4>
+<p>三个容易混淆的概念，按"解决什么问题 / 靠不靠外部服务器 / 需不需要协议层动作"三轴对齐：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>漫游 (Roaming)</th>
+<th>打洞 (Hole punching)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>解决场景</td>
+<td>一端能先发出去，另一端<strong>收到</strong>后学与它的外层地址</td>
+<td>两端都在 NAT 后，<strong>谁都没法先收到对方</strong>的包</td>
+</tr>
+<tr>
+<td>需要外部服务器？</td>
+<td>不需要</td>
+<td>需要 STUN/TURN 中继</td>
+</tr>
+<tr>
+<td>是协议层动作吗？</td>
+<td>不是，是缓存自动更新</td>
+<td>是，需要信令协商互相交换公网映射</td>
+</tr>
+<tr>
+<td>WG 有没有？</td>
+<td>有</td>
+<td>无</td>
+</tr>
+</tbody>
+</table>
+<p>一条串讲：</p>
+<blockquote>
+<p><strong>NAT 是 IPv4 不够用的产物，它在内网设备出外网时偷偷维护一张"映射表"，每条表项就是一个"洞"——出这边出去的包能让外面回进来。</strong></p>
+<p><strong>漫游是 WireGuard 做的最简单的事：你发我一条合法包，我就用你外面那一层 (IP, port) 更新我的"把包送给你"目标地址。你切网络我不在乎，你发的下一包就告诉我你现在在哪儿——不需要协商、不需要信令，只是个被动缓存刷新。</strong></p>
+<p><strong>打洞是另一回事</strong>：它专治"两边都在 NAT 后，谁也没法先让对方收到包"这种死局。打洞需要一个公网中继先告诉双方"对方的外网映射是什么"，然后两边各自向对方的外网映射发一个出站包，让两边 NAT 在表里各开一条"对端可回"的洞——之后才能直接对通。**</p>
+<p><strong>WireGuard 故意没做打洞</strong>，因为打洞要信令协议（STUN/TURN/ICE），违反"短代码、无 chatty 协议"哲学。所以 WG 的 NAT 模型只包含：UDP + 监听端口同源端口 + 漫游学习 + 可选 PersistentKeepalive 维持 NAT 表项。代价是"两端都在对称 NAT 后无解"——这种场景要么手动端口前置、要么上中继。</p>
+<p><strong>Roaming 蹭了 t1 自带的被动建表</strong>（出站一方自动开洞，对端学到外层地址）；<strong>打洞是"没有天然 t1 时双方人工造一次 t1"</strong>（借公网中继先交换公网映射，然后两边各自主动出站开洞）。两者都依赖 NAT 被动状态机规律，只是触发方式不同。</p>
+</blockquote>
+<h4 id="nat-的三种典型拓扑复现">NAT 的三种典型拓扑复现</h4>
+<pre><code>场景 A：一端公网、一端 NAT 后（最常见，WG 完全胜任）
+  NAT 后 Client 主动出站 → 公网 Server ← 这一步 NAT 自动开洞
+  Server 学到 Client 外层 (IP, port)（漫游）
+  之后双向通；Client 切网络，漫游照样工作
+
+场景 B：双端都在 NAT 后（WG 解决不了，需打洞或中继）
+  必须一侧手动在 NAT 上做端口前置（让那一侧&quot;类似在公网&quot;）
+  或：双方各自指向一个公网 relay，由 relay 中转 WG UDP 包
+  但 WG 自己不会主动去协商打洞
+
+场景 C：移动场景 / IP 变化
+  公钥不变、漫游自动更新 Endpoint
+  换 Wi-Fi/4G 后通常无需改配置
+  新位置若也还在 NAT 后，对端发的包导向新 NAT 外口
+  —— 前提是：第一次握手能再次发生（新一侧能先出一包）
+</code></pre>
+<h3 id="wireguard-不做什么">WireGuard 不做什么</h3>
+<table>
+<thead>
+<tr>
+<th>常见 VPN/NAT 手段</th>
+<th>WireGuard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>STUN / TURN / ICE</td>
+<td><strong>无</strong> — 不内建打洞协商</td>
+</tr>
+<tr>
+<td>TCP fallback</td>
+<td><strong>无</strong> — 仅 UDP</td>
+</tr>
+<tr>
+<td>UPnP / NAT-PMP 端口映射</td>
+<td><strong>无</strong> — 需管理员自行 port forward</td>
+</tr>
+<tr>
+<td>应用层 NAT 保活协议</td>
+<td><strong>无</strong> — 可选配置级 <code>PersistentKeepalive</code></td>
+</tr>
+</tbody>
+</table>
+<p>设计取向：协议默认<strong>尽量静默</strong>（非 chatty），只在有数据或定时器触发时发包。（来源：<a href="https://www.wireguard.com/quickstart/">Quick Start — NAT and Firewall Traversal Persistence</a>）</p>
+<h3 id="endpoint-与漫游如何配合-nat">Endpoint 与漫游如何配合 NAT</h3>
+<p><strong>Endpoint</strong> = 对端在 Internet 上可达的 <code>IP:UDP端口</code>，用于出站加密包的 UDP 目的地址。</p>
+<table>
+<thead>
+<tr>
+<th>配置</th>
+<th>行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>预配置 <code>Endpoint = A:51820</code></td>
+<td>出站发往 A:51820</td>
+</tr>
+<tr>
+<td>未配置 Endpoint</td>
+<td>必须<strong>先收到</strong>对端合法包，从外层 UDP <strong>源</strong>地址学习 endpoint</td>
+</tr>
+<tr>
+<td>收到合法包后</td>
+<td><strong>始终用最新</strong>外层 <code>源IP:源端口</code> 更新该 peer 的 endpoint（Roaming）</td>
+</tr>
+</tbody>
+</table>
+<p>白皮书 §2.1 强调：</p>
+<ul>
+<li><strong>监听端口与发送源端口相同</strong>（listen port = source port），简化 NAT 映射一致性，有利于穿越。（来源：<a href="https://www.wireguard.com/papers/wireguard.pdf">白皮书 §2.1</a>）</li>
+<li>因漫游会持续刷新对端的外网 <code>(IP, Port)</code>，<strong>不必依赖 NAT 长时间保持同一映射</strong>；映射变化后，下一合法包即可更新 endpoint。</li>
+<li>若必须<strong>无限期</strong>维持 NAT/有状态防火墙上的 pinhole，可启用 <strong>PersistentKeepalive</strong>（见下）。</li>
+</ul>
+<p><strong>安全边界</strong>：外层 UDP 源 IP 可被中间人改写，但<strong>不能</strong>伪造加密载荷；改源地址最多造成 DoS/断连，不能解密或注入明文。（来源：<a href="https://www.wireguard.com/papers/wireguard.pdf">白皮书 §2.1</a>）</p>
+<h3 id="典型拓扑与-nat-行为">典型拓扑与 NAT 行为</h3>
+<pre><code>场景 A — 一端公网、一端 NAT 后（最常见）
+  [NAT 内 Client] ──UDP──► [公网 Server :51820]
+  Client 配置 Endpoint=Server；Server 从 Client 首包学习 Client 的 NAT 映射
+  → 双向通信成立
+
+场景 B — 双端均在 NAT 后
+  至少一端须「先能被找到」：公网 IP、端口映射、或中间 relay
+  WireGuard 本身不会在两个对称 NAT 之间自动打洞
+  → 需一侧 Endpoint 可达，或由有公网的一端先收到 Initiation
+
+场景 C — 移动网络 / IP 变化
+  公钥不变；Roaming 从新合法包的外层源地址更新 Endpoint
+  → 换 Wi‑Fi/4G 后通常无需改配置（对端仍用旧 endpoint 发，直到收到新包）
+</code></pre>
+<h3 id="persistentkeepalive配置级-nat-保活">PersistentKeepalive（配置级 NAT 保活）</h3>
+<p><strong>问题</strong>：NAT 与有状态防火墙按「连接」跟踪 UDP；若 peer <strong>长时间只收不发</strong>，映射可能过期，对端后续包无法进入。</p>
+<p><strong>官方方案</strong>（<a href="https://www.wireguard.com/quickstart/">Quick Start — NAT and Firewall Traversal Persistence</a>）：</p>
+<ul>
+<li>在 <strong>NAT/防火墙后的 peer</strong> 上，对需要<strong>长期接收入站</strong>的对端配置 <code>PersistentKeepalive = &lt;秒&gt;</code>。</li>
+<li>每隔该间隔向 <strong>已配置的 Endpoint</strong> 发送 keepalive（空 transport data 包），维持 NAT pinhole。</li>
+<li><strong>默认 0（关闭）</strong> — 官方认为多数场景不需要；开启会略增流量。</li>
+<li><strong>常用值 25 秒</strong> — 文档称与多种防火墙兼容。</li>
+</ul>
+<p>配置示例：</p>
+<pre><code class="language-ini">[Peer]
+PublicKey = ...
+Endpoint = 203.0.113.1:51820
+AllowedIPs = 0.0.0.0/0
+PersistentKeepalive = 25
+</code></pre>
+<p>命令行等价：<code>wg set wg0 peer ... persistent-keepalive 25</code></p>
+<h3 id="passive-keepalive协议定时器-persistentkeepalive">Passive Keepalive（协议定时器，≠ PersistentKeepalive）</h3>
+<p>白皮书 §6.5 描述的 <strong>被动 keepalive</strong> 是内核定时器行为，与配置项 <code>PersistentKeepalive</code> <strong>不是同一机制</strong>：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>PersistentKeepalive</th>
+<th>Passive Keepalive（§6.5）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>触发</td>
+<td>配置周期，<strong>无论是否有业务</strong></td>
+<td>已收到对端数据，但本地 <strong>KEEPALIVE_TIMEOUT</strong> 内无待发</td>
+</tr>
+<tr>
+<td>目的</td>
+<td>维持 NAT pinhole</td>
+<td>检测会话存活、促使对端回复</td>
+</tr>
+<tr>
+<td>默认</td>
+<td>关（0）</td>
+<td>协议内置（<code>KEEPALIVE_TIMEOUT = 10</code> 秒，见 <code>messages.h</code>）</td>
+</tr>
+<tr>
+<td>包类型</td>
+<td>空 transport data</td>
+<td>空 transport data（长度 0 内层 IP）</td>
+</tr>
+</tbody>
+</table>
+<p>协议页与白皮书还规定：若 <code>(KEEPALIVE_TIMEOUT + REKEY_TIMEOUT)</code> 内未收到对端 transport 包，则发起新握手（与 NAT 间接相关——会话恢复）。（来源：<a href="https://www.wireguard.com/protocol/">protocol 页 Timers</a>；<a href="https://www.wireguard.com/papers/wireguard.pdf">白皮书 §6.4–6.5</a>）</p>
+<h3 id="防火墙要点">防火墙要点</h3>
+<ul>
+<li>需放行接口 <strong>ListenPort</strong> 上的 <strong>UDP</strong> 入站（默认常 51820）。</li>
+<li>未通过 MAC1 的握手包被<strong>静默丢弃</strong>，防火墙扫描通常看不到响应（Silence is a Virtue）。</li>
+<li>高负载下 Cookie 机制与 NAT 无直接关系，但影响握手是否被处理（见 DoS 章节）。</li>
+</ul>
+<h3 id="pq-sectunnel-中的保留情况">PQ-SecTunnel 中的保留情况</h3>
+<p>本仓库 fork <strong>保留</strong> WireGuard 的 NAT/漫游模型，未引入新 NAT 协议：</p>
+<table>
+<thead>
+<tr>
+<th>机制</th>
+<th>PQ 状态</th>
+<th>代码线索</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Endpoint 学习 / Roaming</td>
+<td>✅ 保留</td>
+<td><code>receive.c</code> 收包后更新 endpoint</td>
+</tr>
+<tr>
+<td><code>PersistentKeepalive</code></td>
+<td>✅ 保留</td>
+<td><code>PQSTPEER_A_PERSISTENT_KEEPALIVE_INTERVAL</code>（<code>uapi/pqwireguard.h</code>）</td>
+</tr>
+<tr>
+<td>空包 keepalive</td>
+<td>✅ 保留</td>
+<td><code>wg_packet_send_keepalive()</code>（<code>send.c</code>）</td>
+</tr>
+<tr>
+<td>定时器 <code>KEEPALIVE_TIMEOUT</code> 等</td>
+<td>✅ 保留</td>
+<td><code>timers.c</code>、<code>messages.h</code></td>
+</tr>
+<tr>
+<td>固定 listen/source 端口语义</td>
+<td>✅ 保留</td>
+<td>WireGuard 同源设计</td>
+</tr>
+</tbody>
+</table>
+<p><strong>差异</strong>：PQ 握手报文更大、可能应用层分片（<code>pqc_fragment</code>），但 <strong>UDP 外层 endpoint/NAT 语义不变</strong>；NAT 后 peer 仍可按需配置 <code>PersistentKeepalive</code>。答辩对比全文见 <code>[doc/defense/00a-WireGuard背景与对比.md](../defense/00a-WireGuard背景与对比.md)</code>。</p>
+<hr>
+<h2 id="noise-protocolnoiseikpsk2-高层步骤">Noise Protocol（Noise_IKpsk2 高层步骤）</h2>
+<h3 id="wireguard-选用的-noise-变体">WireGuard 选用的 Noise 变体</h3>
+<p>WireGuard 协议标识符（<code>CONSTRUCTION</code>）为：</p>
+<pre><code>Noise_IKpsk2_25519_ChaChaPoly_BLAKE2s
+</code></pre>
+<p>（37 字节 UTF-8 字符串）（来源：<a href="https://www.wireguard.com/protocol/">协议页面</a>；<a href="https://www.wireguard.com/papers/wireguard.pdf">白皮书 §5.4</a>）</p>
+<p>含义拆解（来源：<a href="https://noiseprotocol.org/noise.html">Noise §8</a>；<a href="https://noiseprotocol.org/noise.html">Noise §9.4</a>）：</p>
+<table>
+<thead>
+<tr>
+<th>部分</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>IK</code></td>
+<td>交互式握手模式：initiator 已知 responder 静态公钥；initiator 在首条消息中发送自己的静态公钥</td>
+</tr>
+<tr>
+<td><code>psk2</code></td>
+<td>预共享对称密钥（PSK）在<strong>第二条握手消息末尾</strong>混入</td>
+</tr>
+<tr>
+<td><code>25519</code></td>
+<td>Curve25519 DH</td>
+</tr>
+<tr>
+<td><code>ChaChaPoly</code></td>
+<td>ChaCha20-Poly1305 AEAD</td>
+</tr>
+<tr>
+<td><code>BLAKE2s</code></td>
+<td>BLAKE2s 哈希</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ik-基本模式无-psk">IK 基本模式（无 PSK）</h3>
+<p>Noise 规范中 <code>IK</code> 模式定义为：（来源：<a href="https://noiseprotocol.org/noise.html">Noise §10.4, §7.5</a>）</p>
+<pre><code>IK:
+  &lt;- s                          # 预消息：initiator 已知 responder 静态公钥
+  ...
+  -&gt; e, es, s, ss               # 消息 1（initiator）：明文 e，加密 s，DH: es + ss
+  &lt;- e, ee, se                  # 消息 2（responder）：明文 e，DH: ee + se
+</code></pre>
+<p>命名规则（来源：<a href="https://noiseprotocol.org/noise.html">Noise §7.5</a>）：</p>
+<ul>
+<li>首字母 <code>I</code>：initiator 静态公钥 <strong>立即</strong> 发送给 responder</li>
+<li>次字母 <code>K</code>：responder 静态公钥 initiator <strong>事先已知</strong></li>
+</ul>
+<p><code>IKpsk2</code> 在第二条消息末尾追加 <code>psk</code> token，调用 <code>MixKeyAndHash(psk)</code> 将 32 字节 PSK 混入链密钥与哈希。（来源：<a href="https://noiseprotocol.org/noise.html">Noise §9.1–9.4</a>）</p>
+<h3 id="wireguard-对-ikpsk2-的具体化逐步概览">WireGuard 对 IKpsk2 的具体化（逐步概览）</h3>
+<p>WireGuard 在 Noise 框架之上增加了应用层字段（TAI64N 时间戳、MAC1/MAC2），并将第二条消息的 payload 设为空（encrypted nothing），PSK 在 responder 侧混入。</p>
+<h4 id="应用层的含义澄清">"应用层"的含义澄清</h4>
+<p>这里的"应用层"<strong>不是</strong> OSI 七层模型中的第 7 层（HTTP/DNS 等），而是<strong>相对 Noise 协议框架而言的"外挂层"</strong>。Noise 把自己定义为一个密钥协商框架，只管 <code>ck</code>/<code>h</code> 演化、token 序列、AEAD 加密 payload；框架之外的所有字段与约定它一概不关心，都被它统称"应用层"。</p>
+<pre><code>┌──────────────────────────────────────────┐
+│  应用层（站在 Noise 角度看）              │  ← WireGuard 在此添加 TAI64N、mac1、mac2
+│  - WG 握手消息的字段编排                  │
+│  - TAI64N 时间戳（防重放）                │
+│  - mac1 / mac2（DoS 防护）                │
+│  - 路由 / Cryptokey Routing / AllowedIPs │
+├──────────────────────────────────────────┤
+│  Noise 协议框架（密钥协商）               │  ← Noise 规范只管这层
+│  - ck / h 演化                           │
+│  - MixHash / MixKey / MixKeyAndHash      │
+│  - token 序列 e, es, s, ss, ...          │
+│  - AEAD 加密 payload                     │
+├──────────────────────────────────────────┤
+│  底层（Noise 也不管）                     │
+│  - UDP / IP / 网卡                        │
+└──────────────────────────────────────────┘
+</code></pre>
+<p>判别一个字段算不算 Noise 状态机的一部分，问一句：</p>
+<blockquote>
+<p><strong>这字段会不会参与</strong> <code>ck</code> <strong>或</strong> <code>h</code> <strong>的演化？</strong></p>
+<ul>
+<li><strong>会</strong> → 算 Noise 状态机的一部分（如临时公钥 <code>e</code>、加密静态公钥 <code>s</code>、DH 输出、PSK）。</li>
+<li><strong>不会</strong> → 算"应用层字段"（如 mac1、mac2）。</li>
+</ul>
+</blockquote>
+<p><code>TAI64N</code> 时间戳是边缘情况：它作为"消息 1 的加密 payload"位置确实被 AEAD 加密并入 hash（走 Noise 流程），但<strong>payload 内部放什么数据、为什么是 12 字节、是不是时间戳</strong>——这些都是 Noise 不关心的，由 WG 自己定义。所以时间戳"算 Noise 协议布局的一部分，但其内容是应用层约定"。</p>
+<p><code>mac1</code>/<code>mac2</code> 完全不进 <code>ck</code>/<code>h</code>，是纯外挂。它们的计算不更新也不会被传输密钥派生消费——纯粹是 WG 在"沉默是美德"目标下加的 DoS 过滤前置，在 Noise 角度看就像不存在。</p>
+<blockquote>
+<p><strong>同一段话里的三层意思拆开</strong>：</p>
+<ol>
+<li><strong>mac1/mac2</strong> 是 Noise 之外的附加字段，不进 transcript，不参与密钥派生——这是"应用层字段"最典型的含义。</li>
+<li><strong>TAI64N 时间戳</strong> 占用 Noise 规定的"消息 1 加密 payload"位置，被 AEAD 加密并入 transcript，但 payload 内部的语义（时间戳格式、防重放逻辑）由 WG 定义。Noise 只负责"加密这段 payload 并入 hash"，不关心内部是什么。</li>
+<li><code>encrypted_nothing</code> 占用 Noise 规定的"消息 2 末尾加密 payload"位置，明文是 0 字节，AEAD 仍产 16 字节 Poly1305 tag 并入 transcript。WireGuard 借这个空 payload 做"密钥确认"——responder 用 psk 后派生的 <code>k6</code> 加密空内容，initiator 收到后用同样派生的 <code>k6'</code> 解密，tag 通过则证明双方 PSK 与所有 DH 派生一致。</li>
+</ol>
+</blockquote>
+<p>三者合起来，WireGuard 在不修改 Noise 状态机的前提下，把"首包认证 + 抗 DoS + 抗重放 + 密钥确认 + 无阻塞首包"五个工程目标塞进了 IKpsk2 这个骨架里。这也是 PQ-SecTunnel 的改造策略——只把 <code>psk2</code> 换成 <code>psk1kem</code>，不动这三处工程改造，等于"我们只换了密码学，没动协议层工程"。</p>
+<blockquote>
+<p><strong>答辩话术</strong>：被追问"你说的应用层是 OSI 第 7 层吗"时，应答："我用的'应用层'是相对意义——站在 Noise 协议框架的角度，WireGuard 在 Noise 规定的 token 序列之外追加的字段（TAI64N、mac1、mac2），不走 <code>MixHash</code>/<code>MixKey</code>，不影响传输密钥派生。所以是'在 Noise 之上'的一层附加约定，和 OSI 第 7 层的 HTTP/DNS 没有关系。"不要省略"站在 Noise 角度"这个限定词，否则容易被听众套到 OSI 模型产生误会。</p>
+</blockquote>
+<h4 id="初始化">初始化</h4>
+<p>双方维护 <code>chaining_key</code>（<code>ck</code>）与 <code>hash</code>（<code>h</code>）：</p>
+<pre><code>ck = HASH(CONSTRUCTION)           # CONSTRUCTION = &quot;Noise_IKpsk2_25519_ChaChaPoly_BLAKE2s&quot;
+h  = HASH(HASH(ck || IDENTIFIER) || responder_static_public)
+</code></pre>
+<p><code>IDENTIFIER</code> = <code>"WireGuard v1 zx2c4 Jason@zx2c4.com"</code>（来源：<a href="https://www.wireguard.com/protocol/">协议页面</a>）</p>
+<h4 id="消息-1initiator-responderhandshakeinitiation-type1">消息 1：Initiator → Responder（handshake_initiation, type=1）</h4>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>操作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>生成 initiator 临时密钥对 <code>(e_priv, e_pub)</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td>发送明文 <code>e_pub</code>；`h = HASH(h</td>
+</tr>
+<tr>
+<td>3</td>
+<td>DH <code>es</code>：initiator 临时私钥 × responder 静态公钥 → 更新 <code>ck</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td>AEAD 加密 initiator <strong>静态公钥</strong> → <code>encrypted_static</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td>DH <code>ss</code>：initiator 静态私钥 × responder 静态公钥 → 更新 <code>ck</code></td>
+</tr>
+<tr>
+<td>6</td>
+<td>AEAD 加密 <strong>TAI64N 时间戳</strong>（12 字节）→ <code>encrypted_timestamp</code></td>
+</tr>
+<tr>
+<td>7</td>
+<td>计算 <code>mac1</code>、<code>mac2</code>（见 DoS Cookies 节）</td>
+</tr>
+</tbody>
+</table>
+<p>消息结构（来源：<a href="https://www.wireguard.com/protocol/">协议页面</a>）：</p>
+<pre><code>message_type(1) | reserved(3) | sender_index(4) | unencrypted_ephemeral(32)
+| encrypted_static(48) | encrypted_timestamp(28) | mac1(16) | mac2(16)
+</code></pre>
+<p>对应 Noise token 序列：<code>e, es, s, ss</code>（s 的 payload 被 WireGuard 替换为 timestamp）。</p>
+<h4 id="消息-2responder-initiatorhandshakeresponse-type2">消息 2：Responder → Initiator（handshake_response, type=2）</h4>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>操作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>生成 responder 临时密钥对</td>
+</tr>
+<tr>
+<td>2</td>
+<td>发送明文 <code>e_pub</code>；`h = HASH(h</td>
+</tr>
+<tr>
+<td>3</td>
+<td>DH <code>ee</code>：responder 临时 × initiator 临时</td>
+</tr>
+<tr>
+<td>4</td>
+<td>DH <code>se</code>：responder 临时 × initiator 静态</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>混入 PSK</strong>（<code>psk2</code>）：<code>MixKeyAndHash(preshared_key)</code>；无 PSK 时使用 32 字节全零</td>
+</tr>
+<tr>
+<td>6</td>
+<td>AEAD 加密空 payload → <code>encrypted_nothing</code>（密钥确认）</td>
+</tr>
+<tr>
+<td>7</td>
+<td>计算 <code>mac1</code>、<code>mac2</code></td>
+</tr>
+</tbody>
+</table>
+<p>消息结构：</p>
+<pre><code>message_type(1) | reserved(3) | sender_index(4) | receiver_index(4)
+| unencrypted_ephemeral(32) | encrypted_nothing(16) | mac1(16) | mac2(16)
+</code></pre>
+<p>对应 Noise token：<code>e, ee, se, psk</code>（psk 在消息末尾）。</p>
+<h4 id="传输密钥派生">传输密钥派生</h4>
+<p>握手完成后，双方从最终 <code>chaining_key</code> 经 HKDF 派生发送/接收密钥，清零所有临时密钥、链密钥与哈希。（来源：<a href="https://www.wireguard.com/protocol/">协议页面 — Data Keys Derivation</a>）</p>
+<h4 id="4-次-ecdh-各自绑什么a-单向绑定-vs-b-双方互锁">4 次 ECDH 各自"绑"什么——A 单向绑定 vs B 双方互锁</h4>
+<p>WireGuard IKpsk2 共做 <strong>4 次 ECDH</strong>（<code>es, ss, ee, se</code>），不是 3 次。每次 ECDH 经 <code>MixKey</code> 把 shared_secret 灌入 chaining_key <code>ck</code>，少算任一个都会得到不同的 ck、不同的传输密钥。但 4 次 ECDH 的"绑定作用"<strong>强度不等</strong>，要分两种语义才能讲清，也是 PQ-SecTunnel 改造时的关键决策依据。</p>
+<p><strong>绑定 A —— 单向身份证明</strong></p>
+<blockquote>
+<p>一份共享秘密被灌入 ck，<strong>验证</strong>它需要某一方的私钥。攻击者不知道该私钥 → 解不开 → 后续 ck 演化对不上 → 握手失败。
+强度："必须有 S_x^priv 才能让握手走过这一步。"</p>
+</blockquote>
+<p><strong>绑定 B —— 双方私钥互锁（mutual coupling）</strong></p>
+<blockquote>
+<p>一份共享秘密被灌入 ck，<strong>产生或验证</strong>它需要<strong>同时</strong>依赖双方私钥。
+强度："只有真双方配合，这一步才能产合法输出；攻击者<strong>连投递合法输入</strong>都做不到。"</p>
+</blockquote>
+<p>把 4 次 ECDH 按这两种语义归类：</p>
+<table>
+<thead>
+<tr>
+<th>ECDH</th>
+<th>绑谁</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>es = DH(e_i^priv, S_r^pub)</code></td>
+<td>responder 静态（单向）</td>
+<td>客户端开口并证明「认服务器」</td>
+</tr>
+<tr>
+<td><code>ss = DH(S_i^priv, S_r^pub)</code></td>
+<td><strong>双方静态互锁</strong></td>
+<td>锁上双方长期身份</td>
+</tr>
+<tr>
+<td><code>ee = DH(e_r^priv, e_i^pub)</code></td>
+<td>双方临时互锁（本次会话）</td>
+<td>服务器回复，双方临时钥锁本轮会话</td>
+</tr>
+<tr>
+<td><code>se = DH(e_r^priv, S_i^pub)</code></td>
+<td>initiator 静态（单向）</td>
+<td>服务器证明「也认得你」</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>两边推出同一会话密钥，开始传数据</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>注意 ECDH 的对称性是 <code>ss</code> 能做 B 类的关键：<code>DH(a_priv, b_pub) = DH(b_priv, a_pub)</code>，所以 initiator 与 responder 各用自己静态私钥 + 对方公开的静态公钥，<strong>双方独立地算出同一份 shared_secret</strong>。这给 ECDH 一种独特能力——<strong>1 次 DH 运算、0 字节握手载荷</strong>就完成 B 类"双方私钥互锁"。</p>
+<h3 id="安全属性">安全属性</h3>
+<p>WireGuard 握手达成：（来源：<a href="https://www.wireguard.com/papers/wireguard.pdf">白皮书 §5</a>；<a href="https://www.wireguard.com/protocol/">协议页面</a>）</p>
+<ul>
+<li>AKE 安全（Authenticated Key Exchange）</li>
+<li>抗密钥泄露冒充（KCI resistance）</li>
+<li>抗重放（结合 TAI64N 时间戳与传输 counter 滑动窗口）</li>
+<li>完美前向保密（Perfect Forward Secrecy）</li>
+<li>身份隐藏（类似 SIGMA；IK 模式 initiator 静态公钥加密传输，属性为 Noise 表中的 4/3）</li>
+</ul>
+<h3 id="密钥确认key-confirmation">密钥确认（Key Confirmation）</h3>
+<p>握手两条消息交换后，<strong>initiator 可立即发送加密数据包，responder 须等到收到 initiator 的第一条 transport data 后才能使用新会话发送</strong>。若 initiator 无待发数据，应发送空包以完成确认（KEA+C 风格）。（来源：<a href="https://www.wireguard.com/protocol/">协议页面 — Connection-less Protocol</a>；<a href="https://www.wireguard.com/papers/wireguard.pdf">白皮书 §5</a>）</p>
+<hr>
+<h2 id="cryptographic-primitives密码学原语">Cryptographic Primitives（密码学原语）</h2>
+<p>WireGuard 使用的协议与原语（来源：<a href="https://www.wireguard.com/protocol/">协议页面 — Primitives</a>；<a href="https://www.wireguard.com/papers/wireguard.pdf">白皮书 §5.4</a>）：</p>
+<table>
+<thead>
+<tr>
+<th>用途</th>
+<th>算法</th>
+<th>标准/说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>对称加密</td>
+<td>ChaCha20-Poly1305 AEAD</td>
+<td>RFC 7539 构造；nonce = 32 位零 + 64 位小端 counter</td>
+</tr>
+<tr>
+<td>ECDH</td>
+<td>Curve25519</td>
+<td>32 字节公钥/共享秘密</td>
+</tr>
+<tr>
+<td>哈希 / 密钥哈希</td>
+<td>BLAKE2s（32 字节输出）</td>
+<td>RFC 7693</td>
+</tr>
+<tr>
+<td>哈希表键</td>
+<td>SipHash24</td>
+<td>内核实现内部使用</td>
+</tr>
+<tr>
+<td>密钥派生</td>
+<td>HKDF</td>
+<td>RFC 5869；基于 HMAC-BLAKE2s</td>
+</tr>
+<tr>
+<td>Cookie 回复加密</td>
+<td>XChaCha20-Poly1305</td>
+<td>24 字节随机 nonce</td>
+</tr>
+<tr>
+<td>时间戳</td>
+<td>TAI64N</td>
+<td>12 字节大端；防首包重放</td>
+</tr>
+</tbody>
+</table>
+<p>辅助函数定义（来源：<a href="https://www.wireguard.com/protocol/">协议页面</a>）：</p>
+<ul>
+<li><code>DH()</code>：Curve25519 点乘</li>
+<li><code>AEAD()</code>：ChaCha20Poly1305，counter 作 nonce</li>
+<li><code>HMAC()</code>：<code>HMAC-BLAKE2s</code>，32 字节</li>
+<li><code>MAC()</code>：<code>Keyed-BLAKE2s</code>，16 字节</li>
+<li><code>HASH()</code>：<code>BLAKE2s</code>，32 字节</li>
+</ul>
+<hr>
+<h2 id="handshake-flow握手流程">Handshake Flow（握手流程）</h2>
+<h3 id="消息类型">消息类型</h3>
+<p>WireGuard 定义 4 种消息（来源：<a href="https://www.wireguard.com/papers/wireguard.pdf">白皮书 §5.4</a>）：</p>
+<table>
+<thead>
+<tr>
+<th>type</th>
+<th>名称</th>
+<th>方向</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Handshake Initiation</td>
+<td>Initiator → Responder</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Handshake Response</td>
+<td>Responder → Initiator</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Cookie Reply</td>
+<td>负载下 Responder/Initiator → 请求方</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Transport Data</td>
+<td>双向</td>
+</tr>
+</tbody>
+</table>
+<h3 id="正常-1-rtt-时序">正常 1-RTT 时序</h3>
+<pre><code>Initiator                          Responder
+    |                                   |
+    |--- Handshake Initiation (1) ------&gt;|
+    |&lt;-- Handshake Response (2) ---------|
+    |--- Transport Data (4) ------------&gt;|  (密钥确认：首条加密数据)
+    |&lt;-- Transport Data (4) -------------|
+    |                                   |
+</code></pre>
+<p>（来源：<a href="https://www.wireguard.com/papers/wireguard.pdf">白皮书 §5.4.1 图</a>；<a href="https://www.wireguard.com/protocol/">协议页面</a>）</p>
+<h3 id="负载下-cookie-交换额外-rtt">负载下 Cookie 交换（额外 RTT）</h3>
+<p>若 responder 处于高负载且 <code>mac2</code> 无效，可能插入 Cookie Reply，使总握手变为约 1.5–2 RTT。（来源：<a href="https://www.wireguard.com/papers/wireguard.pdf">白皮书 §5.3, §5.4.7</a>）</p>
+<h3 id="定时器驱动的重协商">定时器驱动的重协商</h3>
+<p>握手完成后，协议通过定时器自动轮换密钥（完美前向保密），主要常量（来源：<a href="https://www.wireguard.com/papers/wireguard.pdf">白皮书 §6.1</a>）：</p>
+<table>
+<thead>
+<tr>
+<th>常量</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>REKEY_AFTER_MESSAGES</code></td>
+<td>2^60 条消息</td>
+</tr>
+<tr>
+<td><code>REKEY_AFTER_TIME</code></td>
+<td>120 秒</td>
+</tr>
+<tr>
+<td><code>REJECT_AFTER_TIME</code></td>
+<td>180 秒</td>
+</tr>
+<tr>
+<td><code>REKEY_TIMEOUT</code></td>
+<td>5 秒（握手重传间隔）</td>
+</tr>
+<tr>
+<td><code>KEEPALIVE_TIMEOUT</code></td>
+<td>10 秒</td>
+</tr>
+</tbody>
+</table>
+<p>管理员无需手动触发重连；接口配置私钥与 peer 公钥后即可发送普通 IP 包。（来源：<a href="https://www.wireguard.com/papers/wireguard.pdf">白皮书 §6</a>）</p>
+<hr>
+<h2 id="data-plane数据平面">Data Plane（数据平面）</h2>
+<h3 id="transport-data-消息type4">Transport Data 消息（type=4）</h3>
+<p>结构（来源：<a href="https://www.wireguard.com/protocol/">协议页面</a>；<a href="https://www.wireguard.com/papers/wireguard.pdf">白皮书 §5.4.6</a>）：</p>
+<pre><code>message_type(1) | reserved(3) | receiver_index(4) | counter(8) | encrypted_encapsulated_packet[]
+</code></pre>
+<ul>
+<li><code>receiver_index</code>：对端在握手中分配的 32 位索引（类 IPsec SPI）</li>
+<li><code>counter</code>：64 位小端 nonce 计数器，单调递增</li>
+<li>内层为完整 IP 包，加密前填充至 16 字节倍数（不改变 IP 头中的长度字段）</li>
+</ul>
+<h3 id="重放防护">重放防护</h3>
+<p>UDP 可能乱序投递。WireGuard 在验证 AEAD 标签后，使用滑动窗口（约 2000 个 prior counter 值）检测重放，算法参考 RFC 6479。（来源：<a href="https://www.wireguard.com/protocol/">协议页面 — Nonce Reuse &amp; Replay Attacks</a>）</p>
+<h3 id="keepalive">Keepalive</h3>
+<p>若收到合法 transport data 但 <code>KEEPALIVE_TIMEOUT</code> 秒内无包可回，则发送零长度内层 IP 包的 keepalive（<code>msg.packet</code> 仅含 16 字节 Poly1305 标签）。（来源：<a href="https://www.wireguard.com/papers/wireguard.pdf">白皮书 §6.5</a>）</p>
+<h3 id="diffserv-ecn">DiffServ / ECN</h3>
+<p>握手包 DSCP = 0x88（AF41），ECN = 00；传输数据包外层 DSCP = 0（不泄露内层信息），ECN 按 RFC 6040 与内层同步。（来源：<a href="https://www.wireguard.com/protocol/">协议页面 — DiffServ Considerations</a>）</p>
+<hr>
+<h2 id="dos-cookiesmac1-mac2-拒绝服务防护">DoS Cookies（MAC1 / MAC2 拒绝服务防护）</h2>
+<h3 id="设计动机">设计动机</h3>
+<p>Curve25519 点乘计算密集。若对所有入站握手包都执行 DH，攻击者可发动 CPU 耗尽攻击。WireGuard 要求<strong>首条握手消息即完成 initiator 认证</strong>，同时<strong>认证前不为未认证包分配状态、不发送响应</strong>。（来源：<a href="https://www.wireguard.com/papers/wireguard.pdf">白皮书 §5.1, §5.3</a>）</p>
+<h3 id="双-mac-机制">双 MAC 机制</h3>
+<p>每条握手消息（initiation 与 response）均含 <code>mac1[16]</code> 与 <code>mac2[16]</code>。（来源：<a href="https://www.wireguard.com/protocol/">协议页面 — DoS Mitigation</a>）</p>
+<h4 id="mac1始终必需">MAC1（始终必需）</h4>
+<pre><code>mac1 = MAC(HASH(LABEL_MAC1 || responder_public_key), message_bytes_before_mac1)
+</code></pre>
+<ul>
+<li><code>LABEL_MAC1</code> = <code>"mac1----"</code></li>
+<li>发送方须知道接收方公钥才能计算有效 <code>mac1</code></li>
+<li><strong>无论是否高负载，无效 mac1 一律丢弃，不响应</strong> → 保持"沉默"特性</li>
+<li>被动攻击者可猜测目标公钥，但无法仅凭 mac1 完成密码学证明（来源：<a href="https://www.wireguard.com/papers/wireguard.pdf">白皮书 §5.3</a>）</li>
+</ul>
+<h4 id="mac2高负载时必需">MAC2（高负载时必需）</h4>
+<pre><code>mac2 = MAC(cookie, message_bytes_before_mac2)   # 若持有有效 cookie
+     = zeros                                    # 否则
+</code></pre>
+<ul>
+<li><code>cookie</code> 由服务器以每 2 分钟轮换的密钥对 initiator 源 IP 做 MAC，证明 IP 所有权</li>
+<li>高负载时：有效 mac1 但无效/缺失 mac2 → 可回复 Cookie Reply，<strong>不处理握手</strong></li>
+<li>cookie 有效期 2 分钟（120 秒）</li>
+</ul>
+<p>（来源：<a href="https://www.wireguard.com/protocol/">协议页面</a>；<a href="https://www.wireguard.com/papers/wireguard.pdf">白皮书 §5.3–5.4.4</a>）</p>
+<h3 id="cookie-reply-消息type3">Cookie Reply 消息（type=3）</h3>
+<pre><code>message_type(3) | reserved(3) | receiver_index(4) | nonce(24) | encrypted_cookie(32)
+</code></pre>
+<p>生成逻辑（来源：<a href="https://www.wireguard.com/protocol/">协议页面</a>）：</p>
+<pre><code>cookie = MAC(server_changing_secret_every_2min, initiator_ip_address)
+encrypted_cookie = XAEAD(HASH(LABEL_COOKIE || responder_static_public), nonce, cookie, initiating_message_mac1)
+</code></pre>
+<p>改进点（相对 DTLS/IKEv2 cookie 机制，来源：<a href="https://www.wireguard.com/papers/wireguard.pdf">白皮书 §5.3</a>）：</p>
+<ol>
+<li>未通过 mac1 认证则完全沉默，不发送 cookie</li>
+<li>cookie 经 AEAD 加密传输，非明文</li>
+<li>AEAD 附加数据绑定 initiating message 的 mac1，防止向 initiator 洪泛伪造 cookie reply</li>
+</ol>
+<p>收到 Cookie Reply 后，peer <strong>仅存储 cookie，等待</strong> <code>REKEY_TIMEOUT</code> <strong>重传定时器到期再重发</strong>，不立即重发。（来源：<a href="https://www.wireguard.com/papers/wireguard.pdf">白皮书 §6.6</a>）</p>
+<h3 id="首包重放与时间戳">首包重放与时间戳</h3>
+<p>因首包即认证 initiator，存在重放 initiation 迫使 responder 更换临时密钥、中断合法会话的风险。WireGuard 在 initiation 消息中加密传输 TAI64N 时间戳；responder 记录每个 peer 的最大时间戳，丢弃 ≤ 已记录值的包。（来源：<a href="https://www.wireguard.com/papers/wireguard.pdf">白皮书 §5.1</a>）</p>
+<hr>
+<h2 id="key-types密钥类型">Key Types（密钥类型）</h2>
+<p>WireGuard 涉及三类密钥材料（来源：<a href="https://www.wireguard.com/papers/wireguard.pdf">白皮书 §5.2, §5.4</a>；<a href="https://noiseprotocol.org/noise.html">Noise §9</a>）：</p>
+<h3 id="1-static-identity-keys静态身份密钥">1. Static Identity Keys（静态身份密钥）</h3>
+<ul>
+<li><strong>类型</strong>：Curve25519 长期密钥对（32 字节私钥 / 32 字节公钥）</li>
+<li><strong>角色</strong>：peer 的永久身份标识；Cryptokey Routing 以静态公钥为索引</li>
+<li><strong>交换方式</strong>：带外预交换（类 OpenSSH）</li>
+<li><strong>在握手中的作用</strong>：</li>
+<li>Initiator 在消息 1 中加密发送静态公钥（<code>s</code> token）</li>
+<li>参与 <code>ss</code>（双方静态）与 <code>es</code>/<code>se</code> DH 运算</li>
+<li><strong>存储</strong>：接口配置 <code>PrivateKey</code>；peer 配置 <code>PublicKey</code></li>
+</ul>
+<h3 id="2-ephemeral-keys临时密钥">2. Ephemeral Keys（临时密钥）</h3>
+<ul>
+<li><strong>类型</strong>：每次握手重新生成的 Curve25519 密钥对</li>
+<li><strong>角色</strong>：提供完美前向保密；每次重协商更换</li>
+<li><strong>在握手中的作用</strong>：</li>
+<li>消息 1、2 均发送明文临时公钥（<code>e</code> token）</li>
+<li>参与 <code>es</code>、<code>ee</code>、<code>se</code> DH</li>
+<li><strong>生命周期</strong>：握手完成后与链密钥一并清零（来源：<a href="https://www.wireguard.com/papers/wireguard.pdf">白皮书 §5.4.5</a>）</li>
+</ul>
+<h3 id="3-pre-shared-keypsk可选">3. Pre-Shared Key（PSK，可选）</h3>
+<ul>
+<li><strong>类型</strong>：256 位（32 字节）对称密钥</li>
+<li><strong>角色</strong>：在 <code>Noise_IKpsk2</code> 第二条消息末尾经 <code>MixKeyAndHash</code> 混入；为抗未来量子计算录音攻击提供额外对称层（混合方案，非完整后量子替换）</li>
+<li><strong>默认值</strong>：未配置时为 32 字节全零（协议仍按 psk2 流程运行）</li>
+<li><strong>配置</strong>：<code>wg set</code> / 配置文件中的 <code>PresharedKey</code> 字段</li>
+<li><strong>安全模型</strong>：即使 PSK 泄露，Curve25519 仍提供保护；反之，若 Curve25519 被攻破，PSK 可保护历史流量（来源：<a href="https://www.wireguard.com/papers/wireguard.pdf">白皮书 §5.2</a>）</li>
+</ul>
+<h3 id="4-transport-session-keys传输会话密钥派生">4. Transport Session Keys（传输会话密钥，派生）</h3>
+<p>握手完成后由最终 <code>chaining_key</code> 经 HKDF 派生，分为 initiator/responder 各自的 sending_key 与 receiving_key，配合 64 位 counter 用于 ChaCha20Poly1305 封装 transport data。定期轮换（约 120 秒）。（来源：<a href="https://www.wireguard.com/protocol/">协议页面 — Data Keys Derivation</a>；<a href="https://www.wireguard.com/papers/wireguard.pdf">白皮书 §6.2–6.3</a>）</p>
+<hr>
+<h2 id="a-kernel-implementation-internals内核实现内部">A. Kernel Implementation Internals（内核实现内部）</h2>
+<p>本节补充白皮书 §7 中关于"短小、可审计、避免动态分配、与内核设施集成"的具体落实方式，便于答辩时回答"WireGuard 内核实现到底怎么做"。来源：<a href="https://www.wireguard.com/papers/wireguard.pdf">白皮书 §7.1–7.4</a>。</p>
+<h3 id="a1-代码量与分层">A.1 代码量与分层</h3>
+<ul>
+<li>整个 Linux 内核驱动 + Noise 状态机 + 数据平面 &lt; 4,000 行 C（不含密码学原语），目标为可由单人审计。</li>
+<li>模块自包含：通过 <code>wireguard-linux-compat</code> 包作为 out-of-tree 模块构建，不需修改核心内核；新版 Linux 已将其合并至主线 <code>drivers/net/wireguard/</code>。</li>
+</ul>
+<h3 id="a2-接收路径零动态分配原则">A.2 接收路径"零动态分配"原则</h3>
+<p>白皮书 §7.2 把"接收入站包时不做 <code>kmalloc</code>"列为硬性目标，实现方式：</p>
+<ol>
+<li>入站 <code>skb</code> 在 socket 层就已分配，握手处理复用同一 <code>skb</code> 的 <code>cb</code>（control buffer）字段存握手临时状态（<code>PACKET_CB(skb)</code>）。</li>
+<li>解密的临时缓冲（Blake2s/HKDF/AEAD 上下文）使用栈上对齐数组（如 <code>u8 output[NOISE_HASH_LEN + 1] __aligned(...)</code>），处理完即 <code>memzero_explicit</code> 清零。</li>
+<li>加解密走 <code>padata</code>（parallel async crypto），每个 CPU 一个 <code>crypt</code> 工作队列，避免在收包软中断上下文同步执行重负载 AEAD。</li>
+</ol>
+<h3 id="a3-并发与队列结构">A.3 并发与队列结构</h3>
+<p>每个 <code>wg_peer</code> 维护若干独立队列与定时器，多数路径用 lockless / RCU / <code>spin_lock_bh</code>：</p>
+<table>
+<thead>
+<tr>
+<th>结构</th>
+<th>用途</th>
+<th>同步方式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>peer-&gt;handshake.send_queue</code></td>
+<td>暂存待发握手包</td>
+<td>lockless ring</td>
+</tr>
+<tr>
+<td><code>peer-&gt;tx_queue</code> / <code>peer-&gt;rx_queue</code></td>
+<td>数据包队列</td>
+<td>per-peer NAPI 风格</td>
+</tr>
+<tr>
+<td><code>device-&gt;incoming_handshakes</code></td>
+<td>收到的握手包批量</td>
+<td><code>MAX_QUEUED_INCOMING_HANDSHAKES = 4096</code> 上限</td>
+</tr>
+<tr>
+<td><code>device-&gt;handshake_send_wq</code> / <code>handshake_receive_wq</code></td>
+<td>加解密工作队列</td>
+<td><code>padata</code> 并行</td>
+</tr>
+<tr>
+<td><code>device-&gt;index_hashtable</code></td>
+<td>索引→handshake/keypair 反查</td>
+<td>RCU + spin_lock_bh</td>
+</tr>
+<tr>
+<td><code>device-&gt;peer_hashtable</code></td>
+<td>公钥哈希→peer 反查</td>
+<td>RCU</td>
+</tr>
+<tr>
+<td><code>peer-&gt;keypairs</code></td>
+<td>next/current/previous 三元密钥对</td>
+<td><code>spin_lock_bh</code> + RCU 指针</td>
+</tr>
+</tbody>
+</table>
+<h3 id="a4-三元-keypair-模型">A.4 三元 keypair 模型</h3>
+<p>每个 peer 同时持有三组密钥对，使平滑切换不丢包（来源：仓库 <code>noise.c</code> <code>add_new_keypair()</code>）：</p>
+<ul>
+<li><code>previous_keypair</code>：上一对，仍可解对方延迟到达的旧 counter 包。</li>
+<li><code>current_keypair</code>：正在使用。</li>
+<li><code>next_keypair</code>：握手已完成但<strong>未确认</strong>，responder 等到收到 initiator 的第一条 transport data 才晋升为 current（即 §密钥确认 实现）。</li>
+</ul>
+<p>切换规则（initiator 在收到响应后直接将新 keypair 置为 current；responder 等到对方首包确认才晋升 next）保证：即便在重协商窗口内双方时钟略有错位，也不会丢包或重复密钥。</p>
+<h3 id="a5-索引哈希表">A.5 索引哈希表</h3>
+<p>握手消息中的 32 位 <code>sender_index</code> / <code>receiver_index</code> 类似 IPsec SPI：发送方分配，接收方据此 O(1) 反查 handshake 或 keypair。<code>index_hashtable</code> 用 RCU 读路径 + 写侧 <code>spin_lock_bh</code>，查询在收包软中断里无锁完成。</p>
+<h3 id="a6-rtnl网络命名空间与虚拟接口">A.6 RTNL、网络命名空间与虚拟接口</h3>
+<ul>
+<li><code>wg0</code> 是标准 <code>struct net_device</code>，受 RTNL 保护，支持 <code>ip link</code>、namespace 迁移、容器化。</li>
+<li>加解密与定时器回调使用 <code>rcu_read_lock_bh()</code>，避免与 RTNL 互锁；接口 down 时由 <code>wg_timers_stop()</code> 同步删除全部 peer 定时器。</li>
+<li><code>MAX_PEERS_PER_DEVICE = 1 &lt;&lt; 20</code>：单接口最多 ~100 万 peer，由 <code>peer_hashtable</code> 容量上限设定。</li>
+</ul>
+<h3 id="a7-性能要点">A.7 性能要点</h3>
+<p>白皮书 §7.4 报告：单核 3 Gbps+（ChaCha20Poly1305），多核线性扩展，延迟 &lt; IPsec IKEv2 + ESP。关键：<code>padata</code> 并行、零拷贝目标、per-CPU crypto tfm、避免 RTNL 在数据路径上。</p>
+<hr>
+<h2 id="b-timer-state-machine定时器状态机">B. Timer State Machine（定时器状态机）</h2>
+<p>本节把白皮书 §6 + 仓库 <code>timers.c</code> 的真实实现整理成可答辩的状态机描述。来源：<a href="https://www.wireguard.com/papers/wireguard.pdf">白皮书 §6.1–6.6</a>；仓库 <code>timers.c</code> 注释、<code>messages.h</code> <code>enum limits</code>。</p>
+<h3 id="b1-五个-peer-级定时器">B.1 五个 peer 级定时器</h3>
+<p>每个 peer 由 <code>wg_timers_init()</code> 注册 5 个 <code>timer_list</code>：</p>
+<table>
+<thead>
+<tr>
+<th>定时器</th>
+<th>触发函数(到期)</th>
+<th>由谁武装</th>
+<th>默认延迟</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>timer_retransmit_handshake</code></td>
+<td><code>wg_expired_retransmit_handshake</code></td>
+<td><code>wg_timers_handshake_initiated</code></td>
+<td><code>REKEY_TIMEOUT + jitter</code> = 5s + 0~333ms</td>
+</tr>
+<tr>
+<td><code>timer_send_keepalive</code></td>
+<td><code>wg_expired_send_keepalive</code></td>
+<td><code>wg_timers_data_received</code></td>
+<td><code>KEEPALIVE_TIMEOUT</code> = 10s</td>
+</tr>
+<tr>
+<td><code>timer_new_handshake</code></td>
+<td><code>wg_expired_new_handshake</code></td>
+<td><code>wg_timers_data_sent</code></td>
+<td><code>KEEPALIVE_TIMEOUT + REKEY_TIMEOUT</code> + jitter = 15s + 0~333ms</td>
+</tr>
+<tr>
+<td><code>timer_zero_key_material</code></td>
+<td><code>wg_expired_zero_key_material</code></td>
+<td><code>wg_timers_session_derived</code></td>
+<td><code>REJECT_AFTER_TIME * 3</code> = 540s</td>
+</tr>
+<tr>
+<td><code>timer_persistent_keepalive</code></td>
+<td><code>wg_expired_send_persistent_keepalive</code></td>
+<td><code>wg_timers_any_authenticated_packet_traversal</code></td>
+<td>用户配置 <code>PersistentKeepalive</code> 秒（0=关）</td>
+</tr>
+</tbody>
+</table>
+<p><code>REKEY_TIMEOUT_JITTER_MAX_JIFFIES = HZ/3</code>（≈333ms）是抖动，防止同步重传风暴。</p>
+<h3 id="b2-重要事件钩子非定时器由收发路径调用">B.2 重要事件钩子（非定时器，由收发路径调用）</h3>
+<table>
+<thead>
+<tr>
+<th>钩子</th>
+<th>何时调用</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>wg_timers_data_sent</code></td>
+<td>每发一条 authenticated data</td>
+<td>武装 new_handshake（迟迟未回则重发握手）</td>
+</tr>
+<tr>
+<td><code>wg_timers_data_received</code></td>
+<td>每收一条 authenticated data</td>
+<td>武装 send_keepalive（被动保活）</td>
+</tr>
+<tr>
+<td><code>wg_timers_any_authenticated_packet_sent</code></td>
+<td>发出任意认证包</td>
+<td>取消 send_keepalive（已有出站，不必保活）</td>
+</tr>
+<tr>
+<td><code>wg_timers_any_authenticated_packet_received</code></td>
+<td>收到任意认证包</td>
+<td>取消 new_handshake（对端还活着）</td>
+</tr>
+<tr>
+<td><code>wg_timers_handshake_initiated</code></td>
+<td>发完 initiation</td>
+<td>武装 retransmit_handshake</td>
+</tr>
+<tr>
+<td><code>wg_timers_handshake_complete</code></td>
+<td>握手完成</td>
+<td>取消 retransmit、清零 <code>timer_handshake_attempts</code>、写 <code>walltime_last_handshake</code></td>
+</tr>
+<tr>
+<td><code>wg_timers_session_derived</code></td>
+<td>派生新会话密钥</td>
+<td>武装 zero_key_material（540s 后仍无新密钥则销毁所有密钥）</td>
+</tr>
+<tr>
+<td><code>wg_timers_any_authenticated_packet_traversal</code></td>
+<td>发/收任意认证包</td>
+<td>若配置了 <code>PersistentKeepalive</code>，重武装 persistent_keepalive</td>
+</tr>
+</tbody>
+</table>
+<h3 id="b3-重传与放弃边界">B.3 重传与"放弃"边界</h3>
+<p><code>MAX_TIMER_HANDSHAKES = 90 / REKEY_TIMEOUT = 18</code>。即第 19 次(&gt;18)仍无 ack 时调用：</p>
+<ul>
+<li><code>wg_packet_purge_staged_packets(peer)</code>：丢弃所有暂存出站包。</li>
+<li>武装 <code>timer_zero_key_material</code> 在 <code>REJECT_AFTER_TIME * 3 = 540</code>s 后清零密钥。</li>
+<li>期间对端若恢复并主动来包，则可握手复活。</li>
+</ul>
+<h3 id="b4-主动重协商与上面的会话死亡重发不是同一码事">B.4 主动重协商（与上面的"会话死亡重发"不是同一码事）</h3>
+<p>白皮书 §6.2–6.3 区分两套触发：</p>
+<table>
+<thead>
+<tr>
+<th>触发点</th>
+<th>常量</th>
+<th>语义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>REKEY_AFTER_TIME</code>（白皮书原值 120s）</td>
+<td>已发数据且当前 keypair 出生至今 &gt; 120s → <strong>initiator</strong> 主动发起新握手</td>
+<td>主动轮换，保证 PFS 周期</td>
+</tr>
+<tr>
+<td><code>REKEY_AFTER_MESSAGES</code>（2^60）</td>
+<td>已发数据包数超过该值 → initiator 重换密钥</td>
+<td>防止 counter 撞上限</td>
+</tr>
+<tr>
+<td><code>REJECT_AFTER_TIME</code>（180s）</td>
+<td>keypair 出生 &gt; 180s → 该 keypair 不再用于发送，丢弃后续旧包</td>
+<td>强制废弃</td>
+</tr>
+<tr>
+<td><code>REJECT_AFTER_MESSAGES</code>（2^64 − window − 1）</td>
+<td>counter 超此值 → keypair 失效</td>
+<td>防止 counter 回绕</td>
+</tr>
+</tbody>
+</table>
+<p><strong>initiator/responder 不对称</strong>（白皮书 §6.3，避免双方同时发起）：以原 WG 而言，responder 在 <code>REKEY_AFTER_TIME</code> 后仍<strong>不主动</strong>发起；只有当 <code>KEEPALIVE_TIMEOUT + REKEY_TIMEOUT</code> 内一直未收到对端任何包（会话死亡征兆）时，由 timer_new_handshake 触发新一轮。这种"主动方先动、被动方响应"的设计使重协商不会撞车。</p>
+<blockquote>
+<p>说明：本仓库 <code>messages.h</code> 把 <code>REKEY_AFTER_TIME</code> 改为 5（出于 PQ 实验频繁重协商需求），白皮书原值为 120，二者不要混淆。</p>
+</blockquote>
+<h3 id="b5-速率限制与队列上限常被忽略的-dos-阀门">B.5 速率限制与队列上限（常被忽略的 DoS 阀门）</h3>
+<p><code>messages.h</code> <code>enum limits</code> 中除 rekey 之外，还定义了硬阀门，是 DoS 与资源耗尽保护的真实闸门：</p>
+<table>
+<thead>
+<tr>
+<th>常量</th>
+<th>值</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>INITIATIONS_PER_SECOND</code></td>
+<td>100</td>
+<td>每个 peer 接收 initiation 不超过 100/s（<code>flood_attack</code> 判断使用，见 <code>noise.c</code> <code>consume_initiation</code>）</td>
+</tr>
+<tr>
+<td><code>MAX_TIMER_HANDSHAKES</code></td>
+<td>18</td>
+<td>单次握手最多重试次数</td>
+</tr>
+<tr>
+<td><code>MAX_QUEUED_INCOMING_HANDSHAKES</code></td>
+<td>4096</td>
+<td>全设备排队待处理握手包上限</td>
+</tr>
+<tr>
+<td><code>MAX_STAGED_PACKETS</code></td>
+<td>128</td>
+<td>每 peer 暂存出站包上限（无 keypair 时）</td>
+</tr>
+<tr>
+<td><code>MAX_QUEUED_PACKETS</code></td>
+<td>1024</td>
+<td>每 peer 收发队列上限</td>
+</tr>
+<tr>
+<td><code>MAX_PEERS_PER_DEVICE</code></td>
+<td>2^20</td>
+<td>单接口 peer 数上限</td>
+</tr>
+</tbody>
+</table>
+<h3 id="b6-时间戳防重放与轻量降计时">B.6 时间戳防重放与"轻量降计时"</h3>
+<p>TAI64N 时间戳精度刻意降低到 <code>NSEC_PER_SEC / INITIATIONS_PER_SECOND</code> 的 2 的幂对齐（见 <code>tai64n_now()</code>），既防时序侧信道，又与 <code>INITIATIONS_PER_SECOND=100</code> 的速率限制吻合，使合法 initiator 不会因自身时钟精度而触发 <code>flood_attack</code> 误判。</p>
+<hr>
+<h2 id="c-noise-derivation-step-by-stepnoise-派生逐步公式">C. Noise Derivation Step-by-Step（Noise 派生逐步公式）</h2>
+<p>本节列出 WireGuard <code>Noise_IKpsk2_25519_ChaChaPoly_BLAKE2s</code> 中 <code>chaining_key ck</code> 与 <code>hash h</code> 在每个 token 后的精确演化公式，并区分 <code>MixHash</code> / <code>MixKey</code> / <code>MixKeyAndHash</code> 的语义。来源：<a href="https://noiseprotocol.org/noise.html">Noise §5–9</a>；<a href="https://www.wireguard.com/papers/wireguard.pdf">白皮书 §5.4</a>；仓库 <code>noise.c</code> <code>mix_hash</code> / <code>mix_psk</code> / <code>kdf</code> 实现对应。</p>
+<h3 id="c1-三个-mix-原语的语义差异容易答错的点">C.1 三个 Mix 原语的语义差异（容易答错的点）</h3>
+<table>
+<thead>
+<tr>
+<th>原语</th>
+<th>公式</th>
+<th>对 ck 的影响</th>
+<th>对 h 的影响</th>
+<th>输出 key？</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MixHash(input)</code></td>
+<td><code>h = HASH(h ‖ input)</code></td>
+<td>无</td>
+<td>是，更新 h</td>
+<td>否</td>
+</tr>
+<tr>
+<td><code>MixKey(input)</code></td>
+<td><code>(ck, k) = HKDF(ck, input, 2)</code>：<code>ck = HMAC(ck, 0x01 ‖ ...)</code>, <code>k = ...</code> 第二个输出</td>
+<td>是，更新 ck</td>
+<td>否</td>
+<td>是（用于后续 AEAD）</td>
+</tr>
+<tr>
+<td><code>MixKeyAndHash(psk)</code></td>
+<td><code>(ck, h, k) = HKDF(ck, psk ‖ h_prev, 3)</code> 三个输出分别给 ck、h、k</td>
+<td>是</td>
+<td>是，h 也更新</td>
+<td>是</td>
+</tr>
+</tbody>
+</table>
+<p><code>MixKeyAndHash</code> 把 PSK 同时灌进 ck（影响后续所有密钥）与 h（进入握手 transcript），因此 PSK 错误既会破坏传输密钥又会破坏 transcript，使握手立刻失败——这正是 psk2 模式的设计意图。</p>
+<h3 id="c2-初始化两步">C.2 初始化（两步）</h3>
+<pre><code>ck0 = HASH(&quot;Noise_IKpsk2_25519_ChaChaPoly_BLAKE2s&quot;)
+h0  = HASH(ck0 ‖ &quot;WireGuard v1 zx2c4 Jason@zx2c4.com&quot;)
+h1  = HASH(h0 ‖ ResponderStaticPublicKey)        # 预消息：IK 中 responder 静态公钥已知
+</code></pre>
+<p>注意 <code>CONSTRUCTION</code> 字符串本身先入 ck（不是 h），随后 <code>IDENTIFIER</code> 与 ck 一起入 h，再混入 responder 静态公钥——只有 responder 静态公钥入 h，不入 ck（这一点在原 Noise IK 规范中需要特别留意，是 WireGuard 的具体化决定）。</p>
+<h3 id="c3-消息-1initiator-respondertokens-e-es-s-ss">C.3 消息 1（initiator → responder）：tokens <code>e, es, s, ss</code></h3>
+<p>设 <code>e_i = initiator ephemeral pub</code>，<code>DH(a,b) = Curve25519(a_priv, b_pub)</code>。</p>
+<pre><code># e token
+h  = HASH(h ‖ e_i)                           # 明文 e_i 进入 transcript
+(ck, k0) = HKDF(ck, e_i, 2)                  # MixKey
+
+# es token (init ephemeral × responder static)
+(ck, k1) = HKDF(ck, DH(e_i_priv, S_r_pub), 2)
+
+# s payload: initiator 静态公钥 S_i_pub 用 k1 AEAD 加密
+encrypted_static = AEAD_Enc(k1, 0, S_i_pub, h)   # h 作 AD
+h  = HASH(h ‖ encrypted_static)              # MixHash（ciphertext 入 transcript，非明文）
+
+# ss token (init static × responder static)
+(ck, k2) = HKDF(ck, DH(S_i_priv, S_r_pub), 2)
+
+# t payload: TAI64N 时间戳用 k2 AEAD 加密
+encrypted_timestamp = AEAD_Enc(k2, 0, tai64n_now, h)
+h  = HASH(h ‖ encrypted_timestamp)
+
+# mac1 / mac2 计算（覆盖到 mac1 之前的全部字节）
+mac1 = MAC(HASH(&quot;mac1----&quot; ‖ S_r_pub), message[0..end-before-mac1])
+mac2 = MAC(cookie, message[0..end-before-mac2]) or zeros
+</code></pre>
+<blockquote>
+<p>WireGuard 对标准 Noise IK 的"协议层 hack"：消息 1 的第二个加密 payload（对应 <code>s</code> 后的 transcript 内容）本应是别的 application data，WireGuard 在这里塞入 12 字节 TAI64N 时间戳，并省去消息 2 中本应放在末尾的额外载荷。WireGuard 仍是符合 IK 的"e,es,s,ss"模式，只是把 application payload 替换为协议层字段。</p>
+</blockquote>
+<h3 id="c4-消息-2responder-initiatortokens-e-ee-se-psk">C.4 消息 2（responder → initiator）：tokens <code>e, ee, se, psk</code></h3>
+<pre><code># e token
+h  = HASH(h ‖ e_r)
+(ck, k3) = HKDF(ck, e_r, 2)
+
+# ee token (ephemeral × ephemeral)
+(ck, k4) = HKDF(ck, DH(e_r_priv, e_i_pub), 2)
+
+# se token (responder ephemeral × initiator static)
+(ck, k5) = HKDF(ck, DH(e_r_priv, S_i_pub), 2)
+
+# psk token (psk2)：在消息末尾混入
+(ck, h, k6) = HKDF(ck, psk ‖ h_prev, 3)      # MixKeyAndHash
+# 注意 h_prev 是注入 psk 前的 h；新 h 与 k6 都从此派生
+
+# 空 payload AEAD：确认密钥
+encrypted_nothing = AEAD_Enc(k6, 0, &quot;&quot;, h)
+h  = HASH(h ‖ encrypted_nothing)
+</code></pre>
+<h3 id="c5-传输密钥派生split-阶段">C.5 传输密钥派生（Split 阶段）</h3>
+<pre><code>(send_key, recv_key) = HKDF(ck_final, &quot;&quot;, 2)  # 仓库 derive_keys 中的 kdf 第二次调用
+# 双方互为镜像：initiator 的 send = responder 的 recv，反之亦然
+</code></pre>
+<p>随后所有临时密钥（<code>e_i_priv</code>, <code>e_r_priv</code>, ck, h 中间态）<code>memzero_explicit</code> 清零；只有 send_key/recv_key 与 keypair metadata 存入 <code>peer-&gt;keypairs.current_keypair</code>。</p>
+<h3 id="c6-aead-nonce-与-counter">C.6 AEAD nonce 与 counter</h3>
+<ul>
+<li>Noise 中每条消息用 nonce=0（因为每次都换了一个新派生的 key），protocol 层"counter" 在 transport data 才启用。</li>
+<li>Transport data 的 64-bit counter 小端拼接成 12 字节 ChaCha20Poly1305 nonce：前 4 字节点零，后 8 字节填 counter。这也解释了为何 counter 至多 2^64-1 而 nonce 字段是 96 位。</li>
+<li><code>REJECT_AFTER_MESSAGES = U64_MAX - COUNTER_WINDOW_SIZE - 1</code>：留给滑动窗口余量，避免 counter 接近 2^64 时无法判定重放。</li>
+</ul>
+<hr>
+<h2 id="f-comparison-with-ipsec-openvpn与-ipsecopenvpn-对比">F. Comparison with IPsec / OpenVPN（与 IPsec/OpenVPN 对比）</h2>
+<p>本节把白皮书 §1、§7.4 中"为什么 WireGuard 简单、安全、快"的论证整理成答辩可直接引用的对照。来源：<a href="https://www.wireguard.com/papers/wireguard.pdf">白皮书 §1, §7.4</a>。</p>
+<h3 id="f1-ipsecikev2-esp对照">F.1 IPsec（IKEv2 + ESP）对照</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>IPsec (IKEv2 + ESP)</th>
+<th>WireGuard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>密码套件协商</td>
+<td>大量 Suite，加密算法、PRF、DH group 协商</td>
+<td>无协商，固定套件</td>
+</tr>
+<tr>
+<td>状态机</td>
+<td>IKE SA + Child SA 双层，多消息交换</td>
+<td>1-RTT 握手 + keypair 三元</td>
+</tr>
+<tr>
+<td>内核设施</td>
+<td><code>xfrm</code> 变换层、policy/SA 数据库、<code>ip xfrm</code> 工具</td>
+<td>单个 <code>wg0</code> 虚拟接口，应用层 Cryptokey Routing</td>
+</tr>
+<tr>
+<td>端口/协议</td>
+<td>IP proto 50 (ESP) + UDP 500 (IKE)，防火墙常被卡</td>
+<td>单个 UDP 端口</td>
+</tr>
+<tr>
+<td>NAT 穿越</td>
+<td>协商决定，UDP-encapsulate ESP</td>
+<td>内建 roam + endpoint 学习</td>
+</tr>
+<tr>
+<td>配置复杂度</td>
+<td>多参数（lifetime, PFS, mode, transform...）</td>
+<td>公钥 + AllowedIPs</td>
+</tr>
+<tr>
+<td>代码量</td>
+<td>数十万行（strongSwan 等）</td>
+<td>&lt; 4,000 行</td>
+</tr>
+<tr>
+<td>攻击面</td>
+<td>协商协议本身历史漏洞（CVE 数十）</td>
+<td>无协商协议</td>
+</tr>
+</tbody>
+</table>
+<p>白皮书关键论证：<strong>密码敏捷性是双刃剑</strong>——协商协议带来复杂性与降级攻击面；WG 通过固定套件 + 整体升级换取攻击面缩减。若某原语被破，所有端点统一升级即可；这与 IPsec 的"逐端点协商兼容"形成取舍。</p>
+<h3 id="f2-openvpn-对照">F.2 OpenVPN 对照</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>OpenVPN</th>
+<th>WireGuard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>协议</td>
+<td>TLS over TCP 或 UDP，自定义 SSL VPN</td>
+<td>UDP + Noise</td>
+</tr>
+<tr>
+<td>身份认证</td>
+<td>X.509 证书链 / 用户名密码 / 双因子</td>
+<td>32 字节公钥（类 SSH）</td>
+</tr>
+<tr>
+<td>实现层</td>
+<td>用户态 + tun/tap 设备</td>
+<td>内核态 native net_device</td>
+</tr>
+<tr>
+<td>TLS 开销</td>
+<td>完整 TLS handshake（重）</td>
+<td>1-RTT（轻）</td>
+</tr>
+<tr>
+<td>Agility</td>
+<td>完全敏捷（任选 cipher）</td>
+<td>完全不敏捷</td>
+</tr>
+<tr>
+<td>攻击面</td>
+<td>TLS 历史漏洞继承</td>
+<td>无 TLS 栈</td>
+</tr>
+<tr>
+<td>性能</td>
+<td>用户态 ↔ 内核拷贝开销，受限于 TLS</td>
+<td>内核零拷贝目标，&lt;4k 行</td>
+</tr>
+</tbody>
+</table>
+<p>白皮书 §1 强调：OpenVPN 因继承 TLS 而继承了 TLS 的全部 attack surface（Heartbleed、POODLE、降级套件等）。WireGuard 去掉协商，等于"把 TLS 攻击面整体砍掉"。</p>
+<h3 id="f3-接口与路由模型的简化">F.3 接口与路由模型的简化</h3>
+<ul>
+<li>IPsec：<code>xfrm</code> policy + SA + selector + template，需理解"phase 1 / phase 2"概念。</li>
+<li>OpenVPN：tun 设备 + 用户态路由 + TLS。</li>
+<li>WireGuard：仅一个虚拟 L3 接口 <code>wg0</code>，公钥 ↔ AllowedIPs 二元绑定，防火墙判据简化为"该接口/该 IP 是否可信"。</li>
+</ul>
+<p>白皮书 §7.4 同时给出实测：在 16 核机器上 WireGuard 单流 ~3 Gbps，多流线性扩展，比 IPsec (IKEv2 + ESP - AES-GCM) 高约 15%；比 OpenVPN（TLS + tun）高出数倍。</p>
+<h3 id="f4-答辩可用一句话总结">F.4 答辩可用一句话总结</h3>
+<blockquote>
+<p>WireGuard 把"密钥协商 + L3 加密"合并为单一机制，废弃了 IPsec 的 xfrm 分层与 OpenVPN 的 TLS 重栈，用"无敏捷性 + 内核态虚拟接口"换来可审计的 ~4 千行代码与更小的攻击面。</p>
+</blockquote>
+<hr>
+<h2 id="g-multi-platform-implementations多平台实现">G. Multi-platform Implementations（多平台实现）</h2>
+<p>来源：<a href="https://www.wireguard.com/quickstart/">Quick Start</a>；白皮书 §7.1。</p>
+<h3 id="g1-三类实现">G.1 三类实现</h3>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>形态</th>
+<th>适用平台</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>wireguard-linux</code></td>
+<td>Linux 内核模块（C，&lt;4k 行）</td>
+<td>Linux 主线（≥5.6）与 <code>wireguard-linux-compat</code> backport</td>
+</tr>
+<tr>
+<td><code>wireguard-go</code></td>
+<td>Go 用户态实现（封装相同协议）</td>
+<td>macOS, Windows（仅 fallback）, BSD, iOS, Android（非主选）</td>
+</tr>
+<tr>
+<td><code>wireguard-windows</code> / <code>wireguard-apple</code></td>
+<td>原生 C/Rust 用户态 + 平台 TUN 驱动</td>
+<td>Windows（<code>wintun</code>）、Apple（<code>utun</code>）</td>
+</tr>
+</tbody>
+</table>
+<p>注意：三大平台各自的"内核态"形态不同——Linux 有真内核模块；Windows 用 NDIS 上的 <code>wintun</code> 用户态驱动；macOS/iOS 用 <code>utun</code>（System Extension）。这三套实现<strong>协议完全相同</strong>，差异只在 TUN 设备与 socket API。</p>
+<h3 id="g2-共用的密码学后端">G.2 共用的密码学后端</h3>
+<ul>
+<li>Linux：内核 <code>crypto</code> 子系统（<code>chacha20poly1305</code>、<code>blake2s</code>、<code>curve25519</code>、<code>hkdf</code>）。</li>
+<li><code>wireguard-go</code>：Go crypto 标准库（<code>crypto/chacha20poly1305</code>、<code>golang.org/x/crypto/curve25519</code>）。</li>
+<li><code>wireguard-apple</code> / <code>wireguard-windows</code>：各自平台的 crypto 框架（CommonCrypto, Windows CNG）。</li>
+</ul>
+<p>协议规范不变，密码学调用接口由各平台按需适配。</p>
+<h3 id="g3-跨平台配置一致性">G.3 跨平台配置一致性</h3>
+<p>所有平台共用同一份 <code>wg(8)</code> / <code>wg-quick(8)</code> 配置文件格式（<code>[Interface]</code> + <code>[Peer]</code>）。这正是为什么 PQ-SecTunnel 可以直接重命名 <code>wg</code>/<code>wg-quick</code> 为 <code>pqst</code>/<code>pqst-quick</code> 而无需改用户语义（见 CLAUDE.md "Experiment directory structure"）。</p>
+<hr>
+<h2 id="h-uapi-protocol用户态-api-协议">H. UAPI Protocol（用户态 API 协议）</h2>
+<p><code>wg(8)</code> 工具与内核模块之间是用文本协议通信；理解 UAPI 有助于读懂 PQ-SecTunnel 中 <code>uapi/pqwireguard.h</code> 的属性前缀改写。来源：WireGuard UAPI 文档（README 中"Kernel Module API" 节）；仓库 <code>uapi/pqwireguard.h</code>、<code>netlink.c</code>。</p>
+<h3 id="h1-通信方式">H.1 通信方式</h3>
+<ul>
+<li>内核打开一个 <code>AF_LOCAL</code> socket（每个 netdev 一个），绑定在 <code>/var/run/wireguard/wg0.sock</code>。</li>
+<li>用户态经 <code>connect()</code> + <code>sendmsg()</code>/<code>recvmsg()</code> 与之交互，<strong>不是 Generic Netlink</strong>。</li>
+<li>消息以换行符结尾的字段流，键值对形式。</li>
+</ul>
+<h3 id="h2-一次-set-会话示例">H.2 一次 <code>set</code> 会话示例</h3>
+<pre><code>set=1
+private_key=&lt;base64 32 bytes&gt;
+listen_port=51820
+
+peer_public_key=&lt;base64 32 bytes&gt;
+endpoint=192.95.5.69:51820
+allowed_ip=10.192.122.3/32
+allowed_ip=10.192.124.1/24
+persistent_keepalive_interval=25
+
+replace_peers=true
+</code></pre>
+<p>每个字段的含义与对应内核字段：</p>
+<table>
+<thead>
+<tr>
+<th>UAPI 字段</th>
+<th>对应内核/<code>wg</code>配置</th>
+<th>类型</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>private_key</code></td>
+<td><code>[Interface] PrivateKey</code></td>
+<td>base64</td>
+</tr>
+<tr>
+<td><code>listen_port</code></td>
+<td><code>[Interface] ListenPort</code></td>
+<td>u16</td>
+</tr>
+<tr>
+<td><code>fwmark</code></td>
+<td><code>wg set ... fwmark</code></td>
+<td>u32</td>
+</tr>
+<tr>
+<td><code>peer_public_key</code></td>
+<td><code>[Peer] PublicKey</code>（用于索引）</td>
+<td>base64</td>
+</tr>
+<tr>
+<td><code>preshared_key</code></td>
+<td><code>[Peer] PresharedKey</code></td>
+<td>base64 32 字节</td>
+</tr>
+<tr>
+<td><code>endpoint</code></td>
+<td><code>[Peer] Endpoint</code></td>
+<td><code>IP:Port</code></td>
+</tr>
+<tr>
+<td><code>allowed_ip</code></td>
+<td><code>[Peer] AllowedIPs</code>（多条）</td>
+<td>CIDR</td>
+</tr>
+<tr>
+<td><code>persistent_keepalive_interval</code></td>
+<td><code>[Peer] PersistentKeepalive</code></td>
+<td>u16, 秒；0=关</td>
+</tr>
+<tr>
+<td><code>replace_peers</code></td>
+<td>是否清空现有 peer 列表</td>
+<td>bool</td>
+</tr>
+<tr>
+<td><code>remove_peer</code></td>
+<td>删除 peer</td>
+<td>bool</td>
+</tr>
+</tbody>
+</table>
+<h3 id="h3-一次-get-会话">H.3 一次 <code>get</code> 会话</h3>
+<pre><code>get=1
+
+# 内核回包：
+private_key=...
+listen_port=51820
+fwmark=0
+rx_bytes=...
+tx_bytes=...
+...
+peer_public_key=...
+endpoint=...
+allowed_ip=...
+last_handshake_time_sec=...
+last_handshake_time_nsec=...
+rx_bytes / tx_bytes / persistent_keepalive_interval
+</code></pre>
+<p><code>last_handshake_time_*</code> 来自 <code>peer-&gt;walltime_last_handshake</code>（<code>wg_timers_handshake_complete()</code> 写入）。</p>
+<h3 id="h4-与-pq-sectunnel-的对应">H.4 与 PQ-SecTunnel 的对应</h3>
+<p>PQ-SecTunnel 在 <code>uapi/pqwireguard.h</code> 中保留同一 UAPI 框架，只对外改前缀（例如 <code>PQSTPEER_A_PERSISTENT_KEEP_ALIVE_INTERVAL</code>、<code>PQST_A_*</code>）；UAPI 文本字段名（<code>persistent_keepalive_interval</code> 等）与原 WG 兼容，使 <code>wg-quick</code>（即 <code>pqst-quick</code>）无需修改解析逻辑。</p>
+<hr>
+<h2 id="i-key-derivation-details密钥派生细节">I. Key Derivation Details（密钥派生细节）</h2>
+<p>补充"密钥类型"节未展开的派生细节与边界。来源：<a href="https://www.wireguard.com/papers/wireguard.pdf">白皮书 §5.2, §5.4</a>；<a href="https://www.wireguard.com/protocol/">协议页面 — Data Keys Derivation</a>；仓库 <code>noise.c</code> <code>derive_keys</code> / <code>mix_psk</code> / <code>add_new_keypair</code>。</p>
+<h3 id="i1-双向密钥的镜像关系">I.1 双向密钥的镜像关系</h3>
+<p>握手末尾 Split 阶段：</p>
+<pre><code>(send, recv) = HKDF(ck_final, &quot;&quot;, 2)
+</code></pre>
+<ul>
+<li><strong>initiator 的 send = responder 的 recv</strong>（同一份 32 字节）。</li>
+<li>反之 initiator 的 recv = responder 的 send。</li>
+<li>每个方向独立 nonce / counter 空间，互不影响。</li>
+</ul>
+<p>这与 IPsec 的 inbound/outbound SA 概念等价：每个 keypair 同时充当"我的发送 SA"与"对方的接收 SA"。</p>
+<h3 id="i2-psk-全零的语义">I.2 PSK 全零的语义</h3>
+<p>未配置 PSK 时，<code>preshared_key</code> 取 32 字节全零，<strong>协议仍按 psk2 流程执行</strong> <code>MixKeyAndHash</code>：</p>
+<ul>
+<li>全零 PSK 不提供量子攻击保护，但仍使 <code>ck</code> 演化路径与有 PSK 时形式一致（避免两套代码路径）。</li>
+<li>安全属性降级为"纯 Curve25519 + AEAD"——这正是为何 WG 文档称"PSK 提供<strong>额外</strong>对称层，而非完整 PQC 替换"。</li>
+</ul>
+<h3 id="i3-psk-泄露-dh-被破的组合保护">I.3 PSK 泄露 / DH 被破的组合保护</h3>
+<p>白皮书 §5.2 给出"混合方案"论证：</p>
+<ul>
+<li>若 PSK 泄露，Curve25519 仍提供 PFS 保护历史流量。</li>
+<li>若 Curve25519 被量子破解，PSK（32 字节对称密钥）抵抗量子攻击，保护历史录音。</li>
+<li>二者<strong>任一</strong>安全 → 历史流量安全；二者<strong>同时</strong>被破才失守。</li>
+</ul>
+<p>这是 WireGuard 唯一与后量子相关的官方机制——也解释了 PQ-SecTunnel 为什么要"把 PSK 替换为正式 KEM"：把这种可选的混合保护提升为强制的 KEM 协商。</p>
+<h3 id="i4-接口私钥-vs-peer-公钥存放规则">I.4 接口私钥 vs peer 公钥存放规则</h3>
+<ul>
+<li>接口（<code>[Interface]</code>）只持有自己的 <code>static_private</code>（仅生成本机 Identity），不在 peer 上存私钥。</li>
+<li>peer（<code>[Peer]</code>）只持有对方 <code>PublicKey</code>、<code>Endpoint</code>、<code>AllowedIPs</code>、<code>PresharedKey</code>。</li>
+<li>这种非对称性阻止"私钥随 peer 配置分发"——是 WG 的一个隐式安全惯例。</li>
+</ul>
+<h3 id="i5-curve25519-私钥的-clamp-与公钥校验">I.5 Curve25519 私钥的 clamp 与公钥校验</h3>
+<p>原 WireGuard 用 <code>curve25519_clamp_secret()</code> 对私钥做"clamping"（清最低 3 位、设最高位为 0、次高为 1，使其成定长 group element），再 <code>curve25519_generate_public()</code> 导出公钥。若用户传入非法私钥（如全零），<code>has_identity</code> 标为 false，接口拒发握手——这是 WG 默默的输入校验，常常被忽略。</p>
+<h3 id="i6-keypair-生命周期与-rcu-销毁">I.6 keypair 生命周期与 RCU 销毁</h3>
+<p>每个 <code>noise_keypair</code> 用 <code>kref</code> 引用计数 + <code>call_rcu</code> 延迟释放：</p>
+<ul>
+<li><code>wg_noise_keypair_get()</code> 必须在 <code>rcu_read_lock_bh()</code> 下取引用。</li>
+<li><code>wg_noise_keypair_put(old, true)</code> 同时移出索引哈希表并降 refcount → 0 时 RCU 延迟 <code>kfree_sensitive</code>。</li>
+<li>这种设计保证收包路径在 RCU 读侧拿到 keypair 时不会被并发释放。</li>
+</ul>
+<hr>
+<h2 id="j-other-whitepaper-notes-corrections白皮书其余要点与一处修正">J. Other Whitepaper Notes &amp; Corrections（白皮书其余要点与一处修正）</h2>
+<h3 id="j1-21-roaming-的密码学边界">J.1 §2.1 Roaming 的密码学边界</h3>
+<p>白皮书 §2.1 明确："外层 <code>(IP, Port)</code> 与加密载荷<strong>无密码绑定</strong>"——源地址可被中间人改写，但只能造成 DoS/断连，<strong>不能解密或注入</strong>。这意味着 WG 的 Roaming <strong>不</strong>提供 anti-MITM，仅靠身份公钥认证抵抗 MITM 内容伪造。</p>
+<h3 id="j2-51-首包认证的代价">J.2 §5.1 首包认证的代价</h3>
+<p>"首包即认证 initiator"带来两个代价：</p>
+<ul>
+<li>重放风险 → TAI64N 时间戳缓解。</li>
+<li>服务器必须在知道哪个 peer 之前做 <code>DH(es)</code> 解密静态公钥——这导致服务器在无法识别 peer 时也付出一次 Curve25519 点乘。WG 用 MAC1（要求知道服务器公钥才计算）作为前置过滤，避免无脑 DH。</li>
+</ul>
+<h3 id="j3-66-cookie-reply-后不立即重发">J.3 §6.6 Cookie Reply 后不立即重发</h3>
+<p>收到 Cookie Reply 后，客户端<strong>不立即重发</strong> initiation，而要等 <code>REKEY_TIMEOUT</code> 定时器到期——这是 WG 防止"cookie reply 反射放大攻击"的细节：恶意 cookie 无法强迫客户端实时回应数据。</p>
+<h3 id="j4-4-可选-endpoint-与-dns-解析">J.4 §4 可选 Endpoint 与 DNS 解析</h3>
+<p>原 WG 内核<strong>不做 DNS 解析</strong>——<code>Endpoint</code> 必须是 IP:Port 形式；DNS 名解析由 <code>wg-quick</code> 在用户态一次性 <code>getent</code> 后下发。这是为什么 <code>wg setconf</code> 直接读 DNS 名会失败，而 <code>wg-quick</code> 能用域名。PQ-SecTunnel 继承同一行为。</p>
+<h3 id="j5-重放滑动窗口的精确大小修正现有文档">J.5 ⚠️ 重放滑动窗口的精确大小（修正现有文档）</h3>
+<p>本文档前文 "Data Plane — 重放防护" 一节称"约 2000 个 prior counter 值"，<strong>该数值不准确</strong>。仓库 <code>messages.h</code> <code>enum counter_values</code> 给出真实实现值：</p>
+<pre><code class="language-c">COUNTER_BITS_TOTAL      = 8192        // 位图总位数
+COUNTER_REDUNDANT_BITS  = BITS_PER_LONG  // 64-bit 平台为 64，32-bit 平台为 32
+COUNTER_WINDOW_SIZE     = COUNTER_BITS_TOTAL - COUNTER_REDUNDANT_BITS
+                          // 64-bit 平台 = 8128
+</code></pre>
+<p>即滑动窗口<strong>覆盖最近 8192 个 counter</strong>，其中有效"历史可接收"窗口至少为 <code>COUNTER_WINDOW_SIZE</code>（64-bit 平台 8128）。原白皮书 §5.4.6 提到 RFC 6479 滑动窗口，但实际位图大小是 8192 位，并非 2000 余。</p>
+<h3 id="j6-74-性能数据">J.6 §7.4 性能数据</h3>
+<p>白皮书 §7.4 提供：在 Intel i7-8650U（4 核 8 线程）+ 10 Gb 链路上，单流 ~~3 Gbps、4 流 ~6.5 Gbps、16 流 ~9.3 Gbps；与 IPsec (AES-NI + AES-GCM) 同档，比 OpenVPN（TLS + tun）约高 3~~5 倍。报告关键瓶颈：UDP 软中断开销与 <code>skb</code> 拷贝，而非密码学。</p>
+<h3 id="j7-1-menos-es-más-设计哲学">J.7 §1 " menos es más " 设计哲学</h3>
+<p>白皮书 §1 的核心主张：<strong>"协议复杂度是安全性的敌人"</strong>——所有 cortex 都建立在固定套件 + 短代码 + 无协商之上。理解这一点对答辩阐述 PQ-SecTunnel 立场至关重要：PQ 改造<strong>坚持了 WG 哲学</strong>（仍无 cipher agility，仍单套件，仍 &lt; 5k 行），只把 IKpsk2 → IKpsk1kem，把 PSK → KEM。</p>
+<hr>
+<h2 id="pq-sectunnel-改造4-次-ecdh-3-次-kem-psk-顶替">PQ-SecTunnel 改造：4 次 ECDH → 3 次 KEM + PSK 顶替</h2>
+<p>承接前文 §"4 次 ECDH 各自绑什么"。PQ-SecTunnel 把原版 WG 的 IKpsk2 改造为 IKpsk1kem，关键决策就发生在"ss 怎么办"这一步。</p>
+<h3 id="原版-wg-4-次-vs-pq-sectunnel-3-次-kem-总对照">原版 WG 4 次 vs PQ-SecTunnel 3 次 KEM 总对照</h3>
+<table>
+<thead>
+<tr>
+<th>顺序</th>
+<th>原版 WG IKpsk2</th>
+<th>PQ-SecTunnel IKpsk1kem</th>
+<th>绑定类型</th>
+<th>谁做</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>① es（消息 1）</td>
+<td><code>DH(e_i^priv, S_r^pub)</code></td>
+<td><code>ct_1 = KEM.Enc(S_r^pub)</code></td>
+<td>A 单向绑 responder 静态</td>
+<td>initiator 主动</td>
+</tr>
+<tr>
+<td>② ss（消息 1）</td>
+<td><code>DH(S_i^priv, S_r^pub)</code></td>
+<td><strong>❌ 删除</strong></td>
+<td><strong>B 双方静态互锁</strong></td>
+<td>initiator（ECDH）</td>
+</tr>
+<tr>
+<td>③ ee（消息 2）</td>
+<td><code>DH(e_r^priv, e_i^pub)</code></td>
+<td><code>ct_2 = KEM.Enc(E_i^pub)</code></td>
+<td>A 单向绑 initiator 临时→本次会话</td>
+<td>responder（KEM）</td>
+</tr>
+<tr>
+<td>④ se（消息 2）</td>
+<td><code>DH(e_r^priv, S_i^pub)</code></td>
+<td><code>ct_3 = KEM.Enc(S_i^pub)</code></td>
+<td>A 单向绑 initiator 静态</td>
+<td>responder（KEM）</td>
+</tr>
+<tr>
+<td>额外补偿</td>
+<td><code>psk2</code> 末尾混 PSK（optional）</td>
+<td><code>psk1</code> 前移混 PSK（顶替 ss 的 B 类作用）</td>
+<td><strong>B</strong> 双方互锁</td>
+<td>双方事先共享</td>
+</tr>
+</tbody>
+</table>
+<p>PQST 数字：<strong>3 次 KEM + 1 次 PSK 混入</strong>，与原版 <strong>4 次 ECDH</strong> 密码学上不等价。</p>
+<h3 id="为什么-kem-不能一对一替换-ss单向-vs-对称">为什么 KEM 不能"一对一替换 ss"——单向 vs 对称</h3>
+<p>KEM 与 ECDH 的代数结构差异决定了改造方式：</p>
+<table>
+<thead>
+<tr>
+<th>操作</th>
+<th>ECDH (Curve25519)</th>
+<th>KEM (ML-KEM, McEliece)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>谁能用对方公钥算 shared_secret</td>
+<td><strong>双方都能</strong>：<code>A私×B公 = B私×A公</code>（对称）</td>
+<td>encap 一方需对方公钥，decap 一方需自己的私钥（单向）</td>
+</tr>
+<tr>
+<td>一次操作得几份共享秘密</td>
+<td>1 份，双方等价</td>
+<td>1 份，单向（encap 侧主动）</td>
+</tr>
+<tr>
+<td>"双方静态互绑"做几次</td>
+<td><strong>1 次 DH 运算 + 0 字节握手载荷</strong></td>
+<td><strong>2 次 KEM</strong>（每个方向各一次，各发一份 ct）</td>
+</tr>
+</tbody>
+</table>
+<p><code>ss</code> 在 ECDH 中是"免费"绑一次双方静态互锁——运算在本地做，shared_secret 直接灌进 ck，握手包里<strong>不传任何额外字节</strong>。换成 KEM 要达到同样的 B 类互锁，需要双方各 encap 一次、各发一份 ct，握手包就得多 768~6200 字节（McEliece 更甚）。</p>
+<p>PQST 主套件现状（来自 KE.md + dmesg 实证）已逼近报文上限：</p>
+<ul>
+<li>消息 1 initiation = 2068 字节（含 ct_1 ≈ 768 字节）→ 已超 MTU，必须应用层分片为 2 片</li>
+<li>消息 2 response = 1916 字节（含 ct_2 + ct_3 共 ~1536 字节）→ 已超 MTU，必须应用层分片为 2 片</li>
+</ul>
+<p>若再加 ct_4（responder 用 initiator static 再做一次 encap 重复绑定），response 就要超过 3000 字节；如果再 append ct_5（initiator 端再回一个 encap），initiation 超 4000 字节。<strong>分片负担和可靠性就崩了</strong>，这是非常工程化的取舍。</p>
+<h3 id="pqst-三个-kem-各自只能做-a-类做不了-b-类">PQST 三个 KEM 各自只能做 A 类，做不了 B 类</h3>
+<p>关键事实：<strong>KEM 是单向非对称的</strong>——<code>KEM.Enc(pk)</code> 任何人都能做（pk 是公开的），只有 <code>KEM.Dec(sk, ct)</code> 需要私钥。</p>
+<table>
+<thead>
+<tr>
+<th>KEM</th>
+<th>谁能产生 shk</th>
+<th>谁能验证 shk</th>
+<th>绑定类型</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ct_1 = KEM.Enc(S_r^pub)</code></td>
+<td>任何人（S_r^pub 公开）</td>
+<td>只有 responder（用 S_r^priv）</td>
+<td><strong>A 单向绑 responder 静态</strong></td>
+</tr>
+<tr>
+<td><code>ct_2 = KEM.Enc(E_i^pub)</code></td>
+<td>任何人（E_i^pub 握手包里明文）</td>
+<td>只有 initiator（用 E_i^priv）</td>
+<td>A 单向绑 initiator 临时</td>
+</tr>
+<tr>
+<td><code>ct_3 = KEM.Enc(S_i^pub)</code></td>
+<td>任何人（S_i^pub 公开）</td>
+<td>只有 initiator（用 S_i^priv）</td>
+<td><strong>A 单向绑 initiator 静态</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>没有一个 KEM 操作是"同时依赖双方私钥才能产生"的</strong>——攻击者能伪造合法 ct_1/ct_2/ct_3，因为他用公开公钥就能 encap 出来，只是解不开而已。所以 ct_1+ct_3 能完成 A 类全覆盖（双方静态各自被单向绑进 ck），但<strong>不能阻止伪造投递</strong>。</p>
+<p>ECDH 的 <code>ss</code> 不同：攻击者<strong>连投递都做不出合法的 ss shared_secret</strong>——ss 依赖双方私钥，他两边都没有。这就是 B 类互锁的实质保护。</p>
+<h3 id="psk-顶替的就是-ss-的-b-类作用">PSK 顶替的就是 ss 的 B 类作用</h3>
+<p>PSK 是对称密钥，双方事先带外共享，只有真双方知道。KE.md 消息 1 第 12 步：</p>
+<pre><code>C_4 = KDF(C_3, S_i^pub)
+(C_5, K_2) = KDF(C_4, H_4 ‖ psk)   # mix_psk
+</code></pre>
+<p>把 PSK 经 <code>MixKeyAndHash</code> 混入 ck——攻击者若不知 PSK，他在这一步派生出的 <code>C_5</code> 就与真双方不同，后续 K_2 不同，timestamp AEAD 解密失败 → 握手立刻失败。</p>
+<table>
+<thead>
+<tr>
+<th>共享秘密</th>
+<th>产生需要什么</th>
+<th>验证需要什么</th>
+<th>绑定类型</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PSK</td>
+<td>双方事先带外共享</td>
+<td><strong>双方都持有同一份对称密钥</strong></td>
+<td><strong>B 双方互锁</strong></td>
+</tr>
+</tbody>
+</table>
+<p>PSK 提供的属性恰好就是 ECDH <code>ss</code> 提供的 B 类互锁：要算出（或验证）这份进 ck 的秘密，<strong>必须真双方配合</strong>。这是 PSK 在 PQST 中承担的"补偿被砍掉的 ss"的密码学角色。</p>
+<h3 id="整理成总表">整理成总表</h3>
+<table>
+<thead>
+<tr>
+<th>绑定对象</th>
+<th>原版 WG 怎么做</th>
+<th>PQST 怎么做</th>
+<th>强度等价</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>单向绑 responder 静态</td>
+<td>es（DH）</td>
+<td>ct_1（KEM）</td>
+<td>✓ 等价（A 类）</td>
+</tr>
+<tr>
+<td>单向绑 initiator 静态</td>
+<td>se（DH）</td>
+<td>ct_3（KEM）</td>
+<td>✓ 等价（A 类）</td>
+</tr>
+<tr>
+<td>绑本次会话（临时互）</td>
+<td>ee（DH）</td>
+<td>ct_2（KEM）</td>
+<td>✓ 等价（形式不同，语义对）</td>
+</tr>
+<tr>
+<td><strong>双方静态互锁（B 类）</strong></td>
+<td><strong>ss（ECDH）</strong></td>
+<td><strong>PSK（对称密钥）</strong></td>
+<td>✓ 等价（前提：PSK 真实存在）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="psk1-vs-psk2-位置的差异为什么-psk-前移">psk1 vs psk2 位置的差异（为什么 PSK 前移）</h3>
+<p>原版 WG 的 <code>psk2</code> 把 PSK 放在消息 2 末尾混入——PSK 在原 WG 是 optional 的"额外对称密钥层"，混在末尾即可。PQST 改成 <code>psk1</code>，PSK 提前到消息 1 末尾混入（紧跟 <code>C_4 = KDF(C_3, S_i^pub)</code> 之后），目的是让 PSK <strong>尽早</strong>发挥作用——它在 PQST 中<strong>新增承担</strong>了"补偿被砍掉的 ss"的职责，而 <code>ss</code> 在原版 WG 出现在消息 1 内部，所以 PSK 必须紧跟其后才能"占位相同位置"。</p>
+<p>这也是为什么协议标识符从 <code>IKpsk2</code> 改成 <code>IKpsk1kem</code>——位置变了，作用也变了。</p>
+<h3 id="默认-psk-的降级与-pki-工程动机">默认 PSK 的降级与 PKI 工程动机</h3>
+<p>PSK 顶替 ss 的前提是"PSK 真实存在并正确分发"。若用户不配置 PSK，KE.md 第 2 行给出的默认值是：</p>
+<pre><code>default_psk = Hash(local_responder_static_pub XOR remote_responder_static_pub)
+</code></pre>
+<p>这个默认 PSK <strong>只用公开的静态公钥</strong>就能算出，因此只能解决"协议层占位"问题，<strong>不提供真正的 B 类互锁保护</strong>——它纯靠双方静态公钥的单向绑定，相当于 A 类绑定的弱重复。</p>
+<p>这是 PQST 当前协议的<strong>已知弱化点</strong>，也是项目引入 PKI / 证书管理（<code>certificate-management/</code> 目录）的工程动机之一：用 PKI 把 PSK 真实分发出去，避免依赖默认 PSK 这种"形式上满足、实质上降级"的妥协方案。</p>
+<h3 id="答辩话术">答辩话术</h3>
+<p>被追问"为什么不是简单逐行把 DH 换成 KEM"时：</p>
+<blockquote>
+<p>原版 WG 用 4 次 ECDH，其中 <code>ss</code> 是"双方静态私钥互锁"——ECDH 的对称性让 1 次运算、0 字节载荷就能完成。KEM 是单向的，做不到这种对称互锁，要等价实现需要双方各做一次 KEM encap 各发一份 ct，握手包会超 3000~4000 字节，已分片负担之外再加倍。所以 PQST 砍掉 ss 的 KEM 化，只保留 es、ee、se 三个 KEM，并<strong>把 PSK 从消息 2 末尾前移到消息 1 末尾</strong>（psk2 → psk1）顶替 ss 的 B 类互锁作用——PSK 是事先共享的对称密钥，能提供与 ss 等价的"双方必须配合"强度。</p>
+<p>代价是 PSK 必须真实存在；若用默认 PSK（双方静态公钥异或哈希），互锁保护降级为"形式满足、实质减弱"——这是当前协议的已知弱化点，也是我们引入 PKI 证书管理的工程动机之一，目的是把真实 PSK 通过带外渠道分发出去，恢复完整的 B 类互锁保护。</p>
+</blockquote>
+<hr>
+<h2 id="与-pq-sectunnel-的对照提示">与 PQ-SecTunnel 的对照提示</h2>
+<p>本调研仅记录 WireGuard 原始设计。PQ-SecTunnel 在 WireGuard 架构上替换 Noise 握手为 <strong>Noise_IKpsk1kem</strong>（双 KEM 封装），保留 Cryptokey Routing、定时器状态机、Cookie 机制等整体结构。理解 WireGuard 的 IKpsk2 握手、三类密钥分工与 MAC1/MAC2 DoS 模型，是阐述 PQ-SecTunnel 改造动机的基础。</p>
+<p><strong>逐项对比（答辩主文）</strong> → <code>[doc/defense/00a-WireGuard背景与对比.md](../defense/00a-WireGuard背景与对比.md)</code></p>
+<hr>
+<p><em>文档生成日期：2026-07-11</em></p>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">项目笔记</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/doc-pqsectunnel/research/wireguard-background.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../../notes/projects/doc-pqsectunnel/defense/diagrams/diagrams.html"><span class="dir">← 上一篇</span><span class="t">diagrams/</span></a><a class="next" href="../../../../notes/projects/doc-pqsectunnel/research/wireguard-hands-on-practice.html"><span class="dir">下一篇 →</span><span class="t">WireGuard 动手实践笔记</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../../index.html">首页</a>
+      <a href="../../../../learn.html">课件</a>
+      <a href="../../../../notes/index.html">笔记库</a>
+      <a href="../../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../../about.html">关于</a>
+      <a href="../../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../../js/main.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,1796 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent 上下文压缩机制：六类核心机制与主流 Agent 实现 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="Agent 的上下文压缩（Context Compression / Context Compaction）不是单一算法，而是一套由 Runtime、LLM、Provider 和 External Memory 共同参与的 Context …">
+<link rel="canonical" href="https://northadb.github.io/notes/domains/agent/agentagent.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Agent 上下文压缩机制：六类核心机制与主流 Agent 实现 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="Agent 的上下文压缩（Context Compression / Context Compaction）不是单一算法，而是一套由 Runtime、LLM、Provider 和 External Memory 共同参与的 Context …">
+<meta property="og:url" content="https://northadb.github.io/notes/domains/agent/agentagent.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Agent 上下文压缩机制：六类核心机制与主流 Agent 实现 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="Agent 的上下文压缩（Context Compression / Context Compaction）不是单一算法，而是一套由 Runtime、LLM、Provider 和 External Memory 共同参与的 Context …">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../feed.xml">
+<link rel="stylesheet" href="../../../css/style.css">
+<link rel="stylesheet" href="../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Agent 上下文压缩机制：六类核心机制与主流 Agent 实现", "description": "Agent 的上下文压缩（Context Compression / Context Compaction）不是单一算法，而是一套由 Runtime、LLM、Provider 和 External Memory 共同参与的 Context …", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/domains/agent/agentagent.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../web-foundation/index.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../notes/index.html">笔记库</a></li><li><a href="../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../index.html">首页</a><span>/</span><a href="../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../notes/domains/index.html">知识领域</a></div>
+          <h1>Agent 上下文压缩机制：六类核心机制与主流 Agent 实现</h1>
+          <p class="post-sub">Agent 的上下文压缩（Context Compression / Context Compaction）不是单一算法，而是一套由 Runtime、LLM、Provider 和 External Memory 共同参与的 Context …</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../notes/domains/index.html">知识领域</a></span><span class="sep"></span>
+            <span>阅读约 15 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+
+<div class="callout" data-callout="abstract"><p class="callout-title">核心结论</p>
+<p>Agent 的上下文压缩（Context Compression / Context Compaction）不是单一算法，而是一套由 Runtime、LLM、Provider 和 External Memory 共同参与的 Context Management 体系。</p>
+<p>为避免概念混乱，本文将其统一归纳为 <strong>6 类核心机制</strong>：</p>
+<ol>
+<li><strong>Truncation</strong>：截断过大的单条内容</li>
+<li><strong>Pruning</strong>：删除已经没有价值的历史内容</li>
+<li><strong>Boundary Selection</strong>：决定从哪里开始压缩</li>
+<li><strong>Compaction / Summarization</strong>：使用 LLM 将旧历史压缩成可继续执行的状态</li>
+<li><strong>Externalization</strong>：把完整历史移出 Active Context</li>
+<li><strong>Retrieval</strong>：在需要时重新取回外部历史</li>
+</ol>
+<p>此外还有一个重要的<strong>实现层级变化</strong>：</p>
+<p><strong>Native Compaction</strong> 并不是第 7 种独立算法，而是 Compaction 的一种 Provider / Model-side 实现形式。</p>
+<p>因此，现代 Agent 的完整上下文管理可以抽象为：</p>
+<p><code>text
+Agent Trajectory
+       │
+       ├── Truncation
+       ├── Pruning
+       │
+       ↓
+  Boundary Selection
+       │
+       ↓
+  Compaction / Summarization
+       │
+       ↓
+  Head + Summary + Tail
+       │
+       ↓
+  Active Context
+       │
+       ├──────────────→ Retrieval
+       │                    ↑
+       ↓                    │
+  Agent Continues      External History</code></p>
+<p>最重要的认识是：</p>
+<blockquote>
+<p><strong>Context Window 不等于 Agent Memory。</strong></p>
+</div>
+<p>Context 是 Agent 当前的工作内存；完整历史可以存在 Context 外部，并通过 Retrieval 按需恢复。</p>
+</blockquote>
+<hr>
+<h1 id="1-为什么-agent-需要上下文压缩">1. 为什么 Agent 需要上下文压缩</h1>
+<p>Agent 和普通 Chat 的上下文增长方式不同。</p>
+<p>普通 Chat：</p>
+<pre><code class="language-text">User
+ ↓
+Assistant
+ ↓
+User
+ ↓
+Assistant
+</code></pre>
+<p>而 Coding Agent 往往是：</p>
+<pre><code class="language-text">User
+ ↓
+LLM
+ ↓
+Tool Call
+ ↓
+Tool Result
+ ↓
+LLM
+ ↓
+Tool Call
+ ↓
+Tool Result
+ ↓
+...
+</code></pre>
+<p>例如一次代码修复任务：</p>
+<pre><code class="language-text">用户：
+修复登录问题
+
+LLM：
+读取 auth.ts
+
+Tool：
+返回代码
+
+LLM：
+读取配置
+
+Tool：
+返回配置
+
+LLM：
+运行测试
+
+Tool：
+返回 3000 行日志
+
+LLM：
+修改代码
+
+Tool：
+返回 diff
+
+LLM：
+重新测试
+
+Tool：
+返回新的错误日志
+
+...
+</code></pre>
+<p>随着 Agent 持续运行：</p>
+<pre><code class="language-text">Context Tokens
+    ↑
+    │
+    │             /
+    │           /
+    │         /
+    │       /
+    │     /
+    │___/________________
+          Time
+</code></pre>
+<p>最终会遇到：</p>
+<pre><code class="language-text">Context Window 接近上限
+</code></pre>
+<p>这时 Runtime 必须决定：</p>
+<pre><code class="language-text">哪些内容可以删？
+哪些内容必须保留？
+哪里开始压缩？
+如何保留语义？
+详细历史放在哪里？
+之后如何恢复？
+</code></pre>
+<p>这就是 Context Management。</p>
+<hr>
+<h1 id="2-先统一概念agent-context-到底是什么">2. 先统一概念：Agent Context 到底是什么</h1>
+<p>Agent Context 并不只是“聊天记录”。</p>
+<p>更完整地看，它可能包含：</p>
+<pre><code class="language-text">Context
+├── System Instructions
+├── Developer Instructions
+├── Tool Definitions
+├── Skills / Rules
+├── User Request
+├── Conversation History
+├── Tool Calls
+├── Tool Results
+├── Previous Compaction Summary
+└── Recent Trajectory
+</code></pre>
+<p>因此：</p>
+<blockquote>
+<p><strong>Context Management 的目标不是简单地缩短聊天记录，而是维护一个能够继续驱动 Agent 执行任务的有效工作状态。</strong></p>
+</blockquote>
+<hr>
+<h1 id="3-六类核心上下文压缩机制">3. 六类核心上下文压缩机制</h1>
+<p>这是本文统一采用的分类。</p>
+<table>
+<thead>
+<tr>
+<th>中文说法</th>
+<th>英文</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>截断</td>
+<td><strong>Truncation</strong></td>
+<td>一条内容太长，直接截短</td>
+</tr>
+<tr>
+<td>剪枝</td>
+<td><strong>Pruning</strong></td>
+<td>把已经没必要继续放在 Context 里的历史删掉</td>
+</tr>
+<tr>
+<td>边界选择</td>
+<td><strong>Boundary Selection</strong></td>
+<td>决定从哪里开始进入压缩区</td>
+</tr>
+<tr>
+<td>压缩/总结</td>
+<td><strong>Compaction / Summarization</strong></td>
+<td>用 LLM 把旧历史变成更短的语义状态</td>
+</tr>
+<tr>
+<td>外置</td>
+<td><strong>Externalization</strong></td>
+<td>把完整历史移到 Context 外</td>
+</tr>
+<tr>
+<td>检索</td>
+<td><strong>Retrieval</strong></td>
+<td>需要时再把外部历史取回来</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>机制</th>
+<th>核心问题</th>
+<th>主要执行者</th>
+<th>是否需要 LLM</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Truncation</td>
+<td>一条结果太大怎么办</td>
+<td>Runtime</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Pruning</td>
+<td>哪些历史可以删除</td>
+<td>Runtime</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Boundary Selection</td>
+<td>从哪里开始压缩</td>
+<td>Runtime</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Compaction / Summarization</td>
+<td>怎样保留旧历史的语义</td>
+<td>LLM + Runtime</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Externalization</td>
+<td>完整历史放到哪里</td>
+<td>Runtime / Storage</td>
+<td>❌/✅</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Retrieval</td>
+<td>需要旧信息时如何找回来</td>
+<td>Runtime / Search / LLM</td>
+<td>❌/✅</td>
+</tr>
+</tbody>
+</table>
+
+<div class="callout" data-callout="important"><p class="callout-title">Important</p>
+<p><strong>Reconstruction 不是第 7 类机制。</strong></p>
+<p><code>Head + Summary + Tail</code> 属于 Compaction 完成后的 <strong>Context Reconstruction / Assembly</strong>。</p>
+<p>同样，<strong>Native Compaction 也不作为第 7 类核心机制</strong>；它描述的是 Compaction 发生在哪一层。</p>
+</div>
+<hr>
+<h1 id="4-机制一truncation">4. 机制一：Truncation</h1>
+<h2 id="41-定义">4.1 定义</h2>
+<p>Truncation 是最简单的长度控制：</p>
+<blockquote>
+<p><strong>单条 Tool Output 或其他内容过大时，直接截断。</strong></p>
+</blockquote>
+<p>例如：</p>
+<pre><code class="language-text">read_file()
+</code></pre>
+<p>返回 10000 行代码。</p>
+<p>Runtime 可以变成：</p>
+<pre><code class="language-text">前 500 行
+...
+后 200 行
+[content truncated]
+</code></pre>
+<hr>
+<h2 id="42-它解决的是什么问题">4.2 它解决的是什么问题</h2>
+<p>Truncation 解决的是：</p>
+<pre><code class="language-text">单条内容太大
+</code></pre>
+<p>而不是：</p>
+<pre><code class="language-text">整个历史太大
+</code></pre>
+<p>因此：</p>
+<pre><code class="language-text">Truncation
+=
+Local Size Control
+</code></pre>
+<hr>
+<h2 id="43-truncation-的特点">4.3 Truncation 的特点</h2>
+<p>优点：</p>
+<ul>
+<li>简单</li>
+<li>确定性强</li>
+<li>不消耗 LLM</li>
+<li>可以在 Tool Result 进入 Context 前执行</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>不理解语义</li>
+<li>可能截掉真正重要的信息</li>
+<li>不能代替真正的 Context Compaction</li>
+</ul>
+<hr>
+<h1 id="5-机制二pruning">5. 机制二：Pruning</h1>
+<h2 id="51-定义">5.1 定义</h2>
+<p>Pruning 是：</p>
+<blockquote>
+<p><strong>将已经完成使命、价值较低、但占据大量 Token 的历史内容从 Active Context 中删除。</strong></p>
+</blockquote>
+<p>例如：</p>
+<pre><code class="language-text">npm install
+→ 返回 3000 行日志
+</code></pre>
+<p>安装已经完成后，3000 行日志通常没有必要一直留在 Context。</p>
+<p>Runtime 可以将其裁掉。</p>
+<hr>
+<h2 id="52-truncation-与-pruning-的区别">5.2 Truncation 与 Pruning 的区别</h2>
+<h3 id="truncation">Truncation</h3>
+<pre><code class="language-text">一条结果太大
+↓
+把这一条截短
+</code></pre>
+<h3 id="pruning">Pruning</h3>
+<pre><code class="language-text">整个历史里这个结果已经没有价值
+↓
+把这个历史项移除
+</code></pre>
+<p>因此：</p>
+<pre><code class="language-text">Truncation = 控制单条内容大小
+
+Pruning = 删除历史内容
+</code></pre>
+<hr>
+<h2 id="53-pruning-的重要意义">5.3 Pruning 的重要意义</h2>
+<p>Pruning 往往是：</p>
+<blockquote>
+<p><strong>比 LLM Summary 更便宜的一层压缩。</strong></p>
+</blockquote>
+<p>因为有很多 Tool Result 根本不值得被总结。</p>
+<p>例如：</p>
+<pre><code class="language-text">旧 npm install 日志
+旧 grep 输出
+旧目录列表
+旧测试成功日志
+旧重复文件内容
+</code></pre>
+<p>这些内容可能直接删掉。</p>
+<p>所以一个成熟的 Agent 不应该：</p>
+<pre><code class="language-text">所有历史
+ ↓
+LLM 总结
+</code></pre>
+<p>而是通常先：</p>
+<pre><code class="language-text">Pruning
+ ↓
+减少无价值内容
+ ↓
+再做 Compaction
+</code></pre>
+<hr>
+<h1 id="6-机制三boundary-selection">6. 机制三：Boundary Selection</h1>
+<p>这是最容易和“总结”混淆的一个概念。</p>
+<h2 id="61-定义">6.1 定义</h2>
+<p>Boundary Selection 是：</p>
+<blockquote>
+<p><strong>确定 Context 中“哪一段历史需要进入 Compaction”。</strong></p>
+</blockquote>
+<p>可以表示为：</p>
+<pre><code class="language-text">HEAD | COMPRESS REGION | TAIL
+</code></pre>
+<p>例如：</p>
+<pre><code class="language-text">A
+B
+C
+D
+E
+F
+G
+H
+I
+J
+</code></pre>
+<p>Runtime 决定：</p>
+<pre><code class="language-text">A B C | D E F G | H I J
+      ↑         ↑
+      压缩区域   最近历史
+</code></pre>
+<p>于是：</p>
+<ul>
+<li><code>A B C</code>：HEAD</li>
+<li><code>D E F G</code>：COMPRESS REGION</li>
+<li><code>H I J</code>：TAIL</li>
+</ul>
+<hr>
+<h2 id="62-boundary-selection-不负责理解内容">6.2 Boundary Selection 不负责“理解内容”</h2>
+<p>它主要负责回答：</p>
+<blockquote>
+<p><strong>“从哪里开始压缩？”</strong></p>
+</blockquote>
+<p>而不是：</p>
+<blockquote>
+<p>“这里面哪一句最重要？”</p>
+</blockquote>
+<p>后者是 LLM Semantic Summarization 的工作。</p>
+<p>因此：</p>
+<pre><code class="language-text">Boundary Selection
+=
+位置与结构问题
+</code></pre>
+<p>而：</p>
+<pre><code class="language-text">Summarization
+=
+语义问题
+</code></pre>
+<hr>
+<h2 id="63-boundary-selection-通常考虑什么">6.3 Boundary Selection 通常考虑什么</h2>
+<p>Runtime 通常会考虑：</p>
+<pre><code class="language-text">Context Window
+Token Budget
+Recent Tail Budget
+Message Boundary
+Tool Call / Tool Result Pair
+System / Developer Context
+Previous Summary
+</code></pre>
+<p>特别重要的是：</p>
+<pre><code class="language-text">assistant → tool_call
+tool → tool_result
+</code></pre>
+<p>不能随便从中间切断。</p>
+<p>否则可能出现：</p>
+<pre><code class="language-text">tool_result
+</code></pre>
+<p>存在，但对应的：</p>
+<pre><code class="language-text">tool_call
+</code></pre>
+<p>已经被压掉。</p>
+<p>因此：</p>
+<blockquote>
+<p><strong>Boundary Selection 本质上是一个 Context Slicing Algorithm。</strong></p>
+</blockquote>
+<hr>
+<h1 id="7-机制四compaction-summarization">7. 机制四：Compaction / Summarization</h1>
+<p>这是通常意义上真正的“语义压缩”。</p>
+<h2 id="71-基本流程">7.1 基本流程</h2>
+<pre><code class="language-text">Old Agent Trajectory
+        ↓
+Compaction Prompt
+        ↓
+LLM
+        ↓
+Structured Summary
+</code></pre>
+<p>例如原始轨迹：</p>
+<pre><code class="language-text">读取 auth.ts
+发现 JWT 过期判断错误
+修改 verifyToken()
+运行测试
+发现 timezone bug
+重新修改
+测试通过
+</code></pre>
+<p>压缩后：</p>
+<pre><code class="language-text">Goal:
+修复登录认证问题
+
+Completed:
+- 修复 JWT 过期判断
+- 修复 timezone bug
+- 测试通过
+
+Relevant Files:
+- src/auth.ts
+
+Next Steps:
+- 无
+</code></pre>
+<hr>
+<h1 id="8-compaction-的本质不是总结聊天">8. Compaction 的本质不是“总结聊天”</h1>
+<p>这是最重要的认知之一。</p>
+<p>普通 Summary：</p>
+<pre><code class="language-text">“我们讨论了一个登录问题，然后修改了代码。”
+</code></pre>
+<p>对于 Agent 没什么用。</p>
+<p>Agent 需要的是：</p>
+<pre><code class="language-text">Goal
+Constraints
+Current State
+Completed Work
+Pending Work
+Key Decisions
+Relevant Files
+Errors
+Next Steps
+</code></pre>
+<p>所以 Agent Compaction 的本质是：</p>
+<blockquote>
+<p><strong>将过去的 Agent Trajectory 转换为当前可继续执行的 Agent State。</strong></p>
+</blockquote>
+<p>可以表示为：</p>
+<pre><code class="language-text">Trajectory
+    ↓
+State Extraction
+    ↓
+Compressed State
+</code></pre>
+<p>因此：</p>
+<blockquote>
+<p><strong>Compaction 更接近 State Serialization，而不是普通摘要。</strong></p>
+</blockquote>
+<hr>
+<h1 id="9-为什么-compaction-prompt-往往很长">9. 为什么 Compaction Prompt 往往很长</h1>
+<p>你看到的 ZCode 等 Agent 的长压缩 Prompt，本质上是在指导模型：</p>
+<blockquote>
+<p>“生成一个足够完整的 Checkpoint，使新的 Agent 可以从这里继续工作。”</p>
+</blockquote>
+<p>因此它往往要求：</p>
+<pre><code class="language-text">Goal
+Constraints
+Progress
+Key Decisions
+Files
+Errors
+Current State
+Next Steps
+Critical Context
+</code></pre>
+<p>典型形式：</p>
+<pre><code class="language-text"># Goal
+
+# Constraints &amp; Preferences
+
+# Progress
+
+## Completed
+
+## In Progress
+
+## Blocked
+
+# Key Decisions
+
+# Relevant Files
+
+# Next Steps
+
+# Critical Context
+</code></pre>
+<p>这不是简单的“摘要格式”。</p>
+<p>它实际上是一种：</p>
+<pre><code class="language-text">Agent State Schema
+</code></pre>
+<hr>
+<h1 id="10-compaction-后怎么重建-context">10. Compaction 后怎么重建 Context</h1>
+<p>Compaction 完成后，并不是只留下 Summary。</p>
+<p>典型结构是：</p>
+<pre><code class="language-text">HEAD
++
+SUMMARY
++
+TAIL
+</code></pre>
+<p>也就是：</p>
+<pre><code class="language-text">Stable Context
++
+Compressed State
++
+Recent Trajectory
+</code></pre>
+<p>例如：</p>
+<pre><code class="language-text">System Prompt
+Developer Rules
+Project Rules
+Tool Definitions
+        │
+        ↓
+Compaction Summary
+        │
+        ↓
+Recent Messages
+Recent Tool Calls
+Recent Tool Results
+</code></pre>
+<p>然后：</p>
+<pre><code class="language-text">LLM
+ ↓
+继续 Agent Loop
+</code></pre>
+
+<div class="callout" data-callout="important"><p class="callout-title">Important</p>
+<p><code>Head + Summary + Tail</code> 是 <strong>Reconstruction</strong>。</p>
+<p>它不是第七种压缩机制，而是 Compaction Pipeline 的重组步骤。</p>
+</div>
+<hr>
+<h1 id="11-为什么一定要保留-tail">11. 为什么一定要保留 Tail</h1>
+<p>因为最近的行为往往和当前状态最相关。</p>
+<p>例如：</p>
+<pre><code class="language-text">20 分钟以前：
+已经读取项目结构
+
+5 秒以前：
+刚刚运行测试，测试失败
+
+2 秒以前：
+刚刚修改 auth.ts
+</code></pre>
+<p>对于下一次 LLM 推理：</p>
+<pre><code class="language-text">5 秒以前、2 秒以前
+</code></pre>
+<p>通常比：</p>
+<pre><code class="language-text">20 分钟以前
+</code></pre>
+<p>更加重要。</p>
+<p>所以很多 Agent 采用：</p>
+<pre><code class="language-text">Long-term State
++
+Short-term Recent Trajectory
+</code></pre>
+<p>即：</p>
+<pre><code class="language-text">Summary = 长期状态
+Tail = 短期工作记忆
+</code></pre>
+<hr>
+<h1 id="12-机制五externalization">12. 机制五：Externalization</h1>
+<p>Compaction 是 Lossy 的。</p>
+<p>如果：</p>
+<pre><code class="language-text">100000 Token History
+ ↓
+5000 Token Summary
+</code></pre>
+<p>那么很多细节必然消失。</p>
+<p>因此另一种方法是：</p>
+<blockquote>
+<p><strong>不要把完整历史都放在 Model Context，而是把它存在外部。</strong></p>
+</blockquote>
+<p>例如：</p>
+<pre><code class="language-text">Active Context
+    ↓
+只保留：
+Goal
+State
+Summary
+Recent Context
+</code></pre>
+<p>而完整数据：</p>
+<pre><code class="language-text">Session Store
+├── transcript
+├── tool_results
+├── files
+├── branch history
+└── metadata
+</code></pre>
+<hr>
+<h2 id="121-externalization-的意义">12.1 Externalization 的意义</h2>
+<p>它把：</p>
+<pre><code class="language-text">Context
+</code></pre>
+<p>和：</p>
+<pre><code class="language-text">Memory
+</code></pre>
+<p>分开。</p>
+<p>以前很多系统默认：</p>
+<pre><code class="language-text">Agent Memory
+=
+Context Window
+</code></pre>
+<p>现在更准确的模型是：</p>
+<pre><code class="language-text">Agent Memory
+=
+Active Context
++
+External History
+</code></pre>
+<hr>
+<h1 id="13-机制六retrieval">13. 机制六：Retrieval</h1>
+<p>Externalization 后会出现一个新问题：</p>
+<blockquote>
+<p>之前的细节被移出了 Context，什么时候需要它？</p>
+</blockquote>
+<p>答案：</p>
+<blockquote>
+<p><strong>需要时再 Retrieval。</strong></p>
+</blockquote>
+<p>例如：</p>
+<pre><code class="language-text">当前任务：
+检查之前失败的测试
+
+当前 Context：
+只有 Summary
+
+Agent：
+“我要看第一次失败的完整日志”
+
+      ↓
+
+Retrieval
+
+      ↓
+
+历史 Session / Tool Result
+
+      ↓
+
+相关日志
+
+      ↓
+
+重新进入 Context
+</code></pre>
+<p>因此：</p>
+<pre><code class="language-text">Externalization
++
+Retrieval
+</code></pre>
+<p>一起形成：</p>
+<blockquote>
+<p><strong>On-Demand Context</strong></p>
+</blockquote>
+<hr>
+<h1 id="14-六类机制之间是什么关系">14. 六类机制之间是什么关系</h1>
+<p>可以这样理解：</p>
+<pre><code class="language-text">             Agent Trajectory
+                    │
+          ┌─────────┴─────────┐
+          │                   │
+     Truncation            Pruning
+          │                   │
+          └─────────┬─────────┘
+                    ↓
+           Boundary Selection
+                    ↓
+            Compaction / LLM
+                    ↓
+          Head + Summary + Tail
+                    ↓
+             Active Context
+                    │
+          ┌─────────┴─────────┐
+          │                   │
+       Agent继续            Retrieval
+                              ↑
+                              │
+                     External History
+</code></pre>
+<p>这六个机制解决的是不同问题。</p>
+<hr>
+<h1 id="15-claude-code-的实现路线">15. Claude Code 的实现路线</h1>
+<p>Claude Code 可以概括为：</p>
+<pre><code class="language-text">Context 接近限制
+        ↓
+旧 Tool Output 清理
+        ↓
+Conversation Compaction
+        ↓
+生成压缩后的状态
+        ↓
+继续 Agent Loop
+</code></pre>
+<p>因此它的典型思路是：</p>
+<pre><code class="language-text">Tool Output Management
++
+LLM Compaction
++
+Persistent Project Context
++
+Continued Execution
+</code></pre>
+<hr>
+<h2 id="151-claude-code-的核心特点">15.1 Claude Code 的核心特点</h2>
+<p>Claude Code 中一个重要现象是：</p>
+<blockquote>
+<p><strong>旧 Tool Output 会优先被清理，然后再进入更重的 Compaction。</strong></p>
+</blockquote>
+<p>这说明它实际上存在多层 Context Management：</p>
+<pre><code class="language-text">低成本：
+Tool Result Cleanup
+
+↓
+
+高成本：
+LLM Compaction
+</code></pre>
+<p>而项目级规则、相关 Memory 等持久性上下文并不简单等同于普通对话历史。</p>
+<hr>
+<h1 id="16-codex-的实现路线">16. Codex 的实现路线</h1>
+<p>Codex 的变化尤其值得关注。</p>
+<h2 id="161-早期思路">16.1 早期思路</h2>
+<p>早期可以理解为：</p>
+<pre><code class="language-text">Codex Runtime
+      ↓
+调用模型
+      ↓
+生成 Summary
+      ↓
+Summary 重新进入 Context
+</code></pre>
+<p>也就是典型的：</p>
+<pre><code class="language-text">Client-side Compaction
+</code></pre>
+<hr>
+<h2 id="162-现代-codex">16.2 现代 Codex</h2>
+<p>现代 Codex 更进一步：</p>
+<pre><code class="language-text">Codex Runtime
+      ↓
+Responses Compaction API
+      ↓
+Provider / Model-side Compaction
+      ↓
+Compaction Item
+      ↓
+继续执行
+</code></pre>
+<p>因此 Codex 的核心特点是：</p>
+<blockquote>
+<p><strong>Compaction 不再完全由 Agent Runtime 自己实现，而是越来越多地由 Provider / Responses API 承担。</strong></p>
+</blockquote>
+<hr>
+<h1 id="17-native-compaction-到底是什么">17. Native Compaction 到底是什么</h1>
+<p>这里需要把概念单独说清楚。</p>
+<p>Native Compaction：</p>
+<pre><code class="language-text">不是一种新的“语义压缩算法”
+</code></pre>
+<p>而是：</p>
+<pre><code class="language-text">Compaction
+发生在 Provider / Model Runtime 层
+</code></pre>
+<p>例如：</p>
+<pre><code class="language-text">普通做法：
+
+Agent Runtime
+ ↓
+请求模型总结
+ ↓
+拿 Summary
+ ↓
+自己重建 Context
+</code></pre>
+<p>Native Compaction：</p>
+<pre><code class="language-text">Agent Runtime
+ ↓
+告诉 Provider：
+“请压缩这个 Context”
+ ↓
+Provider
+ ↓
+完成 Context Compaction
+ ↓
+返回特殊 Compaction State
+</code></pre>
+<hr>
+<h1 id="18-pi-的实现路线">18. pi 的实现路线</h1>
+<p>pi 的设计非常清晰。</p>
+<p>它主要有：</p>
+<pre><code class="language-text">Compaction
++
+Branch Summarization
+</code></pre>
+<hr>
+<h2 id="181-pi-的-compaction">18.1 pi 的 Compaction</h2>
+<p>基本过程：</p>
+<pre><code class="language-text">Context 超过阈值
+        ↓
+从尾部向前扫描
+        ↓
+保留最近的一段
+        ↓
+确定旧历史
+        ↓
+LLM 总结
+        ↓
+CompactionEntry
+        ↓
+Summary + Recent Context
+</code></pre>
+<p>典型结构：</p>
+<pre><code class="language-text">HEAD | OLD HISTORY | RECENT TAIL
+             ↓
+           SUMMARY
+
+最终：
+
+HEAD | SUMMARY | RECENT TAIL
+</code></pre>
+<hr>
+<h2 id="182-pi-的-token-budget-思路">18.2 pi 的 Token Budget 思路</h2>
+<p>pi 会根据类似：</p>
+<pre><code class="language-text">contextWindow
+reserveTokens
+keepRecentTokens
+</code></pre>
+<p>来决定：</p>
+<pre><code class="language-text">什么时候压缩
++
+最近保留多少内容
+</code></pre>
+<p>这实际上就是非常典型的：</p>
+<blockquote>
+<p><strong>Token-budget-driven Compaction</strong></p>
+</blockquote>
+<hr>
+<h2 id="183-pi-的重要设计">18.3 pi 的重要设计</h2>
+<p>pi 会尽量避免在：</p>
+<pre><code class="language-text">Tool Call
+Tool Result
+</code></pre>
+<p>之间切开。</p>
+<p>此外它还支持：</p>
+<pre><code class="language-text">Branch Summarization
+</code></pre>
+<p>也就是当 Agent 在历史树上切换分支时，对另一条分支进行总结。</p>
+<p>因此 pi 不仅解决：</p>
+<pre><code class="language-text">Context Too Large
+</code></pre>
+<p>也解决：</p>
+<pre><code class="language-text">Branch Too Large
+</code></pre>
+<hr>
+<h1 id="19-opencode-的实现路线">19. OpenCode 的实现路线</h1>
+<p>OpenCode 也明确区分：</p>
+<pre><code class="language-text">Pruning
+Compaction
+</code></pre>
+<p>典型流程：</p>
+<pre><code class="language-text">Old Tool Outputs
+      ↓
+Prune
+      ↓
+Serialize Conversation
+      ↓
+Boundary Selection
+      ↓
+LLM Summary
+      ↓
+Summary + Recent Context
+</code></pre>
+<p>其 Summary 更偏向：</p>
+<pre><code class="language-text">Objective
+
+Important Details
+
+Work State
+  Completed
+  Active
+  Blocked
+
+Next Move
+
+Relevant Files
+</code></pre>
+<p>这其实反映出一个共同趋势：</p>
+<blockquote>
+<p><strong>Agent Summary 应该描述工作状态，而不是复述聊天。</strong></p>
+</blockquote>
+<hr>
+<h1 id="20-hermes-的实现路线">20. Hermes 的实现路线</h1>
+<p>Hermes 的特点是把 Context Management 显式抽象为：</p>
+<pre><code class="language-text">ContextEngine
+</code></pre>
+<p>也就是说：</p>
+<pre><code class="language-text">Agent
+ ↓
+ContextEngine
+ ↓
+should_compress()
+compress()
+token tracking
+history management
+</code></pre>
+<hr>
+<h2 id="201-hermes-的典型-pipeline">20.1 Hermes 的典型 Pipeline</h2>
+<p>可以直接对应本文的六类机制：</p>
+<pre><code class="language-text">Phase 1
+Old Tool Result Pruning
+
+        ↓
+
+Phase 2
+Boundary Selection
+
+        ↓
+
+Phase 3
+LLM Structured Summary
+
+        ↓
+
+Phase 4
+Head + Summary + Tail
+</code></pre>
+<p>这四个 Phase 对应：</p>
+<pre><code class="language-text">Pruning
+Boundary Selection
+Compaction
+Reconstruction
+</code></pre>
+<hr>
+<h1 id="21-hermes-的-lossy-lossless-思路">21. Hermes 的 Lossy / Lossless 思路</h1>
+<p>Hermes 一个比较有意思的地方，是它不仅考虑：</p>
+<pre><code class="language-text">Lossy Compaction
+</code></pre>
+<p>还探索：</p>
+<pre><code class="language-text">Lossless Context Management
+</code></pre>
+<hr>
+<h2 id="211-lossy">21.1 Lossy</h2>
+<pre><code class="language-text">完整历史
+   ↓
+LLM Summary
+   ↓
+只保留压缩状态
+</code></pre>
+<p>问题：</p>
+<pre><code class="language-text">细节可能永远丢失
+</code></pre>
+<hr>
+<h2 id="212-lossless">21.2 Lossless</h2>
+<pre><code class="language-text">完整历史
+   ↓
+Immutable / External Message Store
+   ↓
+Active Context 只保存必要部分
+   ↓
+需要时 Retrieval
+</code></pre>
+<p>于是：</p>
+<pre><code class="language-text">Context 小
++
+History 仍然完整
+</code></pre>
+<p>这是一条和传统 Summary 完全不同的路线。</p>
+<hr>
+<h1 id="22-各家实现的横向比较">22. 各家实现的横向比较</h1>
+<table>
+<thead>
+<tr>
+<th>Agent</th>
+<th style="text-align: right;">Truncation</th>
+<th style="text-align: right;">Pruning</th>
+<th style="text-align: right;">Boundary</th>
+<th style="text-align: right;">LLM Compaction</th>
+<th style="text-align: right;">Native Compaction</th>
+<th style="text-align: right;">External / Retrieval</th>
+<th>主要特点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Claude Code</td>
+<td style="text-align: right;">✅</td>
+<td style="text-align: right;">✅</td>
+<td style="text-align: right;">✅</td>
+<td style="text-align: right;">✅</td>
+<td style="text-align: right;">间接依赖底层能力，但 CLI 不应简单等同 API Native Compaction</td>
+<td style="text-align: right;">✅</td>
+<td>Tool Output 清理 + 自动 Compaction</td>
+</tr>
+<tr>
+<td>Codex</td>
+<td style="text-align: right;">✅</td>
+<td style="text-align: right;">✅</td>
+<td style="text-align: right;">✅</td>
+<td style="text-align: right;">历史上 ✅</td>
+<td style="text-align: right;"><strong>✅ 强</strong></td>
+<td style="text-align: right;">✅ / Provider 管理</td>
+<td>Compaction 向 Provider 下沉</td>
+</tr>
+<tr>
+<td>pi</td>
+<td style="text-align: right;">✅</td>
+<td style="text-align: right;">✅/有限</td>
+<td style="text-align: right;"><strong>✅</strong></td>
+<td style="text-align: right;"><strong>✅</strong></td>
+<td style="text-align: right;">❌/非核心</td>
+<td style="text-align: right;">✅</td>
+<td>极简、Token Budget 明确</td>
+</tr>
+<tr>
+<td>OpenCode</td>
+<td style="text-align: right;">✅</td>
+<td style="text-align: right;"><strong>✅</strong></td>
+<td style="text-align: right;">✅</td>
+<td style="text-align: right;"><strong>✅</strong></td>
+<td style="text-align: right;">❌/非核心</td>
+<td style="text-align: right;">✅</td>
+<td>Pruning 与 Compaction 分层</td>
+</tr>
+<tr>
+<td>Hermes</td>
+<td style="text-align: right;">✅</td>
+<td style="text-align: right;"><strong>✅</strong></td>
+<td style="text-align: right;"><strong>✅</strong></td>
+<td style="text-align: right;"><strong>✅</strong></td>
+<td style="text-align: right;">✅ 可选</td>
+<td style="text-align: right;"><strong>✅ 强</strong></td>
+<td>ContextEngine + Lossless 路线</td>
+</tr>
+</tbody>
+</table>
+<p>这里最值得观察的不是：</p>
+<pre><code class="language-text">谁“有没有 Summary”
+</code></pre>
+<p>而是：</p>
+<pre><code class="language-text">谁负责 Context Management？
+</code></pre>
+<hr>
+<h1 id="23-各家最大的架构差异">23. 各家最大的架构差异</h1>
+<p>可以压缩成下面几句话。</p>
+<h2 id="claude-code">Claude Code</h2>
+<pre><code class="language-text">Runtime 负责清理
++
+LLM 负责 Compaction
+</code></pre>
+<p>核心目标：</p>
+<pre><code class="language-text">让长期 Coding Session 能持续运行
+</code></pre>
+<hr>
+<h2 id="codex">Codex</h2>
+<pre><code class="language-text">Runtime 负责触发
++
+Provider / Responses API 负责 Compaction
+</code></pre>
+<p>核心变化：</p>
+<pre><code class="language-text">Context Management 下沉
+</code></pre>
+<hr>
+<h2 id="pi">pi</h2>
+<pre><code class="language-text">Runtime 明确管理 Token Budget
++
+LLM 做摘要
+</code></pre>
+<p>核心特点：</p>
+<pre><code class="language-text">极简
++
+可控
++
+显式
+</code></pre>
+<hr>
+<h2 id="opencode">OpenCode</h2>
+<pre><code class="language-text">Pruning
++
+Boundary
++
+Compaction
+</code></pre>
+<p>核心特点：</p>
+<pre><code class="language-text">把“删”和“总结”明确分开
+</code></pre>
+<hr>
+<h2 id="hermes">Hermes</h2>
+<pre><code class="language-text">ContextEngine
+=
+Pruning
++
+Boundary
++
+Compaction
++
+Reconstruction
+</code></pre>
+<p>并进一步探索：</p>
+<pre><code class="language-text">Lossy
++
+Lossless
+</code></pre>
+<p>核心特点：</p>
+<pre><code class="language-text">把 Context Management 设计成独立子系统
+</code></pre>
+<hr>
+<h1 id="24-runtime-和-llm-的职责分工">24. Runtime 和 LLM 的职责分工</h1>
+<p>这是整个问题里非常值得抽象的一层。</p>
+<h2 id="runtime-擅长的事情">Runtime 擅长的事情</h2>
+<pre><code class="language-text">Token Counting
+Context Window Management
+Pruning
+Boundary Selection
+Tool Pair Validation
+Recent Tail Retention
+Persistence
+Externalization
+Retrieval
+Branch Management
+Session Management
+Cache-aware Layout
+</code></pre>
+<p>共同特征：</p>
+<blockquote>
+<p><strong>确定性、规则明确、适合程序执行。</strong></p>
+</blockquote>
+<hr>
+<h2 id="llm-擅长的事情">LLM 擅长的事情</h2>
+<pre><code class="language-text">理解历史
+提取语义
+判断重要性
+提取当前状态
+总结决策
+识别约束
+理解错误
+生成压缩后的 State
+</code></pre>
+<p>共同特征：</p>
+<blockquote>
+<p><strong>需要语义理解。</strong></p>
+</blockquote>
+<hr>
+<h1 id="25-因此最理想的职责划分">25. 因此最理想的职责划分</h1>
+<pre><code class="language-text">               Agent Runtime
+                     │
+        ┌────────────┼────────────┐
+        │            │            │
+     Pruning      Boundary     Token Budget
+        │        Selection         │
+        └────────────┬────────────┘
+                     ↓
+                    LLM
+                     │
+        ┌────────────┼────────────┐
+        │            │            │
+     Summarize    Extract      Compress
+      State       Decisions      History
+                     │
+                     ↓
+               Runtime Again
+                     │
+        ┌────────────┼────────────┐
+        │            │            │
+   Reconstruct   Persist       Retrieve
+                     │
+                     ↓
+                  Agent
+</code></pre>
+<p>可以把核心原则概括成：</p>
+<blockquote>
+<p><strong>Runtime 管结构，LLM 管语义。</strong></p>
+</blockquote>
+<hr>
+<h1 id="26-context-compression-与-prompt-cache">26. Context Compression 与 Prompt Cache</h1>
+<p>Context Compression 还会影响 Prompt / KV Cache。</p>
+<p>因为很多模型的缓存依赖：</p>
+<pre><code class="language-text">Exact Prefix
+</code></pre>
+<p>如果 Context 发生修改：</p>
+<pre><code class="language-text">Old Context
+A B C D E F G
+</code></pre>
+<p>压缩后：</p>
+<pre><code class="language-text">A B C SUMMARY G
+</code></pre>
+<p>那么从发生变化的位置开始：</p>
+<pre><code class="language-text">Prefix Cache
+</code></pre>
+<p>可能无法继续复用。</p>
+<p>因此：</p>
+<pre><code class="language-text">Compaction
+=
+节省 Context Token
+</code></pre>
+<p>但同时：</p>
+<pre><code class="language-text">可能改变 Prefix
+=
+影响 Cache Hit
+</code></pre>
+<p>这意味着现代 Agent 进行 Compaction 时，实际上还需要考虑：</p>
+<pre><code class="language-text">Token Saving
++
+Semantic Preservation
++
+Cache Preservation
+</code></pre>
+<hr>
+<h1 id="27-一个成熟-context-system-不应该只有-summary">27. 一个成熟 Context System 不应该只有 Summary</h1>
+<p>如果一个 Agent 只有：</p>
+<pre><code class="language-text">History
+ ↓
+LLM Summary
+ ↓
+New Context
+</code></pre>
+<p>它实际上比较脆弱。</p>
+<p>更完整的架构应该接近：</p>
+<pre><code class="language-text">                 Full History
+                      │
+          ┌───────────┴───────────┐
+          │                       │
+       Pruning               External Store
+          │                       │
+          ↓                       │
+   Boundary Selection             │
+          │                       │
+          ↓                       │
+       LLM Summary               │
+          │                       │
+          └──────────┬────────────┘
+                     ↓
+             Head + Summary + Tail
+                     │
+                     ↓
+              Active Context
+                     │
+                     ↓
+                  Agent
+                     │
+                     └──── Retrieval ───→ External Store
+</code></pre>
+<hr>
+<h1 id="28-从-lossy-到-losslesscontext-management-的演进">28. 从 Lossy 到 Lossless：Context Management 的演进</h1>
+<p>可以把技术路线粗略理解为：</p>
+<pre><code class="language-text">阶段 1
+直接把所有历史塞进 Context
+
+        ↓
+
+阶段 2
+Truncation
+
+        ↓
+
+阶段 3
+Pruning
+
+        ↓
+
+阶段 4
+LLM Compaction
+
+        ↓
+
+阶段 5
+Summary + Tail
+
+        ↓
+
+阶段 6
+External History + Retrieval
+
+        ↓
+
+阶段 7
+Native / Provider-side Compaction
+
+        ↓
+
+阶段 8
+Lossless Context Management
+</code></pre>
+<p>这并不意味着后面的方式会完全取代前面的方式。</p>
+<p>恰恰相反，成熟系统通常会组合：</p>
+<pre><code class="language-text">Truncation
++
+Pruning
++
+Compaction
++
+Externalization
++
+Retrieval
+</code></pre>
+<hr>
+<h1 id="29-一个统一的数学视角">29. 一个统一的数学视角</h1>
+<p>假设：</p>
+<pre><code class="language-text">H = Agent Full History
+C = Active Context
+S = Summary
+T = Recent Tail
+E = External History
+</code></pre>
+<p>传统方式：</p>
+<pre><code class="language-text">C = H
+</code></pre>
+<p>Context 足够大时没问题。</p>
+<hr>
+<p>当历史太大：</p>
+<pre><code class="language-text">H = Old + Recent
+</code></pre>
+<p>进行 Compaction：</p>
+<pre><code class="language-text">Old → S
+</code></pre>
+<p>于是：</p>
+<pre><code class="language-text">C = S + Recent
+</code></pre>
+<p>如果还有稳定上下文：</p>
+<pre><code class="language-text">C = Stable + S + Recent
+</code></pre>
+<p>如果采用 Externalization：</p>
+<pre><code class="language-text">H = E + C
+</code></pre>
+<p>于是：</p>
+<pre><code class="language-text">C = Stable + S + Recent
+E = Full Historical Detail
+</code></pre>
+<p>如果引入 Retrieval：</p>
+<pre><code class="language-text">C' = C + Retrieve(E, Query)
+</code></pre>
+<p>这就是：</p>
+<pre><code class="language-text">Active Context
++
+On-Demand History
+</code></pre>
+<hr>
+<h1 id="30-最关键的区别compressed-state-与-full-history">30. 最关键的区别：Compressed State 与 Full History</h1>
+<p>这是理解现代 Agent 的一个核心思想。</p>
+<pre><code class="language-text">Full History
+=
+发生过什么
+
+Compressed State
+=
+现在是什么状态
+</code></pre>
+<p>例如：</p>
+<pre><code class="language-text">Full History：
+
+读取 auth.ts
+运行测试
+发现错误
+修改代码
+重新运行
+又发现错误
+修复
+再次测试
+成功
+</code></pre>
+<p>Compressed State：</p>
+<pre><code class="language-text">Goal：
+修复认证问题
+
+Current State：
+代码已经修复，测试通过
+
+Files：
+src/auth.ts
+
+Remaining：
+无
+</code></pre>
+<p>未来 Agent 真正需要的是：</p>
+<pre><code class="language-text">Current State
+</code></pre>
+<p>而不是：</p>
+<pre><code class="language-text">全部过程
+</code></pre>
+<hr>
+<h1 id="31-boundary-selection-为什么非常重要">31. Boundary Selection 为什么非常重要</h1>
+<p>Boundary Selection 位于：</p>
+<pre><code class="language-text">Pruning
+</code></pre>
+<p>和：</p>
+<pre><code class="language-text">Compaction
+</code></pre>
+<p>之间。</p>
+<p>它实际上是整个系统的桥梁：</p>
+<pre><code class="language-text">Pruning
+=
+先减少垃圾
+
+Boundary
+=
+决定压缩哪一段
+
+Compaction
+=
+把这一段转化成状态
+</code></pre>
+<p>可以记成：</p>
+<pre><code class="language-text">Pruning
+“哪些可以不要？”
+
+Boundary
+“从哪里开始压？”
+
+Compaction
+“剩下的历史怎么压？”
+
+Reconstruction
+“压完之后怎么重新拼？”
+</code></pre>
+<p>这四句话基本可以解释整个核心 Pipeline。</p>
+<hr>
+<h1 id="32-推荐记忆方式六种机制-两种实现维度">32. 推荐记忆方式：六种机制 + 两种实现维度</h1>
+<p>为了避免概念越来越乱，建议最终记成两层。</p>
+<h2 id="第一层六种核心机制">第一层：六种核心机制</h2>
+<pre><code class="language-text">1. Truncation
+2. Pruning
+3. Boundary Selection
+4. Compaction / Summarization
+5. Externalization
+6. Retrieval
+</code></pre>
+<hr>
+<h2 id="第二层compaction-的实现位置">第二层：Compaction 的实现位置</h2>
+<pre><code class="language-text">Client / Agent Runtime
+        │
+        ├── 本地 LLM Summary
+        │
+        ↓
+Provider / Model Runtime
+        │
+        └── Native Compaction
+</code></pre>
+<p>因此：</p>
+<pre><code class="language-text">Native Compaction
+</code></pre>
+<p>不是和：</p>
+<pre><code class="language-text">Pruning
+</code></pre>
+<p>平行的一种压缩算法。</p>
+<p>它更准确地属于：</p>
+<pre><code class="language-text">“Compaction 在哪一层执行”
+</code></pre>
+<hr>
+<h1 id="33-最终统一架构">33. 最终统一架构</h1>
+
+<div class="callout" data-callout="important"><p class="callout-title">Modern Agent Context Architecture</p>
+</div>
+<pre><code class="language-text">                         Full Agent History
+                                 │
+                  ┌──────────────┴──────────────┐
+                  │                             │
+             Truncation                     Externalize
+                  │                             │
+                  ↓                             ↓
+              Pruning                    External History
+                  │                             │
+                  └──────────────┬──────────────┘
+                                 ↓
+                         Boundary Selection
+                                 ↓
+                         Compress Region
+                                 │
+                                 ↓
+                        Compaction / LLM
+                                 │
+                                 ↓
+                          Structured State
+                                 │
+                                 ↓
+                      Head + Summary + Tail
+                                 │
+                                 ↓
+                          Active Context
+                                 │
+                                 ↓
+                              Agent
+                                 │
+                                 │ needs old detail
+                                 ↓
+                             Retrieval
+                                 │
+                                 └──────→ External History
+</code></pre>
+<hr>
+<h1 id="34-最终心智模型">34. 最终心智模型</h1>
+<p>可以把整个系统类比成操作系统：</p>
+<pre><code class="language-text">Full History
+    ↓
+Disk / External Storage
+
+Active Context
+    ↓
+RAM
+
+LLM
+    ↓
+Semantic Processor
+</code></pre>
+<p>那么：</p>
+<pre><code class="language-text">Truncation
+=
+限制单条数据大小
+
+Pruning
+=
+清理 RAM 中已经不需要的数据
+
+Boundary Selection
+=
+决定哪些历史进入压缩区
+
+Compaction
+=
+把大量历史压缩成“当前状态”
+
+Externalization
+=
+把完整数据放到磁盘
+
+Retrieval
+=
+需要时从磁盘取回
+
+Native Compaction
+=
+让底层平台/Provider 直接承担 Context Management
+</code></pre>
+<p>这个模型非常适合用来理解现代 Agent。</p>
+<hr>
+<h1 id="35-最终结论">35. 最终结论</h1>
+
+<div class="callout" data-callout="success"><p class="callout-title">一句话总结</p>
+</div>
+<p><strong>Agent 上下文压缩不是“让 LLM 总结聊天记录”，而是一个由 Runtime + LLM + External Memory + Provider 共同完成的 Context Management 系统。</strong></p>
+<p>六种核心机制分别解决：</p>
+<pre><code class="language-text">Truncation
+→ 单条内容太大
+
+Pruning
+→ 旧内容已经没价值
+
+Boundary Selection
+→ 决定从哪里开始压缩
+
+Compaction
+→ 把旧历史转换成可继续执行的状态
+
+Externalization
+→ 把完整历史移出 Active Context
+
+Retrieval
+→ 需要时重新取回历史
+</code></pre>
+<p>而：</p>
+<pre><code class="language-text">Native Compaction
+</code></pre>
+<p>描述的是：</p>
+<pre><code class="language-text">Compaction 从 Agent Runtime 下沉到 Provider / Model Runtime
+</code></pre>
+<p>最终，现代 Agent 更接近：</p>
+<pre><code class="language-text">             Stable Context
+                    +
+             Compressed State
+                    +
+               Recent Tail
+                    +
+           On-Demand History
+</code></pre>
+<p>而不是：</p>
+<pre><code class="language-text">Context = Entire Conversation
+</code></pre>
+<p>因此可以把现代 Agent 的 Context Management 总结成一句最重要的话：</p>
+<blockquote>
+<p><strong>Runtime 管理 Context 的结构和生命周期，LLM 负责理解和压缩语义，External Store 保存不适合长期驻留 Context 的完整历史，Retrieval 在需要时把历史重新带回来。</strong></p>
+</blockquote>
+<p>这也是理解 <strong>Claude Code、Codex、pi、OpenCode、Hermes</strong> 等现代 Agent 上下文管理架构时最通用的统一视角。</p>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">知识领域</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A2%86%E5%9F%9F/agent%E7%9B%B8%E5%85%B3/Agent%20%E4%B8%8A%E4%B8%8B%E6%96%87%E5%8E%8B%E7%BC%A9%E6%9C%BA%E5%88%B6%EF%BC%9A%E5%85%AD%E7%B1%BB%E6%A0%B8%E5%BF%83%E6%9C%BA%E5%88%B6%E4%B8%8E%E4%B8%BB%E6%B5%81%20Agent%20%E5%AE%9E%E7%8E%B0.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../notes/domains/agent/aiagent2026.html"><span class="dir">← 上一篇</span><span class="t">AI Agent 智能体学习路线 2026</span></a><a class="next" href="../../../notes/domains/claude-memory/memory.html"><span class="dir">下一篇 →</span><span class="t">Claude Code Memory Index</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../index.html">首页</a>
+      <a href="../../../learn.html">课件</a>
+      <a href="../../../notes/index.html">笔记库</a>
+      <a href="../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../about.html">关于</a>
+      <a href="../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../js/main.js" defer></script>
+</body>
+</html>

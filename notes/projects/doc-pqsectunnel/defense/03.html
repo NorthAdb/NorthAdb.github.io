@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>03 — 握手协议逐步详解 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="状态：正文 | 权威源：KE.md../../KE.md、CONTEXT.md../../CONTEXT.md、noise.c 主套件：mlkem512-mlkem768-sm4gcm-sm3（Static ML-KEM-512 + Eph…">
+<link rel="canonical" href="https://northadb.github.io/notes/projects/doc-pqsectunnel/defense/03.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="03 — 握手协议逐步详解 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="状态：正文 | 权威源：KE.md../../KE.md、CONTEXT.md../../CONTEXT.md、noise.c 主套件：mlkem512-mlkem768-sm4gcm-sm3（Static ML-KEM-512 + Eph…">
+<meta property="og:url" content="https://northadb.github.io/notes/projects/doc-pqsectunnel/defense/03.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="03 — 握手协议逐步详解 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="状态：正文 | 权威源：KE.md../../KE.md、CONTEXT.md../../CONTEXT.md、noise.c 主套件：mlkem512-mlkem768-sm4gcm-sm3（Static ML-KEM-512 + Eph…">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../../feed.xml">
+<link rel="stylesheet" href="../../../../css/style.css">
+<link rel="stylesheet" href="../../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "03 — 握手协议逐步详解", "description": "状态：正文 | 权威源：KE.md../../KE.md、CONTEXT.md../../CONTEXT.md、noise.c 主套件：mlkem512-mlkem768-sm4gcm-sm3（Static ML-KEM-512 + Eph…", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/projects/doc-pqsectunnel/defense/03.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../../web-foundation/index.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../../notes/index.html">笔记库</a></li><li><a href="../../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../../index.html">首页</a><span>/</span><a href="../../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../../notes/projects/index.html">项目笔记</a></div>
+          <h1>03 — 握手协议逐步详解</h1>
+          <p class="post-sub">状态：正文 | 权威源：KE.md../../KE.md、CONTEXT.md../../CONTEXT.md、noise.c 主套件：mlkem512-mlkem768-sm4gcm-sm3（Static ML-KEM-512 + Eph…</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../../notes/projects/index.html">项目笔记</a></span><span class="sep"></span>
+            <span>阅读约 11 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p>状态：正文 | 权威源：<a href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/KE.md">KE.md</a>、<a href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/CONTEXT.md">CONTEXT.md</a>、<code>noise.c</code><br>
+主套件：<code>mlkem512-mlkem768-sm4gcm-sm3</code>（Static ML-KEM-512 + Ephemeral ML-KEM-768 + SM4-GCM + SM3）</p>
+</blockquote>
+<h2 id="1-概述">1. 概述</h2>
+<p>PQ-SecTunnel 采用 <strong>Noise_IKpsk1kem</strong> 变体：相对 WireGuard 的 Noise_IKpsk2，将 X25519 ECDH 替换为 <strong>双 KEM 握手</strong>（Static KEM + Ephemeral KEM），并增加第三轮 <strong>Key Confirmation</strong>。</p>
+<p>一次完整握手为 <strong>1.5-RTT</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>轮次</th>
+<th>报文</th>
+<th>方向</th>
+<th>类型</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第 1 报文</td>
+<td>Handshake Initiation</td>
+<td>Initiator → Responder</td>
+<td>type=1</td>
+</tr>
+<tr>
+<td>第 2 报文</td>
+<td>Handshake Response</td>
+<td>Responder → Initiator</td>
+<td>type=2</td>
+</tr>
+<tr>
+<td>第 3 报文</td>
+<td>Key Confirmation</td>
+<td>Initiator → Responder</td>
+<td>type=3</td>
+</tr>
+</tbody>
+</table>
+<p>主套件握手 Noise 标识（编译时写入模块）：</p>
+<pre><code>Noise_IKpsk1kem_SM4GCM_SM3_EphemMLKEM768
+</code></pre>
+<p>来源：<code>wgtest/wgtest-mlkem512-mlkem768-sm4gcm-sm3/vars</code> → <code>NOISE_HANDSHAKE_NAME</code>。</p>
+<hr>
+<h2 id="2-主套件报文尺寸与字段作用">2. 主套件报文尺寸与字段作用</h2>
+<p>结构定义见 <code>wireguard-linux-compat/src/messages.h</code>。主套件：<code>mlkem512-mlkem768-sm4gcm-sm3</code>（Static <strong>768 B</strong> 密文 / Ephemeral <strong>1184 B</strong> 公钥与 <strong>1088 B</strong> 密文；AEAD 标签恒 <strong>16 B</strong>）。</p>
+<p>合计：Initiation <strong>2068 B</strong>、Response <strong>1916 B</strong>、Key Confirmation <strong>60 B</strong>。</p>
+<h3 id="21-handshake-initiation-2068-binitiator-respondertype1">2.1 Handshake Initiation — 2068 B（Initiator → Responder，type=1）</h3>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>字节</th>
+<th>作用（一句话）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>header</strong></td>
+<td>4</td>
+<td><code>type=1</code> + reserved；区分报文种类</td>
+</tr>
+<tr>
+<td><strong>sid_i</strong></td>
+<td>4</td>
+<td>Initiator 会话索引；Response/Confirm 用它回指本轮握手</td>
+</tr>
+<tr>
+<td><strong>E_i^pub</strong></td>
+<td>1184</td>
+<td>本轮临时 ML-KEM-768 公钥（明文）；供 Responder 做 ct₂，并混入 transcript</td>
+</tr>
+<tr>
+<td><strong>ct₁</strong></td>
+<td>768</td>
+<td>Static ML-KEM-512 对 <strong>S_r^pub</strong> 的封装（≈ 原版 <code>es</code>）：认证 Responder，派生 K₁</td>
+</tr>
+<tr>
+<td><strong>static</strong></td>
+<td>48</td>
+<td>SM4-GCM 加密的 <strong>Hash(S_i^pub)</strong>（32+16 tag）：延迟披露 Initiator 身份，供 peer 查找</td>
+</tr>
+<tr>
+<td><strong>time</strong></td>
+<td>28</td>
+<td>SM4-GCM 加密的 TAI64N 时间戳（12+16 tag）：防重放 / 限速发起</td>
+</tr>
+<tr>
+<td><strong>mac_1</strong></td>
+<td>16</td>
+<td>DoS 初筛：绑 <code>S_r^pub</code>；<strong>不进</strong> C/H 链</td>
+</tr>
+<tr>
+<td><strong>mac_2</strong></td>
+<td>16</td>
+<td>高负载时基于 Cookie；未用则为 0；同样不进 C/H</td>
+</tr>
+</tbody>
+</table>
+<p>字段字节：<code>4+4+1184+768+48+28+16+16 = 2068</code>。</p>
+<h3 id="22-handshake-response-1916-bresponder-initiatortype2">2.2 Handshake Response — 1916 B（Responder → Initiator，type=2）</h3>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>字节</th>
+<th>作用（一句话）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>header</strong></td>
+<td>4</td>
+<td><code>type=2</code> + reserved</td>
+</tr>
+<tr>
+<td><strong>sid_r</strong></td>
+<td>4</td>
+<td>Responder 会话索引；后续 Confirm/数据关联本端状态</td>
+</tr>
+<tr>
+<td><strong>sid_i</strong></td>
+<td>4</td>
+<td>回显 Initiation 的 sid；把本包绑到那一轮发起</td>
+</tr>
+<tr>
+<td><strong>ct₂</strong></td>
+<td>1088</td>
+<td>Ephemeral ML-KEM-768 对 <strong>E_i^pub</strong> 的封装（≈ 原版 <code>ee</code>）：会话绑定 + 前向保密</td>
+</tr>
+<tr>
+<td><strong>ct₃</strong></td>
+<td>768</td>
+<td>Static ML-KEM-512 对 <strong>S_i^pub</strong> 的封装（≈ 原版 <code>se</code>）：认证 Initiator</td>
+</tr>
+<tr>
+<td><strong>empty</strong></td>
+<td>16</td>
+<td>SM4-GCM 空载荷（仅 16 B tag）：证明 Responder 已持 K₃，并推进到 C₁₀/K₄</td>
+</tr>
+<tr>
+<td><strong>mac_1</strong></td>
+<td>16</td>
+<td>DoS MAC；不进 C/H</td>
+</tr>
+<tr>
+<td><strong>mac_2</strong></td>
+<td>16</td>
+<td>Cookie MAC 或 0</td>
+</tr>
+</tbody>
+</table>
+<p>字段字节：<code>4+4+4+1088+768+16+16+16 = 1916</code>。<br>
+此时双方 transcript 材料已齐，<strong>可各自推导同一 C₁₀</strong>（Key Confirm 不再贡献新 KEM 秘密）。</p>
+<h3 id="23-key-confirmation-60-binitiator-respondertype3">2.3 Key Confirmation — 60 B（Initiator → Responder，type=3）</h3>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>字节</th>
+<th>作用（一句话）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>header</strong></td>
+<td>4</td>
+<td><code>type=3</code> + reserved</td>
+</tr>
+<tr>
+<td><strong>sid_i</strong></td>
+<td>4</td>
+<td>Initiator 索引</td>
+</tr>
+<tr>
+<td><strong>sid_r</strong></td>
+<td>4</td>
+<td>Responder 索引；指明确认哪一轮</td>
+</tr>
+<tr>
+<td><strong>conf</strong></td>
+<td>16</td>
+<td>SM4-GCM 用 <strong>K₄</strong> 加密的空载荷：<strong>显式密钥确认</strong>（证明 Initiator 也算出了正确密钥）</td>
+</tr>
+<tr>
+<td><strong>mac_1</strong></td>
+<td>16</td>
+<td>DoS MAC</td>
+</tr>
+<tr>
+<td><strong>mac_2</strong></td>
+<td>16</td>
+<td>Cookie MAC 或 0</td>
+</tr>
+</tbody>
+</table>
+<p>字段字节：<code>4+4+4+16+16+16 = 60</code>。<br>
+Responder 解 conf 成功后再 <code>begin_session</code>；Initiator 侧多在发 Confirm 前已装会话（见 §8–9）。</p>
+<h3 id="24-分片与对照">2.4 分片与对照</h3>
+<table>
+<thead>
+<tr>
+<th>报文</th>
+<th>是否 &gt;1400 B</th>
+<th>应用层分片</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Initiation 2068</td>
+<td>是</td>
+<td><strong>2 片</strong>（<code>APP_LAYER_FRAGMENTATION=auto</code>）</td>
+</tr>
+<tr>
+<td>Response 1916</td>
+<td>是</td>
+<td><strong>2 片</strong></td>
+</tr>
+<tr>
+<td>Key Confirmation 60</td>
+<td>否</td>
+<td>单 UDP 包</td>
+</tr>
+</tbody>
+</table>
+<p>详见 <a href="../../../../notes/projects/doc-pqsectunnel/defense/06-mtu.html">06</a>；尺寸推导与 KEM 参数见 <a href="../../../../notes/projects/doc-pqsectunnel/defense/04.html">04</a>。</p>
+<hr>
+<h2 id="3-transcriptch-链初始化">3. Transcript（C/H 链）初始化</h2>
+<p>模块加载时 <code>wg_noise_init()</code> 用 SM3 预计算协议标签（对应 KE.md L6–7）：</p>
+<table>
+<thead>
+<tr>
+<th>KE 步骤</th>
+<th>含义</th>
+<th>noise.c 实现</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C₀ = Hash(label₁)</td>
+<td>初始 Chaining Key</td>
+<td><code>SM3(handshake_name)</code> → <code>handshake_init_chaining_key</code></td>
+</tr>
+<tr>
+<td>H₀ = Hash(C₀ ‖ label₂)</td>
+<td>初始 Hash</td>
+<td><code>SM3(C₀ ‖ identifier_name)</code> → <code>handshake_init_hash</code></td>
+</tr>
+</tbody>
+</table>
+<p>主套件 <code>handshake_name</code> = <code>Noise_IKpsk1kem_SM4GCM_SM3_EphemMLKEM768</code>；<code>identifier_name</code> = <code>PQWireGuard v2 zx2c4 Jason@zx2c4.com</code>（vars 中 <code>NOISE_IDENTIFIER_NAME</code>）。</p>
+<p>每次握手开始时 <code>handshake_init()</code> 将 Responder 静态公钥混入 Transcript（KE.md L8）：</p>
+<table>
+<thead>
+<tr>
+<th>KE 步骤</th>
+<th>操作</th>
+<th>noise.c</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>H₁ = Hash(H₀ ‖ S_r^pub)</td>
+<td>混入 Responder 静态公钥</td>
+<td><code>mix_hash(hash, remote_static, …)</code></td>
+</tr>
+<tr>
+<td>C₁ = KDF(C₀, S_r^pub)</td>
+<td>更新 Chaining Key</td>
+<td><code>mix_key_chain_only(chaining_key, remote_static, …)</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="4-handshake-initiationinitiator-发送">4. Handshake Initiation（Initiator 发送）</h2>
+<p><strong>入口</strong>：<code>send.c</code> → <code>wg_noise_handshake_create_initiation()</code> → <code>wg_cookie_add_mac_to_packet()</code> →（可选）<code>pqc_fragment_send()</code>。</p>
+<h3 id="41-逐步对照">4.1 逐步对照</h3>
+<table>
+<thead>
+<tr>
+<th>KE</th>
+<th>操作</th>
+<th>noise.c 函数 / 代码位置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>L5</td>
+<td>sid_i ← sender_index</td>
+<td><code>wg_index_hashtable_insert()</code>（组包末尾，L1105–1107）</td>
+</tr>
+<tr>
+<td>L6–8</td>
+<td>C/H 初始化，绑定 S_r^pub</td>
+<td><code>handshake_init()</code></td>
+</tr>
+<tr>
+<td>L9–10</td>
+<td>生成 E_i，混入 C/H</td>
+<td><code>pqst_ephemeral_keygen()</code> → <code>kem768_keygen()</code>；<code>message_ephemeral()</code></td>
+</tr>
+<tr>
+<td>L11</td>
+<td>ct₁ = Enc(S_r^pub)</td>
+<td><code>kem_encapsulate()</code>（Static ML-KEM-512）</td>
+</tr>
+<tr>
+<td>L12–13</td>
+<td>H₃ = Hash(H₂‖ct₁)；KDF(C₂, Hash(ct₁))</td>
+<td><code>mix_hash()</code>；<code>noise_hash(ss, ct₁)</code> <strong>覆写 shk</strong>；<code>mix_kem_ss()</code> → 派生 K₁</td>
+</tr>
+<tr>
+<td>L14</td>
+<td>static = AEAD.Enc(K₁, Hash(S_i^pub))</td>
+<td><code>message_encrypt(encrypted_static, initiator_public_hash, …)</code></td>
+</tr>
+<tr>
+<td>L15</td>
+<td>H₄ = Hash(H₃‖static)</td>
+<td><code>message_encrypt()</code> 内部 <code>mix_hash()</code></td>
+</tr>
+<tr>
+<td>L16–17</td>
+<td>C₄ = KDF(C₃, S_i^pub)；(C₅, K₂) = KDF(C₄, H₄‖psk)</td>
+<td><code>mix_key_chain_only(chaining_key, initiator_public, …)</code>；<code>mix_psk()</code></td>
+</tr>
+<tr>
+<td>L18</td>
+<td>time = AEAD.Enc(K₂, t_now)</td>
+<td><code>tai64n_now()</code>；<code>message_encrypt(encrypted_timestamp, …)</code></td>
+</tr>
+<tr>
+<td>L19–24</td>
+<td>mac₁ / mac₂</td>
+<td><strong>不在 noise.c</strong>；<code>send.c</code> 中 <code>wg_cookie_add_mac_to_packet()</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="42-主套件-kem-调用">4.2 主套件 KEM 调用</h3>
+<table>
+<thead>
+<tr>
+<th>操作</th>
+<th>算法</th>
+<th>API</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>生成 E_i</td>
+<td>ML-KEM-768</td>
+<td><code>pqst_ephemeral_keygen</code> → <code>kem768_keygen</code></td>
+</tr>
+<tr>
+<td>Enc(S_r^pub) → ct₁</td>
+<td>ML-KEM-512</td>
+<td><code>kem_encapsulate()</code></td>
+</tr>
+</tbody>
+</table>
+<p>Ephemeral 宏在 <code>noise.c</code> L32–35：当 <code>EPHEMERAL_KEM_MLKEM768</code> 定义时映射到 <code>kem768_*</code>。</p>
+<h3 id="43-明文载荷">4.3 明文载荷</h3>
+<ul>
+<li><strong>static</strong> 字段加密的是 <code>Hash(S_i^pub)</code>（<code>initiator_public_hash</code>），由 <code>digest_pk()</code> 预计算；主套件使用 SM3-HMAC（<code>noise.c</code> L1121–1123）。</li>
+<li><strong>time</strong> 为 TAI64N 格式时间戳（<code>tai64n_now()</code>），Responder 用于重放检测。</li>
+</ul>
+<h3 id="44-psk">4.4 PSK</h3>
+<p>若配置中 PSK 全零，<code>wg_noise_handshake_init()</code> 调用 <code>wg_noise_maybe_set_default_psk()</code>（KE.md L2）：</p>
+<pre><code>psk = Hash(S_i^pub XOR S_r^pub)   // 按字节异或 Responder 静态公钥后 SM3 哈希
+</code></pre>
+<hr>
+<h2 id="5-handshake-initiationresponder-接收">5. Handshake Initiation（Responder 接收）</h2>
+<p><strong>入口</strong>：<code>receive.c</code> 先 <code>wg_cookie_validate_packet()</code> 验 MAC，再 <code>wg_noise_handshake_consume_initiation()</code>。</p>
+<table>
+<thead>
+<tr>
+<th>KE</th>
+<th>操作</th>
+<th>noise.c</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>L28–31</td>
+<td>重建 C/H 至 E_i</td>
+<td><code>handshake_init()</code>；<code>message_ephemeral()</code></td>
+</tr>
+<tr>
+<td>L32–34</td>
+<td>Dec(S_r^priv, ct₁)；静态 KEM 混链</td>
+<td><code>kem_decapsulate()</code>；<code>noise_hash(ss, ct₁)</code>；<code>mix_kem_ss()</code></td>
+</tr>
+<tr>
+<td>L35–38</td>
+<td>解密 static → Hash(S_i^pub)；mix S_i；mix_psk</td>
+<td><code>message_decrypt(encrypted_static, …)</code>；<code>mix_key_chain_only(S_i^pub)</code>；<code>mix_psk()</code></td>
+</tr>
+<tr>
+<td>L39</td>
+<td>解密 time</td>
+<td><code>message_decrypt(encrypted_timestamp, …)</code></td>
+</tr>
+<tr>
+<td>L41–48</td>
+<td>验 mac₁/mac₂</td>
+<td><strong>receive.c L135</strong>（noise 入口之前）</td>
+</tr>
+</tbody>
+</table>
+<p>解密 static 后，Responder 用 <code>Hash(S_i^pub)</code> 在 peer 表查找 Initiator（<code>wg_pubkey_hashtable_lookup()</code>），并将 transcript 状态写入 peer 的 <code>noise_handshake</code>（状态 → <code>HANDSHAKE_CONSUMED_INITIATION</code>）。</p>
+<hr>
+<h2 id="6-handshake-responseresponder-发送">6. Handshake Response（Responder 发送）</h2>
+<p><strong>入口</strong>：<code>receive.c</code> 消费 Initiation 成功后 → <code>wg_packet_send_handshake_response()</code> → <code>wg_noise_handshake_create_response()</code>。</p>
+<table>
+<thead>
+<tr>
+<th>KE</th>
+<th>操作</th>
+<th>noise.c</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>L49–51</td>
+<td>ct₂ = Enc(E_i^pub)；混入 ct₂、shk₂</td>
+<td><code>pqst_ephemeral_encapsulate()</code> → <code>kem768_encapsulate()</code>；<code>mix_hash</code> + <code>mix_key_chain_only(ct₂)</code> + <code>mix_kem_ss(shk₂)</code></td>
+</tr>
+<tr>
+<td>L52–54</td>
+<td>ct₃ = Enc(S_i^pub)；静态 KEM 混链</td>
+<td><code>kem_encapsulate()</code>；<code>noise_hash(ss, ct₃)</code>；<code>mix_kem_ss()</code></td>
+</tr>
+<tr>
+<td>L55–58</td>
+<td>mix_psk；AEAD 加密 empty</td>
+<td><code>mix_psk()</code>；<code>message_encrypt(encrypted_nothing, NULL, 0, …)</code></td>
+</tr>
+<tr>
+<td>L59–60</td>
+<td>(C₁₀, K₄) = KDF(C₉, empty)</td>
+<td><code>kdf(chaining_key, key, NULL, NULL, …)</code></td>
+</tr>
+<tr>
+<td>L61–64</td>
+<td>mac₁ / mac₂</td>
+<td><code>send.c</code> → <code>wg_cookie_add_mac_to_packet()</code></td>
+</tr>
+</tbody>
+</table>
+<p>ct₂ 使用 <strong>Ephemeral ML-KEM-768</strong>（1088 B）；ct₃ 使用 <strong>Static ML-KEM-512</strong>（768 B）。</p>
+<p>组包完成后状态 → <code>HANDSHAKE_CREATED_RESPONSE</code>；<code>sid_r</code> 由 <code>wg_index_hashtable_insert()</code> 分配。</p>
+<hr>
+<h2 id="7-handshake-responseinitiator-接收">7. Handshake Response（Initiator 接收）</h2>
+<p><strong>入口</strong>：<code>receive.c</code> 验 MAC → <code>wg_noise_handshake_consume_response()</code> → 触发 <code>wg_packet_send_handshake_key_confirm()</code>。</p>
+<table>
+<thead>
+<tr>
+<th>KE</th>
+<th>操作</th>
+<th>noise.c</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>L76–78</td>
+<td>Dec(E_i^priv, ct₂)</td>
+<td><code>pqst_ephemeral_decapsulate()</code> → <code>kem768_decapsulate()</code>；<code>mix_kem_ss(shk₂)</code></td>
+</tr>
+<tr>
+<td>L79–81</td>
+<td>Dec(S_i^priv, ct₃)；静态混链</td>
+<td><code>kem_decapsulate()</code>；<code>noise_hash(ss, ct₃)</code>；<code>mix_kem_ss()</code></td>
+</tr>
+<tr>
+<td>L82–85</td>
+<td>mix_psk；解密 empty</td>
+<td><code>mix_psk()</code>；<code>message_decrypt(encrypted_nothing, …)</code></td>
+</tr>
+<tr>
+<td>L86</td>
+<td>(C₁₀, K₄) = KDF(C₉, empty)</td>
+<td><code>kdf(chaining_key, key, NULL, NULL, …)</code></td>
+</tr>
+<tr>
+<td>L68–75</td>
+<td>验 mac₁/mac₂</td>
+<td><strong>receive.c</strong>（noise 入口之前）</td>
+</tr>
+</tbody>
+</table>
+<p>成功后状态 → <code>HANDSHAKE_CONSUMED_RESPONSE</code>；Initiator 侧已具备派生 <strong>TK_i / TK_r</strong> 所需的 <code>chaining_key</code>（C₁₀）。</p>
+<hr>
+<h2 id="8-key-confirmationinitiator-发送">8. Key Confirmation（Initiator 发送）</h2>
+<p><strong>入口</strong>：<code>wg_noise_handshake_create_key_confirm()</code>。</p>
+<table>
+<thead>
+<tr>
+<th>KE</th>
+<th>操作</th>
+<th>noise.c</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>L86</td>
+<td>conf = AEAD.Enc(K₄, ∅)</td>
+<td><code>message_encrypt(encrypted_conf, NULL, 0, key, hash)</code></td>
+</tr>
+<tr>
+<td>L87–92</td>
+<td>mac₁ / mac₂</td>
+<td><code>send.c</code> → <code>wg_cookie_add_mac_to_packet()</code></td>
+</tr>
+</tbody>
+</table>
+<p>Initiator 在<strong>发送前</strong>即调用 <code>wg_noise_handshake_begin_session()</code>（<code>send.c</code> L155–156），从 C₁₀ 派生会话密钥并安装 keypair；Key Confirmation 报文本身仅 60 B，不经应用层分片。</p>
+<hr>
+<h2 id="9-key-confirmationresponder-接收与会话建立">9. Key Confirmation（Responder 接收）与会话建立</h2>
+<p><strong>入口</strong>：<code>receive.c</code> → <code>wg_noise_handshake_consume_key_confirm()</code> → <code>wg_noise_handshake_begin_session()</code>。</p>
+<table>
+<thead>
+<tr>
+<th>KE</th>
+<th>操作</th>
+<th>noise.c</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>L97–104</td>
+<td>验 mac₁/mac₂</td>
+<td><strong>receive.c</strong></td>
+</tr>
+<tr>
+<td>L105</td>
+<td>解密 conf</td>
+<td><code>message_decrypt(encrypted_conf, …)</code></td>
+</tr>
+<tr>
+<td>L106</td>
+<td>(TK_i, TK_r) = KDF(C₁₀, ∅)</td>
+<td><code>wg_noise_handshake_begin_session()</code> → <code>derive_keys()</code> → <code>kdf(TK_send, TK_recv, ∅, chaining_key)</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="91-会话密钥方向">9.1 会话密钥方向</h3>
+<p><code>derive_keys()</code> 对 C₁₀ 做 <code>KDF(∅)</code>，得到两个 128-bit SM4-GCM 密钥（主套件 <code>NOISE_SYMMETRIC_KEY_LEN=16</code>）：</p>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>begin_session 时状态</th>
+<th>sending</th>
+<th>receiving</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Initiator</td>
+<td><code>HANDSHAKE_CONSUMED_RESPONSE</code></td>
+<td>TK_i</td>
+<td>TK_r</td>
+</tr>
+<tr>
+<td>Responder</td>
+<td><code>HANDSHAKE_CREATED_RESPONSE</code></td>
+<td>TK_r</td>
+<td>TK_i</td>
+</tr>
+</tbody>
+</table>
+<p>安装 keypair 后 <code>handshake_zero()</code> 清零握手状态，进入 <strong>MESSAGE_DATA</strong> 数据面。</p>
+<hr>
+<h2 id="10-mac1mac2-与-ch-链的关系">10. MAC1/MAC2 与 C/H 链的关系</h2>
+<p>KE.md L3 明确：<strong>mac1/mac2 不参与 C/H 链</strong>。</p>
+<table>
+<thead>
+<tr>
+<th>环节</th>
+<th>位置</th>
+<th>行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MAC 计算</td>
+<td><code>cookie.c</code> / <code>send.c</code></td>
+<td>覆盖完整握手 struct（type…payload，不含 mac 字段本身）</td>
+</tr>
+<tr>
+<td>MAC 验证</td>
+<td><code>receive.c</code> L135</td>
+<td><code>wg_cookie_validate_packet()</code>，<strong>先于</strong> noise 握手 consume</td>
+</tr>
+<tr>
+<td>C/H 更新</td>
+<td><code>noise.c</code></td>
+<td><code>mix_hash</code>、<code>mix_kem_ss</code>、<code>mix_psk</code>、<code>message_encrypt/decrypt</code></td>
+</tr>
+</tbody>
+</table>
+<p>MAC1 密钥派生自 <code>BLAKE2s("mac1----" ‖ S_r^pub)</code>（与 <strong>PSK</strong> 无关，见 CONTEXT.md <strong>MAC1</strong> / <strong>PSK</strong>）。</p>
+<p>高负载下若 mac2 无效，Responder 返回 Cookie Reply（type=4），Initiator 重发带有效 mac2 的报文——见时序图可选分支。</p>
+<hr>
+<h2 id="11-静态-kem-混链特殊规则">11. 静态 KEM 混链特殊规则</h2>
+<p>KE.md L109 与 <code>noise.c</code> 一致：<strong>ct₁、ct₃</strong> 在 encaps/decaps 得到 raw shk 后，调用</p>
+<pre><code class="language-c">noise_hash(shared_secret, ciphertext, …);  // shk ← Hash(ct)
+mix_kem_ss(chaining_key, key, shared_secret);
+</code></pre>
+<p><strong>ct₂</strong> 路径直接使用 raw <code>shk₂</code> 进入 <code>mix_kem_ss()</code>，<strong>不</strong>做 <code>noise_hash</code> 覆写。此为当前实现的刻意行为，未来对齐 spec 属 BREAKING 变更 → <a href="../../../../notes/projects/doc-pqsectunnel/defense/09.html">09</a>。</p>
+<p><code>noise_hash()</code> 在 Initiation/Response 中共 <strong>4 处</strong>（ct₁/ct₃ 各 encaps 与 decaps 侧各 1 处）：</p>
+<table>
+<thead>
+<tr>
+<th>位置</th>
+<th>函数</th>
+<th>行号（约）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Initiator 发 Initiation</td>
+<td><code>wg_noise_handshake_create_initiation</code></td>
+<td>L1065–1066</td>
+</tr>
+<tr>
+<td>Responder 收 Initiation</td>
+<td><code>wg_noise_handshake_consume_initiation</code></td>
+<td>L1203–1204</td>
+</tr>
+<tr>
+<td>Responder 发 Response</td>
+<td><code>wg_noise_handshake_create_response</code></td>
+<td>L1365–1366</td>
+</tr>
+<tr>
+<td>Initiator 收 Response</td>
+<td><code>wg_noise_handshake_consume_response</code></td>
+<td>L1489–1490</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="12-noisec-函数映射总表">12. noise.c 函数映射总表</h2>
+<h3 id="121-模块初始化与握手生命周期">12.1 模块初始化与握手生命周期</h3>
+<table>
+<thead>
+<tr>
+<th>函数</th>
+<th>作用</th>
+<th>对应 KE / 说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>wg_noise_init()</code></td>
+<td>预计算 C₀、H₀（label 哈希）</td>
+<td>KE L6–7</td>
+</tr>
+<tr>
+<td><code>wg_noise_handshake_init()</code></td>
+<td>初始化 peer handshake；默认 PSK</td>
+<td>KE L2；调用 <code>wg_noise_maybe_set_default_psk()</code></td>
+</tr>
+<tr>
+<td><code>wg_noise_maybe_set_default_psk()</code></td>
+<td>未配置 PSK 时异或静态公钥哈希</td>
+<td>KE L2</td>
+</tr>
+<tr>
+<td><code>wg_noise_handshake_clear()</code></td>
+<td>清除握手状态</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>wg_noise_handshake_begin_session()</code></td>
+<td>KDF(C₁₀,∅) → TK；安装 keypair</td>
+<td>KE L94/L106</td>
+</tr>
+<tr>
+<td><code>derive_keys()</code></td>
+<td>派生 TK_i、TK_r（SM4-GCM key）</td>
+<td>KE L94/L106</td>
+</tr>
+</tbody>
+</table>
+<h3 id="122-transcript-原语">12.2 Transcript 原语</h3>
+<table>
+<thead>
+<tr>
+<th>函数</th>
+<th>作用</th>
+<th>KE 对应</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>handshake_init()</code></td>
+<td>H₁、C₁：混入 S_r^pub</td>
+<td>L8</td>
+</tr>
+<tr>
+<td><code>message_ephemeral()</code></td>
+<td>H₂、C₂：混入 E_i^pub</td>
+<td>L10</td>
+</tr>
+<tr>
+<td><code>mix_hash()</code></td>
+<td>H 链更新</td>
+<td>各 H 步骤</td>
+</tr>
+<tr>
+<td><code>mix_key_chain_only()</code></td>
+<td>仅更新 C（KDF 单输出）</td>
+<td>C₄ = KDF(C₃, S_i) 等</td>
+</tr>
+<tr>
+<td><code>mix_kem_ss()</code></td>
+<td>KDF(C, shk) → 新 C + 对称密钥 K</td>
+<td>K₁–K₄ 派生</td>
+</tr>
+<tr>
+<td><code>mix_psk()</code></td>
+<td>mix_psk：KDF(C, H‖psk)</td>
+<td>L16–17 等</td>
+</tr>
+<tr>
+<td><code>kdf()</code></td>
+<td>Noise 标准 KDF（HMAC-SM3 主套件）</td>
+<td>全部 KDF</td>
+</tr>
+<tr>
+<td><code>noise_hash()</code></td>
+<td>Hash；静态 KEM shk 覆写</td>
+<td>L109 脚注</td>
+</tr>
+<tr>
+<td><code>message_encrypt()</code></td>
+<td>SM4-GCM 加密 + mix_hash</td>
+<td>static/time/empty/conf</td>
+</tr>
+<tr>
+<td><code>message_decrypt()</code></td>
+<td>SM4-GCM 解密 + mix_hash</td>
+<td>对端解密</td>
+</tr>
+<tr>
+<td><code>digest_pk()</code> / <code>digest_pk_responder()</code></td>
+<td>Hash(S_i^pub) / Hash(S_r^pub)</td>
+<td>static 字段明文</td>
+</tr>
+</tbody>
+</table>
+<h3 id="123-三报文入口noise-层">12.3 三报文入口（noise 层）</h3>
+<table>
+<thead>
+<tr>
+<th>方向</th>
+<th>组包</th>
+<th>解包</th>
+<th>send/receive 调度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Initiation</td>
+<td><code>wg_noise_handshake_create_initiation</code></td>
+<td><code>wg_noise_handshake_consume_initiation</code></td>
+<td><code>send.c</code> L63 / <code>receive.c</code> L158</td>
+</tr>
+<tr>
+<td>Response</td>
+<td><code>wg_noise_handshake_create_response</code></td>
+<td><code>wg_noise_handshake_consume_response</code></td>
+<td><code>send.c</code> L129 / <code>receive.c</code> L180</td>
+</tr>
+<tr>
+<td>Key Confirmation</td>
+<td><code>wg_noise_handshake_create_key_confirm</code></td>
+<td><code>wg_noise_handshake_consume_key_confirm</code></td>
+<td><code>send.c</code> L153 / <code>receive.c</code> L202</td>
+</tr>
+</tbody>
+</table>
+<h3 id="124-kem-api主套件">12.4 KEM API（主套件）</h3>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>操作</th>
+<th>Static（512）</th>
+<th>Ephemeral（768）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Initiator 发</td>
+<td>keygen / encaps</td>
+<td><code>kem_encapsulate</code> → ct₁</td>
+<td><code>kem768_keygen</code> → E_i</td>
+</tr>
+<tr>
+<td>Responder 收</td>
+<td>decaps</td>
+<td><code>kem_decapsulate</code> ← ct₁</td>
+<td>（读 E_i^pub）</td>
+</tr>
+<tr>
+<td>Responder 发</td>
+<td>encaps</td>
+<td><code>kem_encapsulate</code> → ct₃</td>
+<td><code>kem768_encapsulate</code> → ct₂</td>
+</tr>
+<tr>
+<td>Initiator 收</td>
+<td>decaps</td>
+<td><code>kem_decapsulate</code> ← ct₃</td>
+<td><code>kem768_decapsulate</code> ← ct₂</td>
+</tr>
+</tbody>
+</table>
+<p>宏别名：<code>pqst_ephemeral_*</code> → <code>kem768_*</code>（<code>EPHEMERAL_KEM_MLKEM768</code>）。</p>
+<h3 id="125-mac-与发送noise-层之外">12.5 MAC 与发送（noise 层之外）</h3>
+<table>
+<thead>
+<tr>
+<th>函数</th>
+<th>文件</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>wg_cookie_add_mac_to_packet()</code></td>
+<td><code>send.c</code> / <code>cookie.c</code></td>
+<td>组包后计算 mac₁/mac₂</td>
+</tr>
+<tr>
+<td><code>wg_cookie_validate_packet()</code></td>
+<td><code>receive.c</code> / <code>cookie.c</code></td>
+<td>收包入口验 MAC</td>
+</tr>
+<tr>
+<td><code>pqc_fragment_send()</code></td>
+<td><code>send.c</code></td>
+<td>主套件 Initiation/Response 应用层分片</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="13-端到端调用链主套件">13. 端到端调用链（主套件）</h2>
+<pre><code>Initiator                                    Responder
+    |                                            |
+    |-- create_initiation (noise.c) ------------&gt;|
+    |   + add_mac (send.c)                       |
+    |   + pqc_fragment_send (2068B)              |
+    |                                            | validate_mac (receive.c)
+    |                                            | consume_initiation (noise.c)
+    |                                            | create_response (noise.c)
+    |                                            | add_mac + pqc_fragment_send
+    |&lt;----------- Response (1916B) -------------|
+    | validate_mac                               |
+    | consume_response (noise.c)                 |
+    | create_key_confirm (noise.c)               |
+    | begin_session → TK_i/TK_r                  |
+    | add_mac                                    |
+    |-- Key Confirmation (60B) ----------------&gt;|
+    |                                            | validate_mac
+    |                                            | consume_key_confirm
+    |                                            | begin_session → TK_i/TK_r
+    |&lt;=========== MESSAGE_DATA =================&gt;|
+</code></pre>
+<hr>
+<h2 id="14-交叉引用">14. 交叉引用</h2>
+<ul>
+<li>协议总览与时序图 → <a href="../../../../notes/projects/doc-pqsectunnel/defense/02.html">02-协议总览.md</a></li>
+<li>字段尺寸与编译标识 → <a href="../../../../notes/projects/doc-pqsectunnel/defense/04.html">04-密码原语与套件.md</a></li>
+<li>receive/send 路径细节 → <a href="../../../../notes/projects/doc-pqsectunnel/defense/05.html">05-内核实现路径.md</a></li>
+<li>分片 → <a href="../../../../notes/projects/doc-pqsectunnel/defense/06-mtu.html">06-分片与MTU.md</a></li>
+<li>spec/代码差异 → <a href="../../../../notes/projects/doc-pqsectunnel/defense/09.html">09-已知差异与答辩备查.md</a></li>
+</ul>
+<h2 id="15-来源索引">15. 来源索引</h2>
+<table>
+<thead>
+<tr>
+<th><em>claim</em></th>
+<th><em>source</em></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>握手逐步步骤</td>
+<td><a href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/KE.md">KE.md</a> L1–106</td>
+</tr>
+<tr>
+<td>术语</td>
+<td><a href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/CONTEXT.md">CONTEXT.md</a></td>
+</tr>
+<tr>
+<td>noise 实现</td>
+<td><code>wireguard-linux-compat/src/noise.c</code></td>
+</tr>
+<tr>
+<td>报文 struct</td>
+<td><code>wireguard-linux-compat/src/messages.h</code></td>
+</tr>
+<tr>
+<td>MAC 先验</td>
+<td><code>wireguard-linux-compat/src/receive.c</code> L135–158</td>
+</tr>
+<tr>
+<td>发送与分片</td>
+<td><code>wireguard-linux-compat/src/send.c</code> L63–74, L129–140, L153–166</td>
+</tr>
+<tr>
+<td>主套件 vars</td>
+<td><code>wgtest/wgtest-mlkem512-mlkem768-sm4gcm-sm3/vars</code></td>
+</tr>
+<tr>
+<td>分片有效</td>
+<td><code>experiments/mlkem512-mlkem768-sm4gcm-sm3/suite_meta.env</code></td>
+</tr>
+</tbody>
+</table>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">项目笔记</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/doc-pqsectunnel/defense/03-%E6%8F%A1%E6%89%8B%E5%8D%8F%E8%AE%AE%E9%80%90%E6%AD%A5%E8%AF%A6%E8%A7%A3.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../../notes/projects/doc-pqsectunnel/defense/02.html"><span class="dir">← 上一篇</span><span class="t">02 — 协议总览</span></a><a class="next" href="../../../../notes/projects/doc-pqsectunnel/defense/04.html"><span class="dir">下一篇 →</span><span class="t">04 — 密码原语与套件</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../../index.html">首页</a>
+      <a href="../../../../learn.html">课件</a>
+      <a href="../../../../notes/index.html">笔记库</a>
+      <a href="../../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../../about.html">关于</a>
+      <a href="../../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../../js/main.js" defer></script>
+</body>
+</html>

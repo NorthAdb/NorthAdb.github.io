@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mem0 v2 → v3：记忆架构与 Hybrid Retrieval · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="本笔记整理本轮对话中对 Mem0 两代 Memory 架构，以及 Semantic / BM25 / Entity / Time 四种检索信号的讨论。">
+<link rel="canonical" href="https://northadb.github.io/notes/domains/memory/mem0-v2-v3-architecture.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Mem0 v2 → v3：记忆架构与 Hybrid Retrieval · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="本笔记整理本轮对话中对 Mem0 两代 Memory 架构，以及 Semantic / BM25 / Entity / Time 四种检索信号的讨论。">
+<meta property="og:url" content="https://northadb.github.io/notes/domains/memory/mem0-v2-v3-architecture.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Mem0 v2 → v3：记忆架构与 Hybrid Retrieval · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="本笔记整理本轮对话中对 Mem0 两代 Memory 架构，以及 Semantic / BM25 / Entity / Time 四种检索信号的讨论。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../feed.xml">
+<link rel="stylesheet" href="../../../css/style.css">
+<link rel="stylesheet" href="../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Mem0 v2 → v3：记忆架构与 Hybrid Retrieval", "description": "本笔记整理本轮对话中对 Mem0 两代 Memory 架构，以及 Semantic / BM25 / Entity / Time 四种检索信号的讨论。", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/domains/memory/mem0-v2-v3-architecture.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../web-foundation/index.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../notes/index.html">笔记库</a></li><li><a href="../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../index.html">首页</a><span>/</span><a href="../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../notes/domains/index.html">知识领域</a></div>
+          <h1>Mem0 v2 → v3：记忆架构与 Hybrid Retrieval</h1>
+          <p class="post-sub">本笔记整理本轮对话中对 Mem0 两代 Memory 架构，以及 Semantic / BM25 / Entity / Time 四种检索信号的讨论。</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../notes/domains/index.html">知识领域</a></span><span class="sep"></span>
+            <span>阅读约 9 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p>本笔记整理本轮对话中对 Mem0 两代 Memory 架构，以及 <code>Semantic / BM25 / Entity / Time</code> 四种检索信号的讨论。</p>
+</blockquote>
+<hr>
+<h2 id="1-核心结论">1. 核心结论</h2>
+<p>Mem0 这两代方案最重要的变化，不只是“检索算法变多了”，而是 <strong>Memory 的职责发生了变化</strong>：</p>
+<blockquote>
+<p><strong>v2：写入时解决新旧记忆之间的冲突，维护一份较干净的当前状态。</strong><br>
+<strong>v3：写入时尽量保留历史，不在写入阶段删除/覆盖旧事实；把“哪条记忆当前最相关”交给检索与排序阶段。</strong></p>
+</blockquote>
+<p>可以概括为：</p>
+<pre><code class="language-text">v2
+Dialogue
+  ↓
+LLM Extract
+  ↓
+Vector Search
+  ↓
+LLM Decide
+  ↓
+ADD / UPDATE / DELETE / NOOP
+</code></pre>
+<p>↓</p>
+<pre><code class="language-text">v3
+Dialogue
+  ↓
+1× LLM Extract
+  ↓
+ADD-only Store
+  ↓
+Hybrid Retrieval
+  ├─ Semantic
+  ├─ BM25
+  ├─ Entity
+  └─ Time
+  ↓
+Top-k
+</code></pre>
+<p>因此可以把两代架构理解成：</p>
+<pre><code class="language-text">v2 = State-oriented Memory
+v3 = History + Retrieval-oriented Memory
+</code></pre>
+<hr>
+<h1 id="2-mem0-v22025写入时解决冲突">2. Mem0 v2（2025）：写入时解决冲突</h1>
+<h2 id="21-流程">2.1 流程</h2>
+<pre><code class="language-text">Dialogue
+   ↓
+LLM extract candidate facts
+   ↓
+Vector search existing memory
+   ↓
+LLM compare new facts with existing facts
+   ↓
+ADD / UPDATE / DELETE / NOOP
+</code></pre>
+<p>核心思想：</p>
+<blockquote>
+<p>Memory Store 不是简单追加的日志，而是一份需要不断维护的“当前知识状态”。</p>
+</blockquote>
+<hr>
+<h2 id="22-示例">2.2 示例</h2>
+<p>历史 Memory：</p>
+<pre><code class="language-text">User lives in Beijing.
+</code></pre>
+<p>新对话：</p>
+<pre><code class="language-text">I moved to Shanghai last month.
+</code></pre>
+<h3 id="step-1llm-提取新事实">Step 1：LLM 提取新事实</h3>
+<pre><code class="language-text">User lives in Shanghai.
+</code></pre>
+<h3 id="step-2搜索相关旧记忆">Step 2：搜索相关旧记忆</h3>
+<p>找到：</p>
+<pre><code class="language-text">User lives in Beijing.
+</code></pre>
+<h3 id="step-3llm-判断新旧事实关系">Step 3：LLM 判断新旧事实关系</h3>
+<p>例如得到：</p>
+<pre><code class="language-text">Action = UPDATE
+</code></pre>
+<p>最后 Memory 变成：</p>
+<pre><code class="language-text">User lives in Shanghai.
+</code></pre>
+<p>原来的：</p>
+<pre><code class="language-text">User lives in Beijing.
+</code></pre>
+<p>被更新/覆盖。</p>
+<hr>
+<h2 id="23-add-update-delete-noop">2.3 ADD / UPDATE / DELETE / NOOP</h2>
+<p>v2 的写入决策大致可以理解为：</p>
+<table>
+<thead>
+<tr>
+<th>操作</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ADD</code></td>
+<td>新信息以前不存在，直接加入</td>
+</tr>
+<tr>
+<td><code>UPDATE</code></td>
+<td>新信息和旧信息冲突，用新信息替换旧信息</td>
+</tr>
+<tr>
+<td><code>DELETE</code></td>
+<td>旧信息已经失效，需要移除</td>
+</tr>
+<tr>
+<td><code>NOOP</code></td>
+<td>新信息没有必要改变 Memory</td>
+</tr>
+</tbody>
+</table>
+<p>因此 v2 的核心任务是：</p>
+<blockquote>
+<p><strong>维护一个相对干净、一致的 Memory State。</strong></p>
+</blockquote>
+<hr>
+<h2 id="24-v2-的优点">2.4 v2 的优点</h2>
+<ul>
+<li>Memory 中重复内容较少</li>
+<li>直接读取时容易理解“当前状态”</li>
+<li>写入后数据比较干净</li>
+<li>旧事实和新事实之间可以显式进行状态迁移</li>
+</ul>
+<hr>
+<h2 id="25-v2-的问题">2.5 v2 的问题</h2>
+<h3 id="①-写入流程复杂">① 写入流程复杂</h3>
+<p>一次 Memory 写入可能变成：</p>
+<pre><code class="language-text">LLM Extraction
++
+Vector Search
++
+LLM Decision
++
+Mutation
+</code></pre>
+<p>其中第二次 LLM 判断负责：</p>
+<blockquote>
+<p>新事实和旧事实到底是什么关系？</p>
+</blockquote>
+<hr>
+<h3 id="②-llm-可能误判">② LLM 可能误判</h3>
+<p>例如：</p>
+<pre><code class="language-text">Old:
+User works at Apple.
+
+New:
+User met his friend at Apple yesterday.
+</code></pre>
+<p>如果模型错误理解为“用户换工作”，就可能错误地：</p>
+<pre><code class="language-text">UPDATE
+</code></pre>
+<p>从而破坏原本正确的 Memory。</p>
+<hr>
+<h3 id="③-历史信息可能丢失">③ 历史信息可能丢失</h3>
+<p>如果：</p>
+<pre><code class="language-text">2024: User lives in Beijing.
+2025: User lives in Shanghai.
+</code></pre>
+<p>v2 倾向于把它理解成：</p>
+<pre><code class="language-text">Beijing → Shanghai
+</code></pre>
+<p>最终只留下当前状态。</p>
+<p>但现实世界中的 Memory 经常不是简单的“旧值错误，新值正确”。</p>
+<hr>
+<h1 id="3-mem0-v32026-04add-only-retrieval-决策">3. Mem0 v3（2026-04）：ADD-only + Retrieval 决策</h1>
+<p>v3 的架构发生了明显变化：</p>
+<pre><code class="language-text">Dialogue
+   ↓
+1× LLM extract
+   ↓
+ADD-only store
+   ↓
+Hybrid retrieval
+   ↓
+Top-k
+</code></pre>
+<p>其中最关键的是：</p>
+<blockquote>
+<p><strong>ADD-only Store</strong></p>
+</blockquote>
+<p>即：</p>
+<blockquote>
+<p>新 Memory 默认追加保存，而不是在写入时 UPDATE / DELETE 旧 Memory。</p>
+</blockquote>
+<hr>
+<h1 id="4-v3-为什么要保留历史">4. v3 为什么要保留历史？</h1>
+<p>因为很多所谓的“冲突”，其实并不是错误，而是 <strong>时间不同导致的不同状态</strong>。</p>
+<p>例如：</p>
+<pre><code class="language-text">2024:
+User lives in Beijing.
+
+2025:
+User moved to Shanghai.
+
+2026:
+User plans to move to Tokyo.
+</code></pre>
+<p>这些信息都可能是真的：</p>
+<pre><code class="language-text">Beijing  = 过去状态
+Shanghai = 当前状态
+Tokyo    = 未来计划
+</code></pre>
+<p>因此：</p>
+<pre><code class="language-text">Beijing
+Shanghai
+Tokyo
+</code></pre>
+<p>并不一定应该被视为“冲突”。</p>
+<hr>
+<h1 id="5-v3-的核心变化从-write-time-conflict-resolution-到-read-time-resolution">5. v3 的核心变化：从 Write-time Conflict Resolution 到 Read-time Resolution</h1>
+<p>这是理解 v2 → v3 的关键。</p>
+<h2 id="v2">v2</h2>
+<pre><code class="language-text">新 Memory
+   ↓
+寻找旧 Memory
+   ↓
+比较
+   ↓
+写入时解决冲突
+</code></pre>
+<p>即：</p>
+<blockquote>
+<p><strong>Conflict Resolution at Write Time</strong></p>
+</blockquote>
+<hr>
+<h2 id="v3">v3</h2>
+<pre><code class="language-text">新 Memory
+   ↓
+直接 ADD
+   ↓
+历史全部保留
+   ↓
+Query
+   ↓
+Hybrid Retrieval
+   ↓
+根据语义、关键词、实体、时间进行排序
+</code></pre>
+<p>即：</p>
+<blockquote>
+<p><strong>Conflict Resolution / Relevance Resolution at Retrieval Time</strong></p>
+</blockquote>
+<p>因此：</p>
+<pre><code class="language-text">v2 = 写入时决定“谁覆盖谁”
+v3 = 查询时决定“现在应该看谁”
+</code></pre>
+<hr>
+<h1 id="6-v3-的-add-only-store">6. v3 的 ADD-only Store</h1>
+<p>可以把 v3 的 Memory 更接近地理解成：</p>
+<pre><code class="language-text">Historical Fact Store
+</code></pre>
+<p>而不是：</p>
+<pre><code class="language-text">Current State Table
+</code></pre>
+<p>例如：</p>
+<pre><code class="language-text">2024 → Beijing
+2025 → Shanghai
+2026 → Tokyo plan
+</code></pre>
+<p>全部保留。</p>
+<p>然后不同 Query 得到不同结果。</p>
+<h3 id="query-1">Query 1</h3>
+<pre><code class="language-text">Where do I live now?
+</code></pre>
+<p>结果更倾向：</p>
+<pre><code class="language-text">Shanghai
+</code></pre>
+<h3 id="query-2">Query 2</h3>
+<pre><code class="language-text">Where did I live in 2024?
+</code></pre>
+<p>结果：</p>
+<pre><code class="language-text">Beijing
+</code></pre>
+<h3 id="query-3">Query 3</h3>
+<pre><code class="language-text">Where am I planning to move?
+</code></pre>
+<p>结果：</p>
+<pre><code class="language-text">Tokyo
+</code></pre>
+<p>所以：</p>
+<blockquote>
+<p>Memory 本身保存“历史事实”，Query 决定“应该使用哪一个事实”。</p>
+</blockquote>
+<hr>
+<h1 id="7-hybrid-retrieval">7. Hybrid Retrieval</h1>
+<p>v3 的另一大变化是：</p>
+<pre><code class="language-text">Hybrid Retrieval
+</code></pre>
+<p>图中给出了四种重要信号：</p>
+<pre><code class="language-text">Semantic · BM25 · Entity · Time
+</code></pre>
+<p>它们可以理解为四种不同的“找 Memory 的依据”。</p>
+<pre><code class="language-text">Semantic → 意思
+BM25     → 关键词
+Entity   → 对象
+Time     → 时间
+</code></pre>
+<p>最终再把这些信号综合起来做 Ranking。</p>
+<hr>
+<h1 id="8-semantic语义检索">8. Semantic：语义检索</h1>
+<h2 id="81-它解决什么问题">8.1 它解决什么问题？</h2>
+<p>核心问题：</p>
+<blockquote>
+<p><strong>“这条 Memory 和 Query 的意思像不像？”</strong></p>
+</blockquote>
+<p>通常会使用：</p>
+<pre><code class="language-text">Embedding
+    ↓
+Vector Similarity
+</code></pre>
+<hr>
+<h2 id="82-示例">8.2 示例</h2>
+<p>Memory：</p>
+<pre><code class="language-text">I moved to Shanghai last year.
+</code></pre>
+<p>Query：</p>
+<pre><code class="language-text">Where does the user live?
+</code></pre>
+<p>虽然字面不完全一致：</p>
+<pre><code class="language-text">moved
+live
+</code></pre>
+<p>但语义相关，因此 Semantic Retrieval 可以召回它。</p>
+<hr>
+<h2 id="83-特点">8.3 特点</h2>
+<h3 id="优点">优点</h3>
+<ul>
+<li>擅长理解语义</li>
+<li>不要求 Query 和 Memory 使用完全相同的词</li>
+<li>对自然语言表达变化比较鲁棒</li>
+</ul>
+<h3 id="局限">局限</h3>
+<ul>
+<li>精确关键词可能不是它最强的场景</li>
+<li>数字、版本号、专有名词等精确匹配可能需要其他信号补充</li>
+</ul>
+<hr>
+<h1 id="9-bm25关键词检索">9. BM25：关键词检索</h1>
+<p>BM25 是经典的 <strong>Lexical Retrieval（词法检索）</strong> 方法。</p>
+<p>它更关注：</p>
+<blockquote>
+<p><strong>Query 中的词，在文档/Memory 中出现得有多重要。</strong></p>
+</blockquote>
+<hr>
+<h2 id="91-示例">9.1 示例</h2>
+<p>Query：</p>
+<pre><code class="language-text">What PostgreSQL version did I install?
+</code></pre>
+<p>Memory：</p>
+<pre><code class="language-text">I installed PostgreSQL 17.3 on my server.
+</code></pre>
+<p>这里：</p>
+<pre><code class="language-text">PostgreSQL
+17.3
+</code></pre>
+<p>属于非常精确的关键词。</p>
+<p>BM25 对这种场景非常有价值。</p>
+<hr>
+<h2 id="92-semantic-vs-bm25">9.2 Semantic vs BM25</h2>
+<pre><code class="language-text">Semantic
+= “意思像不像？”
+
+BM25
+= “关键词对不对得上？”
+</code></pre>
+<p>例如：</p>
+<pre><code class="language-text">Query:
+database version
+</code></pre>
+<p>Memory：</p>
+<pre><code class="language-text">PostgreSQL 17.3
+</code></pre>
+<p>Semantic 可能能够理解两者相关。</p>
+<p>而：</p>
+<pre><code class="language-text">Query:
+PostgreSQL 17.3
+</code></pre>
+<p>这种精确查询，BM25 更容易发挥优势。</p>
+<hr>
+<h2 id="93-为什么需要-bm25">9.3 为什么需要 BM25？</h2>
+<p>因为只用 Vector Search：</p>
+<pre><code class="language-text">Query
+ ↓
+Embedding
+ ↓
+Vector Search
+</code></pre>
+<p>会弱化精确文本匹配。</p>
+<p>因此：</p>
+<pre><code class="language-text">Semantic + BM25
+</code></pre>
+<p>可以互补：</p>
+<pre><code class="language-text">Semantic → Recall semantic similarity
+BM25     → Recall exact lexical matches
+</code></pre>
+<hr>
+<h1 id="10-entity实体匹配-实体关联">10. Entity：实体匹配 / 实体关联</h1>
+<p>Entity Signal 关注：</p>
+<blockquote>
+<p><strong>“这些 Memory 说的是不是同一个人、物体、公司、地点、项目或产品？”</strong></p>
+</blockquote>
+<hr>
+<h2 id="101-示例">10.1 示例</h2>
+<p>历史：</p>
+<pre><code class="language-text">I bought a MacBook Pro.
+
+The MacBook has an M4 chip.
+
+My laptop battery is great.
+</code></pre>
+<p>这三句话实际上可能都在描述：</p>
+<pre><code class="language-text">MacBook Pro
+</code></pre>
+<p>其中：</p>
+<pre><code class="language-text">MacBook Pro
+MacBook
+laptop
+</code></pre>
+<p>可以被理解为相关实体。</p>
+<hr>
+<h2 id="102-entity-和-semantic-的区别">10.2 Entity 和 Semantic 的区别</h2>
+<p>可以简单记：</p>
+<pre><code class="language-text">Semantic
+→ “意思相似吗？”
+
+Entity
+→ “是不是同一个对象？”
+</code></pre>
+<p>例如：</p>
+<pre><code class="language-text">Apple
+Apple Inc.
+the company
+the Cupertino company
+</code></pre>
+<p>它们语义相关之外，还需要判断：</p>
+<blockquote>
+<p>是否在指向同一个实体。</p>
+</blockquote>
+<p>因此 Entity Signal 特别适合：</p>
+<pre><code class="language-text">人物
+公司
+地点
+项目
+产品
+技术名称
+</code></pre>
+<p>等 Memory。</p>
+<hr>
+<h1 id="11-time时间-时序信号">11. Time：时间 / 时序信号</h1>
+<p>Time Signal 关注：</p>
+<blockquote>
+<p><strong>“这条 Memory 发生在什么时候？它描述的是过去、现在还是未来？”</strong></p>
+</blockquote>
+<p>这是 v3 架构里非常重要的部分。</p>
+<hr>
+<h2 id="111-示例">11.1 示例</h2>
+<p>历史：</p>
+<pre><code class="language-text">2024:
+I live in Beijing.
+
+2025:
+I moved to Shanghai.
+
+2026:
+I'm planning to move to Tokyo.
+</code></pre>
+<p>Query：</p>
+<pre><code class="language-text">Where do I live now?
+</code></pre>
+<p>单纯 Semantic Search 可能认为三条都相关。</p>
+<p>但加入 Time 后，可以得到：</p>
+<pre><code class="language-text">Beijing
+→ past
+
+Shanghai
+→ current
+
+Tokyo
+→ future plan
+</code></pre>
+<p>于是：</p>
+<pre><code class="language-text">Shanghai
+↑
+更符合“now”
+</code></pre>
+<hr>
+<h2 id="112-为什么-time-很重要">11.2 为什么 Time 很重要？</h2>
+<p>因为：</p>
+<blockquote>
+<p><strong>“旧事实”不一定是“错误事实”。</strong></p>
+</blockquote>
+<p>例如：</p>
+<pre><code class="language-text">Beijing
+</code></pre>
+<p>在 2024 年可能完全正确。</p>
+<p>问题不在于：</p>
+<pre><code class="language-text">Beijing = Wrong
+</code></pre>
+<p>而在于：</p>
+<pre><code class="language-text">Beijing = Historical
+Shanghai = Current
+Tokyo = Future
+</code></pre>
+<p>因此时间信息可以帮助系统避免把历史事实错误地当成当前事实。</p>
+<hr>
+<h1 id="12-四种-retrieval-signal-的一句话理解">12. 四种 Retrieval Signal 的一句话理解</h1>
+<table>
+<thead>
+<tr>
+<th>Signal</th>
+<th>核心问题</th>
+<th>主要作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Semantic</strong></td>
+<td>意思像不像？</td>
+<td>语义相关性</td>
+</tr>
+<tr>
+<td><strong>BM25</strong></td>
+<td>关键词对不对？</td>
+<td>精确文本匹配</td>
+</tr>
+<tr>
+<td><strong>Entity</strong></td>
+<td>是不是同一个对象？</td>
+<td>实体关联</td>
+</tr>
+<tr>
+<td><strong>Time</strong></td>
+<td>哪个时间更合适？</td>
+<td>新旧 / 过去现在未来判断</td>
+</tr>
+</tbody>
+</table>
+<p>可以直接记：</p>
+<pre><code class="language-text">Semantic = 意思
+BM25     = 词
+Entity   = 对象
+Time     = 时间
+</code></pre>
+<hr>
+<h1 id="13-四个信号不是四选一而是综合-ranking">13. 四个信号不是四选一，而是综合 Ranking</h1>
+<p>可以把 v3 的 Retrieval 理解成：</p>
+<pre><code class="language-text">                    ┌─ Semantic
+                    │
+Query ──────────────┼─ BM25
+                    │
+                    ├─ Entity
+                    │
+                    └─ Time
+                           ↓
+                     Fusion / Ranking
+                           ↓
+                          Top-k
+</code></pre>
+<p>也就是说：</p>
+<blockquote>
+<p><strong>不是“Semantic 找一次、BM25 找一次，然后四选一”，而是利用多个 retrieval signal 综合判断哪些 Memory 最值得返回。</strong></p>
+</blockquote>
+<hr>
+<h1 id="14-一个完整的-v3-示例">14. 一个完整的 v3 示例</h1>
+<p>假设 Memory Store 中保存了：</p>
+<pre><code class="language-text">2024
+User lived in Beijing.
+
+2025
+User moved to Shanghai.
+
+2025
+User works at Company A.
+
+2026
+User plans to move to Tokyo next year.
+
+2026
+User uses PostgreSQL 17.3.
+</code></pre>
+<p>现在 Query：</p>
+<pre><code class="language-text">Where does the user live now?
+</code></pre>
+<p>系统可能得到：</p>
+<h3 id="semantic">Semantic</h3>
+<p>召回：</p>
+<pre><code class="language-text">User lived in Beijing.
+User moved to Shanghai.
+User plans to move to Tokyo.
+</code></pre>
+<h3 id="bm25">BM25</h3>
+<p>如果 Query 中出现：</p>
+<pre><code class="language-text">live
+</code></pre>
+<p>会补充一些 lexical match。</p>
+<h3 id="entity">Entity</h3>
+<p>识别：</p>
+<pre><code class="language-text">Beijing
+Shanghai
+Tokyo
+</code></pre>
+<p>都是地点实体。</p>
+<h3 id="time">Time</h3>
+<p>判断：</p>
+<pre><code class="language-text">Beijing → past
+Shanghai → current
+Tokyo → future
+</code></pre>
+<p>最终 Ranking：</p>
+<pre><code class="language-text">Shanghai
+↑
+Top result
+</code></pre>
+<hr>
+<h1 id="15-两代架构的本质对比">15. 两代架构的本质对比</h1>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Mem0 v2</th>
+<th>Mem0 v3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>核心理念</td>
+<td>State-based</td>
+<td>History + Retrieval</td>
+</tr>
+<tr>
+<td>写入模式</td>
+<td>ADD / UPDATE / DELETE / NOOP</td>
+<td><strong>ADD-only</strong></td>
+</tr>
+<tr>
+<td>新旧 Memory 是否比较</td>
+<td>写入时比较</td>
+<td>查询时综合判断</td>
+</tr>
+<tr>
+<td>冲突处理</td>
+<td>LLM 决策</td>
+<td>Retrieval / Ranking</td>
+</tr>
+<tr>
+<td>历史记录</td>
+<td>可能被覆盖</td>
+<td><strong>尽量保留</strong></td>
+</tr>
+<tr>
+<td>Vector Search</td>
+<td>寻找冲突候选</td>
+<td>检索信号之一</td>
+</tr>
+<tr>
+<td>BM25</td>
+<td>非核心</td>
+<td><strong>重要检索信号</strong></td>
+</tr>
+<tr>
+<td>Entity</td>
+<td>非核心</td>
+<td><strong>实体检索信号</strong></td>
+</tr>
+<tr>
+<td>Time</td>
+<td>相对弱</td>
+<td><strong>重要检索信号</strong></td>
+</tr>
+<tr>
+<td>LLM 调用</td>
+<td>Extraction + Decision</td>
+<td><strong>Single-pass Extraction</strong></td>
+</tr>
+<tr>
+<td>主要复杂度</td>
+<td>写入侧</td>
+<td><strong>检索侧</strong></td>
+</tr>
+<tr>
+<td>Memory 的角色</td>
+<td>当前知识状态</td>
+<td>历史事实集合</td>
+</tr>
+<tr>
+<td>Conflict 观</td>
+<td>新旧信息互相覆盖</td>
+<td>新旧信息可能都是正确的，只是时间不同</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h1 id="16-一个非常直观的类比">16. 一个非常直观的类比</h1>
+<h2 id="v2像-update-型数据库">v2：像 UPDATE 型数据库</h2>
+<pre><code class="language-text">user_location = Beijing
+</code></pre>
+<p>后来：</p>
+<pre><code class="language-text">user_location = Shanghai
+</code></pre>
+<p>执行：</p>
+<pre><code class="language-text">UPDATE
+</code></pre>
+<p>最终：</p>
+<pre><code class="language-text">user_location = Shanghai
+</code></pre>
+<hr>
+<h2 id="v3更像-history-event-store-retrieval">v3：更像 History / Event Store + Retrieval</h2>
+<p>保存：</p>
+<pre><code class="language-text">2024 → Beijing
+2025 → Shanghai
+2026 → Tokyo plan
+</code></pre>
+<p>查询：</p>
+<pre><code class="language-text">Current location?
+</code></pre>
+<p>再根据：</p>
+<pre><code class="language-text">Semantic
++ BM25
++ Entity
++ Time
+</code></pre>
+<p>得到：</p>
+<pre><code class="language-text">Shanghai
+</code></pre>
+<blockquote>
+<p>这不是严格意义上的 Event Sourcing，只是为了帮助理解其架构倾向。</p>
+</blockquote>
+<hr>
+<h1 id="17-与-agent-架构趋势的关联">17. 与 Agent 架构趋势的关联</h1>
+<p>这一变化和 Agent 中经常讨论的：</p>
+<pre><code class="language-text">LLM-driven
+vs
+Runtime-driven
+</code></pre>
+<p>存在一定相似性。</p>
+<h2 id="v2_1">v2</h2>
+<p>更多事情交给 LLM：</p>
+<pre><code class="language-text">LLM
+ ├─ extract fact
+ └─ decide whether UPDATE / DELETE / NOOP
+</code></pre>
+<p>可以理解为：</p>
+<pre><code class="language-text">LLM = Memory State Manager
+</code></pre>
+<hr>
+<h2 id="v3_1">v3</h2>
+<p>LLM 主要负责：</p>
+<pre><code class="language-text">Dialogue → Fact Extraction
+</code></pre>
+<p>而大量后续工作交给系统基础设施：</p>
+<pre><code class="language-text">ADD-only Store
+Retrieval
+BM25
+Entity Linking
+Temporal Ranking
+</code></pre>
+<p>因此可以理解为：</p>
+<blockquote>
+<p><strong>把 Memory 的部分“决策复杂性”从 LLM 驱动的写入 mutation，转移到了 Retrieval Infrastructure。</strong></p>
+</blockquote>
+<p>这和现代 Agent 越来越强调：</p>
+<pre><code class="language-text">Runtime
+Orchestration
+Retrieval
+Routing
+State Management
+</code></pre>
+<p>的趋势具有相似的架构思路。</p>
+<hr>
+<h1 id="18-最终心智模型">18. 最终心智模型</h1>
+<p>理解 Mem0 v2 → v3，最重要的是记住下面这条演化线：</p>
+<pre><code class="language-text">┌─────────────────────────────────────────────┐
+│                  Mem0 v2                    │
+│                                             │
+│ Dialogue                                    │
+│    ↓                                        │
+│ Extract                                     │
+│    ↓                                        │
+│ Search old memory                           │
+│    ↓                                        │
+│ LLM compare                                 │
+│    ↓                                        │
+│ ADD / UPDATE / DELETE / NOOP                │
+│                                             │
+│     → 写入时维护“当前状态”                  │
+└─────────────────────────────────────────────┘
+
+                     ↓ 演化
+
+┌─────────────────────────────────────────────┐
+│                  Mem0 v3                    │
+│                                             │
+│ Dialogue                                    │
+│    ↓                                        │
+│ 1× LLM Extract                              │
+│    ↓                                        │
+│ ADD-only Store                               │
+│    ↓                                        │
+│ Hybrid Retrieval                            │
+│    ├─ Semantic                              │
+│    ├─ BM25                                  │
+│    ├─ Entity                                │
+│    └─ Time                                  │
+│    ↓                                        │
+│ Top-k                                       │
+│                                             │
+│     → 写入时保留历史，读取时决定相关性      │
+└─────────────────────────────────────────────┘
+</code></pre>
+<hr>
+<h1 id="19-一句话总结">19. 一句话总结</h1>
+<blockquote>
+<p><strong>Mem0 v2 的思路是“写入时把 Memory 整理干净”；Mem0 v3 的思路是“写入时尽量不丢历史，查询时通过 Semantic + BM25 + Entity + Time 决定哪些历史最相关”。</strong></p>
+</blockquote>
+<p>进一步压缩成四个关键词：</p>
+<pre><code class="language-text">v2 → Conflict Resolution at Write Time
+v3 → History Preservation + Retrieval-time Resolution
+
+Semantic → 意思
+BM25     → 关键词
+Entity   → 对象
+Time     → 时间
+</code></pre>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">知识领域</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A2%86%E5%9F%9F/memory/mem0_v2_v3_architecture.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../notes/domains/memory/claudecodeagent.html"><span class="dir">← 上一篇</span><span class="t">Claude Code 记忆系统与 Agent 记忆架构</span></a><a class="next" href="../../../notes/domains/nginx/nginx-adaptation.html"><span class="dir">下一篇 →</span><span class="t">基于 openHiTLS 的 nginx 1.29.6 适配与单端口国密/国际自适应研究文档</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../index.html">首页</a>
+      <a href="../../../learn.html">课件</a>
+      <a href="../../../notes/index.html">笔记库</a>
+      <a href="../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../about.html">关于</a>
+      <a href="../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../js/main.js" defer></script>
+</body>
+</html>

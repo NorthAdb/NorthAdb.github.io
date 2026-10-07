@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>05 — 内核实现路径 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="状态：正文 | 权威源：KE.md../../KE.md L3 + receive.c / send.c / noise.c 主套件：mlkem512-mlkem768-sm4gcm-sm3 | 预计篇幅：5 min 讲稿（30 min 版…">
+<link rel="canonical" href="https://northadb.github.io/notes/projects/doc-pqsectunnel/defense/05.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="05 — 内核实现路径 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="状态：正文 | 权威源：KE.md../../KE.md L3 + receive.c / send.c / noise.c 主套件：mlkem512-mlkem768-sm4gcm-sm3 | 预计篇幅：5 min 讲稿（30 min 版…">
+<meta property="og:url" content="https://northadb.github.io/notes/projects/doc-pqsectunnel/defense/05.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="05 — 内核实现路径 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="状态：正文 | 权威源：KE.md../../KE.md L3 + receive.c / send.c / noise.c 主套件：mlkem512-mlkem768-sm4gcm-sm3 | 预计篇幅：5 min 讲稿（30 min 版…">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../../feed.xml">
+<link rel="stylesheet" href="../../../../css/style.css">
+<link rel="stylesheet" href="../../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "05 — 内核实现路径", "description": "状态：正文 | 权威源：KE.md../../KE.md L3 + receive.c / send.c / noise.c 主套件：mlkem512-mlkem768-sm4gcm-sm3 | 预计篇幅：5 min 讲稿（30 min 版…", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/projects/doc-pqsectunnel/defense/05.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../../web-foundation/index.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../../notes/index.html">笔记库</a></li><li><a href="../../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../../index.html">首页</a><span>/</span><a href="../../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../../notes/projects/index.html">项目笔记</a></div>
+          <h1>05 — 内核实现路径</h1>
+          <p class="post-sub">状态：正文 | 权威源：KE.md../../KE.md L3 + receive.c / send.c / noise.c 主套件：mlkem512-mlkem768-sm4gcm-sm3 | 预计篇幅：5 min 讲稿（30 min 版…</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../../notes/projects/index.html">项目笔记</a></span><span class="sep"></span>
+            <span>阅读约 5 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p>状态：正文 | 权威源：<a href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/KE.md">KE.md</a> L3 + <code>receive.c</code> / <code>send.c</code> / <code>noise.c</code><br>
+主套件：<code>mlkem512-mlkem768-sm4gcm-sm3</code> | 预计篇幅：5 min 讲稿（30 min 版）</p>
+</blockquote>
+<h2 id="1-核心原则">1. 核心原则</h2>
+<p>KE.md L3：</p>
+<blockquote>
+<p>mac1/mac2 不参与 C/H 链；<strong>接收侧 receive.c 入口先验 mac</strong>，再进 noise.c 做 KEM/AEAD。</p>
+</blockquote>
+<p>KE 表格中的 mac 步骤是<strong>发送侧组包/transcript 顺序</strong>；noise.c 内只做 KEM、AEAD 与 C/H 更新，不算 MAC。</p>
+<hr>
+<h2 id="2-内核模块文件分工">2. 内核模块文件分工</h2>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>职责</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>noise.c</code> / <code>noise.h</code></td>
+<td>握手状态机、KEM/AEAD、C/H 链、会话密钥派生</td>
+</tr>
+<tr>
+<td><code>messages.h</code></td>
+<td>报文 struct、尺寸宏、type 枚举</td>
+</tr>
+<tr>
+<td><code>send.c</code></td>
+<td>握手发送调度、MAC 添加、应用层分片发送</td>
+</tr>
+<tr>
+<td><code>receive.c</code></td>
+<td>UDP 收包、分片重组、MAC 验证、握手 dispatch、数据面解密</td>
+</tr>
+<tr>
+<td><code>cookie.c</code></td>
+<td>MAC1/MAC2 计算与 Cookie Reply</td>
+</tr>
+<tr>
+<td><code>pqc_fragment.c</code></td>
+<td>应用层分片/重组（主套件 Initiation/Response）</td>
+</tr>
+<tr>
+<td><code>socket.c</code></td>
+<td>原始 UDP 发送（<code>send4</code>/<code>send6</code>）</td>
+</tr>
+<tr>
+<td><code>device.c</code> / <code>peer.c</code></td>
+<td>设备与 peer 生命周期</td>
+</tr>
+<tr>
+<td><code>allowedips.c</code></td>
+<td>数据面路由 Trie</td>
+</tr>
+<tr>
+<td><code>timers.c</code></td>
+<td>keepalive、rekey、握手重试</td>
+</tr>
+</tbody>
+</table>
+<p>密码运算<strong>全部在内核</strong> <code>pqsectunnel.ko</code>；用户态 <strong>pqst</strong> 仅通过 Netlink 配置密钥与 peer（CONTEXT <strong>pqsectunnel.ko</strong> / <strong>pqst</strong>）。</p>
+<hr>
+<h2 id="3-握手状态机">3. 握手状态机</h2>
+<p>定义：<code>noise.h</code> <code>enum noise_handshake_state</code></p>
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th>含义</th>
+<th>典型触发</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>HANDSHAKE_ZEROED</code></td>
+<td>初始/已清零</td>
+<td>握手开始或 <code>begin_session</code> 后</td>
+</tr>
+<tr>
+<td><code>HANDSHAKE_CREATED_INITIATION</code></td>
+<td>Initiator 已发 Initiation</td>
+<td><code>create_initiation</code> 成功</td>
+</tr>
+<tr>
+<td><code>HANDSHAKE_CONSUMED_INITIATION</code></td>
+<td>Responder 已消费 Initiation</td>
+<td><code>consume_initiation</code> 成功</td>
+</tr>
+<tr>
+<td><code>HANDSHAKE_CREATED_RESPONSE</code></td>
+<td>Responder 已发 Response</td>
+<td><code>create_response</code> 成功</td>
+</tr>
+<tr>
+<td><code>HANDSHAKE_CONSUMED_RESPONSE</code></td>
+<td>Initiator 已消费 Response</td>
+<td><code>consume_response</code> 成功</td>
+</tr>
+</tbody>
+</table>
+<p>状态转移与三报文对应关系见 <a href="../../../../notes/projects/doc-pqsectunnel/defense/03.html">03</a> §12.3。</p>
+<hr>
+<h2 id="4-接收路径握手">4. 接收路径（握手）</h2>
+<h3 id="41-总入口">4.1 总入口</h3>
+<pre><code>UDP 到达
+  → wg_packet_receive()                    [receive.c L602]
+  → prepare_skb_header()                   校验 UDP 载荷
+  → pqc_fragment_recv()                    若 magic=0x5051，重组 [L607–627]
+  → 入队 handshake_queue                   type 1–4 [L631–657]
+  → wg_receive_handshake_packet()          工作队列处理 [L106]
+</code></pre>
+<h3 id="42-握手包处理mac-先于-noise">4.2 握手包处理（MAC 先于 noise）</h3>
+<p><code>wg_receive_handshake_packet()</code>（L106–219）顺序：</p>
+<table>
+<thead>
+<tr>
+<th>步</th>
+<th>操作</th>
+<th>源码行</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>若为 Cookie Reply (type=4)，单独处理</td>
+<td>L118–123</td>
+</tr>
+<tr>
+<td>2</td>
+<td>判断高负载 <code>under_load</code></td>
+<td>L126–134</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong><code>wg_cookie_validate_packet()</code> 验 MAC</strong></td>
+<td><strong>L135–136</strong></td>
+</tr>
+<tr>
+<td>4</td>
+<td>mac₂ 无效且高负载 → 发 Cookie，<strong>不进 noise</strong></td>
+<td>L140–156 等</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>wg_noise_handshake_consume_*()</code></td>
+<td>L158 / L180 / L202</td>
+</tr>
+<tr>
+<td>6</td>
+<td>成功后触发对端发送下一报文</td>
+<td>L168 / L190 / L212</td>
+</tr>
+</tbody>
+</table>
+<h3 id="43-三报文-consume-与后续动作">4.3 三报文 consume 与后续动作</h3>
+<table>
+<thead>
+<tr>
+<th>type</th>
+<th>consume 函数</th>
+<th>成功后</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 Initiation</td>
+<td><code>wg_noise_handshake_consume_initiation</code></td>
+<td><code>wg_packet_send_handshake_response</code></td>
+</tr>
+<tr>
+<td>2 Response</td>
+<td><code>wg_noise_handshake_consume_response</code></td>
+<td><code>wg_packet_send_handshake_key_confirm</code></td>
+</tr>
+<tr>
+<td>3 Key Confirm</td>
+<td><code>wg_noise_handshake_consume_key_confirm</code></td>
+<td><code>wg_noise_handshake_begin_session</code> + timers</td>
+</tr>
+</tbody>
+</table>
+<p>Key Confirmation 接收侧（L212–217）：<code>begin_session</code> → <code>pqc_fragment_session_established</code> → <code>wg_timers_session_derived</code> → keepalive。</p>
+<hr>
+<h2 id="5-发送路径握手">5. 发送路径（握手）</h2>
+<h3 id="51-三报文发送链">5.1 三报文发送链</h3>
+<table>
+<thead>
+<tr>
+<th>报文</th>
+<th>组包 (noise)</th>
+<th>+ MAC (cookie)</th>
+<th>发送</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Initiation</td>
+<td><code>wg_noise_handshake_create_initiation</code></td>
+<td><code>wg_cookie_add_mac_to_packet</code></td>
+<td><code>pqc_fragment_send</code> 或 <code>wg_socket_send_buffer_to_peer</code></td>
+</tr>
+<tr>
+<td>Response</td>
+<td><code>wg_noise_handshake_create_response</code></td>
+<td>同上</td>
+<td>同上</td>
+</tr>
+<tr>
+<td>Key Confirm</td>
+<td><code>wg_noise_handshake_create_key_confirm</code></td>
+<td>同上</td>
+<td><strong>单包</strong> <code>wg_socket_send_buffer_to_peer</code>（60 B）</td>
+</tr>
+</tbody>
+</table>
+<p>源码：<code>send.c</code> L50–74（Initiation）、L120–140（Response）、L144–169（Key Confirm）。</p>
+<h3 id="52-发送顺序要点">5.2 发送顺序要点</h3>
+<ol>
+<li><strong>noise.c 组包</strong> — 填充 struct，更新 C/H，不含 MAC 字段</li>
+<li><strong><code>wg_cookie_add_mac_to_packet</code></strong> — MAC 覆盖 type…payload（完整握手缓冲）</li>
+<li><strong>分片或直发</strong> — 主套件 Initiation/Response 走 <code>pqc_fragment_send</code>（<code>#if PQST_APP_LAYER_FRAGMENTATION</code>）</li>
+<li><strong>Key Confirm 特殊</strong> — Initiator 在 <code>create_key_confirm</code> 后、发送前调用 <code>begin_session</code>（L155–156）</li>
+</ol>
+<p>MAC 必须在分片<strong>之前</strong>计算，保证每个分片重组后的缓冲与 MAC 验证一致（见 <a href="../../../../notes/projects/doc-pqsectunnel/defense/06-mtu.html">06</a>）。</p>
+<hr>
+<h2 id="6-数据面路径messagedata">6. 数据面路径（MESSAGE_DATA）</h2>
+<p>握手完成后 type=5：</p>
+<p><strong>接收</strong>（<code>receive.c</code>）：</p>
+<pre><code>wg_packet_receive → type=5
+  → wg_packet_consume_data
+  → 查找 keypair（index + replay counter）
+  → 入队 decrypt_queue → AEAD 解密（SM4-GCM）
+  → allowedips 匹配 → netif_rx 注入
+</code></pre>
+<p><strong>发送</strong>（<code>send.c</code> / <code>queueing.c</code>）：</p>
+<pre><code>明文 IP 包 → allowedips 选 peer
+  → AEAD 加密（TK + counter）
+  → wg_socket_send_skb_to_peer
+</code></pre>
+<p>会话密钥 <strong>TK_i / TK_r</strong> 由 <code>derive_keys()</code> 从 C₁₀ 派生；Initiator/Responder 的 sending/receiving 方向在 <code>begin_session</code> 中按状态区分（<a href="../../../../notes/projects/doc-pqsectunnel/defense/03.html">03</a> §9.1）。</p>
+<hr>
+<h2 id="7-密钥层次握手-vs-数据面">7. 密钥层次（握手 vs 数据面）</h2>
+<table>
+<thead>
+<tr>
+<th>密钥</th>
+<th>派生阶段</th>
+<th>用途</th>
+<th>noise.c</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>K₁</td>
+<td>Initiation（ct₁ 后）</td>
+<td>AEAD 加密 static</td>
+<td><code>mix_kem_ss</code> → <code>message_encrypt(static)</code></td>
+</tr>
+<tr>
+<td>K₂</td>
+<td>Initiation（mix_psk 后）</td>
+<td>AEAD 加密 time</td>
+<td><code>mix_psk</code> → <code>message_encrypt(time)</code></td>
+</tr>
+<tr>
+<td>K₃</td>
+<td>Response（ct₂/ct₃ 后）</td>
+<td>AEAD 加密 empty</td>
+<td><code>mix_psk</code> → <code>message_encrypt(empty)</code></td>
+</tr>
+<tr>
+<td>K₄</td>
+<td>Response/Confirm（empty 后）</td>
+<td>AEAD 加密 conf</td>
+<td><code>kdf</code> → <code>message_encrypt(conf)</code></td>
+</tr>
+<tr>
+<td><strong>TK_i / TK_r</strong></td>
+<td>begin_session</td>
+<td>MESSAGE_DATA</td>
+<td><code>derive_keys()</code></td>
+</tr>
+</tbody>
+</table>
+<p>CONTEXT：<strong>K1–K4</strong> vs <strong>会话密钥（TK_i / TK_r）</strong>。</p>
+<hr>
+<h2 id="8-noisec-入口速查">8. noise.c 入口速查</h2>
+<p>完整逐步映射见 <a href="../../../../notes/projects/doc-pqsectunnel/defense/03.html">03</a> §12。</p>
+<table>
+<thead>
+<tr>
+<th>函数</th>
+<th>角色</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>wg_noise_handshake_create_initiation</code></td>
+<td>Initiator 组 Initiation</td>
+</tr>
+<tr>
+<td><code>wg_noise_handshake_consume_initiation</code></td>
+<td>Responder 解 Initiation</td>
+</tr>
+<tr>
+<td><code>wg_noise_handshake_create_response</code></td>
+<td>Responder 组 Response</td>
+</tr>
+<tr>
+<td><code>wg_noise_handshake_consume_response</code></td>
+<td>Initiator 解 Response</td>
+</tr>
+<tr>
+<td><code>wg_noise_handshake_create_key_confirm</code></td>
+<td>Initiator 组 Key Confirm</td>
+</tr>
+<tr>
+<td><code>wg_noise_handshake_consume_key_confirm</code></td>
+<td>Responder 解 Key Confirm</td>
+</tr>
+<tr>
+<td><code>wg_noise_handshake_begin_session</code></td>
+<td>派生 TK、安装 keypair、清零 handshake</td>
+</tr>
+</tbody>
+</table>
+<p>Transcript 原语：<code>handshake_init</code>、<code>message_ephemeral</code>、<code>mix_hash</code>、<code>mix_kem_ss</code>、<code>mix_psk</code>、<code>mix_key_chain_only</code>、<code>message_encrypt/decrypt</code>、<code>kdf</code>、<code>noise_hash</code>。</p>
+<hr>
+<h2 id="9-主套件端到端调用链">9. 主套件端到端调用链</h2>
+<pre><code>Initiator (pqst0)                         Responder (server0.pqst0)
+─────────────────                         ───────────────────────
+send: create_initiation
+      add_mac
+      pqc_fragment_send (2068→2片)  ────► recv: fragment reasm (2068)
+                                           validate_mac
+                                           consume_initiation
+                                      ◄─── send: create_response
+                                           add_mac
+                                           pqc_fragment_send (1916→2片)
+recv: fragment reasm (1916)
+      validate_mac
+      consume_response
+send: create_key_confirm
+      begin_session (TK)
+      add_mac
+      send (60B, 无分片)          ────► recv: validate_mac
+                                           consume_key_confirm
+                                           begin_session (TK)
+      ◄════ MESSAGE_DATA ════════►
+</code></pre>
+<p>主套件 dmesg 实证：<code>experiments/mlkem512-mlkem768-sm4gcm-sm3/dmesg.log</code> L87–123。</p>
+<hr>
+<h2 id="10-交叉引用">10. 交叉引用</h2>
+<table>
+<thead>
+<tr>
+<th>主题</th>
+<th>文档</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>KE 逐步 + 函数表</td>
+<td><a href="../../../../notes/projects/doc-pqsectunnel/defense/03.html">03</a></td>
+</tr>
+<tr>
+<td>分片细节</td>
+<td><a href="../../../../notes/projects/doc-pqsectunnel/defense/06-mtu.html">06</a></td>
+</tr>
+<tr>
+<td>用户态/构建</td>
+<td><a href="../../../../notes/projects/doc-pqsectunnel/defense/07.html">07</a></td>
+</tr>
+<tr>
+<td>协议阶段</td>
+<td><a href="../../../../notes/projects/doc-pqsectunnel/defense/02.html">02</a></td>
+</tr>
+</tbody>
+</table>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">项目笔记</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A1%B9%E7%9B%AE/doc-pqsectunnel/defense/05-%E5%86%85%E6%A0%B8%E5%AE%9E%E7%8E%B0%E8%B7%AF%E5%BE%84.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../../notes/projects/doc-pqsectunnel/defense/04.html"><span class="dir">← 上一篇</span><span class="t">04 — 密码原语与套件</span></a><a class="next" href="../../../../notes/projects/doc-pqsectunnel/defense/05a.html"><span class="dir">下一篇 →</span><span class="t">05a — 用户态与内核态握手分工</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../../index.html">首页</a>
+      <a href="../../../../learn.html">课件</a>
+      <a href="../../../../notes/index.html">笔记库</a>
+      <a href="../../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../../about.html">关于</a>
+      <a href="../../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../../js/main.js" defer></script>
+</body>
+</html>

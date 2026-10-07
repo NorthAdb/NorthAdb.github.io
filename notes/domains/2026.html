@@ -116,12 +116,12 @@
 </thead>
 <tbody>
 <tr>
-<td><a class="wl" href="../../notes/domains/aiagent2026.html">领域/AI Agent 智能体学习路线 2026</a></td>
+<td><a class="wl" href="../../notes/domains/agent/aiagent2026.html">AI Agent 智能体学习路线 2026</a></td>
 <td>9 阶段路线（Stage 0-9）：LLM 基础 → Agent Loop → Tool/RAG/记忆 → Harness → 多 Agent → MCP/A2A/Skills → 浏览器 Agent → 评估/安全 → 生产部署</td>
 <td>已完成 Stage 0-3 理论，Stage 4-6 概念扫读，缺实战</td>
 </tr>
 <tr>
-<td><a class="wl" href="../../notes/domains/javaagent2026.html">领域/Java后端+Agent开发学习路线 2026</a></td>
+<td><a class="wl" href="../../notes/domains/java/javaagent2026.html">Java后端+Agent开发学习路线 2026</a></td>
 <td>Java 双修路线（6-8 周后端 + 8-12 周 Agent）+ 小红书评论区的真实问答集锦</td>
 <td>双线并行中</td>
 </tr>
@@ -182,7 +182,7 @@
 <tr>
 <td>工作记忆</td>
 <td>上下文窗口（100K-200K token，有 Context Rot）</td>
-<td><a class="wl" href="../../notes/domains/claudecodeagent.html">领域/Claude Code记忆系统与Agent记忆架构</a></td>
+<td><a class="wl" href="../../notes/domains/memory/claudecodeagent.html">Claude Code记忆系统与Agent记忆架构</a></td>
 </tr>
 <tr>
 <td>短期记忆</td>
@@ -209,7 +209,7 @@
 <p>Claude Code 具体实现（<a class="wl" href="../../notes/clippings/bilibili/2026-08-03-claude-code.html">2026-08-03-Claude-Code上下文压缩与会话恢复机制</a>）：
 - <strong>三视图模型</strong>：UI 历史（你看到的）≠ 模型投影（模型看到的）≠ 磁盘会话链（事实源）——上下文管理本质是"事件持久化 + 状态管理 + 视图投影 + 压缩 + 可恢复执行"
 - <strong>MEMORY.md 索引</strong>：常驻前 200 行/25KB，细节放主题文件按需加载（<a class="wl" href="../../notes/clippings/p277a98/2026-07-31-claude-code-automemory.html">2026-07-31-Claude-Code结构化记忆工作流-AutoMemory详解</a> 讲透 Compact/Handover/CLAUDE.md 三大记忆误区）
-- 本库已落地：<code>claude-memory/</code> 目录接入 Claude Code 长期记忆（见 <a class="wl" href="../../notes/memory/claude-memory-vault.html">claude-memory-vault</a>）</p>
+- 本库已落地：<code>claude-memory/</code> 目录接入 Claude Code 长期记忆（见 <a class="wl" href="../../notes/domains/claude-memory/claude-memory-vault.html">claude-memory-vault</a>）</p>
 <h3 id="框架选型三视角实况社区面试">框架选型（三视角：实况/社区/面试）</h3>
 <table>
 <thead>
@@ -238,7 +238,7 @@
 </tbody>
 </table>
 <blockquote>
-<p>对 Java 背景的我：<strong>面试要懂 LangChain/LangGraph 的定位，项目优先 Spring AI / LangChain4j</strong>（见 <a class="wl" href="../../notes/domains/javaagent2026.html">领域/Java后端+Agent开发学习路线 2026</a> Stage 2）。</p>
+<p>对 Java 背景的我：<strong>面试要懂 LangChain/LangGraph 的定位，项目优先 Spring AI / LangChain4j</strong>（见 <a class="wl" href="../../notes/domains/java/javaagent2026.html">Java后端+Agent开发学习路线 2026</a> Stage 2）。</p>
 </blockquote>
 <h3 id="面试知识链八股备料">面试知识链（八股备料）</h3>
 <table>
@@ -288,7 +288,7 @@
 <blockquote>
 <p><strong>Agent = LLM + Harness</strong>（工具、上下文、记忆、护栏、重试逻辑）——模型会越来越强，Harness 永远是工程核心。
 <strong>Agent ≠ 独立新领域，它是后端工程在 AI 时代的延伸</strong>——链路搭建、降级重试、状态管理全是后端那一套，面试考后端基础是常态。
-<strong>上下文是稀缺资源</strong>：最少的 token + 最高信号 = 最佳结果（<a class="wl" href="../../notes/domains/claudecodeagent.html">领域/Claude Code记忆系统与Agent记忆架构</a> 第三部分）。
+<strong>上下文是稀缺资源</strong>：最少的 token + 最高信号 = 最佳结果（<a class="wl" href="../../notes/domains/memory/claudecodeagent.html">Claude Code记忆系统与Agent记忆架构</a> 第三部分）。
 <strong>实践在前，命名在后</strong>——Skill/harness/loop engineering 这些名词流行之前，头部公司早就在这么做；别等名词流行才动手（李博杰书引言）。
 <strong>没有评估，就没有进步</strong>——Agent 迭代不能靠直觉，要建立评测机制（李博杰书第 6 章）。</p>
 </blockquote>
@@ -309,7 +309,7 @@
 <td><strong>CLAUDE.md</strong></td>
 <td>项目规范/工作流（每次会话全量加载）</td>
 <td>项目根目录 + 五层作用域</td>
-<td><a class="wl" href="../../notes/domains/claudecodeagent.html">领域/Claude Code记忆系统与Agent记忆架构</a></td>
+<td><a class="wl" href="../../notes/domains/memory/claudecodeagent.html">Claude Code记忆系统与Agent记忆架构</a></td>
 </tr>
 <tr>
 <td><strong>Skills</strong></td>
@@ -344,7 +344,7 @@
 </tbody>
 </table>
 <ul>
-<li><strong>Command 已并入 Skill</strong>：<code>.claude/skills/&lt;name&gt;/SKILL.md</code> 同时支持手动 <code>/name</code> 调用和自动语义触发，新建自定义能力不用再纠结格式（<a class="wl" href="../../notes/domains/claudecode-commandskill.html">领域/Claude Code - Command与Skill区别</a>）</li>
+<li><strong>Command 已并入 Skill</strong>：<code>.claude/skills/&lt;name&gt;/SKILL.md</code> 同时支持手动 <code>/name</code> 调用和自动语义触发，新建自定义能力不用再纠结格式（<a class="wl" href="../../notes/domains/skill/claudecode-commandskill.html">Claude Code - Command与Skill区别</a>）</li>
 <li><strong>Skill 机制精髓</strong>：渐进式披露三层懒加载——frontmatter 摘要 → 扩展文档 → 脚本，按需展开省上下文（<a class="wl" href="../../notes/clippings/p44a38b/2026-07-21-claude-code-skill.html">2026-07-21-Claude-Code-Skill机制源码剖析</a>）</li>
 <li>六件套全景见 <a class="wl" href="../../notes/clippings/p44a38b/2026-07-28-claude-code-coding.html">2026-07-28-Claude-Code工程化六件套详解-小林coding</a></li>
 </ul>
@@ -421,7 +421,7 @@
 </code></pre>
 <h3 id="生态与工具">生态与工具</h3>
 <ul>
-<li><a class="wl" href="../../notes/domains/codewikigoogleai.html">领域/CodeWiki Google的AI驱动代码文档平台</a> — AI 自动生成/维护开源项目 Wiki + codewiki-mcp</li>
+<li><a class="wl" href="../../notes/domains/rag/codewikigoogleai.html">CodeWiki Google的AI驱动代码文档平台</a> — AI 自动生成/维护开源项目 Wiki + codewiki-mcp</li>
 <li><a class="wl" href="../../notes/clippings/github/pe2edde/2026-07-06-last30days-skillskillai.html">2026-07-06-last30days-skill用Skill学习AI新知识</a> — 跨平台 30 天调研 skill（本库 Python vs TS 调研就是它做的）</li>
 <li><a class="wl" href="../../notes/clippings/github/pe2edde/2026-08-03-deepseek-harness.html">2026-08-03-DeepSeek-Harness生态高星项目与应用场景</a> — DeepSeek Harness 内测生态（vLLM/DeerFlow/Spring AI DataAgent）</li>
 <li><a class="wl" href="../../notes/clippings/bilibili/2026-08-04-llm-wiki.html">2026-08-04-保姆教程-卡帕西LLM-Wiki强在哪</a> — Karpathy LLM Wiki 三层架构（raw/实体/综合分析）——本库的整理方式与之同构</li>
@@ -517,7 +517,7 @@
 </tbody>
 </table>
 <blockquote>
-<p>Agent 视角的提醒：<strong>阶段 2-3 就是 Agent 的 Harness 底座</strong>——连接池、缓存、消息队列、限流降级，全是 Agent 工程化的后端基本功（<a class="wl" href="../../notes/domains/javaagent2026.html">领域/Java后端+Agent开发学习路线 2026</a>）。</p>
+<p>Agent 视角的提醒：<strong>阶段 2-3 就是 Agent 的 Harness 底座</strong>——连接池、缓存、消息队列、限流降级，全是 Agent 工程化的后端基本功（<a class="wl" href="../../notes/domains/java/javaagent2026.html">Java后端+Agent开发学习路线 2026</a>）。</p>
 </blockquote>
 <h3 id="技术选型决策">技术选型决策</h3>
 <table>
@@ -532,17 +532,17 @@
 <tr>
 <td><strong>数据库</strong></td>
 <td>服务端 AI 主学 <strong>PostgreSQL</strong>（pgvector/JSONB，Supabase/Neon 默认）；本地 Agent 用 <strong>SQLite</strong>（FTS5）；<strong>MySQL 求职兜底</strong>（存量业务/面试）</td>
-<td><a class="wl" href="../../notes/domains/mysql-vs-postgresql-ai.html">领域/mysql-vs-postgresql-ai时代选型</a></td>
+<td><a class="wl" href="../../notes/domains/p68051b/mysql-vs-postgresql-ai.html">mysql-vs-postgresql-ai时代选型</a></td>
 </tr>
 <tr>
 <td><strong>语言</strong></td>
 <td><strong>Python 统治模型层</strong>、TypeScript 吃掉 Agent 运行时、Java 在企业 Agent 开发重要——2026 是多语言栈时代</td>
-<td><a class="wl" href="../../notes/domains/pythonvstypescriptai.html">领域/Python vs TypeScript AI时代编程语言之争</a></td>
+<td><a class="wl" href="../../notes/domains/p0d98c7/pythonvstypescriptai.html">Python vs TypeScript AI时代编程语言之争</a></td>
 </tr>
 <tr>
 <td><strong>Git</strong></td>
 <td>完整命令手册 + 配置作用域 + Windows 凭据 + PR 工作流</td>
-<td><a class="wl" href="../../notes/domains/git.html">领域/Git常用命令指南</a></td>
+<td><a class="wl" href="../../notes/domains/java/git.html">Git常用命令指南</a></td>
 </tr>
 </tbody>
 </table>
@@ -574,7 +574,7 @@
 </tbody>
 </table>
 <blockquote>
-<p><strong>实习策略</strong>：能刷到"一段 Agent 实习 + 一段后端实习"最佳；秋招后端 + Agent 都投（<a class="wl" href="../../notes/domains/javaagent2026.html">领域/Java后端+Agent开发学习路线 2026</a> 问答区）。</p>
+<p><strong>实习策略</strong>：能刷到"一段 Agent 实习 + 一段后端实习"最佳；秋招后端 + Agent 都投（<a class="wl" href="../../notes/domains/java/javaagent2026.html">Java后端+Agent开发学习路线 2026</a> 问答区）。</p>
 </blockquote>
 <h3 id="实战项目参考">实战项目参考</h3>
 <ul>
@@ -595,10 +595,10 @@
 <h2 id="下一步返校前">🚀 下一步（返校前）</h2>
 <ul>
 <li class="task"><span class="cb" aria-hidden="true"></span><strong>JavaSE 冲刺</strong>：完成（三）面向对象基础 →（八）GUI 之外的全部模块（集合/多线程/反射是面试重头）</li>
-<li class="task"><span class="cb" aria-hidden="true"></span><strong>后端补齐</strong>：Spring Boot + MySQL + Redis（<a class="wl" href="../../notes/domains/javaagent2026.html">领域/Java后端+Agent开发学习路线 2026</a> 阶段 2）</li>
+<li class="task"><span class="cb" aria-hidden="true"></span><strong>后端补齐</strong>：Spring Boot + MySQL + Redis（<a class="wl" href="../../notes/domains/java/javaagent2026.html">Java后端+Agent开发学习路线 2026</a> 阶段 2）</li>
 <li class="task"><span class="cb" aria-hidden="true"></span><strong>Agent 实战</strong>：按 8 级项目阶梯做 1-2 个（Calculator → Coding Agent），优先 Java 生态（Spring AI / LangChain4j）</li>
 <li class="task"><span class="cb" aria-hidden="true"></span><strong>八股刷题</strong>：RAG 链 + Agent 面试链过第二遍；LeetCode Hot 100 起步</li>
-<li class="task"><span class="cb" aria-hidden="true"></span><strong>答辩收尾</strong>：<a class="wl" href="../../notes/pqsectunnel/defense/10-qa.html">doc-pqsectunnel/defense/10-常见问题-QA</a> 演练区填充（grill-with-docs 模拟追问）</li>
+<li class="task"><span class="cb" aria-hidden="true"></span><strong>答辩收尾</strong>：<a class="wl" href="../../notes/projects/doc-pqsectunnel/defense/10-qa.html">10-常见问题-QA</a> 演练区填充（grill-with-docs 模拟追问）</li>
 <li class="task"><span class="cb" aria-hidden="true"></span><strong>手账跟进</strong>：学习路线/清单中未勾选的项目逐步划掉，让知识库跟着进度长</li>
 </ul>
 <hr>
@@ -622,7 +622,7 @@
     </aside>
   </div>
 
-  <div class="wrap"><nav class="post-nav"><span></span><a class="next" href="../../notes/domains/aiagent2026.html"><span class="dir">下一篇 →</span><span class="t">AI Agent 智能体学习路线 2026</span></a></nav></div>
+  <div class="wrap"><nav class="post-nav"><span></span><a class="next" href="../../notes/domains/agent.html"><span class="dir">下一篇 →</span><span class="t">Agent 工程学习路线：从概念到成熟实现</span></a></nav></div>
 </main>
 
 <footer class="footer">

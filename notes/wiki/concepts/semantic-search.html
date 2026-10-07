@@ -4,23 +4,23 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>semantic-search · 我的笔记库 — NorthAdb 的博客</title>
-<meta name="description" content="- &quot;| Semantic Search | 向量和相似度 | 找语义相近文本 | 不是 |&quot; — 领域/RAG与LLM Wiki：原理、架构与开源实现|RAG与LLM Wiki：原理、架构与开源实现 - &quot;Semantic Search：…">
+<meta name="description" content="- &quot;| Semantic Search | 向量和相似度 | 找语义相近文本 | 不是 |&quot; — RAG与LLM Wiki：原理、架构与开源实现|RAG与LLM Wiki：原理、架构与开源实现 - &quot;Semantic Search：解决“…">
 <link rel="canonical" href="https://northadb.github.io/notes/wiki/concepts/semantic-search.html">
 <meta name="theme-color" content="#0a0a0a">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="NorthAdb">
 <meta property="og:title" content="semantic-search · 我的笔记库 — NorthAdb 的博客">
-<meta property="og:description" content="- &quot;| Semantic Search | 向量和相似度 | 找语义相近文本 | 不是 |&quot; — 领域/RAG与LLM Wiki：原理、架构与开源实现|RAG与LLM Wiki：原理、架构与开源实现 - &quot;Semantic Search：…">
+<meta property="og:description" content="- &quot;| Semantic Search | 向量和相似度 | 找语义相近文本 | 不是 |&quot; — RAG与LLM Wiki：原理、架构与开源实现|RAG与LLM Wiki：原理、架构与开源实现 - &quot;Semantic Search：解决“…">
 <meta property="og:url" content="https://northadb.github.io/notes/wiki/concepts/semantic-search.html">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="semantic-search · 我的笔记库 — NorthAdb 的博客">
-<meta name="twitter:description" content="- &quot;| Semantic Search | 向量和相似度 | 找语义相近文本 | 不是 |&quot; — 领域/RAG与LLM Wiki：原理、架构与开源实现|RAG与LLM Wiki：原理、架构与开源实现 - &quot;Semantic Search：…">
+<meta name="twitter:description" content="- &quot;| Semantic Search | 向量和相似度 | 找语义相近文本 | 不是 |&quot; — RAG与LLM Wiki：原理、架构与开源实现|RAG与LLM Wiki：原理、架构与开源实现 - &quot;Semantic Search：解决“…">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
 <link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../feed.xml">
 <link rel="stylesheet" href="../../../css/style.css">
 <link rel="stylesheet" href="../../../notes/assets/notes.css">
 <script type="application/ld+json">
-{"@context": "https://schema.org", "@type": "TechArticle", "headline": "semantic-search", "description": "- \"| Semantic Search | 向量和相似度 | 找语义相近文本 | 不是 |\" — 领域/RAG与LLM Wiki：原理、架构与开源实现|RAG与LLM Wiki：原理、架构与开源实现 - \"Semantic Search：…", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/wiki/concepts/semantic-search.html"}
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "semantic-search", "description": "- \"| Semantic Search | 向量和相似度 | 找语义相近文本 | 不是 |\" — RAG与LLM Wiki：原理、架构与开源实现|RAG与LLM Wiki：原理、架构与开源实现 - \"Semantic Search：解决“…", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/wiki/concepts/semantic-search.html"}
 </script>
 <script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
 </head>
@@ -78,7 +78,7 @@
         <header class="post-hero">
           <div class="crumbs"><a href="../../../index.html">首页</a><span>/</span><a href="../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../notes/wiki/index.html">LLM Wiki</a></div>
           <h1>semantic-search</h1>
-          <p class="post-sub">- &quot;| Semantic Search | 向量和相似度 | 找语义相近文本 | 不是 |&quot; — 领域/RAG与LLM Wiki：原理、架构与开源实现|RAG与LLM Wiki：原理、架构与开源实现 - &quot;Semantic Search：…</p>
+          <p class="post-sub">- &quot;| Semantic Search | 向量和相似度 | 找语义相近文本 | 不是 |&quot; — RAG与LLM Wiki：原理、架构与开源实现|RAG与LLM Wiki：原理、架构与开源实现 - &quot;Semantic Search：解决“…</p>
           <div class="post-meta">
             <span class="avatar">N</span>
             <span>我的笔记库</span><span class="sep"></span>
@@ -97,8 +97,8 @@
         <div class="prose">
 <h2 id="来源提及">来源提及</h2>
 <ul>
-<li>"| <strong>Semantic Search</strong> | 向量和相似度 | 找语义相近文本 | 不是 |" — <a class="wl" href="../../../notes/domains/ragllmwiki.html">RAG与LLM Wiki：原理、架构与开源实现</a></li>
-<li>"<strong>Semantic Search</strong>：解决“哪些文本语义相近”；" — <a class="wl" href="../../../notes/domains/ragllmwiki.html">RAG与LLM Wiki：原理、架构与开源实现</a></li>
+<li>"| <strong>Semantic Search</strong> | 向量和相似度 | 找语义相近文本 | 不是 |" — <a class="wl" href="../../../notes/domains/rag/ragllmwiki.html">RAG与LLM Wiki：原理、架构与开源实现</a></li>
+<li>"<strong>Semantic Search</strong>：解决“哪些文本语义相近”；" — <a class="wl" href="../../../notes/domains/rag/ragllmwiki.html">RAG与LLM Wiki：原理、架构与开源实现</a></li>
 </ul>
         </div>
 

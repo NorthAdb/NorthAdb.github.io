@@ -1884,7 +1884,7 @@
   {
     "title": "知识领域（领域/）",
     "url": "notes/domains/index.html",
-    "category": "笔记库 · 20 篇",
+    "category": "笔记库 · 25 篇",
     "excerpt": "跨项目的知识沉淀：Agent、RAG、Harness、记忆系统的概念笔记与技术选型，以及各条学习路线。",
     "type": "note",
     "featured": false,
@@ -1893,7 +1893,7 @@
   {
     "title": "项目笔记（项目/）",
     "url": "notes/projects/index.html",
-    "category": "笔记库 · 128 篇",
+    "category": "笔记库 · 145 篇",
     "excerpt": "按项目归集的实践笔记：claude-code-best-practice 实践库、learn-claude-code-north 二十讲、AI-Agents-in-Depth 精读与 Javase 学习。",
     "type": "note",
     "featured": false,
@@ -1927,24 +1927,6 @@
     "keywords": "LLM Wiki"
   },
   {
-    "title": "PQ-SecTunnel（doc-pqsectunnel/）",
-    "url": "notes/pqsectunnel/index.html",
-    "category": "笔记库 · 18 篇",
-    "excerpt": "PQ-SecTunnel 后量子 VPN 项目：WireGuard 背景研究、协议拆解与答辩文档。",
-    "type": "note",
-    "featured": false,
-    "keywords": "PQ-SecTunnel"
-  },
-  {
-    "title": "Claude 记忆（claude-memory/）",
-    "url": "notes/memory/index.html",
-    "category": "笔记库 · 2 篇",
-    "excerpt": "Claude Code 长期记忆库（autoMemoryDirectory 指向本目录）。",
-    "type": "note",
-    "featured": false,
-    "keywords": "Claude 记忆"
-  },
-  {
     "title": "日记（日记/）",
     "url": "notes/diary/index.html",
     "category": "笔记库 · 1 篇",
@@ -1963,8 +1945,17 @@
     "keywords": "知识领域"
   },
   {
+    "title": "Agent 工程学习路线：从概念到成熟实现",
+    "url": "notes/domains/agent.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "文档来源：整理自一份面试复盘笔记（原作者面完 Agent 岗位后总结的六步学习路线），并结合 2026 年 10 月为止的一手资料，逐一对照了四个成熟 Agent 实现在每个知识点上的真实做法： - cc = Claude Code（Ant…",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
     "title": "AI Agent 智能体学习路线 2026",
-    "url": "notes/domains/aiagent2026.html",
+    "url": "notes/domains/agent/aiagent2026.html",
     "category": "笔记库 · 知识领域",
     "excerpt": "本文综合整理自 Datawhale Agent-Learning-Hub 及相关资源，结合 2026 年 AI Agent 领域最新动态进行了补充和完善。",
     "type": "note",
@@ -1973,7 +1964,7 @@
   },
   {
     "title": "Agent 上下文压缩机制：六类核心机制与主流 Agent 实现",
-    "url": "notes/domains/agentagent.html",
+    "url": "notes/domains/agent/agentagent.html",
     "category": "笔记库 · 知识领域",
     "excerpt": "Agent 的上下文压缩（Context Compression / Context Compaction）不是单一算法，而是一套由 Runtime、LLM、Provider 和 External Memory 共同参与的 Context …",
     "type": "note",
@@ -1981,53 +1972,26 @@
     "keywords": "知识领域"
   },
   {
-    "title": "Agent Skill 注入机制：Progressive Disclosure 与 Zero Resident Skill",
-    "url": "notes/domains/agent-skill-progressive-disclosurezero-resident.html",
+    "title": "Claude Code Memory Index",
+    "url": "notes/domains/claude-memory/memory.html",
     "category": "笔记库 · 知识领域",
-    "excerpt": "随着 Agent 中 Skill 数量增加，如何让模型使用合适的能力成为一个核心问题。",
+    "excerpt": "- Memory 接入 Obsidian vaultclaude-memory-vault.md — 记忆目录指向 north-my-note 的 claude-memory 子文件夹,所有项目共用",
     "type": "note",
     "featured": false,
     "keywords": "知识领域"
   },
   {
-    "title": "Agent Skills 与 Tool 的渐进式披露、上下文注入与 KV Cache",
-    "url": "notes/domains/agent-skills-tools-kv-cache.html",
+    "title": "claude-memory-vault",
+    "url": "notes/domains/claude-memory/claude-memory-vault.html",
     "category": "笔记库 · 知识领域",
-    "excerpt": "本笔记整理本次对话中关于 Skills 加载方式、Tool Schema 延迟加载、Claude Code / Codex 上下文注入、System Prompt 与 API role 的区别，以及它们对上下文与 KV Cache 的影响 …",
-    "type": "note",
-    "featured": false,
-    "keywords": "知识领域"
-  },
-  {
-    "title": "Claude Code：Command 与 Skill 的区别",
-    "url": "notes/domains/claudecode-commandskill.html",
-    "category": "笔记库 · 知识领域",
-    "excerpt": "结论：在当前版本中，custom slash commands 已并入 skills 系统，二者在形式和调用方式上基本统一；仅在能力范围和历史遗留部分仍有区别。",
-    "type": "note",
-    "featured": false,
-    "keywords": "知识领域"
-  },
-  {
-    "title": "Claude Code 记忆系统与 Agent 记忆架构",
-    "url": "notes/domains/claudecodeagent.html",
-    "category": "笔记库 · 知识领域",
-    "excerpt": "数据来源：Anthropic 官方文档 + 工程博客 2026-07-06 整理",
-    "type": "note",
-    "featured": false,
-    "keywords": "知识领域"
-  },
-  {
-    "title": "CodeWiki：Google 的 AI 驱动代码文档平台",
-    "url": "notes/domains/codewikigoogleai.html",
-    "category": "笔记库 · 知识领域",
-    "excerpt": "采集时间：2026-07-07 官方网站：https://codewiki.google/",
+    "excerpt": "Claude Code 的长期记忆目录通过用户级 settings 中的 autoMemoryDirectory 指向 E:\\north-my-note\\claude-memoryObsidian vault north-my-note 的…",
     "type": "note",
     "featured": false,
     "keywords": "知识领域"
   },
   {
     "title": "Git 常用命令指南",
-    "url": "notes/domains/git.html",
+    "url": "notes/domains/java/git.html",
     "category": "笔记库 · 知识领域",
     "excerpt": "git config --list 查看所有配置 git config user.name 查看用户名 git config user.email 查看邮箱 git config --list --show-origin 查看配置来源（系统…",
     "type": "note",
@@ -2036,7 +2000,7 @@
   },
   {
     "title": "Java 后端 + Agent 开发学习路线 2026",
-    "url": "notes/domains/javaagent2026.html",
+    "url": "notes/domains/java/javaagent2026.html",
     "category": "笔记库 · 知识领域",
     "excerpt": "结合小红书两位博主（蒜了吧、We1L）的经验分享，以及 Vault 现有知识库，整理出这套 Java 后端 + Agent 双修学习路线。",
     "type": "note",
@@ -2044,8 +2008,17 @@
     "keywords": "知识领域"
   },
   {
+    "title": "Function Calling、MCP 与 CLI：Agent 工具调用的区别与联系",
+    "url": "notes/domains/mcp-cli/function-calling-mcp-cli-obsidian-note.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "Function Calling、MCP、CLI 都可以用于让 Agent 获得并使用外部能力，但它们并不是同一层次、也不是简单的“谁替代谁”。",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
     "title": "MCP协议2.0新版本到底升级了什么？对我们有什么影响？",
-    "url": "notes/domains/mcp2-0.html",
+    "url": "notes/domains/mcp-cli/mcp2-0.html",
     "category": "笔记库 · 知识领域",
     "excerpt": "抖音视频 · 作者：IT老王（楼兰） 时长：11分32秒 链接：https://v.douyin.com/-b8qvvg6BIE/ 飞书妙记逐字稿：https://www.feishu.cn/minutes/obcnd63un875qkrm…",
     "type": "note",
@@ -2053,46 +2026,28 @@
     "keywords": "知识领域"
   },
   {
-    "title": "Python vs TypeScript：AI 时代的编程语言之争",
-    "url": "notes/domains/pythonvstypescriptai.html",
+    "title": "GitHub MCP、gh CLI，以及 tool calling",
+    "url": "notes/domains/mcp-cli/github-mcp-cli.html",
     "category": "笔记库 · 知识领域",
-    "excerpt": "调研时间：2026-06-07 ~ 2026-07-07 数据来源：Reddit、Hacker News、GitHub、Stack Overflow 2026 调查、The New Stack、KDnuggets、Brookings、Log…",
+    "excerpt": "同一件事——查 PR、发评论、建仓库——在本机可以走两条路。它们打的是同一套 GitHub API，差别在于模型怎么把请求交出去。",
     "type": "note",
     "featured": false,
     "keywords": "知识领域"
   },
   {
-    "title": "RAG 与 LLM Wiki：从检索增强到知识编译",
-    "url": "notes/domains/ragllmwiki.html",
+    "title": "Claude Code 记忆系统与 Agent 记忆架构",
+    "url": "notes/domains/memory/claudecodeagent.html",
     "category": "笔记库 · 知识领域",
-    "excerpt": "本笔记基于论文、官方文档、GitHub README 与源码整理。重点不是罗列名词，而是解释：RAG 如何把外部知识送进 LLM，LLM Wiki 如何把外部资料编译成可持续维护的知识层，以及这些系统在真实开源项目中如何落地。",
-    "type": "note",
-    "featured": false,
-    "keywords": "知识领域"
-  },
-  {
-    "title": "Skill 加载模式与 KV Cache 影响",
-    "url": "notes/domains/skillkv-cache.html",
-    "category": "笔记库 · 知识领域",
-    "excerpt": "现代 Agent 中，Skill 的设计主要涉及两个独立问题：",
+    "excerpt": "数据来源：Anthropic 官方文档 + 工程博客 2026-07-06 整理",
     "type": "note",
     "featured": false,
     "keywords": "知识领域"
   },
   {
     "title": "Mem0 v2 → v3：记忆架构与 Hybrid Retrieval",
-    "url": "notes/domains/mem0-v2-v3-architecture.html",
+    "url": "notes/domains/memory/mem0-v2-v3-architecture.html",
     "category": "笔记库 · 知识领域",
     "excerpt": "本笔记整理本轮对话中对 Mem0 两代 Memory 架构，以及 Semantic / BM25 / Entity / Time 四种检索信号的讨论。",
-    "type": "note",
-    "featured": false,
-    "keywords": "知识领域"
-  },
-  {
-    "title": "MySQL vs PostgreSQL vs SQLite：对比、AI 时代选型与学习曲线",
-    "url": "notes/domains/mysql-vs-postgresql-ai.html",
-    "category": "笔记库 · 知识领域",
-    "excerpt": "面向想学关系型数据库的开发者。结论可直接看文首摘要。",
     "type": "note",
     "featured": false,
     "keywords": "知识领域"
@@ -2116,8 +2071,26 @@
     "keywords": "知识领域"
   },
   {
+    "title": "CodeWiki：Google 的 AI 驱动代码文档平台",
+    "url": "notes/domains/rag/codewikigoogleai.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "采集时间：2026-07-07 官方网站：https://codewiki.google/",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
+    "title": "RAG 与 LLM Wiki：从检索增强到知识编译",
+    "url": "notes/domains/rag/ragllmwiki.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "本笔记基于论文、官方文档、GitHub README 与源码整理。重点不是罗列名词，而是解释：RAG 如何把外部知识送进 LLM，LLM Wiki 如何把外部资料编译成可持续维护的知识层，以及这些系统在真实开源项目中如何落地。",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
     "title": "RAG（Retrieval-Augmented Generation）学习笔记：从基础检索到知识工程",
-    "url": "notes/domains/rag.html",
+    "url": "notes/domains/rag/rag.html",
     "category": "笔记库 · 知识领域",
     "excerpt": "RAG（Retrieval-Augmented Generation，检索增强生成）的核心思想是：在 LLM 生成回答之前，从外部知识源中检索与问题相关的信息，将这些信息加入当前 Context，再由 LLM 基于增强后的上下文生成答案。 …",
     "type": "note",
@@ -2126,9 +2099,63 @@
   },
   {
     "title": "云端 Agent 架构：Harness 放沙箱还是放服务",
-    "url": "notes/domains/agentharness.html",
+    "url": "notes/domains/sandbox/agentharness.html",
     "category": "笔记库 · 知识领域",
     "excerpt": "两篇小红书帖子问的其实是同一个问题的两面：把 Agent 从「本地 CLI」搬进「云端 B/S 系统」时，真正难的不是 agent loop，而是有状态的那部分（会话状态、文件系统、沙箱生命周期）；而「harness 放沙箱里还是放服务里」…",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
+    "title": "Agent Skill 注入机制：Progressive Disclosure 与 Zero Resident Skill",
+    "url": "notes/domains/skill/agent-skill-progressive-disclosurezero-resident.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "随着 Agent 中 Skill 数量增加，如何让模型使用合适的能力成为一个核心问题。",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
+    "title": "Agent Skills 与 Tool 的渐进式披露、上下文注入与 KV Cache",
+    "url": "notes/domains/skill/agent-skills-tools-kv-cache.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "本笔记整理本次对话中关于 Skills 加载方式、Tool Schema 延迟加载、Claude Code / Codex 上下文注入、System Prompt 与 API role 的区别，以及它们对上下文与 KV Cache 的影响 …",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
+    "title": "Claude Code：Command 与 Skill 的区别",
+    "url": "notes/domains/skill/claudecode-commandskill.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "结论：在当前版本中，custom slash commands 已并入 skills 系统，二者在形式和调用方式上基本统一；仅在能力范围和历史遗留部分仍有区别。",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
+    "title": "Skill 加载模式与 KV Cache 影响",
+    "url": "notes/domains/skill/skillkv-cache.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "现代 Agent 中，Skill 的设计主要涉及两个独立问题：",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
+    "title": "Python vs TypeScript：AI 时代的编程语言之争",
+    "url": "notes/domains/p0d98c7/pythonvstypescriptai.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "调研时间：2026-06-07 ~ 2026-07-07 数据来源：Reddit、Hacker News、GitHub、Stack Overflow 2026 调查、The New Stack、KDnuggets、Brookings、Log…",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
+    "title": "MySQL vs PostgreSQL vs SQLite：对比、AI 时代选型与学习曲线",
+    "url": "notes/domains/p68051b/mysql-vs-postgresql-ai.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "面向想学关系型数据库的开发者。结论可直接看文首摘要。",
     "type": "note",
     "featured": false,
     "keywords": "知识领域"
@@ -2336,15 +2363,6 @@
     "url": "notes/projects/javase/javase-3.html",
     "category": "笔记库 · 项目笔记",
     "excerpt": "课程：JavaSE 教程 IDEA 2025 4K·杜比音效 · 基于 Java 25 UP 主：青空の霞光 视频地址：BV163GGz2E8chttps://www.bilibili.com/video/BV163GGz2E8c/ 本篇范…",
-    "type": "note",
-    "featured": false,
-    "keywords": "项目笔记"
-  },
-  {
-    "title": "项目模板",
-    "url": "notes/projects/p1869bc.html",
-    "category": "笔记库 · 项目笔记",
-    "excerpt": "新建项目笔记时复制此文件。",
     "type": "note",
     "featured": false,
     "keywords": "项目笔记"
@@ -3011,6 +3029,168 @@
     "url": "notes/projects/claude-code-best-practice/learn-claude-code.html",
     "category": "笔记库 · 项目笔记",
     "excerpt": "基于 shareAI-lab/learn-claude-codehttps://github.com/shareAI-lab/learn-claude-code 67.5k ⭐ 从零构建一个 Claude Code 式的 Agent Har…",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "00 — 答辩索引",
+    "url": "notes/projects/doc-pqsectunnel/defense/00.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "状态：文档集已完成初稿 | 最后更新：2026-07-14 主套件：mlkem512-mlkem768-sm4gcm-sm3 命名约定：本目录（doc/defense/）内 md / 子目录 一律中文命名；配图放在 配图/配图/。",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "00a — WireGuard 背景与 PQ-SecTunnel 对比",
+    "url": "notes/projects/doc-pqsectunnel/defense/00a-wireguard.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "状态：正文 | 权威源：WireGuard 官方文档 + 白皮书 + 本仓库源码 建议：先读本章再读 0101-项目定位与改造动机.md | 调研笔记：../research/wireguard-background.mdwireguard…",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "01 — 项目定位与改造动机",
+    "url": "notes/projects/doc-pqsectunnel/defense/01.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "状态：正文 | 权威源：CONTEXT.md../../CONTEXT.md | 预计篇幅：2 min 讲稿（答辩开场）",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "02 — 协议总览",
+    "url": "notes/projects/doc-pqsectunnel/defense/02.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "状态：正文 | 权威源：时序图 + KE.md../../KE.md + CONTEXT.md../../CONTEXT.md 主套件：mlkem512-mlkem768-sm4gcm-sm3 | 预计篇幅：3 min 讲稿",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "03 — 握手协议逐步详解",
+    "url": "notes/projects/doc-pqsectunnel/defense/03.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "状态：正文 | 权威源：KE.md../../KE.md、CONTEXT.md../../CONTEXT.md、noise.c 主套件：mlkem512-mlkem768-sm4gcm-sm3（Static ML-KEM-512 + Eph…",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "04 — 密码原语与套件",
+    "url": "notes/projects/doc-pqsectunnel/defense/04.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "状态：正文 | 权威源：CONTEXT.md../../CONTEXT.md + messages.h + build.sh + wgtest vars 主套件：mlkem512-mlkem768-sm4gcm-sm3 | 预计篇幅：2 m…",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "05 — 内核实现路径",
+    "url": "notes/projects/doc-pqsectunnel/defense/05.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "状态：正文 | 权威源：KE.md../../KE.md L3 + receive.c / send.c / noise.c 主套件：mlkem512-mlkem768-sm4gcm-sm3 | 预计篇幅：5 min 讲稿（30 min 版…",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "05a — 用户态与内核态握手分工",
+    "url": "notes/projects/doc-pqsectunnel/defense/05a.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "状态：正文 | 关联：05 内核实现路径05-内核实现路径.md、07 工程架构07-工程架构与实验验证.md、KE.md../../KE.md 主套件：mlkem512-mlkem768-sm4gcm-sm3 | 预计篇幅：3–5 min…",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "06 — 分片与 MTU",
+    "url": "notes/projects/doc-pqsectunnel/defense/06-mtu.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "状态：正文 | 权威源：CONTEXT.md../../CONTEXT.md + pqcfragment.c / send.c / receive.c 主套件：mlkem512-mlkem768-sm4gcm-sm3 | 预计篇幅：3–4 …",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "07 — 工程架构与实验验证（完整流程）",
+    "url": "notes/projects/doc-pqsectunnel/defense/07.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "状态：正文 | 主套件：mlkem512-mlkem768-sm4gcm-sm3 预计篇幅：答辩 5–8 min（可拆成「架构 2 min + 实验演示 5 min」）",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "08 — PKI 与密钥管理",
+    "url": "notes/projects/doc-pqsectunnel/defense/08-pki.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "状态：正文 | 权威源：CONTEXT.md + certificate-management/ + setupconfigs.py 答辩主套件默认：random 模式 | PKI 为可选能力",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "09 — 已知差异与答辩备查",
+    "url": "notes/projects/doc-pqsectunnel/defense/09.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "状态：正文 | 权威源：KE.md + 源码对照 | 主动说明可避评委追问",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "10 — 常见问题（答辩 Q&A）",
+    "url": "notes/projects/doc-pqsectunnel/defense/10-qa.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "状态：正文 | 基于 CONTEXT.md../../CONTEXT.md + doc/defense/ 全文 建议配合 /grill-with-docs 演练后补充个人化答案",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "AIGIS-ENC 原生集成实施计划",
+    "url": "notes/projects/doc-pqsectunnel/defense/aigis-enc.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "范围：把 AIGIS-ENC mode 1（K=2，pk=672，ct=736，sk=1568）作为 static KEM 接入 PQ-SecTunnel， ephemeral 继续走现有 ML-KEM-512，端到端握手通过 PQSTKE…",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "diagrams/",
+    "url": "notes/projects/doc-pqsectunnel/defense/diagrams/diagrams.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "答辩用 Mermaid 源文件与导出图存放目录。",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "WireGuard 背景调研",
+    "url": "notes/projects/doc-pqsectunnel/research/wireguard-background.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "本文档为 PQ-SecTunnel 答辩材料撰写，内容均来自一手资料。 主要来源：WireGuard 官网、技术白皮书、Noise Protocol Framework 规范。",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "WireGuard 动手实践笔记",
+    "url": "notes/projects/doc-pqsectunnel/research/wireguard-hands-on-practice.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "本文档整理自 PQ-SecTunnel 开发过程中的 WireGuard 原生学习实验。 目标：理解标准 WireGuard 的配置流程，为对照和调整 PQ-SecTunnel（pqst / pqst-quick）提供基线。",
+    "type": "note",
+    "featured": false,
+    "keywords": "项目笔记"
+  },
+  {
+    "title": "流程",
+    "url": "notes/projects/doc-pqsectunnel/pf630b9.html",
+    "category": "笔记库 · 项目笔记",
+    "excerpt": "各位老师好。我按这张流程图，把双方如何完成后量子握手、最终得到会话密钥说清楚。",
     "type": "note",
     "featured": false,
     "keywords": "项目笔记"
@@ -4396,7 +4576,7 @@
     "title": "llm-wiki",
     "url": "notes/wiki/concepts/llm-wiki.html",
     "category": "笔记库 · LLM Wiki",
-    "excerpt": "- \"LLM Wiki 是一种持续维护的知识编译模式：新资料进入后，LLM 不只建立索引，还会更新实体页、概念页、综述页、链接和维护日志。\" — 领域/RAG与LLM Wiki：原理、架构与开源实现|RAG与LLM Wiki：原理、架构与开…",
+    "excerpt": "- \"LLM Wiki 是一种持续维护的知识编译模式：新资料进入后，LLM 不只建立索引，还会更新实体页、概念页、综述页、链接和维护日志。\" — RAG与LLM Wiki：原理、架构与开源实现|RAG与LLM Wiki：原理、架构与开源实现…",
     "type": "note",
     "featured": false,
     "keywords": "LLM Wiki"
@@ -4441,7 +4621,7 @@
     "title": "rag",
     "url": "notes/wiki/concepts/rag.html",
     "category": "笔记库 · LLM Wiki",
-    "excerpt": "- \"RAG 是一种运行时的信息访问机制：提问时检索证据，把证据放进上下文，再让模型生成答案。\" — 领域/RAG与LLM Wiki：原理、架构与开源实现|RAG与LLM Wiki：原理、架构与开源实现 - \"Lewis 等人在 2020 …",
+    "excerpt": "- \"RAG 是一种运行时的信息访问机制：提问时检索证据，把证据放进上下文，再让模型生成答案。\" — RAG与LLM Wiki：原理、架构与开源实现|RAG与LLM Wiki：原理、架构与开源实现 - \"Lewis 等人在 2020 年论文…",
     "type": "note",
     "featured": false,
     "keywords": "LLM Wiki"
@@ -4477,7 +4657,7 @@
     "title": "semantic-search",
     "url": "notes/wiki/concepts/semantic-search.html",
     "category": "笔记库 · LLM Wiki",
-    "excerpt": "- \"| Semantic Search | 向量和相似度 | 找语义相近文本 | 不是 |\" — 领域/RAG与LLM Wiki：原理、架构与开源实现|RAG与LLM Wiki：原理、架构与开源实现 - \"Semantic Search：…",
+    "excerpt": "- \"| Semantic Search | 向量和相似度 | 找语义相近文本 | 不是 |\" — RAG与LLM Wiki：原理、架构与开源实现|RAG与LLM Wiki：原理、架构与开源实现 - \"Semantic Search：解决“…",
     "type": "note",
     "featured": false,
     "keywords": "LLM Wiki"
@@ -4675,190 +4855,10 @@
     "title": "RAG 与 LLM Wiki：从检索增强到知识编译 - Summary",
     "url": "notes/wiki/sources/ragllm-wiki-a74e83.html",
     "category": "笔记库 · LLM Wiki",
-    "excerpt": "- 原始文件：领域/RAG与LLM Wiki：原理、架构与开源实现.md|RAG 与 LLM Wiki：原理、架构与开源实现 - 摄取日期：2026-08-11",
+    "excerpt": "- 原始文件：RAG与LLM Wiki：原理、架构与开源实现|RAG 与 LLM Wiki：原理、架构与开源实现 - 摄取日期：2026-08-11",
     "type": "note",
     "featured": false,
     "keywords": "LLM Wiki"
-  },
-  {
-    "title": "00 — 答辩索引",
-    "url": "notes/pqsectunnel/defense/00.html",
-    "category": "笔记库 · PQ-SecTunnel",
-    "excerpt": "状态：文档集已完成初稿 | 最后更新：2026-07-14 主套件：mlkem512-mlkem768-sm4gcm-sm3 命名约定：本目录（doc/defense/）内 md / 子目录 一律中文命名；配图放在 配图/配图/。",
-    "type": "note",
-    "featured": false,
-    "keywords": "PQ-SecTunnel"
-  },
-  {
-    "title": "00a — WireGuard 背景与 PQ-SecTunnel 对比",
-    "url": "notes/pqsectunnel/defense/00a-wireguard.html",
-    "category": "笔记库 · PQ-SecTunnel",
-    "excerpt": "状态：正文 | 权威源：WireGuard 官方文档 + 白皮书 + 本仓库源码 建议：先读本章再读 0101-项目定位与改造动机.md | 调研笔记：../research/wireguard-background.md../resear…",
-    "type": "note",
-    "featured": false,
-    "keywords": "PQ-SecTunnel"
-  },
-  {
-    "title": "01 — 项目定位与改造动机",
-    "url": "notes/pqsectunnel/defense/01.html",
-    "category": "笔记库 · PQ-SecTunnel",
-    "excerpt": "状态：正文 | 权威源：CONTEXT.md../../CONTEXT.md | 预计篇幅：2 min 讲稿（答辩开场）",
-    "type": "note",
-    "featured": false,
-    "keywords": "PQ-SecTunnel"
-  },
-  {
-    "title": "02 — 协议总览",
-    "url": "notes/pqsectunnel/defense/02.html",
-    "category": "笔记库 · PQ-SecTunnel",
-    "excerpt": "状态：正文 | 权威源：时序图 + KE.md../../KE.md + CONTEXT.md../../CONTEXT.md 主套件：mlkem512-mlkem768-sm4gcm-sm3 | 预计篇幅：3 min 讲稿",
-    "type": "note",
-    "featured": false,
-    "keywords": "PQ-SecTunnel"
-  },
-  {
-    "title": "03 — 握手协议逐步详解",
-    "url": "notes/pqsectunnel/defense/03.html",
-    "category": "笔记库 · PQ-SecTunnel",
-    "excerpt": "状态：正文 | 权威源：KE.md../../KE.md、CONTEXT.md../../CONTEXT.md、noise.c 主套件：mlkem512-mlkem768-sm4gcm-sm3（Static ML-KEM-512 + Eph…",
-    "type": "note",
-    "featured": false,
-    "keywords": "PQ-SecTunnel"
-  },
-  {
-    "title": "04 — 密码原语与套件",
-    "url": "notes/pqsectunnel/defense/04.html",
-    "category": "笔记库 · PQ-SecTunnel",
-    "excerpt": "状态：正文 | 权威源：CONTEXT.md../../CONTEXT.md + messages.h + build.sh + wgtest vars 主套件：mlkem512-mlkem768-sm4gcm-sm3 | 预计篇幅：2 m…",
-    "type": "note",
-    "featured": false,
-    "keywords": "PQ-SecTunnel"
-  },
-  {
-    "title": "05 — 内核实现路径",
-    "url": "notes/pqsectunnel/defense/05.html",
-    "category": "笔记库 · PQ-SecTunnel",
-    "excerpt": "状态：正文 | 权威源：KE.md../../KE.md L3 + receive.c / send.c / noise.c 主套件：mlkem512-mlkem768-sm4gcm-sm3 | 预计篇幅：5 min 讲稿（30 min 版…",
-    "type": "note",
-    "featured": false,
-    "keywords": "PQ-SecTunnel"
-  },
-  {
-    "title": "05a — 用户态与内核态握手分工",
-    "url": "notes/pqsectunnel/defense/05a.html",
-    "category": "笔记库 · PQ-SecTunnel",
-    "excerpt": "状态：正文 | 关联：05 内核实现路径05-内核实现路径.md、07 工程架构07-工程架构与实验验证.md、KE.md../../KE.md 主套件：mlkem512-mlkem768-sm4gcm-sm3 | 预计篇幅：3–5 min…",
-    "type": "note",
-    "featured": false,
-    "keywords": "PQ-SecTunnel"
-  },
-  {
-    "title": "06 — 分片与 MTU",
-    "url": "notes/pqsectunnel/defense/06-mtu.html",
-    "category": "笔记库 · PQ-SecTunnel",
-    "excerpt": "状态：正文 | 权威源：CONTEXT.md../../CONTEXT.md + pqcfragment.c / send.c / receive.c 主套件：mlkem512-mlkem768-sm4gcm-sm3 | 预计篇幅：3–4 …",
-    "type": "note",
-    "featured": false,
-    "keywords": "PQ-SecTunnel"
-  },
-  {
-    "title": "07 — 工程架构与实验验证（完整流程）",
-    "url": "notes/pqsectunnel/defense/07.html",
-    "category": "笔记库 · PQ-SecTunnel",
-    "excerpt": "状态：正文 | 主套件：mlkem512-mlkem768-sm4gcm-sm3 预计篇幅：答辩 5–8 min（可拆成「架构 2 min + 实验演示 5 min」）",
-    "type": "note",
-    "featured": false,
-    "keywords": "PQ-SecTunnel"
-  },
-  {
-    "title": "08 — PKI 与密钥管理",
-    "url": "notes/pqsectunnel/defense/08-pki.html",
-    "category": "笔记库 · PQ-SecTunnel",
-    "excerpt": "状态：正文 | 权威源：CONTEXT.md + certificate-management/ + setupconfigs.py 答辩主套件默认：random 模式 | PKI 为可选能力",
-    "type": "note",
-    "featured": false,
-    "keywords": "PQ-SecTunnel"
-  },
-  {
-    "title": "09 — 已知差异与答辩备查",
-    "url": "notes/pqsectunnel/defense/09.html",
-    "category": "笔记库 · PQ-SecTunnel",
-    "excerpt": "状态：正文 | 权威源：KE.md + 源码对照 | 主动说明可避评委追问",
-    "type": "note",
-    "featured": false,
-    "keywords": "PQ-SecTunnel"
-  },
-  {
-    "title": "10 — 常见问题（答辩 Q&A）",
-    "url": "notes/pqsectunnel/defense/10-qa.html",
-    "category": "笔记库 · PQ-SecTunnel",
-    "excerpt": "状态：正文 | 基于 CONTEXT.md../../CONTEXT.md + doc/defense/ 全文 建议配合 /grill-with-docs 演练后补充个人化答案",
-    "type": "note",
-    "featured": false,
-    "keywords": "PQ-SecTunnel"
-  },
-  {
-    "title": "AIGIS-ENC 原生集成实施计划",
-    "url": "notes/pqsectunnel/defense/aigis-enc.html",
-    "category": "笔记库 · PQ-SecTunnel",
-    "excerpt": "范围：把 AIGIS-ENC mode 1（K=2，pk=672，ct=736，sk=1568）作为 static KEM 接入 PQ-SecTunnel， ephemeral 继续走现有 ML-KEM-512，端到端握手通过 PQSTKE…",
-    "type": "note",
-    "featured": false,
-    "keywords": "PQ-SecTunnel"
-  },
-  {
-    "title": "diagrams/",
-    "url": "notes/pqsectunnel/defense/diagrams/diagrams.html",
-    "category": "笔记库 · PQ-SecTunnel",
-    "excerpt": "答辩用 Mermaid 源文件与导出图存放目录。",
-    "type": "note",
-    "featured": false,
-    "keywords": "PQ-SecTunnel"
-  },
-  {
-    "title": "WireGuard 背景调研",
-    "url": "notes/pqsectunnel/research/wireguard-background.html",
-    "category": "笔记库 · PQ-SecTunnel",
-    "excerpt": "本文档为 PQ-SecTunnel 答辩材料撰写，内容均来自一手资料。 主要来源：WireGuard 官网、技术白皮书、Noise Protocol Framework 规范。",
-    "type": "note",
-    "featured": false,
-    "keywords": "PQ-SecTunnel"
-  },
-  {
-    "title": "WireGuard 动手实践笔记",
-    "url": "notes/pqsectunnel/research/wireguard-hands-on-practice.html",
-    "category": "笔记库 · PQ-SecTunnel",
-    "excerpt": "本文档整理自 PQ-SecTunnel 开发过程中的 WireGuard 原生学习实验。 目标：理解标准 WireGuard 的配置流程，为对照和调整 PQ-SecTunnel（pqst / pqst-quick）提供基线。",
-    "type": "note",
-    "featured": false,
-    "keywords": "PQ-SecTunnel"
-  },
-  {
-    "title": "流程",
-    "url": "notes/pqsectunnel/pf630b9.html",
-    "category": "笔记库 · PQ-SecTunnel",
-    "excerpt": "各位老师好。我按这张流程图，把双方如何完成后量子握手、最终得到会话密钥说清楚。",
-    "type": "note",
-    "featured": false,
-    "keywords": "PQ-SecTunnel"
-  },
-  {
-    "title": "Claude Code Memory Index",
-    "url": "notes/memory/memory.html",
-    "category": "笔记库 · Claude 记忆",
-    "excerpt": "- Memory 接入 Obsidian vaultclaude-memory-vault.md — 记忆目录指向 north-my-note 的 claude-memory 子文件夹,所有项目共用",
-    "type": "note",
-    "featured": false,
-    "keywords": "Claude 记忆"
-  },
-  {
-    "title": "claude-memory-vault",
-    "url": "notes/memory/claude-memory-vault.html",
-    "category": "笔记库 · Claude 记忆",
-    "excerpt": "Claude Code 的长期记忆目录通过用户级 settings 中的 autoMemoryDirectory 指向 E:\\north-my-note\\claude-memoryObsidian vault north-my-note 的…",
-    "type": "note",
-    "featured": false,
-    "keywords": "Claude 记忆"
   },
   {
     "title": "2026-07-04 周六",

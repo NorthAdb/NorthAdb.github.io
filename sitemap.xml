@@ -1397,14 +1397,6 @@
     <lastmod>2026-10-06</lastmod>
   </url>
   <url>
-    <loc>https://northadb.github.io/notes/pqsectunnel/index.html</loc>
-    <lastmod>2026-10-06</lastmod>
-  </url>
-  <url>
-    <loc>https://northadb.github.io/notes/memory/index.html</loc>
-    <lastmod>2026-10-06</lastmod>
-  </url>
-  <url>
     <loc>https://northadb.github.io/notes/diary/index.html</loc>
     <lastmod>2026-10-06</lastmod>
   </url>
@@ -1417,63 +1409,51 @@
     <lastmod>2026-10-06</lastmod>
   </url>
   <url>
-    <loc>https://northadb.github.io/notes/domains/aiagent2026.html</loc>
+    <loc>https://northadb.github.io/notes/domains/agent.html</loc>
     <lastmod>2026-10-06</lastmod>
   </url>
   <url>
-    <loc>https://northadb.github.io/notes/domains/agentagent.html</loc>
+    <loc>https://northadb.github.io/notes/domains/agent/aiagent2026.html</loc>
     <lastmod>2026-10-06</lastmod>
   </url>
   <url>
-    <loc>https://northadb.github.io/notes/domains/agent-skill-progressive-disclosurezero-resident.html</loc>
+    <loc>https://northadb.github.io/notes/domains/agent/agentagent.html</loc>
     <lastmod>2026-10-06</lastmod>
   </url>
   <url>
-    <loc>https://northadb.github.io/notes/domains/agent-skills-tools-kv-cache.html</loc>
+    <loc>https://northadb.github.io/notes/domains/claude-memory/memory.html</loc>
     <lastmod>2026-10-06</lastmod>
   </url>
   <url>
-    <loc>https://northadb.github.io/notes/domains/claudecode-commandskill.html</loc>
+    <loc>https://northadb.github.io/notes/domains/claude-memory/claude-memory-vault.html</loc>
     <lastmod>2026-10-06</lastmod>
   </url>
   <url>
-    <loc>https://northadb.github.io/notes/domains/claudecodeagent.html</loc>
+    <loc>https://northadb.github.io/notes/domains/java/git.html</loc>
     <lastmod>2026-10-06</lastmod>
   </url>
   <url>
-    <loc>https://northadb.github.io/notes/domains/codewikigoogleai.html</loc>
+    <loc>https://northadb.github.io/notes/domains/java/javaagent2026.html</loc>
     <lastmod>2026-10-06</lastmod>
   </url>
   <url>
-    <loc>https://northadb.github.io/notes/domains/git.html</loc>
+    <loc>https://northadb.github.io/notes/domains/mcp-cli/function-calling-mcp-cli-obsidian-note.html</loc>
     <lastmod>2026-10-06</lastmod>
   </url>
   <url>
-    <loc>https://northadb.github.io/notes/domains/javaagent2026.html</loc>
+    <loc>https://northadb.github.io/notes/domains/mcp-cli/mcp2-0.html</loc>
     <lastmod>2026-10-06</lastmod>
   </url>
   <url>
-    <loc>https://northadb.github.io/notes/domains/mcp2-0.html</loc>
+    <loc>https://northadb.github.io/notes/domains/mcp-cli/github-mcp-cli.html</loc>
     <lastmod>2026-10-06</lastmod>
   </url>
   <url>
-    <loc>https://northadb.github.io/notes/domains/pythonvstypescriptai.html</loc>
+    <loc>https://northadb.github.io/notes/domains/memory/claudecodeagent.html</loc>
     <lastmod>2026-10-06</lastmod>
   </url>
   <url>
-    <loc>https://northadb.github.io/notes/domains/ragllmwiki.html</loc>
-    <lastmod>2026-10-06</lastmod>
-  </url>
-  <url>
-    <loc>https://northadb.github.io/notes/domains/skillkv-cache.html</loc>
-    <lastmod>2026-10-06</lastmod>
-  </url>
-  <url>
-    <loc>https://northadb.github.io/notes/domains/mem0-v2-v3-architecture.html</loc>
-    <lastmod>2026-10-06</lastmod>
-  </url>
-  <url>
-    <loc>https://northadb.github.io/notes/domains/mysql-vs-postgresql-ai.html</loc>
+    <loc>https://northadb.github.io/notes/domains/memory/mem0-v2-v3-architecture.html</loc>
     <lastmod>2026-10-06</lastmod>
   </url>
   <url>
@@ -1485,11 +1465,43 @@
     <lastmod>2026-10-06</lastmod>
   </url>
   <url>
-    <loc>https://northadb.github.io/notes/domains/rag.html</loc>
+    <loc>https://northadb.github.io/notes/domains/rag/codewikigoogleai.html</loc>
     <lastmod>2026-10-06</lastmod>
   </url>
   <url>
-    <loc>https://northadb.github.io/notes/domains/agentharness.html</loc>
+    <loc>https://northadb.github.io/notes/domains/rag/ragllmwiki.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://northadb.github.io/notes/domains/rag/rag.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://northadb.github.io/notes/domains/sandbox/agentharness.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://northadb.github.io/notes/domains/skill/agent-skill-progressive-disclosurezero-resident.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://northadb.github.io/notes/domains/skill/agent-skills-tools-kv-cache.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://northadb.github.io/notes/domains/skill/claudecode-commandskill.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://northadb.github.io/notes/domains/skill/skillkv-cache.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://northadb.github.io/notes/domains/p0d98c7/pythonvstypescriptai.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://northadb.github.io/notes/domains/p68051b/mysql-vs-postgresql-ai.html</loc>
     <lastmod>2026-10-06</lastmod>
   </url>
   <url>
@@ -1582,10 +1594,6 @@
   </url>
   <url>
     <loc>https://northadb.github.io/notes/projects/javase/javase-3.html</loc>
-    <lastmod>2026-10-06</lastmod>
-  </url>
-  <url>
-    <loc>https://northadb.github.io/notes/projects/p1869bc.html</loc>
     <lastmod>2026-10-06</lastmod>
   </url>
   <url>
@@ -1882,6 +1890,78 @@
   </url>
   <url>
     <loc>https://northadb.github.io/notes/projects/claude-code-best-practice/learn-claude-code.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://northadb.github.io/notes/projects/doc-pqsectunnel/defense/00.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://northadb.github.io/notes/projects/doc-pqsectunnel/defense/00a-wireguard.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://northadb.github.io/notes/projects/doc-pqsectunnel/defense/01.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://northadb.github.io/notes/projects/doc-pqsectunnel/defense/02.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://northadb.github.io/notes/projects/doc-pqsectunnel/defense/03.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://northadb.github.io/notes/projects/doc-pqsectunnel/defense/04.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://northadb.github.io/notes/projects/doc-pqsectunnel/defense/05.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://northadb.github.io/notes/projects/doc-pqsectunnel/defense/05a.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://northadb.github.io/notes/projects/doc-pqsectunnel/defense/06-mtu.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://northadb.github.io/notes/projects/doc-pqsectunnel/defense/07.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://northadb.github.io/notes/projects/doc-pqsectunnel/defense/08-pki.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://northadb.github.io/notes/projects/doc-pqsectunnel/defense/09.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://northadb.github.io/notes/projects/doc-pqsectunnel/defense/10-qa.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://northadb.github.io/notes/projects/doc-pqsectunnel/defense/aigis-enc.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://northadb.github.io/notes/projects/doc-pqsectunnel/defense/diagrams/diagrams.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://northadb.github.io/notes/projects/doc-pqsectunnel/research/wireguard-background.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://northadb.github.io/notes/projects/doc-pqsectunnel/research/wireguard-hands-on-practice.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://northadb.github.io/notes/projects/doc-pqsectunnel/pf630b9.html</loc>
     <lastmod>2026-10-06</lastmod>
   </url>
   <url>
@@ -2622,86 +2702,6 @@
   </url>
   <url>
     <loc>https://northadb.github.io/notes/wiki/sources/ragllm-wiki-a74e83.html</loc>
-    <lastmod>2026-10-06</lastmod>
-  </url>
-  <url>
-    <loc>https://northadb.github.io/notes/pqsectunnel/defense/00.html</loc>
-    <lastmod>2026-10-06</lastmod>
-  </url>
-  <url>
-    <loc>https://northadb.github.io/notes/pqsectunnel/defense/00a-wireguard.html</loc>
-    <lastmod>2026-10-06</lastmod>
-  </url>
-  <url>
-    <loc>https://northadb.github.io/notes/pqsectunnel/defense/01.html</loc>
-    <lastmod>2026-10-06</lastmod>
-  </url>
-  <url>
-    <loc>https://northadb.github.io/notes/pqsectunnel/defense/02.html</loc>
-    <lastmod>2026-10-06</lastmod>
-  </url>
-  <url>
-    <loc>https://northadb.github.io/notes/pqsectunnel/defense/03.html</loc>
-    <lastmod>2026-10-06</lastmod>
-  </url>
-  <url>
-    <loc>https://northadb.github.io/notes/pqsectunnel/defense/04.html</loc>
-    <lastmod>2026-10-06</lastmod>
-  </url>
-  <url>
-    <loc>https://northadb.github.io/notes/pqsectunnel/defense/05.html</loc>
-    <lastmod>2026-10-06</lastmod>
-  </url>
-  <url>
-    <loc>https://northadb.github.io/notes/pqsectunnel/defense/05a.html</loc>
-    <lastmod>2026-10-06</lastmod>
-  </url>
-  <url>
-    <loc>https://northadb.github.io/notes/pqsectunnel/defense/06-mtu.html</loc>
-    <lastmod>2026-10-06</lastmod>
-  </url>
-  <url>
-    <loc>https://northadb.github.io/notes/pqsectunnel/defense/07.html</loc>
-    <lastmod>2026-10-06</lastmod>
-  </url>
-  <url>
-    <loc>https://northadb.github.io/notes/pqsectunnel/defense/08-pki.html</loc>
-    <lastmod>2026-10-06</lastmod>
-  </url>
-  <url>
-    <loc>https://northadb.github.io/notes/pqsectunnel/defense/09.html</loc>
-    <lastmod>2026-10-06</lastmod>
-  </url>
-  <url>
-    <loc>https://northadb.github.io/notes/pqsectunnel/defense/10-qa.html</loc>
-    <lastmod>2026-10-06</lastmod>
-  </url>
-  <url>
-    <loc>https://northadb.github.io/notes/pqsectunnel/defense/aigis-enc.html</loc>
-    <lastmod>2026-10-06</lastmod>
-  </url>
-  <url>
-    <loc>https://northadb.github.io/notes/pqsectunnel/defense/diagrams/diagrams.html</loc>
-    <lastmod>2026-10-06</lastmod>
-  </url>
-  <url>
-    <loc>https://northadb.github.io/notes/pqsectunnel/research/wireguard-background.html</loc>
-    <lastmod>2026-10-06</lastmod>
-  </url>
-  <url>
-    <loc>https://northadb.github.io/notes/pqsectunnel/research/wireguard-hands-on-practice.html</loc>
-    <lastmod>2026-10-06</lastmod>
-  </url>
-  <url>
-    <loc>https://northadb.github.io/notes/pqsectunnel/pf630b9.html</loc>
-    <lastmod>2026-10-06</lastmod>
-  </url>
-  <url>
-    <loc>https://northadb.github.io/notes/memory/memory.html</loc>
-    <lastmod>2026-10-06</lastmod>
-  </url>
-  <url>
-    <loc>https://northadb.github.io/notes/memory/claude-memory-vault.html</loc>
     <lastmod>2026-10-06</lastmod>
   </url>
   <url>
