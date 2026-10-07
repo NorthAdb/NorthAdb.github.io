@@ -1,147 +1,247 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Agent Harness 架构课程 · 从 Pi 源码到自研 Harness</title>
-<style>
-:root { --ink:#1a1a1a; --soft:#5a564e; --accent:#0f6b5f; --accent-soft:#e7f2ef; --line:#ddd6c8; --paper:#faf8f2; }
-* { box-sizing: border-box; }
-body { margin:0; background:var(--paper); color:var(--ink);
-  font-family: Georgia, "Noto Serif SC", serif; line-height:1.7; }
-.wrap { max-width: 1000px; margin: 0 auto; padding: 3rem 1.4rem 5rem; }
-.kicker { font-family: Consolas, monospace; font-size:.78rem; letter-spacing:.14em;
-  text-transform: uppercase; color: var(--accent); }
-h1 { font-size: 2.2rem; margin:.3rem 0 .6rem; line-height:1.25; }
-.lede { color: var(--soft); font-size: 1.06rem; max-width: 46em; }
-.facts { display:flex; gap:1.6rem; flex-wrap:wrap; margin:1.6rem 0 0;
-  font-family: Consolas, monospace; font-size:.82rem; color:var(--soft); }
-.facts b { color: var(--accent); font-size:1.15rem; display:block; }
-.phase { margin-top: 2.8rem; }
-.phase > h2 { font-size:1.05rem; border-bottom:1px solid var(--line); padding-bottom:.4rem;
-  font-family: Consolas, monospace; letter-spacing:.06em; }
-.grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap:.9rem; }
-a.card { display:block; text-decoration:none; color:inherit; background:#fff;
-  border:1px solid var(--line); border-radius:10px; padding: .95rem 1.1rem;
-  transition: transform .12s ease, box-shadow .12s ease; }
-a.card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,.07); }
-.card .no { font-family: Consolas, monospace; font-size:.72rem; color:var(--accent); }
-.card .t { font-weight: bold; margin:.15rem 0 .2rem; }
-.card .q { font-size:.86rem; color: var(--soft); }
-.row { display:flex; gap:.9rem; flex-wrap:wrap; margin-top:.9rem; }
-.pill { display:inline-block; border:1px solid var(--line); background:#fff; border-radius:99px;
-  padding:.32rem .95rem; font-size:.86rem; text-decoration:none; color:var(--ink); }
-.pill:hover { border-color: var(--accent); color: var(--accent); }
-footer { margin-top:3.4rem; padding-top:1rem; border-top:1px solid var(--line);
-  font-size:.84rem; color:var(--soft); }
-@media (prefers-color-scheme: dark) {
-  :root { --ink:#e8e4da; --soft:#b3aea2; --accent:#5cc8b4; --accent-soft:#1d332e;
-    --line:#3a362e; --paper:#1c1b18; }
-  a.card { background:#232019; }
-  .pill { background:#232019; }
-}
-</style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Harness 架构课程 — NorthAdb 的博客</title>
+<meta name="description" content="逆向工程 Pi 源码，回答现代 Agent Harness 需要哪些基础机制。">
+<link rel="canonical" href="https://northadb.github.io/agent-harness-course/index.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Agent Harness 架构课程 — NorthAdb 的博客">
+<meta property="og:description" content="逆向工程 Pi 源码，回答现代 Agent Harness 需要哪些基础机制。">
+<meta property="og:url" content="https://northadb.github.io/agent-harness-course/index.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Agent Harness 架构课程 — NorthAdb 的博客">
+<meta name="twitter:description" content="逆向工程 Pi 源码，回答现代 Agent Harness 需要哪些基础机制。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../feed.xml">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../agent-harness-course/assets/courses.css">
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
 </head>
-<body>
-<div class="wrap">
-  <div class="kicker">Agent Harness 课程 · 以 Pi 源码为工程样本</div>
-  <h1>从「会用 Agent」到「能造 Agent」</h1>
-  <p class="lede">14 课逆向工程 Pi（本仓库）的真实源码，回答一个问题：<b>一个现代 Agent Harness 为了让 LLM 稳定、持续、安全地完成复杂任务，到底需要哪些基础机制？</b>终点：不看任何宣传页，从空白目录手写一个 Minimal Harness。每条结论都标注证据等级【源码 / 文档 / 推断】。</p>
-  <div class="facts">
-    <div><b>15</b> 课 · 每课 15–25 分钟</div>
-    <div><b>13</b> 张交互架构图</div>
-    <div><b>17</b> 个毕业练习验收测试</div>
-    <div><b>30+</b> 源码文件地图</div>
-  </div>
+<body data-root="../" data-page="post">
 
-  <div class="phase"><h2>第一阶段 · 建立总体认知（第 1 课）</h2>
-    <div class="grid">
-      <a class="card" href="lessons/0001-why-llm-is-not-agent.html">
-        <div class="no">LESSON 01 · DIAGRAM 01</div><div class="t">为什么 LLM 不是 Agent</div>
-        <div class="q">Harness 到底比 LLM 多了什么？三层边界一次看清。</div></a>
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+<section class="hero wrap">
+    <div class="hero-glow"></div>
+    <div class="hero-kicker"><span class="dot"></span> Course · Agent Harness — 以 Pi 源码为工程样本</div>
+    <h1>从「会用 Agent」到「能造 <em>Agent</em>」</h1>
+    <p class="sub">14 课逆向工程 Pi（本仓库）的真实源码，回答一个问题：<b>一个现代 Agent Harness 为了让 LLM 稳定、持续、安全地完成复杂任务，到底需要哪些基础机制？</b>终点：不看任何宣传页，从空白目录手写一个 Minimal Harness。<span class="dim">整理自 <a href="https://github.com/NorthAdb/pi-agent-north/tree/course/agent-harness-course" target="_blank" rel="noopener">NorthAdb/pi-agent-north</a> course 分支，15 课在线可读。</span></p>
+    <div class="hero-actions">
+      <a href="COURSE.html" class="btn btn-primary">从课程总纲开始</a>
+      <a href="https://github.com/NorthAdb/pi-agent-north/tree/course/agent-harness-course" class="btn btn-ghost" target="_blank" rel="noopener">源仓库 ↗</a>
+      <a href="practice/index.html" class="btn btn-ghost">毕业练习 ↗</a>
+      <a href="diagrams.html" class="btn btn-ghost">架构图集</a>
+    </div>
+    <div class="hero-stats">
+      <div><b data-count="15">15</b>课 · 每课 15–25 分钟</div>
+      <div><b data-count="13">13</b>张交互架构图</div>
+      <div><b data-count="17">17</b>个毕业练习验收测试</div>
+      <div><b data-count="30" data-suffix="+">30+</b>源码文件地图</div>
+    </div>
+  </section>
+  <section class="block wrap">
+    <div class="sec-head reveal"><span class="label">第一阶段 · 建立总体认知（第 1 课）</span></div>
+    <div class="course-grid reveal">
+        <a class="course-card" href="lessons/0001-why-llm-is-not-agent.html">
+          <span class="c-badge">LESSON 01</span>
+          <h3>为什么 LLM 不是 Agent</h3>
+          <p>Harness 到底比 LLM 多了什么？三层边界一次看清。</p>
+          <span class="c-link">进入课程 →</span>
+        </a>
+    </div>
+  </section>
+  <section class="block wrap">
+    <div class="sec-head reveal"><span class="label">第二至四阶段 · 循环、工具与上下文（第 2–4 课）</span></div>
+    <div class="course-grid reveal">
+        <a class="course-card" href="lessons/0002-agent-loop.html">
+          <span class="c-badge">LESSON 02</span>
+          <h3>Agent Loop</h3>
+          <p>循环由谁控制？何时结束？错误怎么回到模型？</p>
+          <span class="c-link">进入课程 →</span>
+        </a>
+        <a class="course-card" href="lessons/0003-tool-calling.html">
+          <span class="c-badge">LESSON 03</span>
+          <h3>Tool Calling / Execution</h3>
+          <p>模型看到什么？Runtime 执行什么？边界在哪？</p>
+          <span class="c-link">进入课程 →</span>
+        </a>
+        <a class="course-card" href="lessons/0004-context-assembly.html">
+          <span class="c-badge">LESSON 04</span>
+          <h3>Context Assembly</h3>
+          <p>Context 如何形成？为什么 Session ≠ Context？</p>
+          <span class="c-link">进入课程 →</span>
+        </a>
+    </div>
+  </section>
+  <section class="block wrap">
+    <div class="sec-head reveal"><span class="label">第五至八阶段 · 状态、压缩与扩展（第 5–8 课）</span></div>
+    <div class="course-grid reveal">
+        <a class="course-card" href="lessons/0005-session-tree.html">
+          <span class="c-badge">LESSON 05</span>
+          <h3>Session / State</h3>
+          <p>为什么需要历史树而不是 messages[]？</p>
+          <span class="c-link">进入课程 →</span>
+        </a>
+        <a class="course-card" href="lessons/0006-compaction.html">
+          <span class="c-badge">LESSON 06</span>
+          <h3>Compaction</h3>
+          <p>为什么压缩是状态压缩，而不是删消息？</p>
+          <span class="c-link">进入课程 →</span>
+        </a>
+        <a class="course-card" href="lessons/0007-skills.html">
+          <span class="c-badge">LESSON 07</span>
+          <h3>Skills 渐进披露</h3>
+          <p>为什么不全量注入？四笔账怎么算？</p>
+          <span class="c-link">进入课程 →</span>
+        </a>
+        <a class="course-card" href="lessons/0008-extensions.html">
+          <span class="c-badge">LESSON 08</span>
+          <h3>Extensions / Hooks</h3>
+          <p>为什么功能不进 Core？Extension 与 Skill 的边界？</p>
+          <span class="c-link">进入课程 →</span>
+        </a>
+    </div>
+  </section>
+  <section class="block wrap">
+    <div class="sec-head reveal"><span class="label">第九至十一阶段 · 边界、接口与总装（第 9–11 课）</span></div>
+    <div class="course-grid reveal">
+        <a class="course-card" href="lessons/0009-capability-boundary.html">
+          <span class="c-badge">LESSON 09</span>
+          <h3>权限与沙箱</h3>
+          <p>Capability / Authorization / Sandbox 三个词差在哪？</p>
+          <span class="c-link">进入课程 →</span>
+        </a>
+        <a class="course-card" href="lessons/0010-interfaces.html">
+          <span class="c-badge">LESSON 10</span>
+          <h3>TUI / RPC / SDK</h3>
+          <p>为什么接口不能和 Runtime 写死？</p>
+          <span class="c-link">进入课程 →</span>
+        </a>
+        <a class="course-card" href="lessons/0011-full-runtime.html">
+          <span class="c-badge">LESSON 11</span>
+          <h3>完整 Runtime 总时序</h3>
+          <p>一次真实任务如何流过所有层？</p>
+          <span class="c-link">进入课程 →</span>
+        </a>
+    </div>
+  </section>
+  <section class="block wrap">
+    <div class="sec-head reveal"><span class="label">第十二至十四阶段 · 抽象、比较与模型（第 12–14 课）</span></div>
+    <div class="course-grid reveal">
+        <a class="course-card" href="lessons/0012-generic-harness.html">
+          <span class="c-badge">LESSON 12</span>
+          <h3>通用 Harness 抽象</h3>
+          <p>必需品、领域层与 Pi 的个性选择，三箱分清。</p>
+          <span class="c-link">进入课程 →</span>
+        </a>
+        <a class="course-card" href="lessons/0013-comparison.html">
+          <span class="c-badge">LESSON 13</span>
+          <h3>横向比较</h3>
+          <p>Pi vs Claude Code vs Codex vs OpenCode：三条划线。</p>
+          <span class="c-link">进入课程 →</span>
+        </a>
+        <a class="course-card" href="lessons/0014-mental-model.html">
+          <span class="c-badge">LESSON 14</span>
+          <h3>五层 Mental Model</h3>
+          <p>Agent = LLM + Loop + Harness + Environment 成立吗？</p>
+          <span class="c-link">进入课程 →</span>
+        </a>
+    </div>
+  </section>
+  <section class="block wrap">
+    <div class="sec-head reveal"><span class="label">选修 · 主线之外（第 15 课）</span></div>
+    <div class="course-grid reveal">
+        <a class="course-card" href="lessons/0015-mcp.html">
+          <span class="c-badge">LESSON 15</span>
+          <h3>MCP 深潜</h3>
+          <p>协议是什么？Pi 如何以可替换的内置扩展接入？归属层级怎么判？</p>
+          <span class="c-link">进入课程 →</span>
+        </a>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../index.html">首页</a>
+      <a href="../learn.html">课件</a>
+      <a href="../notes/index.html">笔记库</a>
+      <a href="../ai-engineer/index.html">面试宝典</a>
+      <a href="../about.html">关于</a>
+      <a href="../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
     </div>
   </div>
-
-  <div class="phase"><h2>第二至四阶段 · 循环、工具与上下文（第 2–4 课）</h2>
-    <div class="grid">
-      <a class="card" href="lessons/0002-agent-loop.html">
-        <div class="no">LESSON 02 · DIAGRAM 02</div><div class="t">Agent Loop</div>
-        <div class="q">循环由谁控制？何时结束？错误怎么回到模型？</div></a>
-      <a class="card" href="lessons/0003-tool-calling.html">
-        <div class="no">LESSON 03 · DIAGRAM 03</div><div class="t">Tool Calling / Execution</div>
-        <div class="q">模型看到什么？Runtime 执行什么？边界在哪？</div></a>
-      <a class="card" href="lessons/0004-context-assembly.html">
-        <div class="no">LESSON 04 · DIAGRAM 04</div><div class="t">Context Assembly</div>
-        <div class="q">Context 如何形成？为什么 Session ≠ Context？</div></a>
-    </div>
-  </div>
-
-  <div class="phase"><h2>第五至八阶段 · 状态、压缩与扩展（第 5–8 课）</h2>
-    <div class="grid">
-      <a class="card" href="lessons/0005-session-tree.html">
-        <div class="no">LESSON 05 · DIAGRAM 05</div><div class="t">Session / State</div>
-        <div class="q">为什么需要历史树而不是 messages[]？</div></a>
-      <a class="card" href="lessons/0006-compaction.html">
-        <div class="no">LESSON 06 · DIAGRAM 06</div><div class="t">Compaction</div>
-        <div class="q">为什么压缩是状态压缩，而不是删消息？</div></a>
-      <a class="card" href="lessons/0007-skills.html">
-        <div class="no">LESSON 07 · DIAGRAM 07</div><div class="t">Skills 渐进披露</div>
-        <div class="q">为什么不全量注入？四笔账怎么算？</div></a>
-      <a class="card" href="lessons/0008-extensions.html">
-        <div class="no">LESSON 08 · DIAGRAM 08</div><div class="t">Extensions / Hooks</div>
-        <div class="q">为什么功能不进 Core？Extension 与 Skill 的边界？</div></a>
-    </div>
-  </div>
-
-  <div class="phase"><h2>第九至十一阶段 · 边界、接口与总装（第 9–11 课）</h2>
-    <div class="grid">
-      <a class="card" href="lessons/0009-capability-boundary.html">
-        <div class="no">LESSON 09 · DIAGRAM 09</div><div class="t">权限与沙箱</div>
-        <div class="q">Capability / Authorization / Sandbox 三个词差在哪？</div></a>
-      <a class="card" href="lessons/0010-interfaces.html">
-        <div class="no">LESSON 10 · DIAGRAM 10</div><div class="t">TUI / RPC / SDK</div>
-        <div class="q">为什么接口不能和 Runtime 写死？</div></a>
-      <a class="card" href="lessons/0011-full-runtime.html">
-        <div class="no">LESSON 11 · DIAGRAM 11</div><div class="t">完整 Runtime 总时序</div>
-        <div class="q">一次真实任务如何流过所有层？</div></a>
-    </div>
-  </div>
-
-  <div class="phase"><h2>第十二至十四阶段 · 抽象、比较与模型（第 12–14 课）</h2>
-    <div class="grid">
-      <a class="card" href="lessons/0012-generic-harness.html">
-        <div class="no">LESSON 12 · DIAGRAM 12</div><div class="t">通用 Harness 抽象</div>
-        <div class="q">必需品、领域层与 Pi 的个性选择，三箱分清。</div></a>
-      <a class="card" href="lessons/0013-comparison.html">
-        <div class="no">LESSON 13 · 无图 · 表驱动</div><div class="t">横向比较</div>
-        <div class="q">Pi vs Claude Code vs Codex vs OpenCode：三条划线。</div></a>
-      <a class="card" href="lessons/0014-mental-model.html">
-        <div class="no">LESSON 14 · DIAGRAM 13</div><div class="t">五层 Mental Model</div>
-        <div class="q">Agent = LLM + Loop + Harness + Environment 成立吗？</div></a>
-    </div>
-  </div>
-
-  <div class="phase"><h2>选修 · 主线之外（第 15 课）</h2>
-    <div class="grid">
-      <a class="card" href="lessons/0015-mcp.html">
-        <div class="no">LESSON 15 · DIAGRAM 14 · 进阶</div><div class="t">MCP 深潜</div>
-        <div class="q">协议是什么？Pi 如何以可替换的内置扩展接入？归属层级怎么判？</div></a>
-    </div>
-  </div>
-
-  <div class="phase"><h2>资源与毕业</h2>
-    <div class="row">
-      <a class="pill" href="reference/glossary.html">📖 术语表</a>
-      <a class="pill" href="reference/source-map.html">🗺 关键源码地图</a>
-      <a class="pill" href="reference/minimal-harness.html">🎯 毕业设计卷</a>
-      <a class="pill" href="reference/cheatsheet.html">🖨 一页纸速查表</a>
-      <a class="pill" href="practice/index.html">🛠 毕业练习工作区（17 测试）</a>
-      <a class="pill" href="../learn-pi/index.html">入库概览导读 learn-pi</a>
-    </div>
-  </div>
-
-  <footer>图表由 Archify 生成 · 证据基准上游 <code>1.0.2</code>（2026-10-04）· 1.0 起循环在 <code>pi-agent-core</code>，产品会话在 coding-agent，实验持久化在 <code>pi-durable</code> ·
-  学习中随时向你的 AI 导师追问 · <a href="COURSE.html">Markdown 版总纲</a></footer>
 </div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../js/main.js" defer></script>
 </body>
 </html>

@@ -146,23 +146,13 @@ footer.note { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--l
   nav.pager { display: none; }
 }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
+  :root {
     --ink: #e8e4da; --ink-soft: #b3aea2; --paper: #1c1b18;
     --accent: #5cc8b4; --accent-soft: #1d332e; --warn: #d9a35a; --warn-soft: #3a2d18;
     --fact: #7db3e8; --fact-soft: #1b2a3a; --guess: #a996d9; --guess-soft: #2a2440;
     --line: #3a362e; --code-bg: #26231d;
   }
-  :root:not([data-theme="light"]) .quiz { background: #232019; }
+  .quiz { background: #232019; }
   figure.diagram iframe { background: #fff; }
-  :root:not([data-theme="light"]) a { color: var(--accent); }
+  a { color: var(--accent); }
 }
-
-/* 手动暗色（主题切换按钮） */
-[data-theme="dark"] {
-  --ink: #e8e4da; --ink-soft: #b3aea2; --paper: #1c1b18;
-  --accent: #5cc8b4; --accent-soft: #1d332e; --warn: #d9a35a; --warn-soft: #3a2d18;
-  --fact: #7db3e8; --fact-soft: #1b2a3a; --guess: #a996d9; --guess-soft: #2a2440;
-  --line: #3a362e; --code-bg: #26231d;
-}
-[data-theme="dark"] .quiz { background: #232019; }
-[data-theme="dark"] a { color: var(--accent); }

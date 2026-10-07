@@ -1,0 +1,99 @@
+/* ============================================================
+   三课程区 overlay —— 建立在站点设计令牌（css/style.css）之上。
+   承接源仓库课件里的既有组件：证据徽章 / callout / 测验 / 架构图容器。
+   ============================================================ */
+
+.course-doc .kicker {
+  font-family: var(--font-mono, ui-monospace, Consolas, monospace);
+  font-size: .78rem; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--accent); margin: .2rem 0 .6rem;
+}
+.course-doc .lede { font-size: 1.05rem; color: var(--text-2); margin-top: .6rem; }
+.course-doc .question {
+  border-left: 3px solid var(--accent);
+  background: var(--accent-soft);
+  padding: .9rem 1.2rem;
+  border-radius: 0 8px 8px 0;
+  margin: 1.6rem 0;
+  font-size: 1.02rem;
+}
+.course-doc .question strong { color: var(--accent-strong); }
+
+/* 证据徽章 */
+.course-doc .badge {
+  display: inline-block;
+  font-family: var(--font-mono, ui-monospace, Consolas, monospace);
+  font-size: .72rem;
+  padding: .1em .55em;
+  border-radius: 99px;
+  vertical-align: middle;
+  margin-right: .35em;
+}
+.course-doc .badge.src { background: rgba(96, 165, 250, .12); color: #7db3e8; }
+.course-doc .badge.doc { background: var(--accent-soft); color: var(--accent-strong); }
+.course-doc .badge.guess { background: rgba(167, 139, 250, .13); color: #b9a5e8; }
+.course-doc .badge.generic { background: rgba(217, 163, 90, .13); color: #d9a35a; }
+
+.course-doc .callout { border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.3rem; margin: 1.4rem 0; }
+.course-doc .callout.fact { border-left: 3px solid #7db3e8; }
+.course-doc .callout.doc { border-left: 3px solid var(--accent); }
+.course-doc .callout.guess { border-left: 3px solid #b9a5e8; }
+.course-doc .callout.generic { border-left: 3px solid #d9a35a; }
+.course-doc .callout .t { font-weight: bold; font-size: .85rem; letter-spacing: .06em; display: block; margin-bottom: .3rem; color: var(--text-2); }
+
+/* 源码映射表 */
+.course-doc table.map { font-size: .92rem; }
+.course-doc table.map th { font-family: var(--font-mono, ui-monospace, Consolas, monospace); font-size: .8rem; }
+.course-doc table.map td code { white-space: nowrap; }
+
+/* 七问 */
+.course-doc .seven { counter-reset: q; margin: 1rem 0; padding: 0; list-style: none; }
+.course-doc .seven li { counter-increment: q; margin: .7rem 0; padding-left: 2.2rem; position: relative; }
+.course-doc .seven li::before {
+  content: counter(q);
+  position: absolute; left: 0; top: .15em;
+  width: 1.5rem; height: 1.5rem;
+  background: var(--accent); color: #fff;
+  border-radius: 50%;
+  font-family: var(--font-mono, ui-monospace, Consolas, monospace); font-size: .8rem;
+  display: flex; align-items: center; justify-content: center;
+}
+.course-doc .seven li b { color: var(--accent-strong); }
+
+/* 测验 */
+.course-doc .quiz { border: 1px solid var(--border); border-radius: 10px; padding: 1.2rem 1.4rem; margin: 2rem 0; background: var(--bg-1); }
+.course-doc .quiz h3 { margin-top: 0; }
+.course-doc .quiz fieldset { border: none; margin: 1.2rem 0 0; padding: 0; }
+.course-doc .quiz legend { font-weight: bold; margin-bottom: .4rem; }
+.course-doc .quiz label { display: block; margin: .35rem 0; cursor: pointer; font-size: .95rem; }
+.course-doc .quiz .btn {
+  margin-top: 1rem;
+  background: var(--accent); color: #fff;
+  border: none; border-radius: 6px;
+  padding: .5rem 1.3rem; font-size: .95rem; cursor: pointer;
+  font-family: inherit;
+}
+.course-doc .quiz .btn:hover { filter: brightness(1.08); }
+.course-doc .quiz .result { margin-top: .8rem; font-size: .95rem; min-height: 1.4em; }
+.course-doc .quiz .ok { color: var(--accent-strong); font-weight: bold; }
+.course-doc .quiz .bad { color: #f87171; font-weight: bold; }
+.course-doc .quiz .why { font-size: .88rem; color: var(--text-2); margin-top: .5rem; }
+
+/* 架构图容器（iframe 嵌入 lessons/diagrams/*.html） */
+.course-doc figure.diagram { margin: 2rem 0; }
+.course-doc figure.diagram iframe {
+  width: 100%;
+  height: 820px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+}
+.course-doc figure.diagram figcaption { font-size: .85rem; color: var(--text-3); margin-top: .5rem; }
+
+/* 课件内的课间翻页与脚注（源仓库自带结构） */
+.course-doc nav.pager { display: flex; justify-content: space-between; gap: 1rem; margin-top: 3rem;
+  font-family: var(--font-mono, ui-monospace, Consolas, monospace); font-size: .88rem; }
+.course-doc nav.pager a { color: var(--accent-strong); text-decoration: none; }
+.course-doc nav.pager a:hover { text-decoration: underline; }
+.course-doc footer.note { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border);
+  font-size: .85rem; color: var(--text-3); }

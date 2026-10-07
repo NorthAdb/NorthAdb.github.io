@@ -1,11 +1,13 @@
-"""三个课程区块的同步构建，源仓库即唯一事实来源：
+"""三个课程区块的同步构建（渲染进站点设计系统），源仓库即唯一事实来源：
 
-- agent-harness-course/  ← pi-agent-north@course 拷贝 + 主题注入 + 链接改写
-- learn-pi/              ← pi-agent-north@course learn-pi/*.md 渲染（阅读顺序取自 README 课表）
-- web-foundation/        ← web_fundation（先跑仓库自带 tools/build_docs.py，再拷贝 + 主题注入）
+- agent-harness-course/  ← pi-agent-north@course：hub 重排为站点 hero + 课程卡片；
+                           课件/参考页内容（预渲染 HTML）抽取进站点外壳；图页保持独立 iframe
+- learn-pi/              ← 同分支 learn-pi/*.md：渲染成站点文章页（post-hero + prose + 翻页）
+- web-foundation/        ← web_fundation：先跑仓库自带 tools/build_docs.py，内容抽取进站点外壳
 
-输出确定性：一律 LF、排序遍历、主题注入幂等；同步维护 search.json / sitemap.xml
-中三个区块的条目。CI（deploy.yml）先 clone 两个源仓库再运行本脚本。
+外壳与站点其他区块完全一致（导航/搜索/页脚/设计令牌），课件特有组件
+（证据徽章、callout、测验、架构图容器）由 assets/courses.css overlay 提供。
+CI（deploy.yml）先 clone 源仓库再运行本脚本；输出确定性（LF、排序遍历）。
 """
 
 import json
@@ -19,6 +21,8 @@ from urllib.parse import quote as url_quote
 
 import markdown
 
+import build_notes as site_tmpl   # 复用站点外壳：导航/页脚/搜索/收藏夹图标
+
 # 读入的一切文本归一化：\r\n → LF、剔除 NUL（与 build_ai_engineer/build_notes 一致）
 _orig_read_text = Path.read_text
 def _read_text_lf(self, *a, **kw):
@@ -31,41 +35,147 @@ PI = WORKSPACE / "pi-agent-north"          # branch: course
 WF = WORKSPACE / "web_fundation"
 
 SITE_URL = "https://northadb.github.io"
-PI_BLOB = "https://github.com/NorthAdb/pi-agent-north/blob/main"
+PI_REPO = "https://github.com/NorthAdb/pi-agent-north"
+PI_BLOB = f"{PI_REPO}/blob/main"
+PI_TREE_COURSE = f"{PI_REPO}/tree/course"
 TODAY = "2026-10-07"
 
 MD_EXTS = ["extra", "sane_lists"]
 
-# ---------------------------------------------------------------- 主题注入
 
-THEME_PREFILL = ('<script>try{var t=localStorage.getItem("theme");'
-                 'if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>')
-THEME_TOGGLE = (
-    '<button id="themeToggle" aria-label="切换主题" style="position:fixed;top:14px;right:14px;'
-    'z-index:999;width:34px;height:34px;border-radius:8px;border:1px solid rgba(127,127,127,.45);'
-    'background:rgba(127,127,127,.14);color:inherit;cursor:pointer;display:grid;place-items:center;'
-    'font-size:15px;line-height:1;">☾</button>\n'
-    '<script>(function(){var b=document.getElementById("themeToggle");if(!b)return;'
-    'function cur(){var t=document.documentElement.getAttribute("data-theme");if(t)return t;'
-    'try{return localStorage.getItem("theme")||(matchMedia("(prefers-color-scheme: dark)").matches'
-    '?"dark":"light")}catch(e){return "light"}}'
-    'function paint(){b.textContent=cur()==="dark"?"☀":"☾"}'
-    'b.addEventListener("click",function(){var n=cur()==="dark"?"light":"dark";'
-    'document.documentElement.setAttribute("data-theme",n);'
-    'try{localStorage.setItem("theme",n)}catch(e){}paint()});paint()})();</script>')
+def strip_h1(md_text):
+    """剥掉首个 H1：标题已由 post-hero 呈现，避免重复"""
+    return re.sub(r"^# [^\n]+\n+", "", md_text, count=1)
 
 
-def theme_inject(html):
-    """幂等注入主题预置脚本与切换按钮；返回 None 表示已注入过或不适用。
-    只有使用课程设计系统（course.css / learn-pi/style.css）的文档页才注入，
-    图表页与交互实验页有自己的内联样式，历史上也不带主题按钮。"""
-    if 'id="themeToggle"' in html:
-        return None
-    if "course.css" not in html and "learn-pi/style.css" not in html:
-        return None
-    html = html.replace("</head>", THEME_PREFILL + "\n</head>", 1)
-    html = html.replace("</body>", THEME_TOGGLE + "\n</body>", 1)
+def md_render(text):
+    html = markdown.markdown(text, extensions=MD_EXTS, output_format="html5")
+    # 与站点已渲染页面的紧凑表格形态一致（markdown 3.11 默认在 tbody 后折行）
+    html = html.replace("<tbody>\n<tr>", "<tbody><tr>").replace("</tbody>\n</table>", "</tbody></table>")
+    # 任务列表：markdown 核心不支持，按 GitHub 形态补渲染
+    html = html.replace("<li>[ ] ", '<li><input disabled="" type="checkbox"> ')
+    html = html.replace("<li>[x] ", '<li><input disabled="" type="checkbox" checked=""> ')
     return html
+
+
+# ---------------------------------------------------------------- 站点外壳
+
+def site_shell(P, title, desc, canonical, body, overlay=None):
+    ov = f'\n<link rel="stylesheet" href="{P}{overlay}">' if overlay else ""
+    return f'''<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{title}</title>
+<meta name="description" content="{desc}">
+<link rel="canonical" href="{SITE_URL}/{canonical}">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="{title}">
+<meta property="og:description" content="{desc}">
+<meta property="og:url" content="{SITE_URL}/{canonical}">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="{title}">
+<meta name="twitter:description" content="{desc}">
+{site_tmpl.FAVICON}
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="{P}feed.xml">
+<link rel="stylesheet" href="{P}css/style.css">{ov}
+<script>try{{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}}catch(e){{}}</script>
+</head>
+<body data-root="{P}" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+{site_tmpl.nav_html(P)}
+
+<main>
+{body}
+</main>
+
+{site_tmpl.footer_html(P)}
+
+{site_tmpl.CMDK}
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="{P}js/main.js" defer></script>
+</body>
+</html>'''
+
+
+def crumb(P, *pairs):
+    parts = [f'<a href="{P}index.html">首页</a>']
+    for href, label in pairs:
+        parts.append('<span>/</span>')
+        parts.append(f'<a href="{P}{href}">{label}</a>' if href else f'<span>{label}</span>')
+    return '<div class="crumbs">' + "".join(parts) + "</div>"
+
+
+TOC_BLOCKS = '''<div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>'''
+
+
+def doc_page(P, *, title, desc, canonical, prose, overlay, hero="", foot="",
+             post_nav="", toc=True):
+    """文章型页面：post-hero（可选）+ prose + 桌面目录 aside + post-foot（可选）"""
+    toc_mob = TOC_BLOCKS if toc else ""
+    aside = ('''<aside>
+      <nav class="toc">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>''' if toc else "")
+    body = f'''  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        {hero}{toc_mob}
+        <div class="prose course-doc">
+{prose}
+        </div>
+        {foot}
+      </article>
+    </div>
+    {aside}
+  </div>
+
+  {post_nav}'''
+    return site_shell(P, title, desc, canonical, body, overlay=overlay)
+
+
+def post_nav(prev, next_):
+    """站点样式的上一篇/下一篇；prev/next: (标题, 链接) or None"""
+    if not prev and not next_:
+        return ""
+    prev_a = '<span></span>'
+    if prev:
+        prev_a = (f'<a class="prev" href="{prev[1]}"><span class="dir">← 上一篇</span>'
+                  f'<span class="t">{prev[0]}</span></a>')
+    next_a = ""
+    if next_:
+        next_a = (f'<a class="next" href="{next_[1]}"><span class="dir">下一篇 →</span>'
+                  f'<span class="t">{next_[0]}</span></a>')
+    return f'<div class="wrap"><nav class="post-nav">{prev_a}{next_a}</nav></div>\n'
+
+
+def hero(kicker, h1, sub, actions, stats):
+    acts = "".join(f'\n      {a}' for a in actions)
+    sts = "".join(f'\n      <div>{s}</div>' for s in stats)
+    return f'''<section class="hero wrap">
+    <div class="hero-glow"></div>
+    <div class="hero-kicker"><span class="dot"></span> {kicker}</div>
+    <h1>{h1}</h1>
+    <p class="sub">{sub}</p>
+    <div class="hero-actions">{acts}
+    </div>
+    <div class="hero-stats">{sts}
+    </div>
+  </section>'''
 
 
 # ---------------------------------------------------------------- 链接改写
@@ -74,11 +184,11 @@ REPO_SRC = r"(?:packages|scripts|docs|examples|nix)"
 
 
 def rewrite_links(html):
-    """pi-agent-north 课程内容的站内链接改写（对 md 渲染产物与拷贝的 html 同样适用）"""
+    """pi-agent-north 课程内容的链接改写（md 渲染产物与拷贝的 html 通用）"""
     def blob_or_tree(m):
         # 有扩展名的路径指文件（blob），无扩展名指目录（tree）
         kind = "tree" if not Path(m.group(2)).suffix else "blob"
-        return f'href="{PI_BLOB.replace("/blob/main", "")}/{kind}/main/{m.group(2)}"'
+        return f'href="{PI_REPO}/{kind}/main/{m.group(2)}"'
     # learning-records 不发布：整条入口先移除（在链接改写之前，避免 href 被先行替换）
     html = re.sub(r'\s*<a class="pill" href="learning-records/README\.md">[^<]*</a>', "", html)
     # 仓库源码/文档相对链接 → GitHub blob/tree（learn-pi/、agent-harness-course/ 是站内内容，除外）
@@ -86,12 +196,9 @@ def rewrite_links(html):
     html = re.sub(rf'href="((?:\.\./)+)((?:README|AGENTS|CONTRIBUTING|SECURITY)\.md)"',
                   rf'href="{PI_BLOB}/\2"', html)
     # learning-records 只存在于 course 分支且不在站点发布，指回 GitHub（README 归一化为目录）
-    lr_url = f"{PI_BLOB.replace('/blob/main', '')}/tree/course/agent-harness-course/learning-records"
-    html = re.sub(r'href="((?:\.\./)*)learning-records/README\.(?:md|html)"', f'href="{lr_url}"', html)
-    html = re.sub(r'href="((?:\.\./)*)learning-records/([^"]+)"',
-                  rf'href="{lr_url}/\2"', html)
-    # learning-records 不发布：整条入口移除
-    html = re.sub(r'\s*<a class="pill" href="learning-records/README\.md">[^<]*</a>', "", html)
+    lr = f"{PI_TREE_COURSE}/agent-harness-course/learning-records"
+    html = re.sub(r'href="((?:\.\./)*)learning-records/README\.(?:md|html)"', f'href="{lr}"', html)
+    html = re.sub(r'href="((?:\.\./)*)learning-records/([^"]+)"', rf'href="{lr}/\2"', html)
     # 课程内部 md 链接 → html
     html = re.sub(r'href="((?:\.\./)*(?!https?:)[^":]*?)\.md"',
                   lambda m: f'href="{m.group(1)}.html"', html)
@@ -104,84 +211,136 @@ def rewrite_links(html):
 
 
 def quote_nonascii_html(html):
-    """href 里的非 ASCII 路径百分号编码（站点链接一贯形态）"""
+    """href 里的非 ASCII 路径百分号编码（markdown 渲染产物用）"""
+
     def _q(m):
         path = m.group(1)
         if re.search(r"[^\x21-\x7e]", path):
             return f'href="{url_quote(path, safe="/.#")}"'
         return m.group(0)
+
     return re.sub(r'href="([^"]+)"', _q, html)
 
 
-# ---------------------------------------------------------------- 课程页外壳
-
-def md_render(text):
-    html = markdown.markdown(text, extensions=MD_EXTS, output_format="html5")
-    # 与现有页面的紧凑表格形态一致（markdown 3.11 默认在 tbody 后折行）
-    html = html.replace("<tbody>\n<tr>", "<tbody><tr>").replace("</tbody>\n</table>", "</tbody></table>")
-    # 任务列表：markdown 核心不支持，按 GitHub 形态补渲染
-    html = html.replace("<li>[ ] ", '<li><input disabled="" type="checkbox"> ')
-    html = html.replace("<li>[x] ", '<li><input disabled="" type="checkbox" checked=""> ')
-    return html
-
-
-def page_title(md_text, fallback):
-    m = re.search(r"^# (.+)$", md_text, re.M)
-    return m.group(1).strip() if m else fallback
+def extract_content(html):
+    """从仓库预渲染页面中取正文：去旧主题按钮/脚本、build_docs 页脚与侧栏脚本"""
+    m = re.search(r"<body[^>]*>(.*)</body>", html, re.S)
+    body = m.group(1) if m else html
+    body = re.sub(r'<button id="themeToggle".*?</button>\s*', "", body, flags=re.S)
+    body = re.sub(r'<script>\(function\(\)\{var b=document\.getElementById\("themeToggle"\).*?</script>\s*',
+                  "", body, flags=re.S)
+    body = re.sub(r'<footer>本页由 markdown 源文件.*?</footer>\s*', "", body, flags=re.S)
+    body = re.sub(r'<script src="assets/nav\.js"[^>]*></script>\s*', "", body, flags=re.S)
+    return body.strip("\n")
 
 
-def shell_page(*, body, title, desc, depth, crumbs_href, crumbs_label,
-               footer_zone, pager="", zone_dir="learn-pi", crumbs_html=None,
-               footer_extra=True):
-    P = "../" * depth
-    if crumbs_html is None:
-        crumbs_html = (f'<nav class="crumbs"><a href="{P}{crumbs_href}">{crumbs_label}</a></nav>'
-                       if crumbs_href else '<nav class="crumbs"></nav>')
-    sister = (f' · 姊妹课程 <a href="{P}agent-harness-course/index.html">Agent Harness 架构课</a>'
-              if footer_extra else "")
-    return f"""<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{title}</title>
-<meta name="description" content="{desc}">
-<link rel="stylesheet" href="{P}{zone_dir}/style.css">
-{THEME_PREFILL}
-</head>
-<body>
-<div class="wrap">
-  {crumbs_html}
-  <article>
-{body}
+# ---------------------------------------------------------------- overlay css
 
-  </article>
-{pager}  <footer>{footer_zone} · 基准 pi 1.0.2（2026-10-04） · <a href="https://github.com/NorthAdb/pi-agent-north" target="_blank" rel="noopener">源码仓库 ↗</a>{sister}</footer>
-</div>
-{THEME_TOGGLE}
-</body>
-</html>
+COURSES_CSS = """/* ============================================================
+   三课程区 overlay —— 建立在站点设计令牌（css/style.css）之上。
+   承接源仓库课件里的既有组件：证据徽章 / callout / 测验 / 架构图容器。
+   ============================================================ */
+
+.course-doc .kicker {
+  font-family: var(--font-mono, ui-monospace, Consolas, monospace);
+  font-size: .78rem; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--accent); margin: .2rem 0 .6rem;
+}
+.course-doc .lede { font-size: 1.05rem; color: var(--text-2); margin-top: .6rem; }
+.course-doc .question {
+  border-left: 3px solid var(--accent);
+  background: var(--accent-soft);
+  padding: .9rem 1.2rem;
+  border-radius: 0 8px 8px 0;
+  margin: 1.6rem 0;
+  font-size: 1.02rem;
+}
+.course-doc .question strong { color: var(--accent-strong); }
+
+/* 证据徽章 */
+.course-doc .badge {
+  display: inline-block;
+  font-family: var(--font-mono, ui-monospace, Consolas, monospace);
+  font-size: .72rem;
+  padding: .1em .55em;
+  border-radius: 99px;
+  vertical-align: middle;
+  margin-right: .35em;
+}
+.course-doc .badge.src { background: rgba(96, 165, 250, .12); color: #7db3e8; }
+.course-doc .badge.doc { background: var(--accent-soft); color: var(--accent-strong); }
+.course-doc .badge.guess { background: rgba(167, 139, 250, .13); color: #b9a5e8; }
+.course-doc .badge.generic { background: rgba(217, 163, 90, .13); color: #d9a35a; }
+
+.course-doc .callout { border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.3rem; margin: 1.4rem 0; }
+.course-doc .callout.fact { border-left: 3px solid #7db3e8; }
+.course-doc .callout.doc { border-left: 3px solid var(--accent); }
+.course-doc .callout.guess { border-left: 3px solid #b9a5e8; }
+.course-doc .callout.generic { border-left: 3px solid #d9a35a; }
+.course-doc .callout .t { font-weight: bold; font-size: .85rem; letter-spacing: .06em; display: block; margin-bottom: .3rem; color: var(--text-2); }
+
+/* 源码映射表 */
+.course-doc table.map { font-size: .92rem; }
+.course-doc table.map th { font-family: var(--font-mono, ui-monospace, Consolas, monospace); font-size: .8rem; }
+.course-doc table.map td code { white-space: nowrap; }
+
+/* 七问 */
+.course-doc .seven { counter-reset: q; margin: 1rem 0; padding: 0; list-style: none; }
+.course-doc .seven li { counter-increment: q; margin: .7rem 0; padding-left: 2.2rem; position: relative; }
+.course-doc .seven li::before {
+  content: counter(q);
+  position: absolute; left: 0; top: .15em;
+  width: 1.5rem; height: 1.5rem;
+  background: var(--accent); color: #fff;
+  border-radius: 50%;
+  font-family: var(--font-mono, ui-monospace, Consolas, monospace); font-size: .8rem;
+  display: flex; align-items: center; justify-content: center;
+}
+.course-doc .seven li b { color: var(--accent-strong); }
+
+/* 测验 */
+.course-doc .quiz { border: 1px solid var(--border); border-radius: 10px; padding: 1.2rem 1.4rem; margin: 2rem 0; background: var(--bg-1); }
+.course-doc .quiz h3 { margin-top: 0; }
+.course-doc .quiz fieldset { border: none; margin: 1.2rem 0 0; padding: 0; }
+.course-doc .quiz legend { font-weight: bold; margin-bottom: .4rem; }
+.course-doc .quiz label { display: block; margin: .35rem 0; cursor: pointer; font-size: .95rem; }
+.course-doc .quiz .btn {
+  margin-top: 1rem;
+  background: var(--accent); color: #fff;
+  border: none; border-radius: 6px;
+  padding: .5rem 1.3rem; font-size: .95rem; cursor: pointer;
+  font-family: inherit;
+}
+.course-doc .quiz .btn:hover { filter: brightness(1.08); }
+.course-doc .quiz .result { margin-top: .8rem; font-size: .95rem; min-height: 1.4em; }
+.course-doc .quiz .ok { color: var(--accent-strong); font-weight: bold; }
+.course-doc .quiz .bad { color: #f87171; font-weight: bold; }
+.course-doc .quiz .why { font-size: .88rem; color: var(--text-2); margin-top: .5rem; }
+
+/* 架构图容器（iframe 嵌入 lessons/diagrams/*.html） */
+.course-doc figure.diagram { margin: 2rem 0; }
+.course-doc figure.diagram iframe {
+  width: 100%;
+  height: 820px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+}
+.course-doc figure.diagram figcaption { font-size: .85rem; color: var(--text-3); margin-top: .5rem; }
+
+/* 课件内的课间翻页与脚注（源仓库自带结构） */
+.course-doc nav.pager { display: flex; justify-content: space-between; gap: 1rem; margin-top: 3rem;
+  font-family: var(--font-mono, ui-monospace, Consolas, monospace); font-size: .88rem; }
+.course-doc nav.pager a { color: var(--accent-strong); text-decoration: none; }
+.course-doc nav.pager a:hover { text-decoration: underline; }
+.course-doc footer.note { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border);
+  font-size: .85rem; color: var(--text-3); }
 """
 
 
-def rel_href(url, cur_dir):
-    """learn-pi 根相对 url → 从 cur_dir（learn-pi 根相对目录，'' 为根）出发的相对链接（不做百分号编码）"""
-    return posixpath.relpath(url, cur_dir or ".")
-
-
-def pager_nav(prev, next_, cur_dir):
-    """prev/next: (标题, learn-pi 根相对 url) or None；输出与现有页面逐字节一致的三种形态"""
-    if prev and next_:
-        return (f'<nav class="pager"><a href="{rel_href(prev[1], cur_dir)}">← {prev[0]}</a>\n'
-                f'    <span class="spacer"></span>\n'
-                f'    <a href="{rel_href(next_[1], cur_dir)}">{next_[0]} →</a></nav>\n')
-    if next_:
-        return (f'<nav class="pager"><span class="spacer"></span>\n'
-                f'    <a href="{rel_href(next_[1], cur_dir)}">{next_[0]} →</a></nav>\n')
-    if prev:
-        return (f'<nav class="pager"><a href="{rel_href(prev[1], cur_dir)}">← {prev[0]}</a>\n'
-                f'    <span class="spacer"></span></nav>\n')
-    return ""
+def write_overlay(zone_dir):
+    (zone_dir / "assets").mkdir(parents=True, exist_ok=True)
+    (zone_dir / "assets" / "courses.css").write_text(COURSES_CSS, encoding="utf-8", newline="\n")
 
 
 # ---------------------------------------------------------------- learn-pi
@@ -189,168 +348,229 @@ def pager_nav(prev, next_, cur_dir):
 def build_learn_pi():
     src = PI / "learn-pi"
     zone = SITE / "learn-pi"
-    # style.css 是站点自有资产：清空目录时保留，不参与重建
-    for child in zone.iterdir():
-        if child.name == "style.css":
-            continue
-        shutil.rmtree(child) if child.is_dir() else child.unlink()
-    zone.mkdir(parents=True, exist_ok=True)
+    if zone.exists():
+        shutil.rmtree(zone)
 
     readme = (src / "README.md").read_text(encoding="utf-8")
     # 阅读顺序 = README 课表里的 md 链接次序；表外文件按路径排序追加
-    order = re.findall(r"\]\(((?:\d\d-[^/)]+/)?[^/)]+\.md)\)", readme)
-    order = [p for p in order if not p.startswith("README")]
-    all_md = sorted((p.relative_to(src).as_posix() for p in src.rglob("*.md")
-                     if p.name != "README.md"), key=lambda s: s)
+    order = [p for p in re.findall(r"\]\(((?:\d\d-[^/)]+/)?[^/)]+\.md)\)", readme)
+             if not p.startswith("README")]
+    all_md = sorted(p.relative_to(src).as_posix() for p in src.rglob("*.md")
+                    if p.name != "README.md")
     seq = order + [p for p in all_md if p not in order]
 
-    titles = {}
+    titles, goals, stages = {}, {}, {}
+    for row in re.findall(r"^\|\s*([^|]+)\|\s*\[[^\]]+\]\(([^)]+\.md)\)\s*\|\s*([^|]+)\|",
+                          readme, re.M):
+        goals[row[1].strip()] = row[2].strip()
+        stages[row[1].strip()] = row[0].strip()
     for rel in seq:
-        titles[rel] = page_title((src / rel).read_text(encoding="utf-8"),
-                                 Path(rel).stem)
+        m = re.search(r"^# (.+)$", (src / rel).read_text(encoding="utf-8"), re.M)
+        titles[rel] = m.group(1).strip() if m else Path(rel).stem
 
-    # hub = README 渲染
-    hub_title = page_title(readme, "学习 Pi Agent（learn-pi）")
-    body = md_render(readme)
-    body = rewrite_links(body)
-    body = quote_nonascii_html(body)
-    html = shell_page(body=body, title=f"{hub_title} · 学习 Pi 导读",
-                      desc=f"{hub_title} · 学习 Pi 导读 — NorthAdb 课件",
-                      depth=1, crumbs_href="", crumbs_label="",
-                      footer_zone="学习 Pi 导读（learn-pi）")
-    (zone / "index.html").write_text(html, encoding="utf-8", newline="\n")
+    overlay = "learn-pi/assets/courses.css"
+    write_overlay(zone)
 
+    def gh_src(rel):
+        return f"{PI_TREE_COURSE}/learn-pi/{url_quote(rel, safe='/')}"
+
+    # ---- hub：站点 hero + 各阶段卡片 ----
+    stage_order, groups = [], {}
+    for rel in seq:
+        st = stages.get(rel, "进阶")
+        if st not in groups:
+            groups[st] = []
+            stage_order.append(st)
+        groups[st].append(rel)
+    secs = []
+    for st in stage_order:
+        cards = "".join(
+            f'''\n        <a class="course-card" href="{url_quote(posixpath.splitext(r)[0] + '.html', safe='/.#')}">
+          <span class="c-badge">{posixpath.splitext(r)[0].split("/")[0]}</span>
+          <h3>{titles[r]}</h3>
+          <p>{goals.get(r, "")}</p>
+          <span class="c-link">阅读 →</span>
+        </a>''' for r in groups[st])
+        secs.append(f'''  <section class="block wrap">
+    <div class="sec-head reveal"><span class="label">{st}</span></div>
+    <div class="course-grid reveal">{cards}
+    </div>
+  </section>''')
+    first_href = url_quote(posixpath.splitext(seq[0])[0] + ".html", safe="/.#")
+    hub_body = hero(
+        "Course · Learning Pi — fork of earendil-works/pi",
+        '学习 <em>Pi</em> 导读',
+        ('面向 Pi 仓库的中文学习导读：设计哲学、架构、运行模式与二次开发，处处指向源码与官方文档。'
+         f'<span class="dim">整理自 <a href="{PI_TREE_COURSE}/learn-pi" target="_blank" rel="noopener">NorthAdb/pi-agent-north</a> 的 learn-pi/，22 篇在线可读。</span>'),
+        [f'<a href="{first_href}" class="btn btn-primary">从「什么是 Pi」开始</a>',
+         f'<a href="{PI_TREE_COURSE}/learn-pi" class="btn btn-ghost" target="_blank" rel="noopener">源仓库 ↗</a>',
+         f'<a href="{url_quote("07-参考/术语表.html", safe="/.#")}" class="btn btn-ghost">术语表</a>'],
+        ['<b data-count="22">22</b>篇导读',
+         '<b data-count="8">8</b>个阶段',
+         '<b data-count="20" data-suffix="+">20+</b>关键文件清单',
+         '<b>1.0.2</b>基准版本']) + "\n" + "\n".join(secs)
+    (zone / "index.html").write_text(
+        site_shell("../", "学习 Pi 导读 — NorthAdb 的博客",
+                   "面向 Pi 仓库的中文学习导读：设计哲学、架构、运行模式与二次开发。",
+                   "learn-pi/index.html", hub_body, overlay=overlay),
+        encoding="utf-8", newline="\n")
+
+    # ---- 文章页 ----
     for i, rel in enumerate(seq):
-        out_rel = Path(rel).with_suffix(".html")
-        depth = len(out_rel.parts)
+        out_rel = posixpath.splitext(rel)[0] + ".html"
+        depth = out_rel.count("/") + 1
         P = "../" * depth
-        prev = (titles[seq[i - 1]], posixpath.splitext(seq[i - 1])[0] + ".html") if i else None
-        nxt = (titles[seq[i + 1]], posixpath.splitext(seq[i + 1])[0] + ".html") \
-            if i + 1 < len(seq) else None
-        body = md_render((src / rel).read_text(encoding="utf-8"))
-        body = rewrite_links(body)
-        body = quote_nonascii_html(body)
-        pager = pager_nav(prev, nxt, str(out_rel.parent))
-        html = shell_page(body=body, title=f"{titles[rel]} · 学习 Pi 导读",
-                          desc=f"{titles[rel]} · 学习 Pi 导读 — NorthAdb 课件",
-                          depth=depth, crumbs_href="learn-pi/index.html",
-                          crumbs_label="← 总目录",
-                          footer_zone="学习 Pi 导读（learn-pi）", pager=pager)
+        md_text = (src / rel).read_text(encoding="utf-8")
+        body_html = rewrite_links(quote_nonascii_html(md_render(strip_h1(md_text))))
+        prev = next_ = None
+        if i:
+            pr = posixpath.splitext(seq[i - 1])[0] + ".html"
+            prev = (titles[seq[i - 1]], url_quote(pr, safe="/.#"))
+        if i + 1 < len(seq):
+            nx = posixpath.splitext(seq[i + 1])[0] + ".html"
+            next_ = (titles[seq[i + 1]], url_quote(nx, safe="/.#"))
+        minutes = max(1, len(md_text) // 400)
+        stage = stages.get(rel, "")
+        hero_html = f'''<header class="post-hero">
+          {crumb(P, ("learn-pi/index.html", "学习 Pi 导读"))}
+          <h1>{titles[rel]}</h1>
+          <p class="post-sub">{goals.get(rel, "")}</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>学习 Pi 导读</span><span class="sep"></span>
+            <span>阅读约 {minutes} 分钟</span>
+          </div>
+        </header>'''
+        foot = f'''<footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">学习 Pi 导读</span><span class="chip">{stage}</span></div>
+          <a class="t-meta" href="{gh_src(rel)}" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>'''
+        html = doc_page(P, title=f"{titles[rel]} · 学习 Pi 导读 — NorthAdb 的博客",
+                        desc=goals.get(rel) or f"{titles[rel]} · 学习 Pi 导读",
+                        canonical=f"learn-pi/{out_rel}", prose=body_html,
+                        overlay=overlay, hero=hero_html, foot=foot,
+                        post_nav=post_nav(prev, next_))
         out = zone / out_rel
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(html, encoding="utf-8", newline="\n")
 
-    # sitemap 顺序与历史一致：index 在前，其余按路径排序（与阅读顺序无关）
-    return (["learn-pi/index.html"]
-            + sorted(f"learn-pi/{posixpath.splitext(r)[0]}.html" for r in seq))
+    return ["learn-pi/index.html"] + sorted(f"learn-pi/{r}" for r in
+                                            (posixpath.splitext(x)[0] + ".html" for x in seq))
 
 
 # ---------------------------------------------------------------- agent-harness-course
-
-COURSE_CSS_DARK = '''
-/* 手动暗色（主题切换按钮） */
-[data-theme="dark"] {
-  --ink: #e8e4da; --ink-soft: #b3aea2; --paper: #1c1b18;
-  --accent: #5cc8b4; --accent-soft: #1d332e; --warn: #d9a35a; --warn-soft: #3a2d18;
-  --fact: #7db3e8; --fact-soft: #1b2a3a; --guess: #a996d9; --guess-soft: #2a2440;
-  --line: #3a362e; --code-bg: #26231d;
-}
-[data-theme="dark"] .quiz { background: #232019; }
-[data-theme="dark"] a { color: var(--accent); }
-'''
-
-
-WF_CSS_DARK = """
-/* 手动暗色（主题切换按钮）—— 与博客设计令牌一致的暗色组 */
-[data-theme="dark"] {
-  --ink: #e4e4e7;
-  --muted: #a1a1aa;
-  --accent: #5eead4;
-  --accent-soft: rgba(94, 234, 212, 0.12);
-  --bg: #0a0a0a;
-  --panel: #16161a;
-  --line: #27272a;
-  --code-bg: #101013;
-  --code-ink: #d6d6e0;
-}
-[data-theme="dark"] .quiz { background: #101013; }
-[data-theme="dark"] .quiz button { background: #16161a; }
-[data-theme="dark"] .quiz button.wrong { background: rgba(248, 113, 113, 0.15); }
-[data-theme="dark"] th { background: #16161a; }
-"""
-
-
-def patch_course_css(text):
-    text = text.replace("  :root {", '  :root:not([data-theme="light"]) {')
-    text = text.replace("  .quiz { background: #232019; }",
-                        '  :root:not([data-theme="light"]) .quiz { background: #232019; }')
-    text = text.replace("  a { color: var(--accent); }",
-                        '  :root:not([data-theme="light"]) a { color: var(--accent); }')
-    return text.rstrip("\n") + "\n" + COURSE_CSS_DARK
-
 
 def build_harness():
     src = PI / "agent-harness-course"
     zone = SITE / "agent-harness-course"
     if zone.exists():
         shutil.rmtree(zone)
+    write_overlay(zone)
+    overlay = "agent-harness-course/assets/courses.css"
 
-    skip_parts = {"learning-records", "__pycache__", ".git"}
+    skip = {"learning-records", "__pycache__", ".git"}
     urls = ["agent-harness-course/index.html", "agent-harness-course/COURSE.html",
             "agent-harness-course/diagrams.html", "agent-harness-course/practice/index.html"]
 
+    # ---- 非 HTML 资产：字节拷贝（QA 产物除外）；HTML：内容抽取进站点外壳 ----
     for p in sorted(src.rglob("*"), key=lambda x: x.parts):
         rel = p.relative_to(src)
-        if skip_parts & set(rel.parts) or ".visual-check." in p.name:
-            continue  # visual-check.* 与 qa.py 是仓库里的 QA 产物，不发布
-        if p.name == "qa.py":
+        if skip & set(rel.parts) or ".visual-check." in p.name or p.name == "qa.py":
             continue
         out = zone / rel
-        if p.is_dir():
-            out.mkdir(parents=True, exist_ok=True)
-            continue
         out.parent.mkdir(parents=True, exist_ok=True)
-        if p.name in ("COURSE.md", "NOTES.md"):
-            continue  # 不发布：COURSE.html 由 COURSE.md 渲染，NOTES.md 是仓库内部笔记
-        if p.suffix == ".css" and p.name == "course.css":
-            out.write_text(patch_course_css(p.read_text(encoding="utf-8")),
-                           encoding="utf-8", newline="\n")
+        if p.is_dir():
             continue
-        if p.suffix == ".html":
+        if p.suffix != ".html":
+            shutil.copyfile(p, out)   # css/js/json/md/png 按字节拷贝（含 quiz.js、架构图 specs）
+            continue
+        rel_posix = rel.as_posix()
+        if rel_posix.startswith("lessons/diagrams/"):
+            # iframe 目标页：自包含样式，保持独立（保留历史主题按钮）
             text = p.read_text(encoding="utf-8")
-            text = rewrite_links(text)
-            injected = theme_inject(text)
-            if injected is not None:
-                text = injected
-            out.write_text(text, encoding="utf-8", newline="\n")
+            injected = re.sub(r"</head>", '<script>try{var t=localStorage.getItem("theme");'
+                              'if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>\n</head>',
+                              text, count=1)
+            out.write_text(injected, encoding="utf-8", newline="\n")
             continue
-        shutil.copyfile(p, out)  # js/json/png 等按字节拷贝
 
-    # COURSE.md / practice/README.md 渲染成站点外壳页
-    for md_rel, out_rel, h1_suffix, footer, crumbs in [
-            ("COURSE.md", "COURSE.html", "Agent Harness 架构课程",
-             "Agent Harness 架构课程", None),
-            ("practice/README.md", "practice/index.html", "Agent Harness 架构课程",
-             "毕业练习工作区",
-             ('<nav class="crumbs"><a href="../../agent-harness-course/index.html">课程首页</a>'
-              ' <span>·</span> <a href="../../agent-harness-course/COURSE.html">总纲</a></nav>'))]:
+        content = rewrite_links(extract_content(p.read_text(encoding="utf-8")))
+        depth = rel_posix.count("/") + 1
+        P = "../" * depth
+        html = doc_page(P, title=f"{rel.stem} · Agent Harness 架构课程 — NorthAdb 的博客",
+                        desc=f"{rel.stem} · Agent Harness 架构课程 — NorthAdb 课件",
+                        canonical=f"agent-harness-course/{rel_posix}",
+                        prose=content, overlay=overlay)
+        out.write_text(html, encoding="utf-8", newline="\n")
+        if rel_posix.startswith(("lessons/0", "reference/")):
+            urls.append(f"agent-harness-course/{rel_posix}")
+
+    # ---- COURSE.html / practice/index.html：markdown 渲染成站点文章页 ----
+    for md_rel, out_rel, crumb_label in [
+            ("COURSE.md", "COURSE.html", "总纲"),
+            ("practice/README.md", "practice/index.html", "毕业练习")]:
         md_text = (src / md_rel).read_text(encoding="utf-8")
-        h1 = page_title(md_text, Path(md_rel).stem)
-        depth = len(Path(out_rel).parts)
-        body = md_render(md_text)
-        body = rewrite_links(body)
-        body = quote_nonascii_html(body)
-        html = shell_page(body=body, title=f"{h1} · {h1_suffix}",
-                          desc=f"{h1} · {h1_suffix} — NorthAdb 课件",
-                          depth=depth, crumbs_href="agent-harness-course/index.html",
-                          crumbs_label="← 课程首页",
-                          footer_zone=footer, zone_dir="learn-pi", crumbs_html=crumbs)
+        m = re.search(r"^# (.+)$", md_text, re.M)
+        h1 = m.group(1).strip() if m else Path(md_rel).stem
+        depth = out_rel.count("/") + 1
+        P = "../" * depth
+        body_html = rewrite_links(quote_nonascii_html(md_render(strip_h1(md_text))))
+        hero_html = f'''<header class="post-hero">
+          {crumb(P, ("agent-harness-course/index.html", "Agent Harness 架构课程"), ("", crumb_label))}
+          <h1>{h1}</h1>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>Agent Harness 架构课程</span><span class="sep"></span>
+            <span><a href="{PI_TREE_COURSE}/agent-harness-course/{md_rel}" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a></span>
+          </div>
+        </header>'''
+        html = doc_page(P, title=f"{h1} · Agent Harness 架构课程 — NorthAdb 的博客",
+                        desc=f"{h1} · Agent Harness 架构课程 — NorthAdb 课件",
+                        canonical=f"agent-harness-course/{out_rel}",
+                        prose=body_html, overlay=overlay, hero=hero_html)
         (zone / out_rel).write_text(html, encoding="utf-8", newline="\n")
 
-    urls += [f"agent-harness-course/{p.relative_to(zone).as_posix()}"
-             for p in sorted(zone.glob("lessons/*.html"))]
-    urls += [f"agent-harness-course/{p.relative_to(zone).as_posix()}"
-             for p in sorted(zone.glob("reference/*.html"))]
+    # ---- hub：站点 hero + 从仓库 index 抽取的阶段/卡片 ----
+    idx = (src / "index.html").read_text(encoding="utf-8")
+    phases = []
+    for h2, block in re.findall(r'<h2>([^<]+)</h2>\s*<div class="grid">(.*?)</div>\s*</div>', idx, re.S):
+        cards = re.findall(r'<a class="card" href="([^"]+)">\s*<div class="no">([^<]*)</div>'
+                           r'<div class="t">([^<]*)</div>\s*<div class="q">([^<]*)</div>', block)
+        phases.append((h2, cards))
+    secs = []
+    for h2, cards in phases:
+        cs = "".join(
+            f'''\n        <a class="course-card" href="{href}">
+          <span class="c-badge">{no.split("·")[0].strip()}</span>
+          <h3>{t}</h3>
+          <p>{q}</p>
+          <span class="c-link">进入课程 →</span>
+        </a>''' for href, no, t, q in cards)
+        secs.append(f'''  <section class="block wrap">
+    <div class="sec-head reveal"><span class="label">{h2}</span></div>
+    <div class="course-grid reveal">{cs}
+    </div>
+  </section>''')
+    hub_body = hero(
+        "Course · Agent Harness — 以 Pi 源码为工程样本",
+        '从「会用 Agent」到「能造 <em>Agent</em>」',
+        ('14 课逆向工程 Pi（本仓库）的真实源码，回答一个问题：<b>一个现代 Agent Harness 为了让 LLM 稳定、持续、安全地完成复杂任务，'
+         '到底需要哪些基础机制？</b>终点：不看任何宣传页，从空白目录手写一个 Minimal Harness。'
+         f'<span class="dim">整理自 <a href="{PI_TREE_COURSE}/agent-harness-course" target="_blank" rel="noopener">NorthAdb/pi-agent-north</a> course 分支，15 课在线可读。</span>'),
+        ['<a href="COURSE.html" class="btn btn-primary">从课程总纲开始</a>',
+         f'<a href="{PI_TREE_COURSE}/agent-harness-course" class="btn btn-ghost" target="_blank" rel="noopener">源仓库 ↗</a>',
+         '<a href="practice/index.html" class="btn btn-ghost">毕业练习 ↗</a>',
+         '<a href="diagrams.html" class="btn btn-ghost">架构图集</a>'],
+        ['<b data-count="15">15</b>课 · 每课 15–25 分钟',
+         '<b data-count="13">13</b>张交互架构图',
+         '<b data-count="17">17</b>个毕业练习验收测试',
+         '<b data-count="30" data-suffix="+">30+</b>源码文件地图']) + "\n" + "\n".join(secs)
+    (zone / "index.html").write_text(
+        site_shell("../", "Agent Harness 架构课程 — NorthAdb 的博客",
+                   "逆向工程 Pi 源码，回答现代 Agent Harness 需要哪些基础机制。",
+                   "agent-harness-course/index.html", hub_body, overlay=overlay),
+        encoding="utf-8", newline="\n")
+
     return urls
 
 
@@ -370,6 +590,9 @@ WF_INDEX_REDIRECT = """<!DOCTYPE html>
 </html>
 """
 
+WF_DOC_PREFIXES = ("COURSE.html", "GLOSSARY.html", "MISSION.html", "README.html",
+                   "RESOURCES.html", "SSE_", "course/", "lessons/", "reference/")
+
 
 def build_web_foundation():
     subprocess.run([sys.executable, "tools/build_docs.py"], cwd=WF, check=True,
@@ -378,38 +601,43 @@ def build_web_foundation():
     zone = SITE / "web-foundation"
     if zone.exists():
         shutil.rmtree(zone)
+    write_overlay(zone)
+    overlay = "web-foundation/assets/courses.css"
 
-    skip_parts = {".git", "__pycache__", "learning-records"}
+    skip = {".git", "__pycache__", "learning-records"}
     for p in sorted(src.rglob("*"), key=lambda x: x.parts):
         rel = p.relative_to(src)
-        if skip_parts & set(rel.parts) or rel.parts[0] == ".git":
-            continue
-        if p.name == "NOTES.md":
+        if skip & set(rel.parts) or p.name == "NOTES.md":
             continue
         out = zone / rel
         out.parent.mkdir(parents=True, exist_ok=True)
         if p.is_dir():
             continue
-        text = p.read_text(encoding="utf-8")
-        if p.suffix == ".html" and rel.as_posix() != "index.html":
-            injected = theme_inject(text)
-            if injected is not None:
-                text = injected
-        elif p.suffix != ".html":
-            if rel.as_posix() == "assets/course.css":
-                out.write_text(text.rstrip("\n") + "\n" + WF_CSS_DARK,
-                               encoding="utf-8", newline="\n")
-                continue
-            shutil.copyfile(p, out)  # md/py/json/png 等按字节拷贝
-            continue
-        out.write_text(text, encoding="utf-8", newline="\n")
+        rel_posix = rel.as_posix()
+        if p.suffix == ".html" and rel_posix != "index.html" and (
+                (rel_posix.startswith(WF_DOC_PREFIXES) and not Path(rel_posix).name.startswith("SSE_"))
+                or re.match(r"labs/[^/]+/README\.html$", rel_posix)):
+            content = extract_content(p.read_text(encoding="utf-8"))
+            depth = rel_posix.count("/") + 1
+            P = "../" * depth
+            html = doc_page(P, title=f"{rel.stem} · 从 HTTP 到实时 Agent Server — NorthAdb 的博客",
+                            desc=f"{rel.stem} · 从 HTTP 到实时 Agent Server — NorthAdb 课件",
+                            canonical=f"web-foundation/{rel_posix}",
+                            prose=content, overlay=overlay)
+            out.write_text(html, encoding="utf-8", newline="\n")
+        elif p.suffix == ".html":
+            # iframe 图页与交互实验页：自包含，原样保留
+            text = p.read_text(encoding="utf-8")
+            out.write_text(text, encoding="utf-8", newline="\n")
+        else:
+            shutil.copyfile(p, out)
 
     (zone / "index.html").write_text(WF_INDEX_REDIRECT, encoding="utf-8", newline="\n")
 
     urls = ["web-foundation/index.html"]
     urls += sorted(f"web-foundation/{p.relative_to(zone).as_posix()}"
                    for p in zone.glob("*.html")
-                   if p.name not in ("index.html",) and not p.name.startswith("SSE_"))
+                   if p.name != "index.html" and not p.name.startswith("SSE_"))
     for sub in ("course", "lessons", "reference", "diagrams"):
         urls += sorted(f"web-foundation/{p.relative_to(zone).as_posix()}"
                        for p in zone.glob(f"{sub}/*.html"))

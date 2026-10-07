@@ -1,196 +1,298 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>学习 Pi Agent（learn-pi） · 学习 Pi 导读</title>
-<meta name="description" content="学习 Pi Agent（learn-pi） · 学习 Pi 导读 — NorthAdb 课件">
-<link rel="stylesheet" href="../learn-pi/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>学习 Pi 导读 — NorthAdb 的博客</title>
+<meta name="description" content="面向 Pi 仓库的中文学习导读：设计哲学、架构、运行模式与二次开发。">
+<link rel="canonical" href="https://northadb.github.io/learn-pi/index.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="学习 Pi 导读 — NorthAdb 的博客">
+<meta property="og:description" content="面向 Pi 仓库的中文学习导读：设计哲学、架构、运行模式与二次开发。">
+<meta property="og:url" content="https://northadb.github.io/learn-pi/index.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="学习 Pi 导读 — NorthAdb 的博客">
+<meta name="twitter:description" content="面向 Pi 仓库的中文学习导读：设计哲学、架构、运行模式与二次开发。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../feed.xml">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../learn-pi/assets/courses.css">
 <script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
 </head>
-<body>
-<div class="wrap">
-  <nav class="crumbs"></nav>
-  <article>
-<h1>学习 Pi Agent（learn-pi）</h1>
-<p>本目录是面向本仓库（<code>pi-agent</code> / fork of <a href="https://github.com/earendil-works/pi">earendil-works/pi</a>）的<strong>中文学习笔记</strong>，按主题分门别类，帮助你理解：</p>
-<ul>
-<li>Pi 为什么这样设计</li>
-<li>为什么适合初学者入门「编码 Agent」</li>
-<li>为什么适合二次开发 / 二次定制</li>
-<li>设计哲学与刻意省略</li>
-<li>如何学习、需要什么前置知识</li>
-</ul>
-<p>官方英文文档仍是权威来源（<code>packages/*/docs</code>、<a href="https://pi.dev">pi.dev</a>）。本系列是<strong>导读与结构化导图</strong>，并在文中大量指向源码与官方文档路径。</p>
-<hr>
-<h2>建议阅读顺序</h2>
-<table>
-<thead>
-<tr>
-<th>阶段</th>
-<th>文档</th>
-<th>目标</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>0 入门</td>
-<td><a href="00-%E6%A6%82%E8%A7%88/%E4%BB%80%E4%B9%88%E6%98%AF-Pi.html">00-概览/什么是-Pi.md</a></td>
-<td>一句话定位 + 洋葱分层</td>
-</tr>
-<tr>
-<td>0 入门</td>
-<td><a href="00-%E6%A6%82%E8%A7%88/%E4%B8%BA%E4%BB%80%E4%B9%88%E9%80%82%E5%90%88%E5%AD%A6%E4%B9%A0.html">00-概览/为什么适合学习.md</a></td>
-<td>为何对初学者友好</td>
-</tr>
-<tr>
-<td>0 入门</td>
-<td><a href="00-%E6%A6%82%E8%A7%88/%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86.html">00-概览/前置知识.md</a></td>
-<td>要先会什么、可以边学边补什么</td>
-</tr>
-<tr>
-<td>1 哲学</td>
-<td><a href="01-%E8%AE%BE%E8%AE%A1%E5%93%B2%E5%AD%A6/%E8%AE%BE%E8%AE%A1%E5%93%B2%E5%AD%A6.html">01-设计哲学/设计哲学.md</a></td>
-<td>核心信条</td>
-</tr>
-<tr>
-<td>1 哲学</td>
-<td><a href="01-%E8%AE%BE%E8%AE%A1%E5%93%B2%E5%AD%A6/%E5%88%BB%E6%84%8F%E7%9C%81%E7%95%A5.html">01-设计哲学/刻意省略.md</a></td>
-<td>MCP 为何从省略变成内置扩展 / 无子 Agent / 无权限弹窗…</td>
-</tr>
-<tr>
-<td>2 架构</td>
-<td><a href="02-%E6%9E%B6%E6%9E%84/%E5%8C%85%E5%9C%B0%E5%9B%BE%E4%B8%8E%E4%BE%9D%E8%B5%96.html">02-架构/包地图与依赖.md</a></td>
-<td>monorepo 分层</td>
-</tr>
-<tr>
-<td>2 架构</td>
-<td><a href="02-%E6%9E%B6%E6%9E%84/Agent-%E8%BF%90%E8%A1%8C%E6%97%B6%E5%BE%AA%E7%8E%AF.html">02-架构/Agent-运行时循环.md</a></td>
-<td>prompt → LLM → tools 循环</td>
-</tr>
-<tr>
-<td>2 架构</td>
-<td><a href="02-%E6%9E%B6%E6%9E%84/Coding-Agent-%E6%A0%88.html">02-架构/Coding-Agent-栈.md</a></td>
-<td>CLI / Session / 四种模式</td>
-</tr>
-<tr>
-<td>3 使用</td>
-<td><a href="03-%E4%BD%BF%E7%94%A8/%E6%9C%AC%E5%9C%B0%E8%B7%91%E8%B5%B7%E6%9D%A5.html">03-使用/本地跑起来.md</a></td>
-<td>从源码安装与运行</td>
-</tr>
-<tr>
-<td>3 使用</td>
-<td><a href="03-%E4%BD%BF%E7%94%A8/%E5%9B%9B%E7%A7%8D%E8%BF%90%E8%A1%8C%E6%A8%A1%E5%BC%8F.html">03-使用/四种运行模式.md</a></td>
-<td>TUI / print / JSON / RPC</td>
-</tr>
-<tr>
-<td>3 使用</td>
-<td><a href="03-%E4%BD%BF%E7%94%A8/%E4%BC%9A%E8%AF%9D%E4%B8%8E%E4%B8%8A%E4%B8%8B%E6%96%87.html">03-使用/会话与上下文.md</a></td>
-<td>session、分支、compaction、AGENTS.md</td>
-</tr>
-<tr>
-<td>4 定制</td>
-<td><a href="04-%E5%AE%9A%E5%88%B6%E6%89%A9%E5%B1%95/%E6%89%A9%E5%B1%95%E9%9D%A2%E6%80%BB%E8%A7%88.html">04-定制扩展/扩展面总览.md</a></td>
-<td>Extensions / Skills / Packages…</td>
-</tr>
-<tr>
-<td>4 定制</td>
-<td><a href="04-%E5%AE%9A%E5%88%B6%E6%89%A9%E5%B1%95/%E6%89%A9%E5%B1%95-%E6%8A%80%E8%83%BD-%E5%8C%85.html">04-定制扩展/扩展-技能-包.md</a></td>
-<td>各自解决什么问题</td>
-</tr>
-<tr>
-<td>4 定制</td>
-<td><a href="04-%E5%AE%9A%E5%88%B6%E6%89%A9%E5%B1%95/SDK%E4%B8%8E%E8%BF%9B%E7%A8%8B%E9%9B%86%E6%88%90.html">04-定制扩展/SDK与进程集成.md</a></td>
-<td>嵌入应用与 RPC</td>
-</tr>
-<tr>
-<td>5 二次开发</td>
-<td><a href="05-%E4%BA%8C%E6%AC%A1%E5%BC%80%E5%8F%91/%E4%B8%BA%E4%BB%80%E4%B9%88%E9%80%82%E5%90%88%E4%BA%8C%E6%AC%A1%E5%BC%80%E5%8F%91.html">05-二次开发/为什么适合二次开发.md</a></td>
-<td>可扩展缝合点</td>
-</tr>
-<tr>
-<td>5 二次开发</td>
-<td><a href="05-%E4%BA%8C%E6%AC%A1%E5%BC%80%E5%8F%91/%E5%A6%82%E4%BD%95%E6%89%A9%E5%B1%95%E8%80%8C%E4%B8%8D%E6%94%B9%E5%86%85%E6%A0%B8.html">05-二次开发/如何扩展而不改内核.md</a></td>
-<td>实操路径</td>
-</tr>
-<tr>
-<td>5 二次开发</td>
-<td><a href="05-%E4%BA%8C%E6%AC%A1%E5%BC%80%E5%8F%91/Fork%E4%B8%8E%E6%8D%A2%E7%9A%AE.html">05-二次开发/Fork与换皮.md</a></td>
-<td><code>piConfig</code>、品牌与配置目录</td>
-</tr>
-<tr>
-<td>6 深读</td>
-<td><a href="06-%E6%B7%B1%E8%AF%BB%E8%B7%AF%E5%BE%84/%E6%8E%A8%E8%8D%90%E9%98%85%E8%AF%BB%E9%A1%BA%E5%BA%8F.html">06-深读路径/推荐阅读顺序.md</a></td>
-<td>文档 → 例子 → 源码</td>
-</tr>
-<tr>
-<td>6 深读</td>
-<td><a href="06-%E6%B7%B1%E8%AF%BB%E8%B7%AF%E5%BE%84/%E5%85%B3%E9%94%AE%E6%96%87%E4%BB%B6%E6%B8%85%E5%8D%95.html">06-深读路径/关键文件清单.md</a></td>
-<td>先打开哪 20 个文件</td>
-</tr>
-<tr>
-<td>6 深读</td>
-<td><a href="06-%E6%B7%B1%E8%AF%BB%E8%B7%AF%E5%BE%84/Harness%E5%8C%97%E6%98%9F.html">06-深读路径/Harness北星.md</a></td>
-<td>日常 JSONL 会话，以及实验性 pi-durable</td>
-</tr>
-<tr>
-<td>7 参考</td>
-<td><a href="07-%E5%8F%82%E8%80%83/%E6%9C%AF%E8%AF%AD%E8%A1%A8.html">07-参考/术语表.md</a></td>
-<td>名词对照</td>
-</tr>
-<tr>
-<td>7 参考</td>
-<td><a href="07-%E5%8F%82%E8%80%83/%E5%AE%98%E6%96%B9%E6%96%87%E6%A1%A3%E5%9C%B0%E5%9B%BE.html">07-参考/官方文档地图.md</a></td>
-<td>指向仓库内官方 docs</td>
-</tr>
-</tbody></table>
-<hr>
-<h2>一句话总结</h2>
-<blockquote>
-<p><strong>Pi = 极简编码 Agent 线束（harness）</strong>：内核做「多模型 LLM + Agent 循环 + JSONL 会话 + 默认四个工具 + 终端 UX」。MCP 与 codemode 是可替换的内置扩展。其余工作流靠 <strong>Extensions / Skills / Packages / SDK</strong> 自己拼。<strong>改工作流，不必改循环。</strong></p>
-</blockquote>
-<hr>
-<h2>与官方文档的关系</h2>
-<table>
-<thead>
-<tr>
-<th>需求</th>
-<th>看哪里</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>产品使用</td>
-<td><code>packages/coding-agent/docs/</code></td>
-</tr>
-<tr>
-<td>Agent 循环与事件</td>
-<td><code>packages/agent/README.md</code></td>
-</tr>
-<tr>
-<td>多厂商 LLM</td>
-<td><code>packages/ai/README.md</code></td>
-</tr>
-<tr>
-<td>终端 UI</td>
-<td><code>packages/tui/README.md</code></td>
-</tr>
-<tr>
-<td>贡献与 Agent 规则</td>
-<td>根目录 <code>AGENTS.md</code>、<code>CONTRIBUTING.md</code></td>
-</tr>
-<tr>
-<td>本系列（学习导读）</td>
-<td><code>learn-pi/</code>（本目录）</td>
-</tr>
-</tbody></table>
-<p>官方 Philosophy（摘录自 <code>packages/coding-agent/README.md</code>）：</p>
-<blockquote>
-<p>Pi is aggressively extensible so it doesn't have to dictate your workflow.</p>
-</blockquote>
+<body data-root="../" data-page="post">
 
-  </article>
-  <footer>学习 Pi 导读（learn-pi） · 基准 pi 1.0.2（2026-10-04） · <a href="https://github.com/NorthAdb/pi-agent-north" target="_blank" rel="noopener">源码仓库 ↗</a> · 姊妹课程 <a href="../agent-harness-course/index.html">Agent Harness 架构课</a></footer>
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../web-foundation/COURSE.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+<section class="hero wrap">
+    <div class="hero-glow"></div>
+    <div class="hero-kicker"><span class="dot"></span> Course · Learning Pi — fork of earendil-works/pi</div>
+    <h1>学习 <em>Pi</em> 导读</h1>
+    <p class="sub">面向 Pi 仓库的中文学习导读：设计哲学、架构、运行模式与二次开发，处处指向源码与官方文档。<span class="dim">整理自 <a href="https://github.com/NorthAdb/pi-agent-north/tree/course/learn-pi" target="_blank" rel="noopener">NorthAdb/pi-agent-north</a> 的 learn-pi/，22 篇在线可读。</span></p>
+    <div class="hero-actions">
+      <a href="00-%E6%A6%82%E8%A7%88/%E4%BB%80%E4%B9%88%E6%98%AF-Pi.html" class="btn btn-primary">从「什么是 Pi」开始</a>
+      <a href="https://github.com/NorthAdb/pi-agent-north/tree/course/learn-pi" class="btn btn-ghost" target="_blank" rel="noopener">源仓库 ↗</a>
+      <a href="07-%E5%8F%82%E8%80%83/%E6%9C%AF%E8%AF%AD%E8%A1%A8.html" class="btn btn-ghost">术语表</a>
+    </div>
+    <div class="hero-stats">
+      <div><b data-count="22">22</b>篇导读</div>
+      <div><b data-count="8">8</b>个阶段</div>
+      <div><b data-count="20" data-suffix="+">20+</b>关键文件清单</div>
+      <div><b>1.0.2</b>基准版本</div>
+    </div>
+  </section>
+  <section class="block wrap">
+    <div class="sec-head reveal"><span class="label">0 入门</span></div>
+    <div class="course-grid reveal">
+        <a class="course-card" href="00-%E6%A6%82%E8%A7%88/%E4%BB%80%E4%B9%88%E6%98%AF-Pi.html">
+          <span class="c-badge">00-概览</span>
+          <h3>什么是 Pi</h3>
+          <p>一句话定位 + 洋葱分层</p>
+          <span class="c-link">阅读 →</span>
+        </a>
+        <a class="course-card" href="00-%E6%A6%82%E8%A7%88/%E4%B8%BA%E4%BB%80%E4%B9%88%E9%80%82%E5%90%88%E5%AD%A6%E4%B9%A0.html">
+          <span class="c-badge">00-概览</span>
+          <h3>为什么 Pi 适合学习</h3>
+          <p>为何对初学者友好</p>
+          <span class="c-link">阅读 →</span>
+        </a>
+        <a class="course-card" href="00-%E6%A6%82%E8%A7%88/%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86.html">
+          <span class="c-badge">00-概览</span>
+          <h3>前置知识</h3>
+          <p>要先会什么、可以边学边补什么</p>
+          <span class="c-link">阅读 →</span>
+        </a>
+    </div>
+  </section>
+  <section class="block wrap">
+    <div class="sec-head reveal"><span class="label">1 哲学</span></div>
+    <div class="course-grid reveal">
+        <a class="course-card" href="01-%E8%AE%BE%E8%AE%A1%E5%93%B2%E5%AD%A6/%E8%AE%BE%E8%AE%A1%E5%93%B2%E5%AD%A6.html">
+          <span class="c-badge">01-设计哲学</span>
+          <h3>设计哲学</h3>
+          <p>核心信条</p>
+          <span class="c-link">阅读 →</span>
+        </a>
+        <a class="course-card" href="01-%E8%AE%BE%E8%AE%A1%E5%93%B2%E5%AD%A6/%E5%88%BB%E6%84%8F%E7%9C%81%E7%95%A5.html">
+          <span class="c-badge">01-设计哲学</span>
+          <h3>刻意省略（Intentional Omissions）</h3>
+          <p>MCP 为何从省略变成内置扩展 / 无子 Agent / 无权限弹窗…</p>
+          <span class="c-link">阅读 →</span>
+        </a>
+    </div>
+  </section>
+  <section class="block wrap">
+    <div class="sec-head reveal"><span class="label">2 架构</span></div>
+    <div class="course-grid reveal">
+        <a class="course-card" href="02-%E6%9E%B6%E6%9E%84/%E5%8C%85%E5%9C%B0%E5%9B%BE%E4%B8%8E%E4%BE%9D%E8%B5%96.html">
+          <span class="c-badge">02-架构</span>
+          <h3>包地图与依赖</h3>
+          <p>monorepo 分层</p>
+          <span class="c-link">阅读 →</span>
+        </a>
+        <a class="course-card" href="02-%E6%9E%B6%E6%9E%84/Agent-%E8%BF%90%E8%A1%8C%E6%97%B6%E5%BE%AA%E7%8E%AF.html">
+          <span class="c-badge">02-架构</span>
+          <h3>Agent 运行时循环</h3>
+          <p>prompt → LLM → tools 循环</p>
+          <span class="c-link">阅读 →</span>
+        </a>
+        <a class="course-card" href="02-%E6%9E%B6%E6%9E%84/Coding-Agent-%E6%A0%88.html">
+          <span class="c-badge">02-架构</span>
+          <h3>Coding Agent 栈</h3>
+          <p>CLI / Session / 四种模式</p>
+          <span class="c-link">阅读 →</span>
+        </a>
+    </div>
+  </section>
+  <section class="block wrap">
+    <div class="sec-head reveal"><span class="label">3 使用</span></div>
+    <div class="course-grid reveal">
+        <a class="course-card" href="03-%E4%BD%BF%E7%94%A8/%E6%9C%AC%E5%9C%B0%E8%B7%91%E8%B5%B7%E6%9D%A5.html">
+          <span class="c-badge">03-使用</span>
+          <h3>本地跑起来</h3>
+          <p>从源码安装与运行</p>
+          <span class="c-link">阅读 →</span>
+        </a>
+        <a class="course-card" href="03-%E4%BD%BF%E7%94%A8/%E5%9B%9B%E7%A7%8D%E8%BF%90%E8%A1%8C%E6%A8%A1%E5%BC%8F.html">
+          <span class="c-badge">03-使用</span>
+          <h3>四种运行模式</h3>
+          <p>TUI / print / JSON / RPC</p>
+          <span class="c-link">阅读 →</span>
+        </a>
+        <a class="course-card" href="03-%E4%BD%BF%E7%94%A8/%E4%BC%9A%E8%AF%9D%E4%B8%8E%E4%B8%8A%E4%B8%8B%E6%96%87.html">
+          <span class="c-badge">03-使用</span>
+          <h3>会话与上下文</h3>
+          <p>session、分支、compaction、AGENTS.md</p>
+          <span class="c-link">阅读 →</span>
+        </a>
+    </div>
+  </section>
+  <section class="block wrap">
+    <div class="sec-head reveal"><span class="label">4 定制</span></div>
+    <div class="course-grid reveal">
+        <a class="course-card" href="04-%E5%AE%9A%E5%88%B6%E6%89%A9%E5%B1%95/%E6%89%A9%E5%B1%95%E9%9D%A2%E6%80%BB%E8%A7%88.html">
+          <span class="c-badge">04-定制扩展</span>
+          <h3>扩展面总览</h3>
+          <p>Extensions / Skills / Packages…</p>
+          <span class="c-link">阅读 →</span>
+        </a>
+        <a class="course-card" href="04-%E5%AE%9A%E5%88%B6%E6%89%A9%E5%B1%95/%E6%89%A9%E5%B1%95-%E6%8A%80%E8%83%BD-%E5%8C%85.html">
+          <span class="c-badge">04-定制扩展</span>
+          <h3>扩展 · 技能 · 包</h3>
+          <p>各自解决什么问题</p>
+          <span class="c-link">阅读 →</span>
+        </a>
+        <a class="course-card" href="04-%E5%AE%9A%E5%88%B6%E6%89%A9%E5%B1%95/SDK%E4%B8%8E%E8%BF%9B%E7%A8%8B%E9%9B%86%E6%88%90.html">
+          <span class="c-badge">04-定制扩展</span>
+          <h3>SDK 与进程集成</h3>
+          <p>嵌入应用与 RPC</p>
+          <span class="c-link">阅读 →</span>
+        </a>
+    </div>
+  </section>
+  <section class="block wrap">
+    <div class="sec-head reveal"><span class="label">5 二次开发</span></div>
+    <div class="course-grid reveal">
+        <a class="course-card" href="05-%E4%BA%8C%E6%AC%A1%E5%BC%80%E5%8F%91/%E4%B8%BA%E4%BB%80%E4%B9%88%E9%80%82%E5%90%88%E4%BA%8C%E6%AC%A1%E5%BC%80%E5%8F%91.html">
+          <span class="c-badge">05-二次开发</span>
+          <h3>为什么适合二次开发</h3>
+          <p>可扩展缝合点</p>
+          <span class="c-link">阅读 →</span>
+        </a>
+        <a class="course-card" href="05-%E4%BA%8C%E6%AC%A1%E5%BC%80%E5%8F%91/%E5%A6%82%E4%BD%95%E6%89%A9%E5%B1%95%E8%80%8C%E4%B8%8D%E6%94%B9%E5%86%85%E6%A0%B8.html">
+          <span class="c-badge">05-二次开发</span>
+          <h3>如何扩展而不改内核</h3>
+          <p>实操路径</p>
+          <span class="c-link">阅读 →</span>
+        </a>
+        <a class="course-card" href="05-%E4%BA%8C%E6%AC%A1%E5%BC%80%E5%8F%91/Fork%E4%B8%8E%E6%8D%A2%E7%9A%AE.html">
+          <span class="c-badge">05-二次开发</span>
+          <h3>Fork 与换皮</h3>
+          <p>`piConfig`、品牌与配置目录</p>
+          <span class="c-link">阅读 →</span>
+        </a>
+    </div>
+  </section>
+  <section class="block wrap">
+    <div class="sec-head reveal"><span class="label">6 深读</span></div>
+    <div class="course-grid reveal">
+        <a class="course-card" href="06-%E6%B7%B1%E8%AF%BB%E8%B7%AF%E5%BE%84/%E6%8E%A8%E8%8D%90%E9%98%85%E8%AF%BB%E9%A1%BA%E5%BA%8F.html">
+          <span class="c-badge">06-深读路径</span>
+          <h3>推荐阅读顺序</h3>
+          <p>文档 → 例子 → 源码</p>
+          <span class="c-link">阅读 →</span>
+        </a>
+        <a class="course-card" href="06-%E6%B7%B1%E8%AF%BB%E8%B7%AF%E5%BE%84/%E5%85%B3%E9%94%AE%E6%96%87%E4%BB%B6%E6%B8%85%E5%8D%95.html">
+          <span class="c-badge">06-深读路径</span>
+          <h3>关键文件清单</h3>
+          <p>先打开哪 20 个文件</p>
+          <span class="c-link">阅读 →</span>
+        </a>
+        <a class="course-card" href="06-%E6%B7%B1%E8%AF%BB%E8%B7%AF%E5%BE%84/Harness%E5%8C%97%E6%98%9F.html">
+          <span class="c-badge">06-深读路径</span>
+          <h3>两条 Harness，不要混成一条</h3>
+          <p>日常 JSONL 会话，以及实验性 pi-durable</p>
+          <span class="c-link">阅读 →</span>
+        </a>
+    </div>
+  </section>
+  <section class="block wrap">
+    <div class="sec-head reveal"><span class="label">7 参考</span></div>
+    <div class="course-grid reveal">
+        <a class="course-card" href="07-%E5%8F%82%E8%80%83/%E6%9C%AF%E8%AF%AD%E8%A1%A8.html">
+          <span class="c-badge">07-参考</span>
+          <h3>术语表</h3>
+          <p>名词对照</p>
+          <span class="c-link">阅读 →</span>
+        </a>
+        <a class="course-card" href="07-%E5%8F%82%E8%80%83/%E5%AE%98%E6%96%B9%E6%96%87%E6%A1%A3%E5%9C%B0%E5%9B%BE.html">
+          <span class="c-badge">07-参考</span>
+          <h3>官方文档地图</h3>
+          <p>指向仓库内官方 docs</p>
+          <span class="c-link">阅读 →</span>
+        </a>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../index.html">首页</a>
+      <a href="../learn.html">课件</a>
+      <a href="../notes/index.html">笔记库</a>
+      <a href="../ai-engineer/index.html">面试宝典</a>
+      <a href="../about.html">关于</a>
+      <a href="../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
 </div>
-<button id="themeToggle" aria-label="切换主题" style="position:fixed;top:14px;right:14px;z-index:999;width:34px;height:34px;border-radius:8px;border:1px solid rgba(127,127,127,.45);background:rgba(127,127,127,.14);color:inherit;cursor:pointer;display:grid;place-items:center;font-size:15px;line-height:1;">☾</button>
-<script>(function(){var b=document.getElementById("themeToggle");if(!b)return;function cur(){var t=document.documentElement.getAttribute("data-theme");if(t)return t;try{return localStorage.getItem("theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")}catch(e){return "light"}}function paint(){b.textContent=cur()==="dark"?"☀":"☾"}b.addEventListener("click",function(){var n=cur()==="dark"?"light":"dark";document.documentElement.setAttribute("data-theme",n);try{localStorage.setItem("theme",n)}catch(e){}paint()});paint()})();</script>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../js/main.js" defer></script>
 </body>
 </html>
