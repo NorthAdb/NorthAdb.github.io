@@ -611,7 +611,7 @@ def nav_html(P):
             <li><a href="{P}rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
           </ul>
         </li>
-        <li><a href="{P}about.html">关于</a></li>
+        <li><a href="{P}notes/index.html">笔记库</a></li><li><a href="{P}about.html">关于</a></li>
       </ul>
     </nav>
     <div class="nav-actions">
@@ -1314,14 +1314,8 @@ def main():
     ] + [f"{ZONE}/{pg['url']}" for pg in pages if not pg.get("asset") and pg.get("url")]
     update_sitemap(urls)
 
-    # ---- nav dropdown in existing pages ----
-    nav_targets = [SITE / "index.html", SITE / "learn.html", SITE / "about.html",
-                   SITE / "404.html", *sorted((SITE / "posts").glob("*.html"))]
-    for pat in ("*.html", "*/*.html", "*/*/*.html"):
-        nav_targets += [p for p in sorted((SITE / "ai-engineer").glob(pat)) if p.is_file()]
-    for t in nav_targets:
-        if t.exists():
-            print(f"nav {t.relative_to(SITE)}: {add_nav_item(t)}")
+    # （历史遗留的 add_nav_item 补丁已移除：所有页面的导航现在都自带「笔记库」入口，
+    #   由各自模板/静态页直接提供，重复打补丁会把两个 <a> 挤进同一个 <li> 破坏布局）
 
     # ---- report ----
     img_bytes = sum(f.stat().st_size for f in (ZONE_DIR / "assets" / "img").glob("*")) \

@@ -406,7 +406,7 @@ def nav_html(P):
             <li><a href="{P}rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
           </ul>
         </li>
-        <li><a href="{P}notes/index.html">笔记库</a><a href="{P}about.html">关于</a></li>
+        <li><a href="{P}notes/index.html">笔记库</a></li><li><a href="{P}about.html">关于</a></li>
       </ul>
     </nav>
     <div class="nav-actions">
