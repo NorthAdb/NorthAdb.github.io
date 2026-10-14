@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pi Durable：面向长期运行 Agent 的持久化 Harness · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="Pi Durable 不是单纯增强 Pi Coding Agent，而是把 Agent 的运行、状态与任务管理抽象成可持久化的 Harness Runtime。 它希望 Agent 在进程重启后能够恢复，支持多个 Conversation …">
+<link rel="canonical" href="https://northadb.github.io/notes/domains/pi/pi-durable.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Pi Durable：面向长期运行 Agent 的持久化 Harness · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="Pi Durable 不是单纯增强 Pi Coding Agent，而是把 Agent 的运行、状态与任务管理抽象成可持久化的 Harness Runtime。 它希望 Agent 在进程重启后能够恢复，支持多个 Conversation …">
+<meta property="og:url" content="https://northadb.github.io/notes/domains/pi/pi-durable.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Pi Durable：面向长期运行 Agent 的持久化 Harness · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="Pi Durable 不是单纯增强 Pi Coding Agent，而是把 Agent 的运行、状态与任务管理抽象成可持久化的 Harness Runtime。 它希望 Agent 在进程重启后能够恢复，支持多个 Conversation …">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../feed.xml">
+<link rel="stylesheet" href="../../../css/style.css">
+<link rel="stylesheet" href="../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Pi Durable：面向长期运行 Agent 的持久化 Harness", "description": "Pi Durable 不是单纯增强 Pi Coding Agent，而是把 Agent 的运行、状态与任务管理抽象成可持久化的 Harness Runtime。 它希望 Agent 在进程重启后能够恢复，支持多个 Conversation …", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/domains/pi/pi-durable.html"}
+</script>
+<script src="../../../notes/assets/mermaid-init.js" defer></script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../web-foundation/index.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../notes/index.html">笔记库</a></li><li><a href="../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../index.html">首页</a><span>/</span><a href="../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../notes/domains/index.html">知识领域</a></div>
+          <h1>Pi Durable：面向长期运行 Agent 的持久化 Harness</h1>
+          <p class="post-sub">Pi Durable 不是单纯增强 Pi Coding Agent，而是把 Agent 的运行、状态与任务管理抽象成可持久化的 Harness Runtime。 它希望 Agent 在进程重启后能够恢复，支持多个 Conversation …</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../notes/domains/index.html">知识领域</a></span><span class="sep"></span>
+            <span>阅读约 13 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+
+<div class="callout" data-callout="abstract"><p class="callout-title">核心观点</p>
+<p><strong>Pi Durable 不是单纯增强 Pi Coding Agent，而是把 Agent 的运行、状态与任务管理抽象成可持久化的 Harness Runtime。</strong> 它希望 Agent 在进程重启后能够恢复，支持多个 Conversation 并发运行、分叉、多人接入，以及动态更新能力。</p>
+</div>
+<p>来源：<a href="https://earendil.com/posts/pi-durable/">Pi Durable | Earendil</a></p>
+<h2 id="1-一句话理解">1. 一句话理解</h2>
+<ul>
+<li><strong>Pi Coding Agent</strong>：面向终端和个人开发者的 Coding Agent，重点是完成当前开发任务。</li>
+<li><strong>Pi Durable</strong>：面向长期运行的 Agentic Application，重点是让 Conversation、Task 和应用状态能够持久化、恢复、并发与演进。</li>
+</ul>
+<p>可以把它看作从 <strong>Agent Loop</strong> 向 <strong>Durable Agent Runtime</strong> 的扩展。</p>
+<pre><code class="language-text">传统 Agent：收到输入 → Agent Loop → 工具执行 → 返回结果
+
+Durable Agent：
+输入
+  ↓
+持久化的 Conversation
+  ↓
+可追踪的 Tasks / Checkpoints
+  ↓
+Durable Storage
+  ↓
+崩溃恢复、分叉、并发执行、多客户端接入
+</code></pre>
+<p>这里的“Durable”强调执行状态和历史可以持久化并用于恢复；“Malleable”强调运行中的 Agent 能力可以调整或更新。</p>
+<h2 id="2-为什么需要-pi-durable">2. 为什么需要 Pi Durable？</h2>
+<p>普通 Coding Agent 通常由一个用户通过终端驱动，运行在一个进程中。进程中断后，用户往往需要重新启动并手动恢复工作。</p>
+<p>当 Agent 应用需要长期运行、由多个客户端接入，或同时处理多个任务时，仅有 Agent Loop 不够，还需要解决：</p>
+<ul>
+<li><strong>故障恢复</strong>：进程中断后，识别哪些工作已完成、正在执行或尚未开始。</li>
+<li><strong>任务生命周期</strong>：管理取消、重试、后台任务、子任务和清理操作。</li>
+<li><strong>状态一致性</strong>：让对话历史与业务状态尽量保持一致。</li>
+<li><strong>上下文管理</strong>：保留完整历史，同时为模型构造有限的当前上下文。</li>
+<li><strong>并发与协作</strong>：允许多个 Conversation 并行运行，或由不同 UI/客户端接入。</li>
+<li><strong>能力更新</strong>：在不必把整个系统视为不可变进程的前提下，替换或更新 Extension 实现。</li>
+</ul>
+<p>因此，Pi Durable 的重点不是让模型本身更聪明，而是为 Agent 提供更可靠的运行基础设施。</p>
+<h2 id="3-harness-的基本抽象">3. Harness 的基本抽象</h2>
+<p>文章将 Harness 的核心理解为：<strong>持久化存储 + 运行一个或多个 LLM Conversation 的执行机制</strong>。</p>
+<h3 id="31-agent">3.1 Agent</h3>
+<p>在这个抽象中，Agent 可以理解为一组运行配置与能力，例如：</p>
+<ul>
+<li>模型和思考等级</li>
+<li>System Prompt / Instructions</li>
+<li>可用工具</li>
+<li>工作目录和执行环境</li>
+</ul>
+<h3 id="32-conversation">3.2 Conversation</h3>
+<p>Conversation 是一条具有历史记录的 Agent 交互执行单元。其 transcript 可能包含：</p>
+<pre><code class="language-text">User Message
+  ↓
+Assistant Message
+  ↓
+Tool Call
+  ↓
+Tool Result
+  ↓
+Assistant Message
+  ↓
+...
+</code></pre>
+<p>Conversation 不只是聊天记录，也关联运行配置、Task 和应用状态。</p>
+<h3 id="33-task">3.3 Task</h3>
+<p>文章把 Harness 执行的工作统一视为 Task。它不局限于用户口中的“任务”，也可能是一次模型请求、一次工具执行或一次 Compaction。</p>
+<p>常见例子：</p>
+<ul>
+<li>Model request</li>
+<li>Tool call</li>
+<li>Compaction</li>
+<li>Background job</li>
+<li>自定义业务流程</li>
+<li>创建或运行子 Conversation</li>
+</ul>
+<p>这一抽象使不同种类的工作可以复用统一的状态、Checkpoint、取消与恢复机制。</p>
+<h2 id="4-核心机制一durable-execution">4. 核心机制一：Durable Execution</h2>
+<h3 id="41-checkpoint-与故障恢复">4.1 Checkpoint 与故障恢复</h3>
+<p>普通执行流程可能是：</p>
+<pre><code class="language-text">Task A → Task B → Task C
+</code></pre>
+<p>如果进程在 Task B 期间崩溃，系统不一定能确定 B 是否产生了副作用。Durable Execution 的目标，是把执行状态和关键进度持久化，在恢复时检查未完成的 Task，并依据其恢复策略作出处理。</p>
+<pre><code class="language-text">Task A ── checkpoint ──&gt; Task B ── checkpoint ──&gt; Task C
+                           │
+                         crash
+                           ↓
+                     reload state
+                           ↓
+               inspect unfinished task
+                           ↓
+                 retry / mark aborted / skip
+</code></pre>
+<p>恢复不是简单地“从头再跑一次”，而是要结合任务状态和重放策略判断下一步。</p>
+<h3 id="42-tool-的-replay-policy">4.2 Tool 的 Replay Policy</h3>
+<p>一个工具除了名称、说明、输入和执行逻辑，还需要考虑中断后是否可以安全重放。</p>
+<table>
+<thead>
+<tr>
+<th>操作类型</th>
+<th>例子</th>
+<th>典型考虑</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>只读操作</td>
+<td>搜索 issue、读取文件、查询数据</td>
+<td>通常比较适合重放</td>
+</tr>
+<tr>
+<td>可幂等写入</td>
+<td>按固定 ID 更新资源</td>
+<td>在正确设计下可以安全重试</td>
+</tr>
+<tr>
+<td>有外部副作用的操作</td>
+<td>发送邮件、扣款、部署</td>
+<td>不能未经判断就重放</td>
+</tr>
+</tbody>
+</table>
+<p>文章提到用 <code>replay</code> 策略区分可安全重放与不应自动重放的工具。若一个工具不适合重放，恢复时可以将其标记为中断，并把相关信息交还给模型处理，而不是盲目重跑。</p>
+
+<div class="callout" data-callout="warning"><p class="callout-title">工程上的边界</p>
+<p><strong>持久化 Task 状态不等于外部副作用天然 exactly-once。</strong> 进程可能在外部操作成功、但本地尚未记录结果时崩溃。对支付、发信、部署等操作，通常还需要幂等键、外部系统去重、事务或补偿机制。</p>
+</div>
+<h3 id="43-requestid-与提交去重">4.3 <code>requestId</code> 与提交去重</h3>
+<p>客户端提交输入时可以附带一个稳定的 <code>requestId</code>，例如：</p>
+<pre><code class="language-ts">{
+  type: &quot;input&quot;,
+  content: &quot;Fix the flaky login test&quot;,
+  requestId: &quot;job-42&quot;
+}
+</code></pre>
+<p>如果客户端因超时或断线而重复提交相同请求，服务端可以借助 <code>requestId</code> 识别这是同一次提交，避免创建重复的 submission。</p>
+<p>需要区分：</p>
+<ul>
+<li><strong>请求提交去重</strong>：同一个请求标识不重复创建任务。</li>
+<li><strong>外部副作用 exactly-once</strong>：工具对外部系统的效果只发生一次。</li>
+</ul>
+<p>两者不是同一回事。前者不能自动保证后者。</p>
+<h2 id="5-核心机制二conversation-是可组合的执行单元">5. 核心机制二：Conversation 是可组合的执行单元</h2>
+<h3 id="51-多-conversation-并发">5.1 多 Conversation 并发</h3>
+<p>传统的个人 Coding Agent 通常以一个主要 Conversation 为中心。Pi Durable 则支持一个 Harness 管理多个 Conversation：</p>
+<pre><code class="language-text">Harness
+├── Conversation A
+├── Conversation B
+└── Conversation C
+</code></pre>
+<p>各 Conversation 可以拥有自己的历史、模型设置、工具和运行状态。</p>
+<h3 id="52-fork从历史中的某一点分叉">5.2 Fork：从历史中的某一点分叉</h3>
+<p>Fork 可以让子 Conversation 从父 Conversation 的某个历史位置开始，并在此之后独立推进。</p>
+<pre><code class="language-text">Parent: A ─ B ─ C ─ D
+              │
+              └── Child: A ─ B ─ C ─ E ─ F
+</code></pre>
+<p>这适用于研究分支、不同方案探索、Code Review、Slack Thread 等场景。</p>
+<p>更重要的是，若应用状态也支持在 fork 点取快照，那么 Fork 就不只是复制聊天记录，还可以表示应用状态在某个时间点的分叉。</p>
+<h3 id="53-subagent-独立-conversation">5.3 Subagent = 独立 Conversation</h3>
+<p>文章没有把 Subagent 定义为必须拥有特殊运行时的独立抽象。一个子 Agent 可以表示为一个独立 Conversation，由父 Agent 通过工具或任务机制创建并管理。</p>
+<pre><code class="language-text">Main Conversation
+  └── Tool / Task
+        └── Child Conversation
+              ├── own transcript
+              ├── own model configuration
+              ├── own tools
+              └── own lifecycle
+</code></pre>
+<p>这样，Subagent 能复用 Conversation 的持久化、恢复、成本追踪和生命周期管理能力。</p>
+<blockquote>
+<p><strong>设计启示：</strong> 如果一种能力可以用已有的核心抽象组合出来，就不一定需要额外设计一套平行的 Runtime。</p>
+</blockquote>
+<h2 id="6-extension动态-prompt-与-hooks">6. Extension、动态 Prompt 与 Hooks</h2>
+<h3 id="61-extension模块化-agent-能力">6.1 Extension：模块化 Agent 能力</h3>
+<p>Extension 可以组合多种 Agent 能力，例如：</p>
+<ul>
+<li>System Prompt 的不同 Section</li>
+<li>工具</li>
+<li>Hooks</li>
+<li>自定义 Tasks</li>
+</ul>
+<p>Conversation 可以根据实际需要启用对应的 Extension，而不是必须加载所有能力。</p>
+<pre><code class="language-text">Extension Registry
+├── coding
+├── project-context
+├── ops
+├── GitHub
+└── approval
+       ↓
+Conversation 选择所需能力
+</code></pre>
+<h3 id="62-prompt-是会变化的运行状态">6.2 Prompt 是会变化的运行状态</h3>
+<p>System Prompt 不一定只在 Conversation 启动时生成一次。它可能由当前启用的 Extension、项目文件或上下文动态构造。</p>
+<p>例如：</p>
+<pre><code class="language-text">第一次请求：读取 AGENTS.md → Prompt P1
+                         ↓ 文件发生变化
+后续请求：重新读取配置 → Prompt P2
+</code></pre>
+<p>如果系统会动态更新 Prompt，就需要考虑重启、重放和 Fork 时如何还原模型当时看到的上下文。文章强调把 Prompt 的变化记录到历史中，使历史能够反映模型请求时所处的上下文条件。</p>
+<p><strong>值得记住：Prompt 不只是静态配置，它也可能是随执行过程变化、需要被追踪的状态。</strong></p>
+<h3 id="63-hooks在关键执行点插入逻辑">6.3 Hooks：在关键执行点插入逻辑</h3>
+<p>Hooks 可以介入模型请求、工具调用、Compaction 等环节，例如：</p>
+<pre><code class="language-text">Agent
+  ↓
+beforeTool Hook
+  ↓
+权限检查 / 审批 / 参数修改
+  ↓
+Tool Execution
+  ↓
+afterTool Hook
+</code></pre>
+<p>Hooks 可用于：</p>
+<ul>
+<li>权限控制与人工审批</li>
+<li>修改模型请求或工具调用</li>
+<li>替换或调整工具结果</li>
+<li>记录状态或执行自定义逻辑</li>
+</ul>
+<p>如果 Hook 会等待审批或承担重要业务逻辑，其状态也应持久化；否则进程崩溃后，可能出现重复审批或状态丢失。</p>
+<h2 id="7-task-生命周期ownership-与取消">7. Task 生命周期、Ownership 与取消</h2>
+<h3 id="71-task-不只是一个函数调用">7.1 Task 不只是一个函数调用</h3>
+<p>Task 可以关联输入、状态、执行阶段、Checkpoint、结果、取消行为、依赖关系和所有权。这样才能对执行中的工作做统一管理。</p>
+<h3 id="72-ownership-tree">7.2 Ownership Tree</h3>
+<p>Task 可能创建子 Task 或子 Conversation，从而形成层级关系：</p>
+<pre><code class="language-text">Conversation
+├── Task A
+│   ├── Task A1
+│   └── Task A2
+└── Task B
+    └── Child Conversation
+</code></pre>
+<p>拥有关系可以帮助系统理解取消和清理的传播范围。例如取消父任务时，需要按规则取消它所拥有的子任务，并完成必要清理。</p>
+<h3 id="73-foreground-与-background">7.3 Foreground 与 Background</h3>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>典型含义</th>
+<th>生命周期特点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Foreground Task</td>
+<td>当前 turn 正在执行的工作</td>
+<td>通常与用户当前交互直接相关，可被立即中断</td>
+</tr>
+<tr>
+<td>Background Task</td>
+<td>定时提醒、后台 Subagent 或独立作业</td>
+<td>可以在 Conversation 暂时空闲时继续运行</td>
+</tr>
+</tbody>
+</table>
+<p>这一区分有助于回答：用户按下停止时，哪些工作要停止？Conversation 空闲后，哪些工作仍应继续？</p>
+<h2 id="8-compaction-与-handoff历史不等于上下文">8. Compaction 与 Handoff：历史不等于上下文</h2>
+<h3 id="81-transcript-context">8.1 Transcript ≠ Context</h3>
+<p>这是理解长时运行 Agent 的关键概念。</p>
+<ul>
+<li><strong>Transcript</strong>：完整的、持久化的历史记录。</li>
+<li><strong>Context</strong>：当前这一次模型请求实际使用的消息视图，受上下文窗口限制。</li>
+</ul>
+<pre><code class="language-text">完整 Transcript
+      ↓ 筛选 / 摘要 / 投影
+当前 Context View
+      ↓
+     LLM
+</code></pre>
+<p>Context 太长时，系统可以生成摘要或新的上下文视图，而不是必须把历史记录本身永久删除。</p>
+<h3 id="82-compaction">8.2 Compaction</h3>
+<p>Compaction 的目的，是控制送入模型的上下文长度。旧消息可以继续保存在持久化历史中，而当前请求使用摘要与较新的消息。</p>
+<h3 id="83-handoff-与长任务">8.3 Handoff 与长任务</h3>
+<p>Handoff 可以将阶段性工作整理成简短交接说明，再以新的 Context 继续执行：</p>
+<pre><code class="language-text">Context 1
+  ↓ 整理进度、发现与下一步
+Handoff Note
+  ↓
+Context 2
+  ↓
+Context 3
+</code></pre>
+<p>例如交接说明可以记录：已检查哪些文件、已确认什么原因、哪些方案试过、接下来需要做什么。</p>
+<p>因此，长时运行 Agent 不需要依赖无限大的 Context Window，而可以组合：</p>
+<p><strong>持久化历史 + 当前上下文投影 + Compaction + Handoff。</strong></p>
+<h2 id="9-durable-documents让应用状态也能持久化">9. Durable Documents：让应用状态也能持久化</h2>
+<p>只保存对话历史还不够。Agent 应用通常还有计划、待办、工单、任务状态或沙箱状态等结构化数据。</p>
+<p>如果这些状态仅靠模型从对话中推断，就可能发生不一致：</p>
+<pre><code class="language-text">Transcript：任务 A 已完成
+Application State：任务 A 仍为 pending
+</code></pre>
+<p>Pi Durable 的方向是把应用状态保存为 Durable Documents，并尽可能让 Document 更新和相关 Transcript 变更在同一个原子提交中完成。</p>
+<pre><code class="language-text">Transcript Changes + Document Changes
+                 ↓
+           Atomic Commit
+</code></pre>
+<p>对于 Fork，Document 也需要定义读取哪个版本，例如在 fork 时间点读取父 Conversation 的状态。这样，子 Conversation 才能在一致的历史与业务状态基础上独立演进。</p>
+
+<div class="callout" data-callout="important"><p class="callout-title">关键辨析</p>
+<p>Transcript 记录“发生了什么”，Document 表达“应用当前是什么状态”。两者用途不同，但需要建立一致性规则。</p>
+</div>
+<h2 id="10-malleability运行时可以动态演进">10. Malleability：运行时可以动态演进</h2>
+<p>传统程序常采用“修改代码 → 重启进程”的更新方式。Pi Durable 的 Malleability 思路，是允许运行中的 Harness 更新 Extension Registry 等能力定义。</p>
+<p>概念上可以理解为：</p>
+<pre><code class="language-text">Agent 正在运行
+      ↓
+安装 / 更新 Extension
+      ↓
+已经开始的调用按其执行语义继续
+后续新调用使用更新后的实现
+</code></pre>
+<p>Conversation 可以引用 Extension 与 Tool 的名称，而不必将其完整代码固定在历史记录中。进程恢复时，再加载注册表中的实现。</p>
+<p>这带来的灵活性也意味着需要明确版本与兼容性边界：对于需要严格重现的任务，仅有名称可能不足以证明当时使用了哪一版代码；实际系统应根据可复现性要求决定是否记录版本、构建标识或其他元数据。</p>
+<h2 id="11-multiplayer多个客户端共享同一运行状态">11. Multiplayer：多个客户端共享同一运行状态</h2>
+<p>传统 Coding Agent 通常与某个终端会话绑定。Pi Durable 的目标更接近服务端 Runtime：Conversation 的状态由 Harness 管理，不必依附于某一个 UI。</p>
+<pre><code class="language-text">                   Harness
+                      │
+              Conversation State
+             /          |          \
+          Terminal     Web UI      Slack Bot
+</code></pre>
+<p>多个客户端可以观察、加入、重连、发送消息或引导 Agent。客户端初次接入时获取当前视图，之后再接收状态变化。</p>
+<p>这使同一套 Harness 有机会同时服务于终端、Web、IDE、Slack Bot 或团队控制面板，而不必在每种 UI 中各自实现一套 Agent Loop。</p>
+<h2 id="12-整体架构图">12. 整体架构图</h2>
+<pre><code class="language-mermaid">flowchart TB
+    H[Pi Durable / Harness Runtime]
+    H --&gt; C[Conversations]
+    H --&gt; T[Tasks]
+    H --&gt; E[Extensions / Hooks]
+    H --&gt; S[(Durable Storage)]
+
+    C --&gt; TR[Transcript]
+    C --&gt; CV[Current Context View]
+    C --&gt; D[Durable Documents]
+    C --&gt; F[Fork / Child Conversation]
+
+    T --&gt; CP[Checkpoint]
+    T --&gt; RP[Replay Policy]
+    T --&gt; OW[Ownership / Abort]
+    T --&gt; BG[Foreground / Background]
+
+    TR --&gt; S
+    D --&gt; S
+    CP --&gt; S
+
+    S --&gt; R[Crash Recovery]
+    H --&gt; M[Multiple Clients]
+    M --&gt; UI1[Terminal]
+    M --&gt; UI2[Web / IDE]
+    M --&gt; UI3[Slack / Other UI]
+</code></pre>
+<h2 id="13-与普通-pi-coding-agent-的区别">13. 与普通 Pi Coding Agent 的区别</h2>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Pi Coding Agent</th>
+<th>Pi Durable 的设计方向</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>主要定位</td>
+<td>个人开发者使用的 Coding Agent</td>
+<td>长期运行的 Agentic Application Runtime</td>
+</tr>
+<tr>
+<td>交互入口</td>
+<td>以终端交互为主</td>
+<td>可由多个客户端接入</td>
+</tr>
+<tr>
+<td>Conversation</td>
+<td>通常围绕一个主要会话工作</td>
+<td>管理多个可并发、可分叉的 Conversation</td>
+</tr>
+<tr>
+<td>故障恢复</td>
+<td>往往需要用户重新启动并恢复工作</td>
+<td>通过持久化状态与 Checkpoint 恢复</td>
+</tr>
+<tr>
+<td>Task</td>
+<td>常围绕 Agent Loop 与工具执行组织</td>
+<td>模型请求、Tool、Compaction 和业务工作均可统一抽象为 Task</td>
+</tr>
+<tr>
+<td>Subagent</td>
+<td>通常作为一种 Agent 协作功能</td>
+<td>可以建模为独立 Conversation</td>
+</tr>
+<tr>
+<td>历史与上下文</td>
+<td>受上下文窗口与会话管理机制影响</td>
+<td>区分持久化 Transcript 与当前 Context View</td>
+</tr>
+<tr>
+<td>应用状态</td>
+<td>可能由外部存储或工具管理</td>
+<td>引入 Durable Documents 与一致性机制</td>
+</tr>
+<tr>
+<td>能力更新</td>
+<td>常见方式是更新后重启</td>
+<td>目标是支持运行时动态更新 Extension</td>
+</tr>
+</tbody>
+</table>
+<p>这是一种<strong>设计定位上的比较</strong>，并不意味着普通 Pi 完全不具备会话保存、扩展或恢复能力，也不意味着 Durable 的所有特性在所有场景中都已成熟。</p>
+<h2 id="14-对-agent-harness-设计的启示">14. 对 Agent Harness 设计的启示</h2>
+<h3 id="141-从执行循环转向执行系统">14.1 从执行循环转向执行系统</h3>
+<p>Agent Loop 主要回答：如何让模型观察结果、调用工具并继续推理？</p>
+<p>Durable Harness 还要回答：</p>
+<ul>
+<li>工作执行到哪一步？</li>
+<li>崩溃后从哪里恢复？</li>
+<li>一个任务创建了哪些子任务？</li>
+<li>哪些工具允许重放？</li>
+<li>取消时如何停止并清理？</li>
+<li>对话历史和业务状态如何保持一致？</li>
+<li>多个客户端如何共享同一个 Agent？</li>
+</ul>
+<h3 id="142-统一抽象比堆叠特例更重要">14.2 统一抽象比堆叠特例更重要</h3>
+<p>文章的设计倾向是用少数核心概念组合出更复杂的行为：</p>
+<ul>
+<li>Subagent → Conversation</li>
+<li>工具执行、模型请求、Compaction → Task</li>
+<li>取消传播 → Ownership Tree</li>
+<li>长期上下文 → Transcript + Context View + Handoff</li>
+<li>Agent 应用状态 → Durable Documents</li>
+</ul>
+<p>这种设计有助于减少重复的生命周期逻辑。</p>
+<h3 id="143-durable-不能只靠把状态写进数据库">14.3 Durable 不能只靠“把状态写进数据库”</h3>
+<p>真正的 Durable Execution 需要一起设计：</p>
+<ol>
+<li><strong>状态模型</strong>：哪些信息需要持久化？</li>
+<li><strong>Checkpoint 时机</strong>：什么时候认为某一步已经完成？</li>
+<li><strong>恢复语义</strong>：未完成的任务是重跑、跳过还是标记中断？</li>
+<li><strong>副作用治理</strong>：如何通过幂等键、去重、事务或补偿处理外部操作？</li>
+<li><strong>生命周期管理</strong>：任务取消时如何传播与清理？</li>
+<li><strong>历史一致性</strong>：Prompt、Transcript、Document 和执行版本如何关联？</li>
+</ol>
+<h2 id="15-需要记住的关键概念">15. 需要记住的关键概念</h2>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>一句话解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Conversation</strong></td>
+<td>带有持久化历史与运行配置的交互执行单元</td>
+</tr>
+<tr>
+<td><strong>Task</strong></td>
+<td>Harness 中可追踪、可管理生命周期的工作单元</td>
+</tr>
+<tr>
+<td><strong>Checkpoint</strong></td>
+<td>记录执行进度、支持恢复的持久化状态点</td>
+</tr>
+<tr>
+<td><strong>Replay Policy</strong></td>
+<td>规定中断后某项工作是否适合重放</td>
+</tr>
+<tr>
+<td><strong>Ownership</strong></td>
+<td>表示任务、子任务与子 Conversation 的归属及生命周期关系</td>
+</tr>
+<tr>
+<td><strong>Transcript</strong></td>
+<td>完整、持久化的交互历史</td>
+</tr>
+<tr>
+<td><strong>Context View</strong></td>
+<td>当前模型请求实际使用的上下文</td>
+</tr>
+<tr>
+<td><strong>Durable Document</strong></td>
+<td>Agent 应用的结构化持久状态</td>
+</tr>
+<tr>
+<td><strong>Fork</strong></td>
+<td>从一个历史时间点分支出独立 Conversation / 状态演进路径</td>
+</tr>
+<tr>
+<td><strong>Malleability</strong></td>
+<td>在运行时调整 Agent 能力与 Extension 的能力</td>
+</tr>
+</tbody>
+</table>
+<h2 id="16-总结">16. 总结</h2>
+<p>Pi Durable 的核心不是“让 LLM 更聪明”，而是让 Agent 从一次性的 Agent Loop 发展为能够长期运行的 Runtime。</p>
+<p>其设计可以压缩为以下结构：</p>
+<pre><code class="language-text">                 Durable Agent Runtime
+                           │
+           ┌───────────────┼───────────────┐
+           ↓               ↓               ↓
+      Conversations       Tasks            State
+           │               │               │
+           ↓               ↓               ↓
+       Transcript       Checkpoint       Documents
+           │               │               │
+           └───────────────┼───────────────┘
+                           ↓
+                    Durable Storage
+                           │
+            ┌──────────────┼──────────────┐
+            ↓              ↓              ↓
+       Crash Recovery     Fork         Multiplayer
+</code></pre>
+<p>最值得记住的一句话：</p>
+<blockquote>
+<p><strong>Agent Loop 负责完成一轮轮推理与工具交互；Durable Harness 负责让这些工作在真实、长期运行的系统中可追踪、可恢复、可组合且可协作。</strong></p>
+</blockquote>
+<h2 id="延伸阅读">延伸阅读</h2>
+<ul>
+<li>原文：<a href="https://earendil.com/posts/pi-durable/">Pi Durable | Earendil</a></li>
+<li>可关联的 Obsidian 笔记：<span class="wl dead" title="未创建的笔记">Agent Harness</span>、<span class="wl dead" title="未创建的笔记">Agent Loop</span>、<span class="wl dead" title="未创建的笔记">Subagent</span>、<span class="wl dead" title="未创建的笔记">Context Compaction</span>、<span class="wl dead" title="未创建的笔记">Durable Execution</span>、<span class="wl dead" title="未创建的笔记">Workflow Engine</span>、<span class="wl dead" title="未创建的笔记">MCP</span></li>
+</ul>
+
+<div class="callout" data-callout="note"><p class="callout-title">阅读提示</p>
+<p>这篇文章描述的是 Pi Durable 的设计方向。涉及 API 细节、功能成熟度和实现行为时，应以项目当前代码与官方文档为准。</p>
+</div>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">知识领域</span><span class="chip">- AI/Agent</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A2%86%E5%9F%9F/pi/Pi-Durable.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../notes/domains/pi/pi-agent.html"><span class="dir">← 上一篇</span><span class="t">Pi Agent 封装方式全景梳理</span></a><a class="next" href="../../../notes/domains/rag/agentic-rag.html"><span class="dir">下一篇 →</span><span class="t">Agentic RAG：架构设计与落地实践</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../index.html">首页</a>
+      <a href="../../../learn.html">课件</a>
+      <a href="../../../notes/index.html">笔记库</a>
+      <a href="../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../about.html">关于</a>
+      <a href="../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../js/main.js" defer></script>
+</body>
+</html>

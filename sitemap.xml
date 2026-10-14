@@ -1409,15 +1409,31 @@
     <lastmod>2026-10-06</lastmod>
   </url>
   <url>
-    <loc>https://northadb.github.io/notes/domains/agent.html</loc>
-    <lastmod>2026-10-06</lastmod>
-  </url>
-  <url>
     <loc>https://northadb.github.io/notes/domains/agent/aiagent2026.html</loc>
     <lastmod>2026-10-06</lastmod>
   </url>
   <url>
     <loc>https://northadb.github.io/notes/domains/agent/agentagent.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://northadb.github.io/notes/domains/agent/agent-eval.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://northadb.github.io/notes/domains/agent/agent.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://northadb.github.io/notes/domains/agent/json-schemaagent-tool-calling.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://northadb.github.io/notes/domains/agent/system-one-obsidian.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://northadb.github.io/notes/domains/agent/agent-json-schema-structured-output.html</loc>
     <lastmod>2026-10-06</lastmod>
   </url>
   <url>
@@ -1429,11 +1445,23 @@
     <lastmod>2026-10-06</lastmod>
   </url>
   <url>
+    <loc>https://northadb.github.io/notes/domains/java/ai-research-hub-supabase-springboot.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
     <loc>https://northadb.github.io/notes/domains/java/git.html</loc>
     <lastmod>2026-10-06</lastmod>
   </url>
   <url>
     <loc>https://northadb.github.io/notes/domains/java/javaagent2026.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://northadb.github.io/notes/domains/java/redis.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://northadb.github.io/notes/domains/mcp-cli/cli-mcp-pimcp.html</loc>
     <lastmod>2026-10-06</lastmod>
   </url>
   <url>
@@ -1449,6 +1477,10 @@
     <lastmod>2026-10-06</lastmod>
   </url>
   <url>
+    <loc>https://northadb.github.io/notes/domains/memory/agent.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
     <loc>https://northadb.github.io/notes/domains/memory/claudecodeagent.html</loc>
     <lastmod>2026-10-06</lastmod>
   </url>
@@ -1457,11 +1489,39 @@
     <lastmod>2026-10-06</lastmod>
   </url>
   <url>
+    <loc>https://northadb.github.io/notes/domains/multi-agent/a2arest-api-agent.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://northadb.github.io/notes/domains/multi-agent/the-orchestration-tax-agent.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
     <loc>https://northadb.github.io/notes/domains/nginx/nginx-adaptation.html</loc>
     <lastmod>2026-10-06</lastmod>
   </url>
   <url>
     <loc>https://northadb.github.io/notes/domains/nginx/nginx-notes.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://northadb.github.io/notes/domains/pa/personal-agent-gateway-harness.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://northadb.github.io/notes/domains/pa/grok-bot-research-summary.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://northadb.github.io/notes/domains/pi/pi-agent.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://northadb.github.io/notes/domains/pi/pi-durable.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://northadb.github.io/notes/domains/rag/agentic-rag.html</loc>
     <lastmod>2026-10-06</lastmod>
   </url>
   <url>
@@ -1497,7 +1557,23 @@
     <lastmod>2026-10-06</lastmod>
   </url>
   <url>
+    <loc>https://northadb.github.io/notes/domains/web/json-rpc-obsidian.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://northadb.github.io/notes/domains/web/agent-realtime-communication-sse-websocket.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
     <loc>https://northadb.github.io/notes/domains/p0d98c7/pythonvstypescriptai.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://northadb.github.io/notes/domains/p68051b/json-jsonl-jsonb.html</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://northadb.github.io/notes/domains/p68051b/docker-postgres-migration-volume-obsidian.html</loc>
     <lastmod>2026-10-06</lastmod>
   </url>
   <url>

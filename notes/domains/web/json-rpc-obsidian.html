@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JSON-RPC 是什么 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="JSON-RPC 是一种远程过程调用（RPC）协议，规定通信双方如何用 JSON 表达方法调用、参数、响应结果和错误。">
+<link rel="canonical" href="https://northadb.github.io/notes/domains/web/json-rpc-obsidian.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="JSON-RPC 是什么 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="JSON-RPC 是一种远程过程调用（RPC）协议，规定通信双方如何用 JSON 表达方法调用、参数、响应结果和错误。">
+<meta property="og:url" content="https://northadb.github.io/notes/domains/web/json-rpc-obsidian.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JSON-RPC 是什么 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="JSON-RPC 是一种远程过程调用（RPC）协议，规定通信双方如何用 JSON 表达方法调用、参数、响应结果和错误。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../feed.xml">
+<link rel="stylesheet" href="../../../css/style.css">
+<link rel="stylesheet" href="../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "JSON-RPC 是什么", "description": "JSON-RPC 是一种远程过程调用（RPC）协议，规定通信双方如何用 JSON 表达方法调用、参数、响应结果和错误。", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/domains/web/json-rpc-obsidian.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../web-foundation/index.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../notes/index.html">笔记库</a></li><li><a href="../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../index.html">首页</a><span>/</span><a href="../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../notes/domains/index.html">知识领域</a></div>
+          <h1>JSON-RPC 是什么</h1>
+          <p class="post-sub">JSON-RPC 是一种远程过程调用（RPC）协议，规定通信双方如何用 JSON 表达方法调用、参数、响应结果和错误。</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../notes/domains/index.html">知识领域</a></span><span class="sep"></span>
+            <span>阅读约 4 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<h2 id="一句话理解">一句话理解</h2>
+<p><strong>JSON-RPC 是一种远程过程调用（RPC）协议，规定通信双方如何用 JSON 表达方法调用、参数、响应结果和错误。</strong></p>
+<p>它与通信有关，但要注意：<strong>JSON-RPC 主要规定消息格式与交互规则，不负责规定底层必须如何传输数据。</strong></p>
+<h2 id="1-基本概念">1. 基本概念</h2>
+<h3 id="rpcremote-procedure-call">RPC（Remote Procedure Call）</h3>
+<p>远程过程调用。客户端可以像调用一个方法一样，请求另一台机器或另一个进程执行操作，并取得返回结果。</p>
+<h3 id="json">JSON</h3>
+<p>一种结构化数据交换格式。JSON-RPC 使用 JSON 对请求和响应进行编码。</p>
+<h3 id="json-rpc">JSON-RPC</h3>
+<p>把 RPC 调用约定与 JSON 消息格式结合起来，明确请求应该包含什么、响应如何对应请求、错误如何表达等。</p>
+<h2 id="2-一次-json-rpc-调用是什么样的">2. 一次 JSON-RPC 调用是什么样的？</h2>
+<p>客户端请求：</p>
+<pre><code class="language-json">{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;method&quot;: &quot;search&quot;,
+  &quot;params&quot;: {
+    &quot;query&quot;: &quot;JSON-RPC&quot;
+  },
+  &quot;id&quot;: 1
+}
+</code></pre>
+<p>服务端成功响应：</p>
+<pre><code class="language-json">{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;result&quot;: [&quot;文档 A&quot;, &quot;文档 B&quot;],
+  &quot;id&quot;: 1
+}
+</code></pre>
+<p>关键字段：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>jsonrpc</code></td>
+<td>协议版本，JSON-RPC 2.0 中为 <code>"2.0"</code></td>
+</tr>
+<tr>
+<td><code>method</code></td>
+<td>要调用的方法名</td>
+</tr>
+<tr>
+<td><code>params</code></td>
+<td>传递给方法的参数，可使用对象或数组形式</td>
+</tr>
+<tr>
+<td><code>id</code></td>
+<td>请求标识；响应会使用对应的 ID，帮助客户端匹配请求与响应</td>
+</tr>
+<tr>
+<td><code>result</code></td>
+<td>成功响应中的结果</td>
+</tr>
+<tr>
+<td><code>error</code></td>
+<td>失败响应中的错误对象，通常包含 <code>code</code>、<code>message</code>，也可包含 <code>data</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="错误响应示例">错误响应示例</h3>
+<pre><code class="language-json">{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;error&quot;: {
+    &quot;code&quot;: -32601,
+    &quot;message&quot;: &quot;Method not found&quot;
+  },
+  &quot;id&quot;: 1
+}
+</code></pre>
+<h3 id="请求响应与通知">请求、响应与通知</h3>
+<ul>
+<li><strong>Request（请求）</strong>：包含 <code>method</code>，通常带有 <code>id</code>，用来等待对应响应。</li>
+<li><strong>Response（响应）</strong>：包含 <code>result</code> 或 <code>error</code>，并携带对应的 <code>id</code>。</li>
+<li><strong>Notification（通知）</strong>：不带 <code>id</code> 的请求；发送方不等待 JSON-RPC 响应。</li>
+</ul>
+<p>因此，并不是每条 JSON-RPC 消息都一定有返回结果。</p>
+<h2 id="3-json-rpc-与传输方式的关系">3. JSON-RPC 与传输方式的关系</h2>
+<p>JSON-RPC 不强制绑定某一种传输方式。消息可以通过不同通道发送，例如：</p>
+<ul>
+<li><strong>HTTP</strong>：常见的 Web 通信方式。</li>
+<li><strong>WebSocket</strong>：支持双向、持续的连接。</li>
+<li><strong>stdio</strong>：本地进程通过标准输入和标准输出交换消息。</li>
+</ul>
+<p>可以把一次调用拆成三个层次：</p>
+<pre><code class="language-text">应用层：要执行什么操作？
+        例如 search(query=&quot;JSON-RPC&quot;)
+             ↓
+消息协议层：如何表示请求与响应？
+        JSON-RPC：method、params、id、result / error
+             ↓
+传输层：消息如何到达对端？
+        HTTP / WebSocket / stdio 等
+</code></pre>
+<p><strong>JSON-RPC ≠ HTTP，也不等于 WebSocket。</strong> 它们解决的是不同层面的问题。</p>
+<h2 id="4-经常一起出现的概念">4. 经常一起出现的概念</h2>
+<table>
+<thead>
+<tr>
+<th>名词</th>
+<th>是什么</th>
+<th>与 JSON-RPC 的关系</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>RPC</strong></td>
+<td>远程过程调用的思想与机制</td>
+<td>JSON-RPC 是 RPC 的一种协议实现形式</td>
+</tr>
+<tr>
+<td><strong>JSON</strong></td>
+<td>数据交换格式</td>
+<td>JSON-RPC 用 JSON 编码消息</td>
+</tr>
+<tr>
+<td><strong>HTTP / WebSocket / stdio</strong></td>
+<td>消息传输通道</td>
+<td>可用于承载 JSON-RPC 消息</td>
+</tr>
+<tr>
+<td><strong>MCP</strong></td>
+<td>面向 AI 应用与工具、资源等交互的协议</td>
+<td>MCP 使用 JSON-RPC 风格的消息结构，并定义更具体的交互方法与语义</td>
+</tr>
+<tr>
+<td><strong>LSP</strong></td>
+<td>Language Server Protocol，为编辑器提供代码补全、诊断等能力</td>
+<td>LSP 使用 JSON-RPC 进行请求、响应与通知</td>
+</tr>
+<tr>
+<td><strong>REST API</strong></td>
+<td>常见的 Web API 设计风格</td>
+<td>常与 RPC 风格对比，但两者并非同一层面的严格互斥选项</td>
+</tr>
+<tr>
+<td><strong>gRPC</strong></td>
+<td>RPC 框架与生态</td>
+<td>也用于远程服务调用，但与 JSON-RPC 在接口定义、序列化和工具链等方面有区别</td>
+</tr>
+</tbody>
+</table>
+<h2 id="5-json-rpc-与-rest-api-的区别">5. JSON-RPC 与 REST API 的区别</h2>
+<table>
+<thead>
+<tr>
+<th>对比维度</th>
+<th>JSON-RPC 风格</th>
+<th>REST 风格</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>主要表达方式</td>
+<td>调用某个方法</td>
+<td>访问或操作某个资源</td>
+</tr>
+<tr>
+<td>示例</td>
+<td><code>user.get</code>，参数为 <code>id=1</code></td>
+<td><code>GET /users/1</code></td>
+</tr>
+<tr>
+<td>常见关注点</td>
+<td>方法名、参数、调用结果</td>
+<td>资源路径、HTTP 方法、状态码等</td>
+</tr>
+<tr>
+<td>是否必须使用 HTTP</td>
+<td>否</td>
+<td>通常以 HTTP 为基础</td>
+</tr>
+</tbody>
+</table>
+<p>以上是典型风格的对比，不代表所有 API 都严格符合某一种模式。实际系统也可以在 HTTP 上承载 RPC 风格的 API。</p>
+<h2 id="6-在-agent-与-mcp-中的作用">6. 在 Agent 与 MCP 中的作用</h2>
+<p>以 MCP 为例，可以把各层职责理解为：</p>
+<pre><code class="language-text">Agent / MCP Client
+      │ 决定请求哪个 MCP 方法、传入什么参数
+      ▼
+JSON-RPC 消息结构
+      │ 表达 method、params、id，以及 result / error
+      ▼
+传输通道（例如 stdio 或 HTTP）
+      ▼
+MCP Server
+      │ 按 MCP 规范处理请求、执行操作
+      ▼
+返回 JSON-RPC 响应
+</code></pre>
+<p>例如，MCP 客户端可以通过 <code>tools/list</code> 请求工具列表，通过 <code>tools/call</code> 请求调用工具。</p>
+<p>这里有三个不同层次：</p>
+<ul>
+<li><strong>MCP</strong>：定义客户端与服务端可以进行哪些交互，以及交互的语义。</li>
+<li><strong>JSON-RPC</strong>：定义这些交互消息如何表达，以及请求与响应如何关联。</li>
+<li><strong>stdio / HTTP 等传输方式</strong>：负责实际传递消息。</li>
+</ul>
+<p>JSON-RPC 本身并不负责决定模型应该使用哪个工具，也不负责执行工具；这些逻辑属于 Agent、客户端实现或服务端程序。</p>
+<h2 id="7-常见误区">7. 常见误区</h2>
+<ol>
+<li><strong>JSON-RPC 不是 JSON 的别名。</strong> JSON 是数据格式，JSON-RPC 则是在 JSON 之上约定了一套远程调用消息结构。</li>
+<li><strong>JSON-RPC 不等于 HTTP。</strong> HTTP 可以传输 JSON-RPC 消息，但 JSON-RPC 也可通过其他通道传递。</li>
+<li><strong>JSON-RPC 不等于 MCP。</strong> JSON-RPC 是消息协议；MCP 在其基础上定义面向 AI 客户端和服务端的交互规范。</li>
+<li><strong><code>method</code> 不是工具执行代码本身。</strong> 它只是请求中标明要调用的方法；服务端需要根据该名称找到对应的处理逻辑。</li>
+<li><strong>有请求不一定有响应。</strong> JSON-RPC Notification 不带 <code>id</code>，发送方不等待 JSON-RPC 响应。</li>
+</ol>
+<h2 id="总结">总结</h2>
+<blockquote>
+<p><strong>JSON-RPC = 用 JSON 表达远程方法调用的消息协议。</strong></p>
+<p>记忆顺序：RPC 说明“远程调用”这个模式，JSON 提供数据格式，JSON-RPC 规定请求与响应怎么写，HTTP / WebSocket / stdio 负责传输，而 MCP、LSP 等协议会利用 JSON-RPC 来完成更具体的交互。</p>
+</blockquote>
+<h2 id="参考资料">参考资料</h2>
+<ul>
+<li><a href="https://www.jsonrpc.org/specification">JSON-RPC 2.0 官方规范</a></li>
+<li><a href="https://modelcontextprotocol.io/specification">Model Context Protocol 规范</a></li>
+<li><a href="https://microsoft.github.io/language-server-protocol/">Language Server Protocol 规范</a></li>
+</ul>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">知识领域</span><span class="chip">- Agent</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A2%86%E5%9F%9F/web/JSON-RPC-Obsidian.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../notes/domains/skill/skillkv-cache.html"><span class="dir">← 上一篇</span><span class="t">Skill 加载模式与 KV Cache 影响</span></a><a class="next" href="../../../notes/domains/web/agent-realtime-communication-sse-websocket.html"><span class="dir">下一篇 →</span><span class="t">Agent 实时通信：SSE、WebSocket 与 Agent Harness</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../index.html">首页</a>
+      <a href="../../../learn.html">课件</a>
+      <a href="../../../notes/index.html">笔记库</a>
+      <a href="../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../about.html">关于</a>
+      <a href="../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../js/main.js" defer></script>
+</body>
+</html>

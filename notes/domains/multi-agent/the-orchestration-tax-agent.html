@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Orchestration Tax：多 Agent 协作的编排税 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="原文：The Orchestration Tax — Addy Osmanihttps://addyosmani.com/blog/orchestration-tax/">
+<link rel="canonical" href="https://northadb.github.io/notes/domains/multi-agent/the-orchestration-tax-agent.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="The Orchestration Tax：多 Agent 协作的编排税 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="原文：The Orchestration Tax — Addy Osmanihttps://addyosmani.com/blog/orchestration-tax/">
+<meta property="og:url" content="https://northadb.github.io/notes/domains/multi-agent/the-orchestration-tax-agent.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="The Orchestration Tax：多 Agent 协作的编排税 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="原文：The Orchestration Tax — Addy Osmanihttps://addyosmani.com/blog/orchestration-tax/">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../feed.xml">
+<link rel="stylesheet" href="../../../css/style.css">
+<link rel="stylesheet" href="../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "The Orchestration Tax：多 Agent 协作的编排税", "description": "原文：The Orchestration Tax — Addy Osmanihttps://addyosmani.com/blog/orchestration-tax/", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/domains/multi-agent/the-orchestration-tax-agent.html"}
+</script>
+<script src="../../../notes/assets/mermaid-init.js" defer></script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../web-foundation/index.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../notes/index.html">笔记库</a></li><li><a href="../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../index.html">首页</a><span>/</span><a href="../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../notes/domains/index.html">知识领域</a></div>
+          <h1>The Orchestration Tax：多 Agent 协作的编排税</h1>
+          <p class="post-sub">原文：The Orchestration Tax — Addy Osmanihttps://addyosmani.com/blog/orchestration-tax/</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../notes/domains/index.html">知识领域</a></span><span class="sep"></span>
+            <span>阅读约 7 分钟</span><span class="sep"></span><span>更新于 2026-10-09</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p>原文：<a href="https://addyosmani.com/blog/orchestration-tax/">The Orchestration Tax — Addy Osmani</a></p>
+</blockquote>
+<h2 id="一核心观点">一、核心观点</h2>
+<p><strong>启动更多 Agent，不等于获得更多生产力。</strong> 多 Agent 并行执行可以加快代码生成，但审查、判断、协调和集成的速度并不一定同步提升。</p>
+<p><strong>Orchestration Tax（编排税）</strong> 指的是：当多个 Agent 并行工作时，人类为了理解它们的输出、判断结果是否正确、协调相互之间的修改，并将结果整合进项目而付出的额外认知成本。</p>
+<p>例如，同时启动 10 个编码 Agent，它们也许能更快地产生代码，但人仍然需要判断这些代码是否正确、是否相互冲突、是否符合项目架构，以及是否值得合并。</p>
+<blockquote>
+<p>核心问题不只是如何让 Agent 并行工作，还包括如何分配和保护人的注意力。</p>
+</blockquote>
+<h2 id="二编排税从哪里来">二、编排税从哪里来？</h2>
+<h3 id="1-生产代码容易并行验证闭环不容易扩展">1. 生产代码容易并行，验证闭环不容易扩展</h3>
+<table>
+<thead>
+<tr>
+<th>环节</th>
+<th>典型工作</th>
+<th>并行化特征</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>任务启动</td>
+<td>分配任务、提供提示词</td>
+<td>容易并行</td>
+</tr>
+<tr>
+<td>执行</td>
+<td>阅读代码、编写功能、补充测试</td>
+<td>在任务相互独立时容易并行</td>
+</tr>
+<tr>
+<td>验证</td>
+<td>检查正确性、覆盖范围和边界条件</td>
+<td>可自动化一部分，仍需判断</td>
+</tr>
+<tr>
+<td>架构决策</td>
+<td>处理跨模块约束、设计取舍</td>
+<td>通常需要整体上下文</td>
+</tr>
+<tr>
+<td>集成</td>
+<td>解决冲突、统一接口、回归测试</td>
+<td>受任务依赖关系影响</td>
+</tr>
+<tr>
+<td>最终负责</td>
+<td>确认质量、安全性和可交付性</td>
+<td>不能仅凭 Agent 自述完成</td>
+</tr>
+</tbody>
+</table>
+<p>如果 Agent 产生结果的速度超过审查和集成的速度，待处理队列就会不断累积。瓶颈会从“写代码”转移到“判断代码是否值得接受”。</p>
+<pre><code class="language-text">Agent A ──┐
+Agent B ──┤
+Agent C ──┼──&gt; 待审查、待决策、待集成的结果
+Agent D ──┤                       │
+Agent E ──┘                       ▼
+                           人类判断与整合
+                                  │
+                                  ▼
+                             可交付的软件
+</code></pre>
+<h3 id="2-人类注意力是有限的共享资源">2. 人类注意力是有限的共享资源</h3>
+<p>多个 Agent 可以同时运行，但多个任务一旦需要人类深度判断，就会竞争同一份注意力。人需要理解任务目标、已有实现、未解决问题、风险以及它与其他任务的关系。</p>
+<p>这可以类比为多 Agent 系统中的一个串行瓶颈：并行执行能力不断增加，但关键判断并不会自动同比扩容。</p>
+<h4 id="gil-类比">GIL 类比</h4>
+<p>CPython 的 GIL（全局解释器锁）可以作为一个类比：多个线程在某些执行场景中不能同时执行 Python 字节码。类似地，多个 Agent 虽能同时产出结果，但它们可能需要同一个人来完成关键判断。</p>
+<p>这只是架构类比，并不意味着人脑存在真正的“全局解释器锁”。</p>
+<h4 id="阿姆达尔定律amdahls-law">阿姆达尔定律（Amdahl's Law）</h4>
+<p>阿姆达尔定律说明：只要系统仍有必须串行执行的部分，增加并行执行单元所带来的整体加速就会受到限制。</p>
+<p>[
+S(N)=\frac{1}{s+\frac{1-s}{N}}
+]</p>
+<p>其中：</p>
+<ul>
+<li><code>N</code>：并行执行单元的数量。</li>
+<li><code>s</code>：必须串行执行的工作占比。</li>
+<li><code>S(N)</code>：理论加速比。</li>
+</ul>
+<p>映射到 Agent 工作流：代码编写可能并行，但架构取舍、复杂审查和最终验收仍可能成为串行环节。若这些环节成为瓶颈，继续增加 Agent 的边际收益就会下降。</p>
+<h3 id="3-上下文切换产生隐性成本">3. 上下文切换产生隐性成本</h3>
+<p>在不同 Agent 之间来回切换，需要反复重建对各个任务的理解：目标是什么、已经改了什么、当前状态如何、还有什么风险、是否影响其他模块。</p>
+<p>过多的切换可能带来：</p>
+<ul>
+<li>时间浪费在重新进入上下文，而非解决问题；</li>
+<li>认知疲劳，难以持续进行深度判断；</li>
+<li>审查变得浅层化，容易忽略边界条件或架构问题；</li>
+<li>开发者逐渐不了解系统的实际状态。</li>
+</ul>
+<p>最后一种问题可以称为<strong>认知债务（Cognitive Debt）</strong>：代码持续增加，但维护者对系统为什么这样实现、当前有哪些隐患的理解却在下降。</p>
+<h2 id="三应对编排税的策略">三、应对编排税的策略</h2>
+<h3 id="1-按照审查能力控制并发规模">1. 按照审查能力控制并发规模</h3>
+<p>不要只看工具允许启动多少个 Agent，而要考虑人和自动化流程能够处理多少结果。</p>
+<ul>
+<li>独立、低风险任务可以提高并行度。</li>
+<li>涉及安全、架构或共享模块的任务应谨慎增加并发。</li>
+<li>当待审查结果持续积压时，应限制新任务或降低生产速率。</li>
+</ul>
+<p>这与分布式系统的 <strong>Backpressure（反压）</strong> 思想一致：当下游处理能力不足时，上游应减速，避免队列无限增长。</p>
+<pre><code class="language-text">Agent 生成结果（生产者）
+          │
+          ▼
+      待审查队列
+          │
+          ▼
+审查、验证与决策（消费者）
+          │
+          ▼
+       合并与交付
+
+原则：生产速率应与下游可处理速率相匹配。
+</code></pre>
+<h3 id="2-区分可委派任务与判断密集型任务">2. 区分可委派任务与判断密集型任务</h3>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>典型任务</th>
+<th>建议</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>相对独立的任务</td>
+<td>文档生成、独立模块实现、明确范围的测试补充</td>
+<td>适合委派给后台 Agent 并行处理</td>
+</tr>
+<tr>
+<td>强依赖整体上下文的任务</td>
+<td>跨模块重构、复杂 Bug、架构设计、安全决策</td>
+<td>尽量集中精力处理，避免强行并行</td>
+</tr>
+</tbody>
+</table>
+<p>判断标准并非任务表面上是否复杂，而是它能否被拆分成边界清楚、依赖较少、结果可独立验证的工作单元。</p>
+<h3 id="3-批量审查减少频繁切换">3. 批量审查，减少频繁切换</h3>
+<p>与其每当一个 Agent 产生结果就立即切换过去，不如在适合的任务中让它们后台执行，再集中检查一批结果。</p>
+<pre><code class="language-text">启动多个独立任务
+       ↓
+Agent 后台执行
+       ↓
+汇总待审查结果
+       ↓
+集中查看差异、测试与实现摘要
+       ↓
+统一决策、修改与合并
+</code></pre>
+<p>批量审查的目标是减少低价值切换、保持思考连续性；但对高风险故障或安全问题，仍需要及时介入，不能为了批处理而延误必要的检查。</p>
+<h3 id="4-用自动化证据降低审查成本">4. 用自动化证据降低审查成本</h3>
+<p>让 Agent 不只报告“已完成”，还应提供便于独立核验的证据，例如：</p>
+<ul>
+<li>自动化测试及运行结果；</li>
+<li>类型检查、Lint 和构建结果；</li>
+<li>关键代码差异与实现摘要；</li>
+<li>UI 改动的截图或测试记录；</li>
+<li>未解决的问题、假设与风险。</li>
+</ul>
+<p>机器适合承担重复且可明确判定的检查，人则集中处理测试难以回答的问题，例如需求是否理解正确、设计是否合理、是否遗漏重要场景。</p>
+<p><strong>测试通过不等于实现必然正确。</strong> 自动化验证能降低审查成本，但不能完全替代对需求、架构和风险的判断。</p>
+<h3 id="5-保护连续的深度思考时间">5. 保护连续的深度思考时间</h3>
+<p>编排 Agent 本身不是最终目标，真正的目标是解决问题并交付可靠的软件。对于架构设计、疑难 Bug 或关键安全决策，暂停任务切换、集中思考，可能比继续启动 Agent 更有效。</p>
+<h2 id="四放到-agent-harness-架构中理解">四、放到 Agent Harness 架构中理解</h2>
+<p>从 Agent Harness Engineering 的角度看，不能只优化“如何调用 Agent”，还要设计任务、验证和人类审查之间的工作流。</p>
+<pre><code class="language-mermaid">flowchart TD
+    A[任务规划与拆分] --&gt; B{任务依赖与风险评估}
+    B --&gt;|独立、边界清楚| C[多个 Agent 并行执行]
+    B --&gt;|强耦合、判断密集| D[集中处理关键决策]
+    C --&gt; E[自动化验证与结果汇总]
+    D --&gt; E
+    E --&gt; F[人类审查与风险判断]
+    F --&gt; G{是否通过}
+    G --&gt;|否| H[返工、补充证据或调整方案]
+    H --&gt; E
+    G --&gt;|是| I[集成、回归测试与交付]
+</code></pre>
+<p>以下是从文章观点推导出的工程设计方向，并不表示原文逐项定义了这套架构：</p>
+<table>
+<thead>
+<tr>
+<th>Harness 机制</th>
+<th>目的</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>任务拆分与依赖管理</td>
+<td>避免把强耦合工作强行并行化</td>
+</tr>
+<tr>
+<td>并发限制与反压</td>
+<td>避免产出速度超过验证和集成速度</td>
+</tr>
+<tr>
+<td>自动化验证</td>
+<td>减少人工重复检查</td>
+</tr>
+<tr>
+<td>结果汇总</td>
+<td>降低切换多个 Agent 的上下文成本</td>
+</tr>
+<tr>
+<td>状态与证据记录</td>
+<td>让人快速理解进度、结果和失败原因</td>
+</tr>
+<tr>
+<td>风险分级与人工审批</td>
+<td>把有限的注意力用于高风险环节</td>
+</tr>
+</tbody>
+</table>
+<h3 id="一个实用的设计准则">一个实用的设计准则</h3>
+<p>可以把多 Agent 工作流看成一条流水线：</p>
+<p><strong>任务拆分 → 并行执行 → 自动验证 → 人类判断 → 集成与交付</strong></p>
+<p>每个环节都应有明确输入、输出和通过条件。特别是 Agent 交付给审查者的内容，应尽量包含变更摘要、验证证据和未解决风险，而不是仅给出自然语言的“任务已完成”。</p>
+<h2 id="五关键概念对照">五、关键概念对照</h2>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>含义</th>
+<th>与编排税的联系</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Orchestration Tax</td>
+<td>多 Agent 协作带来的额外协调与认知成本</td>
+<td>本文核心概念</td>
+</tr>
+<tr>
+<td>Amdahl's Law</td>
+<td>串行部分限制并行系统的整体加速</td>
+<td>解释增加 Agent 的收益为何有限</td>
+</tr>
+<tr>
+<td>GIL（类比）</td>
+<td>某些 Python 执行场景下的并发限制</td>
+<td>类比多个 Agent 争用人的判断能力</td>
+</tr>
+<tr>
+<td>Context Switching</td>
+<td>在不同任务间切换注意力</td>
+<td>导致时间和认知负担增加</td>
+</tr>
+<tr>
+<td>Cognitive Debt</td>
+<td>系统复杂度增加，而人对系统的理解下降</td>
+<td>过度委派和浅层审查的潜在后果</td>
+</tr>
+<tr>
+<td>Backpressure</td>
+<td>下游处理不过来时限制上游生产速率</td>
+<td>控制任务积压与并发规模</td>
+</tr>
+<tr>
+<td>Automated Verification</td>
+<td>用测试、构建和静态检查核验结果</td>
+<td>减少但不能消除人工审查成本</td>
+</tr>
+</tbody>
+</table>
+<h2 id="六结论与启示">六、结论与启示</h2>
+<ol>
+<li><strong>Agent 数量不是生产力指标。</strong> 运行中的任务越多，不代表可靠交付的软件越多。</li>
+<li><strong>并行执行必须匹配验证能力。</strong> 整体吞吐量受瓶颈环节限制，而不只取决于 Agent 的执行速度。</li>
+<li><strong>人的注意力也属于系统资源。</strong> 上下文切换、审查和关键决策都需要纳入工作流设计。</li>
+<li><strong>自动化应提供证据，而不只是状态。</strong> 测试结果、代码差异和风险摘要能够提高审查效率。</li>
+<li><strong>最终目标是可靠交付，而不是最大化并发。</strong> 好的 Harness 不仅让 Agent 产出更多结果，还要让这些结果能够被有效验证、理解和集成。</li>
+</ol>
+<h3 id="一句话总结">一句话总结</h3>
+<blockquote>
+<p>多 Agent 协作的关键，不是让尽可能多的 Agent 同时工作，而是提高每单位人类注意力能够验证、决策并交付的有效工作量。</p>
+</blockquote>
+<h2 id="延伸思考">延伸思考</h2>
+<ul>
+<li class="task"><span class="cb" aria-hidden="true"></span>当前工作流的真正瓶颈是代码生成，还是审查、验证与集成？</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>Agent 的交付结果是否包含可独立检查的验证证据？</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>哪些任务可以安全并行，哪些任务需要共享上下文与集中判断？</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>是否需要限制并发数，或在待审查队列积压时实施反压？</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>自动化是否能把人类审查从重复检查转向需求、架构和风险判断？</li>
+</ul>
+<hr>
+<h2 id="来源">来源</h2>
+<ul>
+<li>Addy Osmani, <a href="https://addyosmani.com/blog/orchestration-tax/">The Orchestration Tax</a></li>
+</ul>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">知识领域</span><span class="chip">- Agent</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A2%86%E5%9F%9F/multi-agent/The-Orchestration-Tax-%E5%A4%9A-Agent-%E7%BC%96%E6%8E%92%E7%A8%8E.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../notes/domains/multi-agent/a2arest-api-agent.html"><span class="dir">← 上一篇</span><span class="t">A2A 协议与 REST API：多 Agent 协作</span></a><a class="next" href="../../../notes/domains/nginx/nginx-adaptation.html"><span class="dir">下一篇 →</span><span class="t">基于 openHiTLS 的 nginx 1.29.6 适配与单端口国密/国际自适应研究文档</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../index.html">首页</a>
+      <a href="../../../learn.html">课件</a>
+      <a href="../../../notes/index.html">笔记库</a>
+      <a href="../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../about.html">关于</a>
+      <a href="../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../js/main.js" defer></script>
+</body>
+</html>

@@ -1884,7 +1884,7 @@
   {
     "title": "知识领域（领域/）",
     "url": "notes/domains/index.html",
-    "category": "笔记库 · 25 篇",
+    "category": "笔记库 · 44 篇",
     "excerpt": "跨项目的知识沉淀：Agent、RAG、Harness、记忆系统的概念笔记与技术选型，以及各条学习路线。",
     "type": "note",
     "featured": false,
@@ -1945,15 +1945,6 @@
     "keywords": "知识领域"
   },
   {
-    "title": "Agent 工程学习路线：从概念到成熟实现",
-    "url": "notes/domains/agent.html",
-    "category": "笔记库 · 知识领域",
-    "excerpt": "文档来源：整理自一份面试复盘笔记（原作者面完 Agent 岗位后总结的六步学习路线），并结合 2026 年 10 月为止的一手资料，逐一对照了四个成熟 Agent 实现在每个知识点上的真实做法： - cc = Claude Code（Ant…",
-    "type": "note",
-    "featured": false,
-    "keywords": "知识领域"
-  },
-  {
     "title": "AI Agent 智能体学习路线 2026",
     "url": "notes/domains/agent/aiagent2026.html",
     "category": "笔记库 · 知识领域",
@@ -1967,6 +1958,51 @@
     "url": "notes/domains/agent/agentagent.html",
     "category": "笔记库 · 知识领域",
     "excerpt": "Agent 的上下文压缩（Context Compression / Context Compaction）不是单一算法，而是一套由 Runtime、LLM、Provider 和 External Memory 共同参与的 Context …",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
+    "title": "Agent Eval：智能体评估体系、组成与主流框架",
+    "url": "notes/domains/agent/agent-eval.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "Agent Eval 不是某一个框架，而是一套用于验证 Agent 是否“正确、稳定、安全、高效”完成任务的工程体系。 核心组成： Dataset + Environment + Runner + Trace + Evaluator + M…",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
+    "title": "Agent 工程学习路线：从概念到成熟实现",
+    "url": "notes/domains/agent/agent.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "文档来源：整理自一份面试复盘笔记（原作者面完 Agent 岗位后总结的六步学习路线），并结合 2026 年 10 月为止的一手资料，逐一对照了四个成熟 Agent 实现在每个知识点上的真实做法： - cc = Claude Code（Ant…",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
+    "title": "JSON Schema 与 Agent Tool Calling",
+    "url": "notes/domains/agent/json-schemaagent-tool-calling.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "JSON Schema 是描述 JSON 数据结构与约束的规范，例如字段类型、必填项和数值范围。",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
+    "title": "把“判断”从语言里拆出来：System One 校准路由架构",
+    "url": "notes/domains/agent/system-one-obsidian.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "来源：Erfan.log《把“判断”从语言里拆出来：用 System One 做一套校准路由架构》 一句话概括： 不让通用 LLM 用自由文本承担所有判断，而是引入一个输出类型化决策、且置信度经过校准的轻量判断器，把“走哪条模型路径、要不要…",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
+    "title": "Agent 中的 JSON、JSON Schema 与结构化输出",
+    "url": "notes/domains/agent/agent-json-schema-structured-output.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "Agent 由概率性的 LLM 与确定性的程序组成。JSON 提供机器可解析的数据表示，JSON Schema 定义结构约束，Structured Output 是让模型按指定结构输出的能力，Constrained Decoding 则是在…",
     "type": "note",
     "featured": false,
     "keywords": "知识领域"
@@ -1990,6 +2026,15 @@
     "keywords": "知识领域"
   },
   {
+    "title": "AI Research Hub Demo：Spring Boot + Supabase + RAG + Agent 学习路线",
+    "url": "notes/domains/java/ai-research-hub-supabase-springboot.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "目标：从 0 构建一个“个人/团队 AI 知识库 + Agent”Demo，逐步演进出一套现代后端架构。 核心思想：先跑通最小闭环，再逐层增加 Redis / Kafka / Elasticsearch / Agent / Docker /…",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
     "title": "Git 常用命令指南",
     "url": "notes/domains/java/git.html",
     "category": "笔记库 · 知识领域",
@@ -2003,6 +2048,24 @@
     "url": "notes/domains/java/javaagent2026.html",
     "category": "笔记库 · 知识领域",
     "excerpt": "结合小红书两位博主（蒜了吧、We1L）的经验分享，以及 Vault 现有知识库，整理出这套 Java 后端 + Agent 双修学习路线。",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
+    "title": "Redis 与消息队列的关系及选型指南",
+    "url": "notes/domains/java/redis.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "Redis 和消息队列并非完全相同的技术类别，但它们在“消息传递与异步处理”功能上存在交集。",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
+    "title": "CLI、MCP 与 Pi 的设计取舍和协议演进",
+    "url": "notes/domains/mcp-cli/cli-mcp-pimcp.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "- CLI 与 MCP 不是非此即彼。 本地操作系统能力、成熟命令行工具通常优先 CLI；服务化、结构化、需要跨 Agent 复用的能力，更值得考虑 MCP。 - Pi 以前不内置 MCP，是一种极简化的产品取舍，而不是技术上不能支持。 P…",
     "type": "note",
     "featured": false,
     "keywords": "知识领域"
@@ -2035,6 +2098,15 @@
     "keywords": "知识领域"
   },
   {
+    "title": "Agent 记忆层的五层架构",
+    "url": "notes/domains/memory/agent.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "Agent 记忆不是简单地保存聊天记录，而是把当前上下文、历史经历、长期事实、可复用方法和记忆治理组织成一个完整系统。五层分别是：工作记忆、情景记忆、语义记忆、程序记忆和遗忘机制。",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
     "title": "Claude Code 记忆系统与 Agent 记忆架构",
     "url": "notes/domains/memory/claudecodeagent.html",
     "category": "笔记库 · 知识领域",
@@ -2053,6 +2125,24 @@
     "keywords": "知识领域"
   },
   {
+    "title": "A2A 协议与 REST API：多 Agent 协作",
+    "url": "notes/domains/multi-agent/a2arest-api-agent.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "REST API 主要解决“客户端如何调用服务”； A2A（Agent2Agent） 解决“Agent 之间如何发现、调用、跟踪并持续协作”。 A2A 的关键特征可以概括为：Async-first + Stateful Task。",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
+    "title": "The Orchestration Tax：多 Agent 协作的编排税",
+    "url": "notes/domains/multi-agent/the-orchestration-tax-agent.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "原文：The Orchestration Tax — Addy Osmanihttps://addyosmani.com/blog/orchestration-tax/",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
     "title": "基于 openHiTLS 的 nginx 1.29.6 适配与单端口国密/国际自适应研究文档",
     "url": "notes/domains/nginx/nginx-adaptation.html",
     "category": "笔记库 · 知识领域",
@@ -2066,6 +2156,51 @@
     "url": "notes/domains/nginx/nginx-notes.html",
     "category": "笔记库 · 知识领域",
     "excerpt": "本文记录《政变》联机版在云服务器上使用 Nginx 反向代理的完整配置、原理与排查方法。对应服务器：47.93.119.89（Ubuntu 24.04 + 宝塔面板，nginx 1.20.2，配置目录 /www/server/panel/v…",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
+    "title": "Personal Agent、Gateway 与 Harness：架构辨析",
+    "url": "notes/domains/pa/personal-agent-gateway-harness.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "- Personal Agent（PA）是产品方向：Agent 不只完成一次性任务，而是长期围绕一个人的目标、偏好、数据和应用工作。 - Gateway 是接入与控制层：统一处理请求入口、连接、身份、路由和事件交付。 - Harness 是…",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
+    "title": "Grok Bot：工程团队与多 Agent 协作模式整理",
+    "url": "notes/domains/pa/grok-bot-research-summary.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "核心判断：Grok Bot 的重点不是让一个模型回答得更好，而是把持续运行的 Agent、专职 Bot、云端电脑、外部工具和结果审核组织成一支可以持续推进工作的虚拟团队。",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
+    "title": "Pi Agent 封装方式全景梳理",
+    "url": "notes/domains/pi/pi-agent.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "开发自己的 Agent，可以把 Pi 当作完整的 Agent 应用来嵌入，也可以将它作为独立进程调用，或者只复用底层组件、自己搭建 Harness。 SDK、RPC、Server/Client、插件扩展和底层包复用并不是同一层级、互斥的选项…",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
+    "title": "Pi Durable：面向长期运行 Agent 的持久化 Harness",
+    "url": "notes/domains/pi/pi-durable.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "Pi Durable 不是单纯增强 Pi Coding Agent，而是把 Agent 的运行、状态与任务管理抽象成可持久化的 Harness Runtime。 它希望 Agent 在进程重启后能够恢复，支持多个 Conversation …",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
+    "title": "Agentic RAG：架构设计与落地实践",
+    "url": "notes/domains/rag/agentic-rag.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "Agentic RAG 不是某个特定的软件包，而是一种让 Agent 参与检索决策、检索过程可以动态调整的架构模式。 一条实用路线是：先把普通 RAG 封装成独立 Retrieval Service，再增加负责问题分析、检索规划、证据评估和…",
     "type": "note",
     "featured": false,
     "keywords": "知识领域"
@@ -2143,10 +2278,46 @@
     "keywords": "知识领域"
   },
   {
+    "title": "JSON-RPC 是什么",
+    "url": "notes/domains/web/json-rpc-obsidian.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "JSON-RPC 是一种远程过程调用（RPC）协议，规定通信双方如何用 JSON 表达方法调用、参数、响应结果和错误。",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
+    "title": "Agent 实时通信：SSE、WebSocket 与 Agent Harness",
+    "url": "notes/domains/web/agent-realtime-communication-sse-websocket.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "核心结论：Agent 不应该先问“要不要 WebSocket”，而应该先拆分通信职责：命令、流式输出、实时控制、状态同步。 一个常见且实用的默认架构是： HTTP POST 负责命令，SSE 负责服务器到客户端的流式事件，WebSocket…",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
     "title": "Python vs TypeScript：AI 时代的编程语言之争",
     "url": "notes/domains/p0d98c7/pythonvstypescriptai.html",
     "category": "笔记库 · 知识领域",
     "excerpt": "调研时间：2026-06-07 ~ 2026-07-07 数据来源：Reddit、Hacker News、GitHub、Stack Overflow 2026 调查、The New Stack、KDnuggets、Brookings、Log…",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
+    "title": "JSON、JSONL、JSONB 的区别与选型",
+    "url": "notes/domains/p68051b/json-jsonl-jsonb.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "JSON、JSONL、JSONB 有联系，但不属于完全相同的层级：",
+    "type": "note",
+    "featured": false,
+    "keywords": "知识领域"
+  },
+  {
+    "title": "Docker、Volume 与 PostgreSQL 数据迁移",
+    "url": "notes/domains/p68051b/docker-postgres-migration-volume-obsidian.html",
+    "category": "笔记库 · 知识领域",
+    "excerpt": "理解数据库迁移时，要区分三件事：运行环境、数据文件、数据库结构。",
     "type": "note",
     "featured": false,
     "keywords": "知识领域"

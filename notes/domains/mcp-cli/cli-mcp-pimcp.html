@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CLI、MCP 与 Pi 的设计取舍和协议演进 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="- CLI 与 MCP 不是非此即彼。 本地操作系统能力、成熟命令行工具通常优先 CLI；服务化、结构化、需要跨 Agent 复用的能力，更值得考虑 MCP。 - Pi 以前不内置 MCP，是一种极简化的产品取舍，而不是技术上不能支持。 P…">
+<link rel="canonical" href="https://northadb.github.io/notes/domains/mcp-cli/cli-mcp-pimcp.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="CLI、MCP 与 Pi 的设计取舍和协议演进 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="- CLI 与 MCP 不是非此即彼。 本地操作系统能力、成熟命令行工具通常优先 CLI；服务化、结构化、需要跨 Agent 复用的能力，更值得考虑 MCP。 - Pi 以前不内置 MCP，是一种极简化的产品取舍，而不是技术上不能支持。 P…">
+<meta property="og:url" content="https://northadb.github.io/notes/domains/mcp-cli/cli-mcp-pimcp.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="CLI、MCP 与 Pi 的设计取舍和协议演进 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="- CLI 与 MCP 不是非此即彼。 本地操作系统能力、成熟命令行工具通常优先 CLI；服务化、结构化、需要跨 Agent 复用的能力，更值得考虑 MCP。 - Pi 以前不内置 MCP，是一种极简化的产品取舍，而不是技术上不能支持。 P…">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../feed.xml">
+<link rel="stylesheet" href="../../../css/style.css">
+<link rel="stylesheet" href="../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "CLI、MCP 与 Pi 的设计取舍和协议演进", "description": "- CLI 与 MCP 不是非此即彼。 本地操作系统能力、成熟命令行工具通常优先 CLI；服务化、结构化、需要跨 Agent 复用的能力，更值得考虑 MCP。 - Pi 以前不内置 MCP，是一种极简化的产品取舍，而不是技术上不能支持。 P…", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/domains/mcp-cli/cli-mcp-pimcp.html"}
+</script>
+<script src="../../../notes/assets/mermaid-init.js" defer></script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../web-foundation/index.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../notes/index.html">笔记库</a></li><li><a href="../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../index.html">首页</a><span>/</span><a href="../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../notes/domains/index.html">知识领域</a></div>
+          <h1>CLI、MCP 与 Pi 的设计取舍和协议演进</h1>
+          <p class="post-sub">- CLI 与 MCP 不是非此即彼。 本地操作系统能力、成熟命令行工具通常优先 CLI；服务化、结构化、需要跨 Agent 复用的能力，更值得考虑 MCP。 - Pi 以前不内置 MCP，是一种极简化的产品取舍，而不是技术上不能支持。 P…</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../notes/domains/index.html">知识领域</a></span><span class="sep"></span>
+            <span>阅读约 15 分钟</span><span class="sep"></span><span>更新于 2026-10-11</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+
+<div class="callout" data-callout="abstract"><p class="callout-title">核心结论</p>
+<ul>
+<li><strong>CLI 与 MCP 不是非此即彼。</strong> 本地操作系统能力、成熟命令行工具通常优先 CLI；服务化、结构化、需要跨 Agent 复用的能力，更值得考虑 MCP。</li>
+<li><strong>Pi 以前不内置 MCP，是一种极简化的产品取舍，而不是技术上不能支持。</strong> Pi 曾建议用 CLI、README/Skills 或扩展实现外部能力。</li>
+<li><strong>Pi 在 0.99.0（2026-09-29）中加入内置 MCP、Tool Search 和 Codemode。</strong> 它并没有因此放弃极简理念，而是通过工具暴露策略和按需发现管理 MCP 的成本。</li>
+<li><strong>MCP 的 2026-07-28 规范更新与 Pi 新增 MCP 支持是两件相关但不能直接画等号的事。</strong> 新规范着重于协议层无状态化、路由、缓存、交互和认证；Pi 的更新着重于客户端如何接入和管理工具。</li>
+</ul>
+</div>
+<h2 id="1-cli-与-mcp用途和区别">1. CLI 与 MCP：用途和区别</h2>
+<h3 id="11-两者的基本模型">1.1 两者的基本模型</h3>
+<pre><code class="language-mermaid">flowchart TD
+    A[Agent Harness] --&gt; B[Shell / CLI]
+    A --&gt; C[MCP Client]
+    B --&gt; D[本地命令和程序]
+    D --&gt; D1[git / rg / python]
+    D --&gt; D2[docker / kubectl / psql]
+    C --&gt; E[MCP Server]
+    E --&gt; F[外部 API / SaaS / 内部业务系统]
+    E --&gt; G[数据库 / 知识库 / 业务工具]
+</code></pre>
+<ul>
+<li><strong>CLI（Command-Line Interface）</strong>：以命令、参数、标准输入输出为主要接口。Agent 通过 Shell 调用命令，例如 <code>git status</code>、<code>rg "TODO" .</code>、<code>python test.py</code>。</li>
+<li><strong>MCP（Model Context Protocol）</strong>：用于让 AI 应用以标准化协议发现并调用外部工具、读取资源或使用提示模板。MCP Client 与 MCP Server 按协议交换结构化消息。</li>
+</ul>
+<p>可以简化为：</p>
+<ul>
+<li>CLI 更像<strong>命令式操作入口</strong>。</li>
+<li>MCP 更像<strong>标准化的工具/服务接口</strong>。</li>
+</ul>
+<p>这只是帮助理解的心智模型，不意味着 CLI 只能本地使用，也不意味着 MCP 只能远程使用。MCP Server 可以通过 <code>stdio</code> 运行，也可以通过 Streamable HTTP 提供远程服务。</p>
+<h3 id="12-为什么能用-cli-就用-cli有道理">1.2 为什么“能用 CLI 就用 CLI”有道理</h3>
+<ol>
+<li><strong>已有成熟工具</strong>：Git、ripgrep、Docker、Python、npm、kubectl 等本来就有 CLI，通常不需要再封装一次。</li>
+<li><strong>组合能力强</strong>：Shell 可以用管道、重定向和脚本组合多条命令，例如：</li>
+</ol>
+<p><code>bash
+   rg "error" logs/ | jq '.message' | sort | uniq</code></p>
+<ol start="3">
+<li><strong>接入成本低</strong>：如果 Harness 已有可靠的 Shell 工具，模型只需生成命令；再建设一套 MCP Server 可能增加开发、部署和维护成本。</li>
+<li><strong>适合 Coding Agent 的主要工作面</strong>：读取文件、搜索代码、运行测试、Git 操作、构建项目等天然属于命令行生态。</li>
+</ol>
+<p>但 CLI 也有代价：模型需要理解各命令各自的参数、输出格式和错误语义；对复杂 API 的认证、分页、重试、权限控制等也可能要由脚本自行处理。</p>
+<h3 id="13-mcp-的价值是什么">1.3 MCP 的价值是什么</h3>
+<p>MCP 的核心价值不是“让 Agent 第一次拥有工具调用能力”——CLI 本身也能让 Agent 调程序；它的价值主要是<strong>标准化不同服务的能力接入方式</strong>。</p>
+<ul>
+<li><strong>结构化调用</strong>：工具有名称、描述和参数 Schema，参数不是任意拼接的一整条 Shell 字符串。</li>
+<li><strong>服务封装</strong>：将复杂 API 封装为 <code>search_issues()</code>、<code>create_ticket()</code>、<code>query_customer()</code> 等工具。</li>
+<li><strong>跨客户端复用</strong>：同一个 MCP Server 可以被多个兼容的 MCP Client 接入，减少每种客户端各自实现集成的工作。</li>
+<li><strong>协议化通信</strong>：可通过 <code>stdio</code> 或 Streamable HTTP 传输；远程部署时可结合认证、网关、审计和运维设施。</li>
+</ul>
+<p>MCP 并不会自动保证工具设计合理、权限安全或返回值精简。这些仍然需要 Server 和 Harness 共同处理。</p>
+<h3 id="14-快速决策表">1.4 快速决策表</h3>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>通常优先考虑</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>文件读写、搜索、Git、测试、构建</td>
+<td>CLI / 原生工具</td>
+<td>已经有成熟接口，组合方便</td>
+</tr>
+<tr>
+<td>Docker、kubectl、ffmpeg 等命令行工具</td>
+<td>CLI</td>
+<td>直接调用现成能力通常最简单</td>
+</tr>
+<tr>
+<td>已有成熟、可靠的服务端 CLI（如 <code>gh</code>）</td>
+<td>CLI</td>
+<td>无须重复造一层集成</td>
+</tr>
+<tr>
+<td>公司内部业务 API、知识库、工单系统</td>
+<td>MCP 或专用原生工具</td>
+<td>可以把复杂 API 封装成结构化工具</td>
+</tr>
+<tr>
+<td>多种 Agent 共享相同外部能力</td>
+<td>MCP</td>
+<td>有利于复用同一个 Server 实现</td>
+</tr>
+<tr>
+<td>需要 OAuth、统一认证、服务端权限或审计</td>
+<td>MCP 值得考虑</td>
+<td>可以在服务接口处集中实现，但不是协议自动附赠的完整安全方案</td>
+</tr>
+<tr>
+<td>已经存在高质量 MCP Server，但没有好用 CLI</td>
+<td>MCP</td>
+<td>直接复用生态能力</td>
+</tr>
+</tbody>
+</table>
+
+<div class="callout" data-callout="tip"><p class="callout-title">实用原则</p>
+<p><strong>本地、命令行原生能力优先 CLI；服务化、结构化、跨 Agent 复用能力优先评估 MCP。</strong> 如果一种能力已有稳定 CLI，通常不必为了“使用 MCP”而强行封装。两者可以在同一个 Harness 内共存。</p>
+</div>
+<h2 id="2-pi-为什么从不内置-mcp转向支持-mcp">2. Pi 为什么从“不内置 MCP”转向支持 MCP？</h2>
+<h3 id="21-早期-pi-的设计取舍">2.1 早期 Pi 的设计取舍</h3>
+<p>Pi 曾明确采用 <strong>“No MCP”</strong> 的产品哲学：核心尽量精简，外部能力优先通过 CLI + README/Skills，或者使用扩展来补充，而不是默认将 MCP 作为核心工具接入层。</p>
+<p>这一取舍背后的工程考量可以归纳为：</p>
+<ul>
+<li>很多开发任务已经可以通过 Shell、CLI 和文件系统工具完成。</li>
+<li>每个 MCP Server 可能带来大量工具定义，包括名称、说明和参数 Schema，增加模型上下文负担与工具选择成本。</li>
+<li>新增协议接入层也会带来 Server 配置、连接生命周期、认证、兼容性和故障处理等维护成本。</li>
+<li>Pi 希望核心能力保持简单，同时允许用户通过扩展定制工作流。</li>
+</ul>
+<p>其中，“CLI 足够覆盖很多 coding 场景”和“避免过多工具注入”是对这套设计的合理解释；不能把每一点都视为 Pi 团队对外公布的唯一决策原因。</p>
+<h3 id="22-转折点pi-0990">2.2 转折点：Pi 0.99.0</h3>
+<p>Pi 官方发布记录显示，<strong>Pi 0.99.0 于 2026-09-29 发布</strong>，新增内置 MCP、Codemode 和 Tool Search 支持，包括：</p>
+<ul>
+<li>通过 <code>mcp.json</code> 或扩展注册 MCP Server。</li>
+<li>支持 <code>stdio</code> 和 Streamable HTTP MCP Server，并支持 OAuth。</li>
+<li>使用 <code>/mcp</code> 管理会话中的 MCP 工具，使用 <code>pi mcp add/list/login/...</code> 等命令管理服务配置。</li>
+<li>将 MCP、Codemode、Tool Search 作为可配置的内置扩展，而不是要求每个场景都必须使用它们。</li>
+</ul>
+<p>这说明 Pi 的选择从“默认不内置 MCP”转向“提供内置的 MCP 支持，但允许使用者按需启用和控制工具暴露”。</p>
+<h3 id="23-pi-如何控制-mcp-的上下文和工具管理成本">2.3 Pi 如何控制 MCP 的上下文和工具管理成本</h3>
+<p>Pi 的设计重点不只是连接 MCP Server，而是<strong>决定工具以什么方式呈现给模型</strong>。</p>
+<table>
+<thead>
+<tr>
+<th>Exposure 模式</th>
+<th>模型如何使用</th>
+<th>适合场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>direct</code></td>
+<td>工具直接出现在模型的可用工具列表中</td>
+<td>工具少、常用、希望直接调用</td>
+</tr>
+<tr>
+<td><code>deferred</code></td>
+<td>工具先不全部声明；模型通过 Tool Search 搜索后再加载</td>
+<td>工具很多、需要按需发现</td>
+</tr>
+<tr>
+<td><code>codemode</code></td>
+<td>工具可由 Codemode 脚本间接调用，不必逐个直接暴露给模型</td>
+<td>需要组合、并行调用、筛选和聚合结果</td>
+</tr>
+<tr>
+<td><code>hidden</code></td>
+<td>工具注册但不对模型开放调用</td>
+<td>有意禁用或限制某些工具</td>
+</tr>
+</tbody>
+</table>
+<p>具体机制和可用模式可能随着 Pi 版本演化，应以当前官方文档为准。</p>
+<h4 id="tool-search按需发现">Tool Search：按需发现</h4>
+<p>传统做法可能是把一个 MCP Server 的几十或几百个工具定义都暴露给模型。Tool Search 则允许模型先搜索工具目录，再把匹配的工具加载到可用工具集合中。</p>
+<pre><code class="language-mermaid">flowchart TD
+    A[大量 MCP Tools] --&gt; B[工具目录 / 搜索]
+    B --&gt; C[模型按任务搜索]
+    C --&gt; D[仅加载相关工具]
+    D --&gt; E[执行 Tool Call]
+</code></pre>
+<h4 id="codemode让代码组合工具">Codemode：让代码组合工具</h4>
+<p>Codemode 允许模型编写 JavaScript，在受控执行环境中调用 Pi 的工具。例如，脚本可以并行调用多个 MCP 工具、过滤结果、提取字段，最后只把必要信息返回模型。</p>
+<pre><code class="language-mermaid">flowchart TD
+    A[LLM] --&gt; B[生成 JavaScript]
+    B --&gt; C[Codemode 执行环境]
+    C --&gt; D[MCP Tool A]
+    C --&gt; E[MCP Tool B]
+    C --&gt; F[MCP Tool C]
+    D --&gt; G[脚本筛选 / 聚合结果]
+    E --&gt; G
+    F --&gt; G
+    G --&gt; H[精简结果返回 LLM]
+</code></pre>
+<p>它能减少“每次工具调用的原始结果都直接进入模型上下文”的情况，也能把多个工具调用的编排逻辑放进脚本中。不过这不意味着 Codemode 永远比直接调用更合适：简单且高频的工具仍可能适合 <code>direct</code>；脚本执行本身也需要安全边界、权限和错误处理。</p>
+<h3 id="24-pi-的理念改变了吗">2.4 Pi 的理念改变了吗？</h3>
+<p>更准确的理解不是“Pi 以前反对 MCP、现在认为 MCP 万能”，而是：</p>
+<blockquote>
+<p><strong>Pi 从“不在核心内置 MCP”，转向“可以原生接入 MCP，但通过暴露策略、Tool Search 和 Codemode 控制复杂度”。</strong></p>
+</blockquote>
+<ul>
+<li>CLI 仍然是本地开发和操作系统能力的重要入口。</li>
+<li>MCP 让 Pi 可以接入更多标准化的外部服务。</li>
+<li>Tool Search 和 Codemode 管理的是模型怎样发现、使用和组合这些工具。</li>
+<li>通过内置扩展、配置和禁用选项，使用者不必在每个场景都启用全部机制。</li>
+</ul>
+<p>这是一种从“减少能力种类”走向“提供能力，但有选择地暴露和加载”的设计方向。</p>
+<h2 id="3-mcp-规范演进2026-07-28-更新">3. MCP 规范演进：2026-07-28 更新</h2>
+<h3 id="31-时间背景">3.1 时间背景</h3>
+<p>本笔记以 2026-10-11 为整理时间。MCP 在 <strong>2026-07-28</strong> 发布了规范版本 <code>2026-07-28</code>，其上一正式规范版本为 <code>2025-11-25</code>。官方将这次更新描述为重要的协议架构升级，主要方向包括无状态协议核心、多轮请求、基于 HTTP Header 的路由、缓存、安全加固和扩展机制。</p>
+<h3 id="32-最大变化协议级会话与初始化握手被移除">3.2 最大变化：协议级会话与初始化握手被移除</h3>
+<p>旧版本典型流程：</p>
+<pre><code class="language-mermaid">sequenceDiagram
+    participant C as MCP Client
+    participant S as MCP Server
+    C-&gt;&gt;S: initialize
+    S--&gt;&gt;C: 初始化结果 + Mcp-Session-Id
+    C-&gt;&gt;S: notifications/initialized
+    C-&gt;&gt;S: tools/list（携带会话信息）
+    C-&gt;&gt;S: tools/call（携带会话信息）
+</code></pre>
+<p>新版思路：</p>
+<pre><code class="language-mermaid">sequenceDiagram
+    participant C as MCP Client
+    participant LB as Load Balancer
+    participant A as Server A
+    participant B as Server B
+    C-&gt;&gt;LB: 自描述的 MCP 请求
+    LB-&gt;&gt;A: 请求 1
+    A--&gt;&gt;C: 结果 1
+    C-&gt;&gt;LB: 自描述的 MCP 请求
+    LB-&gt;&gt;B: 请求 2
+    B--&gt;&gt;C: 结果 2
+</code></pre>
+<p>主要变化：</p>
+<ul>
+<li>移除 <code>initialize</code> / <code>notifications/initialized</code> 握手流程。</li>
+<li>移除 Streamable HTTP 的 <code>Mcp-Session-Id</code> 协议级会话机制。</li>
+<li>请求携带协议版本、客户端能力等必要的元数据。</li>
+<li>新增 <code>server/discover</code>，客户端可以在需要时提前查询服务端支持的版本、能力和身份；但通常不必先建立会话才能开始请求。</li>
+<li>工具、资源和提示列表不再因为不同连接会话而变化。</li>
+</ul>
+<p><strong>为什么重要？</strong> 旧模型可能要求负载均衡器将客户端固定路由到持有会话状态的 Server 实例，或者需要共享会话存储。取消协议级会话后，普通请求更容易分配给任意服务实例，便于水平扩展。</p>
+
+<div class="callout" data-callout="warning"><p class="callout-title">无状态不等于业务没有状态</p>
+<p>如果工具需要跨调用保留浏览器实例、购物车、任务进度或工作流数据，服务端仍然可以有业务状态。新版鼓励使用显式句柄，例如 <code>browser_id</code>、<code>task_id</code>，由工具返回并由后续调用把它作为普通参数传回，而不是将状态隐藏在传输层的会话 ID 中。</p>
+</div>
+<h3 id="33-mrtr多轮请求交互">3.3 MRTR：多轮请求交互</h3>
+<p><strong>MRTR（Multi Round-Trip Requests）</strong> 用新的请求/响应轮次来处理服务端需要额外输入的场景，替代一些原本由服务端通过双向通道发起的请求，例如用户确认、补充参数等。</p>
+<pre><code class="language-mermaid">sequenceDiagram
+    participant C as Client / Harness
+    participant S as MCP Server
+    C-&gt;&gt;S: tools/call（初始请求）
+    S--&gt;&gt;C: resultType=input_required + inputRequests
+    C-&gt;&gt;C: 向用户收集输入 / 获得确认
+    C-&gt;&gt;S: 重试原请求 + inputResponses
+    S--&gt;&gt;C: resultType=complete + 最终结果
+</code></pre>
+<p>它的意义是：即使不依赖持久的双向会话，服务端也能表达“这项操作还缺少信息”。客户端负责收集信息，并在重试原请求时附上回答。</p>
+<h3 id="34-http-header-路由">3.4 HTTP Header 路由</h3>
+<p>新版 Streamable HTTP 的 POST 请求增加了标准请求头：</p>
+<ul>
+<li><code>Mcp-Method</code>：标识 MCP 方法，例如 <code>tools/call</code>。</li>
+<li><code>Mcp-Name</code>：在相应请求中标识工具等目标名称。</li>
+</ul>
+<p>这使 API Gateway 更容易根据方法或工具名实施路由、授权、限流和审计，而不必先解析 JSON-RPC 请求体的全部内容。规范还支持通过 <code>x-mcp-header</code> 将工具参数映射到自定义 HTTP Header。</p>
+<p>示意：</p>
+<pre><code class="language-http">POST /mcp HTTP/1.1
+MCP-Protocol-Version: 2026-07-28
+Mcp-Method: tools/call
+Mcp-Name: search
+Content-Type: application/json
+</code></pre>
+<p>这是协议和网关基础设施更好衔接的一步，不意味着所有网关策略只靠请求头就能安全实现；仍然要验证身份、参数和具体权限。</p>
+<h3 id="35-工具目录和资源结果缓存">3.5 工具目录和资源结果缓存</h3>
+<p>新版在若干列表或资源结果中使用 <code>ttlMs</code> 与 <code>cacheScope</code> 等缓存提示，并建议工具列表返回确定性顺序。</p>
+<ul>
+<li><code>ttlMs</code>：结果可被视为新鲜数据的时间提示，单位为毫秒。</li>
+<li><code>cacheScope</code>：如 <code>public</code> 或 <code>private</code>，用于界定共享中间层是否可以缓存。</li>
+<li><code>tools/list</code> 等结果使用稳定顺序，可提高客户端缓存命中率，并帮助维持 LLM Prompt Cache 的稳定前缀。</li>
+</ul>
+<p>要区分两个层面：</p>
+<ol>
+<li><strong>协议结果缓存</strong>减少重复请求和数据获取。</li>
+<li><strong>Tool Search / 延迟加载</strong>减少模型需要看到的工具定义数量。</li>
+</ol>
+<p>前者不自动解决后者；对大型工具集而言，两类策略可以配合使用。</p>
+<h3 id="36-tasks-被移到正式扩展">3.6 Tasks 被移到正式扩展</h3>
+<p>长期运行任务有时需要持续几十秒、几分钟甚至更久。新版将实验性的 Tasks 从核心协议中移到正式扩展 <code>io.modelcontextprotocol/tasks</code>，并调整了交互方式，包括通过 <code>tasks/get</code> 轮询任务状态、通过 <code>tasks/update</code> 提供客户端输入等。</p>
+<p>这意味着：</p>
+<ul>
+<li>普通 MCP 工具调用与长任务生命周期不必完全采用同一种阻塞式请求模型。</li>
+<li>Tasks 是扩展能力，不应假设所有 MCP Server 都一定实现它。</li>
+<li>任务状态应由服务端明确管理，而不是依赖被移除的协议级会话。</li>
+</ul>
+<h3 id="37-oauth-与安全机制调整">3.7 OAuth 与安全机制调整</h3>
+<p>重点变化包括：</p>
+<ul>
+<li>强化授权服务器 <code>iss</code> 参数验证，以缓解授权服务器混淆问题。</li>
+<li>凭据与签发它们的授权服务器绑定，不能跨授权服务器复用。</li>
+<li>Dynamic Client Registration（DCR）正式弃用，未来转向 Client ID Metadata Documents（CIMD）；DCR 仍保留一段时间用于向后兼容。</li>
+<li>新版采用明确的规范弃用政策，为实现者提供迁移窗口。</li>
+</ul>
+<p>这并不代表“用了 MCP 就自动安全”。Server 仍需要进行最小权限设计、输入验证、凭据保护、用户确认、审计和危险操作控制。</p>
+<h3 id="38-其他需要留意的变更">3.8 其他需要留意的变更</h3>
+<p>新版还有一些协议清理和调整：</p>
+<ul>
+<li>引入更正式的扩展机制，核心协议可保持精简，额外能力以扩展形式提供。</li>
+<li>用 <code>subscriptions/listen</code> 等新机制调整订阅和变更通知模型。</li>
+<li>删除或调整一些旧的 RPC、通知和日志控制方式。</li>
+<li>旧式 HTTP+SSE 传输被正式弃用，鼓励使用 Streamable HTTP。</li>
+<li>Roots、Sampling 和 Logging 等旧能力也进入弃用路径；迁移时应查阅具体规范，不要只凭旧教程实现新客户端。</li>
+</ul>
+<h2 id="4-这次-mcp-更新与-pi-的变化是什么关系">4. 这次 MCP 更新与 Pi 的变化是什么关系？</h2>
+<p>两件事时间接近，但属于不同层次，不能直接认定 Pi 是因为新版 MCP 规范才加入支持。</p>
+<pre><code class="language-mermaid">flowchart TD
+    A[MCP 协议演进] --&gt; B[连接、会话、认证、路由、缓存与任务机制]
+    C[Pi 的产品演进] --&gt; D[内置 MCP Client]
+    C --&gt; E[Tool Search / Codemode]
+    C --&gt; F[工具 Exposure 管理]
+    B -.提供标准化通信基础.-&gt; D
+    E --&gt; G[管理工具发现和上下文开销]
+    F --&gt; G
+</code></pre>
+<ul>
+<li><strong>MCP 规范层</strong>回答：客户端和服务端如何通信、如何发现能力、如何认证、如何交换结果。</li>
+<li><strong>Pi / Agent Harness 层</strong>回答：哪些工具需要对模型可见、如何延迟加载、如何组合调用，以及如何控制结果进入上下文的规模。</li>
+</ul>
+<p>Pi 官方 0.99.0 发布记录明确说明加入了 MCP 支持，但单凭这一点不能断言该版本完整实现了 <code>2026-07-28</code> 规范。做协议兼容性判断时，应单独查阅 Pi 版本文档和对应 SDK 的支持说明。</p>
+<h2 id="5-设计自己的-agent-harness-时可以怎么借鉴">5. 设计自己的 Agent Harness 时，可以怎么借鉴？</h2>
+<p>可以把工具系统分为三层：</p>
+<pre><code class="language-mermaid">flowchart TB
+    A[Agent Harness] --&gt; B[Tool Registry / Capability Catalog]
+    B --&gt; C[本地命令能力：CLI / Shell]
+    B --&gt; D[标准服务能力：MCP Client]
+    B --&gt; E[内建原生工具：read / edit / search 等]
+    B --&gt; F[搜索与暴露策略]
+    F --&gt; G[Direct：直接暴露]
+    F --&gt; H[Deferred：按需加载]
+    F --&gt; I[Codemode：由脚本编排]
+    G --&gt; J[Tool Execution]
+    H --&gt; J
+    I --&gt; J
+    C --&gt; J
+    D --&gt; J
+    E --&gt; J
+</code></pre>
+<p>设计时优先回答这些问题：</p>
+<ol>
+<li><strong>工具从哪里来？</strong> 本地 CLI、内建工具、MCP Server，还是其他服务。</li>
+<li><strong>模型什么时候看见工具？</strong> 全量注入、延迟加载，还是通过搜索发现。</li>
+<li><strong>调用由谁编排？</strong> 模型逐次 Tool Call，还是脚本/工作流在一次调用中组合多个工具。</li>
+<li><strong>权限在哪里检查？</strong> Harness、MCP Server、外部业务 API，最好形成分层且明确的授权边界。</li>
+<li><strong>如何处理工具输出？</strong> 是否需要筛选、摘要、结构化返回，避免大结果无差别进入上下文。</li>
+<li><strong>如何兼容协议演进？</strong> 清楚支持的 MCP 版本、传输方式、扩展、认证与降级策略。</li>
+</ol>
+
+<div class="callout" data-callout="important"><p class="callout-title">关键判断</p>
+<p>Agent Harness 的核心挑战不是单纯“怎么调用工具”，而是管理不断增长的工具集合：<strong>发现、暴露、选择、授权、执行、编排、结果裁剪与可观测性</strong>。MCP 解决标准化接入的一部分问题，CLI 负责命令行生态，两者都需要 Harness 做统一管理。</p>
+</div>
+<h2 id="6-术语速查">6. 术语速查</h2>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CLI</td>
+<td>命令行接口，通常通过 Shell 执行程序并读写标准输入输出</td>
+</tr>
+<tr>
+<td>MCP Client</td>
+<td>将 MCP 协议接入到 AI 应用/Harness 的客户端部分</td>
+</tr>
+<tr>
+<td>MCP Server</td>
+<td>以 MCP 协议暴露工具、资源或提示等能力的服务端程序</td>
+</tr>
+<tr>
+<td>stdio</td>
+<td>MCP Client 与本地 MCP Server 通过标准输入输出通信的传输方式</td>
+</tr>
+<tr>
+<td>Streamable HTTP</td>
+<td>用 HTTP 进行 MCP 请求/响应通信的传输方式</td>
+</tr>
+<tr>
+<td>Tool Schema</td>
+<td>工具的名称、描述和参数结构定义</td>
+</tr>
+<tr>
+<td>Tool Search / Deferred Loading</td>
+<td>先搜索，再将相关工具声明加载给模型的策略</td>
+</tr>
+<tr>
+<td>Codemode</td>
+<td>让模型编写脚本，由受控执行环境组合调用工具并处理结果的模式</td>
+</tr>
+<tr>
+<td>Exposure</td>
+<td>决定工具直接暴露、延迟加载、仅供脚本调用或隐藏的策略</td>
+</tr>
+<tr>
+<td>Stateless protocol</td>
+<td>协议本身不要求服务端维持协议级会话状态；不代表业务不能保存状态</td>
+</tr>
+<tr>
+<td>MRTR</td>
+<td>Multi Round-Trip Requests；通过多轮请求/响应完成中途需要额外输入的交互</td>
+</tr>
+<tr>
+<td>Tasks extension</td>
+<td>MCP 中面向长时间运行任务生命周期的扩展能力</td>
+</tr>
+</tbody>
+</table>
+<h2 id="7-官方资料">7. 官方资料</h2>
+<blockquote>
+<p>以下链接用于进一步查阅；协议细节和客户端支持状态会随版本变化。</p>
+</blockquote>
+<h3 id="mcp">MCP</h3>
+<ul>
+<li><a href="https://blog.modelcontextprotocol.io/posts/2026-07-28/">MCP 2026-07-28 官方发布说明</a></li>
+<li><a href="https://github.com/modelcontextprotocol/modelcontextprotocol/blob/main/docs/specification/2026-07-28/changelog.mdx">MCP 2026-07-28 规范变更记录</a></li>
+<li><a href="https://github.com/modelcontextprotocol/modelcontextprotocol/tree/main/docs/specification/2026-07-28">MCP 2026-07-28 规范正文</a></li>
+</ul>
+<h3 id="pi">Pi</h3>
+<ul>
+<li><a href="https://pi.dev/changelog/releases/0.99.0">Pi 0.99.0 发布记录：加入内置 MCP、Codemode、Tool Search</a></li>
+<li><a href="https://pi.dev/docs/latest/mcp">Pi MCP Servers 文档</a></li>
+<li><a href="https://pi.dev/docs/latest/codemode">Pi Codemode 文档</a></li>
+<li><a href="https://pi.dev/changelog">Pi Changelog</a></li>
+</ul>
+<hr>
+<h2 id="一句话总结">一句话总结</h2>
+<p><strong>CLI 是命令行生态的高效接口，MCP 是 Agent 与外部服务之间的标准化接口；Pi 的变化是开始内置 MCP，同时用 Tool Search、Exposure 和 Codemode 管理工具复杂度；MCP 2026-07-28 的重点则是让协议更无状态、可路由、可缓存、可扩展，并强化认证与长期任务支持。</strong></p>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">知识领域</span><span class="chip">- AI-Agent</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A2%86%E5%9F%9F/mcp-cli/CLI_MCP_Pi%E4%B8%8EMCP%E5%8D%8F%E8%AE%AE%E6%BC%94%E8%BF%9B.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../notes/domains/java/redis.html"><span class="dir">← 上一篇</span><span class="t">Redis 与消息队列的关系及选型指南</span></a><a class="next" href="../../../notes/domains/mcp-cli/function-calling-mcp-cli-obsidian-note.html"><span class="dir">下一篇 →</span><span class="t">Function Calling、MCP 与 CLI：Agent 工具调用的区别与联系</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../index.html">首页</a>
+      <a href="../../../learn.html">课件</a>
+      <a href="../../../notes/index.html">笔记库</a>
+      <a href="../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../about.html">关于</a>
+      <a href="../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../js/main.js" defer></script>
+</body>
+</html>

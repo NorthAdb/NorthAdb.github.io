@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Research Hub Demo：Spring Boot + Supabase + RAG + Agent 学习路线 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="目标：从 0 构建一个“个人/团队 AI 知识库 + Agent”Demo，逐步演进出一套现代后端架构。 核心思想：先跑通最小闭环，再逐层增加 Redis / Kafka / Elasticsearch / Agent / Docker /…">
+<link rel="canonical" href="https://northadb.github.io/notes/domains/java/ai-research-hub-supabase-springboot.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="AI Research Hub Demo：Spring Boot + Supabase + RAG + Agent 学习路线 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="目标：从 0 构建一个“个人/团队 AI 知识库 + Agent”Demo，逐步演进出一套现代后端架构。 核心思想：先跑通最小闭环，再逐层增加 Redis / Kafka / Elasticsearch / Agent / Docker /…">
+<meta property="og:url" content="https://northadb.github.io/notes/domains/java/ai-research-hub-supabase-springboot.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="AI Research Hub Demo：Spring Boot + Supabase + RAG + Agent 学习路线 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="目标：从 0 构建一个“个人/团队 AI 知识库 + Agent”Demo，逐步演进出一套现代后端架构。 核心思想：先跑通最小闭环，再逐层增加 Redis / Kafka / Elasticsearch / Agent / Docker /…">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../feed.xml">
+<link rel="stylesheet" href="../../../css/style.css">
+<link rel="stylesheet" href="../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "AI Research Hub Demo：Spring Boot + Supabase + RAG + Agent 学习路线", "description": "目标：从 0 构建一个“个人/团队 AI 知识库 + Agent”Demo，逐步演进出一套现代后端架构。 核心思想：先跑通最小闭环，再逐层增加 Redis / Kafka / Elasticsearch / Agent / Docker /…", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/domains/java/ai-research-hub-supabase-springboot.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../web-foundation/index.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../notes/index.html">笔记库</a></li><li><a href="../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../index.html">首页</a><span>/</span><a href="../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../notes/domains/index.html">知识领域</a></div>
+          <h1>AI Research Hub Demo：Spring Boot + Supabase + RAG + Agent 学习路线</h1>
+          <p class="post-sub">目标：从 0 构建一个“个人/团队 AI 知识库 + Agent”Demo，逐步演进出一套现代后端架构。 核心思想：先跑通最小闭环，再逐层增加 Redis / Kafka / Elasticsearch / Agent / Docker /…</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../notes/domains/index.html">知识领域</a></span><span class="sep"></span>
+            <span>阅读约 10 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p>目标：从 0 构建一个“个人/团队 AI 知识库 + Agent”Demo，逐步演进出一套现代后端架构。</p>
+<p>核心思想：<strong>先跑通最小闭环，再逐层增加 Redis / Kafka / Elasticsearch / Agent / Docker / CI/CD / Monitoring。</strong></p>
+<p>本文既是学习路线，也是可以直接交给 Coding Agent 执行的项目规格。</p>
+</blockquote>
+<hr>
+<h1 id="1-项目定位">1. 项目定位</h1>
+<h2 id="11-项目名称">1.1 项目名称</h2>
+<p><strong>AI Research Hub</strong></p>
+<p>一个支持以下能力的知识库应用：</p>
+<ul>
+<li>用户注册 / 登录</li>
+<li>创建知识库</li>
+<li>上传 PDF / Markdown</li>
+<li>文档解析与切分</li>
+<li>Embedding</li>
+<li>PostgreSQL + pgvector 向量检索</li>
+<li>BM25 / Hybrid Search</li>
+<li>Reranker</li>
+<li>RAG 问答</li>
+<li>文档引用（Citation）</li>
+<li>Agentic RAG</li>
+<li>异步文档处理</li>
+<li>缓存、搜索、消息队列</li>
+<li>Docker 本地开发</li>
+<li>CI/CD</li>
+<li>Monitoring</li>
+</ul>
+<hr>
+<h1 id="2-最终目标架构">2. 最终目标架构</h1>
+<pre><code class="language-text">                                ┌──────────────────────┐
+                                │        用户          │
+                                └──────────┬───────────┘
+                                           │
+                              HTTPS / WebSocket
+                                           │
+                                ┌──────────▼──────────┐
+                                │ Next.js / React     │
+                                │ Web Frontend        │
+                                └──────────┬──────────┘
+                                           │
+                             ┌─────────────┴─────────────┐
+                             │                           │
+                             ▼                           ▼
+                      Supabase Auth               Spring Boot API
+                      登录 / OAuth                  业务后端
+                                                         │
+                           ┌─────────────────────────────┼────────────────┐
+                           │                             │                │
+                           ▼                             ▼                ▼
+                         Redis                         Kafka       Elasticsearch
+                     缓存 / Session                异步任务 / 事件     全文搜索
+                           │                             │
+                           │                             ▼
+                           │                          Worker
+                           │                    解析 / Chunk / Embedding
+                           │
+                           ▼
+                  ┌────────────────────────────┐
+                  │ Supabase                   │
+                  │                            │
+                  │ PostgreSQL                 │
+                  │ + pgvector                 │
+                  │ Auth                       │
+                  │ Storage                    │
+                  │ Realtime                   │
+                  │ RLS                        │
+                  └──────────────┬─────────────┘
+                                 │
+                                 ▼
+                      ┌─────────────────────┐
+                      │ AI Pipeline         │
+                      │ Embedding            │
+                      │ Reranker             │
+                      │ LLM                  │
+                      │ Agent                │
+                      └─────────┬───────────┘
+                                │
+                       ┌────────┼─────────┐
+                       ▼        ▼         ▼
+                    OpenAI   Claude   DeepSeek
+</code></pre>
+<hr>
+<h1 id="3-技术栈">3. 技术栈</h1>
+<h2 id="前端">前端</h2>
+<ul>
+<li>Next.js</li>
+<li>React</li>
+<li>TypeScript</li>
+<li>Tailwind CSS（可选）</li>
+<li>Supabase JS Client</li>
+</ul>
+<h2 id="后端">后端</h2>
+<ul>
+<li>Java</li>
+<li>Spring Boot</li>
+<li>Spring Web</li>
+<li>Spring Validation</li>
+<li>Spring Security</li>
+<li>Spring Data JPA</li>
+<li>PostgreSQL JDBC</li>
+</ul>
+<h2 id="数据">数据</h2>
+<ul>
+<li>Supabase PostgreSQL</li>
+<li>pgvector</li>
+<li>JSONB</li>
+<li>HNSW</li>
+<li>PostgreSQL Full Text Search</li>
+<li>Elasticsearch（后期加入）</li>
+</ul>
+<h2 id="基础设施">基础设施</h2>
+<ul>
+<li>Redis</li>
+<li>Kafka</li>
+<li>Docker / Docker Compose</li>
+<li>Nginx</li>
+</ul>
+<h2 id="ai">AI</h2>
+<ul>
+<li>Embedding API</li>
+<li>Reranker API</li>
+<li>LLM API</li>
+<li>Agent Tool Calling</li>
+</ul>
+<h2 id="工程化">工程化</h2>
+<ul>
+<li>Git / GitHub</li>
+<li>GitHub Actions</li>
+<li>Prometheus</li>
+<li>Grafana</li>
+<li>Spring Boot Actuator</li>
+</ul>
+<hr>
+<h1 id="4-非目标第一版不要做">4. 非目标（第一版不要做）</h1>
+<p>为了避免 Coding Agent 过度设计，第一版明确不做：</p>
+<ul>
+<li>微服务拆分</li>
+<li>Kubernetes</li>
+<li>Service Mesh</li>
+<li>多 Region</li>
+<li>复杂 RBAC</li>
+<li>分布式事务</li>
+<li>自建向量模型</li>
+<li>自建 LLM</li>
+<li>多租户企业级权限体系</li>
+<li>高可用 Kafka 集群</li>
+<li>高可用 Elasticsearch 集群</li>
+</ul>
+<p>第一目标永远是：</p>
+<blockquote>
+<p><strong>一个开发者可以在本地和 Supabase 云环境中跑通完整 Demo。</strong></p>
+</blockquote>
+<hr>
+<h1 id="5-项目演进路线">5. 项目演进路线</h1>
+<pre><code class="language-text">V0  Next.js + Supabase
+        ↓
+V1  + Spring Boot
+        ↓
+V2  + pgvector + 基础 RAG
+        ↓
+V3  + BM25 + Hybrid Search + Reranker
+        ↓
+V4  + Redis
+        ↓
+V5  + Kafka + Worker
+        ↓
+V6  + Supabase Realtime
+        ↓
+V7  + Elasticsearch
+        ↓
+V8  + Agentic RAG
+        ↓
+V9  + Docker + CI/CD
+        ↓
+V10 + Monitoring / Observability
+</code></pre>
+<hr>
+<h1 id="6-phase-0项目骨架">6. Phase 0：项目骨架</h1>
+<h2 id="目标">目标</h2>
+<p>先让三个模块跑起来：</p>
+<pre><code class="language-text">frontend/
+backend/
+infra/
+</code></pre>
+<p>推荐结构：</p>
+<pre><code class="language-text">ai-research-hub/
+├── frontend/
+│   ├── app/
+│   ├── components/
+│   ├── lib/
+│   └── package.json
+│
+├── backend/
+│   ├── src/main/java/.../
+│   ├── src/main/resources/
+│   └── pom.xml
+│
+├── infra/
+│   ├── docker-compose.yml
+│   └── nginx/
+│
+├── docs/
+│   └── architecture.md
+│
+└── README.md
+</code></pre>
+<h2 id="验收标准">验收标准</h2>
+<ul>
+<li>Next.js 能启动</li>
+<li>Spring Boot 能启动</li>
+<li><code>/api/health</code> 返回 <code>{"status":"ok"}</code></li>
+<li>前后端可以正常通信</li>
+<li>README 能说明启动方法</li>
+</ul>
+<hr>
+<h1 id="7-phase-1supabase-基础能力">7. Phase 1：Supabase 基础能力</h1>
+<h2 id="目标_1">目标</h2>
+<p>先不做复杂业务，让 Supabase 工作起来。</p>
+<h2 id="创建">创建</h2>
+<ul>
+<li>Supabase Project</li>
+<li>PostgreSQL</li>
+<li>Auth</li>
+<li>Storage</li>
+</ul>
+<h2 id="数据表">数据表</h2>
+<h3 id="users">users</h3>
+<pre><code class="language-text">id
+created_at
+display_name
+</code></pre>
+<blockquote>
+<p>实际项目可以使用 Supabase Auth 的 user id 作为外键。</p>
+</blockquote>
+<h3 id="knowledgebases">knowledge_bases</h3>
+<pre><code class="language-text">id
+owner_id
+name
+description
+created_at
+updated_at
+</code></pre>
+<h3 id="documents">documents</h3>
+<pre><code class="language-text">id
+knowledge_base_id
+title
+filename
+storage_path
+mime_type
+status
+created_at
+updated_at
+</code></pre>
+<h3 id="documentchunks">document_chunks</h3>
+<pre><code class="language-text">id
+document_id
+chunk_index
+content
+metadata JSONB
+embedding vector(...)
+created_at
+</code></pre>
+<h3 id="chatsessions">chat_sessions</h3>
+<pre><code class="language-text">id
+user_id
+knowledge_base_id
+title
+created_at
+</code></pre>
+<h3 id="messages">messages</h3>
+<pre><code class="language-text">id
+session_id
+role
+content
+created_at
+</code></pre>
+<h2 id="关键数据库能力">关键数据库能力</h2>
+<p>必须实践：</p>
+<ul>
+<li>外键</li>
+<li>JSONB</li>
+<li>Index</li>
+<li>pgvector extension</li>
+<li>HNSW index</li>
+<li>RLS</li>
+</ul>
+<hr>
+<h1 id="8-phase-2auth">8. Phase 2：Auth</h1>
+<h2 id="用户流程">用户流程</h2>
+<pre><code class="language-text">用户
+ ↓
+Next.js
+ ↓
+Supabase Auth
+ ↓
+JWT
+ ↓
+Spring Boot
+ ↓
+识别 user_id
+</code></pre>
+<h2 id="第一版支持">第一版支持</h2>
+<ul>
+<li>Email / Password</li>
+<li>OAuth（可以后加）</li>
+</ul>
+<h2 id="spring-boot-要求">Spring Boot 要求</h2>
+<p>实现：</p>
+<ul>
+<li>JWT 校验</li>
+<li>当前用户解析</li>
+<li>用户级数据隔离</li>
+</ul>
+<h2 id="验收">验收</h2>
+<p>用户 A：</p>
+<pre><code class="language-text">GET /api/knowledge-bases
+</code></pre>
+<p>只能得到自己的知识库。</p>
+<hr>
+<h1 id="9-phase-3spring-boot-业务层">9. Phase 3：Spring Boot 业务层</h1>
+<h2 id="领域划分">领域划分</h2>
+<pre><code class="language-text">backend/
+└── domain/
+    ├── auth/
+    ├── knowledge/
+    ├── document/
+    ├── search/
+    ├── chat/
+    └── agent/
+</code></pre>
+<h2 id="第一批-api">第一批 API</h2>
+<h3 id="knowledge-base">Knowledge Base</h3>
+<pre><code class="language-http">POST   /api/knowledge-bases
+GET    /api/knowledge-bases
+GET    /api/knowledge-bases/{id}
+DELETE /api/knowledge-bases/{id}
+</code></pre>
+<h3 id="document">Document</h3>
+<pre><code class="language-http">POST   /api/documents
+GET    /api/documents
+GET    /api/documents/{id}
+DELETE /api/documents/{id}
+</code></pre>
+<h3 id="search">Search</h3>
+<pre><code class="language-http">POST /api/search
+</code></pre>
+<h3 id="chat">Chat</h3>
+<pre><code class="language-http">POST /api/chat
+</code></pre>
+<hr>
+<h1 id="10-phase-4文件上传">10. Phase 4：文件上传</h1>
+<h2 id="推荐流程">推荐流程</h2>
+<pre><code class="language-text">Next.js
+   │
+   ▼
+Supabase Storage
+   │
+   ▼
+文件上传完成
+   │
+   ▼
+Spring Boot
+   │
+   ▼
+documents.status = UPLOADED
+</code></pre>
+<p>数据库只保存 metadata：</p>
+<pre><code class="language-text">filename
+storage_path
+mime_type
+size
+status
+</code></pre>
+<p>不要把大型 PDF 二进制直接存 PostgreSQL。</p>
+<hr>
+<h1 id="11-phase-5基础-rag">11. Phase 5：基础 RAG</h1>
+<p>这是第一个真正的 AI 核心阶段。</p>
+<h2 id="ingestion-pipeline">Ingestion Pipeline</h2>
+<pre><code class="language-text">PDF / Markdown
+       ↓
+Parser
+       ↓
+Clean Text
+       ↓
+Chunking
+       ↓
+Embedding
+       ↓
+document_chunks
+       ↓
+pgvector
+</code></pre>
+<h2 id="query-pipeline">Query Pipeline</h2>
+<pre><code class="language-text">用户问题
+   ↓
+Query Embedding
+   ↓
+Vector Search
+   ↓
+Top K Chunks
+   ↓
+Prompt Builder
+   ↓
+LLM
+   ↓
+回答 + Citation
+</code></pre>
+<hr>
+<h1 id="12-chunking-最低要求">12. Chunking 最低要求</h1>
+<p>第一版支持：</p>
+<ul>
+<li>固定 Token / 字符长度</li>
+<li>overlap</li>
+<li>metadata</li>
+</ul>
+<p>例如：</p>
+<pre><code class="language-json">{
+  &quot;source&quot;: &quot;paper.pdf&quot;,
+  &quot;page&quot;: 3,
+  &quot;section&quot;: &quot;Introduction&quot;
+}
+</code></pre>
+<p>推荐默认：</p>
+<pre><code class="language-text">chunk_size = 500 ~ 1000 tokens
+overlap = 50 ~ 150 tokens
+top_k = 5 ~ 10
+</code></pre>
+<p>实际参数不要硬编码在业务逻辑中，统一配置。</p>
+<hr>
+<h1 id="13-phase-6hybrid-search">13. Phase 6：Hybrid Search</h1>
+<p>从纯向量检索升级为：</p>
+<pre><code class="language-text">                     Query
+                       │
+              ┌────────┴────────┐
+              ▼                 ▼
+         Vector Search       BM25
+         pgvector            PostgreSQL
+              │                 │
+              └────────┬────────┘
+                       ▼
+                      RRF
+                       ▼
+                    Top 30
+                       ▼
+                   Reranker
+                       ▼
+                     Top 5
+                       ▼
+                      LLM
+</code></pre>
+<h2 id="第一版可以使用">第一版可以使用</h2>
+<ul>
+<li>dense retrieval：pgvector</li>
+<li>sparse retrieval：PostgreSQL FTS</li>
+<li>fusion：RRF</li>
+<li>reranker：Cross Encoder / API</li>
+</ul>
+<h2 id="需要记录">需要记录</h2>
+<p>每次搜索保存：</p>
+<pre><code class="language-text">query
+dense_results
+sparse_results
+fused_results
+reranked_results
+latency
+</code></pre>
+<p>这些数据后面可以用于评估。</p>
+<hr>
+<h1 id="14-phase-7redis">14. Phase 7：Redis</h1>
+<p>当以下问题出现时加入 Redis：</p>
+<ul>
+<li>高频重复查询</li>
+<li>LLM 成本较高</li>
+<li>Session / 临时状态</li>
+<li>Rate Limit</li>
+</ul>
+<p>第一版只做：</p>
+<h3 id="query-cache">Query Cache</h3>
+<pre><code class="language-text">query
+ ↓
+normalize
+ ↓
+Redis GET
+ ├── HIT → return
+ └── MISS
+       ↓
+      RAG
+       ↓
+    Redis SET
+</code></pre>
+<p>不要一开始让 Redis 承担所有状态。</p>
+<hr>
+<h1 id="15-phase-8kafka-异步-worker">15. Phase 8：Kafka + 异步 Worker</h1>
+<p>文档处理不应该长期阻塞 HTTP 请求。</p>
+<h2 id="改造前">改造前</h2>
+<pre><code class="language-text">POST /documents
+      ↓
+parse
+      ↓
+chunk
+      ↓
+embedding
+      ↓
+index
+      ↓
+HTTP response
+</code></pre>
+<h2 id="改造后">改造后</h2>
+<pre><code class="language-text">POST /documents
+      ↓
+Storage
+      ↓
+Kafka
+      ↓
+document.process
+      ↓
+Worker
+ ├── Parser
+ ├── Chunker
+ ├── Embedding
+ └── Indexer
+      ↓
+PostgreSQL
+</code></pre>
+<h2 id="状态">状态</h2>
+<pre><code class="language-text">UPLOADED
+   ↓
+PROCESSING
+   ↓
+INDEXED
+</code></pre>
+<p>失败：</p>
+<pre><code class="language-text">PROCESSING
+   ↓
+FAILED
+</code></pre>
+<p>可以增加：</p>
+<pre><code class="language-text">retry_count
+error_message
+</code></pre>
+<hr>
+<h1 id="16-phase-9realtime">16. Phase 9：Realtime</h1>
+<p>利用 Supabase Realtime 做前端进度更新。</p>
+<pre><code class="language-text">Worker
+   ↓
+documents.status
+   ↓
+Supabase Realtime
+   ↓
+Next.js
+   ↓
+UI
+</code></pre>
+<p>前端显示：</p>
+<pre><code class="language-text">上传完成
+↓
+正在解析
+↓
+正在切分
+↓
+正在生成 Embedding
+↓
+索引完成
+</code></pre>
+<p>这样可以同时实践：</p>
+<ul>
+<li>异步任务</li>
+<li>DB 状态机</li>
+<li>Realtime</li>
+<li>前端状态管理</li>
+</ul>
+<hr>
+<h1 id="17-phase-10elasticsearch">17. Phase 10：Elasticsearch</h1>
+<p>此时再引入 Elasticsearch。</p>
+<h2 id="为什么">为什么</h2>
+<p>PostgreSQL：</p>
+<ul>
+<li>业务主数据</li>
+<li>事务</li>
+<li>pgvector</li>
+<li>基础全文搜索</li>
+</ul>
+<p>Elasticsearch：</p>
+<ul>
+<li>复杂全文搜索</li>
+<li>Search-as-you-type</li>
+<li>高亮</li>
+<li>Facet / Aggregation</li>
+<li>日志分析（后续）</li>
+</ul>
+<h2 id="架构">架构</h2>
+<pre><code class="language-text">                  Search Service
+                       │
+              ┌────────┴────────┐
+              ▼                 ▼
+         PostgreSQL        Elasticsearch
+         业务 / vector     full-text / BM25
+</code></pre>
+<p>注意：</p>
+<blockquote>
+<p>Elasticsearch 不替代 PostgreSQL。</p>
+</blockquote>
+<p>PostgreSQL 仍然是主要业务数据源。</p>
+<hr>
+<h1 id="18-phase-11agentic-rag">18. Phase 11：Agentic RAG</h1>
+<p>此时开始做 Agent。</p>
+<h2 id="tools">Tools</h2>
+<p>第一版提供：</p>
+<pre><code class="language-text">search_knowledge_base
+get_document
+get_document_chunk
+list_documents
+summarize_document
+</code></pre>
+<h2 id="agent-loop">Agent Loop</h2>
+<pre><code class="language-text">User
+ ↓
+LLM
+ ↓
+判断是否需要 Tool
+ ├── No → Final Answer
+ │
+ └── Yes
+       ↓
+   Tool Call
+       ↓
+   Tool Result
+       ↓
+   LLM 再推理
+       ↓
+   ...
+       ↓
+ Final Answer
+</code></pre>
+<h2 id="示例任务">示例任务</h2>
+<pre><code class="language-text">比较“PQC TLS”相关的 5 篇论文，
+指出它们对证书、KEM、握手开销的不同观点。
+</code></pre>
+<p>Agent：</p>
+<pre><code class="language-text">1. 搜索关键词
+2. 找到候选论文
+3. 读取相关 chunk
+4. 判断信息是否足够
+5. 补充检索
+6. 综合
+7. 输出带 citation 的结果
+</code></pre>
+<hr>
+<h1 id="19-agent-设计原则">19. Agent 设计原则</h1>
+<p>不要一开始做“万能 Agent”。</p>
+<p>第一版只做：</p>
+<pre><code class="language-text">Research Agent
+</code></pre>
+<p>工具数量控制在：</p>
+<pre><code class="language-text">5 个以内
+</code></pre>
+<p>并要求记录：</p>
+<pre><code class="language-text">agent_run
+ ├── run_id
+ ├── user_id
+ ├── input
+ ├── steps
+ ├── tool_calls
+ ├── final_answer
+ ├── token_usage
+ └── latency
+</code></pre>
+<p>这部分后面可以用于研究：</p>
+<ul>
+<li>Agent Loop</li>
+<li>Memory</li>
+<li>Tool Calling</li>
+<li>Context Management</li>
+<li>Compaction</li>
+<li>Evaluation</li>
+</ul>
+<hr>
+<h1 id="20-phase-12docker-compose">20. Phase 12：Docker Compose</h1>
+<p>本地运行：</p>
+<pre><code class="language-text">docker compose up
+</code></pre>
+<p>建议包含：</p>
+<pre><code class="language-yaml">services:
+  backend:
+    # Spring Boot
+
+  worker:
+    # Document Worker
+
+  redis:
+    # Redis
+
+  kafka:
+    # Kafka
+
+  elasticsearch:
+    # Elasticsearch
+
+  nginx:
+    # API Gateway / Reverse Proxy
+</code></pre>
+<p>Supabase 可以继续使用云端开发项目。</p>
+<hr>
+<h1 id="21-phase-13nginx-api-gateway">21. Phase 13：Nginx / API Gateway</h1>
+<p>统一入口：</p>
+<pre><code class="language-text">Client
+  ↓
+Nginx
+  ├── /api/* → Spring Boot
+  └── /*     → Next.js
+</code></pre>
+<p>以后可以增加：</p>
+<ul>
+<li>Rate Limit</li>
+<li>CORS</li>
+<li>TLS termination</li>
+<li>Header control</li>
+<li>Request logging</li>
+</ul>
+<hr>
+<h1 id="22-phase-14cicd">22. Phase 14：CI/CD</h1>
+<p>GitHub：</p>
+<pre><code class="language-text">push
+ ↓
+GitHub Actions
+ ↓
+Lint
+ ↓
+Unit Test
+ ↓
+Build
+ ↓
+Docker Build
+ ↓
+Deploy
+</code></pre>
+<p>最低要求：</p>
+<h3 id="backend">Backend</h3>
+<pre><code class="language-text">mvn test
+mvn package
+</code></pre>
+<h3 id="frontend">Frontend</h3>
+<pre><code class="language-text">npm run lint
+npm run build
+</code></pre>
+<hr>
+<h1 id="23-phase-15observability">23. Phase 15：Observability</h1>
+<p>Spring Boot：</p>
+<ul>
+<li>Actuator</li>
+<li>Micrometer</li>
+</ul>
+<p>Prometheus：</p>
+<pre><code class="language-text">metrics
+ ↓
+Prometheus
+ ↓
+Grafana
+</code></pre>
+<p>重点监控：</p>
+<pre><code class="language-text">HTTP QPS
+HTTP latency
+HTTP error rate
+
+RAG latency
+Embedding latency
+LLM latency
+
+Kafka consumer lag
+Redis hit rate
+Postgres slow query
+
+JVM memory
+JVM GC
+CPU
+</code></pre>
+<hr>
+<h1 id="24-最终数据库设计">24. 最终数据库设计</h1>
+<p>建议最终保留：</p>
+<pre><code class="language-text">users
+knowledge_bases
+documents
+document_chunks
+chat_sessions
+messages
+agent_runs
+agent_steps
+search_logs
+</code></pre>
+<p>关键关系：</p>
+<pre><code class="language-text">users
+  │
+  ├── knowledge_bases
+  │       │
+  │       └── documents
+  │               │
+  │               └── document_chunks
+  │
+  └── chat_sessions
+          │
+          └── messages
+
+agent_runs
+   │
+   └── agent_steps
+</code></pre>
+<hr>
+<h1 id="25-最终服务边界">25. 最终服务边界</h1>
+<p>不要过早拆微服务，但逻辑上保持模块化：</p>
+<pre><code class="language-text">Spring Boot
+│
+├── Auth Module
+├── Knowledge Module
+├── Document Module
+├── Search Module
+├── Chat Module
+├── Agent Module
+└── Infrastructure Module
+</code></pre>
+<p>只有在真正出现独立扩展需求时，再考虑拆成：</p>
+<pre><code class="language-text">API Service
+Document Worker
+AI Service
+Search Service
+</code></pre>
+<hr>
+<h1 id="26-推荐的实际开发顺序">26. 推荐的实际开发顺序</h1>
+<h2 id="sprint-1mvp">Sprint 1：MVP</h2>
+<pre><code class="language-text">[ ] 创建 GitHub Repo
+[ ] 创建 Next.js
+[ ] 创建 Spring Boot
+[ ] 创建 Supabase
+[ ] PostgreSQL Schema
+[ ] Auth
+[ ] Knowledge Base CRUD
+[ ] Document CRUD
+</code></pre>
+<h2 id="sprint-2rag">Sprint 2：RAG</h2>
+<pre><code class="language-text">[ ] Storage Upload
+[ ] PDF Parser
+[ ] Chunking
+[ ] Embedding
+[ ] pgvector
+[ ] Vector Search
+[ ] RAG Chat
+[ ] Citation
+</code></pre>
+<h2 id="sprint-3search">Sprint 3：Search</h2>
+<pre><code class="language-text">[ ] PostgreSQL FTS
+[ ] BM25
+[ ] Hybrid Search
+[ ] RRF
+[ ] Reranker
+[ ] Search Evaluation
+</code></pre>
+<h2 id="sprint-4异步化">Sprint 4：异步化</h2>
+<pre><code class="language-text">[ ] Redis
+[ ] Kafka
+[ ] Worker
+[ ] Processing State Machine
+[ ] Realtime Progress
+</code></pre>
+<h2 id="sprint-5agent">Sprint 5：Agent</h2>
+<pre><code class="language-text">[ ] Tool abstraction
+[ ] Agent Loop
+[ ] Research Agent
+[ ] Agent Run Log
+[ ] Citation
+[ ] Error Recovery
+</code></pre>
+<h2 id="sprint-6工程化">Sprint 6：工程化</h2>
+<pre><code class="language-text">[ ] Elasticsearch
+[ ] Docker Compose
+[ ] Nginx
+[ ] CI/CD
+[ ] Prometheus
+[ ] Grafana
+[ ] API Documentation
+</code></pre>
+<hr>
+<h1 id="27-coding-agent-实现时的约束">27. Coding Agent 实现时的约束</h1>
+<p>把下面这些原则直接交给 Coding Agent：</p>
+<h2 id="原则-1先做能运行的最小版本">原则 1：先做能运行的最小版本</h2>
+<p>每一个 Phase 必须：</p>
+<pre><code class="language-text">实现
+ ↓
+运行
+ ↓
+验证
+ ↓
+再进入下一阶段
+</code></pre>
+<p>不要一次性生成整个系统。</p>
+<h2 id="原则-2不要无理由增加依赖">原则 2：不要无理由增加依赖</h2>
+<p>每加入一个组件必须回答：</p>
+<pre><code class="language-text">为什么需要？
+解决什么问题？
+没有它会怎样？
+</code></pre>
+<h2 id="原则-3数据库优先于伪造的数据层">原则 3：数据库优先于“伪造的数据层”</h2>
+<p>必须真实连接 PostgreSQL。</p>
+<p>禁止第一版大量使用：</p>
+<ul>
+<li>Mock Repository</li>
+<li>In-memory database</li>
+<li>Fake vector search</li>
+</ul>
+<h2 id="原则-4配置外置">原则 4：配置外置</h2>
+<p>例如：</p>
+<pre><code class="language-text">DATABASE_URL
+SUPABASE_URL
+SUPABASE_ANON_KEY
+SUPABASE_SERVICE_ROLE_KEY
+REDIS_URL
+KAFKA_BOOTSTRAP_SERVERS
+ELASTICSEARCH_URL
+LLM_API_KEY
+EMBEDDING_API_KEY
+</code></pre>
+<p>敏感信息不要进入 Git。</p>
+<h2 id="原则-5保留可替换接口">原则 5：保留可替换接口</h2>
+<p>例如：</p>
+<pre><code class="language-java">interface EmbeddingService
+interface RerankerService
+interface LlmService
+interface SearchService
+interface DocumentParser
+</code></pre>
+<p>这样以后替换 OpenAI / Claude / DeepSeek 不需要大范围修改业务代码。</p>
+<hr>
+<h1 id="28-每个阶段必须输出的文档">28. 每个阶段必须输出的文档</h1>
+<p>每完成一个 Phase，Coding Agent 至少更新：</p>
+<pre><code class="language-text">docs/
+├── architecture.md
+├── database.md
+├── api.md
+├── deployment.md
+└── decisions.md
+</code></pre>
+<p>其中 <code>decisions.md</code> 记录：</p>
+<pre><code class="language-text">为什么用 Supabase？
+为什么 Spring Boot？
+为什么 pgvector？
+为什么后来加入 Redis？
+为什么后来加入 Kafka？
+为什么需要 Elasticsearch？
+</code></pre>
+<p>这份文档对学习价值非常高。</p>
+<hr>
+<h1 id="29-最终验收标准">29. 最终验收标准</h1>
+<p>整个 Demo 完成后，必须能够演示：</p>
+<h2 id="用户">用户</h2>
+<pre><code class="language-text">注册
+ ↓
+登录
+</code></pre>
+<h2 id="知识库">知识库</h2>
+<pre><code class="language-text">创建知识库
+ ↓
+上传 PDF
+</code></pre>
+<h2 id="文档处理">文档处理</h2>
+<pre><code class="language-text">上传
+ ↓
+解析
+ ↓
+Chunk
+ ↓
+Embedding
+ ↓
+Index
+</code></pre>
+<h2 id="搜索">搜索</h2>
+<pre><code class="language-text">Query
+ ↓
+Dense + Sparse
+ ↓
+RRF
+ ↓
+Reranker
+</code></pre>
+<h2 id="rag">RAG</h2>
+<pre><code class="language-text">Question
+ ↓
+Retrieve
+ ↓
+Context
+ ↓
+LLM
+ ↓
+Answer + Citation
+</code></pre>
+<h2 id="agent">Agent</h2>
+<pre><code class="language-text">Question
+ ↓
+Agent
+ ↓
+Search Tool
+ ↓
+Read Tool
+ ↓
+Reasoning
+ ↓
+Final Answer
+</code></pre>
+<h2 id="工程化_1">工程化</h2>
+<pre><code class="language-text">Docker
+CI/CD
+Monitoring
+</code></pre>
+<hr>
+<h1 id="30-最终你应该真正理解的东西">30. 最终你应该真正理解的东西</h1>
+<p>完成这个 Demo 后，不是只得到一个项目，而应该形成下面这张“技术地图”：</p>
+<pre><code class="language-text">                          Web Application
+                                │
+                                ▼
+                         Spring Boot API
+                                │
+           ┌────────────────────┼───────────────────┐
+           │                    │                   │
+           ▼                    ▼                   ▼
+       PostgreSQL              Redis              Kafka
+           │                                        │
+     ┌─────┼─────┐                                  ▼
+     │     │     │                                Worker
+     │     │     │                                  │
+     ▼     ▼     ▼                                  ▼
+   SQL   JSONB pgvector                         AI Pipeline
+                │                                  │
+                ▼                                  ▼
+         Dense Retrieval                     Embedding/Reranker
+                │                                  │
+                └──────────────┬───────────────────┘
+                               ▼
+                         Hybrid Search
+                               │
+                               ▼
+                              RAG
+                               │
+                               ▼
+                             Agent
+                               │
+                               ▼
+                              LLM
+</code></pre>
+<p>最终形成的认知应该是：</p>
+<blockquote>
+<p><strong>Supabase 不等于 Spring Boot。</strong></p>
+<p>Supabase 负责 PostgreSQL、Auth、Storage、Realtime 等通用后端能力；
+Spring Boot 负责复杂业务逻辑和应用层编排；
+Redis / Kafka / Elasticsearch 分别解决缓存、异步消息、复杂搜索；
+pgvector / RAG / Agent 构成 AI 应用层；
+Docker / CI/CD / Monitoring 负责工程化交付。</p>
+</blockquote>
+<hr>
+<h1 id="31-推荐最终项目形态">31. 推荐最终项目形态</h1>
+<pre><code class="language-text">AI Research Hub
+│
+├── Frontend
+│   └── Next.js
+│
+├── Backend
+│   └── Spring Boot
+│
+├── AI
+│   ├── RAG
+│   ├── Hybrid Search
+│   ├── Reranker
+│   └── Agent
+│
+├── Data
+│   ├── Supabase PostgreSQL
+│   ├── pgvector
+│   └── Elasticsearch
+│
+├── Infra
+│   ├── Redis
+│   ├── Kafka
+│   ├── Docker
+│   └── Nginx
+│
+├── Cloud
+│   └── Supabase
+│
+└── DevOps
+    ├── GitHub Actions
+    ├── Prometheus
+    └── Grafana
+</code></pre>
+<hr>
+<h1 id="32-给-coding-agent-的任务描述">32. 给 Coding Agent 的任务描述</h1>
+<p>请基于本文从 <strong>Phase 0</strong> 开始实现，不要一次性实现全部功能。</p>
+<p>每完成一个 Phase：</p>
+<ol>
+<li>修改代码</li>
+<li>启动并验证</li>
+<li>运行测试</li>
+<li>更新 README / docs</li>
+<li>明确当前完成内容、未完成内容、下一阶段目标</li>
+</ol>
+<p>第一阶段只要求：</p>
+<pre><code class="language-text">Next.js
++
+Spring Boot
++
+Supabase PostgreSQL
++
+Supabase Auth
+</code></pre>
+<p>先实现：</p>
+<pre><code class="language-text">用户登录
+ ↓
+创建 Knowledge Base
+ ↓
+查看 Knowledge Base
+</code></pre>
+<p>只有 Phase 0 / Phase 1 稳定后，才进入文档上传与 RAG。</p>
+<p><strong>禁止为了“看起来完整”而提前引入 Kafka、Elasticsearch、Kubernetes 等组件。</strong></p>
+<p>目标不是一次生成一个庞大 Demo，而是让项目能够沿着本文的架构路线持续演进。</p>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">知识领域</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A2%86%E5%9F%9F/java/AI_Research_Hub_Supabase_SpringBoot_%E8%B7%AF%E7%BA%BF%E5%9B%BE.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../notes/domains/claude-memory/claude-memory-vault.html"><span class="dir">← 上一篇</span><span class="t">claude-memory-vault</span></a><a class="next" href="../../../notes/domains/java/git.html"><span class="dir">下一篇 →</span><span class="t">Git 常用命令指南</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../index.html">首页</a>
+      <a href="../../../learn.html">课件</a>
+      <a href="../../../notes/index.html">笔记库</a>
+      <a href="../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../about.html">关于</a>
+      <a href="../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../js/main.js" defer></script>
+</body>
+</html>

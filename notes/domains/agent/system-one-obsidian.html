@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>把“判断”从语言里拆出来：System One 校准路由架构 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="来源：Erfan.log《把“判断”从语言里拆出来：用 System One 做一套校准路由架构》 一句话概括： 不让通用 LLM 用自由文本承担所有判断，而是引入一个输出类型化决策、且置信度经过校准的轻量判断器，把“走哪条模型路径、要不要…">
+<link rel="canonical" href="https://northadb.github.io/notes/domains/agent/system-one-obsidian.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="把“判断”从语言里拆出来：System One 校准路由架构 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="来源：Erfan.log《把“判断”从语言里拆出来：用 System One 做一套校准路由架构》 一句话概括： 不让通用 LLM 用自由文本承担所有判断，而是引入一个输出类型化决策、且置信度经过校准的轻量判断器，把“走哪条模型路径、要不要…">
+<meta property="og:url" content="https://northadb.github.io/notes/domains/agent/system-one-obsidian.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="把“判断”从语言里拆出来：System One 校准路由架构 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="来源：Erfan.log《把“判断”从语言里拆出来：用 System One 做一套校准路由架构》 一句话概括： 不让通用 LLM 用自由文本承担所有判断，而是引入一个输出类型化决策、且置信度经过校准的轻量判断器，把“走哪条模型路径、要不要…">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../feed.xml">
+<link rel="stylesheet" href="../../../css/style.css">
+<link rel="stylesheet" href="../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "把“判断”从语言里拆出来：System One 校准路由架构", "description": "来源：Erfan.log《把“判断”从语言里拆出来：用 System One 做一套校准路由架构》 一句话概括： 不让通用 LLM 用自由文本承担所有判断，而是引入一个输出类型化决策、且置信度经过校准的轻量判断器，把“走哪条模型路径、要不要…", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/domains/agent/system-one-obsidian.html"}
+</script>
+<script src="../../../notes/assets/mermaid-init.js" defer></script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../web-foundation/index.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../notes/index.html">笔记库</a></li><li><a href="../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../index.html">首页</a><span>/</span><a href="../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../notes/domains/index.html">知识领域</a></div>
+          <h1>把“判断”从语言里拆出来：System One 校准路由架构</h1>
+          <p class="post-sub">来源：Erfan.log《把“判断”从语言里拆出来：用 System One 做一套校准路由架构》 一句话概括： 不让通用 LLM 用自由文本承担所有判断，而是引入一个输出类型化决策、且置信度经过校准的轻量判断器，把“走哪条模型路径、要不要…</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../notes/domains/index.html">知识领域</a></span><span class="sep"></span>
+            <span>阅读约 15 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p>来源：Erfan.log《把“判断”从语言里拆出来：用 System One 做一套校准路由架构》</p>
+<p><strong>一句话概括：</strong> 不让通用 LLM 用自由文本承担所有判断，而是引入一个输出类型化决策、且置信度经过校准的轻量判断器，把“走哪条模型路径、要不要问人、任务派给谁、结果是否需要升级”等决策从生成流程里拆出来；同时用独立的硬规则控制高风险操作。</p>
+</blockquote>
+<h2 id="1-核心概念system-one-jev">1. 核心概念：System One / Jev</h2>
+<p>文章以 TypeSafe AI 的 Jev 为切入点，把 System One 类比为《思考，快与慢》里的快速、反射式判断；通用大模型更像承担复杂语言理解、规划和推理的 System Two。</p>
+<p>Jev 的产品主张是 <strong>“Decisions, not strings”——输出决策，而不是自由文本</strong>。它不以生成一段自然语言为主要目标，而是直接在预定义的类型与选项中作判断。</p>
+<table>
+<thead>
+<tr>
+<th>对比维度</th>
+<th>传统 LLM</th>
+<th>System One / Jev 的文章描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>输出</td>
+<td>自由文本，通常还要解析和校验</td>
+<td>类型化决策：Choice、Score、Noul</td>
+</tr>
+<tr>
+<td>生成方式</td>
+<td>自回归逐 token 生成</td>
+<td>并行采样多个候选判断</td>
+</tr>
+<tr>
+<td>典型用途</td>
+<td>理解、生成、复杂推理</td>
+<td>高频分类、打分、路由、门控</td>
+</tr>
+<tr>
+<td>关键目标</td>
+<td>生成有用答案</td>
+<td>判断结果与置信度都可被程序消费</td>
+</tr>
+<tr>
+<td>可信度关键</td>
+<td>不能只看模型自报的信心</td>
+<td>用业务数据校准置信度，使概率有可检验的含义</td>
+</tr>
+</tbody>
+</table>
+<h3 id="三种类型化原语">三种类型化原语</h3>
+<ul>
+<li><strong>Choice（选择）</strong>：从预定义选项中选择，例如选择任务类型、模型路径或子 Agent。</li>
+<li><strong>Score（评分）</strong>：对候选结果或执行路径进行打分，例如评估某条路径完成任务的可能性，或进行软性质量筛查。</li>
+<li><strong>Noul（布尔概率）</strong>：围绕是/否类判断给出概率，例如判断某项条件是否成立。</li>
+</ul>
+<blockquote>
+<p>注意：输出格式正确，不等于判断本身正确。一个判断器即使不生成幻觉文本，也仍可能给出“格式完美但结论错误”的决策。</p>
+</blockquote>
+<p>文章列出的 Jev 延迟、成本和加速倍数来自厂商材料；作者明确提示，严格的独立基准证据不足。因此应把“类型化判断 + 置信度校准”的架构思路，与产品宣传中的具体性能数字分开看。</p>
+<h2 id="2-要解决的两个问题">2. 要解决的两个问题</h2>
+<h3 id="21-全部调用旗舰模型成本过高">2.1 全部调用旗舰模型，成本过高</h3>
+<p>真实业务中有大量重复、简单、高频的判断：分类、抽取、打分、模型路由，以及“是否继续执行”等。如果全部调用旗舰 LLM，就会让昂贵模型处理许多不需要它的工作。</p>
+<p>常见的模型级联方案是“小模型先行，旗舰模型兜底”，但关键弱点在于：<strong>路由器自身可能过度自信</strong>，把本应交给强模型的任务误派给小模型。</p>
+<h3 id="22-agent-过于频繁地询问人类">2.2 Agent 过于频繁地询问人类</h3>
+<p>Agent 遇到任何不确定性都询问人，会把人类当作通用的查表工具和算力外挂。问题并不是 Agent 不该问人，而是它没有区分不同类型的不确定性。</p>
+<h2 id="3-三层架构总览">3. 三层架构总览</h2>
+<p>文章将校准判断器放进三个位置：请求入口、歧义升级点、多 Agent 任务分派层。</p>
+<pre><code class="language-mermaid">flowchart TD
+    A[请求 / Agent 任务] --&gt; B[System One 判断器：校准后的路径预测]
+    B --&gt; C{按成本排序，是否达到该路径阈值？}
+    C --&gt;|最低成本路径过线| D[判断器直答]
+    C --&gt;|否则尝试下一条| E[Flash / 小模型]
+    E --&gt;|仍未过线| F[旗舰 LLM 兜底]
+    D --&gt; G[结果验收与审计]
+    E --&gt; G
+    F --&gt; G
+    H[Agent 发现歧义] --&gt; I[System One：歧义分类]
+    I --&gt; J[查工具 / 升级模型 / 询问人类]
+    K[工具调用] --&gt; L[执行边界硬规则闸]
+    L --&gt; M[允许执行或强制升级]
+</code></pre>
+<p>核心分工可以压缩成四句话：</p>
+<ol>
+<li><strong>通用 LLM 负责理解、发现和复杂推理。</strong></li>
+<li><strong>System One 负责结构明确的分类、比较和决策。</strong></li>
+<li><strong>验收层负责核查结果，不把“路由成功”当成“结果正确”。</strong></li>
+<li><strong>高风险动作的权限与安全由执行边界的硬规则保障，而不是交给概率判断。</strong></li>
+</ol>
+<h2 id="4-第一层把判断器放到模型路由之前">4. 第一层：把判断器放到模型路由之前</h2>
+<h3 id="41-不预测任务有多难而预测每条路径能否成功">4.1 不预测“任务有多难”，而预测“每条路径能否成功”</h3>
+<p>文章要求拆开三个问题：</p>
+<ol>
+<li>任务属于哪一类？——任务分类。</li>
+<li>某个执行模型能否完成当前任务？——路径成功率预测。</li>
+<li>最终结果是否正确？——结果验收。</li>
+</ol>
+<p>这三者不能混为一谈。判断器有 95% 把握认为某任务“简单”，不等于某个小模型有 95% 概率答对，更不等于判断器自己直接作答有 95% 正确率。</p>
+<p>因此，路由器应估计<strong>不同执行路径的成功率与成本</strong>，而不是只输出 <code>SIMPLE / MEDIUM / COMPLEX</code>。输入中还应包括工具清单、权限状态、会话上下文等会影响执行成败的信息。</p>
+<h3 id="42-按成本从低到高选择第一条过线的路径">4.2 按成本从低到高选择第一条过线的路径</h3>
+<p>候选路径可以是：</p>
+<ol>
+<li>判断器直接处理；</li>
+<li>Flash 或其他低成本模型；</li>
+<li>旗舰模型兜底。</li>
+</ol>
+<p>对每条路径分别估计成功概率，并设置与失败代价相匹配的阈值。选择<strong>成本最低且预估成功率达到阈值</strong>的路径；没有路径过线时，升级到旗舰模型。</p>
+<p>示意伪代码：</p>
+<pre><code class="language-python">paths = [&quot;JUDGE_DIRECT&quot;, &quot;FLASH_LLM&quot;, &quot;FRONTIER_LLM&quot;]
+
+est = judge.score(
+    state=compose(request.text, session.context, tool_manifest, auth_status),
+    targets=paths,  # 每条路径的校准后成功率估计
+)
+
+for path in sorted_by_cost(paths):
+    if est[path] &gt;= threshold[path]:
+        return execute(path, request)
+
+return frontier_llm(request)
+</code></pre>
+<p><strong>关键区别：</strong> 路由置信度不等于任务成功率；路径预测也不替代结果验收。</p>
+<h2 id="5-第二层把问人变成一项分类决策">5. 第二层：把“问人”变成一项分类决策</h2>
+<p>这是文章最强调的设计。Agent 发现歧义后，不应一律询问人类，而应先确定歧义的来源。</p>
+<table>
+<thead>
+<tr>
+<th>歧义类型</th>
+<th>本质</th>
+<th>应对方式</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>信息缺口</strong></td>
+<td>所需数据不在上下文里</td>
+<td>调用工具查询</td>
+<td>不知道订单状态，就查数据库</td>
+</tr>
+<tr>
+<td><strong>能力缺口</strong></td>
+<td>当前模型推理能力不足</td>
+<td>换更强模型或增加推理资源</td>
+<td>复杂推理卡住，升级到旗舰模型</td>
+</tr>
+<tr>
+<td><strong>偏好 / 价值缺口</strong></td>
+<td>需要组织或用户给出目标、偏好、价值取舍</td>
+<td>真正询问人类</td>
+<td>是否放宽退款政策</td>
+</tr>
+<tr>
+<td><strong>不可逆 / 高风险</strong></td>
+<td>操作超出授权或后果难以撤销</td>
+<td>由执行边界硬闸强制拦截并升级</td>
+<td>删库、打款、对外发函</td>
+</tr>
+</tbody>
+</table>
+<p>四类不是完全互斥的。例如，处理退款前可能先查订单历史（信息缺口），再确认是否可以突破公司政策（价值缺口）。复合歧义可以输出多标签或定义复合类型。</p>
+<h3 id="51-分工原则">5.1 分工原则</h3>
+<blockquote>
+<p><strong>LLM 负责发现歧义，判断器负责给歧义分类。</strong></p>
+</blockquote>
+<p>发现含糊之处需要较强的语言理解能力；把已经发现的歧义归入结构化类别，则更适合交给类型化判断器。</p>
+<h3 id="52-如何更合理地询问人类">5.2 如何更合理地询问人类</h3>
+<ul>
+<li><strong>用决策卡，而不是开放式长问题。</strong> 给出选项、各选项经校准的概率，以及每个选项的一句话后果，让人做明确选择。</li>
+<li><strong>可挂起的问题合并询问；阻塞问题立即询问。</strong> 偏好确认可以排队、去重、攒批；紧急授权和时间敏感决策不能等待攒批。</li>
+<li><strong>宁可错问，不可错自动。</strong> 把价值或责任问题误判成信息缺口，可能让 Agent 擅自替人做决定。低置信时应采用更保守的处理方式，必要时转人工。</li>
+</ul>
+<h3 id="53-误判成本是不对称的">5.3 误判成本是不对称的</h3>
+<ul>
+<li>错把信息缺口判成“需要人”：代价通常是多打断一次。</li>
+<li>错把价值缺口判成“可以自动”：代价可能是越权替人做决定。</li>
+</ul>
+<p>因此，“问人”的阈值要考虑错误成本，而不能只追求减少人工打断次数。不过，<strong>高风险操作不能只依赖歧义分类器</strong>；无论分类结果如何，都必须经过执行边界硬闸。</p>
+<h2 id="6-第三层把同一模式扩展到多-agent-编排">6. 第三层：把同一模式扩展到多 Agent 编排</h2>
+<p>路由对象从“选哪个模型”扩大为“把任务分给哪个子 Agent”。</p>
+<pre><code class="language-mermaid">flowchart TD
+    A[任务 / 问题] --&gt; B[判断器分类任务]
+    B --&gt; C[研究 Agent]
+    B --&gt; D[代码 Agent]
+    B --&gt; E[数据 Agent]
+    B --&gt; F[写作 Agent]
+    C --&gt; G[结果验收]
+    D --&gt; G
+    E --&gt; G
+    F --&gt; G
+    G --&gt; H{证据、测试、规则核验}
+    H --&gt;|通过| I[归并输出]
+    H --&gt;|低分 / 低置信 / 失败| J[打回、重做或升级审查]
+</code></pre>
+<h3 id="61-分派不等于验收">6.1 分派不等于验收</h3>
+<ul>
+<li>“任务应该交给谁”是结构化分派问题，适合判断器。</li>
+<li>“结果能不能用”需要看任务类型：研究报告要核查引用，代码要跑测试，不能只让判断器给一个分数。</li>
+<li>先用测试、规则、证据做可验证的核查；判断器只负责经过验证的软性筛查，例如格式、完整性和明显缺陷。</li>
+<li>低置信的验收不应该直接判失败，而应进入“验收不确定”状态并升级审查。</li>
+</ul>
+<h3 id="62-并行分派与递归升级">6.2 并行分派与递归升级</h3>
+<p>相互独立的子任务可以并行运行，并各自设置预算和时限。子 Agent 遇到困难时，由编排者决定：增加资源重跑、换专门 Agent、由编排者介入，或升级给人类。</p>
+<p>整个过程可以重复为：</p>
+<p><strong>分类 → 分派 → 验收 → 升级。</strong></p>
+<p>文章称这是一种“分形架构”：请求级选模型、任务级选 Agent、结果级决定合并或打回、歧义级决定询问或升级，结构相似但粒度不同。</p>
+<h3 id="63-两个风险">6.3 两个风险</h3>
+<ol>
+<li><strong>延迟叠加：</strong> 多层串行判断会累加延迟，能并行就尽量并行，避免不必要的层级。</li>
+<li><strong>相关失效（correlated failure）：</strong> 如果执行者与验收者共享相似模型、训练分布和偏差，两者可能在同一处犯错，导致验收分数虚高。可以使用不同模型家族进行交叉检查，或对关键结果保留人工抽检。</li>
+</ol>
+<p>作者也明确说明：多 Agent 分派加判断器验收，是本文推演成分较重的部分，公开端到端证据尚不足，应视为待验证设计，而不是已经被证明的结论。</p>
+<h2 id="7-安全底线校准负责优化硬规则负责保命">7. 安全底线：校准负责优化，硬规则负责保命</h2>
+<p>这两类机制必须分开。</p>
+<table>
+<thead>
+<tr>
+<th>机制</th>
+<th>处理对象</th>
+<th>允许什么</th>
+<th>不应该承担什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>概率线</strong></td>
+<td>信息缺口、能力缺口、常规路径选择</td>
+<td>根据校准置信度调整阈值；在成本与质量间权衡</td>
+<td>不能单独决定高风险操作是否可以执行</td>
+</tr>
+<tr>
+<td><strong>硬规则线</strong></td>
+<td>不可逆、越权、涉资金、涉安全的动作</td>
+<td>在执行前按规则强制阻断或升级</td>
+<td>不能依赖上游模型是否正确识别风险</td>
+</tr>
+</tbody>
+</table>
+<p><strong>硬闸必须放在工具执行边界，而不只是分类结果之后。</strong></p>
+<p>每次工具调用执行前，使用纯规则检查：</p>
+<ul>
+<li>调用的工具是什么；</li>
+<li>操作目标对象是什么；</li>
+<li>涉及的金额或影响范围是多少；</li>
+<li>是否具有明确授权。</li>
+</ul>
+<p>任一必要条件不满足，就不执行并转人工或走授权流程。即使判断器报告 99% 置信度，也不能绕过硬闸。因为概率校准只表示长期统计意义上的正确率，并不意味着单次不会出错。</p>
+<p>文章的成本不对称原则是：把简单任务升级给旗舰模型，损失的是钱；把本应由人决定的事情错误自动化，损失的可能是决策权与安全。</p>
+<h2 id="8-工程落地方案">8. 工程落地方案</h2>
+<h3 id="81-组件拆分">8.1 组件拆分</h3>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>职责</th>
+<th>设计要点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>判断器适配层</td>
+<td>屏蔽不同实现的差异</td>
+<td>统一提供 Choice / Score / Noul；底层可接托管 API、本地端点或自建模型</td>
+</tr>
+<tr>
+<td>前置路由</td>
+<td>估计路径成功率与成本</td>
+<td>输入包含上下文、工具清单和权限状态；尽量无状态、可横向扩展</td>
+</tr>
+<tr>
+<td>路由执行层</td>
+<td>实际执行级联路径</td>
+<td>各级独立设置超时、重试和熔断</td>
+</tr>
+<tr>
+<td>歧义分类器</td>
+<td>对 Agent 发现的歧义分类</td>
+<td>LLM 发现歧义，判断器负责类型化分类</td>
+</tr>
+<tr>
+<td>决策卡生成器</td>
+<td>把需人工决策的问题结构化</td>
+<td>选项、校准概率、后果说明；支持排队和去重</td>
+</tr>
+<tr>
+<td>硬规则闸</td>
+<td>拦截越权和高风险调用</td>
+<td>位于工具执行边界，采用规则表，不依赖概率输出</td>
+</tr>
+<tr>
+<td>审计与抽检</td>
+<td>追踪判断质量和漂移</td>
+<td>记录判断过程，定期复核，超阈值时重新校准</td>
+</tr>
+</tbody>
+</table>
+<p>文章提到的判断器来源包括：Jev 托管 API、兼容 wire format 的本地实现，以及“小参数模型 + 结构化输出”的自建路线。适配层能够统一调用形式，但<strong>不能让不同模型的置信度天然可比</strong>。</p>
+<h3 id="82-置信度校准怎么做">8.2 置信度校准怎么做</h3>
+<p>目标不是简单地让模型“输出一个百分比”，而是让这个数字在业务数据上具有统计含义：一组报告 80% 置信度的判断，长期来看应接近 80% 的实际正确率。</p>
+<p><strong>数据来源</strong></p>
+<ul>
+<li>使用自己的真实业务流量和人工标注结果；</li>
+<li>让不同置信度区间都有样本覆盖；</li>
+<li>文章给出的经验建议是，每种判断准备数百条以上标注，几千条可作为较舒适的起点，但这不是普适硬标准。</li>
+</ul>
+<p><strong>方法顺序</strong></p>
+<ol>
+<li><strong>Temperature scaling：</strong> 用单个温度参数调整 logits，方法简单、较不容易过拟合，适合作为起点。</li>
+<li><strong>Isotonic regression：</strong> 用单调映射修正更复杂的非线性偏差；文章建议样本量较大时再考虑，小数据上容易过拟合。</li>
+</ol>
+<p><strong>评估指标</strong></p>
+<ul>
+<li><strong>ECE（Expected Calibration Error）：</strong> 按置信度分桶，衡量报告置信度与实际正确率之间的加权差距。</li>
+<li><strong>可靠性曲线（Reliability Diagram）：</strong> 检查各置信区间是否系统性偏高或偏低。</li>
+<li>同时关注分桶内样本量；样本太少可能让 ECE 看起来过于理想。</li>
+</ul>
+<p>文章提到的 ECE 数值（如 0.05、0.02）是作者给出的经验参考，不应脱离业务风险直接当成统一验收标准。</p>
+<p><strong>校准会漂移，也不能直接迁移。</strong> 产品、流量、用户群或任务分布变化后，原有校准关系可能失效。更换判断器后，也要重新检查“报告 80% 是否仍对应约 80% 的实测正确率”。A 模型的 0.8 不一定等于 B 模型的 0.8。</p>
+<p><strong>要把校准的全成本算进去。</strong> 标注、持续抽检、重校准都需要人力。只有判断量足够大、判断任务足够同质时，自建方案才更容易抵消维护成本；否则托管服务或直接使用旗舰模型可能更划算。</p>
+<h3 id="83-分阶段上线先影子运行">8.3 分阶段上线：先影子运行</h3>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>做什么</th>
+<th>主要检查项</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Phase 0：影子模式</td>
+<td>判断器只记录建议，不控制生产流量；抽样并行运行候选路径，比较反事实结果</td>
+<td>校准情况；便宜路径是否导致质量下降</td>
+</tr>
+<tr>
+<td>Phase 1：小流量</td>
+<td>只在白名单场景放行高预估成功率的低成本路径</td>
+<td>放行后的错误率不高于基线；覆盖率逐渐提升</td>
+</tr>
+<tr>
+<td>Phase 2：歧义分类</td>
+<td>把分类器接入 Agent 的“问人”环节</td>
+<td>人工打断是否下降；是否出现漏判</td>
+</tr>
+<tr>
+<td>Phase 3：多 Agent 编排</td>
+<td>引入子 Agent 分派和验收回传</td>
+<td>单任务总成本与质量是否改善</td>
+</tr>
+</tbody>
+</table>
+<p>影子模式不能只看“旧路径成功了没有”，因为这并不能证明判断器推荐的便宜路径也会成功。需要对一部分请求实际运行候选路径进行比较；涉及副作用的操作必须在沙箱中回放，不能重复执行真实操作。</p>
+<p>建议同时跟踪五项指标：</p>
+<ol>
+<li>自动放行覆盖率；</li>
+<li>自动放行后的端到端错误率；</li>
+<li>高风险漏判数（目标为零）；</li>
+<li>总成本；</li>
+<li>p95 / p99 尾部延迟。</li>
+</ol>
+<h3 id="84-最小端到端实验">8.4 最小端到端实验</h3>
+<p>文章给出的客服工单实验范例：</p>
+<ol>
+<li>取 500 条历史工单，标注参考处理路径和正确结果。</li>
+<li>建立基线：全部走旗舰模型，记录正确率、成本、延迟。</li>
+<li>接入判断器，估计各路径成功率，并选择达到阈值的最低成本路径。</li>
+<li>另抽约 100 条工单，让三条候选路径都执行一次，比较路由选择和实际最优路径的一致性；有副作用的操作应在沙箱进行。</li>
+</ol>
+<p>重点衡量：</p>
+<ul>
+<li>估计成功率与实测成功率的一致程度；</li>
+<li>自动放行部分的端到端成功率；</li>
+<li>相对基线的成本和 p95 延迟；</li>
+<li>高风险漏判数。</li>
+</ul>
+<p>文章给出的“成功率不低于基线减 1 个百分点、成本降至基线三分之一以下”只是示例判据，应按具体业务重新制定。</p>
+<h2 id="9-设计中容易忽略的五件事">9. 设计中容易忽略的五件事</h2>
+<ol>
+<li><strong>校准漂移是常态。</strong> 把抽样、监控和重新校准列入例行维护，而不是等事故发生后再处理。</li>
+<li><strong>审计日志要能回放。</strong> 至少记录谁作出判断、置信度、选择的路径和最终结果；还要尽可能保留当时的输入、模型版本、工具状态、策略阈值等，才能重现决策上下文。</li>
+<li><strong>类型化输出不等于不需要语义理解。</strong> 分类本身也需要语义能力。更准确的边界是：在已经验证的分布内，置信度可能可校准；面对分布外问题，判断器仍可能出错，而且输出格式仍然可能完全正确。</li>
+<li><strong>厂商性能数字必须看分母。</strong> 最好在自己的真实流量下评估延迟、成本、成功率和长尾表现，而不是直接套用厂商所报的加速倍数。</li>
+<li><strong>校准不能跨模型照搬。</strong> 统一接口不等于统一概率含义；切换模型后，应重新验证校准曲线和阈值。</li>
+</ol>
+<h2 id="10-生态部分文章写作时的观察">10. 生态部分：文章写作时的观察</h2>
+<p>文章在发布时提到，判断器生态开始从单一托管产品扩展到兼容接口、本地模型和开源训练配方，并讨论了 Jev、Cloudflare Clef、AWS Strands Decider、StartLux-Decision、Intern-Decision、Cua-S1 等例子，也引用了 LLM-as-Jev 与 brier 等工作。</p>
+<p>作者据此提出一个观点：<strong>判断接口本身会越来越容易获得，真正有价值的差异在于概率是否经过校准，以及能否在目标业务分布中保持校准。</strong></p>
+<p>这一节时效性很强，其中性能、基准成绩及厂商对比有些来自厂商自述。本文笔记保留其论点，但不把相关市场与性能说法视作已独立验证的事实。</p>
+<h2 id="11-更深一层注意力经济学">11. 更深一层：注意力经济学</h2>
+<p>文章把系统里的资源分配分成三条线：</p>
+<ul>
+<li><strong>算力分配：</strong> 判断器直答 → Flash → 旗舰模型；</li>
+<li><strong>注意力分配：</strong> 工具自查 → 升级模型 → 人类决断；</li>
+<li><strong>风险控制：</strong> 高风险操作由硬规则无条件把关。</li>
+</ul>
+<p>过去系统通常核算 token 与计算成本，却容易把“打断一个人”视为免费。决策卡、攒批队列和置信度阈值，本质上是在减少不必要的人类打断，把人的注意力留给机器无法代替的目标、偏好和责任。</p>
+<p>作者对人类角色的总结是：</p>
+<blockquote>
+<p><strong>把人的注意力从“能力补充”里解放出来，只留给“价值判断”。</strong></p>
+</blockquote>
+<p>人类仍需要定义“什么才算好”、检查机器的结果与校准漂移，并对关键决策承担责任。AI 可以参与判断，却不能替人承担最终责任。</p>
+<h2 id="12-文章结论与证据边界">12. 文章结论与证据边界</h2>
+<h3 id="可以带走的架构原则">可以带走的架构原则</h3>
+<ul>
+<li>将高频、结构清晰的判断从自由文本生成中拆出来，以类型化输出交给程序执行。</li>
+<li>路由时预测每条执行路径的成功率和成本，而不是只预测任务难度。</li>
+<li>置信度必须使用业务数据校准，并持续监控漂移。</li>
+<li>Agent 询问人类前，先区分信息、能力、价值和高风险问题。</li>
+<li>多 Agent 系统中，分派与验收应分开；验收优先使用可验证的测试、规则和证据。</li>
+<li>对不可逆、越权、涉资金和安全的动作，使用工具执行边界上的硬规则，而不是概率阈值。</li>
+<li>通过影子模式和反事实比较验证收益，再逐步扩大上线范围。</li>
+</ul>
+<h3 id="作者自己保留的部分">作者自己保留的部分</h3>
+<ul>
+<li>Jev 的速度、成本和加速倍数主要来自厂商发布材料，独立基准证据不足。</li>
+<li>“不生成文本”并不意味着不会作出错误判断。</li>
+<li>“多 Agent 分派 + 判断器验收”的端到端方案在文章中主要是架构推演，仍需实测。</li>
+<li>级联路由、歧义分类、Planner-Executor 等并非全新的概念；文章的主要增量，是将校准置信度、歧义四分法、执行硬闸、注意力分级与分形分派组合成一套框架。</li>
+</ul>
+<h2 id="13-术语速查">13. 术语速查</h2>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>System One</td>
+<td>文章中指快速、专门化的类型化判断组件</td>
+</tr>
+<tr>
+<td>Model Cascading</td>
+<td>按成本与能力逐级尝试模型，必要时升级到强模型</td>
+</tr>
+<tr>
+<td>Calibration（校准）</td>
+<td>让报告的置信度与实际正确率在统计上相匹配</td>
+</tr>
+<tr>
+<td>ECE</td>
+<td>置信度分桶后，预测置信度与实际正确率的加权差距</td>
+</tr>
+<tr>
+<td>Reliability Diagram</td>
+<td>展示预测置信度与实测正确率关系的可靠性曲线</td>
+</tr>
+<tr>
+<td>Counterfactual Evaluation</td>
+<td>同一请求测试不同候选路径，比较其真实结果与成本</td>
+</tr>
+<tr>
+<td>Shadow Mode</td>
+<td>只记录系统建议、不改变真实执行路径的观察阶段</td>
+</tr>
+<tr>
+<td>Correlated Failure</td>
+<td>执行者与验收者因共享偏差而同时出错，导致验收失效</td>
+</tr>
+<tr>
+<td>Hard Gate</td>
+<td>位于工具执行边界、不可被模型置信度绕过的规则闸</td>
+</tr>
+<tr>
+<td>Fractal Architecture</td>
+<td>不同粒度重复使用“分类 → 分派 → 验收 → 升级”模式</td>
+</tr>
+</tbody>
+</table>
+<h2 id="原文">原文</h2>
+<p><a href="https://erfanblog.top/post.html?p=system-one-agent-architecture">把“判断”从语言里拆出来：用 System One 做一套校准路由架构 — Erfan.log</a></p>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">知识领域</span><span class="chip">- AI</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A2%86%E5%9F%9F/agent%E7%9B%B8%E5%85%B3/System-One-%E6%A0%A1%E5%87%86%E8%B7%AF%E7%94%B1%E6%9E%B6%E6%9E%84-Obsidian%E7%AC%94%E8%AE%B0.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../notes/domains/agent/json-schemaagent-tool-calling.html"><span class="dir">← 上一篇</span><span class="t">JSON Schema 与 Agent Tool Calling</span></a><a class="next" href="../../../notes/domains/agent/agent-json-schema-structured-output.html"><span class="dir">下一篇 →</span><span class="t">Agent 中的 JSON、JSON Schema 与结构化输出</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../index.html">首页</a>
+      <a href="../../../learn.html">课件</a>
+      <a href="../../../notes/index.html">笔记库</a>
+      <a href="../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../about.html">关于</a>
+      <a href="../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../js/main.js" defer></script>
+</body>
+</html>

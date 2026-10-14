@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JSON、JSONL、JSONB 的区别与选型 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="JSON、JSONL、JSONB 有联系，但不属于完全相同的层级：">
+<link rel="canonical" href="https://northadb.github.io/notes/domains/p68051b/json-jsonl-jsonb.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="JSON、JSONL、JSONB 的区别与选型 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="JSON、JSONL、JSONB 有联系，但不属于完全相同的层级：">
+<meta property="og:url" content="https://northadb.github.io/notes/domains/p68051b/json-jsonl-jsonb.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JSON、JSONL、JSONB 的区别与选型 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="JSON、JSONL、JSONB 有联系，但不属于完全相同的层级：">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../feed.xml">
+<link rel="stylesheet" href="../../../css/style.css">
+<link rel="stylesheet" href="../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "JSON、JSONL、JSONB 的区别与选型", "description": "JSON、JSONL、JSONB 有联系，但不属于完全相同的层级：", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/domains/p68051b/json-jsonl-jsonb.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../web-foundation/index.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../notes/index.html">笔记库</a></li><li><a href="../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../index.html">首页</a><span>/</span><a href="../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../notes/domains/index.html">知识领域</a></div>
+          <h1>JSON、JSONL、JSONB 的区别与选型</h1>
+          <p class="post-sub">JSON、JSONL、JSONB 有联系，但不属于完全相同的层级：</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../notes/domains/index.html">知识领域</a></span><span class="sep"></span>
+            <span>阅读约 6 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<h2 id="一核心结论">一、核心结论</h2>
+<p>JSON、JSONL、JSONB 有联系，但不属于完全相同的层级：</p>
+<ul>
+<li><strong>JSON</strong>：一种数据表示格式，用于描述对象、数组、字符串、数字、布尔值等数据。</li>
+<li><strong>JSONL</strong>：一种文本文件组织方式，每一行放置一个独立的 JSON 值，常见用途是日志、数据集和流式处理。</li>
+<li><strong>JSONB</strong>：PostgreSQL 提供的一种数据类型，将 JSON 内容解析后以适合数据库处理的二进制表示形式存储，适合查询和索引。</li>
+</ul>
+<p>可以简单记为：</p>
+<blockquote>
+<p><strong>JSON 关注数据怎么表示；JSONL 关注多条数据怎么按行组织；JSONB 关注 PostgreSQL 如何存储和查询 JSON 数据。</strong></p>
+</blockquote>
+<h2 id="二json数据表示格式">二、JSON：数据表示格式</h2>
+<p>JSON（JavaScript Object Notation）是一种常见的轻量级数据交换格式。</p>
+<h3 id="示例">示例</h3>
+<pre><code class="language-json">{
+  &quot;id&quot;: 1,
+  &quot;name&quot;: &quot;Alice&quot;,
+  &quot;tags&quot;: [&quot;AI&quot;, &quot;RAG&quot;]
+}
+</code></pre>
+<p>JSON 可以表示一个对象，也可以表示一个数组：</p>
+<pre><code class="language-json">[
+  {&quot;id&quot;: 1, &quot;name&quot;: &quot;Alice&quot;},
+  {&quot;id&quot;: 2, &quot;name&quot;: &quot;Bob&quot;}
+]
+</code></pre>
+<h3 id="常见用途">常见用途</h3>
+<ul>
+<li>前后端 API 请求与响应</li>
+<li>程序配置文件</li>
+<li>Agent 工具调用的参数与结构化输出</li>
+<li>不同服务之间的数据交换</li>
+</ul>
+<h3 id="特点">特点</h3>
+<ul>
+<li>人类可读，结构清晰。</li>
+<li>支持对象、数组、字符串、数字、布尔值和 <code>null</code> 等数据类型。</li>
+<li>JSON 是数据格式，不限定数据必须存储在文件中；它也可以通过网络传输，或存入数据库。</li>
+</ul>
+<h2 id="三jsonl一行一条-json-数据">三、JSONL：一行一条 JSON 数据</h2>
+<p>JSONL 通常指 JSON Lines。它把多条独立的 JSON 值放在同一个文本文件中，每行一条记录。</p>
+<h3 id="示例_1">示例</h3>
+<pre><code class="language-jsonl">{&quot;id&quot;:1,&quot;name&quot;:&quot;Alice&quot;}
+{&quot;id&quot;:2,&quot;name&quot;:&quot;Bob&quot;}
+{&quot;id&quot;:3,&quot;name&quot;:&quot;Charlie&quot;}
+</code></pre>
+<p>每一行都应该是一个独立、完整、可解析的 JSON 值。常见用法是一行表示一条对象记录。</p>
+<h3 id="与-json-数组的区别">与 JSON 数组的区别</h3>
+<p>普通 JSON 文件可以把多条记录放在同一个数组中：</p>
+<pre><code class="language-json">[
+  {&quot;id&quot;: 1, &quot;name&quot;: &quot;Alice&quot;},
+  {&quot;id&quot;: 2, &quot;name&quot;: &quot;Bob&quot;}
+]
+</code></pre>
+<p>而 JSONL 则逐行保存：</p>
+<pre><code class="language-jsonl">{&quot;id&quot;:1,&quot;name&quot;:&quot;Alice&quot;}
+{&quot;id&quot;:2,&quot;name&quot;:&quot;Bob&quot;}
+</code></pre>
+<p>主要区别：</p>
+<ul>
+<li>JSON 数组是一个整体的 JSON 文档。</li>
+<li>JSONL 是多条独立的 JSON 记录按行排列，通常没有外围数组，也不需要在记录之间加逗号。</li>
+<li>JSONL 可以逐行读取、追加和处理，不必将整个文件一次性读入内存。</li>
+</ul>
+<h3 id="常见用途_1">常见用途</h3>
+<ul>
+<li>LLM 训练数据和评测数据集</li>
+<li>Agent 运行日志与事件记录</li>
+<li>大规模数据的批量导入</li>
+<li>流式生成、逐条处理的程序输出</li>
+</ul>
+<p>常见扩展名是 <code>.jsonl</code>，也常见 <code>.ndjson</code>（Newline Delimited JSON）。两者通常采用相同的逐行 JSON 组织方式，但具体工具对格式细节的要求可能不同。</p>
+<h2 id="四jsonbpostgresql-的-json-数据类型">四、JSONB：PostgreSQL 的 JSON 数据类型</h2>
+<p>JSONB 是 PostgreSQL 提供的一种数据类型。它接收 JSON 文本，解析其内容，再以适合数据库处理的二进制形式存储。</p>
+<h3 id="示例建立-jsonb-字段">示例：建立 JSONB 字段</h3>
+<pre><code class="language-sql">CREATE TABLE users (
+    id BIGINT PRIMARY KEY,
+    profile JSONB
+);
+</code></pre>
+<p>插入数据：</p>
+<pre><code class="language-sql">INSERT INTO users (id, profile)
+VALUES (
+    1,
+    '{&quot;name&quot;: &quot;Alice&quot;, &quot;tags&quot;: [&quot;AI&quot;, &quot;RAG&quot;]}'
+);
+</code></pre>
+<p>这里的 <code>profile</code> 是数据库字段，不是一个 JSON 文件。</p>
+<h3 id="查询-jsonb-内部字段">查询 JSONB 内部字段</h3>
+<p>取出 <code>name</code> 字段并作为文本比较：</p>
+<pre><code class="language-sql">SELECT *
+FROM users
+WHERE profile -&gt;&gt; 'name' = 'Alice';
+</code></pre>
+<h3 id="建立-gin-索引">建立 GIN 索引</h3>
+<p>如果查询模式适合，可以对 JSONB 字段建立 GIN 索引：</p>
+<pre><code class="language-sql">CREATE INDEX users_profile_idx
+ON users USING GIN (profile);
+</code></pre>
+<p>索引能否被使用、采用哪种索引，以及查询是否加速，仍取决于查询表达式、索引类型、数据分布和执行计划。</p>
+<h3 id="常见用途_2">常见用途</h3>
+<ul>
+<li>PostgreSQL 中的半结构化数据</li>
+<li>可变属性、配置和扩展字段</li>
+<li>文档或业务记录的 metadata</li>
+<li>RAG chunk 的元数据过滤</li>
+</ul>
+<h2 id="五json-与-jsonb-的区别">五、JSON 与 JSONB 的区别</h2>
+<p>JSON 与 JSONB 都是 PostgreSQL 数据类型，差异主要在于存储方式和查询特性。</p>
+<table>
+<thead>
+<tr>
+<th>对比维度</th>
+<th><code>JSON</code></th>
+<th><code>JSONB</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>存储方式</td>
+<td>保存输入文本</td>
+<td>解析后以二进制表示形式存储</td>
+</tr>
+<tr>
+<td>原始格式</td>
+<td>保留输入中的空白和文本表示</td>
+<td>不保留原始空白格式</td>
+</tr>
+<tr>
+<td>对象键顺序</td>
+<td>保留输入文本中的顺序</td>
+<td>不保证保留原顺序</td>
+</tr>
+<tr>
+<td>重复对象键</td>
+<td>原始文本会保留重复键</td>
+<td>重复键只保留最后一个值</td>
+</tr>
+<tr>
+<td>查询</td>
+<td>支持 JSON 操作</td>
+<td>支持 JSON 操作，通常更适合反复查询</td>
+</tr>
+<tr>
+<td>索引</td>
+<td>不支持直接对 JSON 值建立 GIN 索引</td>
+<td>支持 GIN 等索引方式</td>
+</tr>
+<tr>
+<td>典型用途</td>
+<td>需要保留输入文本的情况</td>
+<td>需要查询、筛选和索引的情况</td>
+</tr>
+</tbody>
+</table>
+<h3 id="如何选择-json-还是-jsonb">如何选择 JSON 还是 JSONB？</h3>
+<ul>
+<li><strong>优先考虑 JSONB</strong>：数据要经常按内部字段查询、过滤、做包含关系判断，或需要索引。</li>
+<li><strong>考虑 JSON</strong>：需要保留输入文本本身，例如原始空白、键的排列顺序或重复键等文本细节。</li>
+<li><strong>考虑普通文本字段</strong>：如果需求是精确保留原始字节或原始文本，且不需要 PostgreSQL 的 JSON 操作，使用文本字段可能更直观；需要精确保留原始字节时，还要考虑编码等要求。</li>
+</ul>
+<p>实践中，PostgreSQL 应用通常更常用 JSONB，但不代表所有场景都必须使用 JSONB。</p>
+<h2 id="六快速选型表">六、快速选型表</h2>
+<table>
+<thead>
+<tr>
+<th>需求</th>
+<th>推荐选择</th>
+<th>主要原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>前后端 API 传输数据</td>
+<td>JSON</td>
+<td>通用数据交换格式</td>
+</tr>
+<tr>
+<td>保存易读、易编辑的配置</td>
+<td>JSON</td>
+<td>层级结构清晰</td>
+</tr>
+<tr>
+<td>保存海量逐条日志</td>
+<td>JSONL</td>
+<td>易于逐行追加、读取和处理</td>
+</tr>
+<tr>
+<td>构建 LLM 训练集或评测集</td>
+<td>JSONL</td>
+<td>每条样本独立，适合批量处理</td>
+</tr>
+<tr>
+<td>Agent 工具输入、输出</td>
+<td>JSON</td>
+<td>便于定义和校验结构化参数</td>
+</tr>
+<tr>
+<td>PostgreSQL 存储可变元数据</td>
+<td>JSONB</td>
+<td>便于查询和建立索引</td>
+</tr>
+<tr>
+<td>PostgreSQL 存储 RAG chunk 的 metadata</td>
+<td>JSONB</td>
+<td>可以结合 SQL 条件过滤检索结果</td>
+</tr>
+<tr>
+<td>保留 JSON 原始文本表示</td>
+<td>JSON 或文本字段</td>
+<td>JSONB 不保留原始文本格式</td>
+</tr>
+</tbody>
+</table>
+<h2 id="七放到-agentic-rag-系统中理解">七、放到 Agentic RAG 系统中理解</h2>
+<p>以 Agentic RAG 为例，三者可以在同一个系统中承担不同职责：</p>
+<pre><code class="language-text">原始数据 / 配置 / API 数据
+        │
+        ├── JSON：配置、接口传输、结构化工具参数
+        │
+        └── JSONL：批量样本、评测集、逐条运行日志
+                         │
+                         ▼
+                解析、清洗、切块
+                         │
+                         ▼
+                生成 embedding 与 metadata
+                         │
+                         ▼
+              PostgreSQL + pgvector
+              ├── embedding：向量检索
+              └── JSONB：metadata 存储与过滤
+                         │
+                         ▼
+              向量检索 + 条件过滤 + Agent 推理
+</code></pre>
+<p>例如，RAG 数据表可能包含：</p>
+<ul>
+<li><code>id</code>：chunk 的标识</li>
+<li><code>doc_id</code>：来源文档标识</li>
+<li><code>embedding</code>：用于向量检索的向量</li>
+<li><code>meta JSONB</code>：页码、来源、标签、文档类型等元数据</li>
+</ul>
+<p>这里的 <code>JSONB</code> 负责存储和查询 metadata；它本身不负责生成 embedding，也不替代向量索引。向量检索与 JSONB 条件过滤属于不同职责，可以组合使用。</p>
+<h2 id="八常见误区">八、常见误区</h2>
+<ol>
+<li><strong>把三者当成同一层级的格式。</strong> JSON 是数据格式；JSONL 是逐行组织方式；JSONB 是 PostgreSQL 的数据类型。</li>
+<li><strong>认为 JSONL 就是带换行的普通 JSON 数组。</strong> JSONL 每行是一条独立的 JSON 值，通常没有外围数组和行间逗号。</li>
+<li><strong>认为 JSONB 会原样保存 JSON 文本。</strong> JSONB 会解析并重新组织数据，不保留原始空白和对象键顺序，也会折叠重复键。</li>
+<li><strong>认为 JSONB 一定比 JSON 快。</strong> 对需要反复查询的场景，JSONB 通常更合适；实际性能依赖访问模式、索引和查询计划。</li>
+<li><strong>认为 JSONB 能替代所有数据库列。</strong> 对经常用于关联、约束、排序或统计的核心字段，通常仍适合使用明确的关系型列；JSONB 更适合灵活、半结构化的属性。</li>
+</ol>
+<h2 id="九最终记忆口诀">九、最终记忆口诀</h2>
+<blockquote>
+<p><strong>JSON 表示数据，JSONL 按行组织数据，JSONB 在 PostgreSQL 中存储并高效查询 JSON 数据。</strong></p>
+</blockquote>
+<p>选择时先问自己：</p>
+<ol>
+<li>我要定义或交换数据吗？——用 JSON。</li>
+<li>我要保存大量独立记录并逐条处理吗？——考虑 JSONL。</li>
+<li>我要在 PostgreSQL 里查询或筛选 JSON 内部字段吗？——通常优先考虑 JSONB。</li>
+</ol>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">知识领域</span><span class="chip">- JSON</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A2%86%E5%9F%9F/%E6%95%B0%E6%8D%AE%E5%BA%93/JSON_JSONL_JSONB_%E5%8C%BA%E5%88%AB%E4%B8%8E%E9%80%89%E5%9E%8B.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../notes/domains/p0d98c7/pythonvstypescriptai.html"><span class="dir">← 上一篇</span><span class="t">Python vs TypeScript：AI 时代的编程语言之争</span></a><a class="next" href="../../../notes/domains/p68051b/docker-postgres-migration-volume-obsidian.html"><span class="dir">下一篇 →</span><span class="t">Docker、Volume 与 PostgreSQL 数据迁移</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../index.html">首页</a>
+      <a href="../../../learn.html">课件</a>
+      <a href="../../../notes/index.html">笔记库</a>
+      <a href="../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../about.html">关于</a>
+      <a href="../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../js/main.js" defer></script>
+</body>
+</html>

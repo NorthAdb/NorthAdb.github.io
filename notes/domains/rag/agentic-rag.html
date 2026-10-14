@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agentic RAG：架构设计与落地实践 · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="Agentic RAG 不是某个特定的软件包，而是一种让 Agent 参与检索决策、检索过程可以动态调整的架构模式。 一条实用路线是：先把普通 RAG 封装成独立 Retrieval Service，再增加负责问题分析、检索规划、证据评估和…">
+<link rel="canonical" href="https://northadb.github.io/notes/domains/rag/agentic-rag.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Agentic RAG：架构设计与落地实践 · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="Agentic RAG 不是某个特定的软件包，而是一种让 Agent 参与检索决策、检索过程可以动态调整的架构模式。 一条实用路线是：先把普通 RAG 封装成独立 Retrieval Service，再增加负责问题分析、检索规划、证据评估和…">
+<meta property="og:url" content="https://northadb.github.io/notes/domains/rag/agentic-rag.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Agentic RAG：架构设计与落地实践 · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="Agentic RAG 不是某个特定的软件包，而是一种让 Agent 参与检索决策、检索过程可以动态调整的架构模式。 一条实用路线是：先把普通 RAG 封装成独立 Retrieval Service，再增加负责问题分析、检索规划、证据评估和…">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../feed.xml">
+<link rel="stylesheet" href="../../../css/style.css">
+<link rel="stylesheet" href="../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Agentic RAG：架构设计与落地实践", "description": "Agentic RAG 不是某个特定的软件包，而是一种让 Agent 参与检索决策、检索过程可以动态调整的架构模式。 一条实用路线是：先把普通 RAG 封装成独立 Retrieval Service，再增加负责问题分析、检索规划、证据评估和…", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/domains/rag/agentic-rag.html"}
+</script>
+<script src="../../../notes/assets/mermaid-init.js" defer></script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../web-foundation/index.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../notes/index.html">笔记库</a></li><li><a href="../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../index.html">首页</a><span>/</span><a href="../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../notes/domains/index.html">知识领域</a></div>
+          <h1>Agentic RAG：架构设计与落地实践</h1>
+          <p class="post-sub">Agentic RAG 不是某个特定的软件包，而是一种让 Agent 参与检索决策、检索过程可以动态调整的架构模式。 一条实用路线是：先把普通 RAG 封装成独立 Retrieval Service，再增加负责问题分析、检索规划、证据评估和…</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../notes/domains/index.html">知识领域</a></span><span class="sep"></span>
+            <span>阅读约 14 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+
+<div class="callout" data-callout="abstract"><p class="callout-title">核心结论</p>
+<p><strong>Agentic RAG 不是某个特定的软件包，而是一种让 Agent 参与检索决策、检索过程可以动态调整的架构模式。</strong></p>
+<p>一条实用路线是：先把普通 RAG 封装成独立 Retrieval Service，再增加负责问题分析、检索规划、证据评估和查询迭代的 Controller，最后通过 <strong>MCP</strong> 将能力提供给 Pi、OpenCode 等 Agent。</p>
+</div>
+<h2 id="1-agentic-rag-是什么">1. Agentic RAG 是什么？</h2>
+<h3 id="11-普通-rag-与-agentic-rag">1.1 普通 RAG 与 Agentic RAG</h3>
+<p>普通 RAG 通常采用预先定义好的检索流水线：</p>
+<pre><code class="language-text">用户问题
+  ↓
+Embedding / Query Processing
+  ↓
+向量检索或关键词检索
+  ↓
+Top-K 结果
+  ↓
+Rerank（可选）
+  ↓
+构造上下文
+  ↓
+LLM 生成回答
+</code></pre>
+<p>检索步骤主要由开发者预先确定。无论问题简单还是复杂，系统大体沿着既定 Pipeline 运行。</p>
+<p>Agentic RAG 则让模型或 Controller 参与检索过程中的决策：</p>
+<pre><code class="language-text">用户问题
+  ↓
+分析问题与信息缺口
+  ↓
+规划检索策略
+  ↓
+选择检索源与查询方式
+  ↓
+检索、重排、整理证据
+  ↓
+判断证据是否充分
+  ├─ 充分 → 生成回答
+  └─ 不充分 → 改写 / 拆分查询 → 再次检索
+</code></pre>
+<p><strong>关键区别不在于是否使用向量数据库，而在于检索流程是否能够根据问题和当前证据动态调整。</strong></p>
+<h3 id="12-几个相关概念的边界">1.2 几个相关概念的边界</h3>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>主要解决的问题</th>
+<th>与 Agentic RAG 的关系</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RAG</td>
+<td>如何把外部知识检索到生成上下文中</td>
+<td>基础能力</td>
+</tr>
+<tr>
+<td>Agent + RAG Tool</td>
+<td>Agent 能否调用检索工具</td>
+<td>是入门形式，但检索内部可能仍是固定流程</td>
+</tr>
+<tr>
+<td>Agentic Retrieval / Agentic RAG</td>
+<td>如何动态规划、选择、调整和评估检索</td>
+<td>本文重点</td>
+</tr>
+<tr>
+<td>GraphRAG</td>
+<td>如何利用图结构、实体关系或图上的检索策略组织知识</td>
+<td>一种可被 Agentic RAG 调用的检索后端或策略</td>
+</tr>
+<tr>
+<td>RAPTOR / Tree Retrieval</td>
+<td>如何通过层次化摘要或树结构检索多层次信息</td>
+<td>一种检索组织方式，不等同于 Agentic RAG</td>
+</tr>
+<tr>
+<td>Context Database / Agent Memory</td>
+<td>如何组织、持久化与按需加载 Agent 上下文或记忆</td>
+<td>与知识检索有关，但关注点不同</td>
+</tr>
+</tbody>
+</table>
+<p>因此：</p>
+<ul>
+<li><code>GraphRAG ≠ Agentic RAG</code></li>
+<li><code>RAPTOR ≠ Agentic RAG</code></li>
+<li>使用向量数据库不代表系统就是 Agentic RAG。</li>
+<li>固定的 Hybrid Search 可以作为 Agentic RAG 的底层能力。</li>
+</ul>
+<h2 id="2-两层-agent外层任务执行内层负责检索">2. 两层 Agent：外层任务执行，内层负责检索</h2>
+<p>当 Agent 本身已经有 ReAct Loop 时，可以把整个系统划分为两个逻辑层。</p>
+<pre><code class="language-mermaid">flowchart TD
+    U[用户任务] --&gt; A[外层 Agent：Pi / OpenCode]
+    A --&gt; D{下一步做什么？}
+    D --&gt;|检索知识| R[调用 rag_research 工具]
+    D --&gt;|其他任务| T[其他工具：read / bash / web / edit 等]
+    R --&gt; C[Agentic RAG Controller]
+    C --&gt; P[问题分析与检索规划]
+    P --&gt; S[检索、重排与证据整理]
+    S --&gt; E{证据是否充分？}
+    E --&gt;|否| Q[改写 / 拆分查询]
+    Q --&gt; S
+    E --&gt;|是| B[返回答案与证据包]
+    B --&gt; A
+    T --&gt; A
+</code></pre>
+<h3 id="外层-agent负责完整任务">外层 Agent：负责完整任务</h3>
+<p>例如，用户要求“分析某个 GitHub 项目并修改代码”。外层 Agent 决定什么时候读取文件、搜索网页、查询知识库、修改代码以及运行测试。</p>
+<h3 id="内层-agentic-rag负责知识获取">内层 Agentic RAG：负责知识获取</h3>
+<p>它只负责检索相关知识、评估证据和补足信息缺口。例如，针对“某个架构决策为什么这样设计”，它可以自动拆分问题、尝试不同检索方式、扩展上下文并判断证据是否充分。</p>
+
+<div class="callout" data-callout="important"><p class="callout-title">职责边界</p>
+<p>不要让两个层级都承担完整任务编排。外层负责“整个任务怎么完成”，内层负责“如何取得足够可靠的知识证据”。</p>
+</div>
+<h2 id="3-三种落地方式">3. 三种落地方式</h2>
+<h3 id="方式-a把普通检索当作工具">方式 A：把普通检索当作工具</h3>
+<pre><code class="language-text">Pi / OpenCode
+    └── knowledge_base_search(query)
+          └── 固定检索 Pipeline
+</code></pre>
+<p>这是最简单的方案。Agent 能自主决定是否调用搜索工具，但工具内部可能仍然只执行固定的 <code>vector → BM25 → rerank</code> 流程。</p>
+<p>适合先验证知识库能否被 Agent 使用；但不能仅凭这一点就认为检索本身已经具备较强的 Agentic 能力。</p>
+<h3 id="方式-b把-agentic-rag-封装成一个高层工具推荐">方式 B：把 Agentic RAG 封装成一个高层工具（推荐）</h3>
+<pre><code class="language-text">Pi / OpenCode
+    └── rag_research(query)
+          └── Query Planner
+                ↓
+              Retrieval Router
+                ↓
+              Hybrid Search / Graph / Tree
+                ↓
+              Reranker
+                ↓
+              Evidence Judge
+               ├── 充分 → 组织结果
+               └── 不足 → Query Rewrite → 再检索
+</code></pre>
+<p>对外只暴露一个相对稳定的工具，内部可以持续调整算法和后端。外层 Agent 无须知道底层究竟使用 pgvector、Elasticsearch、Qdrant 还是图检索。</p>
+<p><strong>这是第一版最推荐的实现方式：内部可以逐步演进，对外接口尽量保持稳定。</strong></p>
+<h3 id="方式-c把检索能力做成独立的-rag-agent">方式 C：把检索能力做成独立的 RAG Agent</h3>
+<pre><code class="language-text">主 Agent
+    ↓
+Research Agent / RAG Agent
+    ├── 知识库检索
+    ├── 网页搜索
+    ├── 证据比对
+    ├── 迭代查询
+    └── 输出研究报告
+</code></pre>
+<p>这更接近 Deep Research Agent。它适合多步骤、跨来源的研究任务，但也会带来更多 Token 消耗、调用延迟、状态管理和调试复杂度。</p>
+<p>建议先实现方式 B，再根据实际需求决定是否需要独立的子 Agent。</p>
+<h2 id="4-推荐目标架构">4. 推荐目标架构</h2>
+<pre><code class="language-mermaid">flowchart TB
+    subgraph Clients[Agent 客户端]
+      PI[Pi]
+      OC[OpenCode]
+      OTH[其他 MCP 客户端]
+    end
+
+    MCP[MCP Server：统一工具接口]
+    CTRL[Agentic RAG Controller]
+    PLAN[Query Analyzer / Planner]
+    ROUTER[Retrieval Router]
+    EVAL[Evidence Judge]
+    SYN[Answer / Evidence Composer]
+
+    subgraph Backends[可插拔检索后端]
+      HYB[Hybrid Search：BM25 + Vector]
+      GRAPH[Graph Retrieval / GraphRAG]
+      TREE[Tree / RAPTOR Retrieval]
+      WEB[Web Search，可选]
+    end
+
+    DB[(知识库与索引)]
+
+    PI --&gt; MCP
+    OC --&gt; MCP
+    OTH --&gt; MCP
+    MCP --&gt; CTRL
+    CTRL --&gt; PLAN
+    PLAN --&gt; ROUTER
+    ROUTER --&gt; HYB
+    ROUTER --&gt; GRAPH
+    ROUTER --&gt; TREE
+    ROUTER --&gt; WEB
+    HYB --&gt; DB
+    GRAPH --&gt; DB
+    TREE --&gt; DB
+    HYB --&gt; EVAL
+    GRAPH --&gt; EVAL
+    TREE --&gt; EVAL
+    WEB --&gt; EVAL
+    EVAL --&gt;|证据不足：调整查询| PLAN
+    EVAL --&gt;|证据充分| SYN
+    SYN --&gt; MCP
+</code></pre>
+<p>架构可分为四层：</p>
+<ol>
+<li><strong>客户端层</strong>：Pi、OpenCode 或其他 Agent。</li>
+<li><strong>协议 / 工具层</strong>：通过 MCP 暴露稳定接口。</li>
+<li><strong>Agentic Controller 层</strong>：完成问题分析、策略规划、重试与证据判断。</li>
+<li><strong>检索后端层</strong>：封装向量、关键词、图、树或网页等检索能力。</li>
+</ol>
+<p>这四层分开之后，客户端、检索策略与数据存储可以相对独立地变化。</p>
+<h2 id="5-工具接口如何设计">5. 工具接口如何设计</h2>
+<p>第一版不必向 Agent 暴露大量底层检索工具。可以从三个接口开始。</p>
+<h3 id="51-ragsearchquery">5.1 <code>rag_search(query)</code></h3>
+<p>执行一次普通检索，返回候选证据。适用于快速查询、调试和外层 Agent 自主编排。</p>
+<p>示意返回：</p>
+<pre><code class="language-json">{
+  &quot;results&quot;: [
+    {
+      &quot;chunk_id&quot;: &quot;chunk-123&quot;,
+      &quot;document_id&quot;: &quot;tls13-notes&quot;,
+      &quot;text&quot;: &quot;候选文本片段……&quot;,
+      &quot;score&quot;: 0.91,
+      &quot;source&quot;: &quot;tls13.pdf&quot;,
+      &quot;page&quot;: 17
+    }
+  ]
+}
+</code></pre>
+<h3 id="52-ragfetchchunkid-expand">5.2 <code>rag_fetch(chunk_id, expand)</code></h3>
+<p>根据命中的 chunk 或文档标识获取更多上下文。例如：</p>
+<ul>
+<li>获取 chunk 对应的原文。</li>
+<li>向上扩展到 parent chunk 或相邻段落。</li>
+<li>返回文档标题、页码、URL 等来源元数据。</li>
+</ul>
+<p>它可以实现“子块精确召回，再扩展父级上下文”的检索模式。</p>
+<h3 id="53-ragresearchquery">5.3 <code>rag_research(query)</code></h3>
+<p>负责完整的 Agentic Retrieval 流程。它不只是返回 Top-K，而是尝试整理出回答问题所需的证据，并在必要时重新检索。</p>
+<pre><code class="language-text">rag_research(query)
+    1. 分析问题、实体和信息缺口
+    2. 规划查询或拆分子问题
+    3. 选择检索后端和检索策略
+    4. 检索并合并候选结果
+    5. 重排候选证据
+    6. 判断证据覆盖度与可信度
+    7. 不足时改写查询并重试
+    8. 输出证据、出处和检索摘要
+</code></pre>
+<h2 id="6-检索控制器的核心逻辑">6. 检索控制器的核心逻辑</h2>
+<p>最小版本不需要一开始就使用多 Agent 框架。可以用一个有边界的 Controller 管理检索循环。</p>
+<pre><code class="language-python">while not finished:
+    plan = analyze_query(query)
+    candidates = retrieve(plan)
+    evidence = rerank(candidates)
+
+    assessment = evaluate_evidence(
+        query=query,
+        evidence=evidence,
+    )
+
+    if assessment.is_sufficient:
+        finished = True
+    else:
+        query = rewrite_query(
+            query=query,
+            evidence=evidence,
+            missing_information=assessment.missing_information,
+        )
+
+return build_result(query=query, evidence=evidence)
+</code></pre>
+<p>这只是控制流程示意。真正实现时需要加上最大迭代次数、超时、Token / 成本预算、重复查询检测和失败处理，避免无休止地循环。</p>
+<h3 id="建议的核心模块">建议的核心模块</h3>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>职责</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>analyzer.py</code></td>
+<td>识别问题类型、实体、约束和信息缺口</td>
+</tr>
+<tr>
+<td><code>planner.py</code></td>
+<td>生成单次或多步检索计划</td>
+</tr>
+<tr>
+<td><code>router.py</code></td>
+<td>选择向量、关键词、图、树或外部搜索</td>
+</tr>
+<tr>
+<td><code>retriever/</code></td>
+<td>各类检索后端的统一封装</td>
+</tr>
+<tr>
+<td><code>reranker.py</code></td>
+<td>对召回内容进一步排序</td>
+</tr>
+<tr>
+<td><code>evaluator.py</code></td>
+<td>判断证据是否覆盖问题、是否存在明显冲突</td>
+</tr>
+<tr>
+<td><code>rewriter.py</code></td>
+<td>根据缺失信息生成新的检索查询</td>
+</tr>
+<tr>
+<td><code>controller.py</code></td>
+<td>控制整个检索循环，执行预算和终止策略</td>
+</tr>
+<tr>
+<td><code>composer.py</code></td>
+<td>组织答案、引用和证据包</td>
+</tr>
+<tr>
+<td><code>mcp/server.py</code></td>
+<td>将上述能力通过 MCP 暴露给客户端</td>
+</tr>
+</tbody>
+</table>
+<h2 id="7-为什么建议用-mcp-接入-piopencode-等-agent">7. 为什么建议用 MCP 接入 Pi、OpenCode 等 Agent？</h2>
+<p>如果只为 Pi 开发专用扩展，或者只为 OpenCode 写自定义工具，检索服务就容易与特定客户端绑定。</p>
+<p>使用 MCP 作为服务接口，可以形成：</p>
+<pre><code class="language-text">Pi ─────────┐
+OpenCode ────┼── MCP ── Agentic RAG Service ── Retrieval Backends
+其他客户端 ─┘
+</code></pre>
+<p>MCP 在这里是<strong>工具互操作层</strong>，不是 Agentic RAG 算法本身。它负责标准化地描述和调用工具；具体的查询规划、检索、重试和证据判断仍由你的服务实现。</p>
+<h3 id="71-opencode-接入思路">7.1 OpenCode 接入思路</h3>
+<p>OpenCode 支持配置 MCP Server。可以把本地 Python 服务注册为一个 MCP 工具服务，然后让 OpenCode 在需要时调用 <code>rag_search</code>、<code>rag_fetch</code> 或 <code>rag_research</code>。</p>
+<p>配置示意（具体字段以当前版本文档为准）：</p>
+<pre><code class="language-json">{
+  &quot;$schema&quot;: &quot;https://opencode.ai/config.json&quot;,
+  &quot;mcp&quot;: {
+    &quot;rag&quot;: {
+      &quot;type&quot;: &quot;local&quot;,
+      &quot;command&quot;: [&quot;uv&quot;, &quot;run&quot;, &quot;python&quot;, &quot;mcp_server.py&quot;]
+    }
+  }
+}
+</code></pre>
+<p>基本调用链：</p>
+<pre><code class="language-text">OpenCode → MCP Tool → rag_research → Controller → 检索后端
+</code></pre>
+<p>也可以以后为 OpenCode 单独实现原生 Custom Tool / Plugin，但这不是第一版的必要条件。</p>
+<h3 id="72-pi-接入思路">7.2 Pi 接入思路</h3>
+<p>Pi 可以通过扩展注册工具，也可以使用 MCP 扩展连接 MCP Server。</p>
+<pre><code class="language-text">Pi → MCP 扩展 / 客户端 → Agentic RAG MCP Server
+</code></pre>
+<p>如果需要与 Pi 的运行时深度集成，例如根据会话状态动态启用工具、调整上下文或定制交互，再考虑开发 Pi 原生 Extension。第一版通常可以先通过 MCP 打通调用链。</p>
+
+<div class="callout" data-callout="note"><p class="callout-title">版本提示</p>
+<p>Pi 和 OpenCode 的扩展机制、MCP 配置格式会随版本演进。本文中的配置只用于说明集成方式，实际使用前应对照官方文档核对字段与安装步骤。</p>
+</div>
+<h2 id="8-结构化返回不要只返回一大段文本">8. 结构化返回：不要只返回一大段文本</h2>
+<p>建议将检索结果整理成可供外层 Agent 继续推理的结构化 <strong>Evidence Bundle</strong>。</p>
+<pre><code class="language-json">{
+  &quot;answer&quot;: &quot;基于现有证据得到的阶段性结论……&quot;,
+  &quot;evidence&quot;: [
+    {
+      &quot;document_id&quot;: &quot;tls13-notes&quot;,
+      &quot;chunk_id&quot;: &quot;chunk-123&quot;,
+      &quot;text&quot;: &quot;支持结论的原文片段……&quot;,
+      &quot;source&quot;: &quot;tls13.pdf&quot;,
+      &quot;page&quot;: 17,
+      &quot;score&quot;: 0.93
+    }
+  ],
+  &quot;retrieval_trace&quot;: [
+    {
+      &quot;query&quot;: &quot;TLS 1.3 certificate fragmentation&quot;,
+      &quot;strategy&quot;: &quot;hybrid&quot;
+    },
+    {
+      &quot;query&quot;: &quot;post-quantum certificate size MTU&quot;,
+      &quot;strategy&quot;: &quot;hybrid&quot;
+    }
+  ],
+  &quot;assessment&quot;: {
+    &quot;sufficient&quot;: true,
+    &quot;missing_information&quot;: []
+  }
+}
+</code></pre>
+<p>结构化结果有几个好处：</p>
+<ul>
+<li>外层 Agent 可以检查来源并决定是否继续追问或检索。</li>
+<li>答案和证据分离，便于引用、审计和验证。</li>
+<li>可以保留精简的检索轨迹，方便调试；不必把所有内部细节都塞进上下文。</li>
+<li>不同检索后端可以统一映射到同一返回结构。</li>
+</ul>
+<p>注意：<code>score</code> 通常是检索或排序分数，不应直接等同于事实正确概率。<code>confidence</code> 或充分性判断也应有明确含义，最好结合证据覆盖度、来源质量和冲突检测，而不是只依赖模型口头自评。</p>
+<h2 id="9-检索后端与索引策略">9. 检索后端与索引策略</h2>
+<p>Agentic RAG 的 Controller 可以独立于后端存储。后端按需求逐步增加，不需要一次全部实现。</p>
+<table>
+<thead>
+<tr>
+<th>后端 / 方法</th>
+<th>主要用途</th>
+<th>建议阶段</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>BM25 / 关键词检索</td>
+<td>精确术语、错误码、标识符、专有名词</td>
+<td>第一阶段</td>
+</tr>
+<tr>
+<td>向量检索</td>
+<td>语义相似、不同表述之间的召回</td>
+<td>第一阶段</td>
+</tr>
+<tr>
+<td>Hybrid Search</td>
+<td>结合关键词和语义召回，常作为基础检索策略</td>
+<td>第一阶段</td>
+</tr>
+<tr>
+<td>Reranker</td>
+<td>对候选片段做第二阶段排序</td>
+<td>第一阶段或紧接着加入</td>
+</tr>
+<tr>
+<td>Parent / Context Expansion</td>
+<td>将精确命中的 chunk 扩展到更完整上下文</td>
+<td>第一至第二阶段</td>
+</tr>
+<tr>
+<td>GraphRAG / 图检索</td>
+<td>实体关系、跨文档关系、多跳查询</td>
+<td>有明确需求后再加</td>
+</tr>
+<tr>
+<td>RAPTOR / Tree Retrieval</td>
+<td>分层摘要、跨段落或更高层次主题检索</td>
+<td>有明确需求后再加</td>
+</tr>
+<tr>
+<td>Web Search</td>
+<td>本地知识库覆盖不足或需要外部新信息时补充</td>
+<td>可选</td>
+</tr>
+</tbody>
+</table>
+<p>如果已有 PostgreSQL / pgvector，可以先保留它作为知识存储，并组合关键词检索、向量检索、混合排序和 reranker。第一版不必为了“Agentic”这个标签就切换数据库。</p>
+<h2 id="10-开源项目参考">10. 开源项目参考</h2>
+<p>建议按“理解模式 → 学习工作流 → 观察完整服务”的顺序阅读，而不是一开始就同时部署多个平台。</p>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>主要定位</th>
+<th>值得学习的方面</th>
+<th>更适合的用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/run-llama/llama_index">LlamaIndex</a></td>
+<td>数据框架、RAG 与 Agent</td>
+<td>Query Engine Tool、路由、子问题分解、Agent 调用检索</td>
+<td>理解 Agent 与 RAG 如何组合</td>
+</tr>
+<tr>
+<td><a href="https://github.com/deepset-ai/haystack">Haystack</a></td>
+<td>Pipeline 与 Agent 工作流框架</td>
+<td>条件分支、循环、PipelineTool、检索失败后的回退</td>
+<td>学习显式、可控的检索流程</td>
+</tr>
+<tr>
+<td><a href="https://github.com/SciPhi-AI/R2R">R2R</a></td>
+<td>RAG / Agentic Retrieval 服务</td>
+<td>如何把检索封装成可部署的服务与 API</td>
+<td>参考独立 Retrieval Service 的产品形态</td>
+</tr>
+<tr>
+<td><a href="https://github.com/infiniflow/ragflow">RAGFlow</a></td>
+<td>完整 RAG 平台</td>
+<td>文档解析、知识库构建、检索与 Agent 功能的集成</td>
+<td>研究较完整的系统工程实践</td>
+</tr>
+<tr>
+<td><a href="https://github.com/NirDiamant/RAG_Techniques">RAG_Techniques</a></td>
+<td>RAG 技术示例集合</td>
+<td>查询改写、复杂任务规划、自适应检索、验证</td>
+<td>学习与实验具体技术模式</td>
+</tr>
+<tr>
+<td><a href="https://github.com/microsoft/graphrag">Microsoft GraphRAG</a></td>
+<td>基于图结构的检索方法</td>
+<td>实体关系、图构建、全局与局部检索思路</td>
+<td>研究 GraphRAG，不等于直接采用整个 Agent 架构</td>
+</tr>
+<tr>
+<td><a href="https://github.com/volcengine/OpenViking">OpenViking</a></td>
+<td>面向 Agent 的上下文 / 记忆基础设施</td>
+<td>上下文组织、按需检索和渐进式加载</td>
+<td>研究 Context Database 与 Agent Memory 的组织方式</td>
+</tr>
+</tbody>
+</table>
+<h3 id="推荐阅读顺序">推荐阅读顺序</h3>
+<ol>
+<li><strong>LlamaIndex</strong>：先理解 Agent 如何把 RAG / Query Engine 当作工具调用。</li>
+<li><strong>Haystack</strong>：理解如何用显式 Pipeline、条件分支和循环控制检索工作流。</li>
+<li><strong>RAG_Techniques</strong>：针对查询改写、检索路由和证据评估做小实验。</li>
+<li><strong>R2R / RAGFlow</strong>：研究如何将检索能力服务化，以及完整平台的工程取舍。</li>
+<li><strong>GraphRAG / OpenViking</strong>：在基础版本跑通以后，再分别深入图检索与上下文基础设施。</li>
+</ol>
+<p>开源项目迭代较快。选型前应再次查看各项目的最新 README、文档、维护状态和许可证，尤其不要只凭项目名称判断其是否适合作为生产依赖。</p>
+<h2 id="11-推荐项目目录">11. 推荐项目目录</h2>
+<p>一个便于逐步实现、又不与某个 Agent 客户端绑定的 Python 项目可以这样组织：</p>
+<pre><code class="language-text">agentic-rag/
+├── ingestion/
+│   ├── parser.py
+│   ├── cleaner.py
+│   ├── chunker.py
+│   └── indexer.py
+├── retrieval/
+│   ├── dense.py
+│   ├── bm25.py
+│   ├── hybrid.py
+│   ├── reranker.py
+│   ├── context_expansion.py
+│   └── graph.py              # 后续按需添加
+├── agentic/
+│   ├── analyzer.py
+│   ├── planner.py
+│   ├── router.py
+│   ├── evaluator.py
+│   ├── rewriter.py
+│   ├── composer.py
+│   └── controller.py
+├── mcp/
+│   └── server.py
+├── evaluation/
+│   ├── dataset.py
+│   └── evaluate.py
+├── tests/
+├── pyproject.toml
+└── README.md
+</code></pre>
+<p>其中 <code>retrieval/</code> 负责“如何查”，<code>agentic/</code> 负责“决定查什么、如何调整”，<code>mcp/</code> 负责“如何让外部 Agent 调用”。不要把所有逻辑塞进 MCP Server 文件中。</p>
+<h2 id="12-分阶段实施路线">12. 分阶段实施路线</h2>
+<h3 id="phase-1先有可用的普通-rag">Phase 1：先有可用的普通 RAG</h3>
+<p>实现文档解析、切分、索引和基础检索。如果已有可用 RAG，直接复用，不必重建。</p>
+<p>交付标准：能根据问题召回相关片段，并保留文档标识、页码、URL 等来源信息。</p>
+<h3 id="phase-2整理稳定的检索-api">Phase 2：整理稳定的检索 API</h3>
+<p>实现 <code>rag_search()</code> 和 <code>rag_fetch()</code>，统一输入输出结构，隔离底层数据库实现。</p>
+<p>交付标准：不依赖 Pi 或 OpenCode，也可以通过命令行或测试程序调用。</p>
+<h3 id="phase-3加入-agentic-rag-controller">Phase 3：加入 Agentic RAG Controller</h3>
+<p>依次加入问题分析、查询改写、检索路由、证据充分性判断和有限次数重试。</p>
+<p>交付标准：遇到证据不足的问题，可以解释信息缺口并尝试新的查询；达到预算或最大重试次数时能正常退出。</p>
+<h3 id="phase-4通过-mcp-暴露-ragresearch">Phase 4：通过 MCP 暴露 <code>rag_research()</code></h3>
+<p>将内部 Controller 包装成 MCP 工具，并接入 Pi、OpenCode。</p>
+<p>交付标准：不同 MCP 客户端能够使用相同的核心检索服务，算法逻辑不复制到各客户端插件里。</p>
+<h3 id="phase-5增强检索能力">Phase 5：增强检索能力</h3>
+<p>根据评测数据与实际失败案例，再考虑加入 GraphRAG、RAPTOR、上下文扩展、网页搜索回退或不同的检索器。</p>
+<p>交付标准：每增加一种策略，都能说明它解决了哪类已观察到的失败案例。</p>
+<h3 id="phase-6评测追踪与治理">Phase 6：评测、追踪与治理</h3>
+<p>为检索和回答建立测试集，记录查询、路由策略、召回结果、引用与失败原因。评估召回质量、答案正确性、引用可靠性、延迟和成本。</p>
+<p>交付标准：策略调整有可比较的指标，而不是只凭几个手工示例判断效果。</p>
+<h2 id="13-第一版-mvp-的范围建议">13. 第一版 MVP 的范围建议</h2>
+<p>推荐的 MVP 组合：</p>
+<ul>
+<li><strong>语言与服务</strong>：Python。</li>
+<li><strong>知识存储</strong>：已有 PostgreSQL / pgvector 可继续使用。</li>
+<li><strong>检索策略</strong>：BM25 + 向量检索 + Hybrid Search。</li>
+<li><strong>排序</strong>：先做基础融合；需要时加入 Reranker。</li>
+<li><strong>Agentic 能力</strong>：Query Analysis、Query Rewrite、Evidence Judge、有限次数 Retry。</li>
+<li><strong>对外接口</strong>：MCP Server。</li>
+<li><strong>接入客户端</strong>：先选 Pi 或 OpenCode 中一个验证，再接另一个。</li>
+</ul>
+<p>第一版暂时不做：复杂多 Agent 编排、完整 GraphRAG、RAPTOR、过多可配置的检索模式，以及大量客户端专用插件。</p>
+<h3 id="mvp-验收清单">MVP 验收清单</h3>
+<ul>
+<li class="task"><span class="cb" aria-hidden="true"></span>普通查询可以返回可追溯的候选证据。</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>命中结果支持回取原文或扩展上下文。</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>能识别明显的证据缺口并改写查询。</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>检索循环有最大轮数、超时和成本上限。</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>返回结构包含来源标识、文本片段和检索过程摘要。</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>通过 MCP 对外提供统一工具接口。</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>Pi 或 OpenCode 至少有一个完成端到端调用。</li>
+<li class="task"><span class="cb" aria-hidden="true"></span>有一组固定测试问题，可对比改造前后的检索表现。</li>
+</ul>
+<h2 id="14-关键设计原则">14. 关键设计原则</h2>
+<ol>
+<li><strong>先服务化，再智能化</strong>：先把检索能力变成边界清楚、可测试的接口，再引入动态决策。</li>
+<li><strong>外层与内层分工明确</strong>：主 Agent 管整个任务；Agentic RAG 管检索和证据。</li>
+<li><strong>MCP 是接口，不是算法</strong>：MCP 解决不同客户端如何调用服务的问题，不会自动让 RAG 变得 Agentic。</li>
+<li><strong>后端可插拔</strong>：将 BM25、向量、图、树和网页检索封装为统一接口。</li>
+<li><strong>证据优先于流畅度</strong>：保留来源和引用，区分检索分数与事实可信度。</li>
+<li><strong>循环必须有边界</strong>：限制迭代次数、延迟、Token 和费用，避免反复搜索。</li>
+<li><strong>用评测决定复杂度</strong>：只有当基线方案暴露出明确短板时，才增加 GraphRAG、RAPTOR 等机制。</li>
+</ol>
+<h2 id="15-参考资料">15. 参考资料</h2>
+<ul>
+<li><a href="https://github.com/run-llama/llama_index">LlamaIndex GitHub</a></li>
+<li><a href="https://docs.llamaindex.ai/en/stable/module_guides/deploying/agents/agentic_strategies/">LlamaIndex Agentic Strategies</a></li>
+<li><a href="https://github.com/deepset-ai/haystack">Haystack GitHub</a></li>
+<li><a href="https://docs.haystack.deepset.ai/docs/agentic-rag">Haystack Agentic RAG 文档</a></li>
+<li><a href="https://github.com/SciPhi-AI/R2R">R2R GitHub</a></li>
+<li><a href="https://github.com/infiniflow/ragflow">RAGFlow GitHub</a></li>
+<li><a href="https://github.com/NirDiamant/RAG_Techniques">RAG_Techniques GitHub</a></li>
+<li><a href="https://github.com/microsoft/graphrag">Microsoft GraphRAG GitHub</a></li>
+<li><a href="https://github.com/volcengine/OpenViking">OpenViking GitHub</a></li>
+<li><a href="https://opencode.ai/docs/mcp-servers/">OpenCode MCP 文档</a></li>
+<li><a href="https://opencode.ai/docs/custom-tools/">OpenCode Custom Tools 文档</a></li>
+<li><a href="https://pi.dev/docs/latest/extensions">Pi 文档</a></li>
+<li><a href="https://github.com/modelcontextprotocol/python-sdk">MCP Python SDK</a></li>
+</ul>
+<hr>
+<h2 id="一句话总结">一句话总结</h2>
+<p><strong>不要先寻找一个名叫 Agentic RAG 的成品然后把它塞进 Pi / OpenCode；更可控的做法是复用现有 RAG，构建一个带检索规划与证据评估的 Controller，将它服务化，再通过 MCP 让多个 Agent 共用。</strong></p>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">知识领域</span><span class="chip">- AI/Agent</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A2%86%E5%9F%9F/rag/Agentic-RAG-%E6%9E%B6%E6%9E%84%E4%B8%8E%E8%90%BD%E5%9C%B0%E5%AE%9E%E8%B7%B5.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../notes/domains/pi/pi-durable.html"><span class="dir">← 上一篇</span><span class="t">Pi Durable：面向长期运行 Agent 的持久化 Harness</span></a><a class="next" href="../../../notes/domains/rag/codewikigoogleai.html"><span class="dir">下一篇 →</span><span class="t">CodeWiki：Google 的 AI 驱动代码文档平台</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../index.html">首页</a>
+      <a href="../../../learn.html">课件</a>
+      <a href="../../../notes/index.html">笔记库</a>
+      <a href="../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../about.html">关于</a>
+      <a href="../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../js/main.js" defer></script>
+</body>
+</html>

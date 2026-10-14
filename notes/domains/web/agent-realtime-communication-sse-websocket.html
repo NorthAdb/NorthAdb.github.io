@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent 实时通信：SSE、WebSocket 与 Agent Harness · 我的笔记库 — NorthAdb 的博客</title>
+<meta name="description" content="核心结论：Agent 不应该先问“要不要 WebSocket”，而应该先拆分通信职责：命令、流式输出、实时控制、状态同步。 一个常见且实用的默认架构是： HTTP POST 负责命令，SSE 负责服务器到客户端的流式事件，WebSocket…">
+<link rel="canonical" href="https://northadb.github.io/notes/domains/web/agent-realtime-communication-sse-websocket.html">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="NorthAdb">
+<meta property="og:title" content="Agent 实时通信：SSE、WebSocket 与 Agent Harness · 我的笔记库 — NorthAdb 的博客">
+<meta property="og:description" content="核心结论：Agent 不应该先问“要不要 WebSocket”，而应该先拆分通信职责：命令、流式输出、实时控制、状态同步。 一个常见且实用的默认架构是： HTTP POST 负责命令，SSE 负责服务器到客户端的流式事件，WebSocket…">
+<meta property="og:url" content="https://northadb.github.io/notes/domains/web/agent-realtime-communication-sse-websocket.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Agent 实时通信：SSE、WebSocket 与 Agent Harness · 我的笔记库 — NorthAdb 的博客">
+<meta name="twitter:description" content="核心结论：Agent 不应该先问“要不要 WebSocket”，而应该先拆分通信职责：命令、流式输出、实时控制、状态同步。 一个常见且实用的默认架构是： HTTP POST 负责命令，SSE 负责服务器到客户端的流式事件，WebSocket…">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23FF6363'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%230A0A0A' font-family='system-ui,sans-serif' font-weight='800'>N</text></svg>">
+<link rel="alternate" type="application/rss+xml" title="NorthAdb 的博客" href="../../../feed.xml">
+<link rel="stylesheet" href="../../../css/style.css">
+<link rel="stylesheet" href="../../../notes/assets/notes.css">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Agent 实时通信：SSE、WebSocket 与 Agent Harness", "description": "核心结论：Agent 不应该先问“要不要 WebSocket”，而应该先拆分通信职责：命令、流式输出、实时控制、状态同步。 一个常见且实用的默认架构是： HTTP POST 负责命令，SSE 负责服务器到客户端的流式事件，WebSocket…", "author": {"@type": "Person", "name": "NorthAdb", "url": "https://github.com/NorthAdb/north-my-note"}, "mainEntityOfPage": "https://northadb.github.io/notes/domains/web/agent-realtime-communication-sse-websocket.html"}
+</script>
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body data-root="../../../" data-page="post">
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../../../index.html">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </a>
+    <nav aria-label="主导航">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../../index.html#latest">文章</a></li>
+        <li class="nav-drop">
+          <a href="../../../learn.html" aria-haspopup="true">课件</a>
+          <ul class="drop-menu">
+            <li><a href="../../../learn.html"><b>课件总览</b><span>怎么读 · 全部课表</span></a></li>
+            <li><a href="../../../ai-engineer/index.html"><b>AI Agent 面试宝典</b><span>17 章 · 面试向全景</span></a></li>
+            <li><a href="../../../notes/index.html"><b>我的笔记库</b><span>Obsidian 知识库在线镜像</span></a></li>
+            <li><a href="https://northadb.github.io/agent-learning/lessons/"><b>Agent Learning</b><span>主课 · Python 读懂 harness</span></a></li>
+            <li><a href="../../../agent-harness-course/index.html"><b>Agent Harness 架构课程</b><span>逆向 Pi 源码 · 15 课</span></a></li>
+            <li><a href="../../../learn-pi/index.html"><b>学习 Pi 导读</b><span>中文导读 · 22 篇</span></a></li>
+            <li><a href="../../../web-foundation/index.html"><b>从 HTTP 到实时 Agent Server</b><span>网络通信课</span></a></li>
+            <li><a href="../../../rag/index.html"><b>RAG Playground</b><span>手写 RAG 流水线</span></a></li>
+          </ul>
+        </li>
+        <li><a href="../../../notes/index.html">笔记库</a></li><li><a href="../../../about.html">关于</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="search-btn" data-cmdk aria-label="搜索">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/NorthAdb" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="post-layout">
+    <div class="post-main">
+      <article>
+        <header class="post-hero">
+          <div class="crumbs"><a href="../../../index.html">首页</a><span>/</span><a href="../../../notes/index.html">我的笔记库</a><span>/</span><a href="../../../notes/domains/index.html">知识领域</a></div>
+          <h1>Agent 实时通信：SSE、WebSocket 与 Agent Harness</h1>
+          <p class="post-sub">核心结论：Agent 不应该先问“要不要 WebSocket”，而应该先拆分通信职责：命令、流式输出、实时控制、状态同步。 一个常见且实用的默认架构是： HTTP POST 负责命令，SSE 负责服务器到客户端的流式事件，WebSocket…</p>
+          <div class="post-meta">
+            <span class="avatar">N</span>
+            <span>我的笔记库</span><span class="sep"></span>
+            <span><a href="../../../notes/domains/index.html">知识领域</a></span><span class="sep"></span>
+            <span>阅读约 10 分钟</span>
+          </div>
+        </header>
+
+        <div class="toc-mobile">
+          <details>
+            <summary>On this page</summary>
+            <nav class="toc"><div class="toc-build"></div></nav>
+          </details>
+        </div>
+
+        <div class="prose">
+<blockquote>
+<p>核心结论：<strong>Agent 不应该先问“要不要 WebSocket”，而应该先拆分通信职责：命令、流式输出、实时控制、状态同步。</strong></p>
+<p>一个常见且实用的默认架构是：</p>
+<p><strong>HTTP POST 负责命令，SSE 负责服务器到客户端的流式事件，WebSocket 负责需要低延迟双向通信的控制与协作，WebRTC 负责实时音频。</strong></p>
+<p>真正值得学习的重点不是 WebSocket API，而是：</p>
+<p><strong>Transport → Event Protocol → Event Log → State Machine → Agent Loop → Cancellation / Recovery</strong></p>
+</blockquote>
+<hr>
+<h2 id="1-agent-为什么需要实时通信">1. Agent 为什么需要实时通信？</h2>
+<p>传统 HTTP 更接近：</p>
+<pre><code class="language-text">Client
+  │
+  │ Request
+  ▼
+Server
+  │
+  │ Response
+  ▼
+Client
+</code></pre>
+<p>但 Agent 的执行通常不是瞬时完成的，而是：</p>
+<pre><code class="language-text">User Message
+     │
+     ▼
+Agent Run
+     │
+     ├── LLM
+     ├── Tool Call
+     ├── Tool Result
+     ├── RAG
+     ├── Sub-agent
+     ├── More LLM
+     └── Final Answer
+</code></pre>
+<p>因此前端通常希望在 Agent 执行期间持续看到：</p>
+<pre><code class="language-text">Agent started
+↓
+Searching...
+↓
+Tool called
+↓
+Tool completed
+↓
+Generating...
+↓
+Completed
+</code></pre>
+<p>这就产生了 <strong>Realtime Agent Communication</strong> 的需求。</p>
+<hr>
+<h1 id="2-一个完整的-agent-realtime-架构">2. 一个完整的 Agent Realtime 架构</h1>
+<pre><code class="language-text">                    ┌──────────────┐
+                    │   Browser    │
+                    │   / Client   │
+                    └──────┬───────┘
+                           │
+            ┌──────────────┼──────────────┐
+            │              │              │
+         HTTP POST         SSE        WebSocket
+            │              │              │
+         Commands      Streaming       Control
+            │              │              │
+            └──────────────┼──────────────┘
+                           ▼
+                 ┌──────────────────┐
+                 │ Realtime Gateway │
+                 └────────┬─────────┘
+                          ▼
+                 ┌──────────────────┐
+                 │   Agent Runtime │
+                 │                  │
+                 │ Agent Loop       │
+                 │ LLM              │
+                 │ Tools            │
+                 │ Memory / RAG     │
+                 │ Sub-agents       │
+                 └────────┬─────────┘
+                          │
+                 ┌────────┼────────┐
+                 ▼        ▼        ▼
+                LLM      Tools     DB
+</code></pre>
+<p>其中：</p>
+<ul>
+<li><strong>Transport Layer</strong>：HTTP / SSE / WebSocket / WebRTC</li>
+<li><strong>Event Protocol</strong>：定义事件的类型、字段和顺序</li>
+<li><strong>Agent State Machine</strong>：定义 Agent 当前处于什么状态</li>
+<li><strong>Agent Runtime</strong>：真正执行 LLM、Tool、RAG、Sub-agent 等工作</li>
+<li><strong>Event Store / Message Bus</strong>：为可靠投递、重放、恢复提供基础</li>
+</ul>
+<hr>
+<h1 id="3-websocket-在-agent-中能做什么">3. WebSocket 在 Agent 中能做什么？</h1>
+<h2 id="31-流式输出">3.1 流式输出</h2>
+<p>可以传递：</p>
+<pre><code class="language-text">message_delta
+tool_call
+tool_result
+progress
+done
+</code></pre>
+<p>前端据此渲染：</p>
+<pre><code class="language-text">🤖 Agent started
+
+🔍 Searching...
+
+🛠 Calling search()
+
+✅ Search completed
+
+✍ Generating answer...
+
+✅ Done
+</code></pre>
+<p>但是：</p>
+<blockquote>
+<p><strong>“需要流式输出”并不等于“必须使用 WebSocket”。</strong></p>
+</blockquote>
+<p>LLM Token Streaming 通常是服务器单向推送：</p>
+<pre><code class="language-text">Client ─────────────→ Server
+Client ←───────────── Server
+             stream
+</code></pre>
+<p>因此 SSE 往往更自然。</p>
+<hr>
+<h2 id="32-双向实时控制">3.2 双向实时控制</h2>
+<p>WebSocket 更适合：</p>
+<pre><code class="language-text">cancel
+pause
+resume
+interrupt
+approval
+追加指令
+</code></pre>
+<p>例如：</p>
+<pre><code class="language-json">{
+  &quot;type&quot;: &quot;cancel_run&quot;,
+  &quot;run_id&quot;: &quot;run123&quot;
+}
+</code></pre>
+<p>典型链路：</p>
+<pre><code class="language-text">Browser
+   │ cancel
+   ▼
+WebSocket
+   │
+   ▼
+Agent Runtime
+   │
+   ├── abort LLM request
+   ├── cancel tool
+   ├── cancel sub-agent
+   ├── cancel RAG
+   └── release resources
+</code></pre>
+<p>关键概念是：</p>
+<blockquote>
+<p><strong>Cancellation Propagation（取消信号传播）</strong></p>
+</blockquote>
+<p>不能只关闭前端连接，而必须让取消信号真正传到 Agent 执行层。</p>
+<hr>
+<h2 id="33-人工审批-human-in-the-loop">3.3 人工审批 Human-in-the-loop</h2>
+<p>例如 Agent 想执行：</p>
+<pre><code class="language-text">delete_database()
+</code></pre>
+<p>服务端发送：</p>
+<pre><code class="language-text">tool_approval_required
+</code></pre>
+<p>UI 显示：</p>
+<pre><code class="language-text">Agent wants to execute:
+
+DELETE DATABASE
+
+[Allow] [Reject]
+</code></pre>
+<p>用户操作后，再通过 HTTP 或 WebSocket 发送：</p>
+<pre><code class="language-json">{
+  &quot;type&quot;: &quot;tool_approval&quot;,
+  &quot;call_id&quot;: &quot;call_123&quot;,
+  &quot;decision&quot;: &quot;allow&quot;
+}
+</code></pre>
+<p>这类场景比单纯的 Token Streaming 更能体现 WebSocket 的价值。</p>
+<hr>
+<h2 id="34-多-agent-多客户端协作">3.4 多 Agent / 多客户端协作</h2>
+<p>多个用户或 Agent 可以订阅相同的 Agent 状态：</p>
+<pre><code class="language-text">             Agent Workspace
+                    │
+             ┌──────┼──────┐
+             │      │      │
+           User A User B User C
+</code></pre>
+<p>例如所有客户端都看到：</p>
+<pre><code class="language-text">Researcher started
+Coder running
+Reviewer waiting approval
+</code></pre>
+<p>这时 WebSocket 更接近：</p>
+<blockquote>
+<p><strong>实时状态同步 / Collaborative State Synchronization</strong></p>
+</blockquote>
+<hr>
+<h1 id="4-sse-与-websocket-的关系">4. SSE 与 WebSocket 的关系</h1>
+<h2 id="41-sse">4.1 SSE</h2>
+<p>SSE 基于 HTTP：</p>
+<pre><code class="language-text">Client ───── HTTP Request ─────→ Server
+Client ←──── SSE Stream ─────── Server
+</code></pre>
+<p>特点：</p>
+<ul>
+<li>单向：Server → Client</li>
+<li>基于普通 HTTP</li>
+<li>非常适合 Token Streaming</li>
+<li>适合 Agent Progress / Tool Events</li>
+<li>与 Nginx、CDN、HTTP 基础设施结合自然</li>
+<li>原生支持 <code>Last-Event-ID</code> 这一类断线恢复语义</li>
+</ul>
+<hr>
+<h2 id="42-websocket">4.2 WebSocket</h2>
+<pre><code class="language-text">Client ←──────────────→ Server
+</code></pre>
+<p>特点：</p>
+<ul>
+<li>全双工</li>
+<li>客户端可以随时向服务端发消息</li>
+<li>服务端也可以随时推送</li>
+<li>适合实时控制</li>
+<li>适合多人实时协作</li>
+<li>适合交互式 Agent</li>
+</ul>
+<hr>
+<h2 id="43-对比">4.3 对比</h2>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th style="text-align: right;">SSE</th>
+<th style="text-align: right;">WebSocket</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Token Streaming</td>
+<td style="text-align: right;">✅</td>
+<td style="text-align: right;">✅</td>
+</tr>
+<tr>
+<td>Agent Progress</td>
+<td style="text-align: right;">✅</td>
+<td style="text-align: right;">✅</td>
+</tr>
+<tr>
+<td>Tool Events</td>
+<td style="text-align: right;">✅</td>
+<td style="text-align: right;">✅</td>
+</tr>
+<tr>
+<td>单向实时推送</td>
+<td style="text-align: right;">✅</td>
+<td style="text-align: right;">✅</td>
+</tr>
+<tr>
+<td>Cancel</td>
+<td style="text-align: right;">✅ HTTP 配合</td>
+<td style="text-align: right;">✅</td>
+</tr>
+<tr>
+<td>Pause / Resume</td>
+<td style="text-align: right;">✅ HTTP 配合</td>
+<td style="text-align: right;">✅</td>
+</tr>
+<tr>
+<td>Human Approval</td>
+<td style="text-align: right;">✅ HTTP 配合</td>
+<td style="text-align: right;">✅</td>
+</tr>
+<tr>
+<td>双向实时控制</td>
+<td style="text-align: right;">❌</td>
+<td style="text-align: right;">✅</td>
+</tr>
+<tr>
+<td>多人实时协作</td>
+<td style="text-align: right;">⚠️</td>
+<td style="text-align: right;">✅</td>
+</tr>
+<tr>
+<td>实时音频</td>
+<td style="text-align: right;">❌</td>
+<td style="text-align: right;">⚠️</td>
+</tr>
+<tr>
+<td>简单 Agent Chat</td>
+<td style="text-align: right;">✅</td>
+<td style="text-align: right;">✅</td>
+</tr>
+</tbody>
+</table>
+<p>因此：</p>
+<blockquote>
+<p><strong>Agent ≠ WebSocket</strong></p>
+</blockquote>
+<p>更准确地说：</p>
+<blockquote>
+<p><strong>WebSocket 是 Agent 的一种 Realtime Transport。</strong></p>
+</blockquote>
+<hr>
+<h1 id="5-一个常见的折中架构http-sse">5. 一个常见的折中架构：HTTP + SSE</h1>
+<p>很多 Agent 根本不需要 WebSocket。</p>
+<p>可以采用：</p>
+<pre><code class="language-text">                Client
+                  │
+        ┌─────────┴─────────┐
+        │                   │
+    HTTP POST              SSE
+        │                   │
+    Commands           Event Stream
+        │                   │
+        └─────────┬─────────┘
+                  ▼
+             Agent Runtime
+</code></pre>
+<p>例如：</p>
+<h3 id="启动-agent">启动 Agent</h3>
+<pre><code class="language-http">POST /runs
+</code></pre>
+<pre><code class="language-json">{
+  &quot;session_id&quot;: &quot;s123&quot;,
+  &quot;input&quot;: &quot;分析这个项目&quot;
+}
+</code></pre>
+<p>返回：</p>
+<pre><code class="language-json">{
+  &quot;run_id&quot;: &quot;r456&quot;
+}
+</code></pre>
+<h3 id="订阅流">订阅流</h3>
+<pre><code class="language-http">GET /runs/r456/events
+Accept: text/event-stream
+</code></pre>
+<p>返回：</p>
+<pre><code class="language-text">event: run_started
+data: {...}
+
+event: token
+data: {&quot;text&quot;:&quot;首先&quot;}
+
+event: tool_called
+data: {...}
+
+event: tool_result
+data: {...}
+
+event: run_finished
+data: {...}
+</code></pre>
+<h3 id="控制">控制</h3>
+<p>用户要取消：</p>
+<pre><code class="language-http">POST /runs/r456/cancel
+</code></pre>
+<p>这种方案已经可以覆盖大量 Agent 应用。</p>
+<hr>
+<h1 id="6-agent-中真正重要的是-event-protocol">6. Agent 中真正重要的是 Event Protocol</h1>
+<p>WebSocket / SSE 只是传输通道。</p>
+<p>真正需要设计的是：</p>
+<blockquote>
+<p><strong>事件协议（Event Protocol）</strong></p>
+</blockquote>
+<p>一个事件通常至少应考虑：</p>
+<pre><code class="language-json">{
+  &quot;event_id&quot;: &quot;evt102&quot;,
+  &quot;sequence&quot;: 102,
+  &quot;session_id&quot;: &quot;s123&quot;,
+  &quot;run_id&quot;: &quot;run456&quot;,
+  &quot;type&quot;: &quot;tool_result&quot;,
+  &quot;timestamp&quot;: 1791450000,
+  &quot;data&quot;: {}
+}
+</code></pre>
+<p>核心字段：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>event_id</code></td>
+<td>事件唯一 ID</td>
+</tr>
+<tr>
+<td><code>sequence</code></td>
+<td>严格的事件顺序</td>
+</tr>
+<tr>
+<td><code>session_id</code></td>
+<td>长期会话标识</td>
+</tr>
+<tr>
+<td><code>run_id</code></td>
+<td>一次 Agent 执行标识</td>
+</tr>
+<tr>
+<td><code>type</code></td>
+<td>事件类型</td>
+</tr>
+<tr>
+<td><code>timestamp</code></td>
+<td>时间信息</td>
+</tr>
+<tr>
+<td><code>data</code></td>
+<td>事件负载</td>
+</tr>
+<tr>
+<td><code>version</code></td>
+<td>Schema / 协议版本</td>
+</tr>
+</tbody>
+</table>
+<h3 id="为什么需要-sequence">为什么需要 <code>sequence</code>？</h3>
+<p>因为：</p>
+<pre><code class="language-text">event 100
+event 101
+event 102
+</code></pre>
+<p>必须有明确顺序。</p>
+<p><strong>timestamp 不能替代 sequence。</strong></p>
+<hr>
+<h1 id="7-sessionrunevent-三层-id">7. Session、Run、Event 三层 ID</h1>
+<p>建议把三个概念区分：</p>
+<pre><code class="language-text">session_id
+    │
+    ├── run_id #1
+    │      ├── event 1
+    │      ├── event 2
+    │      └── event 3
+    │
+    └── run_id #2
+           ├── event 4
+           └── event 5
+</code></pre>
+<h3 id="session">Session</h3>
+<p>一次长期对话：</p>
+<pre><code class="language-text">session_id = s123
+</code></pre>
+<h3 id="run">Run</h3>
+<p>用户发起一次任务后产生的一次 Agent execution：</p>
+<pre><code class="language-text">run_id = r456
+</code></pre>
+<h3 id="event">Event</h3>
+<p>Run 执行过程中产生的单个状态 / 内容 / 工具事件：</p>
+<pre><code class="language-text">event_id = evt102
+</code></pre>
+<p>这个层次划分对于断线恢复、多次执行、日志追踪都很重要。</p>
+<hr>
+<h1 id="8-agent-state-machine">8. Agent State Machine</h1>
+<p>Agent 不应该理解成：</p>
+<pre><code class="language-text">Request → Response
+</code></pre>
+<p>而应该理解成一个状态机。</p>
+<p>例如：</p>
+<pre><code class="language-text">                    ┌───────────┐
+                    │   IDLE    │
+                    └─────┬─────┘
+                          │
+                    user_message
+                          ▼
+                    ┌───────────┐
+                    │  RUNNING  │
+                    └─────┬─────┘
+                          │
+             ┌────────────┼────────────┐
+             ▼            ▼            ▼
+        LLM_STREAM    TOOL_CALL    WAITING
+             │            │            │
+             │            ▼            │
+             │       TOOL_RESULT       │
+             │            │            │
+             └──────┬─────┴────────────┘
+                    ▼
+               COMPLETED
+</code></pre>
+<p>此外还可能存在：</p>
+<pre><code class="language-text">RUNNING
+├── WAITING_USER
+├── WAITING_APPROVAL
+├── PAUSING
+├── PAUSED
+├── CANCELLING
+├── CANCELLED
+├── FAILED
+└── COMPLETED
+</code></pre>
+<p>所以 WebSocket / SSE 发出去的并不只是“文字”，而是：</p>
+<blockquote>
+<p><strong>Agent 状态机变化产生的事件。</strong></p>
+</blockquote>
+<hr>
+<h1 id="9-事件应该分层">9. 事件应该分层</h1>
+<p>不要把 Agent 所有输出都当成 Token。</p>
+<p>推荐至少分为：</p>
+<pre><code class="language-text">Realtime Events
+│
+├── Content Events
+│   ├── message_start
+│   ├── message_delta
+│   └── message_end
+│
+├── Tool Events
+│   ├── tool_called
+│   ├── tool_result
+│   └── tool_error
+│
+├── Lifecycle Events
+│   ├── run_started
+│   ├── run_finished
+│   ├── run_failed
+│   └── run_cancelled
+│
+├── Control Events
+│   ├── approval_required
+│   ├── pause
+│   ├── resume
+│   └── interrupt
+│
+└── Progress Events
+    ├── retrieval_started
+    ├── subagent_started
+    └── step_completed
+</code></pre>
+<p>这样前端就可以按事件类型进行不同渲染。</p>
+<hr>
+<h1 id="10-agent-流式输出不应简单等于暴露思考过程">10. Agent 流式输出不应简单等于“暴露思考过程”</h1>
+<p>Agent UI 可以展示：</p>
+<pre><code class="language-text">Searching...
+Calling tool...
+Retrieving documents...
+Running sub-agent...
+Generating answer...
+</code></pre>
+<p>但并不意味着应该把模型的隐藏推理 / Chain-of-Thought 原样发送给前端。</p>
+<p>更合理的是暴露：</p>
+<pre><code class="language-text">status
+progress
+tool activity
+retrieval activity
+assistant content
+</code></pre>
+<p>也就是<strong>可观察的执行状态</strong>，而不是内部隐藏推理。</p>
+<hr>
+<h1 id="11-断线恢复connection-run">11. 断线恢复：Connection ≠ Run</h1>
+<p>一个很重要的设计原则：</p>
+<blockquote>
+<p><strong>WebSocket / SSE 连接断开，不应该天然意味着 Agent Run 停止。</strong></p>
+</blockquote>
+<p>例如：</p>
+<pre><code class="language-text">Browser
+   │
+   │ WebSocket / SSE
+   X 断线
+   │
+   │
+Agent Runtime
+   ├── still running
+   ├── tool executing
+   └── eventually completed
+</code></pre>
+<p>因此应该分开：</p>
+<pre><code class="language-text">Connection
+Session
+Run
+</code></pre>
+<p>连接只是临时通信关系。</p>
+<p>Run 才是真正的执行任务。</p>
+<hr>
+<h1 id="12-event-id-replay">12. Event ID + Replay</h1>
+<p>假设客户端最后收到：</p>
+<pre><code class="language-text">event 105
+</code></pre>
+<p>然后断线。</p>
+<p>重新连接时：</p>
+<pre><code class="language-json">{
+  &quot;type&quot;: &quot;resume&quot;,
+  &quot;run_id&quot;: &quot;run123&quot;,
+  &quot;last_event_id&quot;: 105
+}
+</code></pre>
+<p>服务端补发：</p>
+<pre><code class="language-text">106
+107
+108
+109
+110
+</code></pre>
+<p>因此完整的断线恢复需要：</p>
+<pre><code class="language-text">Event ID
++
+Sequence
++
+Event Store
++
+Replay
+</code></pre>
+<h3 id="sse-的优势">SSE 的优势</h3>
+<p>SSE 天生有类似：</p>
+<pre><code class="language-http">Last-Event-ID: 105
+</code></pre>
+<p>的机制。</p>
+<p>但：</p>
+<blockquote>
+<p><strong>浏览器自动重连 ≠ Agent 状态恢复</strong></p>
+</blockquote>
+<p>自动重连只能解决“再次建立连接”，不能保证中间事件不丢。</p>
+<hr>
+<h1 id="13-为什么需要-event-store">13. 为什么需要 Event Store？</h1>
+<p>不要把 WebSocket 当成唯一的数据源：</p>
+<pre><code class="language-text">Agent
+  ↓
+WebSocket
+  ↓
+Browser
+</code></pre>
+<p>更可靠的架构是：</p>
+<pre><code class="language-text">             Agent Runtime
+                    │
+                    ▼
+              Event Store
+                    │
+            ┌───────┼────────┐
+            ▼       ▼        ▼
+        WebSocket   SSE     Other Consumers
+            │       │
+            ▼       ▼
+         Browser   Browser
+</code></pre>
+<p>Event Store / Event Stream 可以采用：</p>
+<pre><code class="language-text">PostgreSQL
+Redis Streams
+Kafka
+NATS
+</code></pre>
+<p>等方案，具体选择取决于可靠性、吞吐量、持久化和消费模型。</p>
+<p>核心思想：</p>
+<blockquote>
+<p><strong>WebSocket / SSE 是实时投递渠道，Event Store 才是恢复和重放的依据。</strong></p>
+</blockquote>
+<hr>
+<h1 id="14-idempotency防止断线重试导致重复执行">14. Idempotency：防止断线重试导致重复执行</h1>
+<p>一个典型问题：</p>
+<pre><code class="language-text">Client
+  │
+  │ create_order()
+  ▼
+Server
+  │
+  │ 已经执行成功
+  X 网络断开
+</code></pre>
+<p>客户端不知道是否成功，于是再次发送：</p>
+<pre><code class="language-text">create_order()
+</code></pre>
+<p>结果可能创建两个订单。</p>
+<p>因此 Tool Calling / Command 层需要：</p>
+<pre><code class="language-text">call_id
+request_id
+idempotency_key
+</code></pre>
+<p>例如：</p>
+<pre><code class="language-json">{
+  &quot;call_id&quot;: &quot;call_123&quot;,
+  &quot;tool&quot;: &quot;create_order&quot;,
+  &quot;idempotency_key&quot;: &quot;order-request-789&quot;
+}
+</code></pre>
+<p>服务端保证相同的幂等键不会重复执行危险操作。</p>
+<hr>
+<h1 id="15-backpressure生产速度和消费速度不一致">15. Backpressure：生产速度和消费速度不一致</h1>
+<p>例如：</p>
+<pre><code class="language-text">Agent
+1000 events/s
+      │
+      ▼
+Network
+      │
+      ▼
+Browser
+100 events/s
+</code></pre>
+<p>就会出现：</p>
+<pre><code class="language-text">Buffer
+████████████████████
+</code></pre>
+<p>因此必须考虑：</p>
+<pre><code class="language-text">buffer
+queue
+batching
+flow control
+backpressure
+</code></pre>
+<p>例如 Token Streaming 可以合并多个 delta：</p>
+<pre><code class="language-text">token
+token
+token
+token
+</code></pre>
+<p>变成：</p>
+<pre><code class="language-text">message_delta:
+&quot;Hello, this is...&quot;
+</code></pre>
+<p>没必要每个 token 都单独产生一个网络消息。</p>
+<hr>
+<h1 id="16-代理缓冲是-sse-streaming-的生产环境常见坑">16. 代理缓冲是 SSE / Streaming 的生产环境常见坑</h1>
+<p>典型链路：</p>
+<pre><code class="language-text">Agent
+  ↓
+Nginx / CDN / Proxy
+  ↓
+Browser
+</code></pre>
+<p>Agent 端明明：</p>
+<pre><code class="language-text">token
+token
+token
+token
+</code></pre>
+<p>如果反向代理进行了 buffering：</p>
+<pre><code class="language-text">token ┐
+token ├── buffer
+token ┤
+token ┘
+  ↓
+一次性发送
+</code></pre>
+<p>最终用户看到的就不是实时输出。</p>
+<p>因此生产环境必须检查：</p>
+<pre><code class="language-text">proxy buffering
+response streaming
+timeouts
+idle timeouts
+CDN behavior
+load balancer behavior
+</code></pre>
+<hr>
+<h1 id="17-heartbeat-keepalive">17. Heartbeat / Keepalive</h1>
+<p>长时间 Agent Run 可能几十分钟甚至更长。</p>
+<p>中间设备：</p>
+<pre><code class="language-text">Nginx
+Cloudflare
+Load Balancer
+NAT
+Firewall
+</code></pre>
+<p>可能因为长时间没有数据而主动断开连接。</p>
+<p>因此需要：</p>
+<pre><code class="language-text">heartbeat
+keepalive
+ping/pong
+SSE comment event
+</code></pre>
+<p>注意：</p>
+<blockquote>
+<p>心跳解决的是“连接存活”，不解决“事件可靠性”。</p>
+</blockquote>
+<p>可靠性仍然需要 Event ID + Replay。</p>
+<hr>
+<h1 id="18-tool-call-的流式-json-处理">18. Tool Call 的流式 JSON 处理</h1>
+<p>这与 Agent 中 JSON / JSON Schema 的问题直接相关。</p>
+<p>LLM 可能逐步生成：</p>
+<pre><code class="language-text">{
+  &quot;tool&quot;:
+  &quot;search&quot;,
+  &quot;query&quot;:
+  &quot;...&quot;
+}
+</code></pre>
+<p>在生成过程中，数据可能只是：</p>
+<pre><code class="language-text">{&quot;tool&quot;:&quot;sea
+</code></pre>
+<p>因此不能在任意 delta 到达时立即执行：</p>
+<pre><code class="language-python">json.loads(...)
+</code></pre>
+<p>更合理的是：</p>
+<pre><code class="language-text">LLM Delta
+    ↓
+Accumulator
+    ↓
+Content Block Complete
+    ↓
+检查 stop_reason
+    ↓
+Schema / JSON Validation
+    ↓
+JSON Parse
+    ↓
+Tool Execution
+</code></pre>
+<p>特别要检查：</p>
+<pre><code class="language-text">stop_reason
+</code></pre>
+<p>例如如果因为 <code>max_tokens</code> 截断：</p>
+<pre><code class="language-text">{
+  &quot;tool&quot;: &quot;search&quot;,
+  &quot;query&quot;: &quot;xxx
+</code></pre>
+<p>即使看起来“快结束了”，也不能直接当成完整 Tool Call。</p>
+<p>因此：</p>
+<blockquote>
+<p><strong>流式 JSON 的完整性边界与 Agent Tool Calling 强相关。</strong></p>
+</blockquote>
+<hr>
+<h1 id="19-http-sse-websocket-webrtc-message-bus-的职责划分">19. HTTP / SSE / WebSocket / WebRTC / Message Bus 的职责划分</h1>
+<p>可以形成一个更完整的通信地图：</p>
+<pre><code class="language-text">┌──────────────────────────────────────────────┐
+│                 Agent System                 │
+├──────────────────────────────────────────────┤
+│ User Commands                                │
+│ → HTTP POST                                  │
+├──────────────────────────────────────────────┤
+│ Server → Client Streaming                    │
+│ → SSE / WebSocket                            │
+├──────────────────────────────────────────────┤
+│ Interactive Bidirectional Control             │
+│ → WebSocket / HTTP                           │
+├──────────────────────────────────────────────┤
+│ Realtime Audio                               │
+│ → WebRTC                                     │
+├──────────────────────────────────────────────┤
+│ Agent ↔ Agent / Internal Async Work           │
+│ → Redis / Kafka / NATS 等                     │
+├──────────────────────────────────────────────┤
+│ Reliable Replay / Durable State               │
+│ → Event Store / Database / Stream             │
+└──────────────────────────────────────────────┘
+</code></pre>
+<p>核心原则：</p>
+<blockquote>
+<p><strong>不要因为一个数据“实时”，就默认选择 WebSocket。</strong></p>
+</blockquote>
+<p>应该先判断：</p>
+<ol>
+<li>数据流向：单向还是双向？</li>
+<li>延迟要求：普通实时还是极低延迟？</li>
+<li>是否需要持续订阅？</li>
+<li>是否需要客户端随时控制 Agent？</li>
+<li>是否需要多人共享状态？</li>
+<li>是否需要断线重放？</li>
+<li>是否需要可靠投递和幂等执行？</li>
+</ol>
+<hr>
+<h1 id="20-从-agent-harness-角度重新理解整套系统">20. 从 Agent Harness 角度重新理解整套系统</h1>
+<p>这是理解这套技术最重要的视角。</p>
+<pre><code class="language-text">┌───────────────────────────────────────┐
+│ 6. UI / Client                        │
+│ Chat / Progress / Tool UI             │
+├───────────────────────────────────────┤
+│ 5. Transport Layer                    │
+│ HTTP / SSE / WebSocket / WebRTC       │
+├───────────────────────────────────────┤
+│ 4. Event Protocol                     │
+│ event_id / sequence / schema          │
+├───────────────────────────────────────┤
+│ 3. Agent State Machine                │
+│ running / waiting / paused / done     │
+├───────────────────────────────────────┤
+│ 2. Agent Loop                         │
+│ LLM → Tool → Result → LLM             │
+├───────────────────────────────────────┤
+│ 1. Execution Layer                    │
+│ subprocess / sandbox / network        │
+└───────────────────────────────────────┘
+</code></pre>
+<p>这里最容易产生的错误理解是：</p>
+<pre><code class="language-text">WebSocket
+    ↓
+直接连接 LLM
+</code></pre>
+<p>实际更接近：</p>
+<pre><code class="language-text">WebSocket / SSE
+        ↓
+Realtime Gateway
+        ↓
+Event Protocol
+        ↓
+Agent Runtime
+        ↓
+Agent Loop
+        ↓
+LLM / Tools / Memory / RAG / Sub-agent
+</code></pre>
+<hr>
+<h1 id="21-agent-realtime-system-的完整生命周期">21. Agent Realtime System 的完整生命周期</h1>
+<pre><code class="language-text">① Connect
+      │
+      ▼
+② Authenticate
+      │
+      ▼
+③ Bind Session
+      │
+      ▼
+④ User Message
+      │
+      ▼
+⑤ Create Run
+      │
+      ▼
+⑥ Agent Loop
+      │
+      ├── LLM streaming
+      ├── Tool call
+      ├── Tool result
+      ├── RAG
+      ├── Sub-agent
+      └── State update
+      │
+      ▼
+⑦ Event Store
+      │
+      ▼
+⑧ SSE / WebSocket Push
+      │
+      ▼
+⑨ Frontend Render
+      │
+      ├── cancel
+      ├── pause
+      ├── resume
+      └── approval
+      │
+      ▼
+⑩ Completed / Failed / Cancelled
+</code></pre>
+<hr>
+<h1 id="22-生产环境需要重点考虑什么">22. 生产环境需要重点考虑什么？</h1>
+<p>可以归纳成 8 个关键问题：</p>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>核心机制</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>实时输出</td>
+<td>SSE / WebSocket</td>
+</tr>
+<tr>
+<td>双向控制</td>
+<td>WebSocket / HTTP</td>
+</tr>
+<tr>
+<td>事件顺序</td>
+<td><code>sequence</code></td>
+</tr>
+<tr>
+<td>断线恢复</td>
+<td>Event ID + Replay</td>
+</tr>
+<tr>
+<td>数据可靠性</td>
+<td>Event Store</td>
+</tr>
+<tr>
+<td>重复执行</td>
+<td>Idempotency Key</td>
+</tr>
+<tr>
+<td>长连接稳定性</td>
+<td>Heartbeat / Keepalive</td>
+</tr>
+<tr>
+<td>高速输出</td>
+<td>Backpressure / Buffering</td>
+</tr>
+</tbody>
+</table>
+<p>再加上 Agent 特有的：</p>
+<pre><code class="language-text">Cancellation Propagation
+Human-in-the-loop
+Tool Call Validation
+State Machine
+Sub-agent lifecycle
+</code></pre>
+<hr>
+<h1 id="23-最终心智模型">23. 最终心智模型</h1>
+<p>把整套知识压缩成下面这张图：</p>
+<pre><code class="language-text">                         Agent Realtime System
+                                  │
+             ┌────────────────────┼────────────────────┐
+             │                    │                    │
+         Commands             Streaming             Control
+             │                    │                    │
+         HTTP POST              SSE               WebSocket
+             │                    │                    │
+       start / input       token / progress     cancel / pause
+       action / cancel     tool / lifecycle     resume / approval
+                                  │
+                                  ▼
+                         ┌─────────────────┐
+                         │ Event Protocol  │
+                         └────────┬────────┘
+                                  │
+            ┌─────────────────────┼─────────────────────┐
+            │                     │                     │
+         ordering              replay               idempotency
+        sequence / ID       Last-Event-ID          call_id / key
+            │                     │                     │
+            └─────────────────────┼─────────────────────┘
+                                  │
+                         ┌────────▼────────┐
+                         │ Agent State     │
+                         │ Machine         │
+                         └────────┬────────┘
+                                  │
+                         ┌────────▼────────┐
+                         │ Agent Runtime   │
+                         └────────┬────────┘
+                                  │
+                    ┌─────────────┼──────────────┐
+                    │             │              │
+                   LLM          Tools       Memory / RAG
+                    │
+                    ▼
+                Agent Loop
+</code></pre>
+<hr>
+<h1 id="24-一句话总结">24. 一句话总结</h1>
+<blockquote>
+<p><strong>WebSocket 负责“实时双向连通”；SSE 负责“简单可靠的服务端流式输出”；HTTP 负责“离散命令”；Event Protocol 负责“消息怎么表达”；State Machine 负责“Agent 现在处于什么状态”；Event Store 负责“断线后能否恢复”；Agent Runtime 才负责“任务真正怎么执行”。</strong></p>
+</blockquote>
+<p>因此研究 Agent 的 realtime architecture 时，真正应该关注的不是：</p>
+<pre><code class="language-text">WebSocket API 怎么调用？
+</code></pre>
+<p>而是：</p>
+<pre><code class="language-text">Transport
+   ↓
+Event Protocol
+   ↓
+State Machine
+   ↓
+Agent Loop
+   ↓
+Execution
+   ↓
+Persistence / Replay
+   ↓
+Recovery
+</code></pre>
+<p>这套模型也可以直接迁移到 <strong>Pi、Claude Code、Codex、LangGraph、FastAPI Agent Backend</strong> 等不同实现中；具体使用 SSE、WebSocket 还是其他传输方式，只是最上层 Transport Layer 的不同。</p>
+        </div>
+
+        <footer class="post-foot">
+          <div class="tags"><span class="chip chip-accent">知识领域</span><span class="chip">- Agent</span></div>
+          <a class="t-meta" href="https://github.com/NorthAdb/north-my-note/blob/main/%E9%A2%86%E5%9F%9F/web/agent-realtime-communication-sse-websocket.md" target="_blank" rel="noopener">在 GitHub 查看原文 ↗</a>
+        </footer>
+      </article>
+    </div>
+
+    <aside>
+      <nav class="toc" aria-label="目录">
+        <div class="toc-title">On this page</div>
+        <div class="toc-build"></div>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="wrap"><nav class="post-nav"><a class="prev" href="../../../notes/domains/web/json-rpc-obsidian.html"><span class="dir">← 上一篇</span><span class="t">JSON-RPC 是什么</span></a><a class="next" href="../../../notes/domains/p0d98c7/pythonvstypescriptai.html"><span class="dir">下一篇 →</span><span class="t">Python vs TypeScript：AI 时代的编程语言之争</span></a></nav></div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="f-brand">
+      <span class="brand-mark">N</span>
+      <span>NorthAdb</span>
+    </div>
+    <nav class="f-links" aria-label="页脚导航">
+      <a href="../../../index.html">首页</a>
+      <a href="../../../learn.html">课件</a>
+      <a href="../../../notes/index.html">笔记库</a>
+      <a href="../../../ai-engineer/index.html">面试宝典</a>
+      <a href="../../../about.html">关于</a>
+      <a href="../../../feed.xml">RSS</a>
+      <a href="https://github.com/NorthAdb" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="f-note">© <span data-year>2025</span> NorthAdb · 理解并构建现代 AI 系统</p>
+  </div>
+</footer>
+
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="cmdk">
+    <input class="cmdk-input" type="text" placeholder="搜索文章、课件与页面…" autocomplete="off" spellcheck="false">
+    <ul class="cmdk-list"></ul>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> 选择</span>
+      <span><span class="kbd">↵</span> 打开</span>
+      <span><span class="kbd">esc</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="回到顶部">↑</button>
+
+<script src="../../../js/main.js" defer></script>
+</body>
+</html>
